@@ -1,5 +1,5 @@
 {
-  "name": "hongbaek-site",
+  "name": "h-log",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "test": "node --no-warnings --test --experimental-strip-types lib/**/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

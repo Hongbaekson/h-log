@@ -1,4 +1,4 @@
-# Hongbaek Site Instructions
+# H-Log Site Instructions
 
 이 앱은 손홍백 개인 사이트입니다. 포트폴리오만이 아니라 Resume, Portfolio, Blog, Contact를 포함하는 개인 브랜딩 사이트로 개발합니다.
 
@@ -55,7 +55,7 @@
 ## Expected Structure
 
 ```text
-apps/hongbaek-site/
+apps/h-log/
   app/
   components/
   content/
