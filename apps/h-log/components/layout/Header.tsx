@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowUpRight, Braces, Mail } from "lucide-react";
+import { Braces, Mail } from "lucide-react";
 
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { siteConfig } from "@/lib/site";
 
 export function Header() {
@@ -14,7 +15,7 @@ export function Header() {
           <span className="grid h-8 w-8 place-items-center rounded-xl border border-cyan-300/25 bg-cyan-300/10 text-cyan-100">
             <Braces aria-hidden="true" size={17} strokeWidth={2} />
           </span>
-          <span className="truncate tracking-[0.16em] uppercase">Hongbaek</span>
+          <span className="truncate tracking-[0.16em]">h-log</span>
         </Link>
         <nav aria-label="Primary navigation" className="hidden items-center gap-1 md:flex">
           {siteConfig.navItems.map((item) => (
@@ -34,13 +35,7 @@ export function Header() {
         >
           <Mail aria-hidden="true" size={15} strokeWidth={2} />
         </Link>
-        <Link
-          className="hidden h-9 items-center justify-center gap-2 rounded-xl border border-blue-300/25 bg-blue-400/10 px-3 text-xs font-semibold text-blue-100 transition-colors hover:border-cyan-300/50 hover:bg-blue-400/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 md:inline-flex"
-          href="/projects"
-        >
-          Portfolio
-          <ArrowUpRight aria-hidden="true" size={14} strokeWidth={2} />
-        </Link>
+        <ThemeToggle />
       </div>
     </header>
   );

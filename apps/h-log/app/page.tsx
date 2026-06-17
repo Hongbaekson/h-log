@@ -34,9 +34,30 @@ function getCareerYear(now = new Date()) {
 const focusItems = [
   { label: "실무 경력", tone: "blue" as const, value: `${getCareerYear()}년차` },
   { label: "문제 해결 중심 Portfolio", tone: "cyan" as const, value: "8+" },
-  { label: "백엔드와 인프라 연결", tone: "mint" as const, value: "Infra" },
-  { label: "자동화 워크플로우", tone: "violet" as const, value: "AI" },
 ];
+
+const rotatingFocusItems = [
+  {
+    description: "Java/Spring 기반 API 설계",
+    tone: "blue",
+    value: "Backend",
+  },
+  {
+    description: "배포 자동화와 운영 개선",
+    tone: "cyan",
+    value: "DevOps",
+  },
+  {
+    description: "Docker · K8s · CI/CD 연결",
+    tone: "mint",
+    value: "Infra",
+  },
+  {
+    description: "반복 업무 자동화 워크플로우",
+    tone: "violet",
+    value: "AI",
+  },
+] as const;
 
 const statusItems = [
   {
@@ -160,6 +181,27 @@ function TechnicalSkillsRadar() {
   );
 }
 
+function RotatingFocusMetric() {
+  return (
+    <div className="metric-card metric-rotating-card min-h-28 rounded-2xl border border-slate-700/70 bg-slate-950/35 p-5">
+      <dt className="sr-only">기술 역할</dt>
+      <dd className="sr-only">Backend, DevOps, Infra, AI 역량을 연결합니다.</dd>
+      <div aria-hidden="true" className="metric-rotator">
+        {rotatingFocusItems.map((item) => (
+          <div className="metric-rotator-item" key={item.value}>
+            <p
+              className={`metric-value text-2xl font-bold tracking-tight metric-value-${item.tone}`}
+            >
+              {item.value}
+            </p>
+            <p className="mt-2 text-xs leading-5 text-slate-400">{item.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const projectPreviews = [
   {
     category: "Automation",
@@ -174,7 +216,7 @@ const projectPreviews = [
   {
     category: "Infra",
     description: "OCI, Docker, Nginx를 활용한 개인 서비스 배포와 운영 기반",
-    title: "Portfolio Deployment",
+    title: "Deployment",
   },
 ];
 
@@ -185,8 +227,9 @@ export default function HomePage() {
         <Container className="grid min-h-[calc(100vh-18rem)] items-center gap-10 md:grid-cols-[1.08fr_0.92fr]">
           <div>
             <Badge className="hero-reveal hero-reveal-1" tone="cyan">
-              <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_18px_rgb(52_211_153_/_0.85)]" />
-              좋은 기회에 열려있습니다
+              <Terminal aria-hidden="true" size={14} strokeWidth={2} />
+              <span className="font-mono uppercase tracking-[0.18em]">profile.online</span>
+              <span className="hero-signal-cursor" aria-hidden="true" />
             </Badge>
 
             <h1 className="hero-heading hero-reveal hero-reveal-2 mt-6 max-w-3xl text-4xl leading-[1.1] tracking-normal text-white md:text-6xl">
@@ -277,10 +320,11 @@ export default function HomePage() {
 
       <section className="pb-20">
         <Container>
-          <dl className="metric-grid grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <dl className="metric-grid grid gap-3 sm:grid-cols-3">
             {focusItems.map((item) => (
               <Metric key={item.label} label={item.label} tone={item.tone} value={item.value} />
             ))}
+            <RotatingFocusMetric />
           </dl>
         </Container>
       </section>

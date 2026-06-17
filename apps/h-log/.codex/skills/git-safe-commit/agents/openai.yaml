@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git Safe Commit"
+  short_description: "Pull first and commit safely"
+  default_prompt: "Use $git-safe-commit to prepare a safe Conventional Commit."

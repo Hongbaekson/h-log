@@ -15,7 +15,7 @@ type MetricProps = {
 
 export function Metric({ label, tone = "blue", value }: MetricProps) {
   return (
-    <div className="metric-card min-h-24 rounded-2xl border border-slate-700/70 bg-slate-950/35 p-4">
+    <div className="metric-card min-h-28 rounded-2xl border border-slate-700/70 bg-slate-950/35 p-5">
       <dt className={`metric-value text-2xl font-bold tracking-tight ${valueToneClasses[tone]}`}>
         {value}
       </dt>
