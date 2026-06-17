@@ -1,0 +1,380 @@
+import Link from "next/link";
+import {
+  ArrowRight,
+  BadgeCheck,
+  Briefcase,
+  CheckCircle2,
+  Code2,
+  Cpu,
+  Database,
+  FileText,
+  FolderOpen,
+  Mail,
+  Server,
+  Sparkles,
+  Terminal,
+} from "lucide-react";
+
+import { Badge, ButtonLink, Card, Container, Metric } from "@/components/ui";
+
+const careerStart = {
+  year: 2021,
+  month: 7,
+} as const;
+
+function getCareerYear(now = new Date()) {
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  const hasReachedAnniversaryMonth = currentMonth >= careerStart.month;
+  const completedYears = currentYear - careerStart.year - (hasReachedAnniversaryMonth ? 0 : 1);
+
+  return Math.max(completedYears + 1, 1);
+}
+
+const focusItems = [
+  { label: "실무 경력", tone: "blue" as const, value: `${getCareerYear()}년차` },
+  { label: "문제 해결 중심 Portfolio", tone: "cyan" as const, value: "8+" },
+  { label: "백엔드와 인프라 연결", tone: "mint" as const, value: "Infra" },
+  { label: "자동화 워크플로우", tone: "violet" as const, value: "AI" },
+];
+
+const statusItems = [
+  {
+    icon: Cpu,
+    label: "Runtime",
+    value: "Java · Spring",
+  },
+  {
+    icon: Code2,
+    label: "Focus",
+    value: "API 설계 · 운영 개선",
+  },
+  {
+    icon: Server,
+    label: "Infra",
+    value: "Docker · K8s · CI/CD",
+  },
+  {
+    icon: CheckCircle2,
+    label: "Status",
+    value: "Available",
+  },
+];
+
+const strengthItems = [
+  {
+    description: "도메인 규칙과 운영 흐름을 분리해 변경에 견디는 백엔드를 만듭니다.",
+    icon: Code2,
+    title: "Backend Architecture",
+  },
+  {
+    description: "반복 작업을 자동화하고 알림, 요약, 검증 흐름으로 연결합니다.",
+    icon: Sparkles,
+    title: "AI Workflow",
+  },
+  {
+    description: "배포, 관측성, 장애 대응까지 고려해 운영 가능한 구조를 선호합니다.",
+    icon: Database,
+    title: "Reliable Systems",
+  },
+];
+
+const radarCenter = { x: 180, y: 160 };
+
+const radarAxes = [
+  { anchor: "middle", label: "Backend", labelX: 180, labelY: 26, value: 0.9, x: 180, y: 44 },
+  { anchor: "start", label: "Database", labelX: 314, labelY: 96, value: 0.82, x: 280, y: 102 },
+  { anchor: "start", label: "DevOps", labelX: 314, labelY: 232, value: 0.78, x: 280, y: 218 },
+  { anchor: "middle", label: "Frontend", labelX: 180, labelY: 306, value: 0.56, x: 180, y: 276 },
+  { anchor: "end", label: "Infra", labelX: 46, labelY: 232, value: 0.76, x: 80, y: 218 },
+  { anchor: "end", label: "Monitoring", labelX: 46, labelY: 96, value: 0.64, x: 80, y: 102 },
+] as const;
+
+const radarLevels = [1, 0.75, 0.5, 0.25] as const;
+
+function radarPoint(axis: (typeof radarAxes)[number], scale: number) {
+  const x = radarCenter.x + (axis.x - radarCenter.x) * scale;
+  const y = radarCenter.y + (axis.y - radarCenter.y) * scale;
+
+  return `${x},${y}`;
+}
+
+function TechnicalSkillsRadar() {
+  const skillPolygon = radarAxes.map((axis) => radarPoint(axis, axis.value)).join(" ");
+
+  return (
+    <svg
+      aria-labelledby="technical-skills-title"
+      className="mx-auto h-44 w-full max-w-sm"
+      role="img"
+      viewBox="0 0 360 320"
+    >
+      <title id="technical-skills-title">Technical skills radar chart</title>
+      {radarLevels.map((level) => (
+        <polygon
+          className="radar-grid fill-transparent stroke-slate-700/80"
+          key={level}
+          points={radarAxes.map((axis) => radarPoint(axis, level)).join(" ")}
+          strokeWidth="1"
+        />
+      ))}
+      <polygon
+        className="radar-skill-pulse fill-cyan-300/10 stroke-cyan-300/30"
+        points={skillPolygon}
+        strokeLinejoin="round"
+        strokeWidth="2"
+      />
+      <g className="radar-skill-layer">
+        <polygon
+          className="radar-skill-shape fill-blue-500/20 stroke-blue-400"
+          points={skillPolygon}
+          strokeLinejoin="round"
+          strokeWidth="2"
+        />
+        {radarAxes.map((axis) => {
+          const [x, y] = radarPoint(axis, axis.value).split(",");
+
+          return (
+            <circle
+              className="radar-skill-point fill-blue-300"
+              cx={x}
+              cy={y}
+              key={`${axis.label}-point`}
+              r="3"
+            />
+          );
+        })}
+      </g>
+      {radarAxes.map((axis) => (
+        <text
+          className="radar-label fill-slate-400 text-xs font-semibold"
+          key={`${axis.label}-label`}
+          textAnchor={axis.anchor}
+          x={axis.labelX}
+          y={axis.labelY}
+        >
+          {axis.label}
+        </text>
+      ))}
+    </svg>
+  );
+}
+
+const projectPreviews = [
+  {
+    category: "Automation",
+    description: "반복되는 개발/운영 작업을 에이전트 흐름으로 정리하는 자동화 설계",
+    title: "AI Workflow Console",
+  },
+  {
+    category: "Backend",
+    description: "Java/Spring 기반 API와 데이터 흐름을 안정적으로 다듬는 백엔드 작업",
+    title: "Domain Service Refactor",
+  },
+  {
+    category: "Infra",
+    description: "OCI, Docker, Nginx를 활용한 개인 서비스 배포와 운영 기반",
+    title: "Portfolio Deployment",
+  },
+];
+
+export default function HomePage() {
+  return (
+    <>
+      <section className="py-12 md:py-16">
+        <Container className="grid min-h-[calc(100vh-18rem)] items-center gap-10 md:grid-cols-[1.08fr_0.92fr]">
+          <div>
+            <Badge className="hero-reveal hero-reveal-1" tone="cyan">
+              <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_18px_rgb(52_211_153_/_0.85)]" />
+              좋은 기회에 열려있습니다
+            </Badge>
+
+            <h1 className="hero-heading hero-reveal hero-reveal-2 mt-6 max-w-3xl text-4xl leading-[1.1] tracking-normal text-white md:text-6xl">
+              백엔드 개발자
+              <br />
+              <span className="hero-name-gradient">손홍백</span>입니다
+            </h1>
+
+            <p className="hero-reveal hero-reveal-3 mt-6 max-w-[34ch] text-base leading-8 text-slate-300 sm:max-w-2xl md:text-lg">
+              Java/Spring 기반 백엔드를 개발합니다. 반복되는 작업은 줄이고, 운영하기 쉬운
+              구조를 고민합니다.
+            </p>
+
+            <div className="hero-reveal hero-reveal-4 mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <ButtonLink href="/projects">
+                <FolderOpen aria-hidden="true" size={18} strokeWidth={2} />
+                Portfolio
+              </ButtonLink>
+              <ButtonLink href="/resume" variant="secondary">
+                <FileText aria-hidden="true" size={18} strokeWidth={2} />
+                이력서 보기
+              </ButtonLink>
+              <ButtonLink href="/contact" variant="ghost">
+                <Mail aria-hidden="true" size={18} strokeWidth={2} />
+                Contact
+              </ButtonLink>
+            </div>
+
+            <div className="hero-reveal hero-reveal-5 mt-8 flex flex-wrap gap-2">
+              {["Java/Spring", "Backend API", "AI Workflow", "Docker/K8s"].map((item) => (
+                <Badge key={item} tone="slate">
+                  {item}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <Card className="hero-status-card relative overflow-hidden p-5 md:justify-self-end">
+            <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-cyan-300/10 blur-3xl" />
+            <div className="relative">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="font-mono text-xs uppercase tracking-[0.2em] text-cyan-200">
+                    Automation Status
+                  </p>
+                  <h2 className="card-heading mt-3 text-2xl text-white">
+                    Practical Backend System
+                  </h2>
+                </div>
+                <div className="hidden h-11 w-11 shrink-0 place-items-center rounded-2xl border border-cyan-300/25 bg-cyan-300/10 text-cyan-100 sm:grid">
+                  <Terminal aria-hidden="true" size={21} strokeWidth={2} />
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-3">
+                {statusItems.map((item) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <div
+                      className="grid grid-cols-[2.5rem_1fr] items-center gap-3 rounded-2xl border border-slate-700/70 bg-slate-950/35 p-3"
+                      key={item.label}
+                    >
+                      <div className="grid h-10 w-10 place-items-center rounded-xl bg-slate-800 text-cyan-100">
+                        <Icon aria-hidden="true" size={18} strokeWidth={2} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs text-slate-500">{item.label}</p>
+                        <p className="truncate text-sm font-semibold text-slate-100">{item.value}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="mt-6 rounded-2xl border border-slate-700/70 bg-[#080d18]/70 p-4">
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <p className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-cyan-200">
+                    Technical Skills
+                  </p>
+                </div>
+                <TechnicalSkillsRadar />
+              </div>
+            </div>
+          </Card>
+        </Container>
+      </section>
+
+      <section className="pb-20">
+        <Container>
+          <dl className="metric-grid grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {focusItems.map((item) => (
+              <Metric key={item.label} label={item.label} tone={item.tone} value={item.value} />
+            ))}
+          </dl>
+        </Container>
+      </section>
+
+      <section className="pb-20">
+        <Container>
+          <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+            <div>
+              <Badge tone="violet">
+                <Briefcase aria-hidden="true" size={14} strokeWidth={2} />
+                Featured Work
+              </Badge>
+              <h2 className="card-heading mt-4 text-3xl tracking-tight text-white">
+                문제를 구조로 바꾸는 작업
+              </h2>
+            </div>
+            <Link
+              className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-100 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
+              href="/projects"
+            >
+              전체 Portfolio 보기
+              <ArrowRight aria-hidden="true" size={16} strokeWidth={2} />
+            </Link>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            {projectPreviews.map((project) => (
+              <Card
+                className="group min-h-56 p-5 transition duration-200 hover:-translate-y-0.5 hover:border-cyan-300/40"
+                key={project.title}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <Badge tone="cyan">{project.category}</Badge>
+                  <ArrowRight
+                    aria-hidden="true"
+                    className="text-slate-500 transition-colors group-hover:text-cyan-200"
+                    size={17}
+                    strokeWidth={2}
+                  />
+                </div>
+                <h3 className="card-heading mt-6 text-xl text-white">{project.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-slate-400">{project.description}</p>
+                <div className="mt-6 flex items-center gap-2 font-mono text-xs text-slate-500">
+                  <span className="rounded-full bg-slate-800 px-2 py-1">trigger</span>
+                  <span className="h-px flex-1 bg-slate-700" />
+                  <span className="rounded-full bg-slate-800 px-2 py-1">output</span>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      <section className="pb-24">
+        <Container>
+          <div className="grid gap-4 md:grid-cols-3">
+            {strengthItems.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <Card className="p-5" key={item.title}>
+                  <div className="grid h-11 w-11 place-items-center rounded-2xl border border-blue-300/20 bg-blue-400/10 text-blue-100">
+                    <Icon aria-hidden="true" size={20} strokeWidth={2} />
+                  </div>
+                  <h3 className="card-heading mt-5 text-lg text-white">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-400">{item.description}</p>
+                </Card>
+              );
+            })}
+          </div>
+
+          <Card className="mt-4 flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
+            <div>
+              <div className="flex items-center gap-2 text-sm font-semibold text-emerald-300">
+                <BadgeCheck aria-hidden="true" size={17} strokeWidth={2} />
+                협업과 개선 작업에 열려있습니다
+              </div>
+              <p className="mt-2 text-sm leading-7 text-slate-400">
+                백엔드, 자동화, 운영 효율화와 관련된 작업을 함께 논의할 수 있습니다.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <ButtonLink href="/contact" variant="secondary">
+                <Mail aria-hidden="true" size={17} strokeWidth={2} />
+                연락하기
+              </ButtonLink>
+              <ButtonLink href="/projects" variant="ghost">
+                <FolderOpen aria-hidden="true" size={17} strokeWidth={2} />
+                Portfolio
+              </ButtonLink>
+            </div>
+          </Card>
+        </Container>
+      </section>
+    </>
+  );
+}

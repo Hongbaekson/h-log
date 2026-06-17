@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Build artifacts
+dist/
+build/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Internal temporary files
+.codex/tmp/
+**/.codex/tmp/
+**/__pycache__/
+*.pyc
+.plans/
+
+# Local planning drafts
+plans/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
