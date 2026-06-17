@@ -1,11 +1,11 @@
 ---
 name: git-safe-commit
-description: "Safe Git commit workflow for Codex. Use when preparing, resolving conflicts for, or creating commits: always pull before committing, preserve incoming remote code during conflicts, resolve generated-artifact conflicts by taking the latest incoming artifact, inspect git diff before finalizing, and write Conventional Commit messages."
+description: "Safe Git commit and push workflow for Codex. Use when preparing, resolving conflicts for, creating, or pushing commits: always pull before committing, preserve incoming remote code during conflicts, resolve generated-artifact conflicts by taking the latest incoming artifact, inspect git diff before finalizing, write Conventional Commit messages, and push the completed commit unless local-only work is requested."
 ---
 
 # Git Safe Commit
 
-Use this skill when the user asks to commit, prepare a commit, resolve pull conflicts before committing, or write a commit message.
+Use this skill when the user asks to commit, push, prepare a commit, resolve pull conflicts before committing, or write a commit message.
 
 ## Core Rules
 
@@ -15,6 +15,7 @@ Use this skill when the user asks to commit, prepare a commit, resolve pull conf
 - Never discard incoming remote code to make a conflict disappear.
 - Never run destructive commands such as `git reset --hard`, `git checkout -- .`, or broad clean/delete commands unless the user explicitly asks.
 - If the worktree contains unrelated user changes, preserve them and keep them out of the commit.
+- After a successful commit, push the current branch to its upstream unless the user explicitly asks for a local-only commit.
 
 ## Commit Workflow
 
@@ -73,6 +74,20 @@ Use this skill when the user asks to commit, prepare a commit, resolve pull conf
    git commit -m "type(scope): concise subject"
    ```
 
+9. Push the committed branch unless local-only was requested.
+
+   ```bash
+   git push
+   ```
+
+   If the branch has no upstream, set it explicitly:
+
+   ```bash
+   git push -u origin <branch>
+   ```
+
+   If push is rejected because the remote moved, run `git pull --no-rebase`, resolve conflicts with the rules below, validate again, commit any merge resolution if needed, and push again.
+
 ## Conflict Rules
 
 During `git pull --no-rebase` conflict resolution:
@@ -104,6 +119,7 @@ Before committing, verify:
 - No unrelated formatting churn, generated noise, or user changes are staged.
 - Conflict markers such as `<<<<<<<`, `=======`, and `>>>>>>>` are absent.
 - Validation command output is known and reported.
+- After commit, `git push` succeeds or the exact push blocker is reported.
 
 ## Commit Message Convention
 
