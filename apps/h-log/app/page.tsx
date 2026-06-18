@@ -244,7 +244,7 @@ export default function HomePage() {
             </p>
 
             <div className="hero-reveal hero-reveal-4 mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <ButtonLink href="/projects">
+              <ButtonLink href="/portfolio">
                 <FolderOpen aria-hidden="true" size={18} strokeWidth={2} />
                 Portfolio
               </ButtonLink>
@@ -340,7 +340,7 @@ export default function HomePage() {
             </div>
             <Link
               className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-100 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
-              href="/projects"
+              href="/portfolio"
             >
               전체 Portfolio 보기
               <ArrowRight aria-hidden="true" size={16} strokeWidth={2} />
@@ -408,7 +408,7 @@ export default function HomePage() {
                 <Mail aria-hidden="true" size={17} strokeWidth={2} />
                 연락하기
               </ButtonLink>
-              <ButtonLink href="/projects" variant="ghost">
+              <ButtonLink href="/portfolio" variant="ghost">
                 <FolderOpen aria-hidden="true" size={17} strokeWidth={2} />
                 Portfolio
               </ButtonLink>

@@ -293,6 +293,57 @@ html[data-theme="light"] .fill-blue-300 {
   background-image: linear-gradient(110deg, #c4b5fd 0%, #f8fafc 42%, #a78bfa 100%);
 }
 
+.portfolio-reveal-item[data-reveal-ready="true"][data-visible="false"] .portfolio-reveal-card,
+.portfolio-reveal-item[data-reveal-ready="true"][data-visible="false"] .portfolio-reveal-dot,
+.portfolio-reveal-item[data-reveal-ready="true"][data-visible="false"] .portfolio-reveal-connector {
+  opacity: 0;
+}
+
+.portfolio-reveal-item[data-reveal-ready="true"][data-visible="false"] .portfolio-reveal-card {
+  filter: blur(8px);
+  transform: translateY(22px);
+}
+
+.portfolio-reveal-item[data-reveal-ready="true"][data-visible="false"] .portfolio-reveal-dot {
+  transform: translateX(-50%) scale(0.58);
+}
+
+.portfolio-reveal-item[data-reveal-ready="true"][data-visible="false"] .portfolio-reveal-connector {
+  transform: scaleX(0.35);
+}
+
+.portfolio-reveal-card,
+.portfolio-reveal-dot,
+.portfolio-reveal-connector {
+  transition-duration: 680ms;
+  transition-property: opacity, filter, transform;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, filter, transform;
+}
+
+.portfolio-reveal-card {
+  transition-delay: calc(var(--portfolio-reveal-delay, 0ms) + 90ms);
+}
+
+.portfolio-reveal-dot {
+  transition-delay: var(--portfolio-reveal-delay, 0ms);
+}
+
+.portfolio-reveal-connector {
+  transform-origin: center;
+  transition-delay: calc(var(--portfolio-reveal-delay, 0ms) + 60ms);
+}
+
+@media (min-width: 768px) {
+  .portfolio-reveal-item[data-side="left"][data-reveal-ready="true"][data-visible="false"] .portfolio-reveal-card {
+    transform: translateX(-20px) translateY(16px);
+  }
+
+  .portfolio-reveal-item[data-side="right"][data-reveal-ready="true"][data-visible="false"] .portfolio-reveal-card {
+    transform: translateX(20px) translateY(16px);
+  }
+}
+
 html[data-theme="light"] .hero-name-gradient {
   background-image: linear-gradient(110deg, #0f172a 0%, #1d4ed8 34%, #0e7490 66%, #4338ca 100%);
   text-shadow: 0 12px 28px rgb(37 99 235 / 0.14);
@@ -564,6 +615,9 @@ html[data-theme="light"] .metric-value-violet {
   .metric-card,
   .metric-value,
   .metric-rotator-item,
+  .portfolio-reveal-card,
+  .portfolio-reveal-dot,
+  .portfolio-reveal-connector,
   .radar-grid,
   .radar-label,
   .radar-skill-pulse,
