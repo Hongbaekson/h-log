@@ -223,8 +223,8 @@ const projectPreviews = [
 export default function HomePage() {
   return (
     <>
-      <section className="py-12 md:py-16">
-        <Container className="grid min-h-[calc(100vh-18rem)] items-center gap-10 md:grid-cols-[1.08fr_0.92fr]">
+      <section className="pt-12 pb-8 md:pt-16 md:pb-10">
+        <Container className="grid items-start gap-10 md:grid-cols-[1.08fr_0.92fr]">
           <div>
             <Badge className="hero-reveal hero-reveal-1" tone="cyan">
               <Terminal aria-hidden="true" size={14} strokeWidth={2} />
@@ -318,7 +318,7 @@ export default function HomePage() {
         </Container>
       </section>
 
-      <section className="pb-20">
+      <section className="pb-14 md:pb-16">
         <Container>
           <dl className="metric-grid grid gap-3 sm:grid-cols-3">
             {focusItems.map((item) => (
@@ -337,9 +337,6 @@ export default function HomePage() {
                 <Briefcase aria-hidden="true" size={14} strokeWidth={2} />
                 Featured Work
               </Badge>
-              <h2 className="card-heading mt-4 text-3xl tracking-tight text-white">
-                문제를 구조로 바꾸는 작업
-              </h2>
             </div>
             <Link
               className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-100 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"

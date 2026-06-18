@@ -157,17 +157,17 @@ export default function ResumePage() {
       <section className="py-12 md:py-16">
         <Container>
           <div className="max-w-3xl">
-            <Badge tone="cyan">
+            <Badge className="hero-reveal hero-reveal-1" tone="cyan">
               <Terminal aria-hidden="true" size={14} strokeWidth={2} />
               <span className="font-mono uppercase tracking-[0.18em]">resume.online</span>
               <span className="hero-signal-cursor" aria-hidden="true" />
             </Badge>
 
-            <h1 className="hero-heading mt-6 max-w-3xl text-4xl leading-[1.1] tracking-normal text-white md:text-6xl">
+            <h1 className="hero-heading hero-reveal hero-reveal-2 mt-6 max-w-3xl text-4xl leading-[1.1] tracking-normal text-white md:text-6xl">
               손홍백 <span className="hero-name-gradient">Resume</span>
             </h1>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <div className="hero-reveal hero-reveal-3 mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <PdfDownloadButton />
             </div>
           </div>
