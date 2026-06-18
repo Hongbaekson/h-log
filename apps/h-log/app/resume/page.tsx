@@ -74,16 +74,34 @@ const skillToneClasses = {
 
 const timelineItems = [
   {
-    period: "YYYY.MM - Present",
-    role: "회사명 / 포지션",
-    summary: "담당한 제품, 팀 역할, 주요 책임을 한 문단으로 정리할 영역입니다.",
-    tags: ["Backend", "API", "Operation"],
+    highlights: [
+      "OpenAPI Spec-First 기반 REST API 개발 워크플로우 구축",
+      "Claude Code/Codex 기반 사내 표준 개발 프로세스 도입 및 팀 컨벤션 문서화",
+      "GitHub Issues Webhook과 Discord 연동 기반 이슈 알림·조회 자동화 시스템 설계",
+      "Spring Event + AFTER_COMMIT + REQUIRES_NEW 기반 트랜잭션 분리 설계",
+      "Redisson RBlockingQueue + DLQ 패턴으로 비동기 처리 및 장애 복구 자동화",
+      "JWT Access/Refresh, RBAC, Permission 단위 인증·인가 모델 설계",
+      "OpenTelemetry + Micrometer 기반 분산 트레이싱 및 장애 분석 체계 구축",
+    ],
+    period: "2025.03 - 현재",
+    role: "오프너드 / Backend Developer",
+    summary: "B2B 솔루션 백엔드 개발과 데이터 파이프라인 구축을 담당했습니다.",
+    tags: ["Java 21", "Spring Boot 3.x", "JPA", "QueryDSL", "PostgreSQL", "Redis", "Redisson", "OpenTelemetry"],
   },
   {
-    period: "YYYY.MM - YYYY.MM",
-    role: "이전 경험 / 프로젝트",
-    summary: "문제 상황, 맡은 역할, 개선 결과를 타임라인 형식으로 배치할 영역입니다.",
-    tags: ["Domain", "Data", "Infra"],
+    highlights: [
+      "POS/KIOSK 차세대 프로젝트에서 Redis 캐시 적용으로 조회 성능 개선",
+      "Kafka 기반 비동기 알림 처리로 결제 응답 지연 문제 개선",
+      "Spring Batch Chunk 처리로 대량 데이터 배치 안정화",
+      "GitHub Actions 기반 CI/CD 파이프라인 구축 및 배포 자동화",
+      "MyBatis Lazy Loading, 복합 인덱스 설계로 주요 API 조회 성능 최적화",
+      "CRM 휴면 고객 알림 자동화 및 카카오톡 API 연동 개발",
+      "DB 마이그레이션 및 백오피스 운영 안정화 수행",
+    ],
+    period: "2021.07 - 2025.01",
+    role: "아스템즈 / Backend Developer",
+    summary: "SI, 솔루션, POS/KIOSK 및 백오피스 시스템 개발·운영을 수행했습니다.",
+    tags: ["Java", "Spring Boot", "Spring Batch", "MyBatis", "Oracle", "MySQL", "Redis", "Kafka", "GitHub Actions", "CI/CD"],
   },
 ] as const;
 
@@ -215,7 +233,6 @@ export default function ResumePage() {
 
             <section>
               <SectionHeading
-                description="경력은 회사명보다 기간, 역할, 문제 해결 흐름이 먼저 읽히도록 타임라인으로 둡니다."
                 eyebrow="Experience"
                 title="경력 타임라인"
               />
@@ -229,6 +246,14 @@ export default function ResumePage() {
                       </p>
                       <h3 className="card-heading mt-3 text-xl text-white">{item.role}</h3>
                       <p className="mt-3 text-sm leading-7 text-slate-400">{item.summary}</p>
+                      <ul className="mt-4 space-y-2 text-sm leading-7 text-slate-300">
+                        {item.highlights.map((highlight) => (
+                          <li className="flex gap-2" key={highlight}>
+                            <span className="mt-[0.65rem] h-1 w-1 shrink-0 rounded-full bg-cyan-300" />
+                            <span>{highlight}</span>
+                          </li>
+                        ))}
+                      </ul>
                       <div className="mt-5 flex flex-wrap gap-2">
                         {item.tags.map((tag) => (
                           <Badge key={tag} tone="cyan">
