@@ -168,9 +168,9 @@ export default function PortfolioPage() {
             </Badge>
 
             <h1 className="hero-heading hero-reveal hero-reveal-2 mt-7 text-4xl leading-[1.08] tracking-normal text-white md:text-6xl">
-              최신 작업부터
+              Building
               <br />
-              <span className="hero-name-gradient">문제 해결 흐름</span>을 봅니다
+              <span className="hero-name-gradient">Reliable Systems</span>
             </h1>
 
             <div
