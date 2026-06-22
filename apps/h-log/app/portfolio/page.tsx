@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   Clock3,
   FolderKanban,
-  GitBranch,
   Terminal,
 } from "lucide-react";
 
@@ -175,11 +174,11 @@ export default function PortfolioPage() {
             </h1>
 
             <div
-              className="hero-reveal hero-reveal-3 mx-auto mt-7 max-w-3xl overflow-hidden rounded-lg border border-slate-700/80 bg-slate-950/78 text-left shadow-[0_24px_70px_rgb(8_47_73/0.22)]"
-              aria-label="포트폴리오 타임라인 상태 요약"
+              className="hero-reveal hero-reveal-3 mx-auto mt-7 max-w-2xl overflow-hidden rounded-lg border border-slate-700/80 bg-slate-950/78 text-left shadow-[0_24px_70px_rgb(8_47_73/0.22)]"
+              aria-label="포트폴리오 상태 요약"
             >
               <div className="h-px bg-gradient-to-r from-transparent via-cyan-300/80 to-transparent" />
-              <div className="grid bg-slate-800/70 sm:grid-cols-[1fr_1fr_1.35fr] sm:gap-px">
+              <div className="grid bg-slate-800/70 sm:grid-cols-2 sm:gap-px">
                 <div className="flex min-h-16 items-center gap-3 bg-slate-950/88 px-4 py-3">
                   <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-emerald-300/25 bg-emerald-300/10 text-emerald-100">
                     <span
@@ -211,23 +210,8 @@ export default function PortfolioPage() {
                     </div>
                   </div>
                 </div>
-
-                <div className="flex min-h-16 items-center gap-3 border-t border-slate-800/90 bg-slate-950/88 px-4 py-3 sm:border-t-0">
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-blue-300/25 bg-blue-300/10 text-blue-100">
-                    <GitBranch aria-hidden="true" size={17} strokeWidth={2.2} />
-                  </span>
-                  <div>
-                    <div className="font-mono text-[0.64rem] font-bold uppercase tracking-[0.16em] text-slate-500">
-                      flow
-                    </div>
-                    <div className="mt-0.5 text-sm font-semibold text-white">
-                      문제 -&gt; 접근 -&gt; 결과
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
-
           </div>
         </Container>
       </section>
