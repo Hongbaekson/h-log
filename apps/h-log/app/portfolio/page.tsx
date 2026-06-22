@@ -1,9 +1,18 @@
 import Link from "next/link";
-import { ArrowRight, CalendarDays, CheckCircle2, Clock3, Terminal } from "lucide-react";
+import {
+  Activity,
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  FolderKanban,
+  GitBranch,
+  Terminal,
+} from "lucide-react";
 
 import { ScrollRevealItem } from "@/components/ui/ScrollRevealItem";
 import { Badge, Container } from "@/components/ui";
-import { portfolioStats, projects, projectToneClasses } from "@/lib/projects";
+import { projects, projectToneClasses } from "@/lib/projects";
 
 const orderedProjectSlugs = [
   "opnerd-workflow-automation",
@@ -17,6 +26,8 @@ const orderedProjectSlugs = [
 const orderedProjects = orderedProjectSlugs
   .map((slug) => projects.find((project) => project.slug === slug))
   .filter((project): project is (typeof projects)[number] => Boolean(project));
+
+const activeProjectCount = orderedProjects.filter((project) => project.period.includes("현재")).length;
 
 function getTimelineLabel(project: (typeof projects)[number]) {
   return project.period.includes("현재") ? "NOW" : project.year;
@@ -162,23 +173,61 @@ export default function PortfolioPage() {
               <br />
               <span className="hero-name-gradient">문제 해결 흐름</span>을 봅니다
             </h1>
-            <p className="hero-reveal hero-reveal-3 mx-auto mt-6 max-w-2xl text-base leading-8 text-slate-300 md:text-lg">
-              진행 중인 작업을 가장 위에 두고, 각 프로젝트의 문제와 접근 방식을 타임라인으로
-              정리했습니다.
-            </p>
 
-            <dl className="hero-reveal hero-reveal-3 mx-auto mt-10 grid max-w-2xl grid-cols-3 divide-x divide-slate-700/80 rounded-lg border-y border-slate-700/80 py-5">
-              {portfolioStats.map((stat) => (
-                <div className="px-4" key={stat.label}>
-                  <dt className="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-slate-500">
-                    {stat.label}
-                  </dt>
-                  <dd className="metric-value metric-value-cyan mt-2 text-3xl font-bold tracking-tight">
-                    {stat.value}
-                  </dd>
+            <div
+              className="hero-reveal hero-reveal-3 mx-auto mt-7 max-w-3xl overflow-hidden rounded-lg border border-slate-700/80 bg-slate-950/78 text-left shadow-[0_24px_70px_rgb(8_47_73/0.22)]"
+              aria-label="포트폴리오 타임라인 상태 요약"
+            >
+              <div className="h-px bg-gradient-to-r from-transparent via-cyan-300/80 to-transparent" />
+              <div className="grid bg-slate-800/70 sm:grid-cols-[1fr_1fr_1.35fr] sm:gap-px">
+                <div className="flex min-h-16 items-center gap-3 bg-slate-950/88 px-4 py-3">
+                  <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-emerald-300/25 bg-emerald-300/10 text-emerald-100">
+                    <span
+                      className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_14px_rgb(110_231_183/0.9)]"
+                      aria-hidden="true"
+                    />
+                    <Activity aria-hidden="true" size={17} strokeWidth={2.2} />
+                  </span>
+                  <div>
+                    <div className="font-mono text-[0.64rem] font-bold uppercase tracking-[0.16em] text-emerald-200/85">
+                      now
+                    </div>
+                    <div className="mt-0.5 text-sm font-semibold text-white">
+                      {activeProjectCount}건 진행 중
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </dl>
+
+                <div className="flex min-h-16 items-center gap-3 border-t border-slate-800/90 bg-slate-950/88 px-4 py-3 sm:border-t-0">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-cyan-300/25 bg-cyan-300/10 text-cyan-100">
+                    <FolderKanban aria-hidden="true" size={17} strokeWidth={2.2} />
+                  </span>
+                  <div>
+                    <div className="font-mono text-[0.64rem] font-bold uppercase tracking-[0.16em] text-slate-500">
+                      projects
+                    </div>
+                    <div className="mt-0.5 text-sm font-semibold text-white">
+                      {orderedProjects.length}개 프로젝트
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex min-h-16 items-center gap-3 border-t border-slate-800/90 bg-slate-950/88 px-4 py-3 sm:border-t-0">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-blue-300/25 bg-blue-300/10 text-blue-100">
+                    <GitBranch aria-hidden="true" size={17} strokeWidth={2.2} />
+                  </span>
+                  <div>
+                    <div className="font-mono text-[0.64rem] font-bold uppercase tracking-[0.16em] text-slate-500">
+                      flow
+                    </div>
+                    <div className="mt-0.5 text-sm font-semibold text-white">
+                      문제 -&gt; 접근 -&gt; 결과
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </Container>
       </section>
