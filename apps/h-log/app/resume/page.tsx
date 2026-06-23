@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { PdfDownloadButton } from "@/components/resume/PdfDownloadButton";
+import { ResumeProfilePhoto } from "@/components/resume/ResumeProfilePhoto";
 import { Badge, Card, Container } from "@/components/ui";
 
 const skillGroups = [
@@ -77,6 +78,7 @@ const timelineItems = [
     highlights: [
       "OpenAPI Spec-First 기반 REST API 개발 워크플로우 구축",
       "Claude Code/Codex 기반 사내 표준 개발 프로세스 도입 및 팀 컨벤션 문서화",
+      "GitHub Actions 기반 CI/CD 파이프라인을 구축하여 빌드, 테스트, 배포 아티팩트 생성, GPG 서명, 체크섬 생성, S3 업로드 과정을 자동화했습니다. 기존 수동 배포는 약 20분이 소요되고 휴먼 에러 및 배포 산출물 무결성 검증 부재 문제가 있었으나, 자동화 이후 배포 시간을 평균 3분으로 줄여 약 85% 단축했습니다. 또한 배포 압축 파일과 함께 GPG 서명 파일 및 체크섬을 관리하여 배포 아티팩트 위변조 여부를 검증할 수 있는 보안 흐름을 마련했습니다.",
       "GitHub Issues Webhook과 Discord 연동 기반 이슈 알림·조회 자동화 시스템 설계",
       "Spring Event + AFTER_COMMIT + REQUIRES_NEW 기반 트랜잭션 분리 설계",
       "Redisson RBlockingQueue + DLQ 패턴으로 비동기 처리 및 장애 복구 자동화",
@@ -156,20 +158,24 @@ export default function ResumePage() {
     <>
       <section className="py-12 md:py-16">
         <Container>
-          <div className="max-w-3xl">
-            <Badge className="hero-reveal hero-reveal-1" tone="cyan">
-              <Terminal aria-hidden="true" size={14} strokeWidth={2} />
-              <span className="font-mono uppercase tracking-[0.18em]">resume.online</span>
-              <span className="hero-signal-cursor" aria-hidden="true" />
-            </Badge>
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_12rem] lg:items-center">
+            <div className="max-w-3xl">
+              <Badge className="hero-reveal hero-reveal-1" tone="cyan">
+                <Terminal aria-hidden="true" size={14} strokeWidth={2} />
+                <span className="font-mono uppercase tracking-[0.18em]">resume.online</span>
+                <span className="hero-signal-cursor" aria-hidden="true" />
+              </Badge>
 
-            <h1 className="hero-heading hero-reveal hero-reveal-2 mt-6 max-w-3xl text-4xl leading-[1.1] tracking-normal text-white md:text-6xl">
-              손홍백 <span className="hero-name-gradient">Resume</span>
-            </h1>
+              <h1 className="hero-heading hero-reveal hero-reveal-2 mt-6 max-w-3xl text-4xl leading-[1.1] tracking-normal text-white md:text-6xl">
+                손홍백 <span className="hero-name-gradient">Resume</span>
+              </h1>
 
-            <div className="hero-reveal hero-reveal-3 mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <PdfDownloadButton />
+              <div className="hero-reveal hero-reveal-3 mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <PdfDownloadButton />
+              </div>
             </div>
+
+            <ResumeProfilePhoto />
           </div>
         </Container>
       </section>

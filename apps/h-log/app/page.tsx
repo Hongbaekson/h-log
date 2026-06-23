@@ -1,15 +1,11 @@
-import Link from "next/link";
 import {
-  ArrowRight,
   BadgeCheck,
-  Briefcase,
   CheckCircle2,
   Code2,
   Cpu,
   Database,
   FileText,
   FolderOpen,
-  Mail,
   Server,
   Sparkles,
   Terminal,
@@ -202,24 +198,6 @@ function RotatingFocusMetric() {
   );
 }
 
-const projectPreviews = [
-  {
-    category: "Automation",
-    description: "반복되는 개발/운영 작업을 에이전트 흐름으로 정리하는 자동화 설계",
-    title: "AI Workflow Console",
-  },
-  {
-    category: "Backend",
-    description: "Java/Spring 기반 API와 데이터 흐름을 안정적으로 다듬는 백엔드 작업",
-    title: "Domain Service Refactor",
-  },
-  {
-    category: "Infra",
-    description: "OCI, Docker, Nginx를 활용한 개인 서비스 배포와 운영 기반",
-    title: "Deployment",
-  },
-];
-
 export default function HomePage() {
   return (
     <>
@@ -251,10 +229,6 @@ export default function HomePage() {
               <ButtonLink href="/resume" variant="secondary">
                 <FileText aria-hidden="true" size={18} strokeWidth={2} />
                 이력서 보기
-              </ButtonLink>
-              <ButtonLink href="/contact" variant="ghost">
-                <Mail aria-hidden="true" size={18} strokeWidth={2} />
-                Contact
               </ButtonLink>
             </div>
 
@@ -329,52 +303,6 @@ export default function HomePage() {
         </Container>
       </section>
 
-      <section className="pb-20">
-        <Container>
-          <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
-            <div>
-              <Badge tone="violet">
-                <Briefcase aria-hidden="true" size={14} strokeWidth={2} />
-                Featured Work
-              </Badge>
-            </div>
-            <Link
-              className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-100 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
-              href="/portfolio"
-            >
-              전체 Portfolio 보기
-              <ArrowRight aria-hidden="true" size={16} strokeWidth={2} />
-            </Link>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            {projectPreviews.map((project) => (
-              <Card
-                className="group min-h-56 p-5 transition duration-200 hover:-translate-y-0.5 hover:border-cyan-300/40"
-                key={project.title}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <Badge tone="cyan">{project.category}</Badge>
-                  <ArrowRight
-                    aria-hidden="true"
-                    className="text-slate-500 transition-colors group-hover:text-cyan-200"
-                    size={17}
-                    strokeWidth={2}
-                  />
-                </div>
-                <h3 className="card-heading mt-6 text-xl text-white">{project.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-slate-400">{project.description}</p>
-                <div className="mt-6 flex items-center gap-2 font-mono text-xs text-slate-500">
-                  <span className="rounded-full bg-slate-800 px-2 py-1">trigger</span>
-                  <span className="h-px flex-1 bg-slate-700" />
-                  <span className="rounded-full bg-slate-800 px-2 py-1">output</span>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </Container>
-      </section>
-
       <section className="pb-24">
         <Container>
           <div className="grid gap-4 md:grid-cols-3">
@@ -404,10 +332,6 @@ export default function HomePage() {
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <ButtonLink href="/contact" variant="secondary">
-                <Mail aria-hidden="true" size={17} strokeWidth={2} />
-                연락하기
-              </ButtonLink>
               <ButtonLink href="/portfolio" variant="ghost">
                 <FolderOpen aria-hidden="true" size={17} strokeWidth={2} />
                 Portfolio

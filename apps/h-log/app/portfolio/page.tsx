@@ -2,15 +2,13 @@ import Link from "next/link";
 import {
   Activity,
   ArrowRight,
-  CalendarDays,
-  CheckCircle2,
-  Clock3,
   FolderKanban,
   Terminal,
 } from "lucide-react";
 
 import { ScrollRevealItem } from "@/components/ui/ScrollRevealItem";
 import { Badge, Container } from "@/components/ui";
+import { createPortfolioCardModel } from "@/lib/portfolio-card";
 import { projects, projectToneClasses } from "@/lib/projects";
 
 const orderedProjectSlugs = [
@@ -28,10 +26,6 @@ const orderedProjects = orderedProjectSlugs
 
 const activeProjectCount = orderedProjects.filter((project) => project.period.includes("현재")).length;
 
-function getTimelineLabel(project: (typeof projects)[number]) {
-  return project.period.includes("현재") ? "NOW" : project.year;
-}
-
 function ProjectTimelineItem({
   index,
   project,
@@ -39,8 +33,8 @@ function ProjectTimelineItem({
   index: number;
   project: (typeof projects)[number];
 }) {
+  const card = createPortfolioCardModel(project);
   const Icon = project.icon;
-  const isCurrent = project.period.includes("현재");
   const alignLeft = index % 2 === 0;
 
   return (
@@ -51,14 +45,14 @@ function ProjectTimelineItem({
     >
       <div
         className={`portfolio-reveal-dot absolute left-5 top-7 z-10 grid h-5 w-5 -translate-x-1/2 place-items-center rounded-full border ${
-          isCurrent
+          card.isCurrent
             ? "border-cyan-200 bg-cyan-300/25 shadow-[0_0_0_6px_rgb(34_211_238/0.12)]"
             : "border-blue-200/70 bg-blue-300/20 shadow-[0_0_0_6px_rgb(96_165_250/0.10)]"
         } md:left-1/2 md:top-9`}
         aria-hidden="true"
       >
         <span
-          className={`h-2 w-2 rounded-full ${isCurrent ? "bg-cyan-100" : "bg-blue-200"}`}
+          className={`h-2 w-2 rounded-full ${card.isCurrent ? "bg-cyan-100" : "bg-blue-200"}`}
         />
       </div>
 
@@ -71,73 +65,60 @@ function ProjectTimelineItem({
         <div className="flex flex-wrap items-center gap-3">
           <span
             className={`inline-flex h-8 items-center justify-center rounded-full border px-3 font-mono text-xs font-bold tracking-[0.12em] ${
-              isCurrent
+              card.isCurrent
                 ? "border-cyan-300/40 bg-cyan-300/12 text-cyan-100"
                 : "border-slate-700 bg-slate-900/70 text-slate-300"
             }`}
           >
-            {getTimelineLabel(project)}
+            {card.statusLabel}
           </span>
-          <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-400">
-            <CalendarDays aria-hidden="true" size={13} strokeWidth={2} />
-            {project.period}
+          <span className="font-mono text-sm font-semibold text-slate-500">
+            {card.periodLabel}
           </span>
-          {isCurrent ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-300/30 bg-cyan-300/10 px-2.5 py-1 text-xs font-semibold text-cyan-100">
-              <Clock3 aria-hidden="true" size={13} strokeWidth={2} />
-              현재 진행 중
-            </span>
-          ) : null}
         </div>
 
-        <div className="mt-5 flex items-start gap-3">
-          <span
-            className={`grid h-11 w-11 shrink-0 place-items-center rounded-lg border ${projectToneClasses[project.tone]}`}
-          >
-            <Icon aria-hidden="true" size={19} strokeWidth={2} />
-          </span>
+        <div className="mt-5 flex items-start justify-between gap-4">
           <div>
             <h2 className="card-heading text-2xl tracking-tight text-white">
               {project.title}
             </h2>
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500">
-              <span>{project.company}</span>
+            <div className="mt-2 flex items-center gap-2 text-sm font-semibold text-slate-500">
               <span className="h-1.5 w-1.5 rounded-full bg-cyan-300/70" aria-hidden="true" />
-              <span>{project.type}</span>
+              <span>{project.company}</span>
             </div>
           </div>
+          <span
+            className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg border ${projectToneClasses[project.tone]}`}
+          >
+            <Icon aria-hidden="true" size={18} strokeWidth={2} />
+          </span>
         </div>
 
-        <p className="mt-5 text-sm leading-7 text-slate-400 md:text-base">{project.summary}</p>
+        <p className="mt-5 text-base leading-7 text-slate-400">{card.description}</p>
 
         <div className="mt-5 flex flex-wrap gap-2">
-          {project.stack.slice(0, 5).map((item) => (
+          {card.stack.map((item) => (
             <Badge key={item} tone="slate">
               {item}
             </Badge>
           ))}
         </div>
 
-        <dl className="mt-5 grid gap-3 border-t border-slate-800 pt-5 sm:grid-cols-3">
-          {project.metrics.map((metric) => (
-            <div key={metric.label}>
+        <dl className="mt-6 grid gap-4 border-t border-slate-800 pt-5 sm:grid-cols-3">
+          {card.metrics.map((metric) => (
+            <div className="min-w-0" key={metric.label}>
               <dt className="font-mono text-[0.64rem] uppercase tracking-[0.14em] text-slate-500">
                 {metric.label}
               </dt>
-              <dd className="mt-1 text-lg font-bold text-cyan-100">{metric.value}</dd>
+              <dd className="mt-2 text-2xl font-extrabold tracking-tight text-cyan-100">
+                {metric.value}
+              </dd>
+              <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">
+                {metric.caption}
+              </p>
             </div>
           ))}
         </dl>
-
-        <div className="mt-5 flex items-start gap-2 border-t border-slate-800 pt-5 text-sm leading-7 text-slate-300">
-          <CheckCircle2
-            aria-hidden="true"
-            className="mt-1 shrink-0 text-cyan-200"
-            size={16}
-            strokeWidth={2}
-          />
-          <span>{project.approach[0]}</span>
-        </div>
 
         <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-cyan-100 transition-colors group-hover:text-white">
           상세 보기
@@ -163,7 +144,7 @@ export default function PortfolioPage() {
           <div className="mx-auto max-w-4xl text-center">
             <Badge className="hero-reveal hero-reveal-1" tone="cyan">
               <Terminal aria-hidden="true" size={14} strokeWidth={2} />
-              <span className="font-mono uppercase tracking-[0.18em]">portfolio</span>
+              <span className="font-mono uppercase tracking-[0.18em]">portfolio.online</span>
               <span className="hero-signal-cursor" aria-hidden="true" />
             </Badge>
 

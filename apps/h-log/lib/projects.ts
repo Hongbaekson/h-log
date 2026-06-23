@@ -22,6 +22,7 @@ export type Project = {
   icon: LucideIcon;
   impact: string[];
   metrics: {
+    description?: string;
     label: string;
     value: string;
   }[];
@@ -76,9 +77,21 @@ export const projects = [
       "요약과 자연어 명령은 읽기 전용부터 시작하고 write 작업은 권한 확인과 승인 로그를 거치도록 위험도를 낮춤",
     ],
     metrics: [
-      { label: "MVP", value: "D-01" },
-      { label: "LLM", value: "Worker" },
-      { label: "Safety", value: "Approval" },
+      {
+        description: "서명 검증 · 중복 방지",
+        label: "Webhook",
+        value: "검증·저장",
+      },
+      {
+        description: "Discord 알림 실패 격리",
+        label: "Queue/DLQ",
+        value: "재시도",
+      },
+      {
+        description: "요약 · intent 분석 분리",
+        label: "LLM Worker",
+        value: "읽기 전용",
+      },
     ],
     period: "2025.03 - 현재",
     problem: "GitHub Issues 변경 확인과 Discord 공유가 수동에 의존하면 이슈 추적이 늦어지고, LLM이나 변경 작업을 바로 붙일 경우 보안·권한·감사 경계가 흐려질 수 있었습니다.",
@@ -97,7 +110,7 @@ export const projects = [
       "OpenTelemetry",
       "Docker",
     ],
-    summary: "GitHub Issues 변경을 검증·저장·중복 방지 후 Discord로 알리고, 이후 조회·요약·자연어 명령까지 안전하게 확장할 수 있는 운영 자동화 흐름을 설계했습니다.",
+    summary: "GitHub Issues Webhook을 서명 검증·중복 방지·저장 흐름으로 안전하게 수신하고, Discord 알림과 LLM 요약을 Queue/Worker 뒤로 분리해 운영 자동화를 확장할 수 있게 설계했습니다.",
     title: "Discord × GitHub Issues 챗봇 연동",
     tone: "cyan",
     type: "Workflow Automation",
@@ -135,9 +148,9 @@ export const projects = [
       "10만 건 배치 처리 시간을 40분에서 15분으로 단축",
     ],
     metrics: [
-      { label: "Query", value: "70%" },
-      { label: "Payment", value: "500ms" },
-      { label: "Batch", value: "15분" },
+      { description: "조회 응답 개선", label: "Query", value: "70%" },
+      { description: "결제 API 응답", label: "Payment", value: "500ms" },
+      { description: "10만 건 처리", label: "Batch", value: "15분" },
     ],
     period: "2024.07 - 2025.01",
     problem: "피크 시간대 조회 폭증, 결제 후 알림 지연, 대량 차량 데이터 처리로 POS/KIOSK 응답성과 안정성이 흔들릴 수 있었습니다.",
@@ -191,9 +204,9 @@ export const projects = [
       "주요 검색 쿼리 실행시간 3,000ms에서 500ms로 단축",
     ],
     metrics: [
-      { label: "Delivery", value: "5일" },
-      { label: "Query", value: "70%" },
-      { label: "Search", value: "500ms" },
+      { description: "기능 개발 단축", label: "Delivery", value: "5일" },
+      { description: "DB 쿼리 감소", label: "Query", value: "70%" },
+      { description: "검색 응답 개선", label: "Search", value: "500ms" },
     ],
     period: "2023.09 - 2024.06",
     problem: "PHP 레거시 시스템의 유지보수 비용이 커지고, 연관 데이터 조회와 복합 조건 검색에서 응답 지연이 발생했습니다.",
@@ -245,9 +258,9 @@ export const projects = [
       "알림 적시성 향상과 운영 인력 부담 감소",
     ],
     metrics: [
-      { label: "Alert", value: "즉시" },
-      { label: "Query", value: "800ms" },
-      { label: "Ops", value: "자동화" },
+      { description: "수동 발송 제거", label: "Alert", value: "즉시" },
+      { description: "CRM 조회 응답", label: "Query", value: "800ms" },
+      { description: "반복 운영 감소", label: "Ops", value: "자동화" },
     ],
     period: "2023.01 - 2023.07",
     problem: "휴면 고객 알림을 사람이 수동으로 발송하고, CRM 화면 조회 속도도 느려 상담 업무 효율이 떨어졌습니다.",
@@ -300,9 +313,9 @@ export const projects = [
       "MS-SQL 기반 운영 환경으로 시스템 현대화",
     ],
     metrics: [
-      { label: "Tables", value: "400개" },
-      { label: "Target", value: "MS-SQL" },
-      { label: "Scope", value: "SP" },
+      { description: "테이블 전환", label: "Tables", value: "400개" },
+      { description: "운영 DB 전환", label: "Target", value: "MS-SQL" },
+      { description: "프로시저 이관", label: "Scope", value: "SP" },
     ],
     period: "2021.10 - 2022.12",
     problem: "DB2 기반 시스템은 라이선스와 유지보수 부담이 커서 MS-SQL 환경으로 안정적인 데이터 전환이 필요했습니다.",
@@ -352,9 +365,9 @@ export const projects = [
       "배치 장애 복구 시간을 1시간에서 5분으로 단축",
     ],
     metrics: [
-      { label: "Incident", value: "2건" },
-      { label: "API", value: "1,000ms" },
-      { label: "Recovery", value: "5분" },
+      { description: "월평균 장애 감소", label: "Incident", value: "2건" },
+      { description: "조회 응답 개선", label: "API", value: "1,000ms" },
+      { description: "배치 복구 단축", label: "Recovery", value: "5분" },
     ],
     period: "2022.02 - 2023.07",
     problem: "백오피스 운영 중 반복 장애와 느린 조회 API, 실패 시 재시작이 어려운 배치 구조가 운영 부담을 키웠습니다.",
@@ -383,6 +396,6 @@ export const portfolioStats = [
   { label: "Tech Stack", value: "30+" },
 ];
 
-export function getProjectBySlug(slug: string) {
+export function getProjectBySlug(slug: string): Project | undefined {
   return projects.find((project) => project.slug === slug);
 }

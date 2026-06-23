@@ -1,6 +1,6 @@
 # H-Log Site Instructions
 
-이 앱은 손홍백 개인 사이트입니다. 포트폴리오만이 아니라 Resume, Portfolio, Blog, Contact를 포함하는 개인 브랜딩 사이트로 개발합니다.
+이 앱은 손홍백 개인 사이트입니다. 포트폴리오만이 아니라 Resume, Portfolio, Blog를 포함하는 개인 브랜딩 사이트로 개발합니다.
 
 ## Stack Definition
 
@@ -19,7 +19,7 @@
 - 핵심 메시지: `백엔드 개발자 손홍백입니다`
 - 보조 메시지: `Java/Spring 기반 백엔드를 개발합니다. 반복되는 작업은 줄이고, 운영하기 쉬운 구조를 고민합니다.`
 - 디자인 방향: Clean Dark Engineer Portfolio + Subtle AI Workflow Console
-- MVP pages: `/`, `/resume`, `/projects`, `/projects/[slug]`, `/blog`, `/blog/[slug]`, `/contact`
+- MVP pages: `/`, `/resume`, `/projects`, `/projects/[slug]`, `/blog`, `/blog/[slug]`
 - MVP 제외: DB CMS, 관리자, 로그인, 댓글, 조회수, RAG 챗봇
 
 ## Lazy-Load Documents
@@ -45,10 +45,9 @@
 5. Home page
 6. Resume page
 7. Blog list and detail
-8. Contact page
-9. SEO and quality
-10. Docker and deployment
-11. CI/CD
+8. SEO and quality
+9. Docker and deployment
+10. CI/CD
 
 한 단위가 끝날 때마다 가능한 검증을 수행하고, 다음 단위로 넘어간다.
 
@@ -88,5 +87,5 @@ npm run dev
 - Home H1은 담백하게 쓴다. 기본형은 `백엔드 개발자 손홍백입니다`로 둔다.
 - 공개 전 고객사명, 성과 수치, 이메일, PDF, 프로필 사진 공개 여부를 확인한다.
 - 전화번호, 생년월일, 내부 URL, 서버 IP, API key, 비공개 저장소명은 노출하지 않는다.
-- Contact Form 실제 발송, DB, 챗봇은 MVP 이후로 미룬다.
+- DB CMS, 챗봇은 MVP 이후로 미룬다.
 - 한 작업 단위에서 페이지 여러 개와 배포 설정을 동시에 바꾸지 않는다.

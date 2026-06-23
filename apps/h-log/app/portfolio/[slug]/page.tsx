@@ -59,6 +59,7 @@ function MetricRibbon({ project }: { project: Project }) {
   const metrics = [
     ...project.metrics,
     {
+      description: "자동화 설계 범위",
       label: "Scope",
       value: project.type,
     },
@@ -77,6 +78,9 @@ function MetricRibbon({ project }: { project: Project }) {
           <dd className="metric-value metric-value-cyan mt-3 text-2xl font-bold tracking-tight">
             {metric.value}
           </dd>
+          <p className="mt-2 text-sm leading-6 text-slate-400">
+            {metric.description}
+          </p>
         </div>
       ))}
     </dl>
