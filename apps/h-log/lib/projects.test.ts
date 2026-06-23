@@ -43,14 +43,14 @@ describe("portfolio project content", () => {
 
     const card = createPortfolioCardModel(project);
 
-    assert.equal(card.description, "Discord와 GitHub Issues 기반 운영 자동화 설계");
+    assert.equal(card.description, "Go 기반 Discord와 GitHub Issues 운영 자동화 설계");
     assert.doesNotMatch(card.description, /서명 검증|Queue\/Worker/);
     assert.equal(card.periodLabel, "2025.03 ~");
     assert.deepEqual(card.stack, [
-      "Java 21",
-      "Spring Boot 3.x",
+      "Go 1.26.x",
+      "net/http",
       "PostgreSQL",
-      "Redis",
+      "PGMQ",
     ]);
     assert.deepEqual(
       card.metrics.map((metric) => ({
@@ -76,6 +76,15 @@ describe("portfolio project content", () => {
         },
       ],
     );
+  });
+
+  it("includes the CI/CD deployment automation story in the workflow detail", () => {
+    const project = getProjectBySlug("opnerd-workflow-automation");
+
+    assert.ok(project);
+    assert.ok(project.approach.some((item) => item.includes("CI/CD")));
+    assert.ok(project.detail.decisions.some((item) => item.includes("수동 배포")));
+    assert.ok(project.impact.some((item) => item.includes("평균 3분")));
   });
 
   it("uses non-duplicated captions for every portfolio list metric", () => {

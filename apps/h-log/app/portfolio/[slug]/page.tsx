@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, CheckCircle2, Terminal } from "lucide-react";
 
+import { GithubWebhookArchitectureDiagram } from "@/components/portfolio/GithubWebhookArchitectureDiagram";
 import { Badge, Container } from "@/components/ui";
 import { getProjectBySlug, projects, projectToneClasses } from "@/lib/projects";
 
@@ -279,6 +280,9 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
       <section className="pb-24">
         <Container>
           <div className="grid gap-10">
+            {project.slug === "opnerd-workflow-automation" ? (
+              <GithubWebhookArchitectureDiagram />
+            ) : null}
             <MetricRibbon project={project} />
             <SystemMap project={project} />
             <Details project={project} />
