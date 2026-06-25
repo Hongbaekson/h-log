@@ -8,7 +8,7 @@
 
 ## 목표
 
-H-Log는 손홍백의 개인 브랜딩 사이트이자 기술 블로그다. 블로그 방향은 기존 file-based MVP에서 DB 기반 수동 발행을 먼저 만들고, 이후 완전 자동 주제 수집, 조사, 작성, 검증, 발행이 가능한 DB/API/worker 기반 플랫폼으로 확장하는 것으로 정리한다.
+H-Log는 손홍백의 개인 브랜딩 사이트이자 기술 블로그다. 블로그 방향은 기존 file-based MVP 계획을 종료하고 DB 기반 수동 발행을 먼저 만든 뒤, 이후 완전 자동 주제 수집, 조사, 작성, 검증, 발행이 가능한 DB/API/worker 기반 플랫폼으로 확장하는 것으로 정리한다.
 
 핵심 메시지는 아래와 같다.
 
@@ -67,7 +67,7 @@ H-01에서 제외한다.
 
 - Markdown 또는 MDX 기반 글 loader는 기존 글 import 또는 임시 fixture 용도로만 사용한다.
 - `/blog`와 `/blog/[slug]` public route의 장기 source of truth는 DB 기반 `post_versions`다.
-- file-based list/detail 구현은 phase registry에서 blocked 상태로 둔다.
+- file-based list/detail 구현 계획은 active phase registry에서 제거한다.
 
 ### A-01: DB 기반 수동 발행 블로그
 

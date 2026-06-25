@@ -42,17 +42,16 @@ apps/h-log/AGENTS.md
 | AGENT_LOOP/WORKFLOW/IMPLEMENTATION_PLAN 없음 | 보완 완료 | dogfood 구조를 h-log에 맞게 추가 |
 | root skill에 harness/tdd/grill-me/sync-repos 없음 | 보완 완료 | `.codex/skills/`에 repo-local skill 추가 |
 | phase index 없음 | 보완 완료 | `apps/h-log/phases/index.json` 생성 |
-| 자동 블로그 계획과 MVP 방향 충돌 가능 | 정리 완료 | file-based track은 blocked, DB-first track을 다음 실행 대상으로 기록 |
+| 자동 블로그 계획과 MVP 방향 충돌 가능 | 정리 완료 | file-based track은 active phase index에서 제거하고, DB-first track을 다음 실행 대상으로 기록 |
 | visitor chatbot 오해 가능 | 통제 필요 | 모든 문서에서 chatbot 제외 명시 |
 | 자동 글의 허위 경험 표현 위험 | 통제 필요 | evidence 기반 article mode와 claim gate를 강제 |
 
 ## 현재 phase 실행 순서
 
-수정된 `plans/automated-blog-publishing-plan.md` 기준으로 블로그 본선은 DB-first다. 기존 file-based loader는 완료된 호환 작업으로 보존하고, `/blog` 목록/상세 구현은 DB phase로 넘긴다.
+수정된 `plans/automated-blog-publishing-plan.md` 기준으로 블로그 본선은 DB-first다. 기존 file-based loader는 완료된 호환 작업으로만 보존하고, `/blog` 목록/상세 구현은 DB phase에서 진행한다.
 
 ```text
 phase-registry-bootstrap: completed
-blog-public-mvp: blocked
 db-manual-publishing-mvp: next
 oci-infra-deployment-foundation
 publish-state-and-admin
@@ -65,26 +64,29 @@ feedback-and-persona-learning
 auto-publish-ops-hardening
 ```
 
-## 완료된 호환 작업
+## 완료된 호환 이력
 
-### blog-public-mvp / Step 0: file-based-blog-loader
+### 파일 기반 loader 호환 이력
 
 - 상태: completed
 - 역할: 기존 Markdown/MDX 글 import, fixture, 전환 지원
 - 주의: DB-first phase가 시작된 뒤 public source of truth로 확장하지 않는다.
+- active phase index에서는 제외한다. 새 블로그 목록/상세 구현은 `db-manual-publishing-mvp`에서만 진행한다.
 
-### blog-public-mvp / Step 1: file-based-list-and-detail
-
-- 상태: blocked
-- 이유: `Content: DB + generated Markdown/HTML`, `PostgreSQL + pgvector` 방향으로 전환했기 때문이다.
-
-## 다음 실행 대상
+## 현재 DB-first 진행 상태
 
 ### db-manual-publishing-mvp / Step 0: db-content-model-contract
 
 - 목표: `posts`, `post_versions`, `post_sources`, `publish_jobs`의 최소 model contract를 정한다.
+- 상태: completed
+- 결과: `lib/blog-content-model.ts`와 테스트로 version content, `content_hash`, `current_version_id`, publish job 중요도 경계를 고정했다.
 - 검증: `npm run test`, `npm run typecheck`
-- 주의: 실제 DB 연결이나 자동 글 생성은 아직 하지 않는다.
+
+### db-manual-publishing-mvp / Step 1: published-route-boundary
+
+- 상태: next
+- 목표: public blog 조회가 `status=published`이면서 `current_version_id`가 가리키는 version만 반환하도록 route/query 경계를 고정한다.
+- 주의: 실제 OCI DB 연결이나 자동 글 생성은 아직 하지 않는다.
 
 ## 이후 DB-first 단계
 
@@ -104,5 +106,5 @@ auto-publish-ops-hardening
 - Harness baseline 문서와 phase template이 존재한다.
 - root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
 - `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
-- 다음 step은 `db-manual-publishing-mvp/step0.md`다.
+- 다음 step은 `db-manual-publishing-mvp/step1.md`다.
 - 문서 검증과 `git diff --check`가 통과한다.
