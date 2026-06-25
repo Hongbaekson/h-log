@@ -16,6 +16,11 @@
       "summary": "Next execution target. Build DB-backed manual publishing before automatic writing."
     },
     {
+      "dir": "oci-infra-deployment-foundation",
+      "status": "pending",
+      "summary": "Define OCI Compute, Docker Compose, Nginx, PostgreSQL, Redis, backup, smoke, and rollback boundaries before production automation."
+    },
+    {
       "dir": "publish-state-and-admin",
       "status": "pending"
     },

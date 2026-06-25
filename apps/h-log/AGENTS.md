@@ -12,6 +12,7 @@
 - Backend: Next.js route handlers first, worker added in automation phases
 - Database: PostgreSQL + pgvector planned from `db-manual-publishing-mvp`
 - Deploy target: OCI server with Docker Compose and Nginx
+- Infrastructure: OCI Compute first; web, worker, PostgreSQL, Redis, and Nginx are Compose-managed unless a later ADR selects managed services
 
 ## Product Direction
 
@@ -54,7 +55,7 @@
 6. Resume page
 7. DB-backed Blog list and detail
 8. SEO and quality
-9. Docker and deployment
+9. OCI Docker Compose/Nginx deployment foundation
 10. CI/CD
 
 한 단위가 끝날 때마다 가능한 검증을 수행하고, 다음 단위로 넘어간다.

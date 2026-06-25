@@ -70,15 +70,33 @@ apps/h-log/
 - 주제 수집, 조사, persona 적용, claim 검증
 - 자동 발행 전/후 검증 상태 전이
 
-### future infra가 소유할 수 있다
+### OCI 인프라가 소유한다
 
-- PostgreSQL instance
-- Redis
+- OCI Compute host
+- OCI network/security list
+- Docker Compose runtime
+- Nginx reverse proxy와 TLS
+- PostgreSQL + pgvector instance
+- Redis instance
 - 백업/복구
 - secret injection
-- Nginx TLS
-- OCI network/firewall
 - 배포 runner
+
+초기 production 구조는 아직 구현된 상태가 아니라 목표 runtime boundary다.
+
+```text
+Internet
+  -> OCI network/security list
+  -> Nginx 80/443
+  -> Next.js web container
+  -> PostgreSQL + pgvector / Redis
+
+blog worker container
+  -> PostgreSQL + pgvector / Redis
+  -> external APIs
+```
+
+PostgreSQL과 Redis는 public internet에 노출하지 않는다. 서버 IP, SSH key, DB password, API key는 저장소나 공개 문서에 남기지 않는다.
 
 ## 현재 앱 데이터 흐름
 

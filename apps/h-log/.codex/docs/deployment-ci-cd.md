@@ -19,10 +19,12 @@ Local development
 
 1. 로컬 MVP 개발
 2. 로컬 `npm run lint`와 `npm run build` 통과
-3. Dockerfile과 compose 작성
-4. OCI에서 수동 배포 성공
-5. Nginx, 도메인, HTTPS 확인
-6. CI/CD 자동화 추가
+3. DB-backed blog의 local contract와 migration strategy 확정
+4. Dockerfile과 compose 작성
+5. OCI에서 수동 배포 성공
+6. Nginx, 도메인, HTTPS 확인
+7. DB backup/restore와 rollback smoke 확인
+8. CI/CD 자동화 추가
 
 처음부터 CI/CD까지 한 번에 구현하지 않는다.
 
@@ -31,7 +33,10 @@ Local development
 - Next.js standalone output 사용
 - 앱 컨테이너는 내부 포트 `3000`
 - Nginx가 외부 `80/443`에서 앱 컨테이너로 reverse proxy
-- DB는 MVP에서 제외
+- PostgreSQL + pgvector는 DB-backed blog부터 필요하다
+- Redis는 worker queue/cache/search cost guard가 필요한 phase에서 추가한다
+- worker는 자동 발행 phase 전까지 비활성 또는 수동 실행 가능하게 둔다
+- DB/Redis는 public internet에 노출하지 않는다
 
 ## CI Checks
 
@@ -71,5 +76,15 @@ CI/CD secret으로만 관리한다.
 - SSH private key
 - registry token
 - domain-specific env vars
+- PostgreSQL password
+- Redis password 또는 internal auth 설정
+- LLM, embedding, IndexNow, Discord provider token
 
 저장소에 secret, server IP, API key를 커밋하지 않는다.
+
+## OCI Guardrails
+
+- 서버 접속, firewall/security list 변경, 실제 compose restart는 사용자 승인 후 수행한다.
+- 운영 DB에 직접 연결하는 검증은 하지 않는다. 필요하면 local/test DB 또는 dump fixture를 먼저 사용한다.
+- 배포 smoke는 public route, `/blog`, `/blog/:slug`, `/blog/:slug.md`, sitemap/feed/llms, Nginx status, container health를 확인한다.
+- rollback은 이전 image tag와 migration rollback 가능 여부를 함께 확인한 뒤 실행한다.

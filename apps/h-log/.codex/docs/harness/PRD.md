@@ -49,6 +49,18 @@ H-01에서 제외한다.
 - 방문자 RAG 챗봇
 - 자동 글 작성/자동 발행
 
+### I-01: OCI self-hosted infrastructure
+
+인프라와 클라우드는 OCI를 기본 운영 환경으로 둔다.
+
+- 초기 production target은 OCI Compute 1대다.
+- Docker Compose로 Next.js web, blog worker, PostgreSQL + pgvector, Redis, Nginx를 관리한다.
+- Nginx는 80/443 TLS 종료와 reverse proxy를 담당한다.
+- PostgreSQL과 Redis는 public internet에 노출하지 않는다.
+- DB password, API key, SSH key, 서버 IP는 저장소에 커밋하지 않는다.
+- 자동 발행 전에는 backup/restore, deploy smoke, rollback runbook이 있어야 한다.
+- managed DB나 managed runtime으로 바꾸려면 별도 ADR을 추가한다.
+
 ### H-02: 파일 기반 블로그 호환 레이어
 
 파일 기반 블로그는 본선이 아니라 전환/호환 레이어로 둔다.

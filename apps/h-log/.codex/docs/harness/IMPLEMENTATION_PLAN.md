@@ -54,6 +54,7 @@ apps/h-log/AGENTS.md
 phase-registry-bootstrap: completed
 blog-public-mvp: blocked
 db-manual-publishing-mvp: next
+oci-infra-deployment-foundation
 publish-state-and-admin
 search-and-related-posts
 post-publish-seo-automation
@@ -88,14 +89,15 @@ auto-publish-ops-hardening
 ## 이후 DB-first 단계
 
 1. DB 기반 수동 발행 블로그
-2. 발행 상태와 최소 관리자 운영
-3. 하이브리드 검색과 관련 글
-4. 발행 후 SEO/AI crawler 자동화
-5. 주제 수집과 research pack
-6. 자동 글 생성
-7. 다이어그램 asset 자동화
-8. 성과 피드백과 persona learning
-9. 운영 안정화
+2. OCI 인프라 및 배포 foundation
+3. 발행 상태와 최소 관리자 운영
+4. 하이브리드 검색과 관련 글
+5. 발행 후 SEO/AI crawler 자동화
+6. 주제 수집과 research pack
+7. 자동 글 생성
+8. 다이어그램 asset 자동화
+9. 성과 피드백과 persona learning
+10. 운영 안정화
 
 ## 완료 기준
 

@@ -1,0 +1,31 @@
+{
+  "project": "h-log",
+  "phase": "oci-infra-deployment-foundation",
+  "steps": [
+    {
+      "step": 0,
+      "name": "oci-runtime-topology-contract",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "compose-service-boundary",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "nginx-tls-security-boundary",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "backup-restore-runbook",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "name": "deploy-smoke-rollback-runbook",
+      "status": "pending"
+    }
+  ]
+}
