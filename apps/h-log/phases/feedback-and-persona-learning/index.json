@@ -1,0 +1,21 @@
+{
+  "project": "h-log",
+  "phase": "feedback-and-persona-learning",
+  "steps": [
+    {
+      "step": 0,
+      "name": "usage-and-performance-signals",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "persona-example-learning",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "failure-pattern-registry",
+      "status": "pending"
+    }
+  ]
+}

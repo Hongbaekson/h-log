@@ -1,0 +1,21 @@
+{
+  "project": "h-log",
+  "phase": "diagram-assets-automation",
+  "steps": [
+    {
+      "step": 0,
+      "name": "diagram-trigger-policy",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "diagram-asset-storage",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "article-diagram-insertion-gate",
+      "status": "pending"
+    }
+  ]
+}

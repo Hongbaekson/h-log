@@ -1,25 +1,25 @@
 {
   "project": "h-log",
-  "phase": "topic-research-generation",
+  "phase": "auto-article-generation",
   "steps": [
     {
       "step": 0,
-      "name": "source-collector-and-ranking",
+      "name": "article-output-schema",
       "status": "pending"
     },
     {
       "step": 1,
-      "name": "research-pack-boundary",
+      "name": "persona-and-mode-selection",
       "status": "pending"
     },
     {
       "step": 2,
-      "name": "apply-to-me-context-ledger",
+      "name": "quality-gate-publish-decision",
       "status": "pending"
     },
     {
       "step": 3,
-      "name": "claim-verification-source-policy",
+      "name": "daily-cron-draft-to-publish",
       "status": "pending"
     }
   ]

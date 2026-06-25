@@ -6,6 +6,21 @@
       "step": 0,
       "name": "publish-state-machine",
       "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "required-vs-retryable-jobs",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "admin-actions-audit-log",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "correction-unpublish-retract-flow",
+      "status": "pending"
     }
   ]
 }

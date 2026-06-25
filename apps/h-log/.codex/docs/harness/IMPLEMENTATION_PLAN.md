@@ -1,0 +1,106 @@
+# Implementation Plan: H-Log Harness Baseline
+
+이 문서는 H-Log를 Harness step으로 구현하거나 자동 블로그 플랫폼으로 전환할 때의 기준 계획이다. 실제 phase 파일은 `apps/h-log/phases/` 아래에 생성한다.
+
+## Dogfood 구조 분석 결과
+
+`D:\dogfood\backend`의 Codex 구조는 아래 흐름을 강제한다.
+
+```text
+AGENTS.md
+  -> .codex/docs/PRD.md
+  -> .codex/docs/ADR.md
+  -> .codex/docs/ARCHITECTURE.md
+  -> .codex/docs/BACKEND_WORKFLOW.md
+  -> .codex/docs/AGENT_LOOP.md
+  -> .codex/docs/IMPLEMENTATION_PLAN.md
+  -> .codex/skills/harness/SKILL.md
+  -> .codex/skills/tdd/SKILL.md
+  -> phases/{task}/stepN.md
+```
+
+H-Log에는 같은 패턴을 아래처럼 적용한다.
+
+```text
+apps/h-log/AGENTS.md
+  -> apps/h-log/.codex/docs/harness/PRD.md
+  -> apps/h-log/.codex/docs/harness/ADR.md
+  -> apps/h-log/.codex/docs/harness/ARCHITECTURE.md
+  -> apps/h-log/.codex/docs/harness/WORKFLOW.md
+  -> apps/h-log/.codex/docs/harness/AGENT_LOOP.md
+  -> apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md
+  -> .codex/skills/harness/SKILL.md
+  -> .codex/skills/tdd/SKILL.md
+  -> apps/h-log/phases/{task}/stepN.md
+```
+
+## 현재 격차
+
+| 항목 | 상태 | 조치 |
+| --- | --- | --- |
+| h-log PRD/ADR/ARCHITECTURE가 placeholder | 보완 완료 | 실제 MVP와 자동 블로그 전환 기준 작성 |
+| AGENT_LOOP/WORKFLOW/IMPLEMENTATION_PLAN 없음 | 보완 완료 | dogfood 구조를 h-log에 맞게 추가 |
+| root skill에 harness/tdd/grill-me/sync-repos 없음 | 보완 완료 | `.codex/skills/`에 repo-local skill 추가 |
+| phase index 없음 | 보완 완료 | `apps/h-log/phases/index.json` 생성 |
+| 자동 블로그 계획과 MVP 방향 충돌 가능 | 정리 완료 | file-based track은 blocked, DB-first track을 다음 실행 대상으로 기록 |
+| visitor chatbot 오해 가능 | 통제 필요 | 모든 문서에서 chatbot 제외 명시 |
+| 자동 글의 허위 경험 표현 위험 | 통제 필요 | evidence 기반 article mode와 claim gate를 강제 |
+
+## 현재 phase 실행 순서
+
+수정된 `plans/automated-blog-publishing-plan.md` 기준으로 블로그 본선은 DB-first다. 기존 file-based loader는 완료된 호환 작업으로 보존하고, `/blog` 목록/상세 구현은 DB phase로 넘긴다.
+
+```text
+phase-registry-bootstrap: completed
+blog-public-mvp: blocked
+db-manual-publishing-mvp: next
+publish-state-and-admin
+search-and-related-posts
+post-publish-seo-automation
+topic-research-generation
+auto-article-generation
+diagram-assets-automation
+feedback-and-persona-learning
+auto-publish-ops-hardening
+```
+
+## 완료된 호환 작업
+
+### blog-public-mvp / Step 0: file-based-blog-loader
+
+- 상태: completed
+- 역할: 기존 Markdown/MDX 글 import, fixture, 전환 지원
+- 주의: DB-first phase가 시작된 뒤 public source of truth로 확장하지 않는다.
+
+### blog-public-mvp / Step 1: file-based-list-and-detail
+
+- 상태: blocked
+- 이유: `Content: DB + generated Markdown/HTML`, `PostgreSQL + pgvector` 방향으로 전환했기 때문이다.
+
+## 다음 실행 대상
+
+### db-manual-publishing-mvp / Step 0: db-content-model-contract
+
+- 목표: `posts`, `post_versions`, `post_sources`, `publish_jobs`의 최소 model contract를 정한다.
+- 검증: `npm run test`, `npm run typecheck`
+- 주의: 실제 DB 연결이나 자동 글 생성은 아직 하지 않는다.
+
+## 이후 DB-first 단계
+
+1. DB 기반 수동 발행 블로그
+2. 발행 상태와 최소 관리자 운영
+3. 하이브리드 검색과 관련 글
+4. 발행 후 SEO/AI crawler 자동화
+5. 주제 수집과 research pack
+6. 자동 글 생성
+7. 다이어그램 asset 자동화
+8. 성과 피드백과 persona learning
+9. 운영 안정화
+
+## 완료 기준
+
+- Harness baseline 문서와 phase template이 존재한다.
+- root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
+- `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
+- 다음 step은 `db-manual-publishing-mvp/step0.md`다.
+- 문서 검증과 `git diff --check`가 통과한다.

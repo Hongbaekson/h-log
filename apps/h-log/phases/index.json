@@ -7,11 +7,13 @@
     },
     {
       "dir": "blog-public-mvp",
-      "status": "pending"
+      "status": "blocked",
+      "blocked_reason": "Updated automated blog plan now selects the DB-first automated platform direction. Keep the completed file loader as compatibility work, but do not continue file-based list/detail unless the direction changes back."
     },
     {
       "dir": "db-manual-publishing-mvp",
-      "status": "pending"
+      "status": "pending",
+      "summary": "Next execution target. Build DB-backed manual publishing before automatic writing."
     },
     {
       "dir": "publish-state-and-admin",
@@ -27,6 +29,18 @@
     },
     {
       "dir": "topic-research-generation",
+      "status": "pending"
+    },
+    {
+      "dir": "auto-article-generation",
+      "status": "pending"
+    },
+    {
+      "dir": "diagram-assets-automation",
+      "status": "pending"
+    },
+    {
+      "dir": "feedback-and-persona-learning",
       "status": "pending"
     },
     {

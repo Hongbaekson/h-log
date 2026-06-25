@@ -4,7 +4,32 @@
   "steps": [
     {
       "step": 0,
+      "name": "db-content-model-contract",
+      "status": "pending"
+    },
+    {
+      "step": 1,
       "name": "published-route-boundary",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "markdown-html-version-boundary",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "blog-public-routes-and-md-endpoint",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "name": "public-blog-index-surface",
+      "status": "pending"
+    },
+    {
+      "step": 5,
+      "name": "minimal-admin-preview-save-publish",
       "status": "pending"
     }
   ]

@@ -7,9 +7,10 @@
 - Language: TypeScript
 - Frontend: React + Next.js App Router
 - Styling: Tailwind CSS
-- Content: MDX file-based content
-- MVP backend: none
-- MVP database: none
+- Blog content direction: DB-backed `posts`/`post_versions` with generated Markdown/HTML
+- Compatibility content: existing MD/MDX loader is import/transition support only
+- Backend: Next.js route handlers first, worker added in automation phases
+- Database: PostgreSQL + pgvector planned from `db-manual-publishing-mvp`
 - Deploy target: OCI server with Docker Compose and Nginx
 
 ## Product Direction
@@ -20,7 +21,8 @@
 - 보조 메시지: `Java/Spring 기반 백엔드를 개발합니다. 반복되는 작업은 줄이고, 운영하기 쉬운 구조를 고민합니다.`
 - 디자인 방향: Clean Dark Engineer Portfolio + Subtle AI Workflow Console
 - MVP pages: `/`, `/resume`, `/projects`, `/projects/[slug]`, `/blog`, `/blog/[slug]`
-- MVP 제외: DB CMS, 관리자, 로그인, 댓글, 조회수, RAG 챗봇
+- 제외: 방문자 RAG 챗봇, SSE 대화 UI, 방문자 세션 메모리, 댓글, 공개 조회수
+- 관리자 기능은 DB phase에서 preview/save/publish 중심의 최소 운영 화면만 허용한다.
 
 ## Lazy-Load Documents
 
@@ -28,6 +30,12 @@
 
 - `.codex/docs/implementation-roadmap.md`: 작은 단위 구현 순서
 - `.codex/docs/deployment-ci-cd.md`: OCI, Docker, Nginx, CI/CD 작업
+- `.codex/docs/harness/PRD.md`: h-log 제품 범위와 자동 블로그 전환 기준
+- `.codex/docs/harness/ADR.md`: 기술 결정과 트레이드오프
+- `.codex/docs/harness/ARCHITECTURE.md`: 현재 앱 구조와 자동 블로그 전환 구조
+- `.codex/docs/harness/WORKFLOW.md`: Harness 기반 실행 규칙
+- `.codex/docs/harness/AGENT_LOOP.md`: 한 step 단위 반복 개발 루프
+- `.codex/docs/harness/IMPLEMENTATION_PLAN.md`: phase 후보와 전환 단계
 - `.codex/rules/frontend.md`: UI, 컴포넌트, 스타일 작성 규칙
 - `.codex/rules/content-seo-privacy.md`: 콘텐츠, SEO, 개인정보 공개 기준
 - `../../plans/personal-portfolio-site-development-plan.md`: 기준 개발 계획
@@ -40,16 +48,18 @@
 
 1. Project setup
 2. Design tokens and base UI
-3. Content pipeline
+3. DB content model and publishing boundary
 4. Projects list and detail
 5. Home page
 6. Resume page
-7. Blog list and detail
+7. DB-backed Blog list and detail
 8. SEO and quality
 9. Docker and deployment
 10. CI/CD
 
 한 단위가 끝날 때마다 가능한 검증을 수행하고, 다음 단위로 넘어간다.
+
+Harness 작업은 `.codex/docs/harness/WORKFLOW.md`와 루트 `.codex/skills/harness/SKILL.md`를 따른다. Production code 변경은 루트 `.codex/skills/tdd/SKILL.md` 기준으로 failing test를 먼저 확인한다.
 
 ## Expected Structure
 
@@ -87,5 +97,5 @@ npm run dev
 - Home H1은 담백하게 쓴다. 기본형은 `백엔드 개발자 손홍백입니다`로 둔다.
 - 공개 전 고객사명, 성과 수치, 이메일, PDF, 프로필 사진 공개 여부를 확인한다.
 - 전화번호, 생년월일, 내부 URL, 서버 IP, API key, 비공개 저장소명은 노출하지 않는다.
-- DB CMS, 챗봇은 MVP 이후로 미룬다.
+- full CMS와 방문자 챗봇을 만들지 않는다. DB 기반 수동 발행은 다음 blog phase의 본선이다.
 - 한 작업 단위에서 페이지 여러 개와 배포 설정을 동시에 바꾸지 않는다.

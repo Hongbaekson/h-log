@@ -6,6 +6,21 @@
       "step": 0,
       "name": "hybrid-search-contract",
       "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "search-api-cost-guard",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "related-posts-similarity",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "published-only-search-ui",
+      "status": "pending"
     }
   ]
 }

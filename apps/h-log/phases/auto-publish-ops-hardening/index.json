@@ -6,6 +6,26 @@
       "step": 0,
       "name": "idempotency-and-quota",
       "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "job-lock-and-retry-stop",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "usage-events-cost-ledger",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "privacy-scanner-and-redaction",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "name": "rollback-ops-smoke",
+      "status": "pending"
     }
   ]
 }

@@ -5,7 +5,14 @@
     {
       "step": 0,
       "name": "file-based-blog-loader",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a file-based Markdown/MDX blog loader with published-only filtering, slug detail lookup, date sorting, and frontmatter validation tests."
+    },
+    {
+      "step": 1,
+      "name": "file-based-list-and-detail",
+      "status": "blocked",
+      "blocked_reason": "Updated automated blog plan changes the main track to DB + generated Markdown/HTML with PostgreSQL + pgvector. Resume this step only if the file-based MVP direction is explicitly restored."
     }
   ]
 }
