@@ -1,0 +1,11 @@
+{
+  "project": "h-log",
+  "phase": "auto-publish-ops-hardening",
+  "steps": [
+    {
+      "step": 0,
+      "name": "idempotency-and-quota",
+      "status": "pending"
+    }
+  ]
+}

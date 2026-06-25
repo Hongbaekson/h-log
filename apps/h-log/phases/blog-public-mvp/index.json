@@ -1,0 +1,11 @@
+{
+  "project": "h-log",
+  "phase": "blog-public-mvp",
+  "steps": [
+    {
+      "step": 0,
+      "name": "file-based-blog-loader",
+      "status": "pending"
+    }
+  ]
+}

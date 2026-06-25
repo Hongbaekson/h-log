@@ -1,0 +1,11 @@
+{
+  "project": "h-log",
+  "phase": "topic-research-generation",
+  "steps": [
+    {
+      "step": 0,
+      "name": "research-pack-boundary",
+      "status": "pending"
+    }
+  ]
+}

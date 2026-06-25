@@ -1,0 +1,37 @@
+{
+  "phases": [
+    {
+      "dir": "phase-registry-bootstrap",
+      "status": "completed",
+      "summary": "Created the H-Log phase registry and initial step documents for the blog and automated publishing roadmap."
+    },
+    {
+      "dir": "blog-public-mvp",
+      "status": "pending"
+    },
+    {
+      "dir": "db-manual-publishing-mvp",
+      "status": "pending"
+    },
+    {
+      "dir": "publish-state-and-admin",
+      "status": "pending"
+    },
+    {
+      "dir": "search-and-related-posts",
+      "status": "pending"
+    },
+    {
+      "dir": "post-publish-seo-automation",
+      "status": "pending"
+    },
+    {
+      "dir": "topic-research-generation",
+      "status": "pending"
+    },
+    {
+      "dir": "auto-publish-ops-hardening",
+      "status": "pending"
+    }
+  ]
+}

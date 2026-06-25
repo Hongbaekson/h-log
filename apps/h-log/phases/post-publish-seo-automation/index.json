@@ -1,0 +1,11 @@
+{
+  "project": "h-log",
+  "phase": "post-publish-seo-automation",
+  "steps": [
+    {
+      "step": 0,
+      "name": "post-publish-verification-jobs",
+      "status": "pending"
+    }
+  ]
+}

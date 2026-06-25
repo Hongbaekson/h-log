@@ -1,0 +1,11 @@
+{
+  "project": "h-log",
+  "phase": "search-and-related-posts",
+  "steps": [
+    {
+      "step": 0,
+      "name": "hybrid-search-contract",
+      "status": "pending"
+    }
+  ]
+}

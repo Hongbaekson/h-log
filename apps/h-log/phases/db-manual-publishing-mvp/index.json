@@ -1,0 +1,11 @@
+{
+  "project": "h-log",
+  "phase": "db-manual-publishing-mvp",
+  "steps": [
+    {
+      "step": 0,
+      "name": "published-route-boundary",
+      "status": "pending"
+    }
+  ]
+}

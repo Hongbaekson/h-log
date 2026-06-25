@@ -1,0 +1,11 @@
+{
+  "project": "h-log",
+  "phase": "publish-state-and-admin",
+  "steps": [
+    {
+      "step": 0,
+      "name": "publish-state-machine",
+      "status": "pending"
+    }
+  ]
+}
