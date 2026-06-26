@@ -7,8 +7,8 @@
     },
     {
       "dir": "db-manual-publishing-mvp",
-      "status": "pending",
-      "summary": "Steps 0-2 completed. Next target is blog-public-routes-and-md-endpoint for DB-backed public routes."
+      "status": "completed",
+      "summary": "Steps 0-5 completed: DB content contract, published-only route boundary, Markdown/HTML integrity, public blog routes, index surface, and non-routed admin workflow contract."
     },
     {
       "dir": "oci-infra-deployment-foundation",

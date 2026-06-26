@@ -41,6 +41,7 @@ export const BLOG_CONTENT_MODEL_TABLES = {
     "summary",
     "snapshot_hash",
   ],
+  post_tags: ["id", "post_id", "tag", "created_at"],
   publish_jobs: [
     "id",
     "post_id",
@@ -52,6 +53,14 @@ export const BLOG_CONTENT_MODEL_TABLES = {
     "error",
     "started_at",
     "finished_at",
+  ],
+  admin_actions: [
+    "id",
+    "action_type",
+    "target_type",
+    "target_id",
+    "reason",
+    "created_at",
   ],
 } as const;
 
@@ -116,6 +125,8 @@ export const publishJobStatuses = [
   "failed",
 ] as const;
 
+export const adminActionTypes = ["preview", "save", "publish"] as const;
+
 export type BlogPostStatus = (typeof blogPostStatuses)[number];
 export type BlogArticleMode = (typeof blogArticleModes)[number];
 export type PostSourceRole = (typeof postSourceRoles)[number];
@@ -125,6 +136,8 @@ export type PublishJobType = RequiredPublishJobType | RetryablePublishJobType;
 export type PublishJobImportance = "required" | "retryable";
 export type PublishJobStatus = (typeof publishJobStatuses)[number];
 export type PostVersionCreatedBy = "system" | "admin";
+export type AdminActionType = (typeof adminActionTypes)[number];
+export type AdminActionTargetType = "post" | "post_version";
 export type Timestamp = string;
 
 export type PostRecord = {
@@ -170,6 +183,13 @@ export type PostSourceRecord = {
   url: string;
 };
 
+export type PostTagRecord = {
+  createdAt: Timestamp;
+  id: string;
+  postId: string;
+  tag: string;
+};
+
 export type PublishJobRecord = {
   error: string | null;
   finishedAt: Timestamp | null;
@@ -181,6 +201,15 @@ export type PublishJobRecord = {
   startedAt: Timestamp | null;
   status: PublishJobStatus;
   type: PublishJobType;
+};
+
+export type AdminActionRecord = {
+  actionType: AdminActionType;
+  createdAt: Timestamp;
+  id: string;
+  reason: string | null;
+  targetId: string;
+  targetType: AdminActionTargetType;
 };
 
 export type PostVersionContent = Pick<

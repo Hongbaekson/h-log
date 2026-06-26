@@ -23,17 +23,20 @@
     {
       "step": 3,
       "name": "blog-public-routes-and-md-endpoint",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Connected DB-contract public blog data to /blog, /blog/[slug], and /blog/:slug.md with a shared published-only boundary and source links."
     },
     {
       "step": 4,
       "name": "public-blog-index-surface",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a published-only blog index surface with dates, summaries, tags, tag counts, and pagination while keeping search out of this phase."
     },
     {
       "step": 5,
       "name": "minimal-admin-preview-save-publish",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a non-routed minimal admin workflow contract for preview, save, publish, and admin action audit logs; no public admin route was exposed because access control is not decided."
     }
   ]
 }

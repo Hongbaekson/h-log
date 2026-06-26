@@ -99,9 +99,26 @@ auto-publish-ops-hardening
 
 ### db-manual-publishing-mvp / Step 3: blog-public-routes-and-md-endpoint
 
-- 상태: next
+- 상태: completed
 - 목표: DB content model과 published-only selector를 `/blog`, `/blog/[slug]`, `/blog/[slug].md` public route에 연결한다.
+- 결과: `lib/blog-public.ts`, `lib/blog-public-data.ts`, `/blog`, `/blog/[slug]`, `/blog/:slug.md` route를 추가해 public route가 같은 published-only boundary를 사용하도록 연결했다.
+- 검증: `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`
 - 주의: preview/admin route를 public route와 섞지 않는다.
+
+### db-manual-publishing-mvp / Step 4: public-blog-index-surface
+
+- 상태: completed
+- 목표: `/blog` 목록에 날짜, 제목, 요약, 태그, 태그별 카운트, 페이지네이션을 제공한다.
+- 결과: published 글만 기준으로 tag count와 pagination을 계산하고, 검색 UI는 다음 `search-and-related-posts` phase로 남겼다.
+- 검증: `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`
+
+### db-manual-publishing-mvp / Step 5: minimal-admin-preview-save-publish
+
+- 상태: completed
+- 목표: 자동 작성 전 수동 발행을 위한 preview/save/publish 최소 admin workflow를 고정한다.
+- 결과: `lib/blog-admin.ts`와 테스트로 preview, save, publish, `admin_actions` audit log를 고정했다. 접근 제어 방식이 미정이므로 `/admin` production route는 공개하지 않았다.
+- 검증: `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`
+- 다음 결정: 실제 관리자 화면을 route로 공개하려면 인증/접근 제어 방식을 먼저 정해야 한다.
 
 ## 이후 DB-first 단계
 
@@ -121,5 +138,5 @@ auto-publish-ops-hardening
 - Harness baseline 문서와 phase template이 존재한다.
 - root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
 - `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
-- 다음 step은 `db-manual-publishing-mvp/step3.md`다.
+- 다음 phase는 `oci-infra-deployment-foundation`이다.
 - 문서 검증과 `git diff --check`가 통과한다.

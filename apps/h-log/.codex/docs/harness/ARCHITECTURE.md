@@ -8,7 +8,7 @@
 
 ## 현재 구현 상태
 
-`apps/h-log`는 Next.js App Router 기반 개인 사이트다. 현재 확인된 구조는 Home, Resume, Portfolio, Blog placeholder, 프로젝트 상세, resume PDF API route, 공통 UI 컴포넌트, 프로젝트/이력 데이터 loader, 파일 기반 blog loader와 단위 테스트, DB 기반 blog content model contract, published-only public route selector, Markdown-to-sanitized-HTML version/hash boundary를 포함한다. 파일 기반 blog loader는 DB-first 전환 후 public source of truth가 아니라 import/transition support로 취급한다.
+`apps/h-log`는 Next.js App Router 기반 개인 사이트다. 현재 확인된 구조는 Home, Resume, Portfolio, DB-contract 기반 Blog 목록/상세/Markdown endpoint, 프로젝트 상세, resume PDF API route, 공통 UI 컴포넌트, 프로젝트/이력 데이터 loader, 파일 기반 blog loader와 단위 테스트, DB 기반 blog content model contract, published-only public route selector, Markdown-to-sanitized-HTML version/hash boundary, route로 공개하지 않은 최소 admin preview/save/publish workflow contract를 포함한다. 파일 기반 blog loader는 DB-first 전환 후 public source of truth가 아니라 import/transition support로 취급한다.
 
 현재 `package.json` 기준 검증 명령은 아래와 같다.
 
@@ -108,13 +108,14 @@ Source content / lib data
   -> metadata / sitemap / robots
 ```
 
-현재 `/blog`는 placeholder다. `lib/blog.ts`의 파일 기반 loader는 public route에 연결하지 않고, DB 전환 전후 import/fixture support로만 사용한다.
+현재 `/blog`, `/blog/[slug]`, `/blog/:slug.md`는 `lib/blog-public.ts`와 `lib/blog-public-data.ts`를 통해 DB content contract 형태의 public store를 읽는다. public selector는 published 최신 version만 반환하고, `ready_to_publish` 같은 preview/admin 상태는 목록, 상세, Markdown endpoint에 노출하지 않는다. `lib/blog.ts`의 파일 기반 loader는 public route에 연결하지 않고, DB 전환 전후 import/fixture support로만 사용한다.
 
 ## DB 기반 수동 발행 데이터 흐름
 
 ```text
 Manual admin or internal API
   -> posts / post_versions
+  -> post_tags / post_sources
   -> markdown to sanitized HTML
   -> content_hash
   -> status=published latest version
@@ -122,6 +123,8 @@ Manual admin or internal API
 ```
 
 public route는 `published` 상태의 최신 `post_version`만 노출한다. `ready_to_publish`, `gate_failed`, `failed_generation`, `failed_publish`, `failed_verification`, `unpublished`, `retracted` 상태는 public URL에서 보이지 않아야 한다.
+
+현재 admin 구현은 `lib/blog-admin.ts`의 순수 workflow contract다. preview, save, publish와 `admin_actions` audit log를 테스트하지만, 접근 제어 방식이 결정되지 않았으므로 `/admin` production route는 아직 만들지 않는다.
 
 ## 자동 블로그 데이터 흐름
 
@@ -146,11 +149,12 @@ Daily topic collector
 
 DB 전환 phase가 시작되면 `plans/automated-blog-publishing-plan.md`를 기준으로 아래 모델을 우선한다.
 
-현재 코드 contract는 `lib/blog-content-model.ts`에 있으며 실제 DB adapter, migration, OCI 연결은 아직 포함하지 않는다. Public route selector는 `status=published`이고 `current_version_id`가 가리키는 `post_versions` record만 반환한다. `content_markdown`에서 sanitized `content_html`과 `content_hash`를 생성하며, 저장된 HTML/Markdown이 hash와 어긋나면 crawler Markdown 출력 전에 실패한다.
+현재 코드 contract는 `lib/blog-content-model.ts`에 있으며 실제 DB adapter, migration, OCI 연결은 아직 포함하지 않는다. Public route selector는 `status=published`이고 `current_version_id`가 가리키는 `post_versions` record만 반환한다. `content_markdown`에서 sanitized `content_html`과 `content_hash`를 생성하며, 저장된 HTML/Markdown이 hash와 어긋나면 crawler Markdown 출력 전에 실패한다. 목록 태그와 tag count는 `post_tags` contract를 기준으로 published 글에서만 계산한다.
 
 ```text
 posts
 post_versions
+post_tags
 topic_candidates
 research_packs
 post_sources
