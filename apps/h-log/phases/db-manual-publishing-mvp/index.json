@@ -5,17 +5,20 @@
     {
       "step": 0,
       "name": "db-content-model-contract",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a dependency-free DB content model contract for posts, post_versions, post_sources, and publish_jobs, including version content hashing and current published version checks."
     },
     {
       "step": 1,
       "name": "published-route-boundary",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added public route selectors that expose only published posts with their current post_version and keep preview/admin statuses out of public lookups."
     },
     {
       "step": 2,
       "name": "markdown-html-version-boundary",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added canonical Markdown-to-sanitized-HTML content creation, content_hash integrity checks, and guarded crawler Markdown rendering for post_versions."
     },
     {
       "step": 3,

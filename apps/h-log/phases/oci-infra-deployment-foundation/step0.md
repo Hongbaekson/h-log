@@ -18,6 +18,7 @@
 
 OCI production runtime topology를 문서와 config contract로 고정한다.
 
+- 이 phase를 시작하기 전 사용자에게 OCI/Nginx/Docker container boundary 작업을 진행해도 되는지 반드시 알리고 확인을 받는다.
 - OCI Compute 단일 host 기준의 initial topology를 확정한다.
 - web, worker, PostgreSQL + pgvector, Redis, Nginx의 책임과 network boundary를 분리한다.
 - public ingress는 Nginx 80/443으로 제한하고 DB/Redis는 private compose network에 둔다.
@@ -39,6 +40,7 @@ git diff --check
 
 ## 하지 말 것
 
+- 사용자 확인 없이 OCI 인프라 phase를 시작하지 말 것. 이유: Nginx와 Docker container 분리 방식은 진행 전 명시 확인이 필요하다.
 - 실제 OCI 서버에 접속하지 말 것. 이유: 이 step은 topology contract 확정 단계다.
 - 서버 IP, SSH key, DB password, API key를 기록하지 말 것. 이유: 공개 저장소에 남으면 안 된다.
 - managed DB나 Vercel/Neon/Supabase 전환을 임의로 결정하지 말 것. 이유: 현재 기본값은 OCI self-hosted다.

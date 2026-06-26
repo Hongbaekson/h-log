@@ -8,12 +8,12 @@
     {
       "dir": "db-manual-publishing-mvp",
       "status": "pending",
-      "summary": "Step 0 completed. Next target is published-route-boundary before DB-backed public routes."
+      "summary": "Steps 0-2 completed. Next target is blog-public-routes-and-md-endpoint for DB-backed public routes."
     },
     {
       "dir": "oci-infra-deployment-foundation",
       "status": "pending",
-      "summary": "Define OCI Compute, Docker Compose, Nginx, PostgreSQL, Redis, backup, smoke, and rollback boundaries before production automation."
+      "summary": "Define OCI Compute, Docker Compose, Nginx, PostgreSQL, Redis, backup, smoke, and rollback boundaries only after notifying the user and getting confirmation."
     },
     {
       "dir": "publish-state-and-admin",

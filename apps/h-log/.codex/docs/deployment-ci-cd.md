@@ -59,6 +59,16 @@ typecheck 스크립트를 추가한 뒤에는 CI에 포함한다.
 - OCI에 SSH 접속
 - compose 파일이 있는 디렉터리에서 pull/up
 
+## OCI SSH Access
+
+기본 OCI 접속 명령은 아래 alias를 사용한다.
+
+```bash
+ssh oci
+```
+
+OCI 접속이나 수동 배포 확인이 필요한 작업에서 사용자가 별도 접속 명령을 다시 지정하지 않으면 이 alias를 기본값으로 본다. 서버 IP, SSH key 경로, 계정 상세는 저장소에 기록하지 않는다.
+
 예상 명령:
 
 ```bash

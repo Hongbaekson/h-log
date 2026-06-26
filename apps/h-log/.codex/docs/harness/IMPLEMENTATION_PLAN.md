@@ -84,9 +84,24 @@ auto-publish-ops-hardening
 
 ### db-manual-publishing-mvp / Step 1: published-route-boundary
 
-- 상태: next
+- 상태: completed
 - 목표: public blog 조회가 `status=published`이면서 `current_version_id`가 가리키는 version만 반환하도록 route/query 경계를 고정한다.
-- 주의: 실제 OCI DB 연결이나 자동 글 생성은 아직 하지 않는다.
+- 결과: `selectPublicBlogRouteEntries`와 `selectPublicBlogRouteEntryBySlug`로 published-only public lookup 경계를 고정했다.
+- 검증: `npm run test`, `npm run typecheck`, `npm run build`
+
+### db-manual-publishing-mvp / Step 2: markdown-html-version-boundary
+
+- 상태: completed
+- 목표: Markdown/HTML canonical content와 `content_hash` 검증 경계를 고정한다.
+- 결과: `content_markdown`에서 sanitized `content_html`과 `content_hash`를 생성하고, HTML/Markdown drift가 생기면 `.md` 출력과 integrity 검증이 실패하도록 고정했다.
+- 검증: `npm run test`, `npm run typecheck`
+- 주의: 실제 OCI DB 연결, Nginx, Docker Compose 작업은 아직 하지 않는다.
+
+### db-manual-publishing-mvp / Step 3: blog-public-routes-and-md-endpoint
+
+- 상태: next
+- 목표: DB content model과 published-only selector를 `/blog`, `/blog/[slug]`, `/blog/[slug].md` public route에 연결한다.
+- 주의: preview/admin route를 public route와 섞지 않는다.
 
 ## 이후 DB-first 단계
 
@@ -106,5 +121,5 @@ auto-publish-ops-hardening
 - Harness baseline 문서와 phase template이 존재한다.
 - root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
 - `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
-- 다음 step은 `db-manual-publishing-mvp/step1.md`다.
+- 다음 step은 `db-manual-publishing-mvp/step3.md`다.
 - 문서 검증과 `git diff --check`가 통과한다.
