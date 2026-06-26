@@ -18,6 +18,8 @@ OCI Nginx reverse proxy와 TLS/security boundary를 정의한다.
 - 80/443 ingress, TLS termination, HTTP to HTTPS redirect 기준을 둔다.
 - app container는 private network에서만 접근하도록 한다.
 - body size, timeout, cache header, security header의 최소 정책을 정한다.
+- upstream은 `hlog-web:3000`으로 고정하고 request `Host`와 `Upgrade`/`Connection` header를 기본 public route에 그대로 전달하지 않는다.
+- `X-Real-IP`와 `X-Forwarded-For`는 Nginx의 `$remote_addr` 기준으로 설정한다.
 - `/blog`, `/blog/:slug`, `/blog/:slug.md`, sitemap/feed/llms 같은 public crawler surface를 막지 않도록 확인한다.
 - admin/internal route는 별도 보호 전까지 public 노출하지 않는다.
 

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  createPostVersionContentHash,
   createPostVersionContentFromMarkdown,
   type PostRecord,
   type PostSourceRecord,
@@ -152,6 +153,67 @@ describe("DB-backed public blog routes", () => {
     assert.equal(getPublicBlogPostBySlug("preview-one", store), undefined);
     assert.equal(getPublicBlogPostMarkdown("public-one", store), "# Public One\n\nPublished body.\n");
     assert.equal(getPublicBlogPostMarkdown("preview-one", store), undefined);
+  });
+
+  it("does not expose unsafe public source URLs from stored content", () => {
+    const store = {
+      ...createStore(),
+      sources: [
+        createSource({
+          id: "source-unsafe",
+          url: "javascript:alert(1)",
+        }),
+      ],
+    };
+
+    const detail = getPublicBlogPostBySlug("public-one", store);
+
+    assert.ok(detail);
+    assert.deepEqual(detail.sourceLinks, []);
+  });
+
+  it("builds safe render blocks from Markdown instead of stored HTML", () => {
+    const safeContent = createPostVersionContentFromMarkdown(
+      "# Public One\n\n본문 **강조**와 <script>alert(\"x\")</script>\n\n```\nconsole.log(\"ok\")\n```\n",
+    );
+    const unsafeStoredHtml = "<script>alert(1)</script>";
+    const store = {
+      ...createStore(),
+      versions: [
+        createVersion({
+          contentHtml: unsafeStoredHtml,
+          contentHash: createPostVersionContentHash({
+            contentHtml: unsafeStoredHtml,
+            contentMarkdown: safeContent.contentMarkdown,
+          }),
+          contentMarkdown: safeContent.contentMarkdown,
+        }),
+      ],
+    };
+
+    const detail = getPublicBlogPostBySlug("public-one", store);
+
+    assert.ok(detail);
+    assert.equal(detail.contentHtml, unsafeStoredHtml);
+    assert.deepEqual(detail.contentBlocks, [
+      {
+        children: [{ text: "Public One", type: "text" }],
+        level: 1,
+        type: "heading",
+      },
+      {
+        children: [
+          { text: "본문 ", type: "text" },
+          { text: "강조", type: "strong" },
+          { text: "와 <script>alert(\"x\")</script>", type: "text" },
+        ],
+        type: "paragraph",
+      },
+      {
+        code: 'console.log("ok")',
+        type: "code",
+      },
+    ]);
   });
 
   it("builds tag counts and pagination from published posts only", () => {

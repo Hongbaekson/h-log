@@ -60,6 +60,27 @@ describe("minimal admin preview/save/publish workflow", () => {
     assert.equal(getPublicBlogPostBySlug("admin-preview", saved.store), undefined);
   });
 
+  it("rejects source URLs that are not safe public HTTPS links", () => {
+    assert.throws(
+      () =>
+        saveAdminPostDraft(
+          createEmptyAdminStore(),
+          createDraftInput({
+            sources: [
+              {
+                publisher: "Injected",
+                sourceRole: "reference",
+                summary: "unsafe source",
+                title: "Injected source",
+                url: "javascript:alert(1)",
+              },
+            ],
+          }),
+        ),
+      /source url must be an absolute HTTPS URL/,
+    );
+  });
+
   it("publishes a saved version through the public boundary and records an audit action", () => {
     const saved = saveAdminPostDraft(createEmptyAdminStore(), createDraftInput());
     const published = publishAdminPostVersion(saved.store, {

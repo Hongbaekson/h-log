@@ -8,12 +8,12 @@
     {
       "dir": "db-manual-publishing-mvp",
       "status": "completed",
-      "summary": "Steps 0-5 completed: DB content contract, published-only route boundary, Markdown/HTML integrity, public blog routes, index surface, and non-routed admin workflow contract."
+      "summary": "Steps 0-5 completed: DB content contract, published-only route boundary, Markdown/HTML integrity, safe public rendering, public HTTPS source links, index surface, and non-routed admin workflow contract."
     },
     {
       "dir": "oci-infra-deployment-foundation",
       "status": "pending",
-      "summary": "Define OCI Compute, Docker Compose, Nginx, PostgreSQL, Redis, backup, smoke, and rollback boundaries only after notifying the user and getting confirmation."
+      "summary": "Steps 0-2 completed for OCI runtime topology, Compose service boundary, and hardened local Nginx reverse proxy; backup, smoke, and rollback runbooks remain pending."
     },
     {
       "dir": "publish-state-and-admin",

@@ -4,7 +4,12 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, FileText } from "lucide-react";
 
 import { Badge, Container } from "@/components/ui";
-import { getPublicBlogPostBySlug, getPublicBlogPosts } from "@/lib/blog-public";
+import {
+  getPublicBlogPostBySlug,
+  getPublicBlogPosts,
+  type PublicBlogContentBlock,
+  type PublicBlogInlineContent,
+} from "@/lib/blog-public";
 import { blogContentStore } from "@/lib/blog-public-data";
 
 type BlogDetailPageProps = {
@@ -92,8 +97,9 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
           <div className="grid gap-10 lg:grid-cols-[1fr_16rem]">
             <article
               className="min-w-0 border-y border-slate-700/80 py-8 text-slate-300 [&_code]:rounded-md [&_code]:bg-slate-950/70 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-cyan-100 [&_h1]:sr-only [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-normal [&_h2]:text-white [&_p]:mt-5 [&_p]:leading-8 [&_pre]:mt-5 [&_pre]:overflow-x-auto [&_pre]:rounded-xl [&_pre]:border [&_pre]:border-slate-700 [&_pre]:bg-slate-950/70 [&_pre]:p-4"
-              dangerouslySetInnerHTML={{ __html: post.contentHtml }}
-            />
+            >
+              {post.contentBlocks.map(renderContentBlock)}
+            </article>
 
             <aside className="lg:sticky lg:top-24 lg:self-start">
               <div className="border-y border-slate-700/80 py-5">
@@ -146,4 +152,38 @@ function formatDate(value: string): string {
     month: "2-digit",
     year: "numeric",
   }).format(new Date(value));
+}
+
+function renderContentBlock(block: PublicBlogContentBlock, index: number) {
+  if (block.type === "code") {
+    return (
+      <pre key={index}>
+        <code>{block.code}</code>
+      </pre>
+    );
+  }
+
+  if (block.type === "heading") {
+    if (block.level === 1) {
+      return <h1 key={index}>{renderInlineContent(block.children)}</h1>;
+    }
+
+    if (block.level === 2) {
+      return <h2 key={index}>{renderInlineContent(block.children)}</h2>;
+    }
+
+    return <h3 key={index}>{renderInlineContent(block.children)}</h3>;
+  }
+
+  return <p key={index}>{renderInlineContent(block.children)}</p>;
+}
+
+function renderInlineContent(children: readonly PublicBlogInlineContent[]) {
+  return children.map((child, index) => {
+    if (child.type === "strong") {
+      return <strong key={index}>{child.text}</strong>;
+    }
+
+    return <span key={index}>{child.text}</span>;
+  });
 }

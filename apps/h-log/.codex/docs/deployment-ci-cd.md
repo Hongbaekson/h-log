@@ -20,7 +20,7 @@ Local development
 1. 로컬 MVP 개발
 2. 로컬 `npm run lint`와 `npm run build` 통과
 3. DB-backed blog의 local contract와 migration strategy 확정
-4. Dockerfile과 compose 작성
+4. 로컬 Docker Compose로 web, worker placeholder, PostgreSQL + pgvector, Redis, Nginx topology 검증
 5. OCI에서 수동 배포 성공
 6. Nginx, 도메인, HTTPS 확인
 7. DB backup/restore와 rollback smoke 확인
@@ -38,17 +38,59 @@ Local development
 - worker는 자동 발행 phase 전까지 비활성 또는 수동 실행 가능하게 둔다
 - DB/Redis는 public internet에 노출하지 않는다
 
+## Local Compose
+
+로컬 검증은 `apps/h-log`에서 실행한다.
+
+```bash
+docker compose config
+docker compose up hlog-postgres hlog-redis hlog-web hlog-nginx
+```
+
+로컬 ingress는 `http://localhost:8080`만 사용한다. PostgreSQL과 Redis는 host port를 publish하지 않고 Compose `data_net`에서만 접근한다.
+
+Worker는 자동 발행 phase 전까지 profile로만 실행한다.
+
+```bash
+docker compose --profile worker run --rm hlog-worker
+```
+
+`deploy/env.dev`는 web/worker가 읽는 placeholder-only local development 파일이다. 실제 운영 값, 서버 IP, SSH key, DB password, API key, private URL은 이 파일에 넣지 않는다. PostgreSQL 컨테이너에는 필요한 `POSTGRES_*`만 주고, OCI 운영 값은 서버 로컬 env 파일 또는 CI/CD secret으로 주입한다.
+
+## Nginx Boundary
+
+로컬 Nginx config는 `deploy/nginx/conf.d/hlog.conf`에 둔다.
+
+- local: `localhost:8080 -> hlog-nginx -> hlog-web:3000`
+- production: `80/443 -> hlog-nginx -> hlog-web:3000`
+- `/admin`과 `/api/internal`은 인증/접근 제어가 확정될 때까지 Nginx에서 404로 막는다.
+- `/blog`, `/blog/:slug`, `/blog/:slug.md`, sitemap/feed/llms crawler surface는 reverse proxy를 통과해야 한다.
+- upstream은 고정된 Compose service인 `hlog-web:3000`만 사용한다. request `Host`를 그대로 넘기지 않고 upstream `Host`는 `hlog-web`으로 고정한다.
+- `X-Real-IP`와 `X-Forwarded-For`는 Nginx의 `$remote_addr` 기준으로 설정한다. 앱의 PDF 다운로드 rate limit은 `X-Real-IP`를 client 식별자로 사용한다.
+- 기본 public route에서는 `Upgrade`/`Connection` header를 upstream으로 전달하지 않는다. WebSocket 또는 h2c가 필요하면 별도 route 설정과 보안 검토 후 추가한다.
+- TLS certificate, private key path, domain-specific `server_name`은 저장소에 고정하지 않는다.
+
 ## CI Checks
 
 기본 CI는 다음을 실행한다.
 
 ```bash
 npm ci
+npm run test
+npm run typecheck
 npm run lint
 npm run build
 ```
 
-typecheck 스크립트를 추가한 뒤에는 CI에 포함한다.
+dependency나 보안 경계가 바뀌는 변경은 아래 local security check도 함께 실행한다.
+
+```bash
+npm audit --audit-level=moderate
+gitleaks detect --source <source-only-temp-dir> --no-git --redact
+semgrep scan --novcs --no-git-ignore --config p/owasp-top-ten --config p/secrets --timeout=60 --exclude node_modules --exclude .next --exclude tsconfig.tsbuildinfo .
+```
+
+`gitleaks`와 `semgrep`은 설치된 경우에만 실행한다. `source-only-temp-dir`는 `git ls-files`와 `git ls-files --others --exclude-standard` 결과를 복사해 만들고, generated build output인 `.next`, `node_modules`, `tsconfig.tsbuildinfo`는 제외한다. Semgrep도 필요하면 `--novcs --no-git-ignore`를 붙여 git 미추적 소스 파일까지 포함한다.
 
 ## CD Strategy
 

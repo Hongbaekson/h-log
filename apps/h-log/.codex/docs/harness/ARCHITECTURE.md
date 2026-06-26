@@ -8,7 +8,7 @@
 
 ## 현재 구현 상태
 
-`apps/h-log`는 Next.js App Router 기반 개인 사이트다. 현재 확인된 구조는 Home, Resume, Portfolio, DB-contract 기반 Blog 목록/상세/Markdown endpoint, 프로젝트 상세, resume PDF API route, 공통 UI 컴포넌트, 프로젝트/이력 데이터 loader, 파일 기반 blog loader와 단위 테스트, DB 기반 blog content model contract, published-only public route selector, Markdown-to-sanitized-HTML version/hash boundary, route로 공개하지 않은 최소 admin preview/save/publish workflow contract를 포함한다. 파일 기반 blog loader는 DB-first 전환 후 public source of truth가 아니라 import/transition support로 취급한다.
+`apps/h-log`는 Next.js App Router 기반 개인 사이트다. 현재 확인된 구조는 Home, Resume, Portfolio, DB-contract 기반 Blog 목록/상세/Markdown endpoint, 프로젝트 상세, resume PDF API route, 공통 UI 컴포넌트, 프로젝트/이력 데이터 loader, 파일 기반 blog loader와 단위 테스트, DB 기반 blog content model contract, published-only public route selector, Markdown-to-sanitized-HTML version/hash boundary, Markdown 기반 안전 렌더링 블록, route로 공개하지 않은 최소 admin preview/save/publish workflow contract를 포함한다. 파일 기반 blog loader는 DB-first 전환 후 public source of truth가 아니라 import/transition support로 취급한다.
 
 현재 `package.json` 기준 검증 명령은 아래와 같다.
 
@@ -98,6 +98,50 @@ blog worker container
 
 PostgreSQL과 Redis는 public internet에 노출하지 않는다. 서버 IP, SSH key, DB password, API key는 저장소나 공개 문서에 남기지 않는다.
 
+## Local/OCI Runtime Topology Contract
+
+OCI에 올리기 전 로컬에서 같은 service boundary를 Docker Compose로 먼저 검증한다. 로컬과 OCI의 차이는 host port, domain/TLS, secret 주입 방식, image tag뿐이어야 한다.
+
+```text
+Local developer machine
+  -> docker compose
+     -> hlog-nginx      localhost:8080 ingress only
+     -> hlog-web        Next.js standalone runtime, internal 3000
+     -> hlog-worker     manual/profile-only placeholder until automation phases
+     -> hlog-postgres   PostgreSQL + pgvector, data_net only
+     -> hlog-redis      Redis, data_net only
+```
+
+```text
+OCI Compute
+  -> Docker Compose
+     -> hlog-nginx      public 80/443 ingress and TLS termination
+     -> hlog-web        internal 3000
+     -> hlog-worker     manual or scheduled background jobs after automation phases
+     -> hlog-postgres   private network and persistent volume
+     -> hlog-redis      private network and persistent volume
+```
+
+Compose networks:
+
+- `public_net`: host ingress to `hlog-nginx`.
+- `app_net`: `hlog-nginx` to `hlog-web`.
+- `data_net`: `hlog-web`/`hlog-worker` to PostgreSQL/Redis.
+- `egress_net`: worker outbound access for later external APIs, with no published host ports.
+
+Current repo config:
+
+- `Dockerfile`: Next.js standalone production image.
+- `compose.yaml`: local-first Compose topology for web, worker placeholder, PostgreSQL + pgvector, Redis, and Nginx.
+- `deploy/nginx/conf.d/hlog.conf`: local Nginx reverse proxy, fixed `hlog-web:3000` upstream, trusted proxy IP headers, admin/internal blocking, static asset cache headers, and baseline security headers.
+- `deploy/env.dev`: placeholder-only local development values for web/worker. Real production secrets, server IPs, SSH keys, API keys, and private URLs must not be written there.
+
+Container environment is scoped by service. PostgreSQL receives only `POSTGRES_*` values, Redis receives no application secrets, and web/worker receive only the runtime URLs and mode flags needed for local validation.
+
+The worker service is intentionally profile-gated and non-automatic. It must not call LLM, embedding, IndexNow, Discord, or publish jobs until the later automation phases define tested job behavior.
+
+Kubernetes is not required for the initial OCI deployment. If a later ADR adopts Kubernetes, the current service boundary maps directly to `Deployment`/`Service` for web and worker, `StatefulSet` or managed services for PostgreSQL/Redis, `Ingress` for Nginx edge behavior, and `Job`/`CronJob` for migration, backup, and worker tasks.
+
 ## 현재 앱 데이터 흐름
 
 ```text
@@ -108,7 +152,7 @@ Source content / lib data
   -> metadata / sitemap / robots
 ```
 
-현재 `/blog`, `/blog/[slug]`, `/blog/:slug.md`는 `lib/blog-public.ts`와 `lib/blog-public-data.ts`를 통해 DB content contract 형태의 public store를 읽는다. public selector는 published 최신 version만 반환하고, `ready_to_publish` 같은 preview/admin 상태는 목록, 상세, Markdown endpoint에 노출하지 않는다. `lib/blog.ts`의 파일 기반 loader는 public route에 연결하지 않고, DB 전환 전후 import/fixture support로만 사용한다.
+현재 `/blog`, `/blog/[slug]`, `/blog/:slug.md`는 `lib/blog-public.ts`와 `lib/blog-public-data.ts`를 통해 DB content contract 형태의 public store를 읽는다. public selector는 published 최신 version만 반환하고, `ready_to_publish` 같은 preview/admin 상태는 목록, 상세, Markdown endpoint에 노출하지 않는다. 상세 페이지는 저장된 `content_html`을 raw HTML로 주입하지 않고 `content_markdown`에서 만든 typed content block을 React 요소로 렌더링한다. source link는 public HTTPS URL만 허용하고 `javascript:`, `data:`, localhost, private/internal host는 저장 또는 공개 단계에서 차단한다. `lib/blog.ts`의 파일 기반 loader는 public route에 연결하지 않고, DB 전환 전후 import/fixture support로만 사용한다.
 
 ## DB 기반 수동 발행 데이터 흐름
 
@@ -117,6 +161,7 @@ Manual admin or internal API
   -> posts / post_versions
   -> post_tags / post_sources
   -> markdown to sanitized HTML
+  -> markdown to safe React render blocks
   -> content_hash
   -> status=published latest version
   -> /blog, /blog/:slug, /blog/:slug.md
@@ -149,7 +194,7 @@ Daily topic collector
 
 DB 전환 phase가 시작되면 `plans/automated-blog-publishing-plan.md`를 기준으로 아래 모델을 우선한다.
 
-현재 코드 contract는 `lib/blog-content-model.ts`에 있으며 실제 DB adapter, migration, OCI 연결은 아직 포함하지 않는다. Public route selector는 `status=published`이고 `current_version_id`가 가리키는 `post_versions` record만 반환한다. `content_markdown`에서 sanitized `content_html`과 `content_hash`를 생성하며, 저장된 HTML/Markdown이 hash와 어긋나면 crawler Markdown 출력 전에 실패한다. 목록 태그와 tag count는 `post_tags` contract를 기준으로 published 글에서만 계산한다.
+현재 코드 contract는 `lib/blog-content-model.ts`에 있으며 실제 DB adapter, migration, OCI 연결은 아직 포함하지 않는다. Public route selector는 `status=published`이고 `current_version_id`가 가리키는 `post_versions` record만 반환한다. `content_markdown`에서 sanitized `content_html`과 `content_hash`를 생성하며, 저장된 HTML/Markdown이 hash와 어긋나면 crawler Markdown 출력 전에 실패한다. 공개 상세 렌더링은 저장 HTML을 직접 주입하지 않고 Markdown에서 생성한 heading, paragraph, strong, code block 모델만 React로 렌더링한다. 목록 태그와 tag count는 `post_tags` contract를 기준으로 published 글에서만 계산한다.
 
 ```text
 posts
@@ -179,6 +224,8 @@ admin_actions
 - 자동 글 생성 시 source raw text 전체를 기본 저장하지 않는다.
 - GeekNews/HN/Reddit 같은 반응성 소스는 discovery 또는 reaction 역할로만 저장한다.
 - LLM이 생성한 claim은 official/original source 또는 직접 실험 증거가 없으면 강한 표현으로 발행하지 않는다.
+- 공개 앱 코드에서 raw HTML injection을 쓰지 않는다. `dangerouslySetInnerHTML` 재도입은 정적 보안 테스트로 차단한다.
+- resume PDF rate limit의 client 식별자는 Nginx가 설정한 `X-Real-IP`를 사용하고, spoof 가능한 client supplied `X-Forwarded-For` chain을 신뢰하지 않는다.
 
 ## 검증 기준
 

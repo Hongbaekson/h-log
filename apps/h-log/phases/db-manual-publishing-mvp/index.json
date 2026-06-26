@@ -24,7 +24,7 @@
       "step": 3,
       "name": "blog-public-routes-and-md-endpoint",
       "status": "completed",
-      "summary": "Connected DB-contract public blog data to /blog, /blog/[slug], and /blog/:slug.md with a shared published-only boundary and source links."
+      "summary": "Connected DB-contract public blog data to /blog, /blog/[slug], and /blog/:slug.md with a shared published-only boundary, public HTTPS source links, and Markdown-derived safe render blocks."
     },
     {
       "step": 4,
@@ -36,7 +36,7 @@
       "step": 5,
       "name": "minimal-admin-preview-save-publish",
       "status": "completed",
-      "summary": "Added a non-routed minimal admin workflow contract for preview, save, publish, and admin action audit logs; no public admin route was exposed because access control is not decided."
+      "summary": "Added a non-routed minimal admin workflow contract for preview, save, publish, public HTTPS source URL validation, and admin action audit logs; no public admin route was exposed because access control is not decided."
     }
   ]
 }

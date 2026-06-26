@@ -471,6 +471,7 @@ Browser/Admin SPA
 - 자동 작성 원본은 Markdown으로 만들어도 된다.
 - DB 저장 전 `markdown -> sanitized HTML` 변환을 거친다.
 - 크롤러용 `.md`는 DB의 canonical content에서 다시 생성한다.
+- 공개 React 상세 페이지는 저장 HTML을 직접 주입하지 않고 canonical Markdown에서 허용된 렌더링 블록만 만든다.
 - 원문, HTML, 마크다운 출력물이 서로 어긋나지 않도록 `content_version`을 둔다.
 
 ### zerry 참고 후 도입/제외 기준
@@ -1458,7 +1459,7 @@ daily-blog-cron
 
 - OCI Compute 기반 production topology 확정
 - Docker Compose 서비스 경계: web, worker, PostgreSQL + pgvector, Redis, Nginx
-- Nginx reverse proxy, TLS, 보안 헤더, upload/body limit 정책
+- Nginx reverse proxy, TLS, 보안 헤더, upload/body limit, 고정 upstream, 신뢰 가능한 client IP forwarding 정책
 - DB/Redis volume, 백업, 복구 리허설 정책
 - registry pull, compose restart, deploy smoke, rollback runbook
 - 실제 OCI 서버 접속, 배포, 방화벽 변경은 명시 승인 후 수행

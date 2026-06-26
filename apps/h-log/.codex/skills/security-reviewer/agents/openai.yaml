@@ -1,0 +1,4 @@
+interface:
+  display_name: "Security Reviewer"
+  short_description: "Review H-Log security and privacy risk"
+  default_prompt: "Use $security-reviewer to review the current H-Log changes for security and privacy risk."

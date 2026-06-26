@@ -1,0 +1,113 @@
+name: hlog
+
+services:
+  hlog-nginx:
+    image: nginx:1.27-alpine
+    depends_on:
+      hlog-web:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    volumes:
+      - ./deploy/nginx/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - public_net
+      - app_net
+    restart: unless-stopped
+
+  hlog-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hlog-web:dev
+    env_file:
+      - ./deploy/env.dev
+    expose:
+      - "3000"
+    depends_on:
+      hlog-postgres:
+        condition: service_healthy
+      hlog-redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://127.0.0.1:3000/').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\"",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - app_net
+      - data_net
+    restart: unless-stopped
+
+  hlog-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hlog-web:dev
+    profiles:
+      - worker
+    env_file:
+      - ./deploy/env.dev
+    command:
+      [
+        "node",
+        "-e",
+        "console.log('hlog-worker placeholder: no automatic jobs are configured yet')",
+      ]
+    depends_on:
+      hlog-postgres:
+        condition: service_healthy
+      hlog-redis:
+        condition: service_healthy
+    networks:
+      - data_net
+      - egress_net
+    restart: "no"
+
+  hlog-postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: hlog_dev
+      POSTGRES_USER: hlog_app
+      POSTGRES_PASSWORD: replace-with-local-dev-password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - data_net
+    restart: unless-stopped
+
+  hlog-redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - data_net
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  public_net:
+  app_net:
+    internal: true
+  data_net:
+    internal: true
+  egress_net:

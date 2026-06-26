@@ -5,17 +5,20 @@
     {
       "step": 0,
       "name": "oci-runtime-topology-contract",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Documented local-first and OCI runtime topology for Nginx, web, worker, PostgreSQL + pgvector, Redis, networks, secret boundaries, and Kubernetes-ready mapping."
     },
     {
       "step": 1,
       "name": "compose-service-boundary",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added Next.js standalone Dockerfile, Compose services, private app/data networks, persistent data volumes, and placeholder-only deploy/env.dev for local validation."
     },
     {
       "step": 2,
       "name": "nginx-tls-security-boundary",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added local Nginx reverse proxy config with fixed upstream proxying, trusted IP forwarding headers, baseline security headers, admin/internal blocking, static asset cache headers, and documented production TLS boundaries."
     },
     {
       "step": 3,

@@ -9,6 +9,7 @@ import {
   type PostVersionRecord,
   type PublicBlogRouteEntry,
 } from "./blog-content-model.ts";
+import { tryNormalizePublicSourceUrl } from "./public-source-url.ts";
 
 export type BlogContentStore = {
   posts: readonly PostRecord[];
@@ -24,8 +25,34 @@ export type PublicBlogSourceLink = {
   url: string;
 };
 
+export type PublicBlogInlineContent =
+  | {
+      text: string;
+      type: "strong";
+    }
+  | {
+      text: string;
+      type: "text";
+    };
+
+export type PublicBlogContentBlock =
+  | {
+      children: PublicBlogInlineContent[];
+      level: 1 | 2 | 3;
+      type: "heading";
+    }
+  | {
+      children: PublicBlogInlineContent[];
+      type: "paragraph";
+    }
+  | {
+      code: string;
+      type: "code";
+    };
+
 export type PublicBlogPost = {
   articleMode: PostRecord["articleMode"];
+  contentBlocks: PublicBlogContentBlock[];
   contentHtml: string;
   description: string;
   href: string;
@@ -124,6 +151,7 @@ function toPublicBlogPost(
 
   return {
     articleMode: entry.post.articleMode,
+    contentBlocks: buildPublicBlogContentBlocks(entry.version.contentMarkdown),
     contentHtml: entry.version.contentHtml,
     description: entry.version.description,
     href: `/blog/${entry.post.slug}`,
@@ -136,6 +164,90 @@ function toPublicBlogPost(
     title: entry.version.title,
     updatedAt: entry.post.updatedAt,
   };
+}
+
+function buildPublicBlogContentBlocks(markdown: string): PublicBlogContentBlock[] {
+  const normalized = markdown.replace(/\r\n?/g, "\n").trimEnd();
+
+  if (!normalized) {
+    return [];
+  }
+
+  return normalized.split(/\n{2,}/).filter(Boolean).map(buildPublicBlogContentBlock);
+}
+
+function buildPublicBlogContentBlock(block: string): PublicBlogContentBlock {
+  if (block.startsWith("### ")) {
+    return {
+      children: buildInlineContent(block.slice(4).trim()),
+      level: 3,
+      type: "heading",
+    };
+  }
+
+  if (block.startsWith("## ")) {
+    return {
+      children: buildInlineContent(block.slice(3).trim()),
+      level: 2,
+      type: "heading",
+    };
+  }
+
+  if (block.startsWith("# ")) {
+    return {
+      children: buildInlineContent(block.slice(2).trim()),
+      level: 1,
+      type: "heading",
+    };
+  }
+
+  if (block.startsWith("```") && block.endsWith("```")) {
+    return {
+      code: block.split("\n").slice(1, -1).join("\n"),
+      type: "code",
+    };
+  }
+
+  return {
+    children: buildInlineContent(block.replace(/\n+/g, " ").trim()),
+    type: "paragraph",
+  };
+}
+
+function buildInlineContent(value: string): PublicBlogInlineContent[] {
+  const children: PublicBlogInlineContent[] = [];
+  const strongPattern = /\*\*([^*]+)\*\*/g;
+  let lastIndex = 0;
+
+  for (const match of value.matchAll(strongPattern)) {
+    const matchIndex = match.index ?? 0;
+
+    pushTextContent(children, value.slice(lastIndex, matchIndex));
+    pushStrongContent(children, match[1] ?? "");
+    lastIndex = matchIndex + match[0].length;
+  }
+
+  pushTextContent(children, value.slice(lastIndex));
+
+  return children;
+}
+
+function pushTextContent(
+  children: PublicBlogInlineContent[],
+  text: string,
+): void {
+  if (text) {
+    children.push({ text, type: "text" });
+  }
+}
+
+function pushStrongContent(
+  children: PublicBlogInlineContent[],
+  text: string,
+): void {
+  if (text) {
+    children.push({ text, type: "strong" });
+  }
 }
 
 function getTagsForPost(postId: string, tags: readonly PostTagRecord[]): string[] {
@@ -157,12 +269,22 @@ function getSourceLinksForPost(
 ): PublicBlogSourceLink[] {
   return sources
     .filter((source) => source.postId === postId)
-    .map((source) => ({
-      publisher: source.publisher,
-      role: source.sourceRole,
-      title: source.title,
-      url: source.url,
-    }));
+    .flatMap((source) => {
+      const url = tryNormalizePublicSourceUrl(source.url);
+
+      if (!url) {
+        return [];
+      }
+
+      return [
+        {
+          publisher: source.publisher,
+          role: source.sourceRole,
+          title: source.title,
+          url,
+        },
+      ];
+    });
 }
 
 function buildPublishedTagCounts(posts: readonly PublicBlogPost[]): PublicBlogTagCount[] {

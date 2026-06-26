@@ -3,6 +3,7 @@ import path from "node:path";
 
 import { type NextRequest, NextResponse } from "next/server";
 
+import { getResumePdfClientId } from "@/lib/download-client-id";
 import { createAttachmentContentDisposition } from "@/lib/download-file";
 import { createFixedWindowRateLimiter } from "@/lib/download-rate-limit";
 
@@ -15,15 +16,8 @@ const resumePdfLimiter = createFixedWindowRateLimiter({
 
 const resumePdfPath = path.join(process.cwd(), "public", "son-hongbaek-resume.pdf");
 
-function getClientId(request: NextRequest) {
-  const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  const realIp = request.headers.get("x-real-ip")?.trim();
-
-  return forwardedFor || realIp || "local";
-}
-
 export async function GET(request: NextRequest) {
-  const rateLimit = resumePdfLimiter.check(getClientId(request));
+  const rateLimit = resumePdfLimiter.check(getResumePdfClientId(request));
   const rateLimitHeaders = {
     "X-RateLimit-Limit": "5",
     "X-RateLimit-Remaining": String(rateLimit.remaining),

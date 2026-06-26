@@ -52,8 +52,8 @@ apps/h-log/AGENTS.md
 
 ```text
 phase-registry-bootstrap: completed
-db-manual-publishing-mvp: next
-oci-infra-deployment-foundation
+db-manual-publishing-mvp: completed
+oci-infra-deployment-foundation: in progress, steps 0-2 completed
 publish-state-and-admin
 search-and-related-posts
 post-publish-seo-automation
@@ -93,15 +93,15 @@ auto-publish-ops-hardening
 
 - 상태: completed
 - 목표: Markdown/HTML canonical content와 `content_hash` 검증 경계를 고정한다.
-- 결과: `content_markdown`에서 sanitized `content_html`과 `content_hash`를 생성하고, HTML/Markdown drift가 생기면 `.md` 출력과 integrity 검증이 실패하도록 고정했다.
+- 결과: `content_markdown`에서 sanitized `content_html`과 `content_hash`를 생성하고, HTML/Markdown drift가 생기면 `.md` 출력과 integrity 검증이 실패하도록 고정했다. 공개 상세 렌더링은 저장 HTML 직접 주입이 아니라 Markdown 기반 안전 렌더링 블록을 사용한다.
 - 검증: `npm run test`, `npm run typecheck`
-- 주의: 실제 OCI DB 연결, Nginx, Docker Compose 작업은 아직 하지 않는다.
+- 주의: 실제 OCI DB 연결은 아직 하지 않는다.
 
 ### db-manual-publishing-mvp / Step 3: blog-public-routes-and-md-endpoint
 
 - 상태: completed
 - 목표: DB content model과 published-only selector를 `/blog`, `/blog/[slug]`, `/blog/[slug].md` public route에 연결한다.
-- 결과: `lib/blog-public.ts`, `lib/blog-public-data.ts`, `/blog`, `/blog/[slug]`, `/blog/:slug.md` route를 추가해 public route가 같은 published-only boundary를 사용하도록 연결했다.
+- 결과: `lib/blog-public.ts`, `lib/blog-public-data.ts`, `/blog`, `/blog/[slug]`, `/blog/:slug.md` route를 추가해 public route가 같은 published-only boundary를 사용하도록 연결했다. 상세 렌더링은 Markdown 기반 typed content block을 React로 출력하고, source link는 public HTTPS URL만 공개한다.
 - 검증: `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`
 - 주의: preview/admin route를 public route와 섞지 않는다.
 
@@ -116,9 +116,18 @@ auto-publish-ops-hardening
 
 - 상태: completed
 - 목표: 자동 작성 전 수동 발행을 위한 preview/save/publish 최소 admin workflow를 고정한다.
-- 결과: `lib/blog-admin.ts`와 테스트로 preview, save, publish, `admin_actions` audit log를 고정했다. 접근 제어 방식이 미정이므로 `/admin` production route는 공개하지 않았다.
+- 결과: `lib/blog-admin.ts`와 테스트로 preview, save, publish, `admin_actions` audit log를 고정했다. source URL은 저장 전 public HTTPS URL로 검증한다. 접근 제어 방식이 미정이므로 `/admin` production route는 공개하지 않았다.
 - 검증: `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`
 - 다음 결정: 실제 관리자 화면을 route로 공개하려면 인증/접근 제어 방식을 먼저 정해야 한다.
+
+## 현재 OCI foundation 진행 상태
+
+### oci-infra-deployment-foundation / Steps 0-2
+
+- 상태: completed
+- 결과: Dockerfile, Compose topology, local Nginx reverse proxy, admin/internal route blocking, security headers, fixed upstream proxy, trusted `X-Real-IP` boundary를 고정했다.
+- 검증: `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`, `npm audit --audit-level=moderate`, source-only `gitleaks`, Semgrep `--novcs`
+- 다음 실행 대상: `oci-infra-deployment-foundation / Step 3: backup-restore-runbook`
 
 ## 이후 DB-first 단계
 
@@ -138,5 +147,5 @@ auto-publish-ops-hardening
 - Harness baseline 문서와 phase template이 존재한다.
 - root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
 - `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
-- 다음 phase는 `oci-infra-deployment-foundation`이다.
+- 다음 실행 대상은 `oci-infra-deployment-foundation / Step 3: backup-restore-runbook`이다.
 - 문서 검증과 `git diff --check`가 통과한다.

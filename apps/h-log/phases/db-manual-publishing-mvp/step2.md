@@ -20,6 +20,7 @@ DB canonical content와 공개 출력물의 version/hash 경계를 구현한다.
 
 - 자동 writer의 입력은 Markdown으로 허용한다.
 - DB 저장 전 `content_markdown -> sanitized content_html` 변환 경계를 둔다.
+- 공개 상세 페이지는 저장 HTML을 직접 주입하지 않고 Markdown 기반 safe render block을 React로 렌더링한다.
 - 크롤러용 `.md` 출력은 canonical content에서 생성되도록 한다.
 - `content_hash`가 HTML/Markdown 공개 결과와 어긋나면 검증 실패로 처리한다.
 
@@ -33,7 +34,7 @@ npm run typecheck
 ## 검증
 
 1. Markdown/HTML 변환 결과의 hash mismatch 실패 테스트를 먼저 작성한다.
-2. sanitized HTML이 공개 렌더링의 기준이 되는지 확인한다.
+2. 저장 HTML을 직접 렌더링하지 않고 Markdown 기반 safe render block이 공개 렌더링 기준이 되는지 확인한다.
 3. `npm run test`, `npm run typecheck`를 실행한다.
 4. 성공 시 phase index의 step status를 갱신한다.
 

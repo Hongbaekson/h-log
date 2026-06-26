@@ -9,6 +9,7 @@ import {
   type PostVersionRecord,
 } from "./blog-content-model.ts";
 import type { BlogContentStore } from "./blog-public.ts";
+import { normalizePublicSourceUrl } from "./public-source-url.ts";
 
 export type BlogAdminStore = BlogContentStore & {
   adminActions: readonly AdminActionRecord[];
@@ -111,7 +112,7 @@ export function saveAdminPostDraft(
     sourceRole: source.sourceRole,
     summary: source.summary,
     title: source.title,
-    url: source.url,
+    url: normalizePublicSourceUrl(source.url),
   }));
   const tagRecords = normalizeTags(input.tags).map((tag): PostTagRecord => ({
     createdAt: input.createdAt,
