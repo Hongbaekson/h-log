@@ -70,6 +70,17 @@ docker compose --profile worker run --rm hlog-worker
 - 기본 public route에서는 `Upgrade`/`Connection` header를 upstream으로 전달하지 않는다. WebSocket 또는 h2c가 필요하면 별도 route 설정과 보안 검토 후 추가한다.
 - TLS certificate, private key path, domain-specific `server_name`은 저장소에 고정하지 않는다.
 
+## DB Backup/Restore
+
+기준 runbook은 `.codex/docs/backup-restore-runbook.md`에 둔다.
+
+- 1차 백업 방식은 PostgreSQL logical dump다.
+- 로컬 검증은 `apps/h-log`의 Compose service `hlog-postgres`와 volume `postgres_data` 기준으로 한다.
+- 운영 백업/복구는 명시 승인 후 `ssh oci`로 접속해 서버 로컬 경로에서 수행한다.
+- 운영 dump, Object Storage credential, bucket URL, server IP, DB password는 저장소에 남기지 않는다.
+- 복구 완료 기준은 dump 생성이 아니라 local/test DB restore rehearsal, `vector` extension 확인, migration version 확인, `content_hash` 검증, public smoke 확인이다.
+- 현재 저장소에는 실제 DB adapter와 migration runner가 없으므로 migration version 검증은 migration 도구 도입 전까지 적용 불가로 기록한다.
+
 ## CI Checks
 
 기본 CI는 다음을 실행한다.
@@ -138,5 +149,6 @@ CI/CD secret으로만 관리한다.
 
 - 서버 접속, firewall/security list 변경, 실제 compose restart는 사용자 승인 후 수행한다.
 - 운영 DB에 직접 연결하는 검증은 하지 않는다. 필요하면 local/test DB 또는 dump fixture를 먼저 사용한다.
+- 운영 DB 백업/복구는 `.codex/docs/backup-restore-runbook.md` 기준으로 진행하고, restore rehearsal 없이 백업 성공만으로 완료 처리하지 않는다.
 - 배포 smoke는 public route, `/blog`, `/blog/:slug`, `/blog/:slug.md`, sitemap/feed/llms, Nginx status, container health를 확인한다.
 - rollback은 이전 image tag와 migration rollback 가능 여부를 함께 확인한 뒤 실행한다.

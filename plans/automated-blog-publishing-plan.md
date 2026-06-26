@@ -46,7 +46,8 @@ blog worker container
 - 외부 공개 포트는 80/443만 기본 허용하고, SSH는 제한된 접근으로 둔다.
 - app image는 immutable artifact로 배포하고, DB/Redis data는 volume으로 분리한다.
 - `.env.production`, DB password, API key, SSH key, 서버 IP는 저장소에 커밋하지 않는다.
-- DB 백업은 PostgreSQL logical dump부터 시작하고, 이후 OCI Object Storage 보관을 검토한다.
+- DB 백업은 PostgreSQL logical dump부터 시작하고, local/test restore rehearsal을 통과한 뒤에만 운영 복구 절차로 인정한다.
+- 이후 OCI Object Storage 보관은 선택 단계로 검토하되 credential, bucket URL, server IP는 저장소에 남기지 않는다.
 - 운영 배포 전에는 Docker Compose config, Nginx config, DB backup/restore, deploy smoke, rollback 경로를 검증한다.
 ```
 
@@ -1460,7 +1461,7 @@ daily-blog-cron
 - OCI Compute 기반 production topology 확정
 - Docker Compose 서비스 경계: web, worker, PostgreSQL + pgvector, Redis, Nginx
 - Nginx reverse proxy, TLS, 보안 헤더, upload/body limit, 고정 upstream, 신뢰 가능한 client IP forwarding 정책
-- DB/Redis volume, 백업, 복구 리허설 정책
+- DB/Redis volume, PostgreSQL logical dump, pgvector/migration/content_hash 복구 리허설 정책
 - registry pull, compose restart, deploy smoke, rollback runbook
 - 실제 OCI 서버 접속, 배포, 방화벽 변경은 명시 승인 후 수행
 

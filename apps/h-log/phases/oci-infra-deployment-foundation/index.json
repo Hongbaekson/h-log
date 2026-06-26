@@ -23,7 +23,8 @@
     {
       "step": 3,
       "name": "backup-restore-runbook",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a PostgreSQL logical dump backup/restore runbook with local/test restore rehearsal, pgvector extension, migration-version, content_hash, public smoke, retention, and secret-handling checks."
     },
     {
       "step": 4,

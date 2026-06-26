@@ -22,6 +22,12 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Local database backup artifacts
+backups/
+*.dump
+*.dump.gz
+*.backup
+
 # Internal temporary files
 .codex/tmp/
 **/.codex/tmp/

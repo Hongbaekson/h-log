@@ -13,7 +13,7 @@
     {
       "dir": "oci-infra-deployment-foundation",
       "status": "pending",
-      "summary": "Steps 0-2 completed for OCI runtime topology, Compose service boundary, and hardened local Nginx reverse proxy; backup, smoke, and rollback runbooks remain pending."
+      "summary": "Steps 0-3 completed for OCI runtime topology, Compose service boundary, hardened local Nginx reverse proxy, and PostgreSQL backup/restore runbook; deploy smoke and rollback runbook remains pending."
     },
     {
       "dir": "publish-state-and-admin",

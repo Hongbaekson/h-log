@@ -135,12 +135,27 @@ Current repo config:
 - `compose.yaml`: local-first Compose topology for web, worker placeholder, PostgreSQL + pgvector, Redis, and Nginx.
 - `deploy/nginx/conf.d/hlog.conf`: local Nginx reverse proxy, fixed `hlog-web:3000` upstream, trusted proxy IP headers, admin/internal blocking, static asset cache headers, and baseline security headers.
 - `deploy/env.dev`: placeholder-only local development values for web/worker. Real production secrets, server IPs, SSH keys, API keys, and private URLs must not be written there.
+- `.codex/docs/backup-restore-runbook.md`: PostgreSQL logical dump, local/test restore rehearsal, pgvector extension, future migration version, content hash, and public smoke verification checklist. It does not contain production dump files, server IPs, or credentials.
 
 Container environment is scoped by service. PostgreSQL receives only `POSTGRES_*` values, Redis receives no application secrets, and web/worker receive only the runtime URLs and mode flags needed for local validation.
 
 The worker service is intentionally profile-gated and non-automatic. It must not call LLM, embedding, IndexNow, Discord, or publish jobs until the later automation phases define tested job behavior.
 
 Kubernetes is not required for the initial OCI deployment. If a later ADR adopts Kubernetes, the current service boundary maps directly to `Deployment`/`Service` for web and worker, `StatefulSet` or managed services for PostgreSQL/Redis, `Ingress` for Nginx edge behavior, and `Job`/`CronJob` for migration, backup, and worker tasks.
+
+## Backup/Restore Boundary
+
+H-Log uses PostgreSQL logical dump as the first backup method for the self-hosted DB. Restore is not considered complete until a local/test rehearsal validates the restored database.
+
+Restore checks include:
+
+- `vector` extension exists in the restored PostgreSQL database.
+- migration version matches the app image being deployed. The current repo has no migration runner yet, so this check is recorded as not applicable until migration tooling is introduced.
+- `posts.current_version_id` points to a restored `post_versions` row.
+- `post_versions.content_hash` values are present and match the app-side content hash contract.
+- public blog routes expose only `published` current versions after restore smoke.
+
+Operational backup files and restore logs can contain unpublished content or personal data. They must stay outside the repository and must not include server IPs, DB passwords, Object Storage credentials, signed URLs, or private hostnames in committed files.
 
 ## 현재 앱 데이터 흐름
 

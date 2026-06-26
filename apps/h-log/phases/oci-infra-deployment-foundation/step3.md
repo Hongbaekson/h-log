@@ -35,6 +35,13 @@ git diff --check
 3. DB version/hash 검증 절차가 문서화됐는지 확인한다.
 4. 성공 시 phase index의 step status를 갱신한다.
 
+## 완료 기록
+
+- PostgreSQL logical dump 기반 runbook을 `.codex/docs/backup-restore-runbook.md`에 추가한다.
+- 복구 완료 기준은 local/test restore rehearsal, `vector` extension 확인, migration version 확인, `content_hash` 검증, public smoke 확인으로 둔다.
+- 현재 저장소에는 실제 DB adapter와 migration runner가 없으므로 migration version 검증은 migration 도구 도입 전까지 적용 불가로 기록한다.
+- 운영 DB dump, Object Storage credential, bucket URL, server IP, DB password는 저장소에 기록하지 않는다.
+
 ## 하지 말 것
 
 - 운영 DB dump를 생성하거나 저장소에 추가하지 말 것.
