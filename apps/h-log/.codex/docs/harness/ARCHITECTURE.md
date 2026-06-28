@@ -136,6 +136,7 @@ Current repo config:
 - `deploy/nginx/conf.d/hlog.conf`: local Nginx reverse proxy, fixed `hlog-web:3000` upstream, trusted proxy IP headers, admin/internal blocking, static asset cache headers, and baseline security headers.
 - `deploy/env.dev`: placeholder-only local development values for web/worker. Real production secrets, server IPs, SSH keys, API keys, and private URLs must not be written there.
 - `.codex/docs/backup-restore-runbook.md`: PostgreSQL logical dump, local/test restore rehearsal, pgvector extension, future migration version, content hash, and public smoke verification checklist. It does not contain production dump files, server IPs, or credentials.
+- `.codex/docs/deploy-smoke-rollback-runbook.md`: local/OCI deploy smoke, phase-gated sitemap/feed/llms checks, private route blocking checks, migration rollback gate, and approval-only rollback procedure.
 
 Container environment is scoped by service. PostgreSQL receives only `POSTGRES_*` values, Redis receives no application secrets, and web/worker receive only the runtime URLs and mode flags needed for local validation.
 

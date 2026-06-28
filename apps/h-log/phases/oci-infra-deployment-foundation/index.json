@@ -29,7 +29,8 @@
     {
       "step": 4,
       "name": "deploy-smoke-rollback-runbook",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a deploy smoke and rollback runbook covering local/OCI Compose checks, public/private route smoke, phase-gated sitemap/feed/llms checks, migration rollback gate, and approval-only production rollback."
     }
   ]
 }

@@ -122,12 +122,12 @@ auto-publish-ops-hardening
 
 ## 현재 OCI foundation 진행 상태
 
-### oci-infra-deployment-foundation / Steps 0-3
+### oci-infra-deployment-foundation / Steps 0-4
 
 - 상태: completed
-- 결과: Dockerfile, Compose topology, local Nginx reverse proxy, admin/internal route blocking, security headers, fixed upstream proxy, trusted `X-Real-IP` boundary, PostgreSQL logical dump 기반 backup/restore runbook을 고정했다.
+- 결과: Dockerfile, Compose topology, local Nginx reverse proxy, admin/internal route blocking, security headers, fixed upstream proxy, trusted `X-Real-IP` boundary, PostgreSQL logical dump 기반 backup/restore runbook, deploy smoke/rollback runbook을 고정했다.
 - 검증: `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`, `npm audit --audit-level=moderate`, source-only `gitleaks`, Semgrep `--novcs`, `git diff --check`
-- 다음 실행 대상: `oci-infra-deployment-foundation / Step 4: deploy-smoke-rollback-runbook`
+- 다음 실행 대상: `publish-state-and-admin / Step 0: publish-state-machine`
 
 ## 이후 DB-first 단계
 
@@ -147,5 +147,5 @@ auto-publish-ops-hardening
 - Harness baseline 문서와 phase template이 존재한다.
 - root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
 - `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
-- 다음 실행 대상은 `oci-infra-deployment-foundation / Step 4: deploy-smoke-rollback-runbook`이다.
+- 다음 실행 대상은 `publish-state-and-admin / Step 0: publish-state-machine`이다.
 - 문서 검증과 `git diff --check`가 통과한다.
