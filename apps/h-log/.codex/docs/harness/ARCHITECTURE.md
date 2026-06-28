@@ -136,7 +136,7 @@ Current repo config:
 - `deploy/nginx/conf.d/hlog.conf`: local Nginx reverse proxy, fixed `hlog-web:3000` upstream, trusted proxy IP headers, admin/internal blocking, static asset cache headers, and baseline security headers.
 - `deploy/env.dev`: placeholder-only local development values for web/worker. Real production secrets, server IPs, SSH keys, API keys, and private URLs must not be written there.
 - `.codex/docs/backup-restore-runbook.md`: PostgreSQL logical dump, local/test restore rehearsal, pgvector extension, future migration version, content hash, and public smoke verification checklist. It does not contain production dump files, server IPs, or credentials.
-- `.codex/docs/deploy-smoke-rollback-runbook.md`: local/OCI deploy smoke, phase-gated sitemap/feed/llms checks, private route blocking checks, migration rollback gate, and approval-only rollback procedure.
+- `.codex/docs/deploy-smoke-rollback-runbook.md`: local/OCI deploy smoke, registry pull, compose up, health/log checks, phase-gated sitemap/feed/llms checks, private route blocking checks, migration rollback gate, and previous-image approval-only rollback procedure. It does not contain server IPs, SSH key paths, registry tokens, or production secrets.
 
 Container environment is scoped by service. PostgreSQL receives only `POSTGRES_*` values, Redis receives no application secrets, and web/worker receive only the runtime URLs and mode flags needed for local validation.
 
@@ -157,6 +157,21 @@ Restore checks include:
 - public blog routes expose only `published` current versions after restore smoke.
 
 Operational backup files and restore logs can contain unpublished content or personal data. They must stay outside the repository and must not include server IPs, DB passwords, Object Storage credentials, signed URLs, or private hostnames in committed files.
+
+## Deploy Smoke/Rollback Boundary
+
+Deploy smoke is the release gate for the OCI Compose runtime. It checks the current public app routes, Nginx proxy/security headers, container health, and DB migration safety before a release is considered operational.
+
+Current public smoke includes:
+
+- `/`, `/resume`, `/portfolio`, `/blog`
+- `/blog/db-first-public-boundary`
+- `/blog/db-first-public-boundary.md`, served through the `/blog/:slug.md` rewrite
+- `/admin` and `/api/internal/*` returning 404 through Nginx until authentication/authorization is explicitly decided
+
+`sitemap.xml`, `feed.xml`, `llms.txt`, and `llms-full.txt` are planned crawler surfaces, but the current app has no route files for them yet. They become mandatory smoke targets in the SEO automation phase that introduces them.
+
+Rollback uses the previous image tag and server-local env/Compose boundary. If a deploy includes DB migration or content hash changes, rollback is blocked until migration rollback or restore rehearsal is confirmed.
 
 ## 현재 앱 데이터 흐름
 

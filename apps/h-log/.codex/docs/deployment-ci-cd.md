@@ -23,7 +23,7 @@ Local development
 4. 로컬 Docker Compose로 web, worker placeholder, PostgreSQL + pgvector, Redis, Nginx topology 검증
 5. OCI에서 수동 배포 성공
 6. Nginx, 도메인, HTTPS 확인
-7. DB backup/restore와 rollback smoke 확인
+7. DB backup/restore와 deploy smoke/rollback 확인
 8. CI/CD 자동화 추가
 
 처음부터 CI/CD까지 한 번에 구현하지 않는다.
@@ -86,10 +86,14 @@ docker compose --profile worker run --rm hlog-worker
 기준 runbook은 `.codex/docs/deploy-smoke-rollback-runbook.md`에 둔다.
 
 - 배포 전 `npm run lint`, `npm run build`, `docker compose config`를 통과해야 한다.
+- 운영 배포는 명시 승인 후 `ssh oci`로 접속해 서버 로컬 compose 디렉터리에서 수행한다.
+- 배포 전에는 app git SHA, image tag, Compose config hash, server-local env 기준을 기록한다. secret 값은 기록하지 않는다.
+- registry pull, `docker compose up -d`, `docker compose ps`, `docker compose logs --tail=100` 순서로 상태를 확인한다.
 - local smoke는 `localhost:8080 -> hlog-nginx -> hlog-web` 경계를 기준으로 한다.
 - production smoke는 같은 public route 목록을 domain만 바꿔 확인한다.
+- public smoke는 `/`, `/resume`, `/portfolio`, `/blog`, `/blog/:slug`, `/blog/:slug.md`, `/admin` 차단, `/api/internal/*` 차단을 포함한다.
 - `sitemap.xml`, `feed.xml`, `llms.txt`, `llms-full.txt`는 현재 route가 없으므로 구현 전에는 expected 404로 기록하고, post-publish SEO phase에서 구현된 뒤 필수 200 smoke로 승격한다.
-- rollback은 이전 image tag, 이전 server-local env/Compose 설정, migration rollback 가능 여부를 확인한 뒤 승인 후 실행한다.
+- rollback은 이전 image tag, 이전 server-local env/Compose 설정, migration rollback 가능 여부 또는 restore rehearsal을 확인한 뒤 승인 후 실행한다.
 
 ## CI Checks
 
