@@ -4,7 +4,9 @@ import { describe, it } from "node:test";
 import {
   BLOG_CONTENT_MODEL_TABLES,
   assertPostVersionContentHashMatches,
+  assertBlogPostStatusTransition,
   blogPostStatuses,
+  canTransitionBlogPostStatus,
   createPostVersionContentFromMarkdown,
   createPostVersionContentHash,
   isCurrentPublishedVersion,
@@ -178,6 +180,41 @@ describe("blog DB content model contract", () => {
     for (const jobType of requiredPublishJobTypes) {
       assert.equal(retryable.has(jobType), false);
     }
+  });
+
+  it("allows only explicit publish state transitions", () => {
+    assert.equal(canTransitionBlogPostStatus("queued", "researching"), true);
+    assert.equal(canTransitionBlogPostStatus("researching", "drafted"), true);
+    assert.equal(canTransitionBlogPostStatus("drafted", "ready_to_publish"), true);
+    assert.equal(canTransitionBlogPostStatus("drafted", "gate_failed"), true);
+    assert.equal(canTransitionBlogPostStatus("ready_to_publish", "publishing"), true);
+    assert.equal(canTransitionBlogPostStatus("publishing", "verifying"), true);
+    assert.equal(canTransitionBlogPostStatus("publishing", "failed_publish"), true);
+    assert.equal(canTransitionBlogPostStatus("failed_publish", "publishing"), true);
+    assert.equal(canTransitionBlogPostStatus("verifying", "published"), true);
+    assert.equal(canTransitionBlogPostStatus("verifying", "failed_verification"), true);
+    assert.equal(canTransitionBlogPostStatus("failed_verification", "verifying"), true);
+    assert.equal(canTransitionBlogPostStatus("published", "correction_pending"), true);
+    assert.equal(canTransitionBlogPostStatus("published", "unpublished"), true);
+    assert.equal(canTransitionBlogPostStatus("published", "retracted"), true);
+    assert.equal(canTransitionBlogPostStatus("correction_pending", "corrected"), true);
+    assert.equal(canTransitionBlogPostStatus("correction_pending", "retracted"), true);
+    assert.equal(canTransitionBlogPostStatus("corrected", "published"), true);
+
+    assert.equal(canTransitionBlogPostStatus("ready_to_publish", "published"), false);
+    assert.equal(canTransitionBlogPostStatus("failed_verification", "published"), false);
+    assert.equal(canTransitionBlogPostStatus("unpublished", "published"), false);
+    assert.equal(canTransitionBlogPostStatus("retracted", "published"), false);
+  });
+
+  it("throws when a publish state transition skips verification", () => {
+    assert.doesNotThrow(() =>
+      assertBlogPostStatusTransition("ready_to_publish", "publishing"),
+    );
+    assert.throws(
+      () => assertBlogPostStatusTransition("ready_to_publish", "published"),
+      /invalid blog post status transition: ready_to_publish -> published/,
+    );
   });
 
   it("selects only published posts with their current version for public routes", () => {

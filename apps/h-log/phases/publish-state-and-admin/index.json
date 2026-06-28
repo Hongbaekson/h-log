@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "publish-state-machine",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a tested publish state transition contract for publish, retry, unpublish, retract, and correction flows while blocking direct ready_to_publish to published skips."
     },
     {
       "step": 1,

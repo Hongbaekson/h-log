@@ -140,6 +140,48 @@ export type AdminActionType = (typeof adminActionTypes)[number];
 export type AdminActionTargetType = "post" | "post_version";
 export type Timestamp = string;
 
+export const blogPostStatusTransitions: {
+  readonly [Status in BlogPostStatus]: readonly BlogPostStatus[];
+} = {
+  correction_pending: ["corrected", "retracted"],
+  corrected: ["published"],
+  drafted: ["gate_failed", "ready_to_publish"],
+  failed_generation: [],
+  failed_publish: ["publishing"],
+  failed_verification: ["verifying"],
+  gate_failed: [],
+  published: ["correction_pending", "unpublished", "retracted"],
+  publishing: ["verifying", "failed_publish"],
+  queued: ["researching"],
+  ready_to_publish: ["publishing"],
+  researching: ["drafted"],
+  retracted: [],
+  unpublished: [],
+  verifying: ["published", "failed_verification"],
+};
+
+export function getAllowedBlogPostStatusTransitions(
+  status: BlogPostStatus,
+): readonly BlogPostStatus[] {
+  return blogPostStatusTransitions[status];
+}
+
+export function canTransitionBlogPostStatus(
+  from: BlogPostStatus,
+  to: BlogPostStatus,
+): boolean {
+  return getAllowedBlogPostStatusTransitions(from).includes(to);
+}
+
+export function assertBlogPostStatusTransition(
+  from: BlogPostStatus,
+  to: BlogPostStatus,
+): void {
+  if (!canTransitionBlogPostStatus(from, to)) {
+    throw new Error(`invalid blog post status transition: ${from} -> ${to}`);
+  }
+}
+
 export type PostRecord = {
   articleMode: BlogArticleMode;
   createdAt: Timestamp;
