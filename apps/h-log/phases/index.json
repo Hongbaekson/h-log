@@ -18,7 +18,7 @@
     {
       "dir": "publish-state-and-admin",
       "status": "pending",
-      "summary": "Step 0 completed: publish state transition contract is fixed; required vs retryable publish jobs remains pending."
+      "summary": "Steps 0-2 completed: publish state transitions, required vs retryable publish job failure handling, and admin/Discord/CLI operational audit logging are tested; correction/unpublish/retract behavior remains pending."
     },
     {
       "dir": "search-and-related-posts",

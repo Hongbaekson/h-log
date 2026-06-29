@@ -5,6 +5,7 @@ import { getPublicBlogPostBySlug } from "./blog-public.ts";
 import {
   previewAdminPostDraft,
   publishAdminPostVersion,
+  recordAdminOperationalAction,
   saveAdminPostDraft,
   type AdminPostDraftInput,
   type BlogAdminStore,
@@ -56,6 +57,8 @@ describe("minimal admin preview/save/publish workflow", () => {
     assert.equal(saved.post.status, "ready_to_publish");
     assert.equal(saved.post.currentVersionId, "version-admin-preview");
     assert.equal(saved.adminAction.actionType, "save");
+    assert.equal(saved.adminAction.actorId, "manual-admin");
+    assert.equal(saved.adminAction.actorType, "admin");
     assert.equal(saved.store.adminActions.at(-1)?.targetId, "post-admin-preview");
     assert.equal(getPublicBlogPostBySlug("admin-preview", saved.store), undefined);
   });
@@ -96,9 +99,74 @@ describe("minimal admin preview/save/publish workflow", () => {
     assert.equal(published.post.status, "published");
     assert.equal(published.post.publishedAt, "2026-06-26T01:00:00.000Z");
     assert.equal(published.adminAction.actionType, "publish");
+    assert.equal(published.adminAction.actorId, "manual-admin");
+    assert.equal(published.adminAction.actorType, "admin");
     assert.deepEqual(
       published.store.adminActions.map((action) => action.actionType),
       ["save", "publish"],
     );
+  });
+
+  it("records operational admin actions with actor, target, and reason", () => {
+    const saved = saveAdminPostDraft(createEmptyAdminStore(), createDraftInput());
+    const audited = recordAdminOperationalAction(saved.store, {
+      actionType: "retry",
+      actorId: "discord:user-123",
+      actorType: "discord",
+      createdAt: "2026-06-26T02:00:00.000Z",
+      reason: "Retry failed IndexNow job after transient timeout",
+      targetId: "job-indexnow-1",
+      targetType: "publish_job",
+    });
+
+    assert.equal(audited.adminAction.actionType, "retry");
+    assert.equal(audited.adminAction.actorId, "discord:user-123");
+    assert.equal(audited.adminAction.actorType, "discord");
+    assert.equal(audited.adminAction.reason, "Retry failed IndexNow job after transient timeout");
+    assert.equal(audited.adminAction.targetId, "job-indexnow-1");
+    assert.equal(audited.adminAction.targetType, "publish_job");
+    assert.equal("requireReason" in audited.adminAction, false);
+    assert.equal(audited.store.adminActions.at(-1), audited.adminAction);
+  });
+
+  it("rejects unsafe audit reasons before they are stored", () => {
+    assert.throws(
+      () =>
+        recordAdminOperationalAction(createEmptyAdminStore(), {
+          actionType: "retract",
+          actorId: "cli:operator",
+          actorType: "cli",
+          createdAt: "2026-06-26T03:00:00.000Z",
+          reason: "raw incident log includes https://internal.example.local/report",
+          targetId: "post-admin-preview",
+          targetType: "post",
+        }),
+      /admin action reason must not contain URLs or private host details/,
+    );
+  });
+
+  it("does not expose admin audit logs through public blog output", () => {
+    const saved = saveAdminPostDraft(createEmptyAdminStore(), createDraftInput());
+    const published = publishAdminPostVersion(saved.store, {
+      createdAt: "2026-06-26T01:00:00.000Z",
+      postId: "post-admin-preview",
+      reason: "manual publish",
+      versionId: "version-admin-preview",
+    });
+    const audited = recordAdminOperationalAction(published.store, {
+      actionType: "correct",
+      actorId: "cli:operator",
+      actorType: "cli",
+      createdAt: "2026-06-26T04:00:00.000Z",
+      reason: "Correct typo in generated summary",
+      targetId: "version-admin-preview",
+      targetType: "post_version",
+    });
+    const publicPost = getPublicBlogPostBySlug("admin-preview", audited.store);
+
+    assert.ok(publicPost);
+    assert.equal("adminActions" in publicPost, false);
+    assert.equal(JSON.stringify(publicPost).includes("cli:operator"), false);
+    assert.equal(JSON.stringify(publicPost).includes("Correct typo"), false);
   });
 });

@@ -11,12 +11,14 @@
     {
       "step": 1,
       "name": "required-vs-retryable-jobs",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a tested publish job failure contract that maps required job failures to failed_publish or failed_verification, keeps retryable job failures public, and records retry_count."
     },
     {
       "step": 2,
       "name": "admin-actions-audit-log",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a tested admin_actions contract for retry, unpublish, retract, correct, block_topic, and approve_preview commands with actor, target, reason, unsafe audit text rejection, and public route non-exposure."
     },
     {
       "step": 3,

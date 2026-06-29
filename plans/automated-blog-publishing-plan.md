@@ -1281,10 +1281,11 @@ publish_jobs
 - id
 - post_id
 - post_version_id
-- type: public_url | md_url | render | privacy_scan | sitemap | content_version_match | embedding | search_index | related_posts | indexnow | llms | rss | discord | og | diagram
+- type: public_url | md_url | render | privacy_scan | sitemap | content_version_match | embedding | search_index | related_posts | llms | feed | indexnow | discord | og | diagram
 - importance: required | retryable
 - idempotency_key
 - status
+- retry_count
 - error
 - started_at
 - finished_at
@@ -1382,7 +1383,9 @@ usage_events
 
 admin_actions
 - id
-- action_type: retry | unpublish | retract | correct | block_topic | approve_preview
+- action_type: preview | save | publish | retry | unpublish | retract | correct | block_topic | approve_preview
+- actor_type: admin | system | discord | cli
+- actor_id
 - target_type
 - target_id
 - reason
@@ -1402,7 +1405,7 @@ admin_actions
 - post_corrections는 자동 발행 이후 정정/비공개 처리 이력을 남긴다.
 - personal_context_items는 글이 홍백님의 경험처럼 보일 수 있는 근거 범위를 제한한다.
 - usage_events는 자동화 비용과 실패 루프를 추적한다.
-- admin_actions는 Discord/CLI/관리자 조작을 감사 가능하게 남긴다.
+- admin_actions는 Discord/CLI/관리자 조작을 감사 가능하게 남긴다. 감사 사유에는 raw log, 내부 URL/private host, credential-like 값을 저장하지 않는다.
 ```
 
 ## 구현 단계
@@ -1542,7 +1545,7 @@ daily-blog-cron
 6. personal_context_items의 forbidden 항목이 본문에 나오면 어떻게 차단할 것인가?
 7. source_role=discovery만 있는 claim은 어떻게 처리할 것인가?
 8. 글 정정 시 기존 URL을 유지할 것인가, retract 페이지를 보여줄 것인가?
-9. llms.txt, sitemap, feed가 실패했을 때 글을 유지할 것인가?
+9. llms.txt, feed, IndexNow 같은 retryable job이 실패했을 때 글을 유지할 것인가?
 10. 하루 발행 한도와 비용 한도 초과 시 어떤 status로 남길 것인가?
 11. /api/search는 어떤 조건에서 임베딩 호출을 생략할 것인가?
 12. 검색 API의 rate limit, 캐시 TTL, 중복 요청 기준은 무엇인가?

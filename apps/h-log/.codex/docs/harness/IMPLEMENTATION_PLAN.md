@@ -54,7 +54,7 @@ apps/h-log/AGENTS.md
 phase-registry-bootstrap: completed
 db-manual-publishing-mvp: completed
 oci-infra-deployment-foundation: completed
-publish-state-and-admin: pending, step 0 completed
+publish-state-and-admin: pending, steps 0-2 completed
 search-and-related-posts
 post-publish-seo-automation
 topic-research-generation
@@ -135,7 +135,19 @@ auto-publish-ops-hardening
 - 상태: completed
 - 결과: `lib/blog-content-model.ts`와 테스트로 publish state transition contract를 고정했다. 직접 `ready_to_publish -> published` 전환은 막고, publish/retry/unpublish/retract/correct에 필요한 명시 전이만 허용한다.
 - 검증: focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`
-- 다음 실행 대상: `publish-state-and-admin / Step 1: required-vs-retryable-jobs`
+
+### publish-state-and-admin / Step 1: required-vs-retryable-jobs
+
+- 상태: completed
+- 결과: `lib/blog-content-model.ts`와 테스트로 required publish job 실패는 `failed_publish` 또는 `failed_verification`으로 전환하고, retryable job 실패는 `published` 상태를 유지하면서 `retry_count`와 실패 사유를 기록하도록 고정했다.
+- 검증: focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, `npm run test`, `npm run typecheck`
+
+### publish-state-and-admin / Step 2: admin-actions-audit-log
+
+- 상태: completed
+- 결과: `lib/blog-admin.ts`와 테스트로 `retry`, `unpublish`, `retract`, `correct`, `block_topic`, `approve_preview` 운영 명령을 `admin_actions`에 남기는 contract를 고정했다. 감사 로그는 `actor_type`, `actor_id`, `target_type`, `target_id`, `reason`, `created_at`을 기록하고, URL/private host/credential-like 값을 포함한 감사 사유는 저장 전에 거부한다. public blog output은 `admin_actions`를 노출하지 않는다.
+- 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-admin.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-admin.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, `npm run test`, `npm run typecheck`
+- 다음 실행 대상: `publish-state-and-admin / Step 3: correction-unpublish-retract-flow`
 
 ## 이후 DB-first 단계
 
@@ -155,5 +167,5 @@ auto-publish-ops-hardening
 - Harness baseline 문서와 phase template이 존재한다.
 - root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
 - `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
-- 다음 실행 대상은 `publish-state-and-admin / Step 1: required-vs-retryable-jobs`이다.
+- 다음 실행 대상은 `publish-state-and-admin / Step 3: correction-unpublish-retract-flow`이다.
 - 문서 검증과 `git diff --check`가 통과한다.

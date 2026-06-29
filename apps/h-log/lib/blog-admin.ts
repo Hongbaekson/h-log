@@ -1,6 +1,9 @@
 import {
   createPostVersionContentFromMarkdown,
   type AdminActionRecord,
+  type AdminActionActorType,
+  type AdminActionTargetType,
+  type AdminActionType,
   type BlogArticleMode,
   type PostRecord,
   type PostSourceRecord,
@@ -15,6 +18,16 @@ export type BlogAdminStore = BlogContentStore & {
   adminActions: readonly AdminActionRecord[];
 };
 
+export type AdminActionActorInput = {
+  actorId?: string;
+  actorType?: AdminActionActorType;
+};
+
+export type AdminOperationalActionType = Exclude<
+  AdminActionType,
+  "preview" | "save" | "publish"
+>;
+
 export type AdminSourceInput = {
   publisher: string;
   sourceRole: PostSourceRole;
@@ -23,7 +36,7 @@ export type AdminSourceInput = {
   url: string;
 };
 
-export type AdminPostDraftInput = {
+export type AdminPostDraftInput = AdminActionActorInput & {
   articleMode: BlogArticleMode;
   contentMarkdown: string;
   createdAt: string;
@@ -37,11 +50,21 @@ export type AdminPostDraftInput = {
   versionId: string;
 };
 
-export type AdminPublishInput = {
+export type AdminPublishInput = AdminActionActorInput & {
   createdAt: string;
   postId: string;
   reason?: string;
   versionId: string;
+};
+
+export type AdminOperationalActionInput = {
+  actionType: AdminOperationalActionType;
+  actorId: string;
+  actorType: AdminActionActorType;
+  createdAt: string;
+  reason: string;
+  targetId: string;
+  targetType: AdminActionTargetType;
 };
 
 export type AdminPostPreview = {
@@ -122,6 +145,8 @@ export function saveAdminPostDraft(
   }));
   const adminAction = createAdminAction({
     actionType: "save",
+    actorId: input.actorId,
+    actorType: input.actorType,
     createdAt: input.createdAt,
     reason: input.reason,
     targetId: input.postId,
@@ -172,6 +197,8 @@ export function publishAdminPostVersion(
   };
   const adminAction = createAdminAction({
     actionType: "publish",
+    actorId: input.actorId,
+    actorType: input.actorType,
     createdAt: input.createdAt,
     reason: input.reason,
     targetId: input.postId,
@@ -189,16 +216,101 @@ export function publishAdminPostVersion(
   };
 }
 
+export function recordAdminOperationalAction(
+  store: BlogAdminStore,
+  input: AdminOperationalActionInput,
+): {
+  adminAction: AdminActionRecord;
+  store: BlogAdminStore;
+} {
+  const adminAction = createAdminAction({
+    actionType: input.actionType,
+    actorId: input.actorId,
+    actorType: input.actorType,
+    createdAt: input.createdAt,
+    reason: input.reason,
+    requireReason: true,
+    targetId: input.targetId,
+    targetType: input.targetType,
+  });
+
+  return {
+    adminAction,
+    store: {
+      ...store,
+      adminActions: [...store.adminActions, adminAction],
+    },
+  };
+}
+
 function createAdminAction(
-  input: Omit<AdminActionRecord, "id" | "reason"> & {
+  input: Omit<AdminActionRecord, "actorId" | "actorType" | "id" | "reason"> & {
+    actorId?: string;
+    actorType?: AdminActionActorType;
     reason?: string;
+    requireReason?: boolean;
   },
 ): AdminActionRecord {
+  const {
+    actorId: actorIdInput,
+    actorType: actorTypeInput,
+    reason: reasonInput,
+    requireReason = false,
+    ...recordInput
+  } = input;
+  const actorId = normalizeAdminActorId(actorIdInput);
+  const actorType = actorTypeInput ?? "admin";
+  const reason = normalizeAdminActionReason(reasonInput, {
+    requireReason,
+  });
+
   return {
-    ...input,
-    id: `${input.actionType}:${input.targetType}:${input.targetId}:${input.createdAt}`,
-    reason: input.reason?.trim() || null,
+    ...recordInput,
+    actorId,
+    actorType,
+    id: `${recordInput.actionType}:${recordInput.targetType}:${recordInput.targetId}:${recordInput.createdAt}`,
+    reason,
   };
+}
+
+function normalizeAdminActorId(actorId: string | undefined): string {
+  const normalized = actorId?.trim() || "manual-admin";
+
+  if (hasUnsafeAuditText(normalized)) {
+    throw new Error("admin action actor id must not contain URLs or private host details");
+  }
+
+  return normalized;
+}
+
+function normalizeAdminActionReason(
+  reason: string | undefined,
+  options: { requireReason: boolean },
+): string | null {
+  const normalized = reason?.trim() ?? "";
+
+  if (!normalized) {
+    if (options.requireReason) {
+      throw new Error("admin action reason is required");
+    }
+
+    return null;
+  }
+
+  if (hasUnsafeAuditText(normalized)) {
+    throw new Error("admin action reason must not contain URLs or private host details");
+  }
+
+  return normalized;
+}
+
+function hasUnsafeAuditText(value: string): boolean {
+  return (
+    /https?:\/\//i.test(value) ||
+    /\b(?:localhost|127\.0\.0\.1|0\.0\.0\.0)\b/i.test(value) ||
+    /\b(?:10|192\.168|172\.(?:1[6-9]|2\d|3[01]))\.\d{1,3}\.\d{1,3}\b/.test(value) ||
+    /\b(?:api[_-]?key|token|password|secret)\s*[:=]/i.test(value)
+  );
 }
 
 function normalizeTags(tags: readonly string[]): string[] {

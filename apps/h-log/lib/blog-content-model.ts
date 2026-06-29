@@ -50,6 +50,7 @@ export const BLOG_CONTENT_MODEL_TABLES = {
     "importance",
     "idempotency_key",
     "status",
+    "retry_count",
     "error",
     "started_at",
     "finished_at",
@@ -57,6 +58,8 @@ export const BLOG_CONTENT_MODEL_TABLES = {
   admin_actions: [
     "id",
     "action_type",
+    "actor_type",
+    "actor_id",
     "target_type",
     "target_id",
     "reason",
@@ -109,9 +112,9 @@ export const retryablePublishJobTypes = [
   "embedding",
   "search_index",
   "related_posts",
-  "indexnow",
   "llms",
-  "rss",
+  "feed",
+  "indexnow",
   "discord",
   "og",
   "diagram",
@@ -125,7 +128,24 @@ export const publishJobStatuses = [
   "failed",
 ] as const;
 
-export const adminActionTypes = ["preview", "save", "publish"] as const;
+export const adminActionTypes = [
+  "preview",
+  "save",
+  "publish",
+  "retry",
+  "unpublish",
+  "retract",
+  "correct",
+  "block_topic",
+  "approve_preview",
+] as const;
+
+export const adminActionActorTypes = [
+  "admin",
+  "system",
+  "discord",
+  "cli",
+] as const;
 
 export type BlogPostStatus = (typeof blogPostStatuses)[number];
 export type BlogArticleMode = (typeof blogArticleModes)[number];
@@ -137,7 +157,12 @@ export type PublishJobImportance = "required" | "retryable";
 export type PublishJobStatus = (typeof publishJobStatuses)[number];
 export type PostVersionCreatedBy = "system" | "admin";
 export type AdminActionType = (typeof adminActionTypes)[number];
-export type AdminActionTargetType = "post" | "post_version";
+export type AdminActionActorType = (typeof adminActionActorTypes)[number];
+export type AdminActionTargetType =
+  | "post"
+  | "post_version"
+  | "publish_job"
+  | "topic_candidate";
 export type Timestamp = string;
 
 export const blogPostStatusTransitions: {
@@ -180,6 +205,14 @@ export function assertBlogPostStatusTransition(
   if (!canTransitionBlogPostStatus(from, to)) {
     throw new Error(`invalid blog post status transition: ${from} -> ${to}`);
   }
+}
+
+export function getPublishJobImportance(
+  type: PublishJobType,
+): PublishJobImportance {
+  return (requiredPublishJobTypes as readonly string[]).includes(type)
+    ? "required"
+    : "retryable";
 }
 
 export type PostRecord = {
@@ -240,13 +273,72 @@ export type PublishJobRecord = {
   importance: PublishJobImportance;
   postId: string;
   postVersionId: string;
+  retryCount: number;
   startedAt: Timestamp | null;
   status: PublishJobStatus;
   type: PublishJobType;
 };
 
+export type PublishJobFailureInput = {
+  error: string;
+  finishedAt: Timestamp;
+  job: PublishJobRecord;
+  postStatus: BlogPostStatus;
+};
+
+export type PublishJobFailureResult = {
+  job: PublishJobRecord;
+  postStatus: BlogPostStatus;
+};
+
+export function recordPublishJobFailure(
+  input: PublishJobFailureInput,
+): PublishJobFailureResult {
+  const importance = getPublishJobImportance(input.job.type);
+  const error = input.error.trim();
+
+  if (!error) {
+    throw new Error(`publish job ${input.job.id}: failure error is required`);
+  }
+
+  return {
+    job: {
+      ...input.job,
+      error,
+      finishedAt: input.finishedAt,
+      importance,
+      retryCount:
+        input.job.retryCount + (importance === "retryable" ? 1 : 0),
+      status: importance === "required" ? "failed" : "retrying",
+    },
+    postStatus:
+      importance === "required"
+        ? getRequiredPublishJobFailureStatus(input.postStatus, input.job.type)
+        : input.postStatus,
+  };
+}
+
+function getRequiredPublishJobFailureStatus(
+  postStatus: BlogPostStatus,
+  jobType: PublishJobType,
+): BlogPostStatus {
+  if (postStatus === "publishing") {
+    return "failed_publish";
+  }
+
+  if (postStatus === "verifying") {
+    return "failed_verification";
+  }
+
+  throw new Error(
+    `required publish job ${jobType} failed outside publish flow: ${postStatus}`,
+  );
+}
+
 export type AdminActionRecord = {
   actionType: AdminActionType;
+  actorId: string;
+  actorType: AdminActionActorType;
   createdAt: Timestamp;
   id: string;
   reason: string | null;

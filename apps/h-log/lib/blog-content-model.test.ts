@@ -5,14 +5,19 @@ import {
   BLOG_CONTENT_MODEL_TABLES,
   assertPostVersionContentHashMatches,
   assertBlogPostStatusTransition,
+  adminActionActorTypes,
+  adminActionTypes,
   blogPostStatuses,
   canTransitionBlogPostStatus,
   createPostVersionContentFromMarkdown,
   createPostVersionContentHash,
+  getPublishJobImportance,
   isCurrentPublishedVersion,
+  recordPublishJobFailure,
   renderCrawlerMarkdownForPostVersion,
   requiredPublishJobTypes,
   retryablePublishJobTypes,
+  type PublishJobRecord,
   selectPublicBlogRouteEntries,
   selectPublicBlogRouteEntryBySlug,
   type PostRecord,
@@ -61,6 +66,25 @@ function createVersion(overrides: Partial<PostVersionRecord> = {}): PostVersionR
   };
 }
 
+function createPublishJob(
+  overrides: Partial<PublishJobRecord> = {},
+): PublishJobRecord {
+  return {
+    error: null,
+    finishedAt: null,
+    id: "job-1",
+    idempotencyKey: "post-1:version-1:public_url",
+    importance: "required",
+    postId: "post-1",
+    postVersionId: "version-1",
+    retryCount: 0,
+    startedAt: baseTimestamp,
+    status: "running",
+    type: "public_url",
+    ...overrides,
+  };
+}
+
 describe("blog DB content model contract", () => {
   it("keeps post metadata separate from versioned content fields", () => {
     const postFields: readonly string[] = BLOG_CONTENT_MODEL_TABLES.posts;
@@ -78,6 +102,24 @@ describe("blog DB content model contract", () => {
     assert.ok(versionFields.includes("content_hash"));
     assert.ok(BLOG_CONTENT_MODEL_TABLES.post_sources.includes("source_role"));
     assert.ok(BLOG_CONTENT_MODEL_TABLES.publish_jobs.includes("idempotency_key"));
+    assert.ok(BLOG_CONTENT_MODEL_TABLES.publish_jobs.includes("retry_count"));
+    assert.ok(BLOG_CONTENT_MODEL_TABLES.admin_actions.includes("actor_type"));
+    assert.ok(BLOG_CONTENT_MODEL_TABLES.admin_actions.includes("actor_id"));
+  });
+
+  it("tracks admin actions with operator and command metadata", () => {
+    assert.deepEqual(adminActionTypes, [
+      "preview",
+      "save",
+      "publish",
+      "retry",
+      "unpublish",
+      "retract",
+      "correct",
+      "block_topic",
+      "approve_preview",
+    ]);
+    assert.deepEqual(adminActionActorTypes, ["admin", "system", "discord", "cli"]);
   });
 
   it("hashes each content version from Markdown and HTML", () => {
@@ -176,10 +218,73 @@ describe("blog DB content model contract", () => {
       "sitemap",
       "content_version_match",
     ]);
+    assert.deepEqual(retryablePublishJobTypes, [
+      "embedding",
+      "search_index",
+      "related_posts",
+      "llms",
+      "feed",
+      "indexnow",
+      "discord",
+      "og",
+      "diagram",
+    ]);
 
     for (const jobType of requiredPublishJobTypes) {
       assert.equal(retryable.has(jobType), false);
+      assert.equal(getPublishJobImportance(jobType), "required");
     }
+
+    for (const jobType of retryablePublishJobTypes) {
+      assert.equal(getPublishJobImportance(jobType), "retryable");
+    }
+  });
+
+  it("blocks public transition when a required publish job fails", () => {
+    const result = recordPublishJobFailure({
+      error: "public URL returned 500",
+      finishedAt: "2026-06-25T00:01:00.000Z",
+      job: createPublishJob({ type: "public_url" }),
+      postStatus: "publishing",
+    });
+
+    assert.equal(result.postStatus, "failed_publish");
+    assert.equal(result.job.status, "failed");
+    assert.equal(result.job.error, "public URL returned 500");
+    assert.equal(result.job.retryCount, 0);
+
+    const verificationResult = recordPublishJobFailure({
+      error: "content hash drift",
+      finishedAt: "2026-06-25T00:02:00.000Z",
+      job: createPublishJob({
+        id: "job-2",
+        type: "content_version_match",
+      }),
+      postStatus: "verifying",
+    });
+
+    assert.equal(verificationResult.postStatus, "failed_verification");
+  });
+
+  it("keeps a published post public when a retryable job fails", () => {
+    const result = recordPublishJobFailure({
+      error: "IndexNow timeout",
+      finishedAt: "2026-06-25T00:03:00.000Z",
+      job: createPublishJob({
+        id: "job-3",
+        idempotencyKey: "post-1:version-1:indexnow",
+        importance: "retryable",
+        retryCount: 1,
+        type: "indexnow",
+      }),
+      postStatus: "published",
+    });
+
+    assert.equal(result.postStatus, "published");
+    assert.equal(result.job.status, "retrying");
+    assert.equal(result.job.error, "IndexNow timeout");
+    assert.equal(result.job.retryCount, 2);
+    assert.equal(result.job.importance, "retryable");
   });
 
   it("allows only explicit publish state transitions", () => {
