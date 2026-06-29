@@ -27,8 +27,8 @@
     },
     {
       "dir": "search-and-related-posts",
-      "status": "pending",
-      "summary": "Steps 0-2 completed: hybrid keyword/vector search contract, /api/search cost guard execution contract, and related-post similarity contract with fresh post_chunks, published-only targets, content_hash stale rejection, similarity display fields, and tag fallback are tested. Step 3 remains pending for the published-only search UI."
+      "status": "completed",
+      "summary": "Steps 0-3 completed: hybrid keyword/vector search, /api/search cost guard, fresh post_chunks related similarity, and /blog published-only search UI with cached/loading/empty/rate-limited/error states are tested. No chatbot, SSE, or visitor session memory was added."
     },
     {
       "dir": "post-publish-seo-automation",

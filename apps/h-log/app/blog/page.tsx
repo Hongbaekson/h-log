@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, CalendarDays, Tag } from "lucide-react";
 
+import { BlogSearchPanel } from "@/components/blog/BlogSearchPanel";
 import { Badge, Container } from "@/components/ui";
 import { getPublicBlogIndex } from "@/lib/blog-public";
 import { blogContentStore } from "@/lib/blog-public-data";
@@ -60,6 +61,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
       <section className="pb-24">
         <Container>
+          <div className="mb-8">
+            <BlogSearchPanel />
+          </div>
+
           <div className="grid gap-8 lg:grid-cols-[15rem_1fr]">
             <aside className="lg:sticky lg:top-24 lg:self-start">
               <div className="border-y border-slate-700/80 py-5">

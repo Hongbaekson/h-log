@@ -18,6 +18,11 @@ export type BlogSearchVectorScore = {
   score: number;
 };
 
+export type BlogSearchMatchReason =
+  | "keyword"
+  | "keyword_and_vector"
+  | "vector";
+
 export type BlogSearchInput = {
   limit?: number;
   query: string;
@@ -28,13 +33,16 @@ export type BlogSearchResult = {
   description: string;
   href: string;
   keywordScore: number;
+  matchReason: BlogSearchMatchReason;
   matchedBy: {
     keyword: boolean;
     vector: boolean;
   };
   postId: string;
+  publishedAt: string;
   score: number;
   slug: string;
+  tags: readonly string[];
   title: string;
   vectorScore: number;
 };
@@ -208,6 +216,10 @@ export function searchPublishedBlogPosts(
     .flatMap((entry) => {
       const keywordScore = scoreKeywordMatch(entry, store, normalizedQuery);
       const vectorScore = vectorScoreByPostId.get(entry.post.id) ?? 0;
+      const matchedBy = {
+        keyword: keywordScore > 0,
+        vector: vectorScore > 0,
+      };
 
       if (keywordScore <= 0 && vectorScore <= 0) {
         return [];
@@ -218,13 +230,13 @@ export function searchPublishedBlogPosts(
           description: entry.version.description,
           href: `/blog/${entry.post.slug}`,
           keywordScore,
-          matchedBy: {
-            keyword: keywordScore > 0,
-            vector: vectorScore > 0,
-          },
+          matchReason: getBlogSearchMatchReason(matchedBy),
+          matchedBy,
           postId: entry.post.id,
+          publishedAt: entry.post.publishedAt ?? entry.post.updatedAt,
           score: Number((keywordScore * 0.6 + vectorScore * 0.4).toFixed(6)),
           slug: entry.post.slug,
+          tags: getPostTags(entry.post.id, store),
           title: entry.version.title,
           vectorScore,
         },
@@ -765,6 +777,21 @@ function scoreKeywordMatch(
 
 function compareSearchResults(a: BlogSearchResult, b: BlogSearchResult): number {
   return b.score - a.score || a.slug.localeCompare(b.slug, "ko");
+}
+
+function getBlogSearchMatchReason(matchedBy: {
+  keyword: boolean;
+  vector: boolean;
+}): BlogSearchMatchReason {
+  if (matchedBy.keyword && matchedBy.vector) {
+    return "keyword_and_vector";
+  }
+
+  if (matchedBy.vector) {
+    return "vector";
+  }
+
+  return "keyword";
 }
 
 function normalizeSearchQuery(query: string): string {

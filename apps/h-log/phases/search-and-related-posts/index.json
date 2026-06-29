@@ -23,7 +23,8 @@
     {
       "step": 3,
       "name": "published-only-search-ui",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added the /blog search UI backed by /api/search, including published-only result display fields, cached/loading/empty/rate-limited/error states, and no chatbot, SSE, or visitor session memory surface."
     }
   ]
 }

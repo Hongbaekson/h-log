@@ -176,6 +176,9 @@ describe("blog search contract", () => {
     );
     assert.equal(results[0]?.matchedBy.keyword, true);
     assert.equal(results[0]?.matchedBy.vector, true);
+    assert.equal(results[0]?.matchReason, "keyword_and_vector");
+    assert.equal(results[0]?.publishedAt, "2026-06-27T09:00:00.000Z");
+    assert.deepEqual(results[0]?.tags, ["DB"]);
     assert.equal(results[0]?.score > 0.72, true);
   });
 
