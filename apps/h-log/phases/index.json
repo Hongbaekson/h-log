@@ -22,8 +22,8 @@
     },
     {
       "dir": "oci-server-runtime-setup",
-      "status": "pending",
-      "summary": "Steps 0-1 completed: approval boundary and local preflight passed, then the server-local H-Log Compose bundle was prepared on the approved OCI host and remote docker compose config/ps were verified. No services were started or restarted; Steps 2-3 remain approval-required before Nginx/TLS smoke, Docker Compose up/restart, or production changes."
+      "status": "completed",
+      "summary": "Steps 0-3 completed. OCI Compose runtime, localhost:8080 Nginx smoke, admin/internal blocking, deploy smoke, logical backup, and isolated pgvector restore rehearsal passed. Production domain/TLS, 80/443 public smoke, and Cloudflare-style admin/internal trust-zone blocking are marked for the later domain purchase/production cutover."
     },
     {
       "dir": "search-and-related-posts",

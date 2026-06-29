@@ -71,6 +71,8 @@ docker compose exec -T hlog-postgres sh -lc 'pg_dump -U "$POSTGRES_USER" -d "$PO
 
 복구 완료 기준은 dump 파일 생성이 아니라 새 DB에 복구한 뒤 핵심 검증을 통과하는 것이다. 운영 복구 전에는 로컬 또는 테스트 Compose project에서 먼저 리허설한다.
 
+주의: 운영 서버에서 같은 Compose 파일을 다른 project 이름으로 재사용하는 복구 리허설은 named volume 재사용 여부를 먼저 확인하지 않으면 live volume을 건드릴 수 있다. 서버에서 리허설할 때는 production volume을 mount하지 않는 임시 `pgvector/pgvector:pg16` 컨테이너를 사용하거나, volume 이름이 완전히 분리된 것이 확인된 테스트 환경만 사용한다.
+
 ```bash
 docker compose -p hlog_restore_rehearsal up -d hlog-postgres
 docker compose -p hlog_restore_rehearsal exec -T hlog-postgres sh -lc 'dropdb -U "$POSTGRES_USER" --if-exists "$POSTGRES_DB" && createdb -U "$POSTGRES_USER" "$POSTGRES_DB"'

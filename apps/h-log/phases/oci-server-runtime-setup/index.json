@@ -17,12 +17,14 @@
     {
       "step": 2,
       "name": "nginx-domain-tls-smoke",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Approved docker compose up -d completed on OCI and local Nginx smoke passed through localhost:8080: public routes returned 200, /projects returned 307 to the portfolio surface, and /admin plus /api/internal/smoke returned 404. Production domain/TLS and 80/443 public smoke are intentionally deferred to the domain purchase/production cutover step; Cloudflare or equivalent edge access control must default-block admin/internal routes except approved IPs or a trusted zone."
     },
     {
       "step": 3,
       "name": "backup-restore-deploy-smoke",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Completed Step 3 local and OCI checks: npm run test, lint, typecheck, build, and docker compose config passed; OCI Compose runtime was started after it was found stopped, containers became healthy, localhost:8080 route/header smoke passed, admin/internal routes returned 404, phase-gated crawler routes returned expected 404, PostgreSQL/Redis host ports were not published, a server-local logical dump was created, and an isolated pgvector restore rehearsal from that dump succeeded. Migration and content_hash DB-table checks are not applicable until a real migration runner/DB adapter exists; rollback was not executed and remains explicit-approval-only."
     }
   ]
 }
