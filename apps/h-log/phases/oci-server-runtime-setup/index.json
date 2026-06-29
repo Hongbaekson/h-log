@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "approval-and-host-preflight",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Confirmed approval boundary and completed local preflight: npm run test, lint, typecheck, build, and docker compose config passed without running ssh oci."
     },
     {
       "step": 1,
