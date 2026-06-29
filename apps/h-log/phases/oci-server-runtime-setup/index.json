@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "server-compose-runtime",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Prepared the server-local H-Log Compose bundle on the approved OCI host and verified remote docker compose config/ps. Compose services are hlog-nginx, hlog-web, hlog-postgres, and hlog-redis; config publishes only Nginx ingress and no services were started or restarted."
     },
     {
       "step": 2,
