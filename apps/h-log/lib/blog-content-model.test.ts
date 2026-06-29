@@ -91,6 +91,7 @@ describe("blog DB content model contract", () => {
     const versionFields: readonly string[] = BLOG_CONTENT_MODEL_TABLES.post_versions;
     const correctionFields: readonly string[] =
       BLOG_CONTENT_MODEL_TABLES.post_corrections;
+    const chunkFields: readonly string[] = BLOG_CONTENT_MODEL_TABLES.post_chunks;
 
     assert.ok(postFields.includes("current_version_id"));
     assert.equal(postFields.includes("content_markdown"), false);
@@ -116,6 +117,15 @@ describe("blog DB content model contract", () => {
       "corrected_content_hash",
       "corrected_by",
       "corrected_at",
+    ]);
+    assert.deepEqual(chunkFields, [
+      "id",
+      "post_id",
+      "post_version_id",
+      "content_hash",
+      "chunk_index",
+      "content",
+      "embedding",
     ]);
   });
 

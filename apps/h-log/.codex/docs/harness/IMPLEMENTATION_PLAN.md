@@ -55,8 +55,8 @@ phase-registry-bootstrap: completed
 db-manual-publishing-mvp: completed
 oci-infra-deployment-foundation: completed
 publish-state-and-admin: completed, steps 0-3 completed
-oci-server-runtime-setup: pending, approval-required
-search-and-related-posts
+oci-server-runtime-setup: completed, steps 0-3 completed
+search-and-related-posts: pending, steps 0-2 completed, step 3 pending
 post-publish-seo-automation
 topic-research-generation
 auto-article-generation
@@ -154,7 +154,16 @@ auto-publish-ops-hardening
 - 상태: completed
 - 결과: `lib/blog-admin.ts`와 테스트로 `published -> correction_pending -> corrected -> published` 운영 흐름을 고정했다. correction은 기존 version을 덮어쓰지 않고 새 `post_version`과 `post_corrections`의 `previous_content_hash`/`corrected_content_hash` 기록을 남긴다. corrected 상태는 재발행 전까지 public route에서 숨기고, 재발행 시 기존 slug URL을 유지한다. `unpublished`와 `retracted` 글은 public detail/Markdown/list 경계에서 제거하며 generic publish workflow로 다시 공개할 수 없다.
 - 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-admin.test.ts`, RED focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-admin.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, `npm run test`, `npm run typecheck`
-- 다음 실행 대상: `oci-server-runtime-setup / Step 0: approval-and-host-preflight`이다. `ssh oci`, Nginx, Docker Compose, firewall/security list, 운영 env, compose restart는 사용자에게 명시적으로 알리고 승인받기 전에는 실행하지 않는다.
+- 다음 실행 대상은 phase registry 기준으로 관리한다.
+
+## 현재 검색/관련 글 진행 상태
+
+### search-and-related-posts / Steps 0-2
+
+- 상태: Step 0-2 completed, Step 3 pending
+- 결과: `lib/blog-search.ts`와 테스트로 published-only hybrid search, embedding purpose boundary, `/api/search` cache/rate-limit/abnormal-query cost guard, `usage_events` recording, fresh `post_chunks` 기반 related similarity contract를 고정했다. 관련 글 selector는 현재 published version과 `content_hash`가 맞는 chunk만 embedding similarity에 사용하고, stale chunk, 현재 글 자신, draft/failed target은 결과에서 제외한다. tag fallback은 허용하되 embedding match 뒤에 정렬한다.
+- 검증: focused `node --no-warnings --test --experimental-strip-types lib/blog-search.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, `npm run test`
+- 다음 실행 대상: `search-and-related-posts / Step 3: published-only-search-ui`
 
 ## 이후 DB-first 단계
 
@@ -174,5 +183,5 @@ auto-publish-ops-hardening
 - Harness baseline 문서와 phase template이 존재한다.
 - root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
 - `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
-- 다음 실행 대상은 `oci-server-runtime-setup / Step 0: approval-and-host-preflight`이다. 승인 전에는 `search-and-related-posts`로 넘어가지 않는다.
+- 다음 실행 대상은 `search-and-related-posts / Step 3: published-only-search-ui`이다.
 - 문서 검증과 `git diff --check`가 통과한다.

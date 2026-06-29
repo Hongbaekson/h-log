@@ -11,12 +11,14 @@
     {
       "step": 1,
       "name": "search-api-cost-guard",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a tested /api/search cost guard execution contract with query cache TTL, duplicate/short/abnormal/rate-limited pre-embedding blocking, embedding adapter boundary, and usage_events recording for embedding calls."
     },
     {
       "step": 2,
       "name": "related-posts-similarity",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a tested related-post similarity contract using fresh post_chunks only, with published-only targets, source/self exclusion, content_hash stale chunk rejection, similarity percentage/reason fields, and tag fallback ranked behind embedding matches."
     },
     {
       "step": 3,

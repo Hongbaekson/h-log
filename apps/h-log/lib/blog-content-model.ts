@@ -42,6 +42,15 @@ export const BLOG_CONTENT_MODEL_TABLES = {
     "snapshot_hash",
   ],
   post_tags: ["id", "post_id", "tag", "created_at"],
+  post_chunks: [
+    "id",
+    "post_id",
+    "post_version_id",
+    "content_hash",
+    "chunk_index",
+    "content",
+    "embedding",
+  ],
   publish_jobs: [
     "id",
     "post_id",
@@ -274,6 +283,16 @@ export type PostTagRecord = {
   id: string;
   postId: string;
   tag: string;
+};
+
+export type PostChunkRecord = {
+  chunkIndex: number;
+  content: string;
+  contentHash: string;
+  embedding: readonly number[];
+  id: string;
+  postId: string;
+  postVersionId: string;
 };
 
 export type PublishJobRecord = {

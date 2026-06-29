@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 
 import {
   createPostVersionContentFromMarkdown,
+  type PostChunkRecord,
   type PostRecord,
   type PostTagRecord,
   type PostVersionRecord,
@@ -11,8 +12,12 @@ import type { BlogContentStore } from "./blog-public.ts";
 import {
   BLOG_SEARCH_EMBEDDING_PURPOSES,
   assessBlogSearchRequest,
+  createBlogSearchRuntimeState,
+  handleBlogSearchApiRequest,
   searchPublishedBlogPosts,
+  selectPublishedRelatedPostsBySimilarity,
   selectPublishedRelatedPostCandidates,
+  type BlogSearchEmbeddingAdapter,
 } from "./blog-search.ts";
 
 const baseTimestamp = "2026-06-27T00:00:00.000Z";
@@ -85,6 +90,10 @@ function createStore(): BlogContentStore {
         description: "PostgreSQL pgvector restore rehearsal",
         title: "PostgreSQL 복구 리허설",
       }),
+      createPost("nginx-proxy", {
+        description: "Nginx reverse proxy boundary",
+        title: "Nginx 프록시 경계",
+      }),
       createPost("hidden-preview", {
         status: "ready_to_publish",
         title: "비공개 pgvector 검색 초안",
@@ -98,6 +107,7 @@ function createStore(): BlogContentStore {
     tags: [
       createTag("oci-runtime", "OCI"),
       createTag("postgres-restore", "DB"),
+      createTag("nginx-proxy", "OCI"),
       createTag("hidden-preview", "비공개"),
       createTag("failed-search", "검색"),
     ],
@@ -110,6 +120,10 @@ function createStore(): BlogContentStore {
         contentMarkdown: "# PostgreSQL 복구 리허설\n\npgvector restore smoke 기록.\n",
         title: "PostgreSQL 복구 리허설",
       }),
+      createVersion("nginx-proxy", {
+        contentMarkdown: "# Nginx 프록시 경계\n\nReverse proxy smoke 기록.\n",
+        title: "Nginx 프록시 경계",
+      }),
       createVersion("hidden-preview", {
         contentMarkdown: "# 비공개 pgvector 검색 초안\n\n아직 공개 전인 검색 글.\n",
         title: "비공개 pgvector 검색 초안",
@@ -119,6 +133,29 @@ function createStore(): BlogContentStore {
         title: "실패한 검색 글",
       }),
     ],
+  };
+}
+
+function createChunk(
+  store: BlogContentStore,
+  slug: string,
+  embedding: readonly number[],
+  overrides: Partial<PostChunkRecord> = {},
+): PostChunkRecord {
+  const postId = `post-${slug}`;
+  const version = store.versions.find((candidate) => candidate.postId === postId);
+
+  assert.ok(version);
+
+  return {
+    chunkIndex: 0,
+    content: `${slug} chunk`,
+    contentHash: version.contentHash,
+    embedding,
+    id: `chunk-${slug}-${overrides.chunkIndex ?? 0}`,
+    postId,
+    postVersionId: version.id,
+    ...overrides,
   };
 }
 
@@ -157,6 +194,60 @@ describe("blog search contract", () => {
       ["postgres-restore"],
     );
     assert.equal(related[0]?.similarity, 0.81);
+  });
+
+  it("excludes draft, failed, and source posts from similarity related results", () => {
+    const store = createStore();
+    const related = selectPublishedRelatedPostsBySimilarity(store, {
+      sourcePostId: "post-oci-runtime",
+      chunks: [
+        createChunk(store, "oci-runtime", [1, 0]),
+        createChunk(store, "oci-runtime", [1, 0], {
+          chunkIndex: 1,
+          id: "chunk-oci-runtime-self",
+        }),
+        createChunk(store, "postgres-restore", [0.8, 0.2]),
+        createChunk(store, "hidden-preview", [1, 0]),
+        createChunk(store, "failed-search", [0.99, 0.01]),
+      ],
+    });
+
+    assert.equal(related[0]?.slug, "postgres-restore");
+    assert.equal(
+      related.some((candidate) =>
+        ["hidden-preview", "failed-search", "oci-runtime"].includes(candidate.slug),
+      ),
+      false,
+    );
+    assert.equal(related[0]?.matchedBy.embedding, true);
+    assert.equal(related[0]?.similarityPercent, 97);
+    assert.equal(related[0]?.similarityReason, "embedding_similarity");
+  });
+
+  it("drops stale chunk embeddings and keeps tag fallback behind fresh similarity", () => {
+    const store = createStore();
+    const related = selectPublishedRelatedPostsBySimilarity(store, {
+      sourcePostId: "post-oci-runtime",
+      chunks: [
+        createChunk(store, "oci-runtime", [1, 0]),
+        createChunk(store, "postgres-restore", [0.3, 0.4]),
+        createChunk(store, "nginx-proxy", [1, 0], {
+          contentHash: "stale-content-hash",
+        }),
+      ],
+    });
+
+    assert.deepEqual(
+      related.map((candidate) => candidate.slug),
+      ["postgres-restore", "nginx-proxy"],
+    );
+    assert.equal(related[0]?.similarityReason, "embedding_similarity");
+    assert.equal(related[0]?.similarityPercent, 60);
+    assert.equal(related[1]?.matchedBy.embedding, false);
+    assert.equal(related[1]?.matchedBy.tag, true);
+    assert.deepEqual(related[1]?.sharedTags, ["OCI"]);
+    assert.equal(related[1]?.similarityReason, "tag_overlap");
+    assert.equal(related[1]?.similarityPercent, 35);
   });
 
   it("defines search request cost guards before embedding is called", () => {
@@ -234,5 +325,165 @@ describe("blog search contract", () => {
       }).reason,
       "rate_limited",
     );
+  });
+
+  it("serves repeated queries from the TTL cache before embedding is called", async () => {
+    const now = Date.parse(baseTimestamp);
+    const state = createBlogSearchRuntimeState();
+    let embeddingCalls = 0;
+    const embeddingAdapter: BlogSearchEmbeddingAdapter = {
+      async embedSearchQuery() {
+        embeddingCalls += 1;
+
+        return {
+          estimatedCost: 0.0001,
+          inputTokens: 3,
+          model: "fake-search-embedding",
+          provider: "fake",
+          vectorScores: [{ postId: "post-postgres-restore", score: 0.9 }],
+        };
+      },
+    };
+
+    const first = await handleBlogSearchApiRequest({
+      clientId: "visitor-1",
+      embeddingAdapter,
+      query: "pgvector",
+      requestedAt: now,
+      state,
+      store: createStore(),
+    });
+    const second = await handleBlogSearchApiRequest({
+      clientId: "visitor-1",
+      embeddingAdapter,
+      query: "pgvector",
+      requestedAt: now + 1_000,
+      state,
+      store: createStore(),
+    });
+
+    assert.equal(first.guardReason, "search_ready");
+    assert.equal(first.cached, false);
+    assert.equal(second.guardReason, "cache_hit");
+    assert.equal(second.cached, true);
+    assert.equal(embeddingCalls, 1);
+    assert.equal(state.usageEvents.length, 1);
+    assert.deepEqual(
+      second.results.map((result) => result.slug),
+      first.results.map((result) => result.slug),
+    );
+  });
+
+  it("expires cached queries by TTL before another embedding call is allowed", async () => {
+    const now = Date.parse(baseTimestamp);
+    const state = createBlogSearchRuntimeState();
+    let embeddingCalls = 0;
+    const embeddingAdapter: BlogSearchEmbeddingAdapter = {
+      async embedSearchQuery() {
+        embeddingCalls += 1;
+
+        return {
+          model: "fake-search-embedding",
+          provider: "fake",
+          vectorScores: [{ postId: "post-postgres-restore", score: 0.8 }],
+        };
+      },
+    };
+
+    await handleBlogSearchApiRequest({
+      clientId: "visitor-1",
+      embeddingAdapter,
+      policy: {
+        queryCacheTtlMs: 500,
+        repeatQueryWindowMs: 100,
+      },
+      query: "pgvector",
+      requestedAt: now,
+      state,
+      store: createStore(),
+    });
+    const second = await handleBlogSearchApiRequest({
+      clientId: "visitor-1",
+      embeddingAdapter,
+      policy: {
+        queryCacheTtlMs: 500,
+        repeatQueryWindowMs: 100,
+      },
+      query: "pgvector",
+      requestedAt: now + 1_000,
+      state,
+      store: createStore(),
+    });
+
+    assert.equal(second.guardReason, "search_ready");
+    assert.equal(second.cached, false);
+    assert.equal(embeddingCalls, 2);
+    assert.equal(state.usageEvents.length, 2);
+  });
+
+  it("blocks short, abnormal, and rate-limited queries before embedding is called", async () => {
+    const now = Date.parse(baseTimestamp);
+    const state = createBlogSearchRuntimeState();
+    let embeddingCalls = 0;
+    const embeddingAdapter: BlogSearchEmbeddingAdapter = {
+      async embedSearchQuery() {
+        embeddingCalls += 1;
+
+        return {
+          model: "fake-search-embedding",
+          provider: "fake",
+          vectorScores: [],
+        };
+      },
+    };
+
+    const shortQuery = await handleBlogSearchApiRequest({
+      clientId: "visitor-1",
+      embeddingAdapter,
+      query: "a",
+      requestedAt: now,
+      state,
+      store: createStore(),
+    });
+    const abnormalQuery = await handleBlogSearchApiRequest({
+      clientId: "visitor-1",
+      embeddingAdapter,
+      query: "http://localhost:3000/internal",
+      requestedAt: now + 1_000,
+      state,
+      store: createStore(),
+    });
+    const firstAllowed = await handleBlogSearchApiRequest({
+      clientId: "visitor-1",
+      embeddingAdapter,
+      policy: {
+        maxRequestsPerWindow: 1,
+      },
+      query: "oci",
+      requestedAt: now + 2_000,
+      state,
+      store: createStore(),
+    });
+    const rateLimited = await handleBlogSearchApiRequest({
+      clientId: "visitor-1",
+      embeddingAdapter,
+      policy: {
+        maxRequestsPerWindow: 1,
+      },
+      query: "nginx",
+      requestedAt: now + 3_000,
+      state,
+      store: createStore(),
+    });
+
+    assert.equal(shortQuery.status, "blocked");
+    assert.equal(shortQuery.guardReason, "query_too_short");
+    assert.equal(abnormalQuery.status, "blocked");
+    assert.equal(abnormalQuery.guardReason, "abnormal_query");
+    assert.equal(firstAllowed.status, "ok");
+    assert.equal(rateLimited.status, "blocked");
+    assert.equal(rateLimited.guardReason, "rate_limited");
+    assert.equal(embeddingCalls, 1);
+    assert.equal(state.usageEvents.length, 1);
   });
 });

@@ -28,7 +28,7 @@
     {
       "dir": "search-and-related-posts",
       "status": "pending",
-      "summary": "Step 0 completed: hybrid keyword/vector search contract, published-only related candidate contract, search/related-posts-only embedding purpose boundary, and search request cost guard criteria are tested. Steps 1-3 remain pending for /api/search guard wiring, similarity persistence/scoring, and published-only search UI."
+      "summary": "Steps 0-2 completed: hybrid keyword/vector search contract, /api/search cost guard execution contract, and related-post similarity contract with fresh post_chunks, published-only targets, content_hash stale rejection, similarity display fields, and tag fallback are tested. Step 3 remains pending for the published-only search UI."
     },
     {
       "dir": "post-publish-seo-automation",
