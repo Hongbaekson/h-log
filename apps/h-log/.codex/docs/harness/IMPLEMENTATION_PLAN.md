@@ -54,7 +54,8 @@ apps/h-log/AGENTS.md
 phase-registry-bootstrap: completed
 db-manual-publishing-mvp: completed
 oci-infra-deployment-foundation: completed
-publish-state-and-admin: pending, steps 0-2 completed
+publish-state-and-admin: completed, steps 0-3 completed
+oci-server-runtime-setup: pending, approval-required
 search-and-related-posts
 post-publish-seo-automation
 topic-research-generation
@@ -147,7 +148,13 @@ auto-publish-ops-hardening
 - 상태: completed
 - 결과: `lib/blog-admin.ts`와 테스트로 `retry`, `unpublish`, `retract`, `correct`, `block_topic`, `approve_preview` 운영 명령을 `admin_actions`에 남기는 contract를 고정했다. 감사 로그는 `actor_type`, `actor_id`, `target_type`, `target_id`, `reason`, `created_at`을 기록하고, URL/private host/credential-like 값을 포함한 감사 사유는 저장 전에 거부한다. public blog output은 `admin_actions`를 노출하지 않는다.
 - 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-admin.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-admin.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, `npm run test`, `npm run typecheck`
-- 다음 실행 대상: `publish-state-and-admin / Step 3: correction-unpublish-retract-flow`
+
+### publish-state-and-admin / Step 3: correction-unpublish-retract-flow
+
+- 상태: completed
+- 결과: `lib/blog-admin.ts`와 테스트로 `published -> correction_pending -> corrected -> published` 운영 흐름을 고정했다. correction은 기존 version을 덮어쓰지 않고 새 `post_version`과 `post_corrections`의 `previous_content_hash`/`corrected_content_hash` 기록을 남긴다. corrected 상태는 재발행 전까지 public route에서 숨기고, 재발행 시 기존 slug URL을 유지한다. `unpublished`와 `retracted` 글은 public detail/Markdown/list 경계에서 제거하며 generic publish workflow로 다시 공개할 수 없다.
+- 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-admin.test.ts`, RED focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-admin.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, `npm run test`, `npm run typecheck`
+- 다음 실행 대상: `oci-server-runtime-setup / Step 0: approval-and-host-preflight`이다. `ssh oci`, Nginx, Docker Compose, firewall/security list, 운영 env, compose restart는 사용자에게 명시적으로 알리고 승인받기 전에는 실행하지 않는다.
 
 ## 이후 DB-first 단계
 
@@ -167,5 +174,5 @@ auto-publish-ops-hardening
 - Harness baseline 문서와 phase template이 존재한다.
 - root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
 - `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
-- 다음 실행 대상은 `publish-state-and-admin / Step 3: correction-unpublish-retract-flow`이다.
+- 다음 실행 대상은 `oci-server-runtime-setup / Step 0: approval-and-host-preflight`이다. 승인 전에는 `search-and-related-posts`로 넘어가지 않는다.
 - 문서 검증과 `git diff --check`가 통과한다.

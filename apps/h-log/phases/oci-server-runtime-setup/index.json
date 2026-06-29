@@ -1,0 +1,26 @@
+{
+  "project": "h-log",
+  "phase": "oci-server-runtime-setup",
+  "steps": [
+    {
+      "step": 0,
+      "name": "approval-and-host-preflight",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "server-compose-runtime",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "nginx-domain-tls-smoke",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "backup-restore-deploy-smoke",
+      "status": "pending"
+    }
+  ]
+}

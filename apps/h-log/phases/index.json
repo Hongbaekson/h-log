@@ -17,8 +17,13 @@
     },
     {
       "dir": "publish-state-and-admin",
+      "status": "completed",
+      "summary": "Steps 0-3 completed: publish state transitions, required vs retryable job failure handling, operational audit logging, correction version history, unpublish/retract public removal, and terminal-status republish blocking are tested. Actual OCI server setup remains approval-required before search work."
+    },
+    {
+      "dir": "oci-server-runtime-setup",
       "status": "pending",
-      "summary": "Steps 0-2 completed: publish state transitions, required vs retryable publish job failure handling, and admin/Discord/CLI operational audit logging are tested; correction/unpublish/retract behavior remains pending."
+      "summary": "Approval-required actual OCI host setup phase. Do not run ssh oci, firewall/security list changes, Docker Compose restart, or Nginx production changes until the user explicitly approves this phase."
     },
     {
       "dir": "search-and-related-posts",

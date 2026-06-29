@@ -89,6 +89,8 @@ describe("blog DB content model contract", () => {
   it("keeps post metadata separate from versioned content fields", () => {
     const postFields: readonly string[] = BLOG_CONTENT_MODEL_TABLES.posts;
     const versionFields: readonly string[] = BLOG_CONTENT_MODEL_TABLES.post_versions;
+    const correctionFields: readonly string[] =
+      BLOG_CONTENT_MODEL_TABLES.post_corrections;
 
     assert.ok(postFields.includes("current_version_id"));
     assert.equal(postFields.includes("content_markdown"), false);
@@ -105,6 +107,16 @@ describe("blog DB content model contract", () => {
     assert.ok(BLOG_CONTENT_MODEL_TABLES.publish_jobs.includes("retry_count"));
     assert.ok(BLOG_CONTENT_MODEL_TABLES.admin_actions.includes("actor_type"));
     assert.ok(BLOG_CONTENT_MODEL_TABLES.admin_actions.includes("actor_id"));
+    assert.deepEqual(correctionFields, [
+      "id",
+      "post_id",
+      "post_version_id",
+      "reason",
+      "previous_content_hash",
+      "corrected_content_hash",
+      "corrected_by",
+      "corrected_at",
+    ]);
   });
 
   it("tracks admin actions with operator and command metadata", () => {

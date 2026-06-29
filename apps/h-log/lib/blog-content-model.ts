@@ -55,6 +55,16 @@ export const BLOG_CONTENT_MODEL_TABLES = {
     "started_at",
     "finished_at",
   ],
+  post_corrections: [
+    "id",
+    "post_id",
+    "post_version_id",
+    "reason",
+    "previous_content_hash",
+    "corrected_content_hash",
+    "corrected_by",
+    "corrected_at",
+  ],
   admin_actions: [
     "id",
     "action_type",
@@ -156,6 +166,7 @@ export type PublishJobType = RequiredPublishJobType | RetryablePublishJobType;
 export type PublishJobImportance = "required" | "retryable";
 export type PublishJobStatus = (typeof publishJobStatuses)[number];
 export type PostVersionCreatedBy = "system" | "admin";
+export type PostCorrectionCreatedBy = "system" | "admin";
 export type AdminActionType = (typeof adminActionTypes)[number];
 export type AdminActionActorType = (typeof adminActionActorTypes)[number];
 export type AdminActionTargetType =
@@ -277,6 +288,17 @@ export type PublishJobRecord = {
   startedAt: Timestamp | null;
   status: PublishJobStatus;
   type: PublishJobType;
+};
+
+export type PostCorrectionRecord = {
+  correctedAt: Timestamp;
+  correctedBy: PostCorrectionCreatedBy;
+  correctedContentHash: string;
+  id: string;
+  postId: string;
+  postVersionId: string;
+  previousContentHash: string;
+  reason: string;
 };
 
 export type PublishJobFailureInput = {

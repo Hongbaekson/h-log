@@ -1008,6 +1008,8 @@ corrected -> published
 - ready_to_publish 상태의 글은 내부 미리보기에서만 볼 수 있다.
 - failed_verification은 공개하지 않는다.
 - corrected는 이력 상태이고, 실제 공개 상태는 corrected version을 가진 published로 본다.
+- 정정 글은 재발행 시 기존 slug URL을 유지한다.
+- unpublished와 retracted 글은 별도 tombstone route가 결정되기 전까지 public route에서 제거한다.
 ```
 
 정정 이력:
@@ -1544,7 +1546,7 @@ daily-blog-cron
 5. "직접 해봤다" 표현을 어떤 evidence로 허용할 것인가?
 6. personal_context_items의 forbidden 항목이 본문에 나오면 어떻게 차단할 것인가?
 7. source_role=discovery만 있는 claim은 어떻게 처리할 것인가?
-8. 글 정정 시 기존 URL을 유지할 것인가, retract 페이지를 보여줄 것인가?
+8. 글 정정 시 기존 URL을 유지한다. retract 페이지는 별도 tombstone route decision 전까지 만들지 않는다.
 9. llms.txt, feed, IndexNow 같은 retryable job이 실패했을 때 글을 유지할 것인가?
 10. 하루 발행 한도와 비용 한도 초과 시 어떤 status로 남길 것인가?
 11. /api/search는 어떤 조건에서 임베딩 호출을 생략할 것인가?

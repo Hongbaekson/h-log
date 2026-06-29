@@ -23,7 +23,8 @@
     {
       "step": 3,
       "name": "correction-unpublish-retract-flow",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a tested correction/unpublish/retract workflow contract: corrections create a new post_version plus post_corrections hash record, corrected posts stay hidden until republished on the same slug, and unpublished/retracted posts are removed from public routes and blocked from generic republish."
     }
   ]
 }

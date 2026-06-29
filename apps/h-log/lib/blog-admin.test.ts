@@ -3,10 +3,14 @@ import { describe, it } from "node:test";
 
 import { getPublicBlogPostBySlug } from "./blog-public.ts";
 import {
+  applyAdminPostCorrection,
   previewAdminPostDraft,
   publishAdminPostVersion,
   recordAdminOperationalAction,
   saveAdminPostDraft,
+  startAdminPostCorrection,
+  retractAdminPost,
+  unpublishAdminPost,
   type AdminPostDraftInput,
   type BlogAdminStore,
 } from "./blog-admin.ts";
@@ -16,6 +20,7 @@ const baseTimestamp = "2026-06-26T00:00:00.000Z";
 function createEmptyAdminStore(): BlogAdminStore {
   return {
     adminActions: [],
+    corrections: [],
     posts: [],
     sources: [],
     tags: [],
@@ -168,5 +173,134 @@ describe("minimal admin preview/save/publish workflow", () => {
     assert.equal("adminActions" in publicPost, false);
     assert.equal(JSON.stringify(publicPost).includes("cli:operator"), false);
     assert.equal(JSON.stringify(publicPost).includes("Correct typo"), false);
+  });
+
+  it("records correction hashes on a new version before republishing the same URL", () => {
+    const saved = saveAdminPostDraft(createEmptyAdminStore(), createDraftInput());
+    const published = publishAdminPostVersion(saved.store, {
+      createdAt: "2026-06-26T01:00:00.000Z",
+      postId: "post-admin-preview",
+      reason: "manual publish",
+      versionId: "version-admin-preview",
+    });
+    const correctionStarted = startAdminPostCorrection(published.store, {
+      actorId: "cli:operator",
+      actorType: "cli",
+      createdAt: "2026-06-26T05:00:00.000Z",
+      postId: "post-admin-preview",
+      reason: "Generated summary had a stale version reference",
+    });
+    const oldVersion = published.store.versions.find(
+      (version) => version.id === "version-admin-preview",
+    );
+
+    assert.ok(oldVersion);
+    assert.equal(correctionStarted.post.status, "correction_pending");
+    assert.equal(getPublicBlogPostBySlug("admin-preview", correctionStarted.store), undefined);
+
+    const corrected = applyAdminPostCorrection(correctionStarted.store, {
+      actorId: "cli:operator",
+      actorType: "cli",
+      contentMarkdown:
+        "# Admin Preview\n\n정정된 본문은 새 version으로만 저장된다.\n",
+      createdAt: "2026-06-26T05:10:00.000Z",
+      description: "정정된 관리자 수동 발행 미리보기",
+      postId: "post-admin-preview",
+      reason: "Replace stale version reference with corrected wording",
+      title: "Admin Preview corrected",
+      versionId: "version-admin-preview-corrected",
+    });
+
+    assert.equal(corrected.post.status, "corrected");
+    assert.equal(corrected.post.currentVersionId, "version-admin-preview-corrected");
+    assert.equal(corrected.version.versionNo, 2);
+    assert.equal(corrected.store.versions.some((version) => version.id === oldVersion.id), true);
+    assert.equal(corrected.correction.previousContentHash, oldVersion.contentHash);
+    assert.equal(corrected.correction.correctedContentHash, corrected.version.contentHash);
+    assert.notEqual(
+      corrected.correction.previousContentHash,
+      corrected.correction.correctedContentHash,
+    );
+    assert.equal(getPublicBlogPostBySlug("admin-preview", corrected.store), undefined);
+
+    const republished = publishAdminPostVersion(corrected.store, {
+      actorId: "cli:operator",
+      actorType: "cli",
+      createdAt: "2026-06-26T05:20:00.000Z",
+      postId: "post-admin-preview",
+      reason: "Republish corrected version after review",
+      versionId: "version-admin-preview-corrected",
+    });
+    const publicPost = getPublicBlogPostBySlug("admin-preview", republished.store);
+
+    assert.equal(republished.post.status, "published");
+    assert.ok(publicPost);
+    assert.equal(publicPost.title, "Admin Preview corrected");
+    assert.equal(publicPost.href, "/blog/admin-preview");
+    assert.equal(republished.store.corrections.at(-1), corrected.correction);
+  });
+
+  it("removes unpublished and retracted posts from public blog routes", () => {
+    const saved = saveAdminPostDraft(createEmptyAdminStore(), createDraftInput());
+    const published = publishAdminPostVersion(saved.store, {
+      createdAt: "2026-06-26T01:00:00.000Z",
+      postId: "post-admin-preview",
+      reason: "manual publish",
+      versionId: "version-admin-preview",
+    });
+    const unpublished = unpublishAdminPost(published.store, {
+      actorId: "cli:operator",
+      actorType: "cli",
+      createdAt: "2026-06-26T06:00:00.000Z",
+      postId: "post-admin-preview",
+      reason: "Temporarily remove stale public content",
+    });
+    const retracted = retractAdminPost(published.store, {
+      actorId: "cli:operator",
+      actorType: "cli",
+      createdAt: "2026-06-26T07:00:00.000Z",
+      postId: "post-admin-preview",
+      reason: "Retract article after verification failure",
+    });
+
+    assert.equal(unpublished.post.status, "unpublished");
+    assert.equal(unpublished.post.unpublishedAt, "2026-06-26T06:00:00.000Z");
+    assert.equal(getPublicBlogPostBySlug("admin-preview", unpublished.store), undefined);
+
+    assert.equal(retracted.post.status, "retracted");
+    assert.equal(retracted.post.retractedAt, "2026-06-26T07:00:00.000Z");
+    assert.equal(getPublicBlogPostBySlug("admin-preview", retracted.store), undefined);
+    assert.deepEqual(
+      unpublished.store.adminActions.map((action) => action.actionType),
+      ["save", "publish", "unpublish"],
+    );
+    assert.deepEqual(
+      retracted.store.adminActions.map((action) => action.actionType),
+      ["save", "publish", "retract"],
+    );
+    assert.throws(
+      () =>
+        publishAdminPostVersion(unpublished.store, {
+          actorId: "cli:operator",
+          actorType: "cli",
+          createdAt: "2026-06-26T08:00:00.000Z",
+          postId: "post-admin-preview",
+          reason: "Attempt to republish unpublished content",
+          versionId: "version-admin-preview",
+        }),
+      /cannot publish from unpublished/,
+    );
+    assert.throws(
+      () =>
+        publishAdminPostVersion(retracted.store, {
+          actorId: "cli:operator",
+          actorType: "cli",
+          createdAt: "2026-06-26T08:30:00.000Z",
+          postId: "post-admin-preview",
+          reason: "Attempt to republish retracted content",
+          versionId: "version-admin-preview",
+        }),
+      /cannot publish from retracted/,
+    );
   });
 });
