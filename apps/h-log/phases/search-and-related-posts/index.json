@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "hybrid-search-contract",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a tested pure search contract for published-only hybrid keyword/vector results, published-only related post candidates, search/related-posts-only embedding purposes, and pre-embedding search request guards for short, cached, duplicate, and rate-limited queries. No visitor chatbot, SSE UI, DB adapter, or /api/search route was added in this step."
     },
     {
       "step": 1,
