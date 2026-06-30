@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "post-publish-verification-jobs",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added the post-publish verification job contract for public URL and Markdown content hash checks, published-only crawler output manifests for sitemap/feed/llms surfaces, retryable feed/llms/IndexNow/Discord jobs, and state decisions for required vs retryable failures."
     },
     {
       "step": 1,

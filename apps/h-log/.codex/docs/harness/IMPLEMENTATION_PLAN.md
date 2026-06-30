@@ -57,7 +57,7 @@ oci-infra-deployment-foundation: completed
 publish-state-and-admin: completed, steps 0-3 completed
 oci-server-runtime-setup: completed, steps 0-3 completed
 search-and-related-posts: completed, steps 0-3 completed
-post-publish-seo-automation
+post-publish-seo-automation: step 0 completed, steps 1-3 pending
 topic-research-generation
 auto-article-generation
 diagram-assets-automation
@@ -163,7 +163,16 @@ auto-publish-ops-hardening
 - 상태: completed
 - 결과: `lib/blog-search.ts`와 테스트로 published-only hybrid search, embedding purpose boundary, `/api/search` cache/rate-limit/abnormal-query cost guard, `usage_events` recording, fresh `post_chunks` 기반 related similarity contract를 고정했다. 관련 글 selector는 현재 published version과 `content_hash`가 맞는 chunk만 embedding similarity에 사용하고, stale chunk, 현재 글 자신, draft/failed target은 결과에서 제외한다. `/blog` 검색 UI는 `/api/search` 결과를 사용해 published 글의 title, description, date, tags, score, match reason을 보여주며 cached/loading/empty/rate-limited/error 상태를 처리한다. tag fallback은 허용하되 embedding match 뒤에 정렬한다.
 - 검증: focused `node --no-warnings --test --experimental-strip-types lib/blog-search.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-search-ui.test.ts`, `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`
-- 다음 실행 대상: `post-publish-seo-automation / Step 0: post-publish-verification-jobs`
+- 다음 실행 대상: `post-publish-seo-automation / Step 1: crawler-output-generation`
+
+## 현재 발행 후 SEO 자동화 진행 상태
+
+### post-publish-seo-automation / Step 0: post-publish-verification-jobs
+
+- 상태: completed
+- 결과: `lib/blog-post-publish-verification.ts`와 테스트로 public URL, `/blog/:slug.md` surface의 `content_hash` 검증 contract를 고정했다. `sitemap.xml`, `feed.xml`, `llms.txt`, `llms-full.txt` crawler manifest는 published current version만 포함하며, preview/failed 상태 글은 제외한다. Required verification job과 retryable feed/llms/IndexNow/Discord job을 분리하고, required 실패는 publish 차단 또는 운영 검토 상태로, retryable 실패는 `published` 유지로 판정한다. 실제 IndexNow 제출과 Discord 알림 전송은 수행하지 않는다.
+- 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-post-publish-verification.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-post-publish-verification.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-public.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-search.test.ts`
+- 다음 실행 대상: `post-publish-seo-automation / Step 1: crawler-output-generation`
 
 ## 이후 DB-first 단계
 
@@ -171,7 +180,7 @@ auto-publish-ops-hardening
 2. OCI 인프라 및 배포 foundation
 3. 발행 상태와 최소 관리자 운영
 4. 하이브리드 검색과 관련 글
-5. 발행 후 SEO/AI crawler 자동화
+5. 발행 후 SEO/AI crawler 자동화 - Step 0 completed, Steps 1-3 pending
 6. 주제 수집과 research pack
 7. 자동 글 생성
 8. 다이어그램 asset 자동화
@@ -183,5 +192,5 @@ auto-publish-ops-hardening
 - Harness baseline 문서와 phase template이 존재한다.
 - root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
 - `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
-- 다음 실행 대상은 `post-publish-seo-automation / Step 0: post-publish-verification-jobs`이다.
+- 다음 실행 대상은 `post-publish-seo-automation / Step 1: crawler-output-generation`이다.
 - 문서 검증과 `git diff --check`가 통과한다.
