@@ -10,7 +10,7 @@
 - app image: Next.js standalone image
 - 제외: 운영 서버 IP, SSH key path, secret, production env 값 문서화
 
-현재 저장소에는 실제 DB adapter, migration runner, `sitemap.xml`, `feed.xml`, `llms.txt`, `llms-full.txt` route가 없다. 이 항목들은 phase-gated smoke로 두고, 해당 route가 구현되는 phase부터 200과 published-only 포함 여부를 필수 확인으로 승격한다.
+현재 저장소에는 실제 DB adapter와 migration runner가 없다. `sitemap.xml`, `feed.xml`, `llms.txt`, `llms-full.txt` route는 구현됐으므로 200과 published-only 포함 여부를 smoke에서 확인한다.
 
 ## 배포 전 확인
 
@@ -57,6 +57,10 @@ curl -fsS http://localhost:8080/blog/db-first-public-boundary
 curl -fsS http://localhost:8080/blog/db-first-public-boundary.md
 curl -fsS http://localhost:8080/blog/oci-compose-deployment-checklist
 curl -fsS http://localhost:8080/blog/oci-compose-deployment-checklist.md
+curl -fsS http://localhost:8080/sitemap.xml
+curl -fsS http://localhost:8080/feed.xml
+curl -fsS http://localhost:8080/llms.txt
+curl -fsS http://localhost:8080/llms-full.txt
 ```
 
 Nginx가 아직 public admin surface를 막는지 확인한다.
@@ -97,10 +101,10 @@ docker compose port hlog-redis 6379
 
 | Route | 현재 상태 | 필수 확인 |
 | --- | --- | --- |
-| `/sitemap.xml` | not implemented | published 글 URL만 포함 |
-| `/feed.xml` | not implemented | published 최신 version만 포함 |
-| `/llms.txt` | not implemented | 공개 가능한 요약과 URL만 포함 |
-| `/llms-full.txt` | not implemented | 원문 전체 snapshot, secret, private URL 제외 |
+| `/sitemap.xml` | implemented | published 글 URL만 포함 |
+| `/feed.xml` | implemented | published 최신 version만 포함 |
+| `/llms.txt` | implemented | 공개 가능한 요약과 URL만 포함 |
+| `/llms-full.txt` | implemented | 공개 글 Markdown만 포함, source raw snapshot, secret, private URL 제외 |
 | `/api/search` | not implemented | rate limit, cache, published-only 결과 |
 
 구현 전에는 404를 정상으로 기록한다. 구현 후 404, 비공개 글 노출, content hash mismatch가 있으면 배포 실패로 본다.
@@ -132,6 +136,10 @@ curl -fsS https://<public-domain>/projects
 curl -fsS https://<public-domain>/blog
 curl -fsS https://<public-domain>/blog/db-first-public-boundary
 curl -fsS https://<public-domain>/blog/db-first-public-boundary.md
+curl -fsS https://<public-domain>/sitemap.xml
+curl -fsS https://<public-domain>/feed.xml
+curl -fsS https://<public-domain>/llms.txt
+curl -fsS https://<public-domain>/llms-full.txt
 ```
 
 운영 노트에는 domain별 private 설정, 서버 IP, credential을 쓰지 않는다.

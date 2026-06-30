@@ -11,12 +11,14 @@
     {
       "step": 1,
       "name": "crawler-output-generation",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added published-only crawler output rendering and route handlers for sitemap.xml, feed.xml, llms.txt, and llms-full.txt. Outputs reuse the post-publish manifest, validate current version content_hash, avoid preview/failed posts, and do not expose source snapshots or internal evidence paths."
     },
     {
       "step": 2,
       "name": "indexnow-discord-retryable-jobs",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added adapter-backed retryable IndexNow and Discord job execution contract. External side effects are disabled by default, deterministic idempotency keys are enforced before adapter calls, failures keep published posts public, retry_count/error are recorded, and retry-limit exhaustion returns an operator alert instead of retrying forever."
     },
     {
       "step": 3,
