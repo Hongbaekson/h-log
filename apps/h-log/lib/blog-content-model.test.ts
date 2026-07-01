@@ -13,6 +13,8 @@ import {
   createPostVersionContentHash,
   getPublishJobImportance,
   isCurrentPublishedVersion,
+  publishVerificationCheckTypes,
+  publishVerificationStatuses,
   recordPublishJobFailure,
   renderCrawlerMarkdownForPostVersion,
   requiredPublishJobTypes,
@@ -92,6 +94,8 @@ describe("blog DB content model contract", () => {
     const correctionFields: readonly string[] =
       BLOG_CONTENT_MODEL_TABLES.post_corrections;
     const chunkFields: readonly string[] = BLOG_CONTENT_MODEL_TABLES.post_chunks;
+    const verificationFields: readonly string[] =
+      BLOG_CONTENT_MODEL_TABLES.publish_verifications;
 
     assert.ok(postFields.includes("current_version_id"));
     assert.equal(postFields.includes("content_markdown"), false);
@@ -127,6 +131,28 @@ describe("blog DB content model contract", () => {
       "content",
       "embedding",
     ]);
+    assert.deepEqual(verificationFields, [
+      "id",
+      "post_id",
+      "post_version_id",
+      "check_type",
+      "status",
+      "response_code",
+      "result",
+      "checked_at",
+    ]);
+  });
+
+  it("tracks publish verification result boundaries", () => {
+    assert.deepEqual(publishVerificationCheckTypes, [
+      "public_url",
+      "md_url",
+      "sitemap",
+      "feed",
+      "llms",
+      "content_version_match",
+    ]);
+    assert.deepEqual(publishVerificationStatuses, ["passed", "failed"]);
   });
 
   it("tracks admin actions with operator and command metadata", () => {

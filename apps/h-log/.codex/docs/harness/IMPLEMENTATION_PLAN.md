@@ -57,7 +57,7 @@ oci-infra-deployment-foundation: completed
 publish-state-and-admin: completed, steps 0-3 completed
 oci-server-runtime-setup: completed, steps 0-3 completed
 search-and-related-posts: completed, steps 0-3 completed
-post-publish-seo-automation: steps 0-2 completed, step 3 pending
+post-publish-seo-automation: completed, steps 0-3 completed
 topic-research-generation
 auto-article-generation
 diagram-assets-automation
@@ -163,7 +163,7 @@ auto-publish-ops-hardening
 - 상태: completed
 - 결과: `lib/blog-search.ts`와 테스트로 published-only hybrid search, embedding purpose boundary, `/api/search` cache/rate-limit/abnormal-query cost guard, `usage_events` recording, fresh `post_chunks` 기반 related similarity contract를 고정했다. 관련 글 selector는 현재 published version과 `content_hash`가 맞는 chunk만 embedding similarity에 사용하고, stale chunk, 현재 글 자신, draft/failed target은 결과에서 제외한다. `/blog` 검색 UI는 `/api/search` 결과를 사용해 published 글의 title, description, date, tags, score, match reason을 보여주며 cached/loading/empty/rate-limited/error 상태를 처리한다. tag fallback은 허용하되 embedding match 뒤에 정렬한다.
 - 검증: focused `node --no-warnings --test --experimental-strip-types lib/blog-search.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-search-ui.test.ts`, `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`
-- 다음 실행 대상: `post-publish-seo-automation / Step 3: content-hash-reconciliation`
+- 다음 실행 대상: `topic-research-generation / Step 0: source-collector-and-ranking`
 
 ## 현재 발행 후 SEO 자동화 진행 상태
 
@@ -184,7 +184,13 @@ auto-publish-ops-hardening
 - 상태: completed
 - 결과: `lib/blog-post-publish-retryable-jobs.ts`와 테스트로 IndexNow 제출과 Discord 발행 알림을 retryable job contract로 고정했다. 실제 외부 호출은 adapter 뒤에 두고 `allowExternalSideEffects`가 명시된 경우에만 실행한다. deterministic idempotency key를 adapter 호출 전 검증하고, 실패 시 글의 `published` 상태를 유지하면서 `retry_count`/`error`를 갱신한다. retry limit에 도달하면 무한 재시도하지 않고 operator alert 결과만 남긴다. webhook URL, token, channel id는 코드/fixture에 남기지 않는다.
 - 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-post-publish-retryable-jobs.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-post-publish-retryable-jobs.test.ts`
-- 다음 실행 대상: `post-publish-seo-automation / Step 3: content-hash-reconciliation`
+
+### post-publish-seo-automation / Step 3: content-hash-reconciliation
+
+- 상태: completed
+- 결과: `lib/blog-content-hash-reconciliation.ts`와 테스트로 published current version만 대상으로 public HTML, `/blog/:slug.md`, `sitemap.xml`, `feed.xml`, `llms.txt`, `llms-full.txt`의 `content_hash`를 DB version hash와 비교한다. mismatch는 warning이 아니라 `publish_verifications`의 failed `content_version_match` required failure로 기록하고, 본문 excerpt를 verification result에 저장하지 않는다. 실패 결과는 `published -> correction_pending` 운영 검토와 correction/retraction handoff를 남긴다.
+- 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-content-hash-reconciliation.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-content-hash-reconciliation.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-post-publish-verification.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-crawler-output.test.ts`
+- 다음 실행 대상: `topic-research-generation / Step 0: source-collector-and-ranking`
 
 ## 이후 DB-first 단계
 
@@ -192,7 +198,7 @@ auto-publish-ops-hardening
 2. OCI 인프라 및 배포 foundation
 3. 발행 상태와 최소 관리자 운영
 4. 하이브리드 검색과 관련 글
-5. 발행 후 SEO/AI crawler 자동화 - Steps 0-2 completed, Step 3 pending
+5. 발행 후 SEO/AI crawler 자동화 - completed, Steps 0-3 completed
 6. 주제 수집과 research pack
 7. 자동 글 생성
 8. 다이어그램 asset 자동화
@@ -204,5 +210,5 @@ auto-publish-ops-hardening
 - Harness baseline 문서와 phase template이 존재한다.
 - root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
 - `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
-- 다음 실행 대상은 `post-publish-seo-automation / Step 3: content-hash-reconciliation`이다.
+- 다음 실행 대상은 `topic-research-generation / Step 0: source-collector-and-ranking`이다.
 - 문서 검증과 `git diff --check`가 통과한다.

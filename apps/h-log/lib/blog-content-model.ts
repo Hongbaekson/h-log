@@ -64,6 +64,16 @@ export const BLOG_CONTENT_MODEL_TABLES = {
     "started_at",
     "finished_at",
   ],
+  publish_verifications: [
+    "id",
+    "post_id",
+    "post_version_id",
+    "check_type",
+    "status",
+    "response_code",
+    "result",
+    "checked_at",
+  ],
   post_corrections: [
     "id",
     "post_id",
@@ -147,6 +157,17 @@ export const publishJobStatuses = [
   "failed",
 ] as const;
 
+export const publishVerificationCheckTypes = [
+  "public_url",
+  "md_url",
+  "sitemap",
+  "feed",
+  "llms",
+  "content_version_match",
+] as const;
+
+export const publishVerificationStatuses = ["passed", "failed"] as const;
+
 export const adminActionTypes = [
   "preview",
   "save",
@@ -174,6 +195,10 @@ export type RetryablePublishJobType = (typeof retryablePublishJobTypes)[number];
 export type PublishJobType = RequiredPublishJobType | RetryablePublishJobType;
 export type PublishJobImportance = "required" | "retryable";
 export type PublishJobStatus = (typeof publishJobStatuses)[number];
+export type PublishVerificationCheckType =
+  (typeof publishVerificationCheckTypes)[number];
+export type PublishVerificationStatus =
+  (typeof publishVerificationStatuses)[number];
 export type PostVersionCreatedBy = "system" | "admin";
 export type PostCorrectionCreatedBy = "system" | "admin";
 export type AdminActionType = (typeof adminActionTypes)[number];
@@ -307,6 +332,17 @@ export type PublishJobRecord = {
   startedAt: Timestamp | null;
   status: PublishJobStatus;
   type: PublishJobType;
+};
+
+export type PublishVerificationRecord = {
+  checkedAt: Timestamp;
+  checkType: PublishVerificationCheckType;
+  id: string;
+  postId: string;
+  postVersionId: string;
+  responseCode: number | null;
+  result: string;
+  status: PublishVerificationStatus;
 };
 
 export type PostCorrectionRecord = {

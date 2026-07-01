@@ -1403,7 +1403,7 @@ admin_actions
 - source_snapshots는 원문 전체가 아니라 당시 검증 근거와 hash를 재현하기 위해 저장한다.
 - post_chunks는 post_version_id와 content_hash를 가져야 글 수정 후 검색 인덱스가 어긋나지 않는다.
 - quality_gate_results는 왜 발행됐거나 차단됐는지 감사 로그로 남긴다.
-- publish_verifications는 발행 후 실제 공개/검색/SEO 반영 여부를 기록한다.
+- publish_verifications는 발행 후 실제 공개/검색/SEO 반영 여부와 content_hash mismatch required failure를 기록한다. 공개 검증 로그에는 본문 excerpt를 저장하지 않는다.
 - post_corrections는 자동 발행 이후 정정/비공개 처리 이력을 남긴다.
 - personal_context_items는 글이 홍백님의 경험처럼 보일 수 있는 근거 범위를 제한한다.
 - usage_events는 자동화 비용과 실패 루프를 추적한다.

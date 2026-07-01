@@ -23,7 +23,8 @@
     {
       "step": 3,
       "name": "content-hash-reconciliation",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added published-only content hash reconciliation for public HTML, Markdown, sitemap, feed, and llms crawler manifests. Hash drift is recorded as a failed publish_verifications content_version_match required failure without body excerpts, and failures carry a correction/retraction review handoff."
     }
   ]
 }

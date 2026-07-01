@@ -32,7 +32,8 @@
     },
     {
       "dir": "post-publish-seo-automation",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Steps 0-3 completed: post-publish verification jobs, crawler outputs, retryable IndexNow/Discord adapters, and published-only content hash reconciliation with publish_verifications failure handoff are tested."
     },
     {
       "dir": "topic-research-generation",
