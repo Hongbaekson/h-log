@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "source-collector-and-ranking",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added the pure topic source collector/ranking contract with source type roles, duplicate URL suppression, cache TTL, daily collection limit, scoring signals, and source_fetch usage event recording. Discovery/reaction sources remain excluded from claim support."
     },
     {
       "step": 1,
