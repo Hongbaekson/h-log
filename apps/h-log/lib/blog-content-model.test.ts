@@ -7,6 +7,7 @@ import {
   assertBlogPostStatusTransition,
   adminActionActorTypes,
   adminActionTypes,
+  blogArticleModes,
   blogPostStatuses,
   canTransitionBlogPostStatus,
   createPostVersionContentFromMarkdown,
@@ -168,6 +169,43 @@ describe("blog DB content model contract", () => {
       "approve_preview",
     ]);
     assert.deepEqual(adminActionActorTypes, ["admin", "system", "discord", "cli"]);
+  });
+
+  it("tracks article modes and apply-to-me ledger table fields", () => {
+    assert.deepEqual(blogArticleModes, [
+      "experiment",
+      "applied_analysis",
+      "document_analysis",
+      "project_record",
+      "ops_incident",
+    ]);
+    assert.deepEqual(BLOG_CONTENT_MODEL_TABLES.personal_context_items, [
+      "id",
+      "category",
+      "title",
+      "summary",
+      "allowed_usage",
+      "public_safe",
+      "version",
+      "created_at",
+      "updated_at",
+    ]);
+    assert.deepEqual(BLOG_CONTENT_MODEL_TABLES.apply_to_me_results, [
+      "id",
+      "topic_candidate_id",
+      "research_pack_id",
+      "apply_categories",
+      "apply_targets",
+      "article_mode",
+      "hypothesis",
+      "commands_or_checks",
+      "evidence_paths",
+      "personal_context_ids",
+      "status",
+      "block_reason",
+      "summary",
+      "created_at",
+    ]);
   });
 
   it("hashes each content version from Markdown and HTML", () => {

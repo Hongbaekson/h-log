@@ -41,6 +41,33 @@ export const BLOG_CONTENT_MODEL_TABLES = {
     "summary",
     "snapshot_hash",
   ],
+  personal_context_items: [
+    "id",
+    "category",
+    "title",
+    "summary",
+    "allowed_usage",
+    "public_safe",
+    "version",
+    "created_at",
+    "updated_at",
+  ],
+  apply_to_me_results: [
+    "id",
+    "topic_candidate_id",
+    "research_pack_id",
+    "apply_categories",
+    "apply_targets",
+    "article_mode",
+    "hypothesis",
+    "commands_or_checks",
+    "evidence_paths",
+    "personal_context_ids",
+    "status",
+    "block_reason",
+    "summary",
+    "created_at",
+  ],
   post_tags: ["id", "post_id", "tag", "created_at"],
   post_chunks: [
     "id",
@@ -118,6 +145,8 @@ export const blogArticleModes = [
   "experiment",
   "applied_analysis",
   "document_analysis",
+  "project_record",
+  "ops_incident",
 ] as const;
 
 export const postSourceRoles = [

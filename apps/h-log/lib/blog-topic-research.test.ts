@@ -2,11 +2,14 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  applyToMeArticleModes,
+  buildApplyToMeContext,
   buildResearchPack,
   collectTopicCandidates,
   createTopicResearchRuntimeState,
   scoreTopicCandidate,
   topicResearchSourceTypes,
+  type PersonalContextItemRecord,
   type ResearchPackSourceInput,
   type TopicSourceInput,
 } from "./blog-topic-research.ts";
@@ -51,6 +54,23 @@ function createResearchPackSource(
     summary: "A concise source summary for the research pack.",
     title: "Runtime release note",
     url: "https://example.com/releases/runtime",
+    ...overrides,
+  };
+}
+
+function createPersonalContextItem(
+  overrides: Partial<PersonalContextItemRecord> = {},
+): PersonalContextItemRecord {
+  return {
+    allowedUsage: "applied_analysis",
+    category: "Portfolio / Site",
+    createdAt: collectedAt,
+    id: "context-hlog-worker",
+    publicSafe: true,
+    summary: "Public-safe summary about operating the H-Log automation worker.",
+    title: "H-Log worker boundary",
+    updatedAt: collectedAt,
+    version: 1,
     ...overrides,
   };
 }
@@ -279,5 +299,169 @@ describe("blog topic research pack boundary", () => {
       "needs_official_or_original_source",
     );
     assert.deepEqual(result.researchPack.officialOrOriginalSourceIds, []);
+  });
+});
+
+describe("blog topic apply-to-me context ledger", () => {
+  it("blocks direct-experience copy when no safe ledger item supports it", () => {
+    const topic = collectTopicCandidates({
+      collectedAt,
+      sources: [createSource({ id: "source-official" })],
+    }).candidates[0];
+
+    assert.ok(topic);
+
+    const pack = buildResearchPack({
+      createdAt: collectedAt,
+      selectedAngle: "Apply the release note to the H-Log worker boundary.",
+      sources: [createResearchPackSource()],
+      topicCandidate: topic,
+    }).researchPack;
+
+    const result = buildApplyToMeContext({
+      createdAt: collectedAt,
+      directExperienceClaims: [
+        {
+          personalContextId: null,
+          text: "I ran this change in my portfolio automation stack.",
+        },
+      ],
+      evidencePaths: ["evidence/apply-to-me/public-safe-command.txt"],
+      personalContextItems: [
+        createPersonalContextItem({
+          allowedUsage: "applied_analysis",
+        }),
+      ],
+      requestedArticleMode: "experiment",
+      requestedContextIds: ["context-hlog-worker"],
+      researchPack: pack,
+      topicCandidate: topic,
+    });
+
+    assert.equal(result.applyToMeResult.status, "failed_generation");
+    assert.equal(
+      result.applyToMeResult.blockReason,
+      "missing_direct_experience_context",
+    );
+    assert.equal(result.generationInput, null);
+  });
+
+  it("keeps forbidden or private context out of generation input", () => {
+    const topic = collectTopicCandidates({
+      collectedAt,
+      sources: [createSource({ id: "source-official" })],
+    }).candidates[0];
+
+    assert.ok(topic);
+
+    const pack = buildResearchPack({
+      createdAt: collectedAt,
+      selectedAngle: "Compare the release note with the public H-Log setup.",
+      sources: [createResearchPackSource()],
+      topicCandidate: topic,
+    }).researchPack;
+    const result = buildApplyToMeContext({
+      createdAt: collectedAt,
+      personalContextItems: [
+        createPersonalContextItem({
+          allowedUsage: "direct_experience",
+        }),
+        createPersonalContextItem({
+          allowedUsage: "forbidden",
+          id: "context-private-internal",
+          publicSafe: false,
+          summary: "This private context must never be sent to generation.",
+          title: "Non-public internal context",
+        }),
+      ],
+      requestedArticleMode: "applied_analysis",
+      requestedContextIds: ["context-hlog-worker", "context-private-internal"],
+      researchPack: pack,
+      topicCandidate: topic,
+    });
+
+    assert.equal(result.applyToMeResult.status, "failed_generation");
+    assert.equal(result.applyToMeResult.blockReason, "unsafe_personal_context");
+    assert.deepEqual(result.applyToMeResult.blockedContextItemIds, [
+      "context-private-internal",
+    ]);
+    assert.equal(result.generationInput, null);
+    assert.equal(
+      JSON.stringify(result).includes("Non-public internal context"),
+      false,
+    );
+  });
+
+  it("requires evidence for experiment mode and builds public-safe generation input", () => {
+    const topic = collectTopicCandidates({
+      collectedAt,
+      sources: [createSource({ id: "source-official" })],
+    }).candidates[0];
+
+    assert.ok(topic);
+
+    const pack = buildResearchPack({
+      createdAt: collectedAt,
+      selectedAngle: "Check the release note against the public H-Log worker.",
+      sources: [createResearchPackSource()],
+      topicCandidate: topic,
+    }).researchPack;
+    const context = createPersonalContextItem({
+      allowedUsage: "direct_experience",
+    });
+    const blocked = buildApplyToMeContext({
+      createdAt: collectedAt,
+      directExperienceClaims: [
+        {
+          personalContextId: context.id,
+          text: "I reproduced this against the H-Log worker boundary.",
+        },
+      ],
+      personalContextItems: [context],
+      requestedArticleMode: "experiment",
+      requestedContextIds: [context.id],
+      researchPack: pack,
+      topicCandidate: topic,
+    });
+
+    assert.equal(blocked.applyToMeResult.status, "failed_generation");
+    assert.equal(
+      blocked.applyToMeResult.blockReason,
+      "missing_experiment_evidence",
+    );
+
+    const ready = buildApplyToMeContext({
+      commandsOrChecks: ["npm run test -- blog-topic-research"],
+      createdAt: collectedAt,
+      directExperienceClaims: [
+        {
+          personalContextId: context.id,
+          text: "I reproduced this against the H-Log worker boundary.",
+        },
+      ],
+      evidencePaths: ["evidence/apply-to-me/public-safe-test-output.txt"],
+      personalContextItems: [context],
+      requestedArticleMode: "experiment",
+      requestedContextIds: [context.id],
+      researchPack: pack,
+      topicCandidate: topic,
+    });
+
+    assert.deepEqual(applyToMeArticleModes, [
+      "experiment",
+      "applied_analysis",
+      "document_analysis",
+      "project_record",
+      "ops_incident",
+    ]);
+    assert.equal(ready.applyToMeResult.status, "ready_for_generation");
+    assert.equal(ready.applyToMeResult.articleMode, "experiment");
+    assert.deepEqual(ready.generationInput?.personalContextIds, [
+      "context-hlog-worker",
+    ]);
+    assert.equal(
+      ready.generationInput?.personalContextSummaries[0]?.summary,
+      context.summary,
+    );
   });
 });

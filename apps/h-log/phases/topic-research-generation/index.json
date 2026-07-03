@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "apply-to-me-context-ledger",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added the pure apply-to-me context ledger contract with public-safe personal_context_items, five article modes, generation input blocking for forbidden/private context, direct-experience ledger enforcement, and experiment evidence enforcement."
     },
     {
       "step": 3,

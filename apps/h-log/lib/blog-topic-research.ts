@@ -1,6 +1,11 @@
 import { createHash } from "node:crypto";
 
-import type { PostSourceRole, Timestamp } from "./blog-content-model.ts";
+import {
+  blogArticleModes,
+  type BlogArticleMode,
+  type PostSourceRole,
+  type Timestamp,
+} from "./blog-content-model.ts";
 
 export const topicResearchSourceTypes = [
   "geeknews",
@@ -138,6 +143,104 @@ export type BuildResearchPackResult = {
   postSources: ResearchPackPostSourceRecord[];
   researchPack: ResearchPackRecord;
   sourceSnapshots: ResearchPackSourceSnapshotRecord[];
+};
+
+export const personalContextAllowedUsages = [
+  "direct_experience",
+  "applied_analysis",
+  "reference_only",
+  "forbidden",
+] as const;
+
+export const applyToMeArticleModes = blogArticleModes;
+
+export type PersonalContextAllowedUsage =
+  (typeof personalContextAllowedUsages)[number];
+
+export type PersonalContextItemRecord = {
+  allowedUsage: PersonalContextAllowedUsage;
+  category: string;
+  createdAt: Timestamp;
+  id: string;
+  publicSafe: boolean;
+  summary: string;
+  title: string;
+  updatedAt: Timestamp;
+  version: number;
+};
+
+export type ApplyToMeDirectExperienceClaimInput = {
+  evidencePath?: string;
+  personalContextId: string | null;
+  text: string;
+};
+
+export type ApplyToMeResultStatus =
+  | "ready_for_generation"
+  | "failed_generation";
+
+export type ApplyToMeBlockReason =
+  | "missing_direct_experience_context"
+  | "missing_experiment_evidence"
+  | "unsafe_personal_context";
+
+export type ApplyToMeResultRecord = {
+  applyCategories: readonly string[];
+  applyTargets: readonly string[];
+  articleMode: BlogArticleMode;
+  blockReason: ApplyToMeBlockReason | null;
+  blockedContextItemIds: readonly string[];
+  commandsOrChecks: readonly string[];
+  createdAt: Timestamp;
+  evidencePaths: readonly string[];
+  hypothesis: string;
+  id: string;
+  personalContextIds: readonly string[];
+  researchPackId: string;
+  status: ApplyToMeResultStatus;
+  summary: string;
+  topicCandidateId: string;
+};
+
+export type ApplyToMeGenerationContext = {
+  allowedUsage: Exclude<PersonalContextAllowedUsage, "forbidden">;
+  category: string;
+  id: string;
+  summary: string;
+  title: string;
+  version: number;
+};
+
+export type ApplyToMeGenerationInput = {
+  articleMode: BlogArticleMode;
+  commandsOrChecks: readonly string[];
+  evidencePaths: readonly string[];
+  personalContextIds: readonly string[];
+  personalContextSummaries: readonly ApplyToMeGenerationContext[];
+  researchPackId: string;
+  selectedAngle: string;
+  summary: string;
+  topicCandidateId: string;
+};
+
+export type BuildApplyToMeContextInput = {
+  commandsOrChecks?: readonly string[];
+  createdAt: Timestamp;
+  directExperienceClaims?: readonly ApplyToMeDirectExperienceClaimInput[];
+  evidencePaths?: readonly string[];
+  hypothesis?: string;
+  id?: string;
+  personalContextItems: readonly PersonalContextItemRecord[];
+  requestedArticleMode?: BlogArticleMode;
+  requestedContextIds: readonly string[];
+  researchPack: ResearchPackRecord;
+  summary?: string;
+  topicCandidate: TopicCandidateRecord;
+};
+
+export type BuildApplyToMeContextResult = {
+  applyToMeResult: ApplyToMeResultRecord;
+  generationInput: ApplyToMeGenerationInput | null;
 };
 
 export type TopicSourceRejection = {
@@ -324,6 +427,294 @@ export function buildResearchPack(
       topicCandidateId: input.topicCandidate.id,
     },
     sourceSnapshots,
+  };
+}
+
+export function buildApplyToMeContext(
+  input: BuildApplyToMeContextInput,
+): BuildApplyToMeContextResult {
+  const contextById = new Map(
+    input.personalContextItems.map((context) => [context.id, context]),
+  );
+  const directExperienceClaims = input.directExperienceClaims ?? [];
+  const directExperienceContextIds = directExperienceClaims.flatMap((claim) =>
+    claim.personalContextId ? [claim.personalContextId] : [],
+  );
+  const personalContextIds = uniqueTrimmedStrings([
+    ...input.requestedContextIds,
+    ...directExperienceContextIds,
+  ]);
+  const selectedContexts = personalContextIds.map((id) => contextById.get(id));
+  const evidencePaths = uniqueTrimmedStrings([
+    ...(input.evidencePaths ?? []),
+    ...directExperienceClaims.flatMap((claim) =>
+      claim.evidencePath ? [claim.evidencePath] : [],
+    ),
+  ]);
+  const commandsOrChecks = uniqueTrimmedStrings(input.commandsOrChecks ?? []);
+  const articleMode =
+    input.requestedArticleMode ??
+    inferApplyToMeArticleMode({
+      commandsOrChecks,
+      directExperienceClaims,
+      evidencePaths,
+      selectedContexts,
+      topicCandidate: input.topicCandidate,
+    });
+  const hypothesis = (input.hypothesis ?? "").trim();
+  const summary =
+    input.summary?.trim() ||
+    `Apply ${input.topicCandidate.title.trim()} to public H-Log context.`;
+
+  if (hasUnsupportedDirectExperienceClaim(directExperienceClaims, contextById)) {
+    return buildBlockedApplyToMeContextResult({
+      articleMode,
+      blockReason: "missing_direct_experience_context",
+      blockedContextItemIds: [],
+      commandsOrChecks,
+      createdAt: input.createdAt,
+      evidencePaths,
+      hypothesis,
+      id: input.id,
+      personalContextIds,
+      researchPack: input.researchPack,
+      summary,
+      topicCandidate: input.topicCandidate,
+    });
+  }
+
+  const blockedContextItemIds = personalContextIds.filter((id) => {
+    const context = contextById.get(id);
+
+    return (
+      !context ||
+      !context.publicSafe ||
+      context.allowedUsage === "forbidden"
+    );
+  });
+
+  if (blockedContextItemIds.length > 0) {
+    return buildBlockedApplyToMeContextResult({
+      articleMode,
+      blockReason: "unsafe_personal_context",
+      blockedContextItemIds,
+      commandsOrChecks,
+      createdAt: input.createdAt,
+      evidencePaths,
+      hypothesis,
+      id: input.id,
+      personalContextIds,
+      researchPack: input.researchPack,
+      summary,
+      topicCandidate: input.topicCandidate,
+    });
+  }
+
+  if (
+    articleMode === "experiment" &&
+    evidencePaths.length === 0 &&
+    commandsOrChecks.length === 0
+  ) {
+    return buildBlockedApplyToMeContextResult({
+      articleMode,
+      blockReason: "missing_experiment_evidence",
+      blockedContextItemIds: [],
+      commandsOrChecks,
+      createdAt: input.createdAt,
+      evidencePaths,
+      hypothesis,
+      id: input.id,
+      personalContextIds,
+      researchPack: input.researchPack,
+      summary,
+      topicCandidate: input.topicCandidate,
+    });
+  }
+
+  const generationContexts = selectedContexts.map((context) => {
+    if (!context || context.allowedUsage === "forbidden") {
+      throw new Error("unsafe personal context reached generation input");
+    }
+
+    return {
+      allowedUsage: context.allowedUsage,
+      category: context.category,
+      id: context.id,
+      summary: context.summary,
+      title: context.title,
+      version: context.version,
+    };
+  });
+
+  return {
+    applyToMeResult: buildApplyToMeResultRecord({
+      articleMode,
+      blockReason: null,
+      blockedContextItemIds: [],
+      commandsOrChecks,
+      createdAt: input.createdAt,
+      evidencePaths,
+      hypothesis,
+      id: input.id,
+      personalContextIds,
+      researchPack: input.researchPack,
+      status: "ready_for_generation",
+      summary,
+      topicCandidate: input.topicCandidate,
+    }),
+    generationInput: {
+      articleMode,
+      commandsOrChecks,
+      evidencePaths,
+      personalContextIds,
+      personalContextSummaries: generationContexts,
+      researchPackId: input.researchPack.id,
+      selectedAngle: input.researchPack.selectedAngle,
+      summary,
+      topicCandidateId: input.topicCandidate.id,
+    },
+  };
+}
+
+function inferApplyToMeArticleMode({
+  commandsOrChecks,
+  directExperienceClaims,
+  evidencePaths,
+  selectedContexts,
+  topicCandidate,
+}: {
+  commandsOrChecks: readonly string[];
+  directExperienceClaims: readonly ApplyToMeDirectExperienceClaimInput[];
+  evidencePaths: readonly string[];
+  selectedContexts: readonly (PersonalContextItemRecord | undefined)[];
+  topicCandidate: TopicCandidateRecord;
+}): BlogArticleMode {
+  const hasEvidence = evidencePaths.length > 0 || commandsOrChecks.length > 0;
+
+  if (directExperienceClaims.length > 0 && hasEvidence) {
+    return "experiment";
+  }
+
+  if (
+    topicCandidate.applyCategories.some(isProjectRecordCategory) ||
+    selectedContexts.some((context) =>
+      context ? isProjectRecordCategory(context.category) : false,
+    )
+  ) {
+    return "project_record";
+  }
+
+  if (
+    selectedContexts.some(
+      (context) =>
+        context?.allowedUsage === "applied_analysis" ||
+        context?.allowedUsage === "direct_experience",
+    )
+  ) {
+    return "applied_analysis";
+  }
+
+  return "document_analysis";
+}
+
+function isProjectRecordCategory(value: string): boolean {
+  const normalized = value.toLowerCase();
+
+  return (
+    normalized.includes("portfolio") ||
+    normalized.includes("site") ||
+    normalized.includes("h-log")
+  );
+}
+
+function hasUnsupportedDirectExperienceClaim(
+  directExperienceClaims: readonly ApplyToMeDirectExperienceClaimInput[],
+  contextById: ReadonlyMap<string, PersonalContextItemRecord>,
+): boolean {
+  return directExperienceClaims.some((claim) => {
+    if (!claim.text.trim()) {
+      return false;
+    }
+
+    if (!claim.personalContextId) {
+      return true;
+    }
+
+    const context = contextById.get(claim.personalContextId);
+
+    return (
+      !context ||
+      !context.publicSafe ||
+      context.allowedUsage !== "direct_experience"
+    );
+  });
+}
+
+function buildBlockedApplyToMeContextResult(input: {
+  articleMode: BlogArticleMode;
+  blockReason: ApplyToMeBlockReason;
+  blockedContextItemIds: readonly string[];
+  commandsOrChecks: readonly string[];
+  createdAt: Timestamp;
+  evidencePaths: readonly string[];
+  hypothesis: string;
+  id?: string;
+  personalContextIds: readonly string[];
+  researchPack: ResearchPackRecord;
+  summary: string;
+  topicCandidate: TopicCandidateRecord;
+}): BuildApplyToMeContextResult {
+  return {
+    applyToMeResult: buildApplyToMeResultRecord({
+      articleMode: input.articleMode,
+      blockReason: input.blockReason,
+      blockedContextItemIds: input.blockedContextItemIds,
+      commandsOrChecks: input.commandsOrChecks,
+      createdAt: input.createdAt,
+      evidencePaths: input.evidencePaths,
+      hypothesis: input.hypothesis,
+      id: input.id,
+      personalContextIds: input.personalContextIds,
+      researchPack: input.researchPack,
+      status: "failed_generation",
+      summary: input.summary,
+      topicCandidate: input.topicCandidate,
+    }),
+    generationInput: null,
+  };
+}
+
+function buildApplyToMeResultRecord(input: {
+  articleMode: BlogArticleMode;
+  blockReason: ApplyToMeBlockReason | null;
+  blockedContextItemIds: readonly string[];
+  commandsOrChecks: readonly string[];
+  createdAt: Timestamp;
+  evidencePaths: readonly string[];
+  hypothesis: string;
+  id?: string;
+  personalContextIds: readonly string[];
+  researchPack: ResearchPackRecord;
+  status: ApplyToMeResultStatus;
+  summary: string;
+  topicCandidate: TopicCandidateRecord;
+}): ApplyToMeResultRecord {
+  return {
+    applyCategories: input.topicCandidate.applyCategories,
+    applyTargets: input.topicCandidate.applyTargets,
+    articleMode: input.articleMode,
+    blockReason: input.blockReason,
+    blockedContextItemIds: input.blockedContextItemIds,
+    commandsOrChecks: input.commandsOrChecks,
+    createdAt: input.createdAt,
+    evidencePaths: input.evidencePaths,
+    hypothesis: input.hypothesis,
+    id: input.id ?? `apply-to-me-${input.topicCandidate.id}`,
+    personalContextIds: input.personalContextIds,
+    researchPackId: input.researchPack.id,
+    status: input.status,
+    summary: input.summary,
+    topicCandidateId: input.topicCandidate.id,
   };
 }
 
@@ -514,6 +905,24 @@ function createResearchSourceSnapshotHash(
 
 function normalizeComparableText(value: string): string {
   return value.replace(/\s+/g, " ").trim();
+}
+
+function uniqueTrimmedStrings(values: readonly string[]): string[] {
+  const result: string[] = [];
+  const seen = new Set<string>();
+
+  for (const value of values) {
+    const trimmed = value.trim();
+
+    if (!trimmed || seen.has(trimmed)) {
+      continue;
+    }
+
+    seen.add(trimmed);
+    result.push(trimmed);
+  }
+
+  return result;
 }
 
 function scoreSignal(value: boolean | undefined, points: number): number {
