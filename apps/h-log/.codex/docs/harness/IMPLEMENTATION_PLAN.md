@@ -58,7 +58,7 @@ publish-state-and-admin: completed, steps 0-3 completed
 oci-server-runtime-setup: completed, steps 0-3 completed
 search-and-related-posts: completed, steps 0-3 completed
 post-publish-seo-automation: completed, steps 0-3 completed
-topic-research-generation: step 0 completed, steps 1-3 pending
+topic-research-generation: steps 0-1 completed, steps 2-3 pending
 auto-article-generation
 diagram-assets-automation
 feedback-and-persona-learning
@@ -199,7 +199,14 @@ auto-publish-ops-hardening
 - 상태: completed
 - 결과: `lib/blog-topic-research.ts`와 테스트로 topic source type, source role, ranking score, duplicate URL suppression, source cache TTL, daily source limit, `source_fetch` usage event contract를 고정했다. GeekNews/HN/Reddit 같은 discovery/reaction source는 높은 점수를 받아도 claim source로 승격하지 않는다. 실제 외부 수집, research pack 생성, 글 생성, 발행은 아직 수행하지 않는다.
 - 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-topic-research.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-topic-research.test.ts`
-- 다음 실행 대상: `topic-research-generation / Step 1: research-pack-boundary`
+- 완료 후 `topic-research-generation / Step 1: research-pack-boundary`로 이동했다.
+
+### topic-research-generation / Step 1: research-pack-boundary
+
+- 상태: completed
+- 결과: `lib/blog-topic-research.ts`와 테스트로 topic candidate를 비공개 research pack, post source record, source snapshot으로 묶는 contract를 고정했다. snapshot은 원문 전체 저장을 거부하고 짧은 excerpt, summary, claim metadata, hash만 남긴다. official/original source가 없으면 strong claim support를 통과하지 못한다.
+- 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-topic-research.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-topic-research.test.ts`
+- 다음 실행 대상: `topic-research-generation / Step 2: apply-to-me-context-ledger`
 
 ## 이후 DB-first 단계
 
@@ -208,7 +215,7 @@ auto-publish-ops-hardening
 3. 발행 상태와 최소 관리자 운영
 4. 하이브리드 검색과 관련 글
 5. 발행 후 SEO/AI crawler 자동화 - completed, Steps 0-3 completed
-6. 주제 수집과 research pack - step 0 completed, next step is research-pack-boundary
+6. 주제 수집과 research pack - steps 0-1 completed, next step is apply-to-me-context-ledger
 7. 자동 글 생성
 8. 다이어그램 asset 자동화
 9. 성과 피드백과 persona learning
@@ -219,5 +226,5 @@ auto-publish-ops-hardening
 - Harness baseline 문서와 phase template이 존재한다.
 - root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
 - `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
-- 다음 실행 대상은 `topic-research-generation / Step 1: research-pack-boundary`이다.
+- 다음 실행 대상은 `topic-research-generation / Step 2: apply-to-me-context-ledger`이다.
 - 문서 검증과 `git diff --check`가 통과한다.

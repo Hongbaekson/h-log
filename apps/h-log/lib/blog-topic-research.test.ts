@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  buildResearchPack,
   collectTopicCandidates,
   createTopicResearchRuntimeState,
   scoreTopicCandidate,
   topicResearchSourceTypes,
+  type ResearchPackSourceInput,
   type TopicSourceInput,
 } from "./blog-topic-research.ts";
 
@@ -27,6 +29,26 @@ function createSource(
     },
     sourceType: "official_release_note",
     summary: "A release note summary with enough context for ranking.",
+    title: "Runtime release note",
+    url: "https://example.com/releases/runtime",
+    ...overrides,
+  };
+}
+
+function createResearchPackSource(
+  overrides: Partial<ResearchPackSourceInput> = {},
+): ResearchPackSourceInput {
+  return {
+    excerpt: "Official release excerpt used for claim-level verification.",
+    fetchedAt: collectedAt,
+    id: "source-official",
+    publisher: "Example Runtime",
+    rawContent:
+      "Official full source body that must never be stored in source snapshots. ".repeat(
+        20,
+      ),
+    sourceRole: "official",
+    summary: "A concise source summary for the research pack.",
     title: "Runtime release note",
     url: "https://example.com/releases/runtime",
     ...overrides,
@@ -162,5 +184,100 @@ describe("blog topic research source collector contract", () => {
       "security_ops_feed",
       "reddit",
     ]);
+  });
+});
+
+describe("blog topic research pack boundary", () => {
+  it("builds a non-public research pack without storing full source text", () => {
+    const fullSourceText =
+      "FULL_SOURCE_BODY_SHOULD_NOT_BE_STORED ".repeat(40).trim();
+    const topic = collectTopicCandidates({
+      collectedAt,
+      sources: [createSource({ id: "source-official" })],
+    }).candidates[0];
+
+    assert.ok(topic);
+
+    const result = buildResearchPack({
+      createdAt: collectedAt,
+      selectedAngle: "Apply the release note to the H-Log worker boundary.",
+      sources: [
+        createResearchPackSource({
+          excerpt: "Short official evidence excerpt.",
+          rawContent: fullSourceText,
+        }),
+      ],
+      topicCandidate: topic,
+    });
+
+    assert.equal(result.researchPack.isPublicContent, false);
+    assert.deepEqual(result.researchPack.sourceIds, ["source-official"]);
+    assert.equal(result.postSources[0]?.sourceRole, "official");
+    assert.equal(result.postSources[0]?.snapshotHash, result.sourceSnapshots[0]?.hash);
+    assert.equal(result.sourceSnapshots[0]?.excerpt, "Short official evidence excerpt.");
+    assert.equal(JSON.stringify(result).includes(fullSourceText), false);
+    assert.equal("rawContent" in result.sourceSnapshots[0]!, false);
+  });
+
+  it("rejects full source text in snapshots and blocks discovery-only strong claim support", () => {
+    const fullSourceText =
+      "This is the entire collected article body and must not become an excerpt. ".repeat(
+        20,
+      ).trim();
+    const topic = collectTopicCandidates({
+      collectedAt,
+      sources: [
+        createSource({
+          id: "source-geeknews",
+          publisher: "GeekNews",
+          sourceType: "geeknews",
+          url: "https://news.hada.io/topic?id=12345",
+        }),
+      ],
+    }).candidates[0];
+
+    assert.ok(topic);
+    assert.throws(
+      () =>
+        buildResearchPack({
+          createdAt: collectedAt,
+          selectedAngle: "Use community reaction as a discovery signal.",
+          sources: [
+            createResearchPackSource({
+              excerpt: fullSourceText,
+              id: "source-geeknews",
+              publisher: "GeekNews",
+              rawContent: fullSourceText,
+              sourceRole: "discovery",
+              url: "https://news.hada.io/topic?id=12345",
+            }),
+          ],
+          topicCandidate: topic,
+        }),
+      /excerpt must not store full source text/,
+    );
+
+    const result = buildResearchPack({
+      createdAt: collectedAt,
+      selectedAngle: "Use community reaction as a discovery signal.",
+      sources: [
+        createResearchPackSource({
+          excerpt: "Short community reaction excerpt.",
+          id: "source-geeknews",
+          publisher: "GeekNews",
+          rawContent: fullSourceText,
+          sourceRole: "discovery",
+          url: "https://news.hada.io/topic?id=12345",
+        }),
+      ],
+      topicCandidate: topic,
+    });
+
+    assert.equal(result.researchPack.canSupportStrongClaims, false);
+    assert.equal(
+      result.researchPack.claimSupportPolicy,
+      "needs_official_or_original_source",
+    );
+    assert.deepEqual(result.researchPack.officialOrOriginalSourceIds, []);
   });
 });

@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import type { PostSourceRole, Timestamp } from "./blog-content-model.ts";
 
 export const topicResearchSourceTypes = [
@@ -61,6 +63,81 @@ export type TopicCandidateRecord = {
   summary: string;
   title: string;
   url: string;
+};
+
+export type ResearchPackClaimMetadata = {
+  claimId: string;
+  claimText: string;
+  sourceId: string;
+};
+
+export type ResearchPackSourceInput = {
+  claimMetadata?: readonly ResearchPackClaimMetadata[];
+  excerpt: string;
+  fetchedAt: Timestamp;
+  id: string;
+  publisher: string;
+  rawContent?: string;
+  sourceRole: PostSourceRole;
+  summary: string;
+  title: string;
+  url: string;
+};
+
+export type ResearchPackRecord = {
+  canSupportStrongClaims: boolean;
+  claimSupportPolicy:
+    | "has_official_or_original_source"
+    | "needs_official_or_original_source";
+  createdAt: Timestamp;
+  id: string;
+  isPublicContent: false;
+  officialOrOriginalSourceIds: readonly string[];
+  riskNotes: readonly string[];
+  selectedAngle: string;
+  sourceIds: readonly string[];
+  summary: string;
+  topicCandidateId: string;
+};
+
+export type ResearchPackPostSourceRecord = {
+  fetchedAt: Timestamp;
+  id: string;
+  postId: null;
+  publisher: string;
+  researchPackId: string;
+  snapshotHash: string;
+  sourceRole: PostSourceRole;
+  summary: string;
+  title: string;
+  url: string;
+};
+
+export type ResearchPackSourceSnapshotRecord = {
+  claimMetadata: readonly ResearchPackClaimMetadata[];
+  excerpt: string;
+  extractedTextPath: null;
+  fetchedAt: Timestamp;
+  hash: string;
+  id: string;
+  sourceId: string;
+  sourceRole: PostSourceRole;
+};
+
+export type BuildResearchPackInput = {
+  createdAt: Timestamp;
+  id?: string;
+  riskNotes?: readonly string[];
+  selectedAngle: string;
+  sources: readonly ResearchPackSourceInput[];
+  summary?: string;
+  topicCandidate: TopicCandidateRecord;
+};
+
+export type BuildResearchPackResult = {
+  postSources: ResearchPackPostSourceRecord[];
+  researchPack: ResearchPackRecord;
+  sourceSnapshots: ResearchPackSourceSnapshotRecord[];
 };
 
 export type TopicSourceRejection = {
@@ -176,6 +253,77 @@ export function collectTopicCandidates(
     candidates,
     rejectedSources,
     usageEvents,
+  };
+}
+
+export function buildResearchPack(
+  input: BuildResearchPackInput,
+): BuildResearchPackResult {
+  const researchPackId = input.id ?? `research-pack-${input.topicCandidate.id}`;
+
+  if (input.sources.length === 0) {
+    throw new Error("research pack requires at least one source");
+  }
+
+  const postSources: ResearchPackPostSourceRecord[] = [];
+  const sourceSnapshots: ResearchPackSourceSnapshotRecord[] = [];
+
+  for (const source of input.sources) {
+    const normalizedUrl = normalizeTopicSourceUrl(source.url);
+    const excerpt = normalizeResearchSourceExcerpt(source);
+    const snapshotHash = createResearchSourceSnapshotHash({
+      ...source,
+      excerpt,
+      url: normalizedUrl,
+    });
+
+    postSources.push({
+      fetchedAt: source.fetchedAt,
+      id: source.id,
+      postId: null,
+      publisher: source.publisher,
+      researchPackId,
+      snapshotHash,
+      sourceRole: source.sourceRole,
+      summary: source.summary.trim(),
+      title: source.title.trim(),
+      url: normalizedUrl,
+    });
+    sourceSnapshots.push({
+      claimMetadata: source.claimMetadata ?? [],
+      excerpt,
+      extractedTextPath: null,
+      fetchedAt: source.fetchedAt,
+      hash: snapshotHash,
+      id: `snapshot-${source.id}`,
+      sourceId: source.id,
+      sourceRole: source.sourceRole,
+    });
+  }
+
+  const officialOrOriginalSourceIds = postSources
+    .filter((source) => canSourceRoleSupportClaims(source.sourceRole))
+    .map((source) => source.id);
+  const canSupportStrongClaims = officialOrOriginalSourceIds.length > 0;
+
+  return {
+    postSources,
+    researchPack: {
+      canSupportStrongClaims,
+      claimSupportPolicy: canSupportStrongClaims
+        ? "has_official_or_original_source"
+        : "needs_official_or_original_source",
+      createdAt: input.createdAt,
+      id: researchPackId,
+      isPublicContent: false,
+      officialOrOriginalSourceIds,
+      riskNotes: input.riskNotes ?? [],
+      selectedAngle: input.selectedAngle.trim(),
+      sourceIds: postSources.map((source) => source.id),
+      summary: (input.summary ?? input.topicCandidate.summary).trim(),
+      topicCandidateId: input.topicCandidate.id,
+    },
+    sourceSnapshots,
   };
 }
 
@@ -316,6 +464,56 @@ function getTopicSourceRole(
 
 function canSourceRoleSupportClaims(sourceRole: PostSourceRole): boolean {
   return sourceRole === "official" || sourceRole === "original";
+}
+
+const MAX_RESEARCH_SOURCE_EXCERPT_CHARS = 480;
+
+function normalizeResearchSourceExcerpt(
+  source: ResearchPackSourceInput,
+): string {
+  const excerpt = source.excerpt.trim();
+
+  if (!excerpt) {
+    throw new Error(`source snapshot ${source.id}: excerpt is required`);
+  }
+
+  if (
+    source.rawContent &&
+    normalizeComparableText(excerpt) ===
+      normalizeComparableText(source.rawContent)
+  ) {
+    throw new Error(
+      `source snapshot ${source.id}: excerpt must not store full source text`,
+    );
+  }
+
+  if (excerpt.length > MAX_RESEARCH_SOURCE_EXCERPT_CHARS) {
+    throw new Error(
+      `source snapshot ${source.id}: excerpt must be ${MAX_RESEARCH_SOURCE_EXCERPT_CHARS} characters or fewer`,
+    );
+  }
+
+  return excerpt;
+}
+
+function createResearchSourceSnapshotHash(
+  source: ResearchPackSourceInput,
+): string {
+  return createHash("sha256")
+    .update("h-log/research-source-snapshot/v1")
+    .update("\0url\0")
+    .update(source.url)
+    .update("\0raw\0")
+    .update(source.rawContent ?? "")
+    .update("\0excerpt\0")
+    .update(source.excerpt)
+    .update("\0summary\0")
+    .update(source.summary)
+    .digest("hex");
+}
+
+function normalizeComparableText(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
 }
 
 function scoreSignal(value: boolean | undefined, points: number): number {

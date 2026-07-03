@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "research-pack-boundary",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added the pure research pack boundary with non-public pack records, post source records, source snapshots that reject full raw text, official/original claim support separation, and discovery-only strong-claim blocking."
     },
     {
       "step": 2,
