@@ -59,7 +59,7 @@ oci-server-runtime-setup: completed, steps 0-3 completed
 search-and-related-posts: completed, steps 0-3 completed
 post-publish-seo-automation: completed, steps 0-3 completed
 topic-research-generation: completed, steps 0-3 completed
-auto-article-generation
+auto-article-generation: step 0 completed, step 1 pending
 diagram-assets-automation
 feedback-and-persona-learning
 auto-publish-ops-hardening
@@ -220,7 +220,16 @@ auto-publish-ops-hardening
 - 상태: completed
 - 결과: `lib/blog-topic-research.ts`와 `lib/blog-content-model.ts` 테스트로 `article_claims`, `quality_gate_results`, factual/opinion claim 분리, source/evidence 필수 정책, discovery/reaction source만 있는 강한 claim 차단, source contradiction failure를 고정했다. 긴 evidence quote는 저장하지 않는다. 실제 외부 source verification, LLM 생성, 발행은 아직 수행하지 않는다.
 - 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-topic-research.test.ts`, RED focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-topic-research.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`
-- 다음 실행 대상: `auto-article-generation`
+- 완료 후 `auto-article-generation / Step 0: article-output-schema`로 이동했다.
+
+## 현재 자동 글 생성 진행 상태
+
+### auto-article-generation / Step 0: article-output-schema
+
+- 상태: completed
+- 결과: `lib/blog-article-generation.ts`와 `lib/blog-content-model.ts` 테스트로 LLM writer output schema, required field gate, public-route compatible slug/tag normalization, source/evidence-backed factual claim check, `publish_decision=block` private failure, `publish` result as `ready_to_publish` draft only, and `post_generation_runs` contract를 고정했다. 실제 LLM 호출, DB 저장, 공개 발행 side effect는 추가하지 않았다.
+- 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-article-generation.test.ts`, RED focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-article-generation.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, `npm run typecheck`
+- 다음 실행 대상: `auto-article-generation / Step 1: persona-and-mode-selection`
 
 ## 이후 DB-first 단계
 
@@ -230,7 +239,7 @@ auto-publish-ops-hardening
 4. 하이브리드 검색과 관련 글
 5. 발행 후 SEO/AI crawler 자동화 - completed, Steps 0-3 completed
 6. 주제 수집과 research pack - completed, Steps 0-3 completed
-7. 자동 글 생성
+7. 자동 글 생성 - step 0 completed, next step is persona-and-mode-selection
 8. 다이어그램 asset 자동화
 9. 성과 피드백과 persona learning
 10. 운영 안정화
@@ -240,5 +249,5 @@ auto-publish-ops-hardening
 - Harness baseline 문서와 phase template이 존재한다.
 - root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
 - `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
-- 다음 실행 대상은 `auto-article-generation`이다.
+- 다음 실행 대상은 `auto-article-generation / Step 1: persona-and-mode-selection`이다.
 - 문서 검증과 `git diff --check`가 통과한다.

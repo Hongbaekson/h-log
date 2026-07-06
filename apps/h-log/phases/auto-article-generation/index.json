@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "article-output-schema",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added the pure article writer output schema contract: required structured fields, public-route compatible slug/tag normalization, source/evidence-backed factual claim checks, block decision handling, post_generation_runs fields, and ready_to_publish-only draft output without public exposure or external LLM/publish side effects."
     },
     {
       "step": 1,

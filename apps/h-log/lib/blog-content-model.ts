@@ -92,6 +92,21 @@ export const BLOG_CONTENT_MODEL_TABLES = {
     "message",
     "created_at",
   ],
+  post_generation_runs: [
+    "id",
+    "post_id",
+    "post_version_id",
+    "model",
+    "prompt_hash",
+    "persona_version",
+    "input_source_ids",
+    "personal_context_ids",
+    "article_mode",
+    "apply_to_me_result_id",
+    "output_hash",
+    "gate_result",
+    "created_at",
+  ],
   post_tags: ["id", "post_id", "tag", "created_at"],
   post_chunks: [
     "id",
@@ -269,6 +284,7 @@ export type PublishVerificationCheckType =
 export type PublishVerificationStatus =
   (typeof publishVerificationStatuses)[number];
 export type QualityGateStatus = (typeof qualityGateStatuses)[number];
+export type PostGenerationRunGateResult = "passed" | "failed" | "blocked";
 export type PostVersionCreatedBy = "system" | "admin";
 export type PostCorrectionCreatedBy = "system" | "admin";
 export type AdminActionType = (typeof adminActionTypes)[number];
@@ -404,6 +420,22 @@ export type QualityGateResultRecord = {
   postId: string;
   postVersionId: string;
   status: QualityGateStatus;
+};
+
+export type PostGenerationRunRecord = {
+  applyToMeResultId: string;
+  articleMode: BlogArticleMode;
+  createdAt: Timestamp;
+  gateResult: PostGenerationRunGateResult;
+  id: string;
+  inputSourceIds: readonly string[];
+  model: string;
+  outputHash: string;
+  personalContextIds: readonly string[];
+  personaVersion: string;
+  postId: string;
+  postVersionId: string;
+  promptHash: string;
 };
 
 export type PostChunkRecord = {

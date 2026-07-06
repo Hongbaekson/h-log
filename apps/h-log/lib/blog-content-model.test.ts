@@ -100,6 +100,8 @@ describe("blog DB content model contract", () => {
     const claimFields: readonly string[] = BLOG_CONTENT_MODEL_TABLES.article_claims;
     const qualityGateFields: readonly string[] =
       BLOG_CONTENT_MODEL_TABLES.quality_gate_results;
+    const generationRunFields: readonly string[] =
+      BLOG_CONTENT_MODEL_TABLES.post_generation_runs;
 
     assert.ok(postFields.includes("current_version_id"));
     assert.equal(postFields.includes("content_markdown"), false);
@@ -167,6 +169,21 @@ describe("blog DB content model contract", () => {
       "gate_name",
       "status",
       "message",
+      "created_at",
+    ]);
+    assert.deepEqual(generationRunFields, [
+      "id",
+      "post_id",
+      "post_version_id",
+      "model",
+      "prompt_hash",
+      "persona_version",
+      "input_source_ids",
+      "personal_context_ids",
+      "article_mode",
+      "apply_to_me_result_id",
+      "output_hash",
+      "gate_result",
       "created_at",
     ]);
   });
