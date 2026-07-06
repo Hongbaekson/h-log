@@ -38,6 +38,14 @@ Local development
 - worker는 자동 발행 phase 전까지 비활성 또는 수동 실행 가능하게 둔다
 - DB/Redis는 public internet에 노출하지 않는다
 
+## Server-Local Compose Directory
+
+운영 OCI host의 H-Log Compose 기준 경로는 `/opt/stacks/h-log`다.
+
+- `ssh oci` 후 수동 배포, smoke, rollback은 이 경로에서 실행한다.
+- `/home/ubuntu/h-log`는 과거 수동 검증 경로였고, 운영 기준 경로로 사용하지 않는다.
+- 서버 로컬 env, credential, backup 파일은 저장소에 복사하지 않는다.
+
 ## Local Compose
 
 로컬 검증은 `apps/h-log`에서 실행한다.
@@ -139,6 +147,7 @@ OCI 접속이나 수동 배포 확인이 필요한 작업에서 사용자가 별
 예상 명령:
 
 ```bash
+cd /opt/stacks/h-log
 docker compose pull
 docker compose up -d
 docker compose ps

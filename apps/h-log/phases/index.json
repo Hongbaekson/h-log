@@ -37,7 +37,8 @@
     },
     {
       "dir": "topic-research-generation",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Steps 0-3 completed: source collection/ranking, research pack boundary, apply-to-me context ledger, and claim verification source policy are tested. No external collection, LLM generation, or publishing side effects were added."
     },
     {
       "dir": "auto-article-generation",

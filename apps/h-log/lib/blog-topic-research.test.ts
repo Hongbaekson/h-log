@@ -9,6 +9,7 @@ import {
   createTopicResearchRuntimeState,
   scoreTopicCandidate,
   topicResearchSourceTypes,
+  verifyArticleClaims,
   type PersonalContextItemRecord,
   type ResearchPackSourceInput,
   type TopicSourceInput,
@@ -462,6 +463,118 @@ describe("blog topic apply-to-me context ledger", () => {
     assert.equal(
       ready.generationInput?.personalContextSummaries[0]?.summary,
       context.summary,
+    );
+  });
+});
+
+describe("blog topic claim verification source policy", () => {
+  it("fails strong factual claims that have no source or evidence", () => {
+    const result = verifyArticleClaims({
+      checkedAt: collectedAt,
+      claims: [
+        {
+          claimText: "Runtime 9 changes the production API behavior.",
+          claimType: "api",
+          id: "claim-api-change",
+        },
+      ],
+      postId: "post-1",
+      postSources: [],
+      postVersionId: "version-1",
+    });
+
+    assert.equal(result.status, "failed");
+    assert.deepEqual(
+      result.qualityGateResults.map((gate) => gate.message),
+      ["claim claim-api-change requires an official/original source or evidence path"],
+    );
+    assert.equal(result.articleClaims[0]?.verified, false);
+    assert.equal(result.articleClaims[0]?.claimCategory, "factual");
+  });
+
+  it("blocks discovery-only and contradicted factual claims while separating opinion", () => {
+    const topic = collectTopicCandidates({
+      collectedAt,
+      sources: [createSource({ id: "source-official" })],
+    }).candidates[0];
+
+    assert.ok(topic);
+
+    const pack = buildResearchPack({
+      createdAt: collectedAt,
+      selectedAngle: "Verify runtime claims before generation.",
+      sources: [
+        createResearchPackSource({
+          id: "source-official",
+          sourceRole: "official",
+        }),
+        createResearchPackSource({
+          id: "source-geeknews",
+          publisher: "GeekNews",
+          sourceRole: "discovery",
+          url: "https://news.hada.io/topic?id=12345",
+        }),
+      ],
+      topicCandidate: topic,
+    });
+    const result = verifyArticleClaims({
+      checkedAt: collectedAt,
+      claims: [
+        {
+          claimText: "Runtime 9 is supported until 2030.",
+          claimType: "support",
+          id: "claim-discovery-only",
+          sourceId: "source-geeknews",
+        },
+        {
+          claimText: "Runtime 9 has no migration cost.",
+          claimType: "performance",
+          id: "claim-contradicted",
+          sourceAssessment: "contradicts",
+          sourceId: "source-official",
+        },
+        {
+          claimText: "This tradeoff is not worth changing H-Log yet.",
+          claimType: "opinion",
+          id: "claim-opinion",
+        },
+      ],
+      postId: "post-1",
+      postSources: pack.postSources,
+      postVersionId: "version-1",
+    });
+
+    assert.equal(result.status, "failed");
+    assert.deepEqual(
+      result.qualityGateResults.map((gate) => gate.gateName),
+      [
+        "claim_source_policy:claim-discovery-only",
+        "claim_source_policy:claim-contradicted",
+      ],
+    );
+    assert.deepEqual(
+      result.articleClaims.map((claim) => ({
+        category: claim.claimCategory,
+        id: claim.id,
+        verified: claim.verified,
+      })),
+      [
+        {
+          category: "factual",
+          id: "claim-discovery-only",
+          verified: false,
+        },
+        {
+          category: "factual",
+          id: "claim-contradicted",
+          verified: false,
+        },
+        {
+          category: "opinion",
+          id: "claim-opinion",
+          verified: false,
+        },
+      ],
     );
   });
 });

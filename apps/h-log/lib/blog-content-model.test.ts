@@ -97,6 +97,9 @@ describe("blog DB content model contract", () => {
     const chunkFields: readonly string[] = BLOG_CONTENT_MODEL_TABLES.post_chunks;
     const verificationFields: readonly string[] =
       BLOG_CONTENT_MODEL_TABLES.publish_verifications;
+    const claimFields: readonly string[] = BLOG_CONTENT_MODEL_TABLES.article_claims;
+    const qualityGateFields: readonly string[] =
+      BLOG_CONTENT_MODEL_TABLES.quality_gate_results;
 
     assert.ok(postFields.includes("current_version_id"));
     assert.equal(postFields.includes("content_markdown"), false);
@@ -141,6 +144,30 @@ describe("blog DB content model contract", () => {
       "response_code",
       "result",
       "checked_at",
+    ]);
+    assert.deepEqual(claimFields, [
+      "id",
+      "post_id",
+      "post_version_id",
+      "claim_text",
+      "claim_type",
+      "claim_category",
+      "source_id",
+      "evidence_quote",
+      "evidence_path",
+      "confidence",
+      "verified",
+      "verifier_result",
+      "created_at",
+    ]);
+    assert.deepEqual(qualityGateFields, [
+      "id",
+      "post_id",
+      "post_version_id",
+      "gate_name",
+      "status",
+      "message",
+      "created_at",
     ]);
   });
 

@@ -115,7 +115,7 @@ docker compose port hlog-redis 6379
 
 ```bash
 ssh oci
-cd <server-local-hlog-compose-dir>
+cd /opt/stacks/h-log
 docker compose pull
 docker compose up -d
 docker compose ps
@@ -159,7 +159,7 @@ rollback 기준은 이전 image tag와 이전 server-local env/Compose 설정이
 
 ```bash
 ssh oci
-cd <server-local-hlog-compose-dir>
+cd /opt/stacks/h-log
 docker compose ps
 docker compose logs --tail=100 hlog-web hlog-nginx
 ```

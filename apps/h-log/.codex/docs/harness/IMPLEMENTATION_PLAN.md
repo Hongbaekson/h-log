@@ -58,7 +58,7 @@ publish-state-and-admin: completed, steps 0-3 completed
 oci-server-runtime-setup: completed, steps 0-3 completed
 search-and-related-posts: completed, steps 0-3 completed
 post-publish-seo-automation: completed, steps 0-3 completed
-topic-research-generation: steps 0-2 completed, step 3 pending
+topic-research-generation: completed, steps 0-3 completed
 auto-article-generation
 diagram-assets-automation
 feedback-and-persona-learning
@@ -213,7 +213,14 @@ auto-publish-ops-hardening
 - 상태: completed
 - 결과: `lib/blog-topic-research.ts`와 `lib/blog-content-model.ts` 테스트로 `personal_context_items`와 `apply_to_me_results` contract를 고정했다. `allowed_usage`, `public_safe`, 5개 article mode(`experiment`, `applied_analysis`, `document_analysis`, `project_record`, `ops_incident`)를 기록하고, ledger에 없는 직접 경험 표현, forbidden/private context, evidence 없는 experiment mode는 generation 전 `failed_generation`으로 차단한다. Generation input에는 public-safe context summary만 전달한다.
 - 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-topic-research.test.ts`, RED focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-topic-research.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, `npm run typecheck`
-- 다음 실행 대상: `topic-research-generation / Step 3: claim-verification-source-policy`
+- 완료 후 `topic-research-generation / Step 3: claim-verification-source-policy`로 이동했다.
+
+### topic-research-generation / Step 3: claim-verification-source-policy
+
+- 상태: completed
+- 결과: `lib/blog-topic-research.ts`와 `lib/blog-content-model.ts` 테스트로 `article_claims`, `quality_gate_results`, factual/opinion claim 분리, source/evidence 필수 정책, discovery/reaction source만 있는 강한 claim 차단, source contradiction failure를 고정했다. 긴 evidence quote는 저장하지 않는다. 실제 외부 source verification, LLM 생성, 발행은 아직 수행하지 않는다.
+- 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-topic-research.test.ts`, RED focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-topic-research.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`
+- 다음 실행 대상: `auto-article-generation`
 
 ## 이후 DB-first 단계
 
@@ -222,7 +229,7 @@ auto-publish-ops-hardening
 3. 발행 상태와 최소 관리자 운영
 4. 하이브리드 검색과 관련 글
 5. 발행 후 SEO/AI crawler 자동화 - completed, Steps 0-3 completed
-6. 주제 수집과 research pack - steps 0-2 completed, next step is claim-verification-source-policy
+6. 주제 수집과 research pack - completed, Steps 0-3 completed
 7. 자동 글 생성
 8. 다이어그램 asset 자동화
 9. 성과 피드백과 persona learning
@@ -233,5 +240,5 @@ auto-publish-ops-hardening
 - Harness baseline 문서와 phase template이 존재한다.
 - root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
 - `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
-- 다음 실행 대상은 `topic-research-generation / Step 3: claim-verification-source-policy`이다.
+- 다음 실행 대상은 `auto-article-generation`이다.
 - 문서 검증과 `git diff --check`가 통과한다.

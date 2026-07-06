@@ -1,9 +1,12 @@
 import { createHash } from "node:crypto";
 
 import {
+  type ArticleClaimRecord,
+  type ArticleClaimType,
   blogArticleModes,
   type BlogArticleMode,
   type PostSourceRole,
+  type QualityGateResultRecord,
   type Timestamp,
 } from "./blog-content-model.ts";
 
@@ -241,6 +244,39 @@ export type BuildApplyToMeContextInput = {
 export type BuildApplyToMeContextResult = {
   applyToMeResult: ApplyToMeResultRecord;
   generationInput: ApplyToMeGenerationInput | null;
+};
+
+export type ArticleClaimSourceAssessment =
+  | "supports"
+  | "contradicts"
+  | "neutral";
+
+export type ArticleClaimInput = {
+  claimText: string;
+  claimType: ArticleClaimType;
+  confidence?: number;
+  evidencePath?: string;
+  evidenceQuote?: string;
+  id: string;
+  sourceAssessment?: ArticleClaimSourceAssessment;
+  sourceId?: string;
+};
+
+export type VerifyArticleClaimsInput = {
+  checkedAt: Timestamp;
+  claims: readonly ArticleClaimInput[];
+  postId: string;
+  postSources: readonly Pick<
+    ResearchPackPostSourceRecord,
+    "id" | "sourceRole"
+  >[];
+  postVersionId: string;
+};
+
+export type VerifyArticleClaimsResult = {
+  articleClaims: ArticleClaimRecord[];
+  qualityGateResults: QualityGateResultRecord[];
+  status: "passed" | "failed";
 };
 
 export type TopicSourceRejection = {
@@ -576,6 +612,136 @@ export function buildApplyToMeContext(
   };
 }
 
+export function verifyArticleClaims(
+  input: VerifyArticleClaimsInput,
+): VerifyArticleClaimsResult {
+  const sourceById = new Map(input.postSources.map((source) => [source.id, source]));
+  const articleClaims: ArticleClaimRecord[] = [];
+  const qualityGateResults: QualityGateResultRecord[] = [];
+
+  for (const claim of input.claims) {
+    const claimText = claim.claimText.trim();
+    const claimCategory =
+      claim.claimType === "opinion" ? "opinion" : "factual";
+    const sourceId = normalizeOptionalString(claim.sourceId);
+    const evidencePath = normalizeOptionalString(claim.evidencePath);
+    const normalizedQuote = normalizeArticleClaimEvidenceQuote(claim);
+    const source = sourceId ? sourceById.get(sourceId) : undefined;
+    const failureMessage =
+      claimCategory === "factual"
+        ? getFactualArticleClaimFailureMessage({
+            claim,
+            claimText,
+            evidencePath,
+            evidenceQuoteError: normalizedQuote.error,
+            source,
+            sourceId,
+          })
+        : normalizedQuote.error;
+    const verified = claimCategory === "factual" && failureMessage === null;
+
+    articleClaims.push({
+      claimCategory,
+      claimText,
+      claimType: claim.claimType,
+      confidence: claim.confidence ?? null,
+      createdAt: input.checkedAt,
+      evidencePath,
+      evidenceQuote: normalizedQuote.value,
+      id: claim.id,
+      postId: input.postId,
+      postVersionId: input.postVersionId,
+      sourceId,
+      verified,
+      verifierResult:
+        claimCategory === "opinion"
+          ? "not_applicable_opinion"
+          : failureMessage ?? getVerifiedArticleClaimResult(source, evidencePath),
+    });
+
+    if (failureMessage) {
+      qualityGateResults.push({
+        createdAt: input.checkedAt,
+        gateName: `claim_source_policy:${claim.id}`,
+        id: `quality-gate:${input.postId}:${input.postVersionId}:${toIdSegment(
+          claim.id,
+        )}`,
+        message: failureMessage,
+        postId: input.postId,
+        postVersionId: input.postVersionId,
+        status: "failed",
+      });
+    }
+  }
+
+  return {
+    articleClaims,
+    qualityGateResults,
+    status: qualityGateResults.length > 0 ? "failed" : "passed",
+  };
+}
+
+function getFactualArticleClaimFailureMessage({
+  claim,
+  claimText,
+  evidencePath,
+  evidenceQuoteError,
+  source,
+  sourceId,
+}: {
+  claim: ArticleClaimInput;
+  claimText: string;
+  evidencePath: string | null;
+  evidenceQuoteError: string | null;
+  source: Pick<ResearchPackPostSourceRecord, "id" | "sourceRole"> | undefined;
+  sourceId: string | null;
+}): string | null {
+  if (!claimText) {
+    return `claim ${claim.id} text is required`;
+  }
+
+  if (evidenceQuoteError) {
+    return evidenceQuoteError;
+  }
+
+  if (sourceId && !source) {
+    return `claim ${claim.id} references unknown source ${sourceId}`;
+  }
+
+  if (claim.sourceAssessment === "contradicts") {
+    return `claim ${claim.id} contradicts selected source`;
+  }
+
+  const sourceCanSupportClaim = source
+    ? canSourceRoleSupportClaims(source.sourceRole)
+    : false;
+
+  if (claim.sourceAssessment === "neutral" && !evidencePath) {
+    return `claim ${claim.id} is not supported by selected source`;
+  }
+
+  if (!sourceCanSupportClaim && !evidencePath) {
+    return `claim ${claim.id} requires an official/original source or evidence path`;
+  }
+
+  return null;
+}
+
+function getVerifiedArticleClaimResult(
+  source: Pick<ResearchPackPostSourceRecord, "id" | "sourceRole"> | undefined,
+  evidencePath: string | null,
+): string {
+  if (source && canSourceRoleSupportClaims(source.sourceRole)) {
+    return "verified_by_official_or_original_source";
+  }
+
+  if (evidencePath) {
+    return "verified_by_evidence_path";
+  }
+
+  return "verified";
+}
+
 function inferApplyToMeArticleMode({
   commandsOrChecks,
   directExperienceClaims,
@@ -907,6 +1073,40 @@ function normalizeComparableText(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
 
+const MAX_ARTICLE_CLAIM_EVIDENCE_QUOTE_CHARS = 240;
+
+function normalizeArticleClaimEvidenceQuote(claim: ArticleClaimInput): {
+  error: string | null;
+  value: string | null;
+} {
+  const quote = normalizeOptionalString(claim.evidenceQuote);
+
+  if (!quote) {
+    return {
+      error: null,
+      value: null,
+    };
+  }
+
+  if (quote.length > MAX_ARTICLE_CLAIM_EVIDENCE_QUOTE_CHARS) {
+    return {
+      error: `claim ${claim.id} evidence quote must be ${MAX_ARTICLE_CLAIM_EVIDENCE_QUOTE_CHARS} characters or fewer`,
+      value: null,
+    };
+  }
+
+  return {
+    error: null,
+    value: quote,
+  };
+}
+
+function normalizeOptionalString(value: string | undefined): string | null {
+  const trimmed = value?.trim();
+
+  return trimmed ? trimmed : null;
+}
+
 function uniqueTrimmedStrings(values: readonly string[]): string[] {
   const result: string[] = [];
   const seen = new Set<string>();
@@ -927,6 +1127,16 @@ function uniqueTrimmedStrings(values: readonly string[]): string[] {
 
 function scoreSignal(value: boolean | undefined, points: number): number {
   return value ? points : 0;
+}
+
+function toIdSegment(value: string): string {
+  return (
+    value
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "unknown"
+  );
 }
 
 function normalizeTopicSourceUrl(sourceUrl: string): string {

@@ -68,6 +68,30 @@ export const BLOG_CONTENT_MODEL_TABLES = {
     "summary",
     "created_at",
   ],
+  article_claims: [
+    "id",
+    "post_id",
+    "post_version_id",
+    "claim_text",
+    "claim_type",
+    "claim_category",
+    "source_id",
+    "evidence_quote",
+    "evidence_path",
+    "confidence",
+    "verified",
+    "verifier_result",
+    "created_at",
+  ],
+  quality_gate_results: [
+    "id",
+    "post_id",
+    "post_version_id",
+    "gate_name",
+    "status",
+    "message",
+    "created_at",
+  ],
   post_tags: ["id", "post_id", "tag", "created_at"],
   post_chunks: [
     "id",
@@ -149,6 +173,18 @@ export const blogArticleModes = [
   "ops_incident",
 ] as const;
 
+export const articleClaimTypes = [
+  "version",
+  "date",
+  "price",
+  "api",
+  "performance",
+  "security",
+  "benchmark",
+  "support",
+  "opinion",
+] as const;
+
 export const postSourceRoles = [
   "official",
   "original",
@@ -197,6 +233,8 @@ export const publishVerificationCheckTypes = [
 
 export const publishVerificationStatuses = ["passed", "failed"] as const;
 
+export const qualityGateStatuses = ["passed", "failed", "warning"] as const;
+
 export const adminActionTypes = [
   "preview",
   "save",
@@ -218,6 +256,8 @@ export const adminActionActorTypes = [
 
 export type BlogPostStatus = (typeof blogPostStatuses)[number];
 export type BlogArticleMode = (typeof blogArticleModes)[number];
+export type ArticleClaimType = (typeof articleClaimTypes)[number];
+export type ArticleClaimCategory = "factual" | "opinion";
 export type PostSourceRole = (typeof postSourceRoles)[number];
 export type RequiredPublishJobType = (typeof requiredPublishJobTypes)[number];
 export type RetryablePublishJobType = (typeof retryablePublishJobTypes)[number];
@@ -228,6 +268,7 @@ export type PublishVerificationCheckType =
   (typeof publishVerificationCheckTypes)[number];
 export type PublishVerificationStatus =
   (typeof publishVerificationStatuses)[number];
+export type QualityGateStatus = (typeof qualityGateStatuses)[number];
 export type PostVersionCreatedBy = "system" | "admin";
 export type PostCorrectionCreatedBy = "system" | "admin";
 export type AdminActionType = (typeof adminActionTypes)[number];
@@ -337,6 +378,32 @@ export type PostTagRecord = {
   id: string;
   postId: string;
   tag: string;
+};
+
+export type ArticleClaimRecord = {
+  claimCategory: ArticleClaimCategory;
+  claimText: string;
+  claimType: ArticleClaimType;
+  confidence: number | null;
+  createdAt: Timestamp;
+  evidencePath: string | null;
+  evidenceQuote: string | null;
+  id: string;
+  postId: string;
+  postVersionId: string;
+  sourceId: string | null;
+  verified: boolean;
+  verifierResult: string;
+};
+
+export type QualityGateResultRecord = {
+  createdAt: Timestamp;
+  gateName: string;
+  id: string;
+  message: string;
+  postId: string;
+  postVersionId: string;
+  status: QualityGateStatus;
 };
 
 export type PostChunkRecord = {

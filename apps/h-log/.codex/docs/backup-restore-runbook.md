@@ -55,7 +55,7 @@ PowerShell에서는 timestamp와 redirection 구문을 셸에 맞게 바꾼다. 
 
 ```bash
 ssh oci
-cd <server-local-hlog-compose-dir>
+cd /opt/stacks/h-log
 mkdir -p <server-local-backup-dir>
 docker compose exec -T hlog-postgres sh -lc 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --format=custom --no-owner --no-acl' > <server-local-backup-dir>/hlog-postgres-$(date -u +%Y%m%dT%H%M%SZ)-<git-sha>-pg16.dump
 ```

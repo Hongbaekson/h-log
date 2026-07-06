@@ -23,7 +23,8 @@
     {
       "step": 3,
       "name": "claim-verification-source-policy",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added the pure claim verification source policy contract with article_claims and quality_gate_results fields, source/evidence requirements for factual claims, discovery/reaction source blocking, source contradiction failures, opinion separation, and short evidence quote storage."
     }
   ]
 }
