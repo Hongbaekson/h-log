@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "persona-and-mode-selection",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added the persona and mode selection contract: experiment mode now requires concrete experiment evidence, and generation runs record persona version, selected article mode, input source ids, personal context ids, prompt hash, and output hash without LLM, DB, or publish side effects."
     },
     {
       "step": 2,

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  createArticleGenerationRunRecord,
   validateArticleWriterOutput,
   type ArticleWriterOutput,
 } from "./blog-article-generation.ts";
@@ -110,6 +111,25 @@ describe("blog article generation output schema", () => {
     );
   });
 
+  it("blocks experiment mode without experiment evidence", () => {
+    const result = validateArticleWriterOutput({
+      generatedAt,
+      output: createWriterOutput({
+        articleMode: "experiment",
+        evidencePaths: [],
+      }),
+      postId: "post-generated",
+      postVersionId: "version-generated",
+    });
+
+    assert.equal(result.status, "failed");
+    assert.equal(result.nextPostStatus, "failed_generation");
+    assert.deepEqual(
+      result.qualityGateResults.map((gate) => gate.gateName),
+      ["article_output_schema:experiment_evidence"],
+    );
+  });
+
   it("keeps writer block decisions private with an explicit block reason", () => {
     const result = validateArticleWriterOutput({
       generatedAt,
@@ -126,5 +146,39 @@ describe("blog article generation output schema", () => {
     assert.equal(result.canExposePublicly, false);
     assert.equal(result.normalizedOutput?.publishDecision, "block");
     assert.deepEqual(result.qualityGateResults, []);
+  });
+
+  it("records persona version and selected context in the generation run", () => {
+    const result = validateArticleWriterOutput({
+      generatedAt,
+      output: createWriterOutput({
+        articleMode: "applied_analysis",
+        personalContextIds: ["context-hlog-worker", "context-hlog-worker"],
+      }),
+      postId: "post-generated",
+      postVersionId: "version-generated",
+    });
+
+    assert.equal(result.status, "passed");
+    assert.ok(result.normalizedOutput);
+
+    const generationRun = createArticleGenerationRunRecord({
+      applyToMeResultId: "apply-to-me-runtime-9",
+      createdAt: generatedAt,
+      gateResult: "passed",
+      inputSourceIds: ["source-runtime-9", "source-runtime-9"],
+      model: "test-writer",
+      output: result.normalizedOutput,
+      personaVersion: "hlog-persona-v2",
+      postId: "post-generated",
+      postVersionId: "version-generated",
+      promptHash: "prompt-hash-runtime-9",
+    });
+
+    assert.equal(generationRun.personaVersion, "hlog-persona-v2");
+    assert.equal(generationRun.articleMode, "applied_analysis");
+    assert.deepEqual(generationRun.personalContextIds, ["context-hlog-worker"]);
+    assert.deepEqual(generationRun.inputSourceIds, ["source-runtime-9"]);
+    assert.match(generationRun.outputHash, /^[a-f0-9]{64}$/);
   });
 });
