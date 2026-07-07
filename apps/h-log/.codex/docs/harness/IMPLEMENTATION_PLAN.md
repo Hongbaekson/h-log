@@ -59,7 +59,7 @@ oci-server-runtime-setup: completed, steps 0-3 completed
 search-and-related-posts: completed, steps 0-3 completed
 post-publish-seo-automation: completed, steps 0-3 completed
 topic-research-generation: completed, steps 0-3 completed
-auto-article-generation: steps 0-1 completed, step 2 pending
+auto-article-generation: steps 0-2 completed, step 3 pending
 diagram-assets-automation
 feedback-and-persona-learning
 auto-publish-ops-hardening
@@ -235,7 +235,13 @@ auto-publish-ops-hardening
 - 상태: completed
 - 결과: `lib/blog-article-generation.ts`와 테스트로 `experiment` mode가 concrete experiment evidence path 없이 통과하지 못하도록 고정했다. `createArticleGenerationRunRecord`는 persona version, selected article mode, input source ids, personal_context_ids, prompt hash, output hash를 `post_generation_runs` 형태로 기록한다. Persona는 style/version 기록이며 factual claim verification을 대체하지 않는다. 실제 LLM 호출, DB 저장, 공개 발행 side effect는 추가하지 않았다.
 - 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-article-generation.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-article-generation.test.ts`, `npm run test`, `npm run typecheck`
-- 다음 실행 대상: `auto-article-generation / Step 2: quality-gate-publish-decision`
+
+### auto-article-generation / Step 2: quality-gate-publish-decision
+
+- 상태: completed
+- 결과: `lib/blog-article-generation.ts`와 테스트로 `unsafe_claim`, `privacy_risk`, `no_evidence`, `weak_sources`, `duplicate_topic`, `style_drift`를 publish quality gate failure로 기록하는 contract를 고정했다. Gate failure는 `quality_gate_results`에 남고 `failed_generation`/private 상태를 유지한다. 통과한 output도 `ready_to_publish` draft content까지만 만들며 `ready_to_publish -> published` 직접 전환, LLM 호출, DB 저장, 공개 발행 side effect는 추가하지 않았다.
+- 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-article-generation.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-article-generation.test.ts`, `npm run test`, `npm run typecheck`, `npm run build`
+- 다음 실행 대상: `auto-article-generation / Step 3: daily-cron-draft-to-publish`
 
 ## 이후 DB-first 단계
 
@@ -245,7 +251,7 @@ auto-publish-ops-hardening
 4. 하이브리드 검색과 관련 글
 5. 발행 후 SEO/AI crawler 자동화 - completed, Steps 0-3 completed
 6. 주제 수집과 research pack - completed, Steps 0-3 completed
-7. 자동 글 생성 - steps 0-1 completed, next step is quality-gate-publish-decision
+7. 자동 글 생성 - steps 0-2 completed, next step is daily-cron-draft-to-publish
 8. 다이어그램 asset 자동화
 9. 성과 피드백과 persona learning
 10. 운영 안정화
@@ -255,5 +261,5 @@ auto-publish-ops-hardening
 - Harness baseline 문서와 phase template이 존재한다.
 - root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
 - `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
-- 다음 실행 대상은 `auto-article-generation / Step 2: quality-gate-publish-decision`이다.
+- 다음 실행 대상은 `auto-article-generation / Step 3: daily-cron-draft-to-publish`이다.
 - 문서 검증과 `git diff --check`가 통과한다.

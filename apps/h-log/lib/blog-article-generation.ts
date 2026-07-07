@@ -20,6 +20,24 @@ export const articleWriterPublishDecisions = ["publish", "block"] as const;
 export type ArticleWriterPublishDecision =
   (typeof articleWriterPublishDecisions)[number];
 
+export const articleQualityGateFailureReasons = [
+  "unsafe_claim",
+  "privacy_risk",
+  "no_evidence",
+  "weak_sources",
+  "duplicate_topic",
+  "style_drift",
+] as const;
+
+export type ArticleQualityGateFailureReason =
+  (typeof articleQualityGateFailureReasons)[number];
+
+export type ArticleQualityGateFailureInput = {
+  message?: string;
+  reason: ArticleQualityGateFailureReason;
+  subjectId?: string;
+};
+
 export type ArticleWriterClaim = {
   confidence?: number;
   evidencePath?: string;
@@ -67,10 +85,12 @@ export type NormalizedArticleWriterOutput = Omit<
 };
 
 export type ValidateArticleWriterOutputInput = {
+  existingPublishedSlugs?: readonly string[];
   generatedAt: Timestamp;
   output: ArticleWriterOutput;
   postId: string;
   postVersionId: string;
+  qualityGateFailures?: readonly ArticleQualityGateFailureInput[];
 };
 
 export type ValidateArticleWriterOutputResult = {
@@ -99,7 +119,10 @@ export function validateArticleWriterOutput(
   input: ValidateArticleWriterOutputInput,
 ): ValidateArticleWriterOutputResult {
   const normalized = normalizeArticleWriterOutput(input.output);
-  const qualityGateResults = buildArticleOutputSchemaFailures(input, normalized);
+  const qualityGateResults = [
+    ...buildArticleOutputSchemaFailures(input, normalized),
+    ...buildArticlePublishQualityGateFailures(input, normalized),
+  ];
 
   if (qualityGateResults.length > 0) {
     return {
@@ -161,6 +184,78 @@ export function createArticleGenerationRunRecord(
     postVersionId: input.postVersionId,
     promptHash: normalizeRequiredString(input.promptHash, "prompt_hash"),
   };
+}
+
+const DEFAULT_QUALITY_GATE_MESSAGES: Record<
+  ArticleQualityGateFailureReason,
+  string
+> = {
+  duplicate_topic: "article duplicates an existing published topic",
+  no_evidence: "article has no source, command, code, log, or other evidence",
+  privacy_risk: "article may expose private or sensitive information",
+  style_drift: "article does not match the active persona style contract",
+  unsafe_claim: "article contains a claim that failed verification",
+  weak_sources: "article sources are too weak for publication",
+};
+
+function buildArticlePublishQualityGateFailures(
+  input: ValidateArticleWriterOutputInput,
+  output: NormalizedArticleWriterOutput,
+): QualityGateResultRecord[] {
+  const failures: QualityGateResultRecord[] = [];
+
+  if (
+    input.existingPublishedSlugs?.some((slug) => slug.trim() === output.slug)
+  ) {
+    failures.push(
+      createArticleQualityGateFailure(input, {
+        message: DEFAULT_QUALITY_GATE_MESSAGES.duplicate_topic,
+        reason: "duplicate_topic",
+        subjectId: output.slug,
+      }),
+    );
+  }
+
+  for (const failure of input.qualityGateFailures ?? []) {
+    failures.push(createArticleQualityGateFailure(input, failure));
+  }
+
+  return failures;
+}
+
+function createArticleQualityGateFailure(
+  input: ValidateArticleWriterOutputInput,
+  failure: ArticleQualityGateFailureInput,
+): QualityGateResultRecord {
+  assertArticleQualityGateFailureReason(failure.reason);
+
+  const subjectId = normalizeOptionalString(failure.subjectId);
+  const message =
+    normalizeOptionalString(failure.message) ??
+    DEFAULT_QUALITY_GATE_MESSAGES[failure.reason];
+  const idSuffix = subjectId
+    ? `${failure.reason}:${subjectId}`
+    : failure.reason;
+
+  return {
+    createdAt: input.generatedAt,
+    gateName: `article_quality_gate:${failure.reason}`,
+    id: `quality-gate:${input.postId}:${input.postVersionId}:${toIdSegment(
+      idSuffix,
+    )}`,
+    message,
+    postId: input.postId,
+    postVersionId: input.postVersionId,
+    status: "failed",
+  };
+}
+
+function assertArticleQualityGateFailureReason(
+  reason: ArticleQualityGateFailureReason,
+): void {
+  if (!articleQualityGateFailureReasons.includes(reason)) {
+    throw new Error(`unsupported article quality gate failure reason: ${reason}`);
+  }
 }
 
 function normalizeArticleWriterOutput(

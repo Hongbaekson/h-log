@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "quality-gate-publish-decision",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added the publish quality gate decision contract: unsafe_claim, privacy_risk, no_evidence, weak_sources, duplicate_topic, and style_drift failures are recorded as quality_gate_results, remain failed_generation/private, and never bypass ready_to_publish into published. Passing generation still only creates ready_to_publish draft content and has no LLM, DB, or publish side effects."
     },
     {
       "step": 3,

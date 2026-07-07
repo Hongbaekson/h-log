@@ -6,6 +6,12 @@ import {
   validateArticleWriterOutput,
   type ArticleWriterOutput,
 } from "./blog-article-generation.ts";
+import {
+  createPostVersionContentFromMarkdown,
+  selectPublicBlogRouteEntries,
+  type PostRecord,
+  type PostVersionRecord,
+} from "./blog-content-model.ts";
 
 const generatedAt = "2026-07-06T00:00:00.000Z";
 
@@ -128,6 +134,85 @@ describe("blog article generation output schema", () => {
       result.qualityGateResults.map((gate) => gate.gateName),
       ["article_output_schema:experiment_evidence"],
     );
+  });
+
+  it("classifies publish quality gate failures and keeps them private", () => {
+    const result = validateArticleWriterOutput({
+      existingPublishedSlugs: ["runtime-9-release-note"],
+      generatedAt,
+      output: createWriterOutput(),
+      postId: "post-generated",
+      postVersionId: "version-generated",
+      qualityGateFailures: [
+        {
+          message: "claim contradicts selected official source",
+          reason: "unsafe_claim",
+          subjectId: "claim-runtime-api",
+        },
+        {
+          message: "content includes an internal host reference",
+          reason: "privacy_risk",
+        },
+        {
+          message: "writer output has no command, code, source, or log evidence",
+          reason: "no_evidence",
+        },
+        {
+          message: "research pack only has discovery sources",
+          reason: "weak_sources",
+        },
+        {
+          message: "persona check detected summary-like prose",
+          reason: "style_drift",
+        },
+      ],
+    });
+
+    assert.equal(result.status, "failed");
+    assert.equal(result.nextPostStatus, "failed_generation");
+    assert.equal(result.canExposePublicly, false);
+    assert.equal(result.postVersionContent, null);
+    assert.deepEqual(
+      result.qualityGateResults.map((gate) => gate.gateName),
+      [
+        "article_quality_gate:duplicate_topic",
+        "article_quality_gate:unsafe_claim",
+        "article_quality_gate:privacy_risk",
+        "article_quality_gate:no_evidence",
+        "article_quality_gate:weak_sources",
+        "article_quality_gate:style_drift",
+      ],
+    );
+
+    const content = createPostVersionContentFromMarkdown("# Hidden\n\nBody.\n");
+    const failedPost: PostRecord = {
+      articleMode: "document_analysis",
+      createdAt: generatedAt,
+      currentVersionId: "version-generated",
+      description: "failed generated article",
+      id: "post-generated",
+      publishedAt: null,
+      retractedAt: null,
+      slug: "runtime-9-release-note",
+      status: result.nextPostStatus,
+      title: "Runtime 9 release note",
+      unpublishedAt: null,
+      updatedAt: generatedAt,
+    };
+    const failedVersion: PostVersionRecord = {
+      ...content,
+      createdAt: generatedAt,
+      createdBy: "system",
+      description: failedPost.description,
+      id: "version-generated",
+      personaVersionId: "hlog-persona-v2",
+      postId: "post-generated",
+      researchPackId: "research-pack-runtime-9",
+      title: failedPost.title,
+      versionNo: 1,
+    };
+
+    assert.deepEqual(selectPublicBlogRouteEntries([failedPost], [failedVersion]), []);
   });
 
   it("keeps writer block decisions private with an explicit block reason", () => {
