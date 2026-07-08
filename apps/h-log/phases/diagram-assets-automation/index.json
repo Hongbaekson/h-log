@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "diagram-trigger-policy",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added the diagram trigger policy contract: diagram jobs are scheduled only for architecture, workflow, infra, or data-flow topics, daily diagram quota prevents unbounded generation, and diagram generation failures stay retryable without hiding the published post."
     },
     {
       "step": 1,

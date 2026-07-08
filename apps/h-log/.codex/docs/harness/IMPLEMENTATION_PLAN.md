@@ -248,6 +248,15 @@ auto-publish-ops-hardening
 - 결과: `lib/blog-daily-auto-article.ts`와 테스트로 collect/rank/research/apply/generate/validate/create version/required publish jobs/published 전환을 하나의 bounded daily pipeline contract로 연결했다. 같은 daily cron이 중복 실행돼도 하루 1회만 published 상태가 되고, `no_topic`, `weak_sources`, `budget_exceeded`, required publish job retry limit 초과는 public route에 글을 만들지 않는다. 실제 외부 LLM/API 호출과 공개 발행 side effect는 `generateArticle`, `runRequiredPublishJob` adapter 뒤에 둔다.
 - 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-daily-auto-article.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-daily-auto-article.test.ts`, `npm run typecheck`
 
+## 현재 다이어그램 asset 자동화 진행 상태
+
+### diagram-assets-automation / Step 0: diagram-trigger-policy
+
+- 상태: completed
+- 결과: `lib/blog-diagram-assets.ts`와 테스트로 diagram trigger policy contract를 고정했다. Published current version 글 중 topic이 `architecture`, `workflow`, `infra`, `data-flow`인 경우에만 retryable `diagram` publish job을 예약하고, `diagramGenerationMax` quota 초과 시 job을 만들지 않는다. Diagram 생성 실패는 retryable failure로 기록해서 글의 `published` 상태를 유지하며, required publish 검증과 분리한다.
+- 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-diagram-assets.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-diagram-assets.test.ts`
+- 다음 실행 대상은 `diagram-assets-automation / Step 1: diagram-asset-storage`이다.
+
 ## 이후 DB-first 단계
 
 1. DB 기반 수동 발행 블로그
