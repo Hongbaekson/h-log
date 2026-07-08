@@ -23,7 +23,8 @@
     {
       "step": 3,
       "name": "daily-cron-draft-to-publish",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added the bounded daily auto article pipeline contract: duplicate daily cron runs cannot publish twice, no_topic/weak_sources/budget_exceeded exits stay private, required publish jobs stop at the configured retry limit, and a successful run moves through ready_to_publish -> publishing -> verifying -> published without external side effects outside adapters."
     }
   ]
 }

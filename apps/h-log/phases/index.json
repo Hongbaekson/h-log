@@ -42,7 +42,8 @@
     },
     {
       "dir": "auto-article-generation",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Steps 0-3 completed: article writer output schema, persona/mode selection, quality gate publish decision, and bounded daily cron draft-to-publish pipeline are tested. External LLM/API calls and real publish side effects remain adapter-gated."
     },
     {
       "dir": "diagram-assets-automation",
