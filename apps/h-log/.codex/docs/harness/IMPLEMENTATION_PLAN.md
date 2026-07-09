@@ -255,7 +255,14 @@ auto-publish-ops-hardening
 - 상태: completed
 - 결과: `lib/blog-diagram-assets.ts`와 테스트로 diagram trigger policy contract를 고정했다. Published current version 글 중 topic이 `architecture`, `workflow`, `infra`, `data-flow`인 경우에만 retryable `diagram` publish job을 예약하고, `diagramGenerationMax` quota 초과 시 job을 만들지 않는다. Diagram 생성 실패는 retryable failure로 기록해서 글의 `published` 상태를 유지하며, required publish 검증과 분리한다.
 - 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-diagram-assets.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-diagram-assets.test.ts`
-- 다음 실행 대상은 `diagram-assets-automation / Step 1: diagram-asset-storage`이다.
+- 완료 후 `diagram-assets-automation / Step 1: diagram-asset-storage`로 이동했다.
+
+### diagram-assets-automation / Step 1: diagram-asset-storage
+
+- 상태: completed
+- 결과: `lib/blog-content-model.ts`의 `post_assets` contract와 `lib/blog-diagram-assets.ts`의 `storeDiagramAsset`으로 diagram asset 저장 경계를 고정했다. Asset은 current published post version에 묶이고, public-safe `/blog-assets/` path, alt text, `generated_by`를 요구한다. Private workspace path, 내부 host, credential-like text는 거부한다. 삭제/교체는 `recordDiagramAssetAuditAction`으로 감사 가능한 기록을 남긴다.
+- 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-diagram-assets.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-diagram-assets.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`
+- 다음 실행 대상은 `diagram-assets-automation / Step 2: article-diagram-insertion-gate`이다.
 
 ## 이후 DB-first 단계
 

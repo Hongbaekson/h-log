@@ -107,6 +107,16 @@ export const BLOG_CONTENT_MODEL_TABLES = {
     "gate_result",
     "created_at",
   ],
+  post_assets: [
+    "id",
+    "post_id",
+    "post_version_id",
+    "type",
+    "path",
+    "alt",
+    "generated_by",
+    "created_at",
+  ],
   post_tags: ["id", "post_id", "tag", "created_at"],
   post_chunks: [
     "id",
@@ -208,6 +218,8 @@ export const postSourceRoles = [
   "reference",
 ] as const;
 
+export const postAssetTypes = ["image", "diagram", "og"] as const;
+
 export const requiredPublishJobTypes = [
   "public_url",
   "md_url",
@@ -274,6 +286,7 @@ export type BlogArticleMode = (typeof blogArticleModes)[number];
 export type ArticleClaimType = (typeof articleClaimTypes)[number];
 export type ArticleClaimCategory = "factual" | "opinion";
 export type PostSourceRole = (typeof postSourceRoles)[number];
+export type PostAssetType = (typeof postAssetTypes)[number];
 export type RequiredPublishJobType = (typeof requiredPublishJobTypes)[number];
 export type RetryablePublishJobType = (typeof retryablePublishJobTypes)[number];
 export type PublishJobType = RequiredPublishJobType | RetryablePublishJobType;
@@ -436,6 +449,17 @@ export type PostGenerationRunRecord = {
   postId: string;
   postVersionId: string;
   promptHash: string;
+};
+
+export type PostAssetRecord = {
+  alt: string;
+  createdAt: Timestamp;
+  generatedBy: string;
+  id: string;
+  path: string;
+  postId: string;
+  postVersionId: string;
+  type: PostAssetType;
 };
 
 export type PostChunkRecord = {

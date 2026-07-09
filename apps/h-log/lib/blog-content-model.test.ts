@@ -102,6 +102,7 @@ describe("blog DB content model contract", () => {
       BLOG_CONTENT_MODEL_TABLES.quality_gate_results;
     const generationRunFields: readonly string[] =
       BLOG_CONTENT_MODEL_TABLES.post_generation_runs;
+    const assetFields: readonly string[] = BLOG_CONTENT_MODEL_TABLES.post_assets;
 
     assert.ok(postFields.includes("current_version_id"));
     assert.equal(postFields.includes("content_markdown"), false);
@@ -184,6 +185,16 @@ describe("blog DB content model contract", () => {
       "apply_to_me_result_id",
       "output_hash",
       "gate_result",
+      "created_at",
+    ]);
+    assert.deepEqual(assetFields, [
+      "id",
+      "post_id",
+      "post_version_id",
+      "type",
+      "path",
+      "alt",
+      "generated_by",
       "created_at",
     ]);
   });

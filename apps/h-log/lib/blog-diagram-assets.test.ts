@@ -8,7 +8,9 @@ import {
 } from "./blog-content-model.ts";
 import {
   planDiagramGenerationJob,
+  recordDiagramAssetAuditAction,
   recordDiagramGenerationFailure,
+  storeDiagramAsset,
 } from "./blog-diagram-assets.ts";
 
 const baseTimestamp = "2026-07-08T00:00:00.000Z";
@@ -133,5 +135,82 @@ describe("diagram asset trigger policy", () => {
     assert.equal(result.job.retryCount, 1);
     assert.equal(result.job.importance, "retryable");
     assert.equal(result.job.error, "diagram provider timeout");
+  });
+});
+
+describe("diagram asset storage policy", () => {
+  it("rejects diagram assets without alt text", () => {
+    assert.throws(
+      () =>
+        storeDiagramAsset({
+          alt: " ",
+          assetPath: "/blog-assets/diagrams/diagram-trigger-policy.svg",
+          createdAt: baseTimestamp,
+          generatedBy: "handdrawn-diagram",
+          id: "asset-diagram",
+          post: createPost(),
+          version: createVersion(),
+        }),
+      /alt text is required/,
+    );
+  });
+
+  it("stores diagram assets with public-safe paths bound to a post version", () => {
+    const asset = storeDiagramAsset({
+      alt: "Workflow from source collection to published article",
+      assetPath: "/blog-assets/diagrams/diagram-trigger-policy.svg",
+      createdAt: baseTimestamp,
+      generatedBy: "handdrawn-diagram",
+      id: "asset-diagram",
+      post: createPost(),
+      version: createVersion(),
+    });
+
+    assert.deepEqual(asset, {
+      alt: "Workflow from source collection to published article",
+      createdAt: baseTimestamp,
+      generatedBy: "handdrawn-diagram",
+      id: "asset-diagram",
+      path: "/blog-assets/diagrams/diagram-trigger-policy.svg",
+      postId: "post-diagram",
+      postVersionId: "version-diagram",
+      type: "diagram",
+    });
+  });
+
+  it("rejects private or local diagram asset paths", () => {
+    assert.throws(
+      () =>
+        storeDiagramAsset({
+          alt: "Unsafe diagram",
+          assetPath: "D:\\personal-portfolio\\apps\\h-log\\private.svg",
+          createdAt: baseTimestamp,
+          generatedBy: "handdrawn-diagram",
+          id: "asset-diagram",
+          post: createPost(),
+          version: createVersion(),
+        }),
+      /public-safe asset path/,
+    );
+  });
+
+  it("keeps diagram asset replacement and deletion auditable", () => {
+    const audit = recordDiagramAssetAuditAction({
+      action: "replace",
+      actorId: "system",
+      createdAt: baseTimestamp,
+      id: "asset-audit-1",
+      postAssetId: "asset-diagram",
+      reason: "diagram layout updated after content revision",
+    });
+
+    assert.deepEqual(audit, {
+      action: "replace",
+      actorId: "system",
+      createdAt: baseTimestamp,
+      id: "asset-audit-1",
+      postAssetId: "asset-diagram",
+      reason: "diagram layout updated after content revision",
+    });
   });
 });

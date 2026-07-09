@@ -3,6 +3,7 @@ import {
   isCurrentPublishedVersion,
   recordPublishJobFailure,
   type BlogPostStatus,
+  type PostAssetRecord,
   type PostRecord,
   type PostVersionRecord,
   type PublishJobFailureResult,
@@ -56,6 +57,29 @@ export type RecordDiagramGenerationFailureInput = {
   postStatus: BlogPostStatus;
 };
 
+export type StoreDiagramAssetInput = {
+  alt: string;
+  assetPath: string;
+  createdAt: Timestamp;
+  generatedBy: string;
+  id: string;
+  post: PostRecord;
+  version: PostVersionRecord;
+};
+
+export type DiagramAssetAuditAction = "delete" | "replace";
+
+export type DiagramAssetAuditRecord = {
+  action: DiagramAssetAuditAction;
+  actorId: string;
+  createdAt: Timestamp;
+  id: string;
+  postAssetId: string;
+  reason: string;
+};
+
+export type RecordDiagramAssetAuditActionInput = DiagramAssetAuditRecord;
+
 const DEFAULT_DIAGRAM_GENERATION_POLICY: DiagramGenerationPolicy = {
   diagramGenerationMax: 1,
 };
@@ -102,6 +126,59 @@ export function recordDiagramGenerationFailure(
   return recordPublishJobFailure(input);
 }
 
+export function storeDiagramAsset(
+  input: StoreDiagramAssetInput,
+): PostAssetRecord {
+  if (!isCurrentPublishedVersion(input.post, input.version)) {
+    throw new Error("diagram asset must target the current published version");
+  }
+
+  const alt = input.alt.trim();
+  const assetPath = input.assetPath.trim();
+  const generatedBy = input.generatedBy.trim();
+
+  if (!alt) {
+    throw new Error("diagram asset alt text is required");
+  }
+
+  if (!isPublicSafeDiagramAssetPath(assetPath)) {
+    throw new Error("diagram asset requires a public-safe asset path");
+  }
+
+  assertNoSensitiveText("alt text", alt);
+  assertNoSensitiveText("asset path", assetPath);
+
+  if (!generatedBy) {
+    throw new Error("diagram asset generated_by is required");
+  }
+
+  return {
+    alt,
+    createdAt: input.createdAt,
+    generatedBy,
+    id: input.id,
+    path: assetPath,
+    postId: input.post.id,
+    postVersionId: input.version.id,
+    type: "diagram",
+  };
+}
+
+export function recordDiagramAssetAuditAction(
+  input: RecordDiagramAssetAuditActionInput,
+): DiagramAssetAuditRecord {
+  const reason = input.reason.trim();
+
+  if (!reason) {
+    throw new Error("diagram asset audit reason is required");
+  }
+
+  return {
+    ...input,
+    reason,
+  };
+}
+
 function createDiagramPublishJob(
   input: PlanDiagramGenerationJobInput,
 ): PublishJobRecord {
@@ -130,6 +207,27 @@ function findDiagramTriggerTopic(
   return (
     diagramTriggerTopics.find((topic) => normalizedTopics.has(topic)) ?? null
   );
+}
+
+function isPublicSafeDiagramAssetPath(assetPath: string): boolean {
+  return (
+    assetPath.startsWith("/blog-assets/") &&
+    /\.(png|svg|webp)$/i.test(assetPath) &&
+    !assetPath.includes("\\") &&
+    !assetPath.includes("..") &&
+    !assetPath.includes("://") &&
+    !assetPath.startsWith("//")
+  );
+}
+
+function assertNoSensitiveText(field: string, value: string): void {
+  if (/(api[_-]?key|token|secret|password)/i.test(value)) {
+    throw new Error(`diagram asset ${field} contains sensitive text`);
+  }
+
+  if (/\b(localhost|127\.0\.0\.1|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+)\b/i.test(value)) {
+    throw new Error(`diagram asset ${field} contains private host text`);
+  }
 }
 
 function skipped(

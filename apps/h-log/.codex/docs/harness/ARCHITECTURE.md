@@ -8,7 +8,7 @@
 
 ## 현재 구현 상태
 
-`apps/h-log`는 Next.js App Router 기반 개인 사이트다. 현재 확인된 구조는 Home, Resume, Portfolio, DB-contract 기반 Blog 목록/상세/Markdown endpoint, 프로젝트 상세, resume PDF API route, 공통 UI 컴포넌트, 프로젝트/이력 데이터 loader, 파일 기반 blog loader와 단위 테스트, DB 기반 blog content model contract, published-only public route selector, Markdown-to-sanitized-HTML version/hash boundary, Markdown 기반 안전 렌더링 블록, publish state transition contract, required/retryable publish job failure contract, route로 공개하지 않은 최소 admin preview/save/publish workflow contract, admin/Discord/CLI operational action audit contract, correction/unpublish/retract workflow contract, 검색 API 비용 방어 contract, fresh `post_chunks` 기반 관련 글 similarity contract, `/blog` published-only 검색 UI, post-publish public/Markdown content hash verification job contract, crawler output manifest contract, `sitemap.xml`/`feed.xml`/`llms.txt`/`llms-full.txt` route, IndexNow/Discord retryable job adapter contract, published-only content hash reconciliation과 `publish_verifications` failure handoff contract, topic source collector/ranking contract, research pack boundary contract, apply-to-me context ledger contract, claim verification source policy contract, article output schema contract, persona and article mode selection contract, quality gate publish decision contract, daily cron draft-to-publish pipeline contract, diagram trigger policy contract를 포함한다. 파일 기반 blog loader는 DB-first 전환 후 public source of truth가 아니라 import/transition support로 취급한다.
+`apps/h-log`는 Next.js App Router 기반 개인 사이트다. 현재 확인된 구조는 Home, Resume, Portfolio, DB-contract 기반 Blog 목록/상세/Markdown endpoint, 프로젝트 상세, resume PDF API route, 공통 UI 컴포넌트, 프로젝트/이력 데이터 loader, 파일 기반 blog loader와 단위 테스트, DB 기반 blog content model contract, published-only public route selector, Markdown-to-sanitized-HTML version/hash boundary, Markdown 기반 안전 렌더링 블록, publish state transition contract, required/retryable publish job failure contract, route로 공개하지 않은 최소 admin preview/save/publish workflow contract, admin/Discord/CLI operational action audit contract, correction/unpublish/retract workflow contract, 검색 API 비용 방어 contract, fresh `post_chunks` 기반 관련 글 similarity contract, `/blog` published-only 검색 UI, post-publish public/Markdown content hash verification job contract, crawler output manifest contract, `sitemap.xml`/`feed.xml`/`llms.txt`/`llms-full.txt` route, IndexNow/Discord retryable job adapter contract, published-only content hash reconciliation과 `publish_verifications` failure handoff contract, topic source collector/ranking contract, research pack boundary contract, apply-to-me context ledger contract, claim verification source policy contract, article output schema contract, persona and article mode selection contract, quality gate publish decision contract, daily cron draft-to-publish pipeline contract, diagram trigger policy contract, diagram asset storage contract를 포함한다. 파일 기반 blog loader는 DB-first 전환 후 public source of truth가 아니라 import/transition support로 취급한다.
 
 현재 `package.json` 기준 검증 명령은 아래와 같다.
 
@@ -233,7 +233,7 @@ Article output schema contract는 `lib/blog-article-generation.ts`의 `validateA
 
 Daily cron draft-to-publish pipeline contract는 `lib/blog-daily-auto-article.ts`의 `runDailyAutoArticlePipeline`이 소유한다. 이 contract는 topic collection, ranking, research pack, apply-to-me, article generation adapter, writer validation, post version 생성, required publish job adapter, `ready_to_publish -> publishing -> verifying -> published` 전이를 한 번의 bounded run으로 묶는다. 하루 publish는 기본 1회로 제한하고, 중복 daily cron, `no_topic`, `weak_sources`, `budget_exceeded`, required publish job retry limit 초과는 public store에 글을 만들지 않는다. 실제 외부 LLM/API 호출과 공개 발행 side effect는 adapter 밖에서 직접 실행하지 않는다.
 
-Diagram trigger policy contract는 `lib/blog-diagram-assets.ts`의 `planDiagramGenerationJob`이 소유한다. Diagram job은 published current version 글 중 topic이 `architecture`, `workflow`, `infra`, `data-flow`에 해당할 때만 retryable `diagram` publish job으로 예약한다. `diagramGenerationMax` quota를 초과하면 job을 만들지 않으며, diagram 생성 실패는 retryable failure로 기록해서 `published` 상태와 required publish 검증을 바꾸지 않는다. Asset storage, public path, alt text, 본문 삽입은 이후 `diagram-assets-automation` step에서 다룬다.
+Diagram trigger policy contract는 `lib/blog-diagram-assets.ts`의 `planDiagramGenerationJob`이 소유한다. Diagram job은 published current version 글 중 topic이 `architecture`, `workflow`, `infra`, `data-flow`인 경우에만 retryable `diagram` publish job으로 예약한다. `diagramGenerationMax` quota를 초과하면 job을 만들지 않으며, diagram 생성 실패는 retryable failure로 기록해서 `published` 상태와 required publish 검증을 바꾸지 않는다. Diagram asset storage contract는 같은 모듈의 `storeDiagramAsset`이 소유한다. Asset은 `post_assets` record로 `post_id`, `post_version_id`, public-safe path, alt text, `generated_by`, 생성 시각을 저장하고, private workspace path, 내부 host, credential-like text를 거부한다. Asset 삭제/교체는 `recordDiagramAssetAuditAction`으로 감사 가능한 기록을 남긴다. 본문 삽입은 이후 `diagram-assets-automation` step에서 다룬다.
 
 ```text
 posts
@@ -252,6 +252,7 @@ publish_jobs
 publish_verifications
 post_generation_runs
 post_corrections
+post_assets
 usage_events
 admin_actions
 ```

@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "diagram-asset-storage",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added the post_assets contract and diagram asset storage policy: assets are bound to the current published post version, require alt text and public-safe /blog-assets/ paths, reject private hosts or credential-like text, and keep replacement/deletion audit records."
     },
     {
       "step": 2,
