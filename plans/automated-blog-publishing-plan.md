@@ -1,6 +1,7 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
 작성일: 2026-06-25
+최종 계획 정리: 2026-07-10
 
 이 문서는 기존 `personal-portfolio-site-plan.md`의 `MDX file-based content`, `DB 없음`, `챗봇 MVP 제외` 방향과 별개로, 블로그를 처음부터 DB/CMS/API/worker 기반 완전 자동 발행 시스템으로 확장할 때의 기준안이다.
 
@@ -11,6 +12,19 @@
 - 사람이 승인하는 수동 단계 대신, 자동 검증 게이트를 통과하지 못하면 발행하지 않고 실패 상태로 남긴다.
 - `zerry.co.kr`의 구조와 글쓰기 패턴은 참고하되, 카피/문체/디자인을 복제하지 않는다.
 - 운영 인프라와 클라우드는 OCI를 기본값으로 둔다.
+
+현재 결정과 구현 상태:
+
+```text
+- 선택지 B(DB-first 자동 블로그 플랫폼)로 전환 결정은 완료됐다.
+- DB content model, published-only route, 검색/SEO, 연구/생성, daily pipeline, diagram storage/insertion gate는 contract/test baseline까지 완료됐다.
+- 실제 PostgreSQL driver/schema migration/repository는 아직 없다.
+- public blog는 현재 정적 blogContentStore를 읽는다.
+- Compose worker는 아직 placeholder이며 실제 job, provider, scheduler를 실행하지 않는다.
+- 다음 실행 대상은 blog-runtime-integration / Step 0: postgres-schema-and-migration-runner다.
+```
+
+따라서 문서에서 `completed`는 contract 완료와 runtime 완료를 구분해 쓴다. Production 자동 발행 완료는 PostgreSQL persistence, persistent worker, 운영 안정화, 승인된 canary와 rollback smoke까지 통과한 뒤에만 선언한다.
 
 아키텍처:
 
@@ -87,7 +101,7 @@ AI workflow
 
 이 계획은 기술적으로 개발 가능하다. 다만 현재 h-log의 기존 MVP 방향은 `MDX file-based content`, `DB 없음`, `DB CMS 제외`이므로, 이 계획은 작은 블로그 기능 추가가 아니라 블로그 플랫폼 전환에 가깝다.
 
-따라서 구현 여부는 아래 두 선택지 중 하나로 명확히 결정해야 한다.
+전환 당시 검토한 선택지는 아래와 같으며, 현재는 선택지 B로 결정됐다.
 
 ```text
 선택지 A: 기존 MVP 유지
@@ -103,18 +117,18 @@ AI workflow
 - 단점: MVP 구현량과 운영 책임이 커진다.
 ```
 
-현재 목표가 “완전 자동화된 기술 블로그”라면 선택지 B가 맞다. 단, 첫 배포 단위는 자동 글 작성이 아니라 DB 기반 글 저장/렌더링이어야 한다.
+현재 목표와 phase registry는 선택지 B를 기준으로 한다. 단, contract baseline이 끝났다고 실제 DB/worker runtime까지 완료된 것은 아니므로 다음 단계에서 persistence vertical slice를 연결한다.
 
 권장 전환 순서:
 
 ```text
-1. DB 기반 수동 발행 블로그
-2. OCI 인프라/배포 foundation
-3. 발행 후 자동화
-4. 주제 수집과 조사 자동화
-5. 글 생성 자동화
-6. 자동 발행
-7. 자동 실험과 다이어그램 생성
+1. DB/검색/SEO/글 생성 contract baseline - 완료
+2. 다이어그램 삽입 gate - 완료
+3. PostgreSQL schema/migration/repository와 DB-backed public read path - 다음 단계
+4. persistent manual worker와 local fake-provider end-to-end dry-run
+5. idempotency, job lock, cost ledger, privacy scanner 운영 안정화
+6. 사용자 승인 기반 provider/scheduler/OCI canary와 rollback smoke
+7. 실제 aggregate signal이 쌓인 뒤 persona feedback learning
 ```
 
 ## 목표 파이프라인
@@ -1295,10 +1309,14 @@ publish_jobs
 post_assets
 - id
 - post_id
+- post_version_id
 - type: image | diagram | og
 - path
 - alt
 - generated_by
+- status: ready | failed
+- asset_hash
+- verified_at
 
 article_claims
 - id
@@ -1516,23 +1534,57 @@ daily-blog-cron
 
 - 글 주제가 아키텍처/흐름/인프라로 분류될 때만 실행
 - handdrawn diagram SVG 생성
-- `post_assets`에 등록
-- 본문 적절한 위치에 삽입
+- `post_assets`에 current post version, ready status, asset hash와 함께 등록
+- canonical Markdown을 사후 수정하지 않고 첫 H2 뒤의 보조 figure로 최대 1개 삽입
+- H2가 없으면 첫 paragraph 뒤에 배치하고, missing/failed/hash mismatch asset은 figure 전체를 생략
+- Markdown/feed/llms output에는 diagram 설명을 별도로 반복하지 않음
 
-5단계: 성과 피드백.
+5단계: PostgreSQL/worker runtime 통합.
+
+- PostgreSQL schema와 migration runner
+- `posts`, `post_versions`, `post_tags`, `post_sources`, `post_assets`, `publish_jobs` 최소 repository
+- 정적 production store를 DB-backed public/crawler/search read path로 전환
+- placeholder worker를 DB job 하나를 처리하고 종료하는 manual `--once` runner로 교체
+- fake/disabled provider만 사용한 local Compose end-to-end dry-run
+- 실제 provider, scheduler, OCI 변경, public publish는 아직 활성화하지 않음
+
+6단계: 운영 안정화와 production activation.
+
+- deterministic idempotency key
+- PostgreSQL job lease와 retry stop
+- source fetch/LLM/embedding 비용 집계
+- 검색 API 임베딩 호출 비용과 봇성 요청 별도 집계
+- privacy scanner와 redaction
+- 실패 사유별 알림 분리
+- 정정/비공개/retract 명령 제공
+- public content와 DB version hash 정기 비교
+- 사용자 승인 후 provider/scheduler/OCI canary 최대 1건 실행
+- canary rollback/unpublish/retract smoke
+
+7단계: 성과 피드백.
 
 - 조회/검색 유입/공유/체류 시간 기준으로 성과 좋은 글을 표시
 - 성공 글의 제목/구조/앵글을 `persona_examples`로 축적
 - 실패한 생성 결과는 금지 패턴으로 축적
+- visitor identifier, session memory, raw IP 없이 aggregate signal만 사용
+- runtime/ops phase 전에 학습 contract를 먼저 확장하지 않음
 
-6단계: 운영 안정화.
+### 완료 상태 기록 규칙
 
-- job lock과 idempotency key로 중복 발행 방지
-- source fetch/LLM/embedding 비용 집계
-- 검색 API 임베딩 호출 비용과 봇성 요청 별도 집계
-- 실패 사유별 알림 분리
-- 정정/비공개/retract 명령 제공
-- public content와 DB version hash 정기 비교
+```text
+contract completed
+- 순수 TypeScript contract와 테스트가 인수 기준을 통과함
+- 외부 호출, DB write, scheduler가 없을 수 있음
+
+local runtime completed
+- local PostgreSQL migration/repository/worker/public route dry-run이 통과함
+- provider는 fake/disabled일 수 있음
+
+production activated
+- 운영 안정화 gate 통과
+- 사용자 승인된 provider/scheduler/OCI canary 통과
+- rollback 또는 retract smoke 통과
+```
 
 ## 비즈니스 로직 체크리스트
 

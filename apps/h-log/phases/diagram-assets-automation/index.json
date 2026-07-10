@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "article-diagram-insertion-gate",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added the verified article diagram insertion gate: only one ready current-version asset with a matching SHA-256 verification is rendered after the first H2 or first paragraph, while canonical Markdown/crawler outputs remain unchanged and invalid assets are omitted."
     }
   ]
 }

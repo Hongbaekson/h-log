@@ -14,6 +14,7 @@ import {
 } from "./blog-diagram-assets.ts";
 
 const baseTimestamp = "2026-07-08T00:00:00.000Z";
+const diagramAssetHash = "a".repeat(64);
 
 function createPost(overrides: Partial<PostRecord> = {}): PostRecord {
   return {
@@ -144,11 +145,14 @@ describe("diagram asset storage policy", () => {
       () =>
         storeDiagramAsset({
           alt: " ",
+          assetHash: diagramAssetHash,
           assetPath: "/blog-assets/diagrams/diagram-trigger-policy.svg",
           createdAt: baseTimestamp,
           generatedBy: "handdrawn-diagram",
           id: "asset-diagram",
           post: createPost(),
+          verifiedAssetHash: diagramAssetHash,
+          verifiedAt: baseTimestamp,
           version: createVersion(),
         }),
       /alt text is required/,
@@ -158,24 +162,49 @@ describe("diagram asset storage policy", () => {
   it("stores diagram assets with public-safe paths bound to a post version", () => {
     const asset = storeDiagramAsset({
       alt: "Workflow from source collection to published article",
+      assetHash: diagramAssetHash,
       assetPath: "/blog-assets/diagrams/diagram-trigger-policy.svg",
       createdAt: baseTimestamp,
       generatedBy: "handdrawn-diagram",
       id: "asset-diagram",
       post: createPost(),
+      verifiedAssetHash: diagramAssetHash,
+      verifiedAt: baseTimestamp,
       version: createVersion(),
     });
 
     assert.deepEqual(asset, {
       alt: "Workflow from source collection to published article",
+      assetHash: diagramAssetHash,
       createdAt: baseTimestamp,
       generatedBy: "handdrawn-diagram",
       id: "asset-diagram",
       path: "/blog-assets/diagrams/diagram-trigger-policy.svg",
       postId: "post-diagram",
       postVersionId: "version-diagram",
+      status: "ready",
       type: "diagram",
+      verifiedAt: baseTimestamp,
     });
+  });
+
+  it("rejects diagram assets when the verified hash does not match", () => {
+    assert.throws(
+      () =>
+        storeDiagramAsset({
+          alt: "Workflow diagram",
+          assetHash: diagramAssetHash,
+          assetPath: "/blog-assets/diagrams/diagram-trigger-policy.svg",
+          createdAt: baseTimestamp,
+          generatedBy: "handdrawn-diagram",
+          id: "asset-diagram",
+          post: createPost(),
+          verifiedAssetHash: "b".repeat(64),
+          verifiedAt: baseTimestamp,
+          version: createVersion(),
+        }),
+      /asset hash mismatch/,
+    );
   });
 
   it("rejects private or local diagram asset paths", () => {
@@ -183,11 +212,14 @@ describe("diagram asset storage policy", () => {
       () =>
         storeDiagramAsset({
           alt: "Unsafe diagram",
+          assetHash: diagramAssetHash,
           assetPath: "D:\\personal-portfolio\\apps\\h-log\\private.svg",
           createdAt: baseTimestamp,
           generatedBy: "handdrawn-diagram",
           id: "asset-diagram",
           post: createPost(),
+          verifiedAssetHash: diagramAssetHash,
+          verifiedAt: baseTimestamp,
           version: createVersion(),
         }),
       /public-safe asset path/,

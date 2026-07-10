@@ -194,6 +194,9 @@ describe("blog DB content model contract", () => {
       "type",
       "path",
       "alt",
+      "status",
+      "asset_hash",
+      "verified_at",
       "generated_by",
       "created_at",
     ]);

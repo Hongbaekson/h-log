@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, FileText } from "lucide-react";
@@ -155,6 +156,27 @@ function formatDate(value: string): string {
 }
 
 function renderContentBlock(block: PublicBlogContentBlock, index: number) {
+  if (block.type === "diagram") {
+    return (
+      <figure
+        className="mt-8 overflow-hidden rounded-xl border border-slate-700 bg-slate-950/50"
+        key={`${block.assetHash}-${index}`}
+      >
+        <Image
+          alt={block.alt}
+          className="h-auto w-full"
+          height={675}
+          src={block.path}
+          unoptimized
+          width={1200}
+        />
+        <figcaption className="border-t border-slate-700 px-4 py-3 text-sm text-slate-400">
+          {block.alt}
+        </figcaption>
+      </figure>
+    );
+  }
+
   if (block.type === "code") {
     return (
       <pre key={index}>

@@ -59,11 +59,14 @@ export type RecordDiagramGenerationFailureInput = {
 
 export type StoreDiagramAssetInput = {
   alt: string;
+  assetHash: string;
   assetPath: string;
   createdAt: Timestamp;
   generatedBy: string;
   id: string;
   post: PostRecord;
+  verifiedAssetHash: string;
+  verifiedAt: Timestamp;
   version: PostVersionRecord;
 };
 
@@ -134,8 +137,11 @@ export function storeDiagramAsset(
   }
 
   const alt = input.alt.trim();
+  const assetHash = normalizeAssetHash(input.assetHash);
   const assetPath = input.assetPath.trim();
   const generatedBy = input.generatedBy.trim();
+  const verifiedAssetHash = normalizeAssetHash(input.verifiedAssetHash);
+  const verifiedAt = input.verifiedAt.trim();
 
   if (!alt) {
     throw new Error("diagram asset alt text is required");
@@ -152,16 +158,45 @@ export function storeDiagramAsset(
     throw new Error("diagram asset generated_by is required");
   }
 
+  if (!verifiedAt) {
+    throw new Error("diagram asset verified_at is required");
+  }
+
+  if (assetHash !== verifiedAssetHash) {
+    throw new Error("diagram asset hash mismatch");
+  }
+
   return {
     alt,
+    assetHash,
     createdAt: input.createdAt,
     generatedBy,
     id: input.id,
     path: assetPath,
     postId: input.post.id,
     postVersionId: input.version.id,
+    status: "ready",
     type: "diagram",
+    verifiedAt,
   };
+}
+
+export function isRenderableDiagramAsset(
+  asset: PostAssetRecord,
+  post: PostRecord,
+  version: PostVersionRecord,
+): boolean {
+  return (
+    isCurrentPublishedVersion(post, version) &&
+    asset.type === "diagram" &&
+    asset.postId === post.id &&
+    asset.postVersionId === version.id &&
+    asset.status === "ready" &&
+    asset.verifiedAt !== null &&
+    isAssetHash(asset.assetHash) &&
+    asset.alt.trim().length > 0 &&
+    isPublicSafeDiagramAssetPath(asset.path)
+  );
 }
 
 export function recordDiagramAssetAuditAction(
@@ -218,6 +253,20 @@ function isPublicSafeDiagramAssetPath(assetPath: string): boolean {
     !assetPath.includes("://") &&
     !assetPath.startsWith("//")
   );
+}
+
+function normalizeAssetHash(assetHash: string): string {
+  const normalized = assetHash.trim().toLowerCase();
+
+  if (!isAssetHash(normalized)) {
+    throw new Error("diagram asset requires a SHA-256 asset hash");
+  }
+
+  return normalized;
+}
+
+function isAssetHash(assetHash: string | null): assetHash is string {
+  return assetHash !== null && /^[a-f0-9]{64}$/i.test(assetHash);
 }
 
 function assertNoSensitiveText(field: string, value: string): void {

@@ -3,15 +3,18 @@ import {
   renderCrawlerMarkdownForPostVersion,
   selectPublicBlogRouteEntries,
   selectPublicBlogRouteEntryBySlug,
+  type PostAssetRecord,
   type PostRecord,
   type PostSourceRecord,
   type PostTagRecord,
   type PostVersionRecord,
   type PublicBlogRouteEntry,
 } from "./blog-content-model.ts";
+import { isRenderableDiagramAsset } from "./blog-diagram-assets.ts";
 import { tryNormalizePublicSourceUrl } from "./public-source-url.ts";
 
 export type BlogContentStore = {
+  assets?: readonly PostAssetRecord[];
   posts: readonly PostRecord[];
   sources: readonly PostSourceRecord[];
   tags: readonly PostTagRecord[];
@@ -36,6 +39,12 @@ export type PublicBlogInlineContent =
     };
 
 export type PublicBlogContentBlock =
+  | {
+      alt: string;
+      assetHash: string;
+      path: string;
+      type: "diagram";
+    }
   | {
       children: PublicBlogInlineContent[];
       level: 1 | 2 | 3;
@@ -151,7 +160,10 @@ function toPublicBlogPost(
 
   return {
     articleMode: entry.post.articleMode,
-    contentBlocks: buildPublicBlogContentBlocks(entry.version.contentMarkdown),
+    contentBlocks: buildPublicBlogContentBlocks(
+      entry.version.contentMarkdown,
+      selectRenderableDiagram(entry, store.assets ?? []),
+    ),
     contentHtml: entry.version.contentHtml,
     description: entry.version.description,
     href: `/blog/${entry.post.slug}`,
@@ -166,14 +178,63 @@ function toPublicBlogPost(
   };
 }
 
-function buildPublicBlogContentBlocks(markdown: string): PublicBlogContentBlock[] {
+function buildPublicBlogContentBlocks(
+  markdown: string,
+  diagram: PublicBlogContentBlock | undefined,
+): PublicBlogContentBlock[] {
   const normalized = markdown.replace(/\r\n?/g, "\n").trimEnd();
 
   if (!normalized) {
     return [];
   }
 
-  return normalized.split(/\n{2,}/).filter(Boolean).map(buildPublicBlogContentBlock);
+  const blocks = normalized
+    .split(/\n{2,}/)
+    .filter(Boolean)
+    .map(buildPublicBlogContentBlock);
+
+  if (!diagram || diagram.type !== "diagram") {
+    return blocks;
+  }
+
+  const h2Index = blocks.findIndex(
+    (block) => block.type === "heading" && block.level === 2,
+  );
+  const paragraphIndex = blocks.findIndex((block) => block.type === "paragraph");
+  const anchorIndex = h2Index >= 0 ? h2Index : paragraphIndex;
+
+  if (anchorIndex < 0) {
+    return blocks;
+  }
+
+  blocks.splice(anchorIndex + 1, 0, diagram);
+  return blocks;
+}
+
+function selectRenderableDiagram(
+  entry: PublicBlogRouteEntry,
+  assets: readonly PostAssetRecord[],
+): PublicBlogContentBlock | undefined {
+  const asset = assets
+    .filter((candidate) =>
+      isRenderableDiagramAsset(candidate, entry.post, entry.version),
+    )
+    .sort(
+      (a, b) =>
+        Date.parse(b.createdAt) - Date.parse(a.createdAt) ||
+        a.id.localeCompare(b.id),
+    )[0];
+
+  if (!asset?.assetHash) {
+    return undefined;
+  }
+
+  return {
+    alt: asset.alt,
+    assetHash: asset.assetHash.toLowerCase(),
+    path: asset.path,
+    type: "diagram",
+  };
 }
 
 function buildPublicBlogContentBlock(block: string): PublicBlogContentBlock {

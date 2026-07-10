@@ -47,14 +47,19 @@
     },
     {
       "dir": "diagram-assets-automation",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Steps 0-2 completed: diagram trigger policy, version-bound asset storage, SHA-256 verification, and deterministic public figure insertion are tested without changing canonical Markdown or crawler outputs."
     },
     {
-      "dir": "feedback-and-persona-learning",
+      "dir": "blog-runtime-integration",
       "status": "pending"
     },
     {
       "dir": "auto-publish-ops-hardening",
+      "status": "pending"
+    },
+    {
+      "dir": "feedback-and-persona-learning",
       "status": "pending"
     }
   ]

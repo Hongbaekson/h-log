@@ -4,6 +4,7 @@ import { describe, it } from "node:test";
 import {
   createPostVersionContentHash,
   createPostVersionContentFromMarkdown,
+  type PostAssetRecord,
   type PostRecord,
   type PostSourceRecord,
   type PostTagRecord,
@@ -17,6 +18,7 @@ import {
 } from "./blog-public.ts";
 
 const baseTimestamp = "2026-06-25T00:00:00.000Z";
+const diagramAssetHash = "a".repeat(64);
 
 function createPost(overrides: Partial<PostRecord> = {}): PostRecord {
   return {
@@ -85,8 +87,26 @@ function createTag(postId: string, tag: string): PostTagRecord {
   };
 }
 
+function createAsset(overrides: Partial<PostAssetRecord> = {}): PostAssetRecord {
+  return {
+    alt: "Source collection to publish workflow",
+    assetHash: diagramAssetHash,
+    createdAt: baseTimestamp,
+    generatedBy: "handdrawn-diagram",
+    id: "asset-public-one",
+    path: "/blog-assets/diagrams/public-one.svg",
+    postId: "post-public-one",
+    postVersionId: "version-public-one",
+    status: "ready",
+    type: "diagram",
+    verifiedAt: baseTimestamp,
+    ...overrides,
+  };
+}
+
 function createStore(): BlogContentStore {
   return {
+    assets: [],
     posts: [
       createPost(),
       createPost({
@@ -214,6 +234,81 @@ describe("DB-backed public blog routes", () => {
         type: "code",
       },
     ]);
+  });
+
+  it("inserts at most one verified current-version diagram after the first H2", () => {
+    const store = createStore();
+    store.versions = [
+      createVersion({
+        contentMarkdown:
+          "# Public One\n\nIntro paragraph.\n\n## Flow\n\nFlow details.\n",
+      }),
+      ...store.versions.slice(1),
+    ];
+    store.assets = [
+      createAsset({
+        id: "asset-previous-version",
+        postVersionId: "version-public-previous",
+      }),
+      createAsset({
+        id: "asset-failed",
+        status: "failed",
+      }),
+      createAsset(),
+    ];
+
+    const detail = getPublicBlogPostBySlug("public-one", store);
+
+    assert.ok(detail);
+    assert.deepEqual(
+      detail.contentBlocks.map((block) => block.type),
+      ["heading", "paragraph", "heading", "diagram", "paragraph"],
+    );
+    assert.deepEqual(detail.contentBlocks[3], {
+      alt: "Source collection to publish workflow",
+      assetHash: diagramAssetHash,
+      path: "/blog-assets/diagrams/public-one.svg",
+      type: "diagram",
+    });
+  });
+
+  it("falls back to the first paragraph and omits unverified assets", () => {
+    const store = createStore();
+    const version = createVersion({
+      contentMarkdown: "# Public One\n\nFirst paragraph.\n\nSecond paragraph.\n",
+    });
+    store.versions = [version, ...store.versions.slice(1)];
+    store.assets = [
+      createAsset({
+        assetHash: "mismatch",
+      }),
+      createAsset({
+        id: "asset-not-verified",
+        verifiedAt: null,
+      }),
+    ];
+
+    const originalContentHash = version.contentHash;
+    const detail = getPublicBlogPostBySlug("public-one", store);
+
+    assert.ok(detail);
+    assert.deepEqual(
+      detail.contentBlocks.map((block) => block.type),
+      ["heading", "paragraph", "paragraph"],
+    );
+    assert.equal(detail.markdown, version.contentMarkdown);
+    assert.equal(version.contentHash, originalContentHash);
+
+    store.assets = [createAsset()];
+    const verifiedDetail = getPublicBlogPostBySlug("public-one", store);
+
+    assert.ok(verifiedDetail);
+    assert.deepEqual(
+      verifiedDetail.contentBlocks.map((block) => block.type),
+      ["heading", "paragraph", "diagram", "paragraph"],
+    );
+    assert.equal(verifiedDetail.markdown, version.contentMarkdown);
+    assert.equal(version.contentHash, originalContentHash);
   });
 
   it("builds tag counts and pagination from published posts only", () => {

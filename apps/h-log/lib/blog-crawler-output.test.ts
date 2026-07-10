@@ -11,6 +11,7 @@ import type { BlogContentStore } from "./blog-public.ts";
 import { buildBlogCrawlerOutputs } from "./blog-crawler-output.ts";
 
 const baseTimestamp = "2026-06-30T00:00:00.000Z";
+const diagramAlt = "Crawler output must not repeat this diagram description";
 
 function createPost(slug: string, overrides: Partial<PostRecord> = {}): PostRecord {
   return {
@@ -66,6 +67,21 @@ function createTag(slug: string, tag: string): PostTagRecord {
 
 function createStore(): BlogContentStore {
   return {
+    assets: [
+      {
+        alt: diagramAlt,
+        assetHash: "a".repeat(64),
+        createdAt: baseTimestamp,
+        generatedBy: "handdrawn-diagram",
+        id: "asset-crawler-public",
+        path: "/blog-assets/diagrams/crawler-public.svg",
+        postId: "post-crawler-public",
+        postVersionId: "version-crawler-public",
+        status: "ready",
+        type: "diagram",
+        verifiedAt: baseTimestamp,
+      },
+    ],
     posts: [
       createPost("crawler-public"),
       createPost("newer-public", {
@@ -133,6 +149,10 @@ describe("blog crawler outputs", () => {
     assert.doesNotMatch(
       outputs.llmsFullTxt,
       /Private draft body|Failed verification body|evidence_path/,
+    );
+    assert.doesNotMatch(
+      `${outputs.feedXml}\n${outputs.llmsTxt}\n${outputs.llmsFullTxt}`,
+      new RegExp(diagramAlt),
     );
   });
 });

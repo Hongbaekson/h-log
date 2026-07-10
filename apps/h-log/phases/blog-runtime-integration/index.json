@@ -1,30 +1,30 @@
 {
   "project": "h-log",
-  "phase": "auto-publish-ops-hardening",
+  "phase": "blog-runtime-integration",
   "steps": [
     {
       "step": 0,
-      "name": "idempotency-key-contract",
+      "name": "postgres-schema-and-migration-runner",
       "status": "pending"
     },
     {
       "step": 1,
-      "name": "persistent-job-lock-and-retry-stop",
+      "name": "postgres-blog-repository",
       "status": "pending"
     },
     {
       "step": 2,
-      "name": "usage-events-cost-ledger",
+      "name": "db-backed-public-read-path",
       "status": "pending"
     },
     {
       "step": 3,
-      "name": "privacy-scanner-and-redaction",
+      "name": "persistent-worker-once-runner",
       "status": "pending"
     },
     {
       "step": 4,
-      "name": "production-activation-and-rollback-smoke",
+      "name": "local-end-to-end-dry-run",
       "status": "pending"
     }
   ]

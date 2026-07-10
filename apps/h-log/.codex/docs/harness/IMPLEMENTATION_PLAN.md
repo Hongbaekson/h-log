@@ -43,6 +43,8 @@ apps/h-log/AGENTS.md
 | root skill에 harness/tdd/grill-me/sync-repos 없음 | 보완 완료 | `.codex/skills/`에 repo-local skill 추가 |
 | phase index 없음 | 보완 완료 | `apps/h-log/phases/index.json` 생성 |
 | 자동 블로그 계획과 MVP 방향 충돌 가능 | 정리 완료 | file-based track은 active phase index에서 제거하고, DB-first track을 다음 실행 대상으로 기록 |
+| contract 완료와 runtime 완료 혼동 | 보완 진행 | 실제 PostgreSQL/migration/worker가 없는 phase는 contract baseline으로 명시하고 `blog-runtime-integration` 추가 |
+| 성과 학습이 운영 안정화보다 먼저 배치됨 | 순서 수정 | runtime integration과 ops hardening 이후에 aggregate signal/persona learning 진행 |
 | visitor chatbot 오해 가능 | 통제 필요 | 모든 문서에서 chatbot 제외 명시 |
 | 자동 글의 허위 경험 표현 위험 | 통제 필요 | evidence 기반 article mode와 claim gate를 강제 |
 
@@ -60,10 +62,13 @@ search-and-related-posts: completed, steps 0-3 completed
 post-publish-seo-automation: completed, steps 0-3 completed
 topic-research-generation: completed, steps 0-3 completed
 auto-article-generation: completed, steps 0-3 completed
-diagram-assets-automation
-feedback-and-persona-learning
-auto-publish-ops-hardening
+diagram-assets-automation: completed, steps 0-2 completed
+blog-runtime-integration: pending
+auto-publish-ops-hardening: pending
+feedback-and-persona-learning: pending
 ```
+
+`completed`인 DB/검색/자동 글 phase는 현재 contract/test baseline 완료를 뜻한다. 실제 PostgreSQL persistence, migration, persistent worker, 외부 provider, scheduler가 동작한다는 뜻이 아니다.
 
 ## 완료된 호환 이력
 
@@ -248,7 +253,7 @@ auto-publish-ops-hardening
 - 결과: `lib/blog-daily-auto-article.ts`와 테스트로 collect/rank/research/apply/generate/validate/create version/required publish jobs/published 전환을 하나의 bounded daily pipeline contract로 연결했다. 같은 daily cron이 중복 실행돼도 하루 1회만 published 상태가 되고, `no_topic`, `weak_sources`, `budget_exceeded`, required publish job retry limit 초과는 public route에 글을 만들지 않는다. 실제 외부 LLM/API 호출과 공개 발행 side effect는 `generateArticle`, `runRequiredPublishJob` adapter 뒤에 둔다.
 - 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-daily-auto-article.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-daily-auto-article.test.ts`, `npm run typecheck`
 
-## 현재 다이어그램 asset 자동화 진행 상태
+## 다이어그램 asset 자동화 완료 상태
 
 ### diagram-assets-automation / Step 0: diagram-trigger-policy
 
@@ -262,7 +267,29 @@ auto-publish-ops-hardening
 - 상태: completed
 - 결과: `lib/blog-content-model.ts`의 `post_assets` contract와 `lib/blog-diagram-assets.ts`의 `storeDiagramAsset`으로 diagram asset 저장 경계를 고정했다. Asset은 current published post version에 묶이고, public-safe `/blog-assets/` path, alt text, `generated_by`를 요구한다. Private workspace path, 내부 host, credential-like text는 거부한다. 삭제/교체는 `recordDiagramAssetAuditAction`으로 감사 가능한 기록을 남긴다.
 - 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-diagram-assets.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-diagram-assets.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`
-- 다음 실행 대상은 `diagram-assets-automation / Step 2: article-diagram-insertion-gate`이다.
+- 완료 후 `diagram-assets-automation / Step 2: article-diagram-insertion-gate`로 이동했다.
+
+### diagram-assets-automation / Step 2: article-diagram-insertion-gate
+
+- 상태: completed
+- 결과: `post_assets`에 `status`, `asset_hash`, `verified_at` 경계를 추가하고, 저장 시 기대 SHA-256과 검증 SHA-256이 일치한 asset만 `ready`로 만든다. Public renderer는 current published version의 검증된 최신 diagram 하나만 첫 H2 뒤 또는 첫 paragraph 뒤에 `<figure>`로 출력한다. Missing, failed, invalid hash, 이전 version asset은 생략하며 canonical Markdown/HTML/content hash는 바꾸지 않는다.
+- crawler: Markdown/feed/llms output에는 diagram 설명을 추가로 반복하지 않는다.
+- 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts lib/blog-diagram-assets.test.ts lib/blog-public.test.ts lib/blog-crawler-output.test.ts`, GREEN focused 동일 명령 32/32 통과. 전체 `npm run test` 100/100, `npm run lint`, `npm run typecheck`, `npm run build`도 통과했다.
+- 다음 실행 대상은 `blog-runtime-integration / Step 0: postgres-schema-and-migration-runner`이다.
+
+## 다음 runtime 통합 phase
+
+### blog-runtime-integration
+
+현재 contract-only 구현을 local Compose의 실제 persistence vertical slice로 연결한다.
+
+1. `postgres-schema-and-migration-runner`: PostgreSQL schema, vector extension, migration version을 local DB에서 검증한다.
+2. `postgres-blog-repository`: current domain contract를 재사용하는 최소 DB read/write adapter를 만든다.
+3. `db-backed-public-read-path`: 정적 production store를 DB-backed published-only route/crawler/search source로 교체한다.
+4. `persistent-worker-once-runner`: placeholder worker를 DB job 하나를 처리하고 종료하는 manual runner로 교체한다.
+5. `local-end-to-end-dry-run`: fake provider로 DB write부터 public surface까지 local vertical slice를 검증한다.
+
+실제 provider, cron, OCI runtime 변경, public publish는 이 phase에 포함하지 않는다. `auto-publish-ops-hardening` 완료 단계에서 사용자 승인 후 canary로 활성화한다.
 
 ## 이후 DB-first 단계
 
@@ -273,9 +300,10 @@ auto-publish-ops-hardening
 5. 발행 후 SEO/AI crawler 자동화 - completed, Steps 0-3 completed
 6. 주제 수집과 research pack - completed, Steps 0-3 completed
 7. 자동 글 생성 - completed, Steps 0-3 completed
-8. 다이어그램 asset 자동화
-9. 성과 피드백과 persona learning
-10. 운영 안정화
+8. 다이어그램 asset 자동화 - completed, Steps 0-2 completed
+9. PostgreSQL/worker runtime 통합
+10. 운영 안정화와 승인된 production canary
+11. 성과 피드백과 persona learning
 
 ## 완료 기준
 
@@ -283,4 +311,5 @@ auto-publish-ops-hardening
 - root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
 - `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
 - 다음 실행 대상은 phase registry의 첫 번째 pending phase이다.
+- contract 완료와 production runtime 완료를 구분해 기록한다.
 - 문서 검증과 `git diff --check`가 통과한다.

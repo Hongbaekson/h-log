@@ -154,6 +154,7 @@ const tags: PostTagRecord[] = [
 ];
 
 export const blogContentStore: BlogContentStore = {
+  assets: [],
   posts,
   sources,
   tags,

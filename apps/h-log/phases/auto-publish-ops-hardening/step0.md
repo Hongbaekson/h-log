@@ -1,4 +1,4 @@
-# Step 0: idempotency-and-quota
+# Step 0: idempotency-key-contract
 
 ## 읽을 파일
 
@@ -12,36 +12,39 @@
 - `.codex/skills/harness/SKILL.md`
 - `.codex/skills/tdd/SKILL.md`
 - `plans/automated-blog-publishing-plan.md`
-- topic generation, publish jobs, search 비용 기록 관련 파일
+- `apps/h-log/lib/blog-content-model.ts`
+- `apps/h-log/lib/blog-daily-auto-article.ts`
+- `apps/h-log/lib/blog-post-publish-retryable-jobs.ts`
+- `apps/h-log/lib/blog-diagram-assets.ts`
+- `apps/h-log/phases/blog-runtime-integration/index.json`
+- runtime persistence phase의 publish job repository 관련 파일
 
 ## 작업
 
-자동 발행 운영 안정화 기준을 구현한다.
+모든 persisted publish job이 공유하는 deterministic idempotency key 규칙을 고정한다.
 
-- job lock과 idempotency key로 중복 발행을 막는 테스트를 작성한다.
-- source fetch, LLM, embedding, search API 비용을 usage event로 집계한다.
-- 일일/월간 quota 초과 시 새 자동 생성과 비용성 job을 멈춘다.
-- 실패 사유별 알림과 retry stop condition을 분리한다.
-- rollback, unpublish, retract, correct 명령의 감사 기록을 확인한다.
+- key는 최소 `job_type`, `post_version_id`, `content_hash`를 반영한다.
+- 같은 logical job 재요청은 새 row/side effect 대신 기존 결과를 반환한다.
+- content version이 바뀌면 이전 version의 key를 재사용하지 않는다.
+- lock, retry, quota, 비용 집계는 이후 step에서 각각 구현한다.
 
 ## 인수 기준
 
 ```bash
 npm run test
-npm run lint
 npm run typecheck
-npm run build
 ```
 
 ## 검증
 
-1. 중복 cron 실행이 중복 발행으로 이어지는 실패 테스트를 먼저 작성한다.
-2. quota 초과 시 비용성 job이 멈추는지 확인한다.
-3. `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`를 실행한다.
-4. 성공 시 phase index의 step status를 갱신한다.
+1. 같은 logical job이 서로 다른 key로 두 번 저장되는 실패 테스트를 먼저 작성한다.
+2. 같은 version/job/content hash 조합이 하나의 결과로 수렴하는지 확인한다.
+3. version 또는 content hash가 바뀐 경우 새 key가 생성되는지 확인한다.
+4. `npm run test`, `npm run typecheck`를 실행한다.
+5. 성공 시 phase index의 step status를 갱신한다.
 
 ## 하지 말 것
 
-- 무제한 자동 재시도를 만들지 말 것. 이유: 비용과 중복 발행 위험이 크다.
-- 외부 알림이나 실제 발행을 승인 없이 수행하지 말 것. 이유: public side effect가 있다.
-- 운영 로그에 API key, 내부 URL, 서버 IP를 남기지 말 것.
+- 랜덤 UUID만 idempotency key로 사용하지 말 것.
+- 이 step에서 lock, quota, cost ledger를 함께 구현하지 말 것.
+- 외부 알림이나 실제 발행을 수행하지 말 것.

@@ -18,8 +18,10 @@
 
 성과 피드백에 필요한 공개-safe signal contract를 만든다.
 
+- `blog-runtime-integration`과 `auto-publish-ops-hardening`이 완료되고 실제 aggregate signal이 존재할 때만 시작한다.
 - 조회, 검색 유입, 공유, 체류 시간, 검색 클릭 같은 aggregate signal을 정의한다.
 - 개인식별 정보와 visitor session memory는 저장하지 않는다.
+- raw IP, user agent, referrer 전체값, cookie/session id는 저장하지 않는다.
 - 성과 좋은 글의 제목/구조/앵글만 학습 후보로 남긴다.
 - 비용성 이벤트와 콘텐츠 성과 이벤트를 구분한다.
 
@@ -33,9 +35,10 @@ npm run typecheck
 ## 검증
 
 1. visitor 식별자를 signal에 저장하려는 실패 테스트를 먼저 작성한다.
-2. aggregate signal만 persona learning 후보로 연결되는지 확인한다.
-3. `npm run test`, `npm run typecheck`를 실행한다.
-4. 성공 시 phase index의 step status를 갱신한다.
+2. 실제 aggregate signal이 없을 때 persona learning을 시작하지 않는지 확인한다.
+3. aggregate signal만 persona learning 후보로 연결되는지 확인한다.
+4. `npm run test`, `npm run typecheck`를 실행한다.
+5. 성공 시 phase index의 step status를 갱신한다.
 
 ## 하지 말 것
 
