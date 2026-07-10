@@ -15,6 +15,13 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
+FROM deps AS migrations
+
+COPY migrations ./migrations
+COPY scripts ./scripts
+
+CMD ["npm", "run", "db:migrate"]
+
 FROM node:24-alpine AS runner
 
 WORKDIR /app

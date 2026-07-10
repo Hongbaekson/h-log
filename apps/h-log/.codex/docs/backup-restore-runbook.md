@@ -1,6 +1,6 @@
 # H-Log PostgreSQL Backup/Restore Runbook
 
-이 문서는 OCI self-hosted PostgreSQL + pgvector 운영을 위한 백업/복구 기준이다. 현재 저장소에는 실제 DB adapter, migration runner, 운영 DB 연결이 없으므로 이 runbook은 운영 DB를 직접 조작하지 않고 로컬/테스트 DB 리허설을 먼저 강제하는 절차로 둔다.
+이 문서는 OCI self-hosted PostgreSQL + pgvector 운영을 위한 백업/복구 기준이다. 현재 저장소에는 local migration runner가 있지만 실제 DB adapter와 운영 DB 연결은 없으므로, 이 runbook은 운영 DB를 직접 조작하지 않고 로컬/테스트 DB 리허설을 먼저 강제한다.
 
 ## 범위
 
@@ -83,16 +83,17 @@ docker compose -p hlog_restore_rehearsal exec -T hlog-postgres sh -lc 'pg_restor
 
 ```bash
 docker compose -p hlog_restore_rehearsal exec -T hlog-postgres sh -lc 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "select extname, extversion from pg_extension where extname = '\''vector'\'';"'
+docker compose -p hlog_restore_rehearsal exec -T hlog-postgres sh -lc 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "select version, applied_at from schema_migrations order by version;"'
 docker compose -p hlog_restore_rehearsal exec -T hlog-postgres sh -lc 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "select count(*) from posts;"'
 docker compose -p hlog_restore_rehearsal exec -T hlog-postgres sh -lc 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "select count(*) from post_versions where content_hash is null or content_hash = '\'''\'';"'
 ```
 
-현재는 migration runner가 없으므로 migration version 검증은 "미구현"으로 기록한다. migration 도구가 추가되면 해당 도구의 version table을 restore checklist에 추가한다.
+현재 app image의 migration version은 `schema_migrations`에서 확인한다. 첫 local schema version은 `001_blog_core`이며, app image에 포함된 migration과 복구 DB의 current version이 다르면 앱을 기동하지 않는다.
 
 ## 복구 체크리스트
 
 - `vector` extension이 존재한다.
-- migration version table이 최신 배포와 일치한다. 현재 단계에서는 migration runner가 없으므로 적용 불가로 기록한다.
+- `schema_migrations`의 current version이 app image의 최신 migration과 일치한다.
 - `posts.current_version_id`가 `post_versions.id`를 가리킨다.
 - `published` 상태가 아닌 글이 public route 대상 쿼리에 포함되지 않는다.
 - `post_versions.content_hash`가 비어 있지 않다.

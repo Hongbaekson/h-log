@@ -69,6 +69,23 @@ services:
       - egress_net
     restart: "no"
 
+  hlog-migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migrations
+    image: hlog-migrate:dev
+    profiles:
+      - tools
+    env_file:
+      - ./deploy/env.dev
+    depends_on:
+      hlog-postgres:
+        condition: service_healthy
+    networks:
+      - data_net
+    restart: "no"
+
   hlog-postgres:
     image: pgvector/pgvector:pg16
     environment:

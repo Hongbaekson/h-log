@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "postgres-schema-and-migration-runner",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added the pg driver, deterministic 001_blog_core SQL migration, profile-gated local Compose migration runner, and integration coverage for missing schema, vector/core tables, migration version, and idempotent reruns. No OCI DB or repository path was changed."
     },
     {
       "step": 1,

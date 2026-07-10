@@ -18,10 +18,10 @@
 ```text
 - 선택지 B(DB-first 자동 블로그 플랫폼)로 전환 결정은 완료됐다.
 - DB content model, published-only route, 검색/SEO, 연구/생성, daily pipeline, diagram storage/insertion gate는 contract/test baseline까지 완료됐다.
-- 실제 PostgreSQL driver/schema migration/repository는 아직 없다.
+- PostgreSQL `pg` driver, `001_blog_core` schema migration, local Compose migration runner는 완료됐다. 실제 repository는 아직 없다.
 - public blog는 현재 정적 blogContentStore를 읽는다.
 - Compose worker는 아직 placeholder이며 실제 job, provider, scheduler를 실행하지 않는다.
-- 다음 실행 대상은 blog-runtime-integration / Step 0: postgres-schema-and-migration-runner다.
+- 다음 실행 대상은 blog-runtime-integration / Step 1: postgres-blog-repository다.
 ```
 
 따라서 문서에서 `completed`는 contract 완료와 runtime 완료를 구분해 쓴다. Production 자동 발행 완료는 PostgreSQL persistence, persistent worker, 운영 안정화, 승인된 canary와 rollback smoke까지 통과한 뒤에만 선언한다.
@@ -124,7 +124,7 @@ AI workflow
 ```text
 1. DB/검색/SEO/글 생성 contract baseline - 완료
 2. 다이어그램 삽입 gate - 완료
-3. PostgreSQL schema/migration/repository와 DB-backed public read path - 다음 단계
+3. PostgreSQL schema/migration - 완료, repository와 DB-backed public read path - 다음 단계
 4. persistent manual worker와 local fake-provider end-to-end dry-run
 5. idempotency, job lock, cost ledger, privacy scanner 운영 안정화
 6. 사용자 승인 기반 provider/scheduler/OCI canary와 rollback smoke
@@ -1541,7 +1541,7 @@ daily-blog-cron
 
 5단계: PostgreSQL/worker runtime 통합.
 
-- PostgreSQL schema와 migration runner
+- PostgreSQL schema와 migration runner - local runtime 완료
 - `posts`, `post_versions`, `post_tags`, `post_sources`, `post_assets`, `publish_jobs` 최소 repository
 - 정적 production store를 DB-backed public/crawler/search read path로 전환
 - placeholder worker를 DB job 하나를 처리하고 종료하는 manual `--once` runner로 교체

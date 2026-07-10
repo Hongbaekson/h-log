@@ -10,7 +10,7 @@
 - Blog content direction: DB-backed `posts`/`post_versions` with generated Markdown/HTML
 - Compatibility content: existing MD/MDX loader is import/transition support only
 - Backend: Next.js route handlers first; automation contracts exist, while the persistent worker is planned in `blog-runtime-integration`
-- Database: PostgreSQL + pgvector contracts exist; schema migration and runtime repository are planned in `blog-runtime-integration`
+- Database: PostgreSQL + pgvector schema migration is implemented; the runtime repository is the next `blog-runtime-integration` step
 - Deploy target: OCI server with Docker Compose and Nginx
 - Infrastructure: OCI Compute first; web, worker, PostgreSQL, Redis, and Nginx are Compose-managed unless a later ADR selects managed services
 

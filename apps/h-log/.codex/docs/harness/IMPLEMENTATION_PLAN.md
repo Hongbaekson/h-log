@@ -43,7 +43,7 @@ apps/h-log/AGENTS.md
 | root skill에 harness/tdd/grill-me/sync-repos 없음 | 보완 완료 | `.codex/skills/`에 repo-local skill 추가 |
 | phase index 없음 | 보완 완료 | `apps/h-log/phases/index.json` 생성 |
 | 자동 블로그 계획과 MVP 방향 충돌 가능 | 정리 완료 | file-based track은 active phase index에서 제거하고, DB-first track을 다음 실행 대상으로 기록 |
-| contract 완료와 runtime 완료 혼동 | 보완 진행 | 실제 PostgreSQL/migration/worker가 없는 phase는 contract baseline으로 명시하고 `blog-runtime-integration` 추가 |
+| contract 완료와 runtime 완료 혼동 | 보완 진행 | local PostgreSQL migration은 완료했고 repository/worker가 없는 phase는 계속 contract 또는 partial local runtime으로 명시 |
 | 성과 학습이 운영 안정화보다 먼저 배치됨 | 순서 수정 | runtime integration과 ops hardening 이후에 aggregate signal/persona learning 진행 |
 | visitor chatbot 오해 가능 | 통제 필요 | 모든 문서에서 chatbot 제외 명시 |
 | 자동 글의 허위 경험 표현 위험 | 통제 필요 | evidence 기반 article mode와 claim gate를 강제 |
@@ -63,7 +63,7 @@ post-publish-seo-automation: completed, steps 0-3 completed
 topic-research-generation: completed, steps 0-3 completed
 auto-article-generation: completed, steps 0-3 completed
 diagram-assets-automation: completed, steps 0-2 completed
-blog-runtime-integration: pending
+blog-runtime-integration: pending, step 0 completed; step 1 pending
 auto-publish-ops-hardening: pending
 feedback-and-persona-learning: pending
 ```
@@ -275,15 +275,23 @@ feedback-and-persona-learning: pending
 - 결과: `post_assets`에 `status`, `asset_hash`, `verified_at` 경계를 추가하고, 저장 시 기대 SHA-256과 검증 SHA-256이 일치한 asset만 `ready`로 만든다. Public renderer는 current published version의 검증된 최신 diagram 하나만 첫 H2 뒤 또는 첫 paragraph 뒤에 `<figure>`로 출력한다. Missing, failed, invalid hash, 이전 version asset은 생략하며 canonical Markdown/HTML/content hash는 바꾸지 않는다.
 - crawler: Markdown/feed/llms output에는 diagram 설명을 추가로 반복하지 않는다.
 - 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts lib/blog-diagram-assets.test.ts lib/blog-public.test.ts lib/blog-crawler-output.test.ts`, GREEN focused 동일 명령 32/32 통과. 전체 `npm run test` 100/100, `npm run lint`, `npm run typecheck`, `npm run build`도 통과했다.
-- 다음 실행 대상은 `blog-runtime-integration / Step 0: postgres-schema-and-migration-runner`이다.
+- 다음 실행 대상은 `blog-runtime-integration / Step 1: postgres-blog-repository`이다.
 
-## 다음 runtime 통합 phase
+## 현재 runtime 통합 phase
 
 ### blog-runtime-integration
 
 현재 contract-only 구현을 local Compose의 실제 persistence vertical slice로 연결한다.
 
-1. `postgres-schema-and-migration-runner`: PostgreSQL schema, vector extension, migration version을 local DB에서 검증한다.
+#### Step 0: postgres-schema-and-migration-runner
+
+- 상태: completed
+- 결과: `pg` driver, `migrations/001_blog_core.sql`, `scripts/blog-migrations.mjs`, profile-gated `hlog-migrate` service를 추가했다. 첫 migration은 `vector` extension과 다음 repository 단계가 사용할 핵심 6개 table만 만든다.
+- 검증: schema 없는 격리 DB의 RED, migration 적용 후 extension/table/version 확인, 두 번째 실행 `applied=0`, `npm run test`, `npm run typecheck`, `npm run lint` 통과.
+- 운영 경계: local Compose에만 적용했으며 OCI DB, repository, public route는 변경하지 않았다.
+- 다음 실행 대상: `blog-runtime-integration / Step 1: postgres-blog-repository`.
+
+1. `postgres-schema-and-migration-runner`: completed. PostgreSQL schema, vector extension, migration version과 재실행 안정성을 local DB에서 검증했다.
 2. `postgres-blog-repository`: current domain contract를 재사용하는 최소 DB read/write adapter를 만든다.
 3. `db-backed-public-read-path`: 정적 production store를 DB-backed published-only route/crawler/search source로 교체한다.
 4. `persistent-worker-once-runner`: placeholder worker를 DB job 하나를 처리하고 종료하는 manual runner로 교체한다.

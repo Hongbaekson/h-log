@@ -8,11 +8,14 @@
     "start": "next start",
     "lint": "eslint .",
     "test": "node --no-warnings --test --experimental-strip-types lib/**/*.test.ts",
+    "test:migrations": "node --test scripts/blog-migrations.integration.test.mjs",
+    "db:migrate": "node scripts/blog-migrations.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "lucide-react": "^1.20.0",
     "next": "16.2.9",
+    "pg": "^8.22.0",
     "react": "19.2.7",
     "react-dom": "19.2.7"
   },
