@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "postgres-blog-repository",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a minimal PostgreSQL blog repository for transactional aggregate writes across the six core tables and published-current reads that reuse the domain selector. Local PostgreSQL tests cover hidden draft/failed content, related records, and rollback after a related write failure; public routes and OCI remain unchanged."
     },
     {
       "step": 2,

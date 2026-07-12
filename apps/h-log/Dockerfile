@@ -17,6 +17,7 @@ RUN npm run build
 
 FROM deps AS migrations
 
+COPY lib ./lib
 COPY migrations ./migrations
 COPY scripts ./scripts
 

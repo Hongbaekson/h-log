@@ -43,7 +43,7 @@ apps/h-log/AGENTS.md
 | root skill에 harness/tdd/grill-me/sync-repos 없음 | 보완 완료 | `.codex/skills/`에 repo-local skill 추가 |
 | phase index 없음 | 보완 완료 | `apps/h-log/phases/index.json` 생성 |
 | 자동 블로그 계획과 MVP 방향 충돌 가능 | 정리 완료 | file-based track은 active phase index에서 제거하고, DB-first track을 다음 실행 대상으로 기록 |
-| contract 완료와 runtime 완료 혼동 | 보완 진행 | local PostgreSQL migration은 완료했고 repository/worker가 없는 phase는 계속 contract 또는 partial local runtime으로 명시 |
+| contract 완료와 runtime 완료 혼동 | 보완 진행 | local PostgreSQL migration과 repository는 완료했고 public DB read path/worker가 없는 phase는 계속 partial local runtime으로 명시 |
 | 성과 학습이 운영 안정화보다 먼저 배치됨 | 순서 수정 | runtime integration과 ops hardening 이후에 aggregate signal/persona learning 진행 |
 | visitor chatbot 오해 가능 | 통제 필요 | 모든 문서에서 chatbot 제외 명시 |
 | 자동 글의 허위 경험 표현 위험 | 통제 필요 | evidence 기반 article mode와 claim gate를 강제 |
@@ -63,7 +63,7 @@ post-publish-seo-automation: completed, steps 0-3 completed
 topic-research-generation: completed, steps 0-3 completed
 auto-article-generation: completed, steps 0-3 completed
 diagram-assets-automation: completed, steps 0-2 completed
-blog-runtime-integration: pending, step 0 completed; step 1 pending
+blog-runtime-integration: pending, steps 0-1 completed; step 2 pending
 auto-publish-ops-hardening: pending
 feedback-and-persona-learning: pending
 ```
@@ -291,8 +291,16 @@ feedback-and-persona-learning: pending
 - 운영 경계: local Compose에만 적용했으며 OCI DB, repository, public route는 변경하지 않았다.
 - 다음 실행 대상: `blog-runtime-integration / Step 1: postgres-blog-repository`.
 
+#### Step 1: postgres-blog-repository
+
+- 상태: completed
+- 결과: `lib/blog-postgres-repository.ts`에 핵심 6개 table의 최소 aggregate 저장과 published-current 공개 조회 adapter를 추가했다. 저장은 post/version/current version과 tag/source/asset/publish job을 한 transaction으로 처리하고, 공개 조회는 기존 domain selector를 재사용한다.
+- 검증: 실제 local PostgreSQL에서 missing module RED, published/preview/failed 분리와 연관 데이터 조회 GREEN, related write unique failure 시 current version과 새 version rollback GREEN, `npm run test`, `npm run typecheck`, `npm run lint` 통과.
+- 운영 경계: 정적 public route store, OCI DB, worker, provider, scheduler, public publish는 변경하지 않았다.
+- 다음 실행 대상: `blog-runtime-integration / Step 2: db-backed-public-read-path`.
+
 1. `postgres-schema-and-migration-runner`: completed. PostgreSQL schema, vector extension, migration version과 재실행 안정성을 local DB에서 검증했다.
-2. `postgres-blog-repository`: current domain contract를 재사용하는 최소 DB read/write adapter를 만든다.
+2. `postgres-blog-repository`: completed. Current domain contract를 재사용하는 최소 DB read/write adapter와 transaction rollback을 local PostgreSQL에서 검증했다.
 3. `db-backed-public-read-path`: 정적 production store를 DB-backed published-only route/crawler/search source로 교체한다.
 4. `persistent-worker-once-runner`: placeholder worker를 DB job 하나를 처리하고 종료하는 manual runner로 교체한다.
 5. `local-end-to-end-dry-run`: fake provider로 DB write부터 public surface까지 local vertical slice를 검증한다.
