@@ -5,7 +5,9 @@ import { ArrowLeft, ArrowRight, CalendarDays, Tag } from "lucide-react";
 import { BlogSearchPanel } from "@/components/blog/BlogSearchPanel";
 import { Badge, Container } from "@/components/ui";
 import { getPublicBlogIndex } from "@/lib/blog-public";
-import { blogContentStore } from "@/lib/blog-public-data";
+import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   description:
@@ -23,7 +25,8 @@ type BlogPageProps = {
 export default async function BlogPage({ searchParams }: BlogPageProps) {
   const params = (await searchParams) ?? {};
   const selectedTag = params.tag;
-  const index = getPublicBlogIndex(blogContentStore, {
+  const store = await loadPublicBlogContentStore();
+  const index = getPublicBlogIndex(store, {
     page: Number(params.page),
     pageSize: 6,
     tag: selectedTag,

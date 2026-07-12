@@ -43,7 +43,7 @@ apps/h-log/AGENTS.md
 | root skill에 harness/tdd/grill-me/sync-repos 없음 | 보완 완료 | `.codex/skills/`에 repo-local skill 추가 |
 | phase index 없음 | 보완 완료 | `apps/h-log/phases/index.json` 생성 |
 | 자동 블로그 계획과 MVP 방향 충돌 가능 | 정리 완료 | file-based track은 active phase index에서 제거하고, DB-first track을 다음 실행 대상으로 기록 |
-| contract 완료와 runtime 완료 혼동 | 보완 진행 | local PostgreSQL migration과 repository는 완료했고 public DB read path/worker가 없는 phase는 계속 partial local runtime으로 명시 |
+| contract 완료와 runtime 완료 혼동 | 보완 진행 | local PostgreSQL migration/repository/public read path는 완료했고 worker가 없는 phase는 계속 partial local runtime으로 명시 |
 | 성과 학습이 운영 안정화보다 먼저 배치됨 | 순서 수정 | runtime integration과 ops hardening 이후에 aggregate signal/persona learning 진행 |
 | visitor chatbot 오해 가능 | 통제 필요 | 모든 문서에서 chatbot 제외 명시 |
 | 자동 글의 허위 경험 표현 위험 | 통제 필요 | evidence 기반 article mode와 claim gate를 강제 |
@@ -63,7 +63,7 @@ post-publish-seo-automation: completed, steps 0-3 completed
 topic-research-generation: completed, steps 0-3 completed
 auto-article-generation: completed, steps 0-3 completed
 diagram-assets-automation: completed, steps 0-2 completed
-blog-runtime-integration: pending, steps 0-1 completed; step 2 pending
+blog-runtime-integration: pending, steps 0-2 completed; step 3 pending
 auto-publish-ops-hardening: pending
 feedback-and-persona-learning: pending
 ```
@@ -299,9 +299,17 @@ feedback-and-persona-learning: pending
 - 운영 경계: 정적 public route store, OCI DB, worker, provider, scheduler, public publish는 변경하지 않았다.
 - 다음 실행 대상: `blog-runtime-integration / Step 2: db-backed-public-read-path`.
 
+#### Step 2: db-backed-public-read-path
+
+- 상태: completed
+- 결과: `lib/blog-public-source.ts`의 공통 PostgreSQL loader를 `/blog`, 상세, Markdown, sitemap/feed/llms, search에 연결했다. Production surface는 정적 fixture import를 제거하고 request-time dynamic rendering을 사용하며 DB failure를 fixture fallback으로 숨기지 않는다. Crawler 절대 URL은 Nginx 내부 host 대신 `HLOG_PUBLIC_BASE_URL`을 사용한다.
+- 검증: production surface의 static fixture import RED, 공통 loader GREEN, 실제 local PostgreSQL의 DB-only published 글이 public/crawler/search에 반영되는 GREEN, draft/failed/corrected/retracted 제외, local Next/Nginx 목록·상세·Markdown·sitemap·search smoke, `npm run test`, `npm run typecheck`, `npm run lint`, 권한 허용 `npm run build` 통과.
+- 운영 경계: worker, OCI runtime, provider, scheduler, 실제 공개 발행은 변경하지 않았다.
+- 다음 실행 대상: `blog-runtime-integration / Step 3: persistent-worker-once-runner`.
+
 1. `postgres-schema-and-migration-runner`: completed. PostgreSQL schema, vector extension, migration version과 재실행 안정성을 local DB에서 검증했다.
 2. `postgres-blog-repository`: completed. Current domain contract를 재사용하는 최소 DB read/write adapter와 transaction rollback을 local PostgreSQL에서 검증했다.
-3. `db-backed-public-read-path`: 정적 production store를 DB-backed published-only route/crawler/search source로 교체한다.
+3. `db-backed-public-read-path`: completed. 정적 production store를 공통 DB-backed published-only route/crawler/search source로 교체했다.
 4. `persistent-worker-once-runner`: placeholder worker를 DB job 하나를 처리하고 종료하는 manual runner로 교체한다.
 5. `local-end-to-end-dry-run`: fake provider로 DB write부터 public surface까지 local vertical slice를 검증한다.
 

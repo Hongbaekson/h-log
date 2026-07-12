@@ -7,11 +7,12 @@ import { ArrowLeft, ExternalLink, FileText } from "lucide-react";
 import { Badge, Container } from "@/components/ui";
 import {
   getPublicBlogPostBySlug,
-  getPublicBlogPosts,
   type PublicBlogContentBlock,
   type PublicBlogInlineContent,
 } from "@/lib/blog-public";
-import { blogContentStore } from "@/lib/blog-public-data";
+import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
+
+export const dynamic = "force-dynamic";
 
 type BlogDetailPageProps = {
   params: Promise<{
@@ -19,17 +20,12 @@ type BlogDetailPageProps = {
   }>;
 };
 
-export function generateStaticParams() {
-  return getPublicBlogPosts(blogContentStore).map((post) => ({
-    slug: post.slug,
-  }));
-}
-
 export async function generateMetadata({
   params,
 }: BlogDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPublicBlogPostBySlug(slug, blogContentStore);
+  const store = await loadPublicBlogContentStore();
+  const post = getPublicBlogPostBySlug(slug, store);
 
   if (!post) {
     return {
@@ -53,7 +49,8 @@ export async function generateMetadata({
 
 export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const { slug } = await params;
-  const post = getPublicBlogPostBySlug(slug, blogContentStore);
+  const store = await loadPublicBlogContentStore();
+  const post = getPublicBlogPostBySlug(slug, store);
 
   if (!post) {
     notFound();

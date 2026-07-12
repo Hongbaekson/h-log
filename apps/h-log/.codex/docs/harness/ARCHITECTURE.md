@@ -10,7 +10,7 @@
 
 `apps/h-log`는 Next.js App Router 기반 개인 사이트다. 현재 확인된 구조는 Home, Resume, Portfolio, DB-contract 기반 Blog 목록/상세/Markdown endpoint, 프로젝트 상세, resume PDF API route, 공통 UI 컴포넌트, 프로젝트/이력 데이터 loader, 파일 기반 blog loader와 단위 테스트, DB 기반 blog content model contract, published-only public route selector, Markdown-to-sanitized-HTML version/hash boundary, Markdown 기반 안전 렌더링 블록, publish state transition contract, required/retryable publish job failure contract, route로 공개하지 않은 최소 admin preview/save/publish workflow contract, admin/Discord/CLI operational action audit contract, correction/unpublish/retract workflow contract, 검색 API 비용 방어 contract, fresh `post_chunks` 기반 관련 글 similarity contract, `/blog` published-only 검색 UI, post-publish public/Markdown content hash verification job contract, crawler output manifest contract, `sitemap.xml`/`feed.xml`/`llms.txt`/`llms-full.txt` route, IndexNow/Discord retryable job adapter contract, published-only content hash reconciliation과 `publish_verifications` failure handoff contract, topic source collector/ranking contract, research pack boundary contract, apply-to-me context ledger contract, claim verification source policy contract, article output schema contract, persona and article mode selection contract, quality gate publish decision contract, daily cron draft-to-publish pipeline contract, diagram trigger policy contract, diagram asset storage contract, 검증된 diagram의 public figure 삽입 gate를 포함한다. 파일 기반 blog loader는 DB-first 전환 후 public source of truth가 아니라 import/transition support로 취급한다.
 
-위 자동화 항목은 현재 순수 contract/test baseline이다. PostgreSQL `pg` driver, `001_blog_core` SQL migration, migration runner, 최소 blog repository와 local Compose 통합 테스트는 구현됐다. Public blog는 아직 `lib/blog-public-data.ts`의 정적 store를 읽으며, Compose worker는 자동 job이 없는 placeholder command다. 따라서 DB-backed public read path, persistent worker, 외부 provider, scheduler가 동작하는 production 자동 발행 runtime은 아직 구현되지 않았다.
+위 자동화 항목은 현재 순수 contract/test baseline이다. PostgreSQL `pg` driver, `001_blog_core` SQL migration, migration runner, 최소 blog repository, DB-backed public/crawler/search read path와 local Compose 통합 테스트는 구현됐다. `lib/blog-public-data.ts`는 fixture/import support로만 남고, Compose worker는 자동 job이 없는 placeholder command다. 따라서 persistent worker, 외부 provider, scheduler가 동작하는 production 자동 발행 runtime은 아직 구현되지 않았다.
 
 현재 `package.json` 기준 검증 명령은 아래와 같다.
 
@@ -138,6 +138,8 @@ Current repo config:
 - `migrations/001_blog_core.sql`: `vector` extension과 `posts`, `post_versions`, `post_tags`, `post_sources`, `post_assets`, `publish_jobs`의 첫 schema version.
 - `scripts/blog-migrations.mjs`: 파일명 순서로 SQL을 적용하고 `schema_migrations`의 현재 version을 보고하는 최소 migration runner.
 - `lib/blog-postgres-repository.ts`: 핵심 6개 table의 aggregate 저장 transaction과 기존 domain selector를 재사용하는 published-current 공개 조회 adapter.
+- `lib/blog-public-source.ts`: 요청 시 `DATABASE_URL`로 PostgreSQL repository를 읽는 공통 public source. DB failure를 정적 fixture fallback으로 숨기지 않는다.
+- `lib/public-site-origin.ts`: Nginx의 내부 upstream host 대신 `HLOG_PUBLIC_BASE_URL`을 crawler 절대 URL origin으로 사용한다.
 - `deploy/nginx/conf.d/hlog.conf`: local Nginx reverse proxy, fixed `hlog-web:3000` upstream, trusted proxy IP headers, admin/internal blocking, static asset cache headers, and baseline security headers.
 - `deploy/env.dev`: placeholder-only local development values for web/worker. Real production secrets, server IPs, SSH keys, API keys, and private URLs must not be written there.
 - `.codex/docs/backup-restore-runbook.md`: PostgreSQL logical dump, local/test restore rehearsal, pgvector extension, `schema_migrations` version, content hash, and public smoke verification checklist. It does not contain production dump files, server IPs, or credentials.
@@ -170,8 +172,8 @@ Deploy smoke is the release gate for the OCI Compose runtime. It checks the curr
 Current public smoke includes:
 
 - `/`, `/resume`, `/portfolio`, `/blog`
-- `/blog/db-first-public-boundary`
-- `/blog/db-first-public-boundary.md`, served through the `/blog/:slug.md` rewrite
+- DB에서 선택한 published-current slug의 `/blog/<published-slug>`
+- 같은 slug의 `/blog/<published-slug>.md`, served through the `/blog/:slug.md` rewrite
 - `/admin` and `/api/internal/*` returning 404 through Nginx until authentication/authorization is explicitly decided
 
 `sitemap.xml`, `feed.xml`, `llms.txt`, and `llms-full.txt` are implemented crawler surfaces. They reuse the published-only crawler manifest, validate current version `content_hash`, and exclude preview, failed, unpublished, and retracted posts from crawler output.
@@ -188,7 +190,7 @@ Source content / lib data
   -> metadata / sitemap / robots
 ```
 
-현재 `/blog`, `/blog/[slug]`, `/blog/:slug.md`는 `lib/blog-public.ts`와 `lib/blog-public-data.ts`를 통해 DB content contract 형태의 public store를 읽는다. public selector는 published 최신 version만 반환하고, `ready_to_publish` 같은 preview/admin 상태는 목록, 상세, Markdown endpoint에 노출하지 않는다. `/blog` 검색 UI는 `/api/search` 응답만 사용하며, 결과에는 published 글의 제목, 설명, 공개일, 태그, score, match reason만 표시한다. 검색 UI는 cached/loading/empty/rate-limited/error 상태를 보여주지만 자연어 답변, SSE stream, visitor session memory를 만들지 않는다. 상세 페이지는 저장된 `content_html`을 raw HTML로 주입하지 않고 `content_markdown`에서 만든 typed content block을 React 요소로 렌더링한다. source link는 public HTTPS URL만 허용하고 `javascript:`, `data:`, localhost, private/internal host는 저장 또는 공개 단계에서 차단한다. `lib/blog.ts`의 파일 기반 loader는 public route에 연결하지 않고, DB 전환 전후 import/fixture support로만 사용한다.
+현재 `/blog`, `/blog/[slug]`, `/blog/:slug.md`, sitemap/feed/llms, search는 `lib/blog-public-source.ts`의 공통 request-time loader를 통해 PostgreSQL repository의 published-current store를 읽는다. `lib/blog-public-data.ts`는 단위 테스트와 import/transition fixture로만 남고 production fallback으로 사용하지 않는다. public selector는 published 최신 version만 반환하고, `ready_to_publish` 같은 preview/admin 상태는 목록, 상세, Markdown endpoint에 노출하지 않는다. `/blog` 검색 UI는 `/api/search` 응답만 사용하며, 결과에는 published 글의 제목, 설명, 공개일, 태그, score, match reason만 표시한다. 검색 UI는 cached/loading/empty/rate-limited/error 상태를 보여주지만 자연어 답변, SSE stream, visitor session memory를 만들지 않는다. 상세 페이지는 저장된 `content_html`을 raw HTML로 주입하지 않고 `content_markdown`에서 만든 typed content block을 React 요소로 렌더링한다. source link는 public HTTPS URL만 허용하고 `javascript:`, `data:`, localhost, private/internal host는 저장 또는 공개 단계에서 차단한다. `lib/blog.ts`의 파일 기반 loader는 public route에 연결하지 않고, DB 전환 전후 import/fixture support로만 사용한다.
 
 ## DB 기반 수동 발행 데이터 흐름
 
@@ -205,12 +207,12 @@ Manual admin or internal API
 
 public route는 `published` 상태의 최신 `post_version`만 노출한다. `ready_to_publish`, `gate_failed`, `failed_generation`, `failed_publish`, `failed_verification`, `unpublished`, `retracted` 상태는 public URL에서 보이지 않아야 한다.
 
-첫 SQL migration과 최소 blog repository는 local Compose PostgreSQL에서 검증됐다. Public route 흐름은 아직 정적 `blogContentStore`를 사용하며, 다음 `blog-runtime-integration / Step 2`에서 repository의 published-current 결과를 public/crawler/search read path에 연결한다.
+SQL migration, 최소 blog repository, DB-backed public/crawler/search read path는 local PostgreSQL에서 검증됐다. Public surface는 요청 시 공통 loader를 사용하고 fixture fallback을 두지 않는다. 다음 `blog-runtime-integration / Step 3`에서 placeholder worker를 persistent manual `--once` runner로 교체한다.
 
 ```text
 SQL migration - completed
   -> PostgreSQL blog repository - completed
-  -> DB-backed public/crawler/search read path
+  -> DB-backed public/crawler/search read path - completed
   -> manual --once persistent worker
   -> fake-provider local end-to-end dry-run
 ```

@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import { blogContentStore } from "@/lib/blog-public-data";
+import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
 import {
   createBlogSearchRuntimeState,
   handleBlogSearchApiRequest,
@@ -22,12 +22,13 @@ const localKeywordOnlyEmbeddingAdapter: BlogSearchEmbeddingAdapter = {
 };
 
 export async function GET(request: NextRequest) {
+  const store = await loadPublicBlogContentStore();
   const response = await handleBlogSearchApiRequest({
     clientId: getSearchClientId(request),
     embeddingAdapter: localKeywordOnlyEmbeddingAdapter,
     query: request.nextUrl.searchParams.get("q") ?? "",
     state: searchRuntimeState,
-    store: blogContentStore,
+    store,
   });
 
   return NextResponse.json(

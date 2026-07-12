@@ -1,9 +1,13 @@
 import { buildBlogCrawlerOutputs } from "@/lib/blog-crawler-output";
-import { blogContentStore } from "@/lib/blog-public-data";
+import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
+import { resolvePublicSiteOrigin } from "@/lib/public-site-origin";
 
-export function GET(request: Request) {
-  const outputs = buildBlogCrawlerOutputs(blogContentStore, {
-    origin: new URL(request.url).origin,
+export const dynamic = "force-dynamic";
+
+export async function GET(request: Request) {
+  const store = await loadPublicBlogContentStore();
+  const outputs = buildBlogCrawlerOutputs(store, {
+    origin: resolvePublicSiteOrigin(request.url),
   });
 
   return new Response(outputs.llmsTxt, {

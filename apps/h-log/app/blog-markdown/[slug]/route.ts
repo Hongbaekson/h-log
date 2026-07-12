@@ -1,5 +1,7 @@
-import { getPublicBlogPostMarkdown, getPublicBlogPosts } from "@/lib/blog-public";
-import { blogContentStore } from "@/lib/blog-public-data";
+import { getPublicBlogPostMarkdown } from "@/lib/blog-public";
+import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
+
+export const dynamic = "force-dynamic";
 
 type BlogMarkdownRouteContext = {
   params: Promise<{
@@ -7,15 +9,10 @@ type BlogMarkdownRouteContext = {
   }>;
 };
 
-export function generateStaticParams() {
-  return getPublicBlogPosts(blogContentStore).map((post) => ({
-    slug: post.slug,
-  }));
-}
-
 export async function GET(_request: Request, { params }: BlogMarkdownRouteContext) {
   const { slug } = await params;
-  const markdown = getPublicBlogPostMarkdown(slug, blogContentStore);
+  const store = await loadPublicBlogContentStore();
+  const markdown = getPublicBlogPostMarkdown(slug, store);
 
   if (!markdown) {
     return notFoundResponse();

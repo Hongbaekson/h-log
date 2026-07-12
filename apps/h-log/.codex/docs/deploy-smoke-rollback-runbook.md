@@ -47,16 +47,17 @@ docker compose logs --tail=100 hlog-web hlog-nginx
 
 현재 구현된 public route는 200을 기대한다.
 
+블로그 상세 smoke에는 DB에서 `published`이고 `current_version_id`가 일치하는 실제 slug 하나를 선택한다.
+
 ```bash
+PUBLISHED_SLUG=<published-db-slug>
 curl -fsS http://localhost:8080/
 curl -fsS http://localhost:8080/resume
 curl -fsS http://localhost:8080/portfolio
 curl -fsS http://localhost:8080/projects
 curl -fsS http://localhost:8080/blog
-curl -fsS http://localhost:8080/blog/db-first-public-boundary
-curl -fsS http://localhost:8080/blog/db-first-public-boundary.md
-curl -fsS http://localhost:8080/blog/oci-compose-deployment-checklist
-curl -fsS http://localhost:8080/blog/oci-compose-deployment-checklist.md
+curl -fsS "http://localhost:8080/blog/${PUBLISHED_SLUG}"
+curl -fsS "http://localhost:8080/blog/${PUBLISHED_SLUG}.md"
 curl -fsS http://localhost:8080/sitemap.xml
 curl -fsS http://localhost:8080/feed.xml
 curl -fsS http://localhost:8080/llms.txt
@@ -129,13 +130,14 @@ docker compose logs --tail=100 hlog-web hlog-nginx
 production smoke는 domain만 바꾸고 local smoke와 같은 route boundary를 확인한다.
 
 ```bash
+PUBLISHED_SLUG=<published-db-slug>
 curl -fsS https://<public-domain>/
 curl -fsS https://<public-domain>/resume
 curl -fsS https://<public-domain>/portfolio
 curl -fsS https://<public-domain>/projects
 curl -fsS https://<public-domain>/blog
-curl -fsS https://<public-domain>/blog/db-first-public-boundary
-curl -fsS https://<public-domain>/blog/db-first-public-boundary.md
+curl -fsS "https://<public-domain>/blog/${PUBLISHED_SLUG}"
+curl -fsS "https://<public-domain>/blog/${PUBLISHED_SLUG}.md"
 curl -fsS https://<public-domain>/sitemap.xml
 curl -fsS https://<public-domain>/feed.xml
 curl -fsS https://<public-domain>/llms.txt

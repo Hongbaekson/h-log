@@ -79,10 +79,13 @@ H-01에서 제외한다.
 - sitemap/feed/llms.txt 생성 준비
 - 관리자 UI는 최소 preview/save/publish만 포함
 
-아직 완료로 보지 않는 runtime 항목:
+local runtime에서 완료된 항목:
 
 - 실제 PostgreSQL schema와 migration runner
 - DB repository와 production public route 연결
+
+아직 완료로 보지 않는 runtime 항목:
+
 - persistent publish job worker
 - 실제 provider와 scheduler 활성화
 

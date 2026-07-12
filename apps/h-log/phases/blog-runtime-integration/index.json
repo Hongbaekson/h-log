@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "db-backed-public-read-path",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Replaced static production blog data imports with one request-time PostgreSQL source across blog list/detail/Markdown, crawler outputs, and search. Tests cover DB-only published content, hidden draft/failed/corrected/retracted states, no fixture fallback, configured public crawler origins, local Next/Nginx smoke, and a dynamic production build; worker and OCI behavior remain unchanged."
     },
     {
       "step": 3,
