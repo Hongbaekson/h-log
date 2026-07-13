@@ -23,6 +23,13 @@ COPY scripts ./scripts
 
 CMD ["npm", "run", "db:migrate"]
 
+FROM deps AS worker
+
+COPY lib ./lib
+COPY scripts ./scripts
+
+CMD ["npm", "run", "worker:once"]
+
 FROM node:24-alpine AS runner
 
 WORKDIR /app

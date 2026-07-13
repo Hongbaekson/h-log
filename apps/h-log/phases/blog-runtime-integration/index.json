@@ -23,7 +23,8 @@
     {
       "step": 3,
       "name": "persistent-worker-once-runner",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a profile-gated manual --once PostgreSQL worker that atomically claims at most one queued/retrying job and persists success, required failure post transitions, retryable retries, and the terminal retry limit. External adapters, polling, cron, OCI runtime, and public publishing remain disabled."
     },
     {
       "step": 4,

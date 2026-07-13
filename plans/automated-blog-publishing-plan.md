@@ -20,8 +20,8 @@
 - DB content model, published-only route, 검색/SEO, 연구/생성, daily pipeline, diagram storage/insertion gate는 contract/test baseline까지 완료됐다.
 - PostgreSQL `pg` driver, `001_blog_core` schema migration, local Compose migration runner와 최소 blog repository는 완료됐다.
 - public blog, crawler output, search는 공통 PostgreSQL published-current source를 읽는다.
-- Compose worker는 아직 placeholder이며 실제 job, provider, scheduler를 실행하지 않는다.
-- 다음 실행 대상은 blog-runtime-integration / Step 3: persistent-worker-once-runner다.
+- Compose worker는 DB job을 최대 한 건 처리하고 종료하는 manual `--once` runner이며 외부 adapter는 비활성화돼 있다.
+- 다음 실행 대상은 blog-runtime-integration / Step 4: local-end-to-end-dry-run이다.
 ```
 
 따라서 문서에서 `completed`는 contract 완료와 runtime 완료를 구분해 쓴다. Production 자동 발행 완료는 PostgreSQL persistence, persistent worker, 운영 안정화, 승인된 canary와 rollback smoke까지 통과한 뒤에만 선언한다.

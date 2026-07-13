@@ -43,7 +43,7 @@ apps/h-log/AGENTS.md
 | root skill에 harness/tdd/grill-me/sync-repos 없음 | 보완 완료 | `.codex/skills/`에 repo-local skill 추가 |
 | phase index 없음 | 보완 완료 | `apps/h-log/phases/index.json` 생성 |
 | 자동 블로그 계획과 MVP 방향 충돌 가능 | 정리 완료 | file-based track은 active phase index에서 제거하고, DB-first track을 다음 실행 대상으로 기록 |
-| contract 완료와 runtime 완료 혼동 | 보완 진행 | local PostgreSQL migration/repository/public read path는 완료했고 worker가 없는 phase는 계속 partial local runtime으로 명시 |
+| contract 완료와 runtime 완료 혼동 | 보완 진행 | local PostgreSQL migration/repository/public read path/manual worker는 완료했고 provider/scheduler가 없는 phase는 계속 partial local runtime으로 명시 |
 | 성과 학습이 운영 안정화보다 먼저 배치됨 | 순서 수정 | runtime integration과 ops hardening 이후에 aggregate signal/persona learning 진행 |
 | visitor chatbot 오해 가능 | 통제 필요 | 모든 문서에서 chatbot 제외 명시 |
 | 자동 글의 허위 경험 표현 위험 | 통제 필요 | evidence 기반 article mode와 claim gate를 강제 |
@@ -63,12 +63,12 @@ post-publish-seo-automation: completed, steps 0-3 completed
 topic-research-generation: completed, steps 0-3 completed
 auto-article-generation: completed, steps 0-3 completed
 diagram-assets-automation: completed, steps 0-2 completed
-blog-runtime-integration: pending, steps 0-2 completed; step 3 pending
+blog-runtime-integration: pending, steps 0-3 completed; step 4 pending
 auto-publish-ops-hardening: pending
 feedback-and-persona-learning: pending
 ```
 
-`completed`인 DB/검색/자동 글 phase는 현재 contract/test baseline 완료를 뜻한다. 실제 PostgreSQL persistence, migration, persistent worker, 외부 provider, scheduler가 동작한다는 뜻이 아니다.
+`completed`인 DB/검색/자동 글 phase는 현재 contract/test baseline 완료를 뜻한다. Local PostgreSQL persistence, migration, manual worker는 구현됐지만 외부 provider와 scheduler가 동작한다는 뜻은 아니다.
 
 ## 완료된 호환 이력
 
@@ -307,10 +307,18 @@ feedback-and-persona-learning: pending
 - 운영 경계: worker, OCI runtime, provider, scheduler, 실제 공개 발행은 변경하지 않았다.
 - 다음 실행 대상: `blog-runtime-integration / Step 3: persistent-worker-once-runner`.
 
+#### Step 3: persistent-worker-once-runner
+
+- 상태: completed
+- 결과: `lib/blog-persistent-worker.ts`와 `scripts/blog-worker.mjs`로 queued/retrying job을 최대 한 건 claim하고 종료하는 PostgreSQL-backed `--once` worker를 추가했다. 성공은 `succeeded`, required 실패는 post의 `failed_publish`/`failed_verification`, retryable 실패는 3회 한도까지 `retrying` 후 terminal `failed`로 transaction 저장한다.
+- 검증: missing module RED, required adapter 예외 RED, retry/terminal RED 뒤 실제 local PostgreSQL GREEN 3/3, `npm run typecheck`, `npm run lint`, `docker compose --profile worker config --quiet`, worker image build와 idle `--once` smoke 통과.
+- 운영 경계: 외부 API adapter는 비활성화했고 polling, cron, OCI runtime, public publish는 변경하지 않았다.
+- 다음 실행 대상: `blog-runtime-integration / Step 4: local-end-to-end-dry-run`.
+
 1. `postgres-schema-and-migration-runner`: completed. PostgreSQL schema, vector extension, migration version과 재실행 안정성을 local DB에서 검증했다.
 2. `postgres-blog-repository`: completed. Current domain contract를 재사용하는 최소 DB read/write adapter와 transaction rollback을 local PostgreSQL에서 검증했다.
 3. `db-backed-public-read-path`: completed. 정적 production store를 공통 DB-backed published-only route/crawler/search source로 교체했다.
-4. `persistent-worker-once-runner`: placeholder worker를 DB job 하나를 처리하고 종료하는 manual runner로 교체한다.
+4. `persistent-worker-once-runner`: completed. DB job 최대 한 건을 claim하고 성공/실패/retry 결과를 저장한 뒤 종료하는 manual runner로 교체했다.
 5. `local-end-to-end-dry-run`: fake provider로 DB write부터 public surface까지 local vertical slice를 검증한다.
 
 실제 provider, cron, OCI runtime 변경, public publish는 이 phase에 포함하지 않는다. `auto-publish-ops-hardening` 완료 단계에서 사용자 승인 후 canary로 활성화한다.

@@ -10,7 +10,7 @@
 
 `apps/h-log`는 Next.js App Router 기반 개인 사이트다. 현재 확인된 구조는 Home, Resume, Portfolio, DB-contract 기반 Blog 목록/상세/Markdown endpoint, 프로젝트 상세, resume PDF API route, 공통 UI 컴포넌트, 프로젝트/이력 데이터 loader, 파일 기반 blog loader와 단위 테스트, DB 기반 blog content model contract, published-only public route selector, Markdown-to-sanitized-HTML version/hash boundary, Markdown 기반 안전 렌더링 블록, publish state transition contract, required/retryable publish job failure contract, route로 공개하지 않은 최소 admin preview/save/publish workflow contract, admin/Discord/CLI operational action audit contract, correction/unpublish/retract workflow contract, 검색 API 비용 방어 contract, fresh `post_chunks` 기반 관련 글 similarity contract, `/blog` published-only 검색 UI, post-publish public/Markdown content hash verification job contract, crawler output manifest contract, `sitemap.xml`/`feed.xml`/`llms.txt`/`llms-full.txt` route, IndexNow/Discord retryable job adapter contract, published-only content hash reconciliation과 `publish_verifications` failure handoff contract, topic source collector/ranking contract, research pack boundary contract, apply-to-me context ledger contract, claim verification source policy contract, article output schema contract, persona and article mode selection contract, quality gate publish decision contract, daily cron draft-to-publish pipeline contract, diagram trigger policy contract, diagram asset storage contract, 검증된 diagram의 public figure 삽입 gate를 포함한다. 파일 기반 blog loader는 DB-first 전환 후 public source of truth가 아니라 import/transition support로 취급한다.
 
-위 자동화 항목은 현재 순수 contract/test baseline이다. PostgreSQL `pg` driver, `001_blog_core` SQL migration, migration runner, 최소 blog repository, DB-backed public/crawler/search read path와 local Compose 통합 테스트는 구현됐다. `lib/blog-public-data.ts`는 fixture/import support로만 남고, Compose worker는 자동 job이 없는 placeholder command다. 따라서 persistent worker, 외부 provider, scheduler가 동작하는 production 자동 발행 runtime은 아직 구현되지 않았다.
+위 자동화 항목은 현재 순수 contract/test baseline이다. PostgreSQL `pg` driver, `001_blog_core` SQL migration, migration runner, 최소 blog repository, DB-backed public/crawler/search read path, manual `--once` persistent worker와 local Compose 통합 테스트는 구현됐다. `lib/blog-public-data.ts`는 fixture/import support로만 남는다. 외부 provider와 scheduler가 동작하는 production 자동 발행 runtime은 아직 구현되지 않았다.
 
 현재 `package.json` 기준 검증 명령은 아래와 같다.
 
@@ -109,7 +109,7 @@ Local developer machine
   -> docker compose
      -> hlog-nginx      localhost:8080 ingress only
      -> hlog-web        Next.js standalone runtime, internal 3000
-     -> hlog-worker     manual/profile-only placeholder until automation phases
+     -> hlog-worker     manual/profile-only --once persistent job runner
      -> hlog-postgres   PostgreSQL + pgvector, data_net only
      -> hlog-redis      Redis, data_net only
 ```
@@ -134,12 +134,14 @@ Compose networks:
 Current repo config:
 
 - `Dockerfile`: Next.js standalone production image.
-- `compose.yaml`: local-first Compose topology for web, worker placeholder, profile-gated migration runner, PostgreSQL + pgvector, Redis, and Nginx.
+- `compose.yaml`: local-first Compose topology for web, profile-gated manual worker and migration runner, PostgreSQL + pgvector, Redis, and Nginx.
 - `migrations/001_blog_core.sql`: `vector` extension과 `posts`, `post_versions`, `post_tags`, `post_sources`, `post_assets`, `publish_jobs`의 첫 schema version.
 - `scripts/blog-migrations.mjs`: 파일명 순서로 SQL을 적용하고 `schema_migrations`의 현재 version을 보고하는 최소 migration runner.
 - `lib/blog-postgres-repository.ts`: 핵심 6개 table의 aggregate 저장 transaction과 기존 domain selector를 재사용하는 published-current 공개 조회 adapter.
 - `lib/blog-public-source.ts`: 요청 시 `DATABASE_URL`로 PostgreSQL repository를 읽는 공통 public source. DB failure를 정적 fixture fallback으로 숨기지 않는다.
 - `lib/public-site-origin.ts`: Nginx의 내부 upstream host 대신 `HLOG_PUBLIC_BASE_URL`을 crawler 절대 URL origin으로 사용한다.
+- `lib/blog-persistent-worker.ts`: queued/retrying job을 최대 한 건 claim하고 성공, required failure, retryable retry/terminal 상태를 PostgreSQL에 저장하는 manual worker core.
+- `scripts/blog-worker.mjs`: 외부 호출이 비활성화된 adapter로 worker core를 한 번 실행하고 종료하는 `--once` CLI.
 - `deploy/nginx/conf.d/hlog.conf`: local Nginx reverse proxy, fixed `hlog-web:3000` upstream, trusted proxy IP headers, admin/internal blocking, static asset cache headers, and baseline security headers.
 - `deploy/env.dev`: placeholder-only local development values for web/worker. Real production secrets, server IPs, SSH keys, API keys, and private URLs must not be written there.
 - `.codex/docs/backup-restore-runbook.md`: PostgreSQL logical dump, local/test restore rehearsal, pgvector extension, `schema_migrations` version, content hash, and public smoke verification checklist. It does not contain production dump files, server IPs, or credentials.
@@ -207,13 +209,13 @@ Manual admin or internal API
 
 public route는 `published` 상태의 최신 `post_version`만 노출한다. `ready_to_publish`, `gate_failed`, `failed_generation`, `failed_publish`, `failed_verification`, `unpublished`, `retracted` 상태는 public URL에서 보이지 않아야 한다.
 
-SQL migration, 최소 blog repository, DB-backed public/crawler/search read path는 local PostgreSQL에서 검증됐다. Public surface는 요청 시 공통 loader를 사용하고 fixture fallback을 두지 않는다. 다음 `blog-runtime-integration / Step 3`에서 placeholder worker를 persistent manual `--once` runner로 교체한다.
+SQL migration, 최소 blog repository, DB-backed public/crawler/search read path, persistent manual `--once` worker는 local PostgreSQL에서 검증됐다. Public surface는 요청 시 공통 loader를 사용하고 fixture fallback을 두지 않는다. 다음 `blog-runtime-integration / Step 4`에서 fake provider 기반 local end-to-end dry-run을 검증한다.
 
 ```text
 SQL migration - completed
   -> PostgreSQL blog repository - completed
   -> DB-backed public/crawler/search read path - completed
-  -> manual --once persistent worker
+  -> manual --once persistent worker - completed
   -> fake-provider local end-to-end dry-run
 ```
 

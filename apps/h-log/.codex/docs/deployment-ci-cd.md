@@ -20,7 +20,7 @@ Local development
 1. 로컬 MVP 개발
 2. 로컬 `npm run lint`와 `npm run build` 통과
 3. DB-backed blog의 local contract와 migration strategy 확정
-4. 로컬 Docker Compose로 web, worker placeholder, PostgreSQL + pgvector, Redis, Nginx topology 검증
+4. 로컬 Docker Compose로 web, manual `--once` worker, PostgreSQL + pgvector, Redis, Nginx topology 검증
 5. OCI에서 수동 배포 성공
 6. Nginx, 도메인, HTTPS 확인
 7. DB backup/restore와 deploy smoke/rollback 확인

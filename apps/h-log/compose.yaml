@@ -48,17 +48,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: hlog-web:dev
+      target: worker
+    image: hlog-worker:dev
     profiles:
       - worker
     env_file:
       - ./deploy/env.dev
-    command:
-      [
-        "node",
-        "-e",
-        "console.log('hlog-worker placeholder: no automatic jobs are configured yet')",
-      ]
+    command: ["npm", "run", "worker:once"]
     depends_on:
       hlog-postgres:
         condition: service_healthy

@@ -83,10 +83,11 @@ local runtime에서 완료된 항목:
 
 - 실제 PostgreSQL schema와 migration runner
 - DB repository와 production public route 연결
+- manual `--once` persistent publish job worker
 
 아직 완료로 보지 않는 runtime 항목:
 
-- persistent publish job worker
+- fake provider 기반 local end-to-end dry-run
 - 실제 provider와 scheduler 활성화
 
 ### A-02: 발행 후 자동화 계약
@@ -100,7 +101,7 @@ local runtime에서 완료된 항목:
 - Discord 알림
 - 실패 job 재시도
 
-위 항목의 순수 contract와 public crawler/search surface는 완료됐지만, 실제 DB/worker/provider runtime 연결은 A-04에서 수행한다.
+위 항목의 순수 contract, public crawler/search surface, persistent job 상태 저장은 완료됐지만, 실제 provider runtime 연결은 A-04 이후 승인 경계에서 수행한다.
 
 ### A-03: 완전 자동 글 생성 계약
 
