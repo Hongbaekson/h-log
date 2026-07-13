@@ -87,7 +87,7 @@ docker compose --profile worker run --rm hlog-worker
 - 운영 백업/복구는 명시 승인 후 `ssh oci`로 접속해 서버 로컬 경로에서 수행한다.
 - 운영 dump, Object Storage credential, bucket URL, server IP, DB password는 저장소에 남기지 않는다.
 - 복구 완료 기준은 dump 생성이 아니라 local/test DB restore rehearsal, `vector` extension 확인, migration version 확인, `content_hash` 검증, public smoke 확인이다.
-- 현재 저장소에는 실제 DB adapter와 migration runner가 없으므로 migration version 검증은 migration 도구 도입 전까지 적용 불가로 기록한다.
+- 현재 저장소의 `hlog-migrate` runner로 migration version을 확인하고 배포 기록에 남긴다.
 
 ## Deploy Smoke/Rollback
 

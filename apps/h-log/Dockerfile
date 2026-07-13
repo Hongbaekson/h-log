@@ -30,6 +30,10 @@ COPY scripts ./scripts
 
 CMD ["npm", "run", "worker:once"]
 
+FROM migrations AS dry-run
+
+CMD ["npm", "run", "dry-run:local"]
+
 FROM node:24-alpine AS runner
 
 WORKDIR /app

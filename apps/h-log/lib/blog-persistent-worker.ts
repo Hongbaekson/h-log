@@ -58,10 +58,15 @@ export async function runPersistentWorkerOnce({
   }
 
   const job = mapPublishJob(claimed.rows[0]);
-  const postResult = await pool.query("select status from posts where id = $1", [
-    job.postId,
-  ]);
+  const postResult = await pool.query(
+    "select status, current_version_id from posts where id = $1",
+    [job.postId],
+  );
   const postStatus = postResult.rows[0]?.status as BlogPostStatus | undefined;
+  const currentVersionId = postResult.rows[0]?.current_version_id as
+    | string
+    | null
+    | undefined;
 
   if (!postStatus) {
     throw new Error(`publish job ${job.id}: post ${job.postId} not found`);
@@ -136,20 +141,65 @@ export async function runPersistentWorkerOnce({
     finishedAt: runAt,
     status: "succeeded",
   };
-  await pool.query(
-    `update publish_jobs
-     set status = $2, error = $3, retry_count = $4, finished_at = $5
-     where id = $1`,
-    [
-      finishedJob.id,
-      finishedJob.status,
-      finishedJob.error,
-      finishedJob.retryCount,
-      finishedJob.finishedAt,
-    ],
-  );
+  const client = await pool.connect();
+  let nextPostStatus = postStatus;
 
-  return { job: finishedJob, postStatus, status: "succeeded" };
+  try {
+    await client.query("begin");
+    await client.query(
+      `update publish_jobs
+       set status = $2, error = $3, retry_count = $4, finished_at = $5
+       where id = $1`,
+      [
+        finishedJob.id,
+        finishedJob.status,
+        finishedJob.error,
+        finishedJob.retryCount,
+        finishedJob.finishedAt,
+      ],
+    );
+
+    if (
+      finishedJob.importance === "required" &&
+      currentVersionId === finishedJob.postVersionId &&
+      (postStatus === "publishing" || postStatus === "verifying")
+    ) {
+      const incomplete = await client.query(
+        `select exists (
+           select 1
+           from publish_jobs
+           where post_id = $1
+             and post_version_id = $2
+             and importance = 'required'
+             and status <> 'succeeded'
+         ) as value`,
+        [finishedJob.postId, finishedJob.postVersionId],
+      );
+
+      if (!incomplete.rows[0]?.value) {
+        if (postStatus === "publishing") {
+          assertBlogPostStatusTransition("publishing", "verifying");
+        }
+        assertBlogPostStatusTransition("verifying", "published");
+        await client.query(
+          `update posts
+           set status = 'published', published_at = coalesce(published_at, $2), updated_at = $2
+           where id = $1 and current_version_id = $3`,
+          [finishedJob.postId, runAt, finishedJob.postVersionId],
+        );
+        nextPostStatus = "published";
+      }
+    }
+
+    await client.query("commit");
+  } catch (error) {
+    await client.query("rollback");
+    throw error;
+  } finally {
+    client.release();
+  }
+
+  return { job: finishedJob, postStatus: nextPostStatus, status: "succeeded" };
 }
 
 function mapPublishJob(row: QueryResultRow): PublishJobRecord {

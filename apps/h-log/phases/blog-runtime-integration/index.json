@@ -29,7 +29,8 @@
     {
       "step": 4,
       "name": "local-end-to-end-dry-run",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a deterministic fake-provider local dry-run that migrates and seeds PostgreSQL, processes one required success and one required failure through the persistent worker, publishes only after all required jobs succeed, and verifies the shared DB version across HTML, Markdown, sitemap, feed, and llms surfaces through Nginx. The failed post remains failed_publish and returns 404; external providers, schedulers, OCI, and production publishing remain disabled."
     }
   ]
 }

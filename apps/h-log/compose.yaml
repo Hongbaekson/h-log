@@ -82,6 +82,28 @@ services:
       - data_net
     restart: "no"
 
+  hlog-dry-run:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dry-run
+    image: hlog-dry-run:dev
+    profiles:
+      - dry-run
+    env_file:
+      - ./deploy/env.dev
+    environment:
+      HLOG_DRY_RUN_BASE_URL: http://hlog-nginx
+    depends_on:
+      hlog-nginx:
+        condition: service_started
+      hlog-postgres:
+        condition: service_healthy
+    networks:
+      - app_net
+      - data_net
+    restart: "no"
+
   hlog-postgres:
     image: pgvector/pgvector:pg16
     environment:

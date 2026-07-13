@@ -9,8 +9,8 @@
 - Styling: Tailwind CSS
 - Blog content direction: DB-backed `posts`/`post_versions` with generated Markdown/HTML
 - Compatibility content: existing MD/MDX loader is import/transition support only
-- Backend: Next.js route handlers first; automation contracts and a manual `--once` persistent worker exist, while provider orchestration remains planned
-- Database: PostgreSQL + pgvector schema migration, the minimal blog repository, the DB-backed public read path, and the persistent worker are implemented; the local end-to-end dry-run is the next `blog-runtime-integration` step
+- Backend: Next.js route handlers first; automation contracts, a manual `--once` persistent worker, and the local fake-provider end-to-end dry-run exist, while external provider orchestration remains disabled
+- Database: PostgreSQL + pgvector schema migration, the minimal blog repository, the DB-backed public read path, the persistent worker, and the local end-to-end dry-run are implemented; `auto-publish-ops-hardening` is the next blog phase
 - Deploy target: OCI server with Docker Compose and Nginx
 - Infrastructure: OCI Compute first; web, worker, PostgreSQL, Redis, and Nginx are Compose-managed unless a later ADR selects managed services
 
@@ -98,5 +98,5 @@ npm run dev
 - Home H1은 담백하게 쓴다. 기본형은 `백엔드 개발자 손홍백입니다`로 둔다.
 - 공개 전 고객사명, 성과 수치, 이메일, PDF, 프로필 사진 공개 여부를 확인한다.
 - 전화번호, 생년월일, 내부 URL, 서버 IP, API key, 비공개 저장소명은 노출하지 않는다.
-- full CMS와 방문자 챗봇을 만들지 않는다. DB 기반 수동 발행은 다음 blog phase의 본선이다.
+- full CMS와 방문자 챗봇을 만들지 않는다. 다음 blog phase는 자동 발행 운영 안정화에 한정한다.
 - 한 작업 단위에서 페이지 여러 개와 배포 설정을 동시에 바꾸지 않는다.

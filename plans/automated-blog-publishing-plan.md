@@ -21,7 +21,8 @@
 - PostgreSQL `pg` driver, `001_blog_core` schema migration, local Compose migration runner와 최소 blog repository는 완료됐다.
 - public blog, crawler output, search는 공통 PostgreSQL published-current source를 읽는다.
 - Compose worker는 DB job을 최대 한 건 처리하고 종료하는 manual `--once` runner이며 외부 adapter는 비활성화돼 있다.
-- 다음 실행 대상은 blog-runtime-integration / Step 4: local-end-to-end-dry-run이다.
+- fake-provider local Compose dry-run에서 성공 글의 HTML/Markdown/crawler 공개와 required 실패 글의 비공개 상태를 검증했다.
+- 다음 실행 대상은 auto-publish-ops-hardening / Step 0이다.
 ```
 
 따라서 문서에서 `completed`는 contract 완료와 runtime 완료를 구분해 쓴다. Production 자동 발행 완료는 PostgreSQL persistence, persistent worker, 운영 안정화, 승인된 canary와 rollback smoke까지 통과한 뒤에만 선언한다.
@@ -117,15 +118,15 @@ AI workflow
 - 단점: MVP 구현량과 운영 책임이 커진다.
 ```
 
-현재 목표와 phase registry는 선택지 B를 기준으로 한다. 단, contract baseline이 끝났다고 실제 DB/worker runtime까지 완료된 것은 아니므로 다음 단계에서 persistence vertical slice를 연결한다.
+현재 목표와 phase registry는 선택지 B를 기준으로 한다. Local DB/worker vertical slice는 완료됐지만, 실제 provider/scheduler와 production activation은 운영 안정화 및 사용자 승인 전까지 완료로 보지 않는다.
 
 권장 전환 순서:
 
 ```text
 1. DB/검색/SEO/글 생성 contract baseline - 완료
 2. 다이어그램 삽입 gate - 완료
-3. PostgreSQL schema/migration/repository - 완료, DB-backed public read path - 다음 단계
-4. persistent manual worker와 local fake-provider end-to-end dry-run
+3. PostgreSQL schema/migration/repository와 DB-backed public read path - 완료
+4. persistent manual worker와 local fake-provider end-to-end dry-run - 완료
 5. idempotency, job lock, cost ledger, privacy scanner 운영 안정화
 6. 사용자 승인 기반 provider/scheduler/OCI canary와 rollback smoke
 7. 실제 aggregate signal이 쌓인 뒤 persona feedback learning
@@ -1545,7 +1546,7 @@ daily-blog-cron
 - `posts`, `post_versions`, `post_tags`, `post_sources`, `post_assets`, `publish_jobs` 최소 repository
 - 정적 production store를 DB-backed public/crawler/search read path로 전환
 - placeholder worker를 DB job 하나를 처리하고 종료하는 manual `--once` runner로 교체
-- fake/disabled provider만 사용한 local Compose end-to-end dry-run
+- fake/disabled provider만 사용한 local Compose end-to-end dry-run - 완료
 - 실제 provider, scheduler, OCI 변경, public publish는 아직 활성화하지 않음
 
 6단계: 운영 안정화와 production activation.

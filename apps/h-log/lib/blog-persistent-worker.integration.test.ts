@@ -108,6 +108,49 @@ test(
 );
 
 test(
+  "publishes the post only after every required job succeeds",
+  { skip: databaseUrl ? false : "DATABASE_URL is required" },
+  async () => {
+    await withTestDatabase("hlog_worker_publish_test", async (testUrl) => {
+      const pool = new Pool({ connectionString: testUrl });
+      const adapter = {
+        async run() {
+          return { status: "succeeded" as const };
+        },
+      };
+
+      try {
+        await seedPostWithJobs(pool, ["job-first", "job-last"]);
+
+        await runPersistentWorkerOnce({ adapter, pool, runAt });
+
+        const publishing = await pool.query(
+          "select status, published_at from posts where id = $1",
+          ["post-worker"],
+        );
+        assert.deepEqual(publishing.rows[0], {
+          published_at: null,
+          status: "publishing",
+        });
+
+        const result = await runPersistentWorkerOnce({ adapter, pool, runAt });
+        const published = await pool.query(
+          "select status, published_at from posts where id = $1",
+          ["post-worker"],
+        );
+
+        assert.equal(result.status, "succeeded");
+        assert.equal(result.postStatus, "published");
+        assert.equal(published.rows[0]?.status, "published");
+        assert.equal(published.rows[0]?.published_at.toISOString(), runAt);
+      } finally {
+        await pool.end();
+      }
+    });
+  },
+);
+
+test(
   "retries a retryable job until the terminal limit without hiding the post",
   { skip: databaseUrl ? false : "DATABASE_URL is required" },
   async () => {

@@ -84,10 +84,10 @@ local runtime에서 완료된 항목:
 - 실제 PostgreSQL schema와 migration runner
 - DB repository와 production public route 연결
 - manual `--once` persistent publish job worker
+- fake provider 기반 local end-to-end dry-run
 
 아직 완료로 보지 않는 runtime 항목:
 
-- fake provider 기반 local end-to-end dry-run
 - 실제 provider와 scheduler 활성화
 
 ### A-02: 발행 후 자동화 계약

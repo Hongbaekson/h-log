@@ -10,7 +10,7 @@
 - app image: Next.js standalone image
 - 제외: 운영 서버 IP, SSH key path, secret, production env 값 문서화
 
-현재 저장소에는 실제 DB adapter와 migration runner가 없다. `sitemap.xml`, `feed.xml`, `llms.txt`, `llms-full.txt` route는 구현됐으므로 200과 published-only 포함 여부를 smoke에서 확인한다.
+현재 저장소에는 PostgreSQL blog adapter, migration runner, DB-backed public routes, manual worker와 local fake-provider dry-run이 있다. `sitemap.xml`, `feed.xml`, `llms.txt`, `llms-full.txt`는 200과 published-only 포함 여부를 smoke에서 확인한다.
 
 ## 배포 전 확인
 
@@ -22,6 +22,8 @@ npm run lint
 npm run typecheck
 npm run build
 docker compose config
+docker compose --profile worker config --quiet
+docker compose --profile dry-run config --quiet
 ```
 
 배포 기록에는 아래 값만 남긴다.
@@ -106,7 +108,7 @@ docker compose port hlog-redis 6379
 | `/feed.xml` | implemented | published 최신 version만 포함 |
 | `/llms.txt` | implemented | 공개 가능한 요약과 URL만 포함 |
 | `/llms-full.txt` | implemented | 공개 글 Markdown만 포함, source raw snapshot, secret, private URL 제외 |
-| `/api/search` | not implemented | rate limit, cache, published-only 결과 |
+| `/api/search` | implemented | rate limit, cache, published-only 결과 |
 
 구현 전에는 404를 정상으로 기록한다. 구현 후 404, 비공개 글 노출, content hash mismatch가 있으면 배포 실패로 본다.
 
@@ -150,8 +152,8 @@ curl -fsS https://<public-domain>/llms-full.txt
 
 DB migration이 포함된 배포는 `docker compose up -d` 전에 rollback 가능 여부를 먼저 판단한다.
 
-- 현재 저장소에는 migration runner가 없으므로 migration check는 "not applicable"로 기록한다.
-- migration이 추가되면 배포 전 backup/restore rehearsal을 통과해야 한다.
+- `hlog-migrate` runner로 app 시작 전에 migration을 적용하고 현재 version을 기록한다.
+- migration이 포함되면 배포 전 backup/restore rehearsal을 통과해야 한다.
 - destructive migration, data rewrite, `content_hash` 재계산은 rollback 불가 가능성이 있으므로 별도 승인 없이는 진행하지 않는다.
 - rollback 불가 migration이면 app image rollback만으로 복구 가능하다고 기록하지 않는다.
 

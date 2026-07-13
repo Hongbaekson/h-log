@@ -52,7 +52,8 @@
     },
     {
       "dir": "blog-runtime-integration",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Steps 0-4 completed: PostgreSQL migration and repository, DB-backed public reads, a manual persistent worker, and a deterministic fake-provider Compose dry-run now verify one published success and one private required failure through the real Nginx/public/crawler boundary. No external provider, scheduler, OCI, or production publish activation was added."
     },
     {
       "dir": "auto-publish-ops-hardening",

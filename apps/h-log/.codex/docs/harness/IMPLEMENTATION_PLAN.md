@@ -43,7 +43,7 @@ apps/h-log/AGENTS.md
 | root skill에 harness/tdd/grill-me/sync-repos 없음 | 보완 완료 | `.codex/skills/`에 repo-local skill 추가 |
 | phase index 없음 | 보완 완료 | `apps/h-log/phases/index.json` 생성 |
 | 자동 블로그 계획과 MVP 방향 충돌 가능 | 정리 완료 | file-based track은 active phase index에서 제거하고, DB-first track을 다음 실행 대상으로 기록 |
-| contract 완료와 runtime 완료 혼동 | 보완 진행 | local PostgreSQL migration/repository/public read path/manual worker는 완료했고 provider/scheduler가 없는 phase는 계속 partial local runtime으로 명시 |
+| contract 완료와 runtime 완료 혼동 | 보완 완료 | local PostgreSQL migration/repository/public read path/manual worker/fake-provider dry-run을 local runtime 완료로 기록하고 provider/scheduler activation은 별도로 유지 |
 | 성과 학습이 운영 안정화보다 먼저 배치됨 | 순서 수정 | runtime integration과 ops hardening 이후에 aggregate signal/persona learning 진행 |
 | visitor chatbot 오해 가능 | 통제 필요 | 모든 문서에서 chatbot 제외 명시 |
 | 자동 글의 허위 경험 표현 위험 | 통제 필요 | evidence 기반 article mode와 claim gate를 강제 |
@@ -63,7 +63,7 @@ post-publish-seo-automation: completed, steps 0-3 completed
 topic-research-generation: completed, steps 0-3 completed
 auto-article-generation: completed, steps 0-3 completed
 diagram-assets-automation: completed, steps 0-2 completed
-blog-runtime-integration: pending, steps 0-3 completed; step 4 pending
+blog-runtime-integration: completed, steps 0-4 completed
 auto-publish-ops-hardening: pending
 feedback-and-persona-learning: pending
 ```
@@ -275,7 +275,7 @@ feedback-and-persona-learning: pending
 - 결과: `post_assets`에 `status`, `asset_hash`, `verified_at` 경계를 추가하고, 저장 시 기대 SHA-256과 검증 SHA-256이 일치한 asset만 `ready`로 만든다. Public renderer는 current published version의 검증된 최신 diagram 하나만 첫 H2 뒤 또는 첫 paragraph 뒤에 `<figure>`로 출력한다. Missing, failed, invalid hash, 이전 version asset은 생략하며 canonical Markdown/HTML/content hash는 바꾸지 않는다.
 - crawler: Markdown/feed/llms output에는 diagram 설명을 추가로 반복하지 않는다.
 - 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts lib/blog-diagram-assets.test.ts lib/blog-public.test.ts lib/blog-crawler-output.test.ts`, GREEN focused 동일 명령 32/32 통과. 전체 `npm run test` 100/100, `npm run lint`, `npm run typecheck`, `npm run build`도 통과했다.
-- 다음 실행 대상은 `blog-runtime-integration / Step 1: postgres-blog-repository`이다.
+- runtime integration 후속 기록은 phase registry를 따른다.
 
 ## 현재 runtime 통합 phase
 
@@ -315,11 +315,20 @@ feedback-and-persona-learning: pending
 - 운영 경계: 외부 API adapter는 비활성화했고 polling, cron, OCI runtime, public publish는 변경하지 않았다.
 - 다음 실행 대상: `blog-runtime-integration / Step 4: local-end-to-end-dry-run`.
 
+#### Step 4: local-end-to-end-dry-run
+
+- 상태: completed
+- 결과: `lib/blog-local-dry-run.ts`, `scripts/blog-local-dry-run.mjs`, Compose `dry-run` profile을 추가했다. 고정된 fake topic으로 성공/실패 aggregate를 DB에 저장하고 required job을 처리한다. 모든 required job이 성공한 current version만 `published`로 전환하며, required failure는 `failed_publish`로 남긴다.
+- public 검증: 성공 글은 Nginx를 통해 HTML, Markdown, sitemap, feed, llms에 같은 slug/version/hash로 노출되고 실패 글은 404이며 crawler output에도 포함되지 않는다.
+- 검증: worker publish-transition RED와 dry-run missing-module RED를 각각 확인했다. PostgreSQL 통합 테스트 5/5, `docker compose --profile dry-run run --rm --build hlog-dry-run`, 전체 `npm run test` 103 pass/8 environment skip, `npm run typecheck`, `npm run lint`, `npm run build`, 기본/worker/dry-run Compose config가 통과했다.
+- 운영 경계: deterministic local fixture와 fake adapter만 사용했다. 외부 provider, scheduler, OCI runtime, production domain, 실제 공개 발행은 변경하지 않았다.
+- 다음 실행 대상: `auto-publish-ops-hardening / Step 0`.
+
 1. `postgres-schema-and-migration-runner`: completed. PostgreSQL schema, vector extension, migration version과 재실행 안정성을 local DB에서 검증했다.
 2. `postgres-blog-repository`: completed. Current domain contract를 재사용하는 최소 DB read/write adapter와 transaction rollback을 local PostgreSQL에서 검증했다.
 3. `db-backed-public-read-path`: completed. 정적 production store를 공통 DB-backed published-only route/crawler/search source로 교체했다.
 4. `persistent-worker-once-runner`: completed. DB job 최대 한 건을 claim하고 성공/실패/retry 결과를 저장한 뒤 종료하는 manual runner로 교체했다.
-5. `local-end-to-end-dry-run`: fake provider로 DB write부터 public surface까지 local vertical slice를 검증한다.
+5. `local-end-to-end-dry-run`: completed. Fake provider로 DB write부터 Nginx public/crawler surface까지 local vertical slice를 검증했다.
 
 실제 provider, cron, OCI runtime 변경, public publish는 이 phase에 포함하지 않는다. `auto-publish-ops-hardening` 완료 단계에서 사용자 승인 후 canary로 활성화한다.
 

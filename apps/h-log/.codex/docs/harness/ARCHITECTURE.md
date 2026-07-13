@@ -209,17 +209,17 @@ Manual admin or internal API
 
 public route는 `published` 상태의 최신 `post_version`만 노출한다. `ready_to_publish`, `gate_failed`, `failed_generation`, `failed_publish`, `failed_verification`, `unpublished`, `retracted` 상태는 public URL에서 보이지 않아야 한다.
 
-SQL migration, 최소 blog repository, DB-backed public/crawler/search read path, persistent manual `--once` worker는 local PostgreSQL에서 검증됐다. Public surface는 요청 시 공통 loader를 사용하고 fixture fallback을 두지 않는다. 다음 `blog-runtime-integration / Step 4`에서 fake provider 기반 local end-to-end dry-run을 검증한다.
+SQL migration, 최소 blog repository, DB-backed public/crawler/search read path, persistent manual `--once` worker, fake-provider local end-to-end dry-run은 local PostgreSQL과 Nginx public boundary에서 검증됐다. Public surface는 요청 시 공통 loader를 사용하고 fixture fallback을 두지 않는다. 성공 fixture만 같은 current version/hash로 공개하고 required failure fixture는 `failed_publish`와 404로 유지한다.
 
 ```text
 SQL migration - completed
   -> PostgreSQL blog repository - completed
   -> DB-backed public/crawler/search read path - completed
   -> manual --once persistent worker - completed
-  -> fake-provider local end-to-end dry-run
+  -> fake-provider local end-to-end dry-run - completed
 ```
 
-이 전환 뒤에도 실제 provider, cron, OCI runtime 변경, 공개 발행은 운영 안정화와 사용자 승인 전까지 비활성화한다.
+다음 `auto-publish-ops-hardening`에서도 실제 provider, cron, OCI runtime 변경, 공개 발행은 명시적 activation 단계와 사용자 승인 전까지 비활성화한다.
 
 현재 admin 구현은 `lib/blog-admin.ts`의 순수 workflow contract다. preview, save, publish와 `admin_actions` audit log를 테스트하지만, 접근 제어 방식이 결정되지 않았으므로 `/admin` production route는 아직 만들지 않는다. `admin_actions`는 preview/save/publish와 retry/unpublish/retract/correct/block_topic/approve_preview 운영 명령을 기록하며, actor/target/reason/created_at을 남긴다. URL, private host, credential-like 값이 포함된 감사 사유는 저장 전에 거부하고, public blog route output에는 audit log를 포함하지 않는다. 정정은 `published -> correction_pending -> corrected -> published` 흐름을 사용한다. 정정 적용 시 기존 version을 덮어쓰지 않고 새 `post_version`과 `post_corrections`의 이전/정정 content hash를 남기며, corrected 상태는 재발행 전까지 public route에서 숨긴다. 재발행된 정정 글은 기존 slug URL을 유지한다. `unpublished`와 `retracted` 글은 public detail, Markdown endpoint, list selector에서 제외하며 generic publish workflow로 다시 공개할 수 없다.
 
