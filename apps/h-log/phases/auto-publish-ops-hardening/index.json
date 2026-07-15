@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "persistent-job-lock-and-retry-stop",
-      "status": "pending"
+      "status": "completed",
+      "summary": "PostgreSQL-backed five-minute job leases now allow only the current lease owner to finish a job, reclaim expired work safely, and stop retryable stages after the same failure repeats twice with a durable usage_events row and operator-alert result."
     },
     {
       "step": 2,

@@ -84,6 +84,7 @@ export async function runLocalBlogDryRun({
     },
     pool,
     runAt,
+    workerId: "local-dry-run-success",
   });
 
   if (
@@ -105,6 +106,7 @@ export async function runLocalBlogDryRun({
     },
     pool,
     runAt,
+    workerId: "local-dry-run-failure",
   });
 
   if (

@@ -30,6 +30,7 @@ test(
           },
           pool,
           runAt,
+          workerId: "worker-once",
         });
 
         assert.equal(result.status, "succeeded");
@@ -74,6 +75,7 @@ test(
           },
           pool,
           runAt,
+          workerId: "worker-required",
         });
 
         assert.equal(result.status, "failed");
@@ -122,7 +124,12 @@ test(
       try {
         await seedPostWithJobs(pool, ["job-first", "job-last"]);
 
-        await runPersistentWorkerOnce({ adapter, pool, runAt });
+        await runPersistentWorkerOnce({
+          adapter,
+          pool,
+          runAt,
+          workerId: "worker-publish",
+        });
 
         const publishing = await pool.query(
           "select status, published_at from posts where id = $1",
@@ -133,7 +140,12 @@ test(
           status: "publishing",
         });
 
-        const result = await runPersistentWorkerOnce({ adapter, pool, runAt });
+        const result = await runPersistentWorkerOnce({
+          adapter,
+          pool,
+          runAt,
+          workerId: "worker-publish",
+        });
         const published = await pool.query(
           "select status, published_at from posts where id = $1",
           ["post-worker"],
@@ -151,7 +163,111 @@ test(
 );
 
 test(
-  "retries a retryable job until the terminal limit without hiding the post",
+  "leases one job, reclaims it only after timeout, and rejects the stale owner",
+  { skip: databaseUrl ? false : "DATABASE_URL is required" },
+  async () => {
+    await withTestDatabase("hlog_worker_lease_test", async (testUrl) => {
+      const pool = new Pool({ connectionString: testUrl });
+      const processedBy: string[] = [];
+      let releaseWorkerA = () => {};
+      let signalWorkerAStarted = () => {};
+      const workerAHold = new Promise<void>((resolve) => {
+        releaseWorkerA = resolve;
+      });
+      const workerAStarted = new Promise<void>((resolve) => {
+        signalWorkerAStarted = resolve;
+      });
+      let firstRun: ReturnType<typeof runPersistentWorkerOnce> | undefined;
+
+      try {
+        await seedPostWithJobs(pool, ["job-lease"]);
+
+        firstRun = runPersistentWorkerOnce({
+          adapter: {
+            async run() {
+              processedBy.push("worker-a");
+              signalWorkerAStarted();
+              await workerAHold;
+              return { error: "stale worker failed", status: "failed" };
+            },
+          },
+          pool,
+          runAt,
+          workerId: "worker-a",
+        });
+        await workerAStarted;
+
+        const leased = await pool.query(
+          `select status, lease_owner, lease_expires_at
+           from publish_jobs
+           where id = $1`,
+          ["job-lease"],
+        );
+        assert.deepEqual(
+          {
+            leaseExpiresAt: leased.rows[0]?.lease_expires_at.toISOString(),
+            leaseOwner: leased.rows[0]?.lease_owner,
+            status: leased.rows[0]?.status,
+          },
+          {
+            leaseExpiresAt: "2026-07-13T00:05:00.000Z",
+            leaseOwner: "worker-a",
+            status: "running",
+          },
+        );
+
+        const beforeTimeout = await runPersistentWorkerOnce({
+          adapter: {
+            async run() {
+              processedBy.push("worker-b-before-timeout");
+              return { status: "succeeded" };
+            },
+          },
+          pool,
+          runAt: "2026-07-13T00:04:59.000Z",
+          workerId: "worker-b",
+        });
+        assert.deepEqual(beforeTimeout, { status: "idle" });
+
+        const afterTimeout = await runPersistentWorkerOnce({
+          adapter: {
+            async run() {
+              processedBy.push("worker-b-after-timeout");
+              return { status: "succeeded" };
+            },
+          },
+          pool,
+          runAt: "2026-07-13T00:05:00.000Z",
+          workerId: "worker-b",
+        });
+        assert.equal(afterTimeout.status, "succeeded");
+
+        releaseWorkerA();
+        await assert.rejects(firstRun, /lease lost by worker worker-a/);
+        assert.deepEqual(processedBy, ["worker-a", "worker-b-after-timeout"]);
+
+        const finished = await pool.query(
+          `select status, lease_owner, lease_expires_at
+           from publish_jobs
+           where id = $1`,
+          ["job-lease"],
+        );
+        assert.deepEqual(finished.rows[0], {
+          lease_expires_at: null,
+          lease_owner: null,
+          status: "succeeded",
+        });
+      } finally {
+        releaseWorkerA();
+        await firstRun?.catch(() => {});
+        await pool.end();
+      }
+    });
+  },
+);
+
+test(
+  "stops a retryable job after the same failure repeats twice",
   { skip: databaseUrl ? false : "DATABASE_URL is required" },
   async () => {
     await withTestDatabase("hlog_worker_retry_failure_test", async (testUrl) => {
@@ -169,13 +285,37 @@ test(
           type: "discord",
         });
 
-        const first = await runPersistentWorkerOnce({ adapter, pool, runAt });
-        const second = await runPersistentWorkerOnce({ adapter, pool, runAt });
-        const third = await runPersistentWorkerOnce({ adapter, pool, runAt });
+        const first = await runPersistentWorkerOnce({
+          adapter,
+          pool,
+          runAt,
+          workerId: "worker-retry",
+        });
+        const second = await runPersistentWorkerOnce({
+          adapter,
+          pool,
+          runAt,
+          workerId: "worker-retry",
+        });
+        const third = await runPersistentWorkerOnce({
+          adapter,
+          pool,
+          runAt,
+          workerId: "worker-retry",
+        });
 
         assert.equal(first.status, "retrying");
-        assert.equal(second.status, "retrying");
-        assert.equal(third.status, "failed");
+        assert.equal(second.status, "failed");
+        assert.deepEqual(third, { status: "idle" });
+        assert.deepEqual(second.operatorAlert, {
+          createdAt: runAt,
+          idempotencyKey: "post-worker:version-worker:job-retry",
+          jobId: "job-retry",
+          jobType: "discord",
+          postId: "post-worker",
+          reason:
+            "discord retry stopped after the same failure repeated twice: retryable adapter failed",
+        });
 
         const job = await pool.query(
           "select status, retry_count, error from publish_jobs where id = $1",
@@ -183,9 +323,36 @@ test(
         );
         assert.deepEqual(job.rows[0], {
           error: "retryable adapter failed",
-          retry_count: 3,
+          retry_count: 2,
           status: "failed",
         });
+
+        const usageEvents = await pool.query(
+          `select id, run_id, event_type, provider, model, input_tokens,
+                  output_tokens, estimated_cost, status, created_at
+           from usage_events
+           order by id`,
+        );
+        assert.deepEqual(
+          usageEvents.rows.map(({ created_at, ...event }) => ({
+            ...event,
+            created_at: created_at.toISOString(),
+          })),
+          [
+            {
+              created_at: runAt,
+              estimated_cost: null,
+              event_type: "discord",
+              id: "job-retry:retry-stop:2",
+              input_tokens: null,
+              model: null,
+              output_tokens: null,
+              provider: "discord",
+              run_id: "job-retry",
+              status: "retry_stopped",
+            },
+          ],
+        );
 
         const post = await pool.query("select status from posts where id = $1", [
           "post-worker",

@@ -64,7 +64,7 @@ topic-research-generation: completed, steps 0-3 completed
 auto-article-generation: completed, steps 0-3 completed
 diagram-assets-automation: completed, steps 0-2 completed
 blog-runtime-integration: completed, steps 0-4 completed
-auto-publish-ops-hardening: pending, step 0 completed
+auto-publish-ops-hardening: pending, steps 0-1 completed
 feedback-and-persona-learning: pending
 ```
 
@@ -342,7 +342,14 @@ feedback-and-persona-learning: pending
 - 결과: 모든 publish job 생성 경로가 `job_type:post_version_id:content_hash` 형식의 공통 deterministic key를 사용한다. PostgreSQL repository는 저장 전 version/hash 결합을 검증하고, 같은 논리 요청이 다시 들어오면 새 row 대신 기존 job을 반환한다. Version 또는 content hash가 달라진 요청은 서로 다른 key로 저장된다.
 - 검증: missing export RED를 확인한 뒤 focused test 17/17, 관련 비-DB test 38/38, 실제 PostgreSQL repository 통합 test 3/3, 전체 `npm run test` 104 pass/9 environment skip, `npm run typecheck`, `npm run lint`, `npm run build`가 통과했다.
 - 운영 경계: 새 schema나 dependency를 추가하지 않았고 job lock, retry stop, 비용 집계, privacy scanner, provider/scheduler/OCI/public publish activation은 변경하지 않았다.
-- 다음 실행 대상: `auto-publish-ops-hardening / Step 1: persistent-job-lock-and-retry-stop`.
+
+#### Step 1: persistent-job-lock-and-retry-stop
+
+- 상태: completed
+- 결과: `002_publish_job_leases` migration과 persistent worker에 PostgreSQL lease owner/expiry를 추가했다. Lease timeout 전에는 다른 worker가 같은 job을 claim하지 못하고, timeout 후 재획득한 현재 owner만 성공/실패 상태를 저장할 수 있다. Retryable job은 같은 실패 사유가 2회 반복되면 terminal failure로 중단하며, 같은 transaction에서 `usage_events` retry stop row를 저장하고 operator-alert 결과를 반환한다.
+- 검증: 실제 PostgreSQL에서 lease column missing RED, 동일 오류 2회 중단 RED, durable `usage_events` relation missing RED를 확인한 뒤 worker 통합 test 5/5, migration 통합 test 1/1, 전체 `npm run test` 104 pass/10 environment skip, `npm run typecheck`, `npm run lint`, `npm run build`가 통과했다.
+- 운영 경계: 5분 lease, retry stop, 해당 중단 event의 최소 persistence만 추가했다. 외부 호출 비용 집계와 budget guard, privacy scanner, 실제 provider, scheduler, OCI runtime, public publish activation은 변경하지 않았다.
+- 다음 실행 대상: `auto-publish-ops-hardening / Step 2: usage-events-cost-ledger`.
 
 ## 이후 DB-first 단계
 

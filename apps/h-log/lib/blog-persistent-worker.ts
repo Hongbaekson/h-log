@@ -20,10 +20,20 @@ export type PersistentWorkerAdapter = {
   run(job: PublishJobRecord): Promise<PersistentWorkerAdapterResult>;
 };
 
+export type PersistentWorkerOperatorAlert = {
+  createdAt: Timestamp;
+  idempotencyKey: string;
+  jobId: string;
+  jobType: PublishJobType;
+  postId: string;
+  reason: string;
+};
+
 export type RunPersistentWorkerOnceResult =
   | { status: "idle" }
   | {
       job: PublishJobRecord;
+      operatorAlert: PersistentWorkerOperatorAlert | null;
       postStatus: BlogPostStatus;
       status: "failed" | "retrying" | "succeeded";
     };
@@ -32,25 +42,32 @@ export async function runPersistentWorkerOnce({
   adapter,
   pool,
   runAt,
+  workerId,
 }: {
   adapter: PersistentWorkerAdapter;
   pool: Pool;
   runAt: Timestamp;
+  workerId: string;
 }): Promise<RunPersistentWorkerOnceResult> {
   const claimed = await pool.query(
     `with next_job as (
        select id
        from publish_jobs
        where status in ('queued', 'retrying')
+          or (status = 'running' and lease_expires_at <= $1)
        order by id
        for update skip locked
        limit 1
      )
      update publish_jobs
-     set status = 'running', error = null, started_at = $1, finished_at = null
+     set status = 'running',
+         lease_owner = $2,
+         lease_expires_at = $1::timestamptz + interval '5 minutes',
+         started_at = $1,
+         finished_at = null
      where id = (select id from next_job)
      returning *`,
-    [runAt],
+    [runAt, workerId],
   );
 
   if (claimed.rowCount === 0) {
@@ -90,27 +107,59 @@ export async function runPersistentWorkerOnce({
       job,
       postStatus,
     });
-    const finishedJob: PublishJobRecord =
+    const repeatedSameFailure =
+      job.importance === "retryable" &&
+      job.retryCount >= 1 &&
+      job.error === adapterResult.error;
+    const retryLimitReached =
       failure.job.status === "retrying" &&
-      failure.job.retryCount >= DEFAULT_POST_PUBLISH_RETRY_LIMIT
+      failure.job.retryCount >= DEFAULT_POST_PUBLISH_RETRY_LIMIT;
+    const finishedJob: PublishJobRecord =
+      repeatedSameFailure || retryLimitReached
         ? { ...failure.job, status: "failed" }
         : failure.job;
+    const retryStopped = repeatedSameFailure || retryLimitReached;
     const client = await pool.connect();
 
     try {
       await client.query("begin");
-      await client.query(
+      const updated = await client.query(
         `update publish_jobs
-         set status = $2, error = $3, retry_count = $4, finished_at = $5
-         where id = $1`,
+         set status = $2,
+             error = $3,
+             retry_count = $4,
+             finished_at = $5,
+             lease_owner = null,
+             lease_expires_at = null
+         where id = $1 and status = 'running' and lease_owner = $6`,
         [
           finishedJob.id,
           finishedJob.status,
           finishedJob.error,
           finishedJob.retryCount,
           finishedJob.finishedAt,
+          workerId,
         ],
       );
+
+      if (updated.rowCount !== 1) {
+        throw new Error(`publish job ${job.id}: lease lost by worker ${workerId}`);
+      }
+
+      if (retryStopped) {
+        await client.query(
+          `insert into usage_events (
+             id, run_id, event_type, provider, status, created_at
+           ) values ($1, $2, $3, $4, 'retry_stopped', $5)`,
+          [
+            `${job.id}:retry-stop:${finishedJob.retryCount}`,
+            job.id,
+            job.type,
+            job.type,
+            runAt,
+          ],
+        );
+      }
 
       if (failure.postStatus !== postStatus) {
         assertBlogPostStatusTransition(postStatus, failure.postStatus);
@@ -130,6 +179,18 @@ export async function runPersistentWorkerOnce({
 
     return {
       job: finishedJob,
+      operatorAlert: retryStopped
+        ? {
+            createdAt: runAt,
+            idempotencyKey: job.idempotencyKey,
+            jobId: job.id,
+            jobType: job.type,
+            postId: job.postId,
+            reason: repeatedSameFailure
+              ? `${job.type} retry stopped after the same failure repeated twice: ${adapterResult.error}`
+              : `${job.type} retry limit reached: ${adapterResult.error}`,
+          }
+        : null,
       postStatus: failure.postStatus,
       status: finishedJob.status === "retrying" ? "retrying" : "failed",
     };
@@ -146,18 +207,28 @@ export async function runPersistentWorkerOnce({
 
   try {
     await client.query("begin");
-    await client.query(
+    const updated = await client.query(
       `update publish_jobs
-       set status = $2, error = $3, retry_count = $4, finished_at = $5
-       where id = $1`,
+       set status = $2,
+           error = $3,
+           retry_count = $4,
+           finished_at = $5,
+           lease_owner = null,
+           lease_expires_at = null
+       where id = $1 and status = 'running' and lease_owner = $6`,
       [
         finishedJob.id,
         finishedJob.status,
         finishedJob.error,
         finishedJob.retryCount,
         finishedJob.finishedAt,
+        workerId,
       ],
     );
+
+    if (updated.rowCount !== 1) {
+      throw new Error(`publish job ${job.id}: lease lost by worker ${workerId}`);
+    }
 
     if (
       finishedJob.importance === "required" &&
@@ -199,7 +270,12 @@ export async function runPersistentWorkerOnce({
     client.release();
   }
 
-  return { job: finishedJob, postStatus: nextPostStatus, status: "succeeded" };
+  return {
+    job: finishedJob,
+    operatorAlert: null,
+    postStatus: nextPostStatus,
+    status: "succeeded",
+  };
 }
 
 function mapPublishJob(row: QueryResultRow): PublishJobRecord {

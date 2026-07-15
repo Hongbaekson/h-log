@@ -57,7 +57,8 @@
     },
     {
       "dir": "auto-publish-ops-hardening",
-      "status": "pending"
+      "status": "pending",
+      "summary": "Steps 0-1 completed: deterministic publish job idempotency, PostgreSQL lease ownership and timeout recovery, stale-owner rejection, and durable same-failure retry stopping are tested. External-call cost aggregation, privacy scanning, and production activation remain pending."
     },
     {
       "dir": "feedback-and-persona-learning",

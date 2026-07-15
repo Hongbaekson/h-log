@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import pg from "pg";
 
 import { runPersistentWorkerOnce } from "../lib/blog-persistent-worker.ts";
@@ -24,6 +26,7 @@ try {
     },
     pool,
     runAt: new Date().toISOString(),
+    workerId: randomUUID(),
   });
 
   console.log(

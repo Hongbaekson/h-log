@@ -23,7 +23,8 @@
 - Compose worker는 DB job을 최대 한 건 처리하고 종료하는 manual `--once` runner이며 외부 adapter는 비활성화돼 있다.
 - fake-provider local Compose dry-run에서 성공 글의 HTML/Markdown/crawler 공개와 required 실패 글의 비공개 상태를 검증했다.
 - auto-publish-ops-hardening / Step 0의 deterministic idempotency key와 중복 저장 수렴을 완료했다.
-- 다음 실행 대상은 auto-publish-ops-hardening / Step 1의 PostgreSQL job lock과 retry stop이다.
+- auto-publish-ops-hardening / Step 1의 PostgreSQL lease owner/expiry, timeout 재획득, stale owner 거부, 동일 오류 2회 retry stop과 durable `usage_events` 기록을 완료했다.
+- 다음 실행 대상은 auto-publish-ops-hardening / Step 2의 usage events 비용 ledger다.
 ```
 
 따라서 문서에서 `completed`는 contract 완료와 runtime 완료를 구분해 쓴다. Production 자동 발행 완료는 PostgreSQL persistence, persistent worker, 운영 안정화, 승인된 canary와 rollback smoke까지 통과한 뒤에만 선언한다.
@@ -128,7 +129,7 @@ AI workflow
 2. 다이어그램 삽입 gate - 완료
 3. PostgreSQL schema/migration/repository와 DB-backed public read path - 완료
 4. persistent manual worker와 local fake-provider end-to-end dry-run - 완료
-5. idempotency, job lock, cost ledger, privacy scanner 운영 안정화
+5. idempotency와 job lock 완료, cost ledger와 privacy scanner 운영 안정화 진행 중
 6. 사용자 승인 기반 provider/scheduler/OCI canary와 rollback smoke
 7. 실제 aggregate signal이 쌓인 뒤 persona feedback learning
 ```
@@ -1305,6 +1306,8 @@ publish_jobs
 - status
 - retry_count
 - error
+- lease_owner
+- lease_expires_at
 - started_at
 - finished_at
 
@@ -1553,7 +1556,7 @@ daily-blog-cron
 6단계: 운영 안정화와 production activation.
 
 - deterministic idempotency key - 완료
-- PostgreSQL job lease와 retry stop
+- PostgreSQL job lease와 retry stop - 완료
 - source fetch/LLM/embedding 비용 집계
 - 검색 API 임베딩 호출 비용과 봇성 요청 별도 집계
 - privacy scanner와 redaction
