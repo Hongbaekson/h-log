@@ -22,7 +22,8 @@
 - public blog, crawler output, search는 공통 PostgreSQL published-current source를 읽는다.
 - Compose worker는 DB job을 최대 한 건 처리하고 종료하는 manual `--once` runner이며 외부 adapter는 비활성화돼 있다.
 - fake-provider local Compose dry-run에서 성공 글의 HTML/Markdown/crawler 공개와 required 실패 글의 비공개 상태를 검증했다.
-- 다음 실행 대상은 auto-publish-ops-hardening / Step 0이다.
+- auto-publish-ops-hardening / Step 0의 deterministic idempotency key와 중복 저장 수렴을 완료했다.
+- 다음 실행 대상은 auto-publish-ops-hardening / Step 1의 PostgreSQL job lock과 retry stop이다.
 ```
 
 따라서 문서에서 `completed`는 contract 완료와 runtime 완료를 구분해 쓴다. Production 자동 발행 완료는 PostgreSQL persistence, persistent worker, 운영 안정화, 승인된 canary와 rollback smoke까지 통과한 뒤에만 선언한다.
@@ -1551,7 +1552,7 @@ daily-blog-cron
 
 6단계: 운영 안정화와 production activation.
 
-- deterministic idempotency key
+- deterministic idempotency key - 완료
 - PostgreSQL job lease와 retry stop
 - source fetch/LLM/embedding 비용 집계
 - 검색 API 임베딩 호출 비용과 봇성 요청 별도 집계

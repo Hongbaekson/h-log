@@ -64,7 +64,7 @@ topic-research-generation: completed, steps 0-3 completed
 auto-article-generation: completed, steps 0-3 completed
 diagram-assets-automation: completed, steps 0-2 completed
 blog-runtime-integration: completed, steps 0-4 completed
-auto-publish-ops-hardening: pending
+auto-publish-ops-hardening: pending, step 0 completed
 feedback-and-persona-learning: pending
 ```
 
@@ -322,7 +322,7 @@ feedback-and-persona-learning: pending
 - public 검증: 성공 글은 Nginx를 통해 HTML, Markdown, sitemap, feed, llms에 같은 slug/version/hash로 노출되고 실패 글은 404이며 crawler output에도 포함되지 않는다.
 - 검증: worker publish-transition RED와 dry-run missing-module RED를 각각 확인했다. PostgreSQL 통합 테스트 5/5, `docker compose --profile dry-run run --rm --build hlog-dry-run`, 전체 `npm run test` 103 pass/8 environment skip, `npm run typecheck`, `npm run lint`, `npm run build`, 기본/worker/dry-run Compose config가 통과했다.
 - 운영 경계: deterministic local fixture와 fake adapter만 사용했다. 외부 provider, scheduler, OCI runtime, production domain, 실제 공개 발행은 변경하지 않았다.
-- 다음 실행 대상: `auto-publish-ops-hardening / Step 0`.
+- 다음 실행 대상: `auto-publish-ops-hardening / Step 1: persistent-job-lock-and-retry-stop`.
 
 1. `postgres-schema-and-migration-runner`: completed. PostgreSQL schema, vector extension, migration version과 재실행 안정성을 local DB에서 검증했다.
 2. `postgres-blog-repository`: completed. Current domain contract를 재사용하는 최소 DB read/write adapter와 transaction rollback을 local PostgreSQL에서 검증했다.
@@ -331,6 +331,18 @@ feedback-and-persona-learning: pending
 5. `local-end-to-end-dry-run`: completed. Fake provider로 DB write부터 Nginx public/crawler surface까지 local vertical slice를 검증했다.
 
 실제 provider, cron, OCI runtime 변경, public publish는 이 phase에 포함하지 않는다. `auto-publish-ops-hardening` 완료 단계에서 사용자 승인 후 canary로 활성화한다.
+
+## 현재 운영 안정화 phase
+
+### auto-publish-ops-hardening
+
+#### Step 0: idempotency-key-contract
+
+- 상태: completed
+- 결과: 모든 publish job 생성 경로가 `job_type:post_version_id:content_hash` 형식의 공통 deterministic key를 사용한다. PostgreSQL repository는 저장 전 version/hash 결합을 검증하고, 같은 논리 요청이 다시 들어오면 새 row 대신 기존 job을 반환한다. Version 또는 content hash가 달라진 요청은 서로 다른 key로 저장된다.
+- 검증: missing export RED를 확인한 뒤 focused test 17/17, 관련 비-DB test 38/38, 실제 PostgreSQL repository 통합 test 3/3, 전체 `npm run test` 104 pass/9 environment skip, `npm run typecheck`, `npm run lint`, `npm run build`가 통과했다.
+- 운영 경계: 새 schema나 dependency를 추가하지 않았고 job lock, retry stop, 비용 집계, privacy scanner, provider/scheduler/OCI/public publish activation은 변경하지 않았다.
+- 다음 실행 대상: `auto-publish-ops-hardening / Step 1: persistent-job-lock-and-retry-stop`.
 
 ## 이후 DB-first 단계
 

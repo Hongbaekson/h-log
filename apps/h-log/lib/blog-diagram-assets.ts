@@ -1,4 +1,5 @@
 import {
+  createPublishJobIdempotencyKey,
   getPublishJobImportance,
   isCurrentPublishedVersion,
   recordPublishJobFailure,
@@ -221,7 +222,7 @@ function createDiagramPublishJob(
     error: null,
     finishedAt: null,
     id: `${input.post.id}:${input.version.id}:diagram`,
-    idempotencyKey: `${input.post.id}:${input.version.id}:diagram`,
+    idempotencyKey: createPublishJobIdempotencyKey("diagram", input.version),
     importance: getPublishJobImportance("diagram"),
     postId: input.post.id,
     postVersionId: input.version.id,

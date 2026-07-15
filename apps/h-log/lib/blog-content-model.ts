@@ -364,6 +364,13 @@ export function getPublishJobImportance(
     : "retryable";
 }
 
+export function createPublishJobIdempotencyKey(
+  type: PublishJobType,
+  version: Pick<PostVersionRecord, "contentHash" | "id">,
+): string {
+  return `${type}:${version.id}:${version.contentHash}`;
+}
+
 export type PostRecord = {
   articleMode: BlogArticleMode;
   createdAt: Timestamp;
@@ -493,6 +500,25 @@ export type PublishJobRecord = {
   status: PublishJobStatus;
   type: PublishJobType;
 };
+
+export function assertPublishJobIdempotencyKey(
+  job: PublishJobRecord,
+  version: Pick<PostVersionRecord, "contentHash" | "id">,
+): void {
+  if (job.postVersionId !== version.id) {
+    throw new Error(
+      `publish job ${job.id}: post version ${job.postVersionId} does not match ${version.id}`,
+    );
+  }
+
+  const expected = createPublishJobIdempotencyKey(job.type, version);
+
+  if (job.idempotencyKey !== expected) {
+    throw new Error(
+      `publish job ${job.id}: expected idempotency key ${expected}, received ${job.idempotencyKey}`,
+    );
+  }
+}
 
 export type PublishVerificationRecord = {
   checkedAt: Timestamp;

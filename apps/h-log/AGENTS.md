@@ -10,7 +10,7 @@
 - Blog content direction: DB-backed `posts`/`post_versions` with generated Markdown/HTML
 - Compatibility content: existing MD/MDX loader is import/transition support only
 - Backend: Next.js route handlers first; automation contracts, a manual `--once` persistent worker, and the local fake-provider end-to-end dry-run exist, while external provider orchestration remains disabled
-- Database: PostgreSQL + pgvector schema migration, the minimal blog repository, the DB-backed public read path, the persistent worker, and the local end-to-end dry-run are implemented; `auto-publish-ops-hardening` is the next blog phase
+- Database: PostgreSQL + pgvector schema migration, the minimal blog repository, the DB-backed public read path, the persistent worker, and the local end-to-end dry-run are implemented; `auto-publish-ops-hardening` is active with Step 0 idempotency completed and Step 1 job locking/retry stop next
 - Deploy target: OCI server with Docker Compose and Nginx
 - Infrastructure: OCI Compute first; web, worker, PostgreSQL, Redis, and Nginx are Compose-managed unless a later ADR selects managed services
 

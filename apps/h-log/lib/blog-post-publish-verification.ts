@@ -1,5 +1,6 @@
 import {
   assertPostVersionContentHashMatches,
+  createPublishJobIdempotencyKey,
   getPublishJobImportance,
   requiredPublishJobTypes,
   selectPublicBlogRouteEntries,
@@ -215,7 +216,7 @@ export function createPostPublishVerificationJobs(
     error: null,
     finishedAt: null,
     id: `${input.post.id}:${input.version.id}:${type}`,
-    idempotencyKey: `${input.post.id}:${input.version.id}:${type}`,
+    idempotencyKey: createPublishJobIdempotencyKey(type, input.version),
     importance: getPublishJobImportance(type),
     postId: input.post.id,
     postVersionId: input.version.id,

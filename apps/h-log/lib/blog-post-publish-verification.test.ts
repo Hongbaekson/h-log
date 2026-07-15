@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  createPublishJobIdempotencyKey,
   createPostVersionContentFromMarkdown,
   type PostRecord,
   type PostTagRecord,
@@ -201,7 +202,7 @@ describe("post-publish SEO verification contract", () => {
     );
     assert.equal(
       jobs.find((job) => job.type === "indexnow")?.idempotencyKey,
-      "post-public-seo:version-public-seo:indexnow",
+      createPublishJobIdempotencyKey("indexnow", version),
     );
   });
 

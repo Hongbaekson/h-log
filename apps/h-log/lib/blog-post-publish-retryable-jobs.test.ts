@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  createPublishJobIdempotencyKey,
   createPostVersionContentFromMarkdown,
   type PostRecord,
   type PostVersionRecord,
@@ -56,11 +57,16 @@ function createVersion(
 }
 
 function createJob(overrides: Partial<PublishJobRecord> = {}): PublishJobRecord {
+  const type = overrides.type ?? "indexnow";
+  const version = createVersion({
+    id: overrides.postVersionId ?? "version-public-seo",
+  });
+
   return {
     error: null,
     finishedAt: null,
     id: "job-indexnow",
-    idempotencyKey: "post-public-seo:version-public-seo:indexnow",
+    idempotencyKey: createPublishJobIdempotencyKey(type, version),
     importance: "retryable",
     postId: "post-public-seo",
     postVersionId: "version-public-seo",
@@ -75,6 +81,10 @@ function createJob(overrides: Partial<PublishJobRecord> = {}): PublishJobRecord 
 describe("post-publish IndexNow and Discord retryable jobs", () => {
   it("submits IndexNow through an adapter with a deterministic idempotency key", async () => {
     const calls: string[] = [];
+    const idempotencyKey = createPublishJobIdempotencyKey(
+      "indexnow",
+      createVersion(),
+    );
     const adapter: PostPublishRetryableJobAdapter = {
       async submitIndexNow(input) {
         calls.push(input.idempotencyKey);
@@ -103,17 +113,21 @@ describe("post-publish IndexNow and Discord retryable jobs", () => {
     assert.equal(result.job.status, "succeeded");
     assert.equal(result.job.error, null);
     assert.equal(result.job.retryCount, 0);
-    assert.deepEqual(calls, ["post-public-seo:version-public-seo:indexnow"]);
+    assert.deepEqual(calls, [idempotencyKey]);
     assert.deepEqual(result.usageEvent, {
       createdAt: "2026-06-30T00:01:00.000Z",
       eventType: "indexnow",
-      idempotencyKey: "post-public-seo:version-public-seo:indexnow",
+      idempotencyKey,
       provider: "fake-indexnow",
       status: "success",
     });
   });
 
   it("keeps a published post public when Discord delivery fails", async () => {
+    const idempotencyKey = createPublishJobIdempotencyKey(
+      "discord",
+      createVersion(),
+    );
     const adapter: PostPublishRetryableJobAdapter = {
       async sendDiscordNotification(input) {
         assert.equal(input.href, "https://h-log.example/blog/public-seo");
@@ -127,7 +141,6 @@ describe("post-publish IndexNow and Discord retryable jobs", () => {
       allowExternalSideEffects: true,
       job: createJob({
         id: "job-discord",
-        idempotencyKey: "post-public-seo:version-public-seo:discord",
         type: "discord",
       }),
       origin: "https://h-log.example",
@@ -146,7 +159,7 @@ describe("post-publish IndexNow and Discord retryable jobs", () => {
     assert.deepEqual(result.usageEvent, {
       createdAt: "2026-06-30T00:02:00.000Z",
       eventType: "discord",
-      idempotencyKey: "post-public-seo:version-public-seo:discord",
+      idempotencyKey,
       provider: "discord",
       status: "failed",
     });
@@ -215,6 +228,10 @@ describe("post-publish IndexNow and Discord retryable jobs", () => {
 
   it("rejects non-deterministic idempotency keys before adapter calls", async () => {
     let calls = 0;
+    const expectedKey = createPublishJobIdempotencyKey(
+      "indexnow",
+      createVersion(),
+    );
     const adapter: PostPublishRetryableJobAdapter = {
       async submitIndexNow() {
         calls += 1;
@@ -239,7 +256,7 @@ describe("post-publish IndexNow and Discord retryable jobs", () => {
         runAt: "2026-06-30T00:05:00.000Z",
         version: createVersion(),
       }),
-      /expected idempotency key post-public-seo:version-public-seo:indexnow/,
+      new RegExp(`expected idempotency key ${expectedKey}`),
     );
     assert.equal(calls, 0);
   });

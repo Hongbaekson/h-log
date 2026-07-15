@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "idempotency-key-contract",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Publish job keys now deterministically bind job_type, post_version_id, and content_hash. PostgreSQL persistence returns the existing job for duplicate logical requests while changed versions or content hashes create distinct keys."
     },
     {
       "step": 1,

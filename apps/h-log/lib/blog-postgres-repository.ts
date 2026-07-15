@@ -1,6 +1,7 @@
 import type { Pool, PoolClient, QueryResultRow } from "pg";
 
 import {
+  assertPublishJobIdempotencyKey,
   selectPublicBlogRouteEntries,
   type BlogArticleMode,
   type BlogPostStatus,
@@ -25,6 +26,7 @@ export type BlogPostAggregate = {
 
 export type PostgresBlogRepository = {
   findPublicBlogContent(): Promise<BlogContentStore>;
+  savePublishJob(job: PublishJobRecord): Promise<PublishJobRecord>;
   savePost(aggregate: BlogPostAggregate): Promise<void>;
 };
 
@@ -72,6 +74,34 @@ export function createPostgresBlogRepository(
         tags: tagResult.rows.map(mapPostTag),
         versions: publicEntries.map(({ version }) => version),
       };
+    },
+
+    async savePublishJob(job) {
+      const client = await pool.connect();
+
+      try {
+        const versionResult = await client.query(
+          `select id, content_hash
+           from post_versions
+           where id = $1 and post_id = $2`,
+          [job.postVersionId, job.postId],
+        );
+
+        if (versionResult.rowCount === 0) {
+          throw new Error(
+            `publish job ${job.id}: post version ${job.postVersionId} not found`,
+          );
+        }
+
+        assertPublishJobIdempotencyKey(job, {
+          contentHash: versionResult.rows[0].content_hash,
+          id: versionResult.rows[0].id,
+        });
+
+        return await insertPublishJob(client, job);
+      } finally {
+        client.release();
+      }
     },
 
     async savePost(aggregate) {
@@ -256,12 +286,14 @@ async function upsertPostAsset(
 async function insertPublishJob(
   client: PoolClient,
   job: PublishJobRecord,
-): Promise<void> {
-  await client.query(
+): Promise<PublishJobRecord> {
+  const inserted = await client.query(
     `insert into publish_jobs (
        id, post_id, post_version_id, type, importance, idempotency_key,
        status, retry_count, error, started_at, finished_at
-     ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+     ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+     on conflict (idempotency_key) do nothing
+     returning *`,
     [
       job.id,
       job.postId,
@@ -276,6 +308,21 @@ async function insertPublishJob(
       job.finishedAt,
     ],
   );
+
+  if (inserted.rowCount) {
+    return mapPublishJob(inserted.rows[0]);
+  }
+
+  const existing = await client.query(
+    "select * from publish_jobs where idempotency_key = $1",
+    [job.idempotencyKey],
+  );
+
+  if (existing.rowCount === 0) {
+    throw new Error(`publish job ${job.id}: idempotent result not found`);
+  }
+
+  return mapPublishJob(existing.rows[0]);
 }
 
 function assertAggregateReferences(aggregate: BlogPostAggregate): void {
@@ -303,6 +350,10 @@ function assertAggregateReferences(aggregate: BlogPostAggregate): void {
 
   if (hasForeignVersion) {
     throw new Error(`post ${post.id}: aggregate contains a foreign version record`);
+  }
+
+  for (const job of aggregate.publishJobs) {
+    assertPublishJobIdempotencyKey(job, version);
   }
 }
 
@@ -377,6 +428,22 @@ function mapPostAsset(row: QueryResultRow): PostAssetRecord {
     status: row.status,
     type: row.type,
     verifiedAt: toNullableTimestamp(row.verified_at),
+  };
+}
+
+function mapPublishJob(row: QueryResultRow): PublishJobRecord {
+  return {
+    error: row.error,
+    finishedAt: toNullableTimestamp(row.finished_at),
+    id: row.id,
+    idempotencyKey: row.idempotency_key,
+    importance: row.importance,
+    postId: row.post_id,
+    postVersionId: row.post_version_id,
+    retryCount: row.retry_count,
+    startedAt: toNullableTimestamp(row.started_at),
+    status: row.status,
+    type: row.type,
   };
 }
 

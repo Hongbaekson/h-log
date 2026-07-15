@@ -1,6 +1,7 @@
 import type { Pool } from "pg";
 
 import {
+  createPublishJobIdempotencyKey,
   createPostVersionContentFromMarkdown,
   type PostRecord,
   type PostSourceRecord,
@@ -185,7 +186,7 @@ function createDryRunAggregate({
     error: null,
     finishedAt: null,
     id: jobId,
-    idempotencyKey: `${postId}:${versionId}:render`,
+    idempotencyKey: createPublishJobIdempotencyKey("render", version),
     importance: "required",
     postId,
     postVersionId: versionId,

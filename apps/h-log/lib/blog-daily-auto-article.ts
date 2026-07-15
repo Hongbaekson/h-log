@@ -1,5 +1,6 @@
 import {
   assertBlogPostStatusTransition,
+  createPublishJobIdempotencyKey,
   createPostVersionContentFromMarkdown,
   getPublishJobImportance,
   requiredPublishJobTypes,
@@ -389,7 +390,7 @@ function createRequiredPublishJobs({
     error: null,
     finishedAt: null,
     id: `${post.id}:${version.id}:${type}`,
-    idempotencyKey: `${post.id}:${version.id}:${type}`,
+    idempotencyKey: createPublishJobIdempotencyKey(type, version),
     importance: getPublishJobImportance(type),
     postId: post.id,
     postVersionId: version.id,

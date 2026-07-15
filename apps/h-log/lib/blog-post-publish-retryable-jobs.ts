@@ -1,4 +1,5 @@
 import {
+  assertPublishJobIdempotencyKey,
   assertPostVersionContentHashMatches,
   getPublishJobImportance,
   isCurrentPublishedVersion,
@@ -101,7 +102,7 @@ export async function runPostPublishRetryableJob(
   const maxRetryCount = input.maxRetryCount ?? DEFAULT_POST_PUBLISH_RETRY_LIMIT;
 
   assertPublishedCurrentVersion(input);
-  assertPostPublishJobIdempotency(input.job, input.post, input.version, jobType);
+  assertPublishJobIdempotencyKey(input.job, input.version);
 
   if (!input.allowExternalSideEffects) {
     return {
@@ -270,21 +271,6 @@ function assertPublishedCurrentVersion(
   }
 
   assertPostVersionContentHashMatches(input.version);
-}
-
-function assertPostPublishJobIdempotency(
-  job: PublishJobRecord,
-  post: PostRecord,
-  version: PostVersionRecord,
-  jobType: PostPublishExternalJobType,
-): void {
-  const expected = `${post.id}:${version.id}:${jobType}`;
-
-  if (job.idempotencyKey !== expected) {
-    throw new Error(
-      `publish job ${job.id}: expected idempotency key ${expected}, received ${job.idempotencyKey}`,
-    );
-  }
 }
 
 function toRetryLimitReachedResult({

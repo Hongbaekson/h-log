@@ -10,6 +10,7 @@ import {
   blogArticleModes,
   blogPostStatuses,
   canTransitionBlogPostStatus,
+  createPublishJobIdempotencyKey,
   createPostVersionContentFromMarkdown,
   createPostVersionContentHash,
   getPublishJobImportance,
@@ -89,6 +90,35 @@ function createPublishJob(
 }
 
 describe("blog DB content model contract", () => {
+  it("binds publish job idempotency to the job type, version, and content hash", () => {
+    const version = createVersion();
+    const key = createPublishJobIdempotencyKey("public_url", version);
+
+    assert.equal(
+      key,
+      `public_url:${version.id}:${version.contentHash}`,
+    );
+    assert.equal(createPublishJobIdempotencyKey("public_url", version), key);
+    assert.notEqual(
+      createPublishJobIdempotencyKey("md_url", version),
+      key,
+    );
+    assert.notEqual(
+      createPublishJobIdempotencyKey("public_url", {
+        ...version,
+        id: "version-2",
+      }),
+      key,
+    );
+    assert.notEqual(
+      createPublishJobIdempotencyKey("public_url", {
+        ...version,
+        contentHash: "f".repeat(64),
+      }),
+      key,
+    );
+  });
+
   it("keeps post metadata separate from versioned content fields", () => {
     const postFields: readonly string[] = BLOG_CONTENT_MODEL_TABLES.posts;
     const versionFields: readonly string[] = BLOG_CONTENT_MODEL_TABLES.post_versions;

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  createPublishJobIdempotencyKey,
   createPostVersionContentFromMarkdown,
   type PostRecord,
   type PostVersionRecord,
@@ -92,7 +93,7 @@ describe("diagram asset trigger policy", () => {
     assert.equal(plan.job?.importance, "retryable");
     assert.equal(
       plan.job?.idempotencyKey,
-      "post-diagram:version-diagram:diagram",
+      createPublishJobIdempotencyKey("diagram", createVersion()),
     );
   });
 

@@ -4,6 +4,7 @@ import test from "node:test";
 import pg from "pg";
 
 import {
+  createPublishJobIdempotencyKey,
   createPostVersionContentFromMarkdown,
   type PostAssetRecord,
   type PostRecord,
@@ -63,6 +64,68 @@ test(
 );
 
 test(
+  "returns the existing persisted job for the same logical request",
+  { skip: databaseUrl ? false : "DATABASE_URL is required" },
+  async () => {
+    await withTestDatabase("hlog_repository_idempotency_test", async (testUrl) => {
+      const pool = new Pool({ connectionString: testUrl });
+      const repository = createPostgresBlogRepository(pool);
+
+      try {
+        const aggregate = createAggregate("idempotent", "publishing");
+        aggregate.publishJobs = [];
+        await repository.savePost(aggregate);
+
+        const job = createPublishJob(aggregate, "job-idempotent-first");
+        const first = await repository.savePublishJob(job);
+        const second = await repository.savePublishJob({
+          ...job,
+          id: "job-idempotent-duplicate",
+        });
+
+        assert.deepEqual(second, first);
+        await assert.rejects(
+          repository.savePublishJob({
+            ...job,
+            id: "job-idempotent-invalid-key",
+            idempotencyKey: "different-key-for-the-same-logical-job",
+          }),
+          /expected idempotency key/,
+        );
+
+        const persisted = await pool.query(
+          "select id, idempotency_key from publish_jobs order by id",
+        );
+        assert.deepEqual(persisted.rows, [
+          {
+            id: "job-idempotent-first",
+            idempotency_key: job.idempotencyKey,
+          },
+        ]);
+
+        const next = createAggregate("idempotent", "publishing", 2);
+        next.assets = [];
+        next.publishJobs = [];
+        next.sources = [];
+        next.tags = [];
+        await repository.savePost(next);
+
+        const nextJob = createPublishJob(next, "job-idempotent-v2");
+        const savedNext = await repository.savePublishJob(nextJob);
+
+        assert.notEqual(savedNext.idempotencyKey, first.idempotencyKey);
+        const persistedCount = await pool.query(
+          "select count(*)::int as count from publish_jobs",
+        );
+        assert.equal(persistedCount.rows[0].count, 2);
+      } finally {
+        await pool.end();
+      }
+    });
+  },
+);
+
+test(
   "rolls back the current version update when a related write fails",
   { skip: databaseUrl ? false : "DATABASE_URL is required" },
   async () => {
@@ -76,7 +139,7 @@ test(
         const next = createAggregate("atomic", "published", 2);
         next.publishJobs[0] = {
           ...next.publishJobs[0],
-          idempotencyKey: "publish-atomic-v1",
+          id: "job-atomic",
         };
 
         await assert.rejects(
@@ -220,7 +283,7 @@ function createAggregate(
       error: null,
       finishedAt: null,
       id: versionNo === 1 ? `job-${suffix}` : `job-${suffix}-v${versionNo}`,
-      idempotencyKey: `publish-${suffix}-v${versionNo}`,
+      idempotencyKey: createPublishJobIdempotencyKey("public_url", version),
       importance: "required",
       postId,
       postVersionId: versionId,
@@ -232,4 +295,26 @@ function createAggregate(
   ];
 
   return { assets, post, publishJobs, sources, tags, version };
+}
+
+function createPublishJob(
+  aggregate: ReturnType<typeof createAggregate>,
+  id: string,
+): PublishJobRecord {
+  return {
+    error: null,
+    finishedAt: null,
+    id,
+    idempotencyKey: createPublishJobIdempotencyKey(
+      "public_url",
+      aggregate.version,
+    ),
+    importance: "required",
+    postId: aggregate.post.id,
+    postVersionId: aggregate.version.id,
+    retryCount: 0,
+    startedAt: null,
+    status: "queued",
+    type: "public_url",
+  };
 }
