@@ -13,6 +13,7 @@ import {
   runPostPublishRetryableJob,
   type PostPublishRetryableJobAdapter,
 } from "./blog-post-publish-retryable-jobs.ts";
+import type { BlogUsageLedger } from "./blog-usage-ledger.ts";
 
 const baseTimestamp = "2026-06-30T00:00:00.000Z";
 
@@ -78,7 +79,55 @@ function createJob(overrides: Partial<PublishJobRecord> = {}): PublishJobRecord 
   };
 }
 
+function createUsageLedger(): BlogUsageLedger {
+  return {
+    async getUsageCostTotals() {
+      return { dailyEstimatedCost: 0, monthlyEstimatedCost: 0 };
+    },
+    async recordUsageEvent() {},
+  };
+}
+
 describe("post-publish IndexNow and Discord retryable jobs", () => {
+  it("blocks external delivery when the persisted daily budget is exhausted", async () => {
+    let calls = 0;
+    const usageLedger: BlogUsageLedger = {
+      async getUsageCostTotals() {
+        return { dailyEstimatedCost: 1, monthlyEstimatedCost: 2 };
+      },
+      async recordUsageEvent() {},
+    };
+
+    const result = await runPostPublishRetryableJob({
+      adapter: {
+        async submitIndexNow() {
+          calls += 1;
+
+          return { provider: "fake-indexnow", status: "success" };
+        },
+      },
+      allowExternalSideEffects: true,
+      budgetPolicy: {
+        dailyEstimatedCostLimit: 1,
+        monthlyEstimatedCostLimit: 10,
+      },
+      job: createJob(),
+      origin: "https://h-log.example",
+      post: createPost(),
+      postStatus: "published",
+      runAt: "2026-06-30T00:00:30.000Z",
+      usageLedger,
+      version: createVersion(),
+    });
+
+    assert.equal(result.status, "budget_exceeded");
+    assert.equal(result.job.status, "failed");
+    assert.equal(result.job.error, "budget_exceeded");
+    assert.equal(result.postStatus, "published");
+    assert.equal(result.usageEvent?.status, "budget_exceeded");
+    assert.equal(calls, 0);
+  });
+
   it("submits IndexNow through an adapter with a deterministic idempotency key", async () => {
     const calls: string[] = [];
     const idempotencyKey = createPublishJobIdempotencyKey(
@@ -105,6 +154,7 @@ describe("post-publish IndexNow and Discord retryable jobs", () => {
       post: createPost(),
       postStatus: "published",
       runAt: "2026-06-30T00:01:00.000Z",
+      usageLedger: createUsageLedger(),
       version: createVersion(),
     });
 
@@ -116,9 +166,15 @@ describe("post-publish IndexNow and Discord retryable jobs", () => {
     assert.deepEqual(calls, [idempotencyKey]);
     assert.deepEqual(result.usageEvent, {
       createdAt: "2026-06-30T00:01:00.000Z",
+      estimatedCost: 0,
       eventType: "indexnow",
+      id: "job-indexnow:0:indexnow:success",
       idempotencyKey,
+      inputTokens: null,
+      model: null,
+      outputTokens: null,
       provider: "fake-indexnow",
+      runId: "job-indexnow",
       status: "success",
     });
   });
@@ -147,6 +203,7 @@ describe("post-publish IndexNow and Discord retryable jobs", () => {
       post: createPost(),
       postStatus: "published",
       runAt: "2026-06-30T00:02:00.000Z",
+      usageLedger: createUsageLedger(),
       version: createVersion(),
     });
 
@@ -158,9 +215,15 @@ describe("post-publish IndexNow and Discord retryable jobs", () => {
     assert.equal(result.operatorAlert, null);
     assert.deepEqual(result.usageEvent, {
       createdAt: "2026-06-30T00:02:00.000Z",
+      estimatedCost: 0,
       eventType: "discord",
+      id: "job-discord:0:discord:failed",
       idempotencyKey,
+      inputTokens: null,
+      model: null,
+      outputTokens: null,
       provider: "discord",
+      runId: "job-discord",
       status: "failed",
     });
   });
@@ -184,6 +247,7 @@ describe("post-publish IndexNow and Discord retryable jobs", () => {
       post: createPost(),
       postStatus: "published",
       runAt: "2026-06-30T00:03:00.000Z",
+      usageLedger: createUsageLedger(),
       version: createVersion(),
     });
 

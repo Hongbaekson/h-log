@@ -21,6 +21,11 @@ import {
 } from "./blog-search.ts";
 
 const baseTimestamp = "2026-06-27T00:00:00.000Z";
+const usageLedger = {
+  getUsageCostTotals: () =>
+    Promise.resolve({ dailyEstimatedCost: 0, monthlyEstimatedCost: 0 }),
+  recordUsageEvent: () => Promise.resolve(),
+};
 
 function createPost(
   slug: string,
@@ -355,6 +360,7 @@ describe("blog search contract", () => {
       requestedAt: now,
       state,
       store: createStore(),
+      usageLedger,
     });
     const second = await handleBlogSearchApiRequest({
       clientId: "visitor-1",
@@ -363,6 +369,7 @@ describe("blog search contract", () => {
       requestedAt: now + 1_000,
       state,
       store: createStore(),
+      usageLedger,
     });
 
     assert.equal(first.guardReason, "search_ready");
@@ -375,6 +382,64 @@ describe("blog search contract", () => {
       second.results.map((result) => result.slug),
       first.results.map((result) => result.slug),
     );
+  });
+
+  it("blocks search embedding when the persisted monthly budget is exhausted", async () => {
+    let embeddingCalls = 0;
+    const result = await handleBlogSearchApiRequest({
+      clientId: "visitor-1",
+      embeddingAdapter: {
+        async embedSearchQuery() {
+          embeddingCalls += 1;
+          return {
+            model: "fake-search-embedding",
+            provider: "fake",
+            vectorScores: [],
+          };
+        },
+      },
+      policy: {
+        dailyEstimatedCostLimit: 1,
+        monthlyEstimatedCostLimit: 10,
+      },
+      query: "pgvector",
+      requestedAt: Date.parse(baseTimestamp),
+      store: createStore(),
+      usageLedger: {
+        getUsageCostTotals: () =>
+          Promise.resolve({ dailyEstimatedCost: 0.5, monthlyEstimatedCost: 10 }),
+        recordUsageEvent: () => Promise.resolve(),
+      },
+    });
+
+    assert.equal(result.status, "blocked");
+    assert.equal(result.guardReason, "budget_exceeded");
+    assert.equal(embeddingCalls, 0);
+  });
+
+  it("refuses to call search embedding without a usage ledger", async () => {
+    let embeddingCalls = 0;
+
+    await assert.rejects(
+      handleBlogSearchApiRequest({
+        clientId: "visitor-1",
+        embeddingAdapter: {
+          async embedSearchQuery() {
+            embeddingCalls += 1;
+            return {
+              model: "fake-search-embedding",
+              provider: "fake",
+              vectorScores: [],
+            };
+          },
+        },
+        query: "pgvector",
+        requestedAt: Date.parse(baseTimestamp),
+        store: createStore(),
+      }),
+      /search embedding usage ledger is required/,
+    );
+    assert.equal(embeddingCalls, 0);
   });
 
   it("expires cached queries by TTL before another embedding call is allowed", async () => {
@@ -404,6 +469,7 @@ describe("blog search contract", () => {
       requestedAt: now,
       state,
       store: createStore(),
+      usageLedger,
     });
     const second = await handleBlogSearchApiRequest({
       clientId: "visitor-1",
@@ -416,6 +482,7 @@ describe("blog search contract", () => {
       requestedAt: now + 1_000,
       state,
       store: createStore(),
+      usageLedger,
     });
 
     assert.equal(second.guardReason, "search_ready");
@@ -447,6 +514,7 @@ describe("blog search contract", () => {
       requestedAt: now,
       state,
       store: createStore(),
+      usageLedger,
     });
     const abnormalQuery = await handleBlogSearchApiRequest({
       clientId: "visitor-1",
@@ -455,6 +523,7 @@ describe("blog search contract", () => {
       requestedAt: now + 1_000,
       state,
       store: createStore(),
+      usageLedger,
     });
     const firstAllowed = await handleBlogSearchApiRequest({
       clientId: "visitor-1",
@@ -466,6 +535,7 @@ describe("blog search contract", () => {
       requestedAt: now + 2_000,
       state,
       store: createStore(),
+      usageLedger,
     });
     const rateLimited = await handleBlogSearchApiRequest({
       clientId: "visitor-1",
@@ -477,6 +547,7 @@ describe("blog search contract", () => {
       requestedAt: now + 3_000,
       state,
       store: createStore(),
+      usageLedger,
     });
 
     assert.equal(shortQuery.status, "blocked");

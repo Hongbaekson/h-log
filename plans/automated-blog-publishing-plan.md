@@ -24,7 +24,8 @@
 - fake-provider local Compose dry-run에서 성공 글의 HTML/Markdown/crawler 공개와 required 실패 글의 비공개 상태를 검증했다.
 - auto-publish-ops-hardening / Step 0의 deterministic idempotency key와 중복 저장 수렴을 완료했다.
 - auto-publish-ops-hardening / Step 1의 PostgreSQL lease owner/expiry, timeout 재획득, stale owner 거부, 동일 오류 2회 retry stop과 durable `usage_events` 기록을 완료했다.
-- 다음 실행 대상은 auto-publish-ops-hardening / Step 2의 usage events 비용 ledger다.
+- auto-publish-ops-hardening / Step 2의 공통 `usage_events` 원장, UTC 일/월 비용 집계, LLM/embedding/IndexNow/Discord budget guard를 완료했다.
+- 다음 실행 대상은 auto-publish-ops-hardening / Step 3의 privacy scanner와 redaction이다.
 ```
 
 따라서 문서에서 `completed`는 contract 완료와 runtime 완료를 구분해 쓴다. Production 자동 발행 완료는 PostgreSQL persistence, persistent worker, 운영 안정화, 승인된 canary와 rollback smoke까지 통과한 뒤에만 선언한다.
@@ -129,7 +130,7 @@ AI workflow
 2. 다이어그램 삽입 gate - 완료
 3. PostgreSQL schema/migration/repository와 DB-backed public read path - 완료
 4. persistent manual worker와 local fake-provider end-to-end dry-run - 완료
-5. idempotency와 job lock 완료, cost ledger와 privacy scanner 운영 안정화 진행 중
+5. idempotency, job lock, cost ledger 완료, privacy scanner 운영 안정화 진행 중
 6. 사용자 승인 기반 provider/scheduler/OCI canary와 rollback smoke
 7. 실제 aggregate signal이 쌓인 뒤 persona feedback learning
 ```
@@ -1103,7 +1104,7 @@ daily_budget:
 - 동일 source URL은 캐시 TTL 안에서 재수집하지 않는다.
 - 같은 실패 사유가 2회 반복되면 해당 일자는 발행을 포기한다.
 - publish는 하루 최대 1회로 제한한다.
-- 비용 한도 초과 시 status=failed_generation으로 남기고 Discord에 알린다.
+- 비용 한도 초과 시 `budget_exceeded` failure로 남기고 새 자동 생성/비용성 job을 차단한다.
 ```
 
 추가로 모든 외부 호출은 `usage_events`에 남긴다.
@@ -1557,8 +1558,8 @@ daily-blog-cron
 
 - deterministic idempotency key - 완료
 - PostgreSQL job lease와 retry stop - 완료
-- source fetch/LLM/embedding 비용 집계
-- 검색 API 임베딩 호출 비용과 봇성 요청 별도 집계
+- source fetch/LLM/embedding 비용 집계 - 완료
+- 검색 API 임베딩 호출 비용과 봇성 요청 별도 집계 - 완료
 - privacy scanner와 redaction
 - 실패 사유별 알림 분리
 - 정정/비공개/retract 명령 제공

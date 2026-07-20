@@ -6,6 +6,10 @@ import {
   type PostgresBlogRepository,
 } from "./blog-postgres-repository.ts";
 import type { BlogContentStore } from "./blog-public.ts";
+import {
+  createPostgresBlogUsageLedger,
+  type BlogUsageLedger,
+} from "./blog-usage-ledger.ts";
 
 const { Pool } = pg;
 
@@ -29,6 +33,10 @@ export const loadPublicBlogContentStore = cache(async () => {
 
   return repository.findPublicBlogContent();
 });
+
+export function getBlogUsageLedger(): BlogUsageLedger {
+  return createPostgresBlogUsageLedger(getBlogPublicPool());
+}
 
 function getBlogPublicPool(): pg.Pool {
   const connectionString = process.env.DATABASE_URL;

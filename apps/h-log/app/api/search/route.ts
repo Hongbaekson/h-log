@@ -1,12 +1,16 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
+import {
+  getBlogUsageLedger,
+  loadPublicBlogContentStore,
+} from "@/lib/blog-public-source";
 import {
   createBlogSearchRuntimeState,
   handleBlogSearchApiRequest,
   type BlogSearchApiResponse,
   type BlogSearchEmbeddingAdapter,
 } from "@/lib/blog-search";
+import { resolveUsageBudgetPolicy } from "@/lib/blog-usage-ledger";
 
 export const runtime = "nodejs";
 
@@ -26,9 +30,11 @@ export async function GET(request: NextRequest) {
   const response = await handleBlogSearchApiRequest({
     clientId: getSearchClientId(request),
     embeddingAdapter: localKeywordOnlyEmbeddingAdapter,
+    policy: resolveUsageBudgetPolicy(process.env),
     query: request.nextUrl.searchParams.get("q") ?? "",
     state: searchRuntimeState,
     store,
+    usageLedger: getBlogUsageLedger(),
   });
 
   return NextResponse.json(
@@ -55,6 +61,7 @@ function getSearchHttpStatus(response: BlogSearchApiResponse): number {
 
   if (
     response.guardReason === "duplicate_query" ||
+    response.guardReason === "budget_exceeded" ||
     response.guardReason === "rate_limited"
   ) {
     return 429;

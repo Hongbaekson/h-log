@@ -31,9 +31,18 @@ import {
   type ResearchPackSourceInput,
   type TopicCandidateRecord,
   type TopicResearchRuntimeState,
-  type TopicResearchUsageEvent,
   type TopicSourceInput,
 } from "./blog-topic-research.ts";
+import {
+  createBlogUsageEvent,
+  isUsageBudgetExceeded,
+  UNLIMITED_USAGE_BUDGET,
+  type BlogUsageEventRecord,
+  type BlogUsageLedger,
+  type UsageBudgetPolicy,
+  type UsageCostTotals,
+  type UsageMeasurement,
+} from "./blog-usage-ledger.ts";
 
 export type DailyAutoArticleMutableStore = {
   posts: PostRecord[];
@@ -49,12 +58,11 @@ export type DailyAutoArticlePipelineState = {
   qualityGateResults: QualityGateResultRecord[];
   store: DailyAutoArticleMutableStore;
   topicResearchState: TopicResearchRuntimeState;
-  usageEvents: TopicResearchUsageEvent[];
+  usageEvents: BlogUsageEventRecord[];
 };
 
-export type DailyAutoArticlePipelinePolicy = {
+export type DailyAutoArticlePipelinePolicy = UsageBudgetPolicy & {
   dailyPublishLimit: number;
-  maxEstimatedCost: number;
   minTopicScore: number;
   retryLimit: number;
 };
@@ -84,9 +92,14 @@ export type GenerateArticleInput = {
   topicCandidate: TopicCandidateRecord;
 };
 
+export type GenerateArticleResult = {
+  output: ArticleWriterOutput;
+  usage: UsageMeasurement;
+};
+
 export type DailyAutoArticlePipelineInput = {
   dayKey: string;
-  generateArticle(input: GenerateArticleInput): Promise<ArticleWriterOutput>;
+  generateArticle(input: GenerateArticleInput): Promise<GenerateArticleResult>;
   personalContextItems: readonly PersonalContextItemRecord[];
   policy?: Partial<DailyAutoArticlePipelinePolicy>;
   researchPackSources: readonly ResearchPackSourceInput[];
@@ -98,6 +111,7 @@ export type DailyAutoArticlePipelineInput = {
   ): Promise<RunRequiredPublishJobResult>;
   state: DailyAutoArticlePipelineState;
   topicSources: readonly TopicSourceInput[];
+  usageLedger: BlogUsageLedger;
 };
 
 export type DailyAutoArticlePipelineStatus =
@@ -117,8 +131,8 @@ export type DailyAutoArticlePipelineResult = {
 };
 
 const DEFAULT_DAILY_AUTO_ARTICLE_POLICY: DailyAutoArticlePipelinePolicy = {
+  ...UNLIMITED_USAGE_BUDGET,
   dailyPublishLimit: 1,
-  maxEstimatedCost: Number.POSITIVE_INFINITY,
   minTopicScore: 1,
   retryLimit: 2,
 };
@@ -152,14 +166,38 @@ export async function runDailyAutoArticlePipeline(
     return emptyResult(input, "duplicate_daily_publish");
   }
 
+  let usageCostTotals = await input.usageLedger.getUsageCostTotals(input.runAt);
+
+  if (isUsageBudgetExceeded(usageCostTotals, policy)) {
+    return emptyResult(input, "budget_exceeded");
+  }
+
   const collection = collectTopicCandidates({
     collectedAt: input.runAt,
     sources: input.topicSources,
     state: input.state.topicResearchState,
   });
-  input.state.usageEvents.push(...collection.usageEvents);
+  for (const event of collection.usageEvents) {
+    const usageEvent = createBlogUsageEvent({
+      createdAt: event.createdAt,
+      eventType: event.eventType,
+      id: `${input.runId}:${event.eventType}:${event.sourceId}`,
+      measurement: {
+        estimatedCost: event.estimatedCost,
+        inputTokens: null,
+        model: null,
+        outputTokens: null,
+        provider: event.provider,
+      },
+      runId: input.runId,
+      status: event.status,
+    });
+    await input.usageLedger.recordUsageEvent(usageEvent);
+    input.state.usageEvents.push(usageEvent);
+    usageCostTotals = addUsageCost(usageCostTotals, usageEvent.estimatedCost);
+  }
 
-  if (getEstimatedCost(collection.usageEvents) > policy.maxEstimatedCost) {
+  if (isUsageBudgetExceeded(usageCostTotals, policy)) {
     return emptyResult(input, "budget_exceeded");
   }
 
@@ -198,13 +236,36 @@ export async function runDailyAutoArticlePipeline(
 
   const postId = `post-${toIdSegment(input.dayKey)}`;
   const postVersionId = `version-${toIdSegment(input.dayKey)}`;
-  const writerOutput = await input.generateArticle({
+  const generation = await input.generateArticle({
     generationInput: applyToMe.generationInput,
     postId,
     postVersionId,
     researchPack,
     topicCandidate,
   });
+  if (!generation?.usage) {
+    throw new Error("LLM usage event is required");
+  }
+  const llmUsageEvent = createBlogUsageEvent({
+    createdAt: input.runAt,
+    eventType: "llm",
+    id: `${input.runId}:llm`,
+    measurement: generation.usage,
+    runId: input.runId,
+    status: "success",
+  });
+  await input.usageLedger.recordUsageEvent(llmUsageEvent);
+  input.state.usageEvents.push(llmUsageEvent);
+  usageCostTotals = addUsageCost(
+    usageCostTotals,
+    llmUsageEvent.estimatedCost,
+  );
+
+  if (isUsageBudgetExceeded(usageCostTotals, policy)) {
+    return emptyResult(input, "budget_exceeded");
+  }
+
+  const writerOutput = generation.output;
   const validation = validateArticleWriterOutput({
     existingPublishedSlugs: input.state.store.posts.flatMap((post) =>
       post.status === "published" ? [post.slug] : [],
@@ -315,8 +376,14 @@ function rankTopicCandidates(
   );
 }
 
-function getEstimatedCost(usageEvents: readonly TopicResearchUsageEvent[]): number {
-  return usageEvents.reduce((sum, event) => sum + event.estimatedCost, 0);
+function addUsageCost(
+  totals: UsageCostTotals,
+  estimatedCost: number,
+): UsageCostTotals {
+  return {
+    dailyEstimatedCost: totals.dailyEstimatedCost + estimatedCost,
+    monthlyEstimatedCost: totals.monthlyEstimatedCost + estimatedCost,
+  };
 }
 
 function toReadyToPublishPost({

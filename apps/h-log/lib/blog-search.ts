@@ -4,6 +4,14 @@ import {
   type PublicBlogRouteEntry,
 } from "./blog-content-model.ts";
 import type { BlogContentStore } from "./blog-public.ts";
+import {
+  createBlogUsageEvent,
+  isUsageBudgetExceeded,
+  UNLIMITED_USAGE_BUDGET,
+  type BlogUsageEventRecord,
+  type BlogUsageLedger,
+  type UsageBudgetPolicy,
+} from "./blog-usage-ledger.ts";
 
 export const BLOG_SEARCH_EMBEDDING_PURPOSES = [
   "search",
@@ -112,6 +120,7 @@ export type BlogSearchRequestAssessment = {
   normalizedQuery: string;
   reason:
     | "abnormal_query"
+    | "budget_exceeded"
     | "cache_hit"
     | "duplicate_query"
     | "query_too_short"
@@ -131,10 +140,11 @@ export const DEFAULT_BLOG_SEARCH_REQUEST_POLICY: BlogSearchRequestPolicy = {
   requestWindowMs: 60_000,
 };
 
-export type BlogSearchApiPolicy = BlogSearchRequestPolicy & {
-  queryCacheTtlMs: number;
-  resultLimit: number;
-};
+export type BlogSearchApiPolicy = BlogSearchRequestPolicy &
+  UsageBudgetPolicy & {
+    queryCacheTtlMs: number;
+    resultLimit: number;
+  };
 
 export type BlogSearchEmbeddingInput = {
   normalizedQuery: string;
@@ -156,14 +166,8 @@ export type BlogSearchEmbeddingAdapter = {
   ): Promise<BlogSearchEmbeddingOutput>;
 };
 
-export type BlogSearchUsageEvent = {
-  createdAt: string;
-  estimatedCost: number;
+export type BlogSearchUsageEvent = BlogUsageEventRecord & {
   eventType: "embedding";
-  inputTokens: number;
-  model: string;
-  outputTokens: number;
-  provider: string;
   purpose: BlogSearchEmbeddingPurpose;
   status: "success";
 };
@@ -189,6 +193,7 @@ export type HandleBlogSearchApiRequestInput = {
   requestedAt?: number;
   state?: BlogSearchRuntimeState;
   store: BlogContentStore;
+  usageLedger?: BlogUsageLedger;
 };
 
 type BlogSearchQueryCacheEntry = {
@@ -198,6 +203,7 @@ type BlogSearchQueryCacheEntry = {
 
 const DEFAULT_BLOG_SEARCH_API_POLICY: BlogSearchApiPolicy = {
   ...DEFAULT_BLOG_SEARCH_REQUEST_POLICY,
+  ...UNLIMITED_USAGE_BUDGET,
   queryCacheTtlMs: 5 * 60_000,
   resultLimit: 10,
 };
@@ -418,15 +424,37 @@ export async function handleBlogSearchApiRequest(
   let vectorScores: readonly BlogSearchVectorScore[] = [];
 
   if (assessment.shouldUseEmbedding && input.embeddingAdapter) {
+    if (!input.usageLedger) {
+      throw new Error("search embedding usage ledger is required");
+    }
+
+    const totals = await input.usageLedger.getUsageCostTotals(
+      new Date(requestedAt).toISOString(),
+    );
+
+    if (isUsageBudgetExceeded(totals, policy)) {
+      return {
+        cached: false,
+        guardReason: "budget_exceeded",
+        results: [],
+        status: "blocked",
+      };
+    }
+
     const embedding = await input.embeddingAdapter.embedSearchQuery({
       normalizedQuery: assessment.normalizedQuery,
       purpose: "search",
     });
 
     vectorScores = embedding.vectorScores ?? [];
-    state.usageEvents.push(
-      toBlogSearchUsageEvent(embedding, assessment.normalizedQuery, requestedAt),
+    const usageEvent = toBlogSearchUsageEvent(
+      embedding,
+      assessment.normalizedQuery,
+      requestedAt,
+      crypto.randomUUID(),
     );
+    await input.usageLedger.recordUsageEvent(usageEvent);
+    state.usageEvents.push(usageEvent);
   }
 
   const response: BlogSearchApiResponse = {
@@ -576,16 +604,25 @@ function toBlogSearchUsageEvent(
   embedding: BlogSearchEmbeddingOutput,
   normalizedQuery: string,
   requestedAt: number,
+  runId: string,
 ): BlogSearchUsageEvent {
   return {
-    createdAt: new Date(requestedAt).toISOString(),
-    estimatedCost: embedding.estimatedCost ?? 0,
+    ...createBlogUsageEvent({
+      createdAt: new Date(requestedAt).toISOString(),
+      eventType: "embedding",
+      id: `${runId}:embedding:search`,
+      measurement: {
+        estimatedCost: embedding.estimatedCost ?? 0,
+        inputTokens:
+          embedding.inputTokens ?? estimateBlogSearchInputTokens(normalizedQuery),
+        model: embedding.model,
+        outputTokens: embedding.outputTokens ?? 0,
+        provider: embedding.provider,
+      },
+      runId,
+      status: "success",
+    }),
     eventType: "embedding",
-    inputTokens:
-      embedding.inputTokens ?? estimateBlogSearchInputTokens(normalizedQuery),
-    model: embedding.model,
-    outputTokens: embedding.outputTokens ?? 0,
-    provider: embedding.provider,
     purpose: "search",
     status: "success",
   };

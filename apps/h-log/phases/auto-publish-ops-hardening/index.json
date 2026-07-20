@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "usage-events-cost-ledger",
-      "status": "pending"
+      "status": "completed",
+      "summary": "The shared PostgreSQL usage_events ledger now records source fetch, LLM, search embedding, IndexNow, and Discord usage with provider/model/token/cost/status fields. Daily and monthly budget guards block new costly work as budget_exceeded, while real providers and production activation remain disabled."
     },
     {
       "step": 3,

@@ -120,7 +120,17 @@ function createPipelineInput(
 ): DailyAutoArticlePipelineInput {
   return {
     dayKey: "2026-07-08",
-    generateArticle: () => Promise.resolve(createWriterOutput()),
+    generateArticle: () =>
+      Promise.resolve({
+        output: createWriterOutput(),
+        usage: {
+          estimatedCost: 0.01,
+          inputTokens: 1000,
+          model: "fake-writer",
+          outputTokens: 400,
+          provider: "fake-provider",
+        },
+      }),
     personalContextItems: [createPersonalContextItem()],
     researchPackSources: [createResearchPackSource()],
     runAt,
@@ -128,11 +138,51 @@ function createPipelineInput(
     runRequiredPublishJob: () => Promise.resolve({ status: "succeeded" }),
     state: createDailyAutoArticlePipelineState(),
     topicSources: [createTopicSource()],
+    usageLedger: {
+      getUsageCostTotals: () =>
+        Promise.resolve({ dailyEstimatedCost: 0, monthlyEstimatedCost: 0 }),
+      recordUsageEvent: () => Promise.resolve(),
+    },
     ...overrides,
   };
 }
 
 describe("daily auto article pipeline", () => {
+  it("rejects an LLM result that has no usage event", async () => {
+    await assert.rejects(
+      runDailyAutoArticlePipeline(
+        createPipelineInput({
+          generateArticle: () => Promise.resolve(createWriterOutput() as never),
+        }),
+      ),
+      /LLM usage event is required/,
+    );
+  });
+
+  it("blocks a new LLM call when the persisted daily budget is exhausted", async () => {
+    let generationCalls = 0;
+    const input = createPipelineInput({
+      generateArticle: async () => {
+        generationCalls += 1;
+        return createPipelineInput().generateArticle({} as never);
+      },
+      policy: {
+        dailyEstimatedCostLimit: 1,
+        monthlyEstimatedCostLimit: 10,
+      },
+      usageLedger: {
+        getUsageCostTotals: () =>
+          Promise.resolve({ dailyEstimatedCost: 1, monthlyEstimatedCost: 4 }),
+        recordUsageEvent: () => Promise.resolve(),
+      },
+    });
+
+    const result = await runDailyAutoArticlePipeline(input);
+
+    assert.equal(result.status, "budget_exceeded");
+    assert.equal(generationCalls, 0);
+  });
+
   it("publishes at most one article when the same daily cron is duplicated", async () => {
     const state = createDailyAutoArticlePipelineState();
     const first = await runDailyAutoArticlePipeline(
@@ -187,7 +237,8 @@ describe("daily auto article pipeline", () => {
       {
         input: {
           policy: {
-            maxEstimatedCost: 0.001,
+            dailyEstimatedCostLimit: 0.001,
+            monthlyEstimatedCostLimit: 1,
           },
         },
         status: "budget_exceeded",

@@ -11,6 +11,14 @@ import {
   type RetryablePublishJobType,
   type Timestamp,
 } from "./blog-content-model.ts";
+import {
+  createBlogUsageEvent,
+  isUsageBudgetExceeded,
+  UNLIMITED_USAGE_BUDGET,
+  type BlogUsageEventRecord,
+  type BlogUsageLedger,
+  type UsageBudgetPolicy,
+} from "./blog-usage-ledger.ts";
 
 export const DEFAULT_POST_PUBLISH_RETRY_LIMIT = 3;
 
@@ -40,6 +48,10 @@ export type DiscordPublishNotificationInput = {
 };
 
 export type PostPublishRetryableJobAdapterResult = {
+  estimatedCost?: number;
+  inputTokens?: number;
+  model?: string;
+  outputTokens?: number;
   provider: string;
   status: "failed" | "success";
   error?: string;
@@ -54,12 +66,10 @@ export type PostPublishRetryableJobAdapter = {
   ): Promise<PostPublishRetryableJobAdapterResult>;
 };
 
-export type PostPublishUsageEvent = {
-  createdAt: Timestamp;
+export type PostPublishUsageEvent = BlogUsageEventRecord & {
   eventType: PostPublishExternalJobType;
   idempotencyKey: string;
-  provider: string;
-  status: "failed" | "success";
+  status: "budget_exceeded" | "failed" | "success";
 };
 
 export type PostPublishOperatorAlert = {
@@ -74,12 +84,14 @@ export type PostPublishOperatorAlert = {
 export type RunPostPublishRetryableJobInput = {
   adapter: PostPublishRetryableJobAdapter;
   allowExternalSideEffects?: boolean;
+  budgetPolicy?: Partial<UsageBudgetPolicy>;
   job: PublishJobRecord;
   maxRetryCount?: number;
   origin: string;
   post: PostRecord;
   postStatus: BlogPostStatus;
   runAt: Timestamp;
+  usageLedger?: BlogUsageLedger;
   version: PostVersionRecord;
 };
 
@@ -88,6 +100,7 @@ export type RunPostPublishRetryableJobResult = {
   operatorAlert: PostPublishOperatorAlert | null;
   postStatus: BlogPostStatus;
   status:
+    | "budget_exceeded"
     | "failed_retry_scheduled"
     | "retry_limit_reached"
     | "side_effect_disabled"
@@ -123,7 +136,48 @@ export async function runPostPublishRetryableJob(
     });
   }
 
+  if (!input.usageLedger) {
+    throw new Error("post-publish usage ledger is required");
+  }
+
+  const budgetPolicy = {
+    ...UNLIMITED_USAGE_BUDGET,
+    ...input.budgetPolicy,
+  };
+  const totals = await input.usageLedger.getUsageCostTotals(input.runAt);
+
+  if (isUsageBudgetExceeded(totals, budgetPolicy)) {
+    const usageEvent = toUsageEvent(
+      input,
+      jobType,
+      { provider: jobType, status: "failed" },
+      "budget_exceeded",
+    );
+    await input.usageLedger.recordUsageEvent(usageEvent);
+
+    return {
+      job: {
+        ...input.job,
+        error: "budget_exceeded",
+        finishedAt: input.runAt,
+        importance: "retryable",
+        status: "failed",
+      },
+      operatorAlert: null,
+      postStatus: input.postStatus,
+      status: "budget_exceeded",
+      usageEvent,
+    };
+  }
+
   const adapterResult = await callAdapter(input, jobType);
+  const usageEvent = toUsageEvent(
+    input,
+    jobType,
+    adapterResult,
+    adapterResult.status,
+  );
+  await input.usageLedger.recordUsageEvent(usageEvent);
 
   if (adapterResult.status === "success") {
     return {
@@ -137,7 +191,7 @@ export async function runPostPublishRetryableJob(
       operatorAlert: null,
       postStatus: input.postStatus,
       status: "succeeded",
-      usageEvent: toUsageEvent(input, jobType, adapterResult.provider, "success"),
+      usageEvent,
     };
   }
 
@@ -153,8 +207,8 @@ export async function runPostPublishRetryableJob(
       error: failure.job.error ?? `${jobType} delivery failed`,
       input,
       jobType,
-      provider: adapterResult.provider,
       retryCount: failure.job.retryCount,
+      usageEvent,
     });
   }
 
@@ -163,7 +217,7 @@ export async function runPostPublishRetryableJob(
     operatorAlert: null,
     postStatus: failure.postStatus,
     status: "failed_retry_scheduled",
-    usageEvent: toUsageEvent(input, jobType, adapterResult.provider, "failed"),
+    usageEvent,
   };
 }
 
@@ -277,14 +331,14 @@ function toRetryLimitReachedResult({
   error,
   input,
   jobType,
-  provider,
   retryCount,
+  usageEvent,
 }: {
   error: string;
   input: RunPostPublishRetryableJobInput;
   jobType: PostPublishExternalJobType;
-  provider?: string;
   retryCount: number;
+  usageEvent?: PostPublishUsageEvent;
 }): RunPostPublishRetryableJobResult {
   const job: PublishJobRecord = {
     ...input.job,
@@ -307,21 +361,33 @@ function toRetryLimitReachedResult({
     },
     postStatus: input.postStatus,
     status: "retry_limit_reached",
-    usageEvent: provider ? toUsageEvent(input, jobType, provider, "failed") : null,
+    usageEvent: usageEvent ?? null,
   };
 }
 
 function toUsageEvent(
   input: RunPostPublishRetryableJobInput,
   eventType: PostPublishExternalJobType,
-  provider: string,
+  result: PostPublishRetryableJobAdapterResult,
   status: PostPublishUsageEvent["status"],
 ): PostPublishUsageEvent {
   return {
-    createdAt: input.runAt,
+    ...createBlogUsageEvent({
+      createdAt: input.runAt,
+      eventType,
+      id: `${input.job.id}:${input.job.retryCount}:${eventType}:${status}`,
+      measurement: {
+        estimatedCost: result.estimatedCost ?? 0,
+        inputTokens: result.inputTokens ?? null,
+        model: result.model ?? null,
+        outputTokens: result.outputTokens ?? null,
+        provider: result.provider,
+      },
+      runId: input.job.id,
+      status,
+    }),
     eventType,
     idempotencyKey: input.job.idempotencyKey,
-    provider,
     status,
   };
 }

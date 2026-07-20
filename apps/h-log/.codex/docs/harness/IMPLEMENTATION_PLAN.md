@@ -64,7 +64,7 @@ topic-research-generation: completed, steps 0-3 completed
 auto-article-generation: completed, steps 0-3 completed
 diagram-assets-automation: completed, steps 0-2 completed
 blog-runtime-integration: completed, steps 0-4 completed
-auto-publish-ops-hardening: pending, steps 0-1 completed
+auto-publish-ops-hardening: pending, steps 0-2 completed
 feedback-and-persona-learning: pending
 ```
 
@@ -350,6 +350,14 @@ feedback-and-persona-learning: pending
 - 검증: 실제 PostgreSQL에서 lease column missing RED, 동일 오류 2회 중단 RED, durable `usage_events` relation missing RED를 확인한 뒤 worker 통합 test 5/5, migration 통합 test 1/1, 전체 `npm run test` 104 pass/10 environment skip, `npm run typecheck`, `npm run lint`, `npm run build`가 통과했다.
 - 운영 경계: 5분 lease, retry stop, 해당 중단 event의 최소 persistence만 추가했다. 외부 호출 비용 집계와 budget guard, privacy scanner, 실제 provider, scheduler, OCI runtime, public publish activation은 변경하지 않았다.
 - 다음 실행 대상: `auto-publish-ops-hardening / Step 2: usage-events-cost-ledger`.
+
+#### Step 2: usage-events-cost-ledger
+
+- 상태: completed
+- 결과: `lib/blog-usage-ledger.ts`에 기존 PostgreSQL `usage_events`를 사용하는 공통 멱등 원장과 UTC 일/월 비용 집계를 추가했다. Daily article source fetch/LLM, 검색 API embedding, IndexNow/Discord retryable job은 provider/model/token/estimated cost/status를 같은 형식으로 기록한다. LLM/embedding은 원장 없이는 호출하지 않고, 설정한 일/월 한도에 도달하면 새 비용성 작업을 `budget_exceeded`로 차단한다. 검색 route는 `HLOG_DAILY_ESTIMATED_COST_LIMIT`, `HLOG_MONTHLY_ESTIMATED_COST_LIMIT`을 사용하며 미설정 상태는 이후 activation 전까지 무제한이다.
+- 검증: LLM usage 누락, embedding 원장 누락, persisted daily/monthly budget 초과 RED를 확인한 뒤 전체 `npm run test` 113 pass/10 environment skip, `npm run typecheck`, `npm run lint`, `npm run build`가 통과했다.
+- 운영 경계: 새 schema나 dependency를 추가하지 않았다. 실제 provider, cron/scheduler, OCI runtime, public auto-publish activation은 여전히 비활성화이며 production activation 전에 유한한 예산 값을 정해야 한다.
+- 다음 실행 대상: `auto-publish-ops-hardening / Step 3: privacy-scanner-and-redaction`.
 
 ## 이후 DB-first 단계
 
