@@ -25,7 +25,8 @@
 - auto-publish-ops-hardening / Step 0의 deterministic idempotency key와 중복 저장 수렴을 완료했다.
 - auto-publish-ops-hardening / Step 1의 PostgreSQL lease owner/expiry, timeout 재획득, stale owner 거부, 동일 오류 2회 retry stop과 durable `usage_events` 기록을 완료했다.
 - auto-publish-ops-hardening / Step 2의 공통 `usage_events` 원장, UTC 일/월 비용 집계, LLM/embedding/IndexNow/Discord budget guard를 완료했다.
-- 다음 실행 대상은 auto-publish-ops-hardening / Step 3의 privacy scanner와 redaction이다.
+- auto-publish-ops-hardening / Step 3의 LLM 입력 전·writer 출력 후·공개 조회 경계 privacy scanner와 redaction을 완료했다.
+- 다음 실행 대상은 사용자 승인 후 진행하는 auto-publish-ops-hardening / Step 4 production activation과 rollback smoke다.
 ```
 
 따라서 문서에서 `completed`는 contract 완료와 runtime 완료를 구분해 쓴다. Production 자동 발행 완료는 PostgreSQL persistence, persistent worker, 운영 안정화, 승인된 canary와 rollback smoke까지 통과한 뒤에만 선언한다.
@@ -130,7 +131,7 @@ AI workflow
 2. 다이어그램 삽입 gate - 완료
 3. PostgreSQL schema/migration/repository와 DB-backed public read path - 완료
 4. persistent manual worker와 local fake-provider end-to-end dry-run - 완료
-5. idempotency, job lock, cost ledger 완료, privacy scanner 운영 안정화 진행 중
+5. idempotency, job lock, cost ledger, privacy scanner 운영 안정화 완료
 6. 사용자 승인 기반 provider/scheduler/OCI canary와 rollback smoke
 7. 실제 aggregate signal이 쌓인 뒤 persona feedback learning
 ```
@@ -1146,6 +1147,7 @@ usage_events
 - 로그는 필요한 최소 부분만 남기고 민감값은 [REDACTED] 처리한다.
 - 회사 업무 사례는 공개 가능한 범위로 일반화한다.
 - private context를 자동 글 생성 프롬프트에 넣지 않는다.
+- 회사/고객사명과 비공개 저장소명 목록은 서버 로컬의 `HLOG_PRIVACY_ORGANIZATION_NAMES`, `HLOG_PRIVACY_PRIVATE_REPOSITORIES` JSON 배열로 주입하며 잘못된 설정은 실패 처리한다.
 - 민감정보 감지 시 발행하지 않고 failed_generation으로 남긴다.
 ```
 
@@ -1560,7 +1562,7 @@ daily-blog-cron
 - PostgreSQL job lease와 retry stop - 완료
 - source fetch/LLM/embedding 비용 집계 - 완료
 - 검색 API 임베딩 호출 비용과 봇성 요청 별도 집계 - 완료
-- privacy scanner와 redaction
+- privacy scanner와 redaction - 완료
 - 실패 사유별 알림 분리
 - 정정/비공개/retract 명령 제공
 - public content와 DB version hash 정기 비교

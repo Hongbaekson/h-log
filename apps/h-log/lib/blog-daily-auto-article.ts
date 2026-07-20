@@ -43,6 +43,12 @@ import {
   type UsageCostTotals,
   type UsageMeasurement,
 } from "./blog-usage-ledger.ts";
+import {
+  createBlogPrivacyScanPolicyFromEnvironment,
+  scanBlogPrivacyText,
+  type BlogPrivacyScanPolicy,
+  type BlogPrivacyScanResult,
+} from "./blog-privacy-scanner.ts";
 
 export type DailyAutoArticleMutableStore = {
   posts: PostRecord[];
@@ -102,6 +108,7 @@ export type DailyAutoArticlePipelineInput = {
   generateArticle(input: GenerateArticleInput): Promise<GenerateArticleResult>;
   personalContextItems: readonly PersonalContextItemRecord[];
   policy?: Partial<DailyAutoArticlePipelinePolicy>;
+  privacyScanPolicy?: BlogPrivacyScanPolicy;
   researchPackSources: readonly ResearchPackSourceInput[];
   requestedContextIds?: readonly string[];
   runAt: Timestamp;
@@ -157,6 +164,9 @@ export function createDailyAutoArticlePipelineState(): DailyAutoArticlePipelineS
 export async function runDailyAutoArticlePipeline(
   input: DailyAutoArticlePipelineInput,
 ): Promise<DailyAutoArticlePipelineResult> {
+  const privacyScanPolicy =
+    input.privacyScanPolicy ??
+    createBlogPrivacyScanPolicyFromEnvironment(process.env);
   const policy = {
     ...DEFAULT_DAILY_AUTO_ARTICLE_POLICY,
     ...input.policy,
@@ -236,6 +246,27 @@ export async function runDailyAutoArticlePipeline(
 
   const postId = `post-${toIdSegment(input.dayKey)}`;
   const postVersionId = `version-${toIdSegment(input.dayKey)}`;
+  const generationInputPrivacyScan = scanBlogPrivacyText(
+    JSON.stringify({
+      generationInput: applyToMe.generationInput,
+      researchPack,
+      topicCandidate,
+    }),
+    privacyScanPolicy,
+  );
+
+  if (generationInputPrivacyScan.status === "blocked") {
+    input.state.qualityGateResults.push(
+      createPreGenerationPrivacyFailure({
+        generatedAt: input.runAt,
+        postId,
+        postVersionId,
+        privacyScan: generationInputPrivacyScan,
+      }),
+    );
+    return emptyResult(input, "generation_failed");
+  }
+
   const generation = await input.generateArticle({
     generationInput: applyToMe.generationInput,
     postId,
@@ -274,6 +305,7 @@ export async function runDailyAutoArticlePipeline(
     output: writerOutput,
     postId,
     postVersionId,
+    privacyScanPolicy,
   });
   input.state.qualityGateResults.push(...validation.qualityGateResults);
 
@@ -374,6 +406,28 @@ function rankTopicCandidates(
   return [...candidates].sort(
     (a, b) => b.score - a.score || a.title.localeCompare(b.title, "ko"),
   );
+}
+
+function createPreGenerationPrivacyFailure({
+  generatedAt,
+  postId,
+  postVersionId,
+  privacyScan,
+}: {
+  generatedAt: Timestamp;
+  postId: string;
+  postVersionId: string;
+  privacyScan: BlogPrivacyScanResult;
+}): QualityGateResultRecord {
+  return {
+    createdAt: generatedAt,
+    gateName: "article_quality_gate:privacy_risk",
+    id: `quality-gate:${postId}:${postVersionId}:privacy-risk-llm-input`,
+    message: `llm_input ${privacyScan.auditMessage}`,
+    postId,
+    postVersionId,
+    status: "failed",
+  };
 }
 
 function addUsageCost(

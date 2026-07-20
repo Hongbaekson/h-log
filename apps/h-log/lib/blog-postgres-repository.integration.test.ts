@@ -26,10 +26,27 @@ test(
   async () => {
     await withTestDatabase("hlog_repository_public_test", async (testUrl) => {
       const pool = new Pool({ connectionString: testUrl });
-      const repository = createPostgresBlogRepository(pool);
+      const repository = createPostgresBlogRepository(pool, {
+        privacyScanPolicy: {
+          restrictedTerms: [
+            {
+              category: "organization_name",
+              value: "Example Confidential Customer",
+            },
+          ],
+        },
+      });
 
       try {
         await repository.savePost(createAggregate("published", "published"));
+        const privacyRisk = createAggregate("privacy-risk", "published");
+        privacyRisk.tags = [
+          {
+            ...privacyRisk.tags[0],
+            tag: "Example Confidential Customer",
+          },
+        ];
+        await repository.savePost(privacyRisk);
         await repository.savePost(
           createAggregate("draft", "ready_to_publish"),
         );
@@ -54,7 +71,7 @@ test(
         const jobs = await pool.query("select id from publish_jobs order by id");
         assert.deepEqual(
           jobs.rows.map(({ id }) => id),
-          ["job-draft", "job-failed", "job-published"],
+          ["job-draft", "job-failed", "job-privacy-risk", "job-published"],
         );
       } finally {
         await pool.end();

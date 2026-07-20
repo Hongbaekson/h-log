@@ -14,6 +14,10 @@ import {
   type Timestamp,
 } from "./blog-content-model.ts";
 import { tryNormalizePublicSourceUrl } from "./public-source-url.ts";
+import {
+  scanBlogPrivacyText,
+  type BlogPrivacyScanPolicy,
+} from "./blog-privacy-scanner.ts";
 
 export const articleWriterPublishDecisions = ["publish", "block"] as const;
 
@@ -90,6 +94,7 @@ export type ValidateArticleWriterOutputInput = {
   output: ArticleWriterOutput;
   postId: string;
   postVersionId: string;
+  privacyScanPolicy?: BlogPrivacyScanPolicy;
   qualityGateFailures?: readonly ArticleQualityGateFailureInput[];
 };
 
@@ -118,9 +123,21 @@ export type CreateArticleGenerationRunRecordInput = {
 export function validateArticleWriterOutput(
   input: ValidateArticleWriterOutputInput,
 ): ValidateArticleWriterOutputResult {
+  const privacyScan = scanBlogPrivacyText(
+    JSON.stringify(input.output),
+    input.privacyScanPolicy,
+  );
   const normalized = normalizeArticleWriterOutput(input.output);
   const qualityGateResults = [
     ...buildArticleOutputSchemaFailures(input, normalized),
+    ...(privacyScan.status === "blocked"
+      ? [
+          createArticleQualityGateFailure(input, {
+            message: privacyScan.auditMessage,
+            reason: "privacy_risk",
+          }),
+        ]
+      : []),
     ...buildArticlePublishQualityGateFailures(input, normalized),
   ];
 

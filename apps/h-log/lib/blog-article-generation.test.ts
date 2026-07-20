@@ -215,6 +215,29 @@ describe("blog article generation output schema", () => {
     assert.deepEqual(selectPublicBlogRouteEntries([failedPost], [failedVersion]), []);
   });
 
+  it("creates a redacted privacy_risk failure from sensitive writer output", () => {
+    const fakeToken = `sk-${"x".repeat(24)}`;
+    const internalUrl = "http://authoring.internal/drafts/1";
+    const result = validateArticleWriterOutput({
+      generatedAt,
+      output: createWriterOutput({
+        contentMarkdown: `# Hidden draft\n\n${internalUrl}\n\n${fakeToken}\n`,
+      }),
+      postId: "post-generated",
+      postVersionId: "version-generated",
+    });
+
+    assert.equal(result.status, "failed");
+    assert.equal(result.nextPostStatus, "failed_generation");
+    assert.deepEqual(
+      result.qualityGateResults.map((gate) => gate.gateName),
+      ["article_quality_gate:privacy_risk"],
+    );
+    assert.match(result.qualityGateResults[0]?.message ?? "", /\[REDACTED\]/);
+    assert.equal(JSON.stringify(result).includes(fakeToken), false);
+    assert.equal(JSON.stringify(result).includes(internalUrl), false);
+  });
+
   it("keeps writer block decisions private with an explicit block reason", () => {
     const result = validateArticleWriterOutput({
       generatedAt,

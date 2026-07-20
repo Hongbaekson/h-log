@@ -586,4 +586,31 @@ describe("blog DB content model contract", () => {
     );
     assert.equal(selectPublicBlogRouteEntryBySlug("preview-post", posts, versions), undefined);
   });
+
+  it("keeps a published version with sensitive content out of every public selector", () => {
+    const fakeToken = `sk-${"x".repeat(24)}`;
+    const content = createPostVersionContentFromMarkdown(
+      `# Unsafe public post\n\nInternal URL: http://worker.internal/jobs\n\nToken: ${fakeToken}\n`,
+    );
+    const post = createPost({
+      currentVersionId: "version-sensitive",
+      id: "post-sensitive",
+      slug: "sensitive-post",
+    });
+    const version = createVersion({
+      ...content,
+      id: "version-sensitive",
+      postId: "post-sensitive",
+    });
+
+    assert.deepEqual(selectPublicBlogRouteEntries([post], [version]), []);
+    assert.equal(
+      selectPublicBlogRouteEntryBySlug(
+        "sensitive-post",
+        [post],
+        [version],
+      ),
+      undefined,
+    );
+  });
 });

@@ -1,5 +1,10 @@
 import { createHash } from "node:crypto";
 
+import {
+  scanBlogPrivacyText,
+  type BlogPrivacyScanPolicy,
+} from "./blog-privacy-scanner.ts";
+
 export const BLOG_CONTENT_MODEL_TABLES = {
   posts: [
     "id",
@@ -677,6 +682,7 @@ export function isCurrentPublishedVersion(
 export function selectPublicBlogRouteEntries(
   posts: readonly PostRecord[],
   versions: readonly PostVersionRecord[],
+  privacyScanPolicy: BlogPrivacyScanPolicy = {},
 ): PublicBlogRouteEntry[] {
   const versionsById = new Map(versions.map((version) => [version.id, version]));
 
@@ -691,6 +697,22 @@ export function selectPublicBlogRouteEntries(
       return [];
     }
 
+    const privacyScan = scanBlogPrivacyText(
+      [
+        post.slug,
+        post.title,
+        post.description,
+        version.title,
+        version.description,
+        version.contentMarkdown,
+      ].join("\n"),
+      privacyScanPolicy,
+    );
+
+    if (privacyScan.status === "blocked") {
+      return [];
+    }
+
     return [{ post, version }];
   });
 }
@@ -699,8 +721,9 @@ export function selectPublicBlogRouteEntryBySlug(
   slug: string,
   posts: readonly PostRecord[],
   versions: readonly PostVersionRecord[],
+  privacyScanPolicy: BlogPrivacyScanPolicy = {},
 ): PublicBlogRouteEntry | undefined {
-  return selectPublicBlogRouteEntries(posts, versions).find(
+  return selectPublicBlogRouteEntries(posts, versions, privacyScanPolicy).find(
     (entry) => entry.post.slug === slug,
   );
 }

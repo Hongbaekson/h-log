@@ -23,7 +23,8 @@
     {
       "step": 3,
       "name": "privacy-scanner-and-redaction",
-      "status": "pending"
+      "status": "completed",
+      "summary": "A shared fail-closed scanner now blocks credentials, internal network details, personal contacts, configured organization names, and configured private repository names before LLM generation, after writer output, and at the PostgreSQL public-read boundary. Audit messages retain only finding categories with redacted values."
     },
     {
       "step": 4,

@@ -10,6 +10,7 @@ import {
   createPostgresBlogUsageLedger,
   type BlogUsageLedger,
 } from "./blog-usage-ledger.ts";
+import { createBlogPrivacyScanPolicyFromEnvironment } from "./blog-privacy-scanner.ts";
 
 const { Pool } = pg;
 
@@ -29,7 +30,9 @@ export function createBlogPublicContentLoader(
 }
 
 export const loadPublicBlogContentStore = cache(async () => {
-  const repository = createPostgresBlogRepository(getBlogPublicPool());
+  const repository = createPostgresBlogRepository(getBlogPublicPool(), {
+    privacyScanPolicy: createBlogPrivacyScanPolicyFromEnvironment(process.env),
+  });
 
   return repository.findPublicBlogContent();
 });

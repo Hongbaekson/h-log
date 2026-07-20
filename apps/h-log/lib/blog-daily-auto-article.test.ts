@@ -183,6 +183,35 @@ describe("daily auto article pipeline", () => {
     assert.equal(generationCalls, 0);
   });
 
+  it("blocks sensitive generation input before calling the LLM adapter", async () => {
+    const fakeToken = `sk-${"x".repeat(24)}`;
+    const state = createDailyAutoArticlePipelineState();
+    let generationCalls = 0;
+    const result = await runDailyAutoArticlePipeline(
+      createPipelineInput({
+        generateArticle: async () => {
+          generationCalls += 1;
+          return createPipelineInput().generateArticle({} as never);
+        },
+        personalContextItems: [
+          createPersonalContextItem({
+            summary: `Public-safe label was wrong: api_key=${fakeToken}`,
+          }),
+        ],
+        state,
+      }),
+    );
+
+    assert.equal(result.status, "generation_failed");
+    assert.equal(generationCalls, 0);
+    assert.deepEqual(
+      state.qualityGateResults.map((gate) => gate.gateName),
+      ["article_quality_gate:privacy_risk"],
+    );
+    assert.match(state.qualityGateResults[0]?.message ?? "", /\[REDACTED\]/);
+    assert.equal(JSON.stringify(state.qualityGateResults).includes(fakeToken), false);
+  });
+
   it("publishes at most one article when the same daily cron is duplicated", async () => {
     const state = createDailyAutoArticlePipelineState();
     const first = await runDailyAutoArticlePipeline(

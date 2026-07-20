@@ -14,6 +14,10 @@ import {
   type PublishJobRecord,
 } from "./blog-content-model.ts";
 import type { BlogContentStore } from "./blog-public.ts";
+import {
+  scanBlogPrivacyText,
+  type BlogPrivacyScanPolicy,
+} from "./blog-privacy-scanner.ts";
 
 export type BlogPostAggregate = {
   assets: readonly PostAssetRecord[];
@@ -30,8 +34,13 @@ export type PostgresBlogRepository = {
   savePost(aggregate: BlogPostAggregate): Promise<void>;
 };
 
+export type PostgresBlogRepositoryOptions = {
+  privacyScanPolicy?: BlogPrivacyScanPolicy;
+};
+
 export function createPostgresBlogRepository(
   pool: Pool,
+  options: PostgresBlogRepositoryOptions = {},
 ): PostgresBlogRepository {
   return {
     async findPublicBlogContent() {
@@ -41,7 +50,11 @@ export function createPostgresBlogRepository(
       ]);
       const posts = postResult.rows.map(mapPost);
       const versions = versionResult.rows.map(mapPostVersion);
-      const publicEntries = selectPublicBlogRouteEntries(posts, versions);
+      const publicEntries = selectPublicBlogRouteEntries(
+        posts,
+        versions,
+        options.privacyScanPolicy,
+      );
       const publicPostIds = publicEntries.map(({ post }) => post.id);
       const publicVersionIds = publicEntries.map(({ version }) => version.id);
 
@@ -67,12 +80,43 @@ export function createPostgresBlogRepository(
         ),
       ]);
 
+      const tags = tagResult.rows.map(mapPostTag);
+      const sources = sourceResult.rows.map(mapPostSource);
+      const assets = assetResult.rows.map(mapPostAsset);
+      const privacySafeEntries = publicEntries.filter(({ post, version }) =>
+        scanBlogPrivacyText(
+          JSON.stringify({
+            assets: assets.filter(
+              (asset) =>
+                asset.postId === post.id && asset.postVersionId === version.id,
+            ),
+            post,
+            sources: sources.filter((source) => source.postId === post.id),
+            tags: tags.filter((tag) => tag.postId === post.id),
+            version,
+          }),
+          options.privacyScanPolicy,
+        ).status === "passed",
+      );
+      const privacySafePostIds = new Set(
+        privacySafeEntries.map(({ post }) => post.id),
+      );
+      const privacySafeVersionIds = new Set(
+        privacySafeEntries.map(({ version }) => version.id),
+      );
+
       return {
-        assets: assetResult.rows.map(mapPostAsset),
-        posts: publicEntries.map(({ post }) => post),
-        sources: sourceResult.rows.map(mapPostSource),
-        tags: tagResult.rows.map(mapPostTag),
-        versions: publicEntries.map(({ version }) => version),
+        assets: assets.filter(
+          (asset) =>
+            privacySafePostIds.has(asset.postId) &&
+            privacySafeVersionIds.has(asset.postVersionId),
+        ),
+        posts: privacySafeEntries.map(({ post }) => post),
+        sources: sources.filter((source) =>
+          privacySafePostIds.has(source.postId),
+        ),
+        tags: tags.filter((tag) => privacySafePostIds.has(tag.postId)),
+        versions: privacySafeEntries.map(({ version }) => version),
       };
     },
 

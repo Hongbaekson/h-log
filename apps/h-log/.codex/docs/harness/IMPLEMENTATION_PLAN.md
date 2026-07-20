@@ -64,7 +64,7 @@ topic-research-generation: completed, steps 0-3 completed
 auto-article-generation: completed, steps 0-3 completed
 diagram-assets-automation: completed, steps 0-2 completed
 blog-runtime-integration: completed, steps 0-4 completed
-auto-publish-ops-hardening: pending, steps 0-2 completed
+auto-publish-ops-hardening: pending, steps 0-3 completed
 feedback-and-persona-learning: pending
 ```
 
@@ -357,7 +357,15 @@ feedback-and-persona-learning: pending
 - 결과: `lib/blog-usage-ledger.ts`에 기존 PostgreSQL `usage_events`를 사용하는 공통 멱등 원장과 UTC 일/월 비용 집계를 추가했다. Daily article source fetch/LLM, 검색 API embedding, IndexNow/Discord retryable job은 provider/model/token/estimated cost/status를 같은 형식으로 기록한다. LLM/embedding은 원장 없이는 호출하지 않고, 설정한 일/월 한도에 도달하면 새 비용성 작업을 `budget_exceeded`로 차단한다. 검색 route는 `HLOG_DAILY_ESTIMATED_COST_LIMIT`, `HLOG_MONTHLY_ESTIMATED_COST_LIMIT`을 사용하며 미설정 상태는 이후 activation 전까지 무제한이다.
 - 검증: LLM usage 누락, embedding 원장 누락, persisted daily/monthly budget 초과 RED를 확인한 뒤 전체 `npm run test` 113 pass/10 environment skip, `npm run typecheck`, `npm run lint`, `npm run build`가 통과했다.
 - 운영 경계: 새 schema나 dependency를 추가하지 않았다. 실제 provider, cron/scheduler, OCI runtime, public auto-publish activation은 여전히 비활성화이며 production activation 전에 유한한 예산 값을 정해야 한다.
-- 다음 실행 대상: `auto-publish-ops-hardening / Step 3: privacy-scanner-and-redaction`.
+
+#### Step 3: privacy-scanner-and-redaction
+
+- 상태: completed
+- 결과: `lib/blog-privacy-scanner.ts`의 공통 scanner가 token/API key, 내부 URL/IP, 개인 연락처, 명시적으로 설정한 회사/고객사명과 비공개 저장소명을 탐지한다. Daily pipeline은 generation input을 LLM 호출 전에 검사하고 writer output은 normalization 전에 검사한다. PostgreSQL public read는 published current post/version과 tag/source/asset 전체를 다시 검사해 민감한 aggregate를 모든 public consumer에서 제외한다.
+- 감사 경계: 실패 기록은 `article_quality_gate:privacy_risk`와 finding category만 남기고 민감 원문 대신 `[REDACTED]`를 저장한다. 서버 로컬 설정은 `HLOG_PRIVACY_ORGANIZATION_NAMES`, `HLOG_PRIVACY_PRIVATE_REPOSITORIES` JSON 배열을 사용하며 잘못된 JSON은 fail closed 처리한다.
+- 검증: 내부 URL/token 공개 실패 RED를 확인한 뒤 focused privacy/generation/daily/public selector test, 전체 `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`가 통과했다.
+- 운영 경계: 새 schema나 dependency를 추가하지 않았다. 실제 provider, cron/scheduler, OCI runtime, public auto-publish activation은 여전히 비활성화다.
+- 다음 실행 대상: 사용자 승인 후 `auto-publish-ops-hardening / Step 4: production-activation-and-rollback-smoke`.
 
 ## 이후 DB-first 단계
 
