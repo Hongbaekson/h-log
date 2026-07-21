@@ -1,6 +1,7 @@
 import type { Pool, PoolClient, QueryResultRow } from "pg";
 
 import {
+  type AdminActionRecord,
   assertPublishJobIdempotencyKey,
   selectPublicBlogRouteEntries,
   type BlogArticleMode,
@@ -12,7 +13,12 @@ import {
   type PostVersionCreatedBy,
   type PostVersionRecord,
   type PublishJobRecord,
+  type PublishVerificationRecord,
 } from "./blog-content-model.ts";
+import {
+  retractAdminPost,
+  type AdminPostVisibilityInput,
+} from "./blog-admin.ts";
 import type { BlogContentStore } from "./blog-public.ts";
 import {
   scanBlogPrivacyText,
@@ -30,7 +36,11 @@ export type BlogPostAggregate = {
 
 export type PostgresBlogRepository = {
   findPublicBlogContent(): Promise<BlogContentStore>;
+  retractPost(
+    input: AdminPostVisibilityInput,
+  ): Promise<{ adminAction: AdminActionRecord; post: PostRecord }>;
   savePublishJob(job: PublishJobRecord): Promise<PublishJobRecord>;
+  savePublishVerification(record: PublishVerificationRecord): Promise<void>;
   savePost(aggregate: BlogPostAggregate): Promise<void>;
 };
 
@@ -148,6 +158,84 @@ export function createPostgresBlogRepository(
       }
     },
 
+    async retractPost(input) {
+      const client = await pool.connect();
+
+      try {
+        await client.query("begin");
+        const existing = await client.query(
+          "select * from posts where id = $1 for update",
+          [input.postId],
+        );
+        const { adminAction, post } = retractAdminPost(
+          {
+            adminActions: [],
+            assets: [],
+            corrections: [],
+            posts: existing.rows.map(mapPost),
+            sources: [],
+            tags: [],
+            versions: [],
+          },
+          input,
+        );
+
+        await client.query(
+          `update posts
+           set status = $2,
+               unpublished_at = $3,
+               retracted_at = $4,
+               updated_at = $5
+           where id = $1`,
+          [
+            post.id,
+            post.status,
+            post.unpublishedAt,
+            post.retractedAt,
+            post.updatedAt,
+          ],
+        );
+        await insertAdminAction(client, adminAction);
+        await client.query("commit");
+
+        return { adminAction, post };
+      } catch (error) {
+        await client.query("rollback");
+        throw error;
+      } finally {
+        client.release();
+      }
+    },
+
+    async savePublishVerification(record) {
+      const result = await pool.query(
+        `insert into publish_verifications (
+           id, post_id, post_version_id, check_type, status,
+           response_code, result, checked_at
+         )
+         select $1, $2, $3, $4, $5, $6, $7, $8
+         from post_versions
+         where id = $3 and post_id = $2
+         returning id`,
+        [
+          record.id,
+          record.postId,
+          record.postVersionId,
+          record.checkType,
+          record.status,
+          record.responseCode,
+          record.result,
+          record.checkedAt,
+        ],
+      );
+
+      if (result.rowCount === 0) {
+        throw new Error(
+          `publish verification ${record.id}: post version ${record.postVersionId} not found`,
+        );
+      }
+    },
+
     async savePost(aggregate) {
       assertAggregateReferences(aggregate);
       const client = await pool.connect();
@@ -186,6 +274,28 @@ export function createPostgresBlogRepository(
       }
     },
   };
+}
+
+async function insertAdminAction(
+  client: PoolClient,
+  action: AdminActionRecord,
+): Promise<void> {
+  await client.query(
+    `insert into admin_actions (
+       id, action_type, actor_type, actor_id, target_type,
+       target_id, reason, created_at
+     ) values ($1, $2, $3, $4, $5, $6, $7, $8)`,
+    [
+      action.id,
+      action.actionType,
+      action.actorType,
+      action.actorId,
+      action.targetType,
+      action.targetId,
+      action.reason,
+      action.createdAt,
+    ],
+  );
 }
 
 async function upsertPostWithoutCurrentVersion(

@@ -264,6 +264,8 @@ export const publishVerificationCheckTypes = [
   "sitemap",
   "feed",
   "llms",
+  "search_index",
+  "related_posts",
   "content_version_match",
 ] as const;
 

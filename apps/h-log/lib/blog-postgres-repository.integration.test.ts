@@ -186,6 +186,60 @@ test(
   },
 );
 
+test(
+  "rolls back a retraction when its admin audit write fails",
+  { skip: databaseUrl ? false : "DATABASE_URL is required" },
+  async () => {
+    await withTestDatabase("hlog_repository_retract_test", async (testUrl) => {
+      const pool = new Pool({ connectionString: testUrl });
+      const repository = createPostgresBlogRepository(pool);
+      const aggregate = createAggregate("retract-atomic", "published");
+
+      try {
+        await repository.savePost(aggregate);
+        await pool.query(
+          `insert into admin_actions (
+             id, action_type, actor_type, actor_id, target_type,
+             target_id, reason, created_at
+           ) values ($1, 'retract', 'cli', 'existing-audit', 'post', $2, $3, $4)`,
+          [
+            `retract:post:${aggregate.post.id}:${timestamp}`,
+            aggregate.post.id,
+            "Existing rollback audit",
+            timestamp,
+          ],
+        );
+
+        await assert.rejects(
+          repository.retractPost({
+            actorId: "step-4-canary",
+            actorType: "cli",
+            createdAt: timestamp,
+            postId: aggregate.post.id,
+            reason: "Step 4 rollback smoke",
+          }),
+          (error: unknown) =>
+            typeof error === "object" &&
+            error !== null &&
+            "code" in error &&
+            error.code === "23505",
+        );
+
+        const post = await pool.query(
+          "select status, retracted_at from posts where id = $1",
+          [aggregate.post.id],
+        );
+
+        assert.deepEqual(post.rows, [
+          { retracted_at: null, status: "published" },
+        ]);
+      } finally {
+        await pool.end();
+      }
+    });
+  },
+);
+
 async function withTestDatabase(
   databaseName: string,
   run: (testUrl: string) => Promise<void>,

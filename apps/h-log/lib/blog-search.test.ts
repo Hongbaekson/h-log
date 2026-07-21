@@ -8,6 +8,7 @@ import {
   type PostTagRecord,
   type PostVersionRecord,
 } from "./blog-content-model.ts";
+import { buildBlogCrawlerOutputs } from "./blog-crawler-output.ts";
 import type { BlogContentStore } from "./blog-public.ts";
 import {
   BLOG_SEARCH_EMBEDDING_PURPOSES,
@@ -382,6 +383,48 @@ describe("blog search contract", () => {
       second.results.map((result) => result.slug),
       first.results.map((result) => result.slug),
     );
+  });
+
+  it("removes a retracted post from cached search and llms outputs immediately", async () => {
+    const now = Date.parse(baseTimestamp);
+    const state = createBlogSearchRuntimeState();
+    const publishedStore = createStore();
+    const first = await handleBlogSearchApiRequest({
+      clientId: "visitor-1",
+      query: "pgvector",
+      requestedAt: now,
+      state,
+      store: publishedStore,
+    });
+    const retractedStore: BlogContentStore = {
+      ...publishedStore,
+      posts: publishedStore.posts.map((post) =>
+        post.slug === "postgres-restore"
+          ? {
+              ...post,
+              retractedAt: "2026-06-27T10:00:00.000Z",
+              status: "retracted",
+            }
+          : post,
+      ),
+    };
+    const second = await handleBlogSearchApiRequest({
+      clientId: "visitor-2",
+      query: "pgvector",
+      requestedAt: now + 1_000,
+      state,
+      store: retractedStore,
+    });
+    const crawler = buildBlogCrawlerOutputs(retractedStore, {
+      origin: "https://example.com",
+    });
+
+    assert.deepEqual(first.results.map((result) => result.slug), [
+      "postgres-restore",
+    ]);
+    assert.deepEqual(second.results, []);
+    assert.doesNotMatch(crawler.llmsTxt, /postgres-restore/);
+    assert.doesNotMatch(crawler.llmsFullTxt, /postgres-restore/);
   });
 
   it("blocks search embedding when the persisted monthly budget is exhausted", async () => {

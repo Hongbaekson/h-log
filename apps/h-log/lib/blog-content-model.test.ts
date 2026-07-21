@@ -239,6 +239,8 @@ describe("blog DB content model contract", () => {
       "sitemap",
       "feed",
       "llms",
+      "search_index",
+      "related_posts",
       "content_version_match",
     ]);
     assert.deepEqual(publishVerificationStatuses, ["passed", "failed"]);

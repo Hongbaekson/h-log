@@ -29,6 +29,16 @@
 - 실패 시 Discord/운영 알림은 retryable로 처리한다.
 - provider, scheduler, 공개 발행, OCI compose 변경은 각각 승인된 범위 안에서만 실행한다.
 
+## 현재 진행 상태 (2026-07-21)
+
+- 사용자에게 provider/scheduler, OCI, canary 1건, rollback 범위를 알리고 진행 승인을 받았다.
+- 철회 전 채운 검색 TTL cache에서 retracted 글이 남는 RED를 확인한 뒤, cached result도 현재 published selector로 다시 거르도록 수정했다.
+- `003_publish_rollback_audit` migration으로 `publish_verifications`, `admin_actions`를 실제 PostgreSQL schema에 추가했다.
+- PostgreSQL repository의 철회 상태와 `admin_actions` 저장을 한 transaction으로 묶고, rollback surface 8종의 `publish_verifications` 저장을 추가했다.
+- local fake-provider 발행 성공 글을 철회한 뒤 public URL, Markdown, sitemap, feed, llms, search index, related posts에서 모두 제거되고 감사/검증 record가 남는 통합 GREEN을 확인했다.
+- OCI read-only preflight 결과, 현재 서버 artifact에는 최신 migration/worker/provider/scheduler runtime이 없고 provider 설정도 준비되지 않았다. Provider/model 선택과 server-local credential 주입, scheduler 구현 및 배포 전 backup/restore rehearsal 뒤에만 실제 canary를 진행한다.
+- 따라서 이 step과 phase 상태는 실제 production canary 및 rollback smoke가 끝날 때까지 `pending`으로 유지한다.
+
 ## 인수 기준
 
 ```bash

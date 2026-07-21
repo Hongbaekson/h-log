@@ -100,7 +100,7 @@ docker compose --profile worker run --rm hlog-worker
 - local smoke는 `localhost:8080 -> hlog-nginx -> hlog-web` 경계를 기준으로 한다.
 - production smoke는 같은 public route 목록을 domain만 바꿔 확인한다.
 - public smoke는 `/`, `/resume`, `/portfolio`, `/blog`, `/blog/:slug`, `/blog/:slug.md`, `/admin` 차단, `/api/internal/*` 차단을 포함한다.
-- `sitemap.xml`, `feed.xml`, `llms.txt`, `llms-full.txt`는 현재 route가 없으므로 구현 전에는 expected 404로 기록하고, post-publish SEO phase에서 구현된 뒤 필수 200 smoke로 승격한다.
+- `sitemap.xml`, `feed.xml`, `llms.txt`, `llms-full.txt`는 구현된 crawler route이므로 published-only 포함/제외 조건과 함께 필수 200 smoke로 확인한다.
 - rollback은 이전 image tag, 이전 server-local env/Compose 설정, migration rollback 가능 여부 또는 restore rehearsal을 확인한 뒤 승인 후 실행한다.
 
 ## CI Checks

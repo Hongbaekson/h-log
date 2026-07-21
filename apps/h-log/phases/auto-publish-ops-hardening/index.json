@@ -29,7 +29,8 @@
     {
       "step": 4,
       "name": "production-activation-and-rollback-smoke",
-      "status": "pending"
+      "status": "pending",
+      "summary": "Local rollback readiness is complete: cached search now rechecks the published boundary, PostgreSQL persists retraction admin_actions and eight rollback publish_verifications, and the fake-provider rollback integration passes. Production provider/model, server-local credentials, scheduler wiring, OCI migration deployment, canary publish, and live rollback smoke remain pending."
     }
   ]
 }

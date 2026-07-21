@@ -1564,10 +1564,11 @@ daily-blog-cron
 - 검색 API 임베딩 호출 비용과 봇성 요청 별도 집계 - 완료
 - privacy scanner와 redaction - 완료
 - 실패 사유별 알림 분리
-- 정정/비공개/retract 명령 제공
+- 정정/비공개/retract 명령 제공 - PostgreSQL retract와 admin audit local 완료
 - public content와 DB version hash 정기 비교
-- 사용자 승인 후 provider/scheduler/OCI canary 최대 1건 실행
-- canary rollback/unpublish/retract smoke
+- retracted 글의 cache/public/crawler/search/related 제거와 rollback verification 저장 - local 완료
+- 사용자 승인 후 provider/scheduler/OCI canary 최대 1건 실행 - provider/model 및 server-local credential 결정 대기
+- canary rollback/unpublish/retract smoke - production pending
 
 7단계: 성과 피드백.
 

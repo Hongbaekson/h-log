@@ -405,10 +405,19 @@ export async function handleBlogSearchApiRequest(
   });
 
   if (cached && assessment.reason === "cache_hit") {
+    const publicPostIds = new Set(
+      selectPublicBlogRouteEntries(input.store.posts, input.store.versions).map(
+        ({ post }) => post.id,
+      ),
+    );
+
     return {
       ...cached.response,
       cached: true,
       guardReason: "cache_hit",
+      results: cached.response.results.filter(({ postId }) =>
+        publicPostIds.has(postId),
+      ),
     };
   }
 

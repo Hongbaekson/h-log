@@ -4,6 +4,10 @@ import test from "node:test";
 import pg from "pg";
 
 import { buildBlogCrawlerOutputs } from "./blog-crawler-output.ts";
+import {
+  searchPublishedBlogPosts,
+  selectPublishedRelatedPostCandidates,
+} from "./blog-search.ts";
 import { runLocalBlogDryRun } from "./blog-local-dry-run.ts";
 import { createPostgresBlogRepository } from "./blog-postgres-repository.ts";
 import {
@@ -22,6 +26,7 @@ test(
   async () => {
     await withTestDatabase("hlog_local_dry_run_test", async (testUrl) => {
       const pool = new Pool({ connectionString: testUrl });
+      const repository = createPostgresBlogRepository(pool);
 
       try {
         const result = await runLocalBlogDryRun({ pool, runAt });
@@ -31,9 +36,7 @@ test(
         const jobs = await pool.query(
           "select post_id, status, error from publish_jobs order by post_id",
         );
-        const store = await createPostgresBlogRepository(
-          pool,
-        ).findPublicBlogContent();
+        const store = await repository.findPublicBlogContent();
         const crawler = buildBlogCrawlerOutputs(store, {
           origin: "https://example.com",
         });
@@ -74,6 +77,115 @@ test(
           undefined,
         );
         assert.doesNotMatch(crawler.llmsFullTxt, new RegExp(result.failure.slug));
+
+        const rollbackAt = "2026-07-13T12:05:00.000Z";
+        const rollback = await repository.retractPost({
+          actorId: "step-4-canary",
+          actorType: "cli",
+          createdAt: rollbackAt,
+          postId: result.success.postId,
+          reason: "Step 4 rollback smoke",
+        });
+        const retractedStore = await repository.findPublicBlogContent();
+        const retractedCrawler = buildBlogCrawlerOutputs(retractedStore, {
+          origin: "https://example.com",
+        });
+
+        assert.equal(rollback.post.status, "retracted");
+        assert.equal(
+          getPublicBlogPostBySlug(result.success.slug, retractedStore),
+          undefined,
+        );
+        assert.equal(
+          getPublicBlogPostMarkdown(result.success.slug, retractedStore),
+          undefined,
+        );
+        assert.doesNotMatch(
+          retractedCrawler.sitemapXml,
+          new RegExp(result.success.slug),
+        );
+        assert.doesNotMatch(
+          retractedCrawler.feedXml,
+          new RegExp(result.success.slug),
+        );
+        assert.doesNotMatch(
+          retractedCrawler.llmsTxt,
+          new RegExp(result.success.slug),
+        );
+        assert.doesNotMatch(
+          retractedCrawler.llmsFullTxt,
+          new RegExp(result.success.slug),
+        );
+        assert.deepEqual(
+          searchPublishedBlogPosts(retractedStore, {
+            query: "fake provider",
+          }),
+          [],
+        );
+        assert.deepEqual(
+          selectPublishedRelatedPostCandidates(retractedStore, {
+            similarities: [
+              {
+                score: 0.9,
+                targetPostId: result.failure.postId,
+              },
+            ],
+            sourcePostId: result.success.postId,
+          }),
+          [],
+        );
+
+        for (const checkType of [
+          "public_url",
+          "md_url",
+          "sitemap",
+          "feed",
+          "llms",
+          "search_index",
+          "related_posts",
+          "content_version_match",
+        ] as const) {
+          await repository.savePublishVerification({
+            checkedAt: rollbackAt,
+            checkType,
+            id: `rollback:${result.success.postId}:${checkType}`,
+            postId: result.success.postId,
+            postVersionId: result.success.versionId,
+            responseCode: null,
+            result: "absent_after_retract",
+            status: "passed",
+          });
+        }
+
+        const adminActions = await pool.query(
+          `select action_type, actor_type, actor_id, reason
+           from admin_actions
+           where target_id = $1`,
+          [result.success.postId],
+        );
+        const verifications = await pool.query(
+          `select check_type, status, result
+           from publish_verifications
+           where post_id = $1
+           order by check_type`,
+          [result.success.postId],
+        );
+
+        assert.deepEqual(adminActions.rows, [
+          {
+            action_type: "retract",
+            actor_id: "step-4-canary",
+            actor_type: "cli",
+            reason: "Step 4 rollback smoke",
+          },
+        ]);
+        assert.equal(verifications.rowCount, 8);
+        assert.ok(
+          verifications.rows.every(
+            ({ result, status }) =>
+              result === "absent_after_retract" && status === "passed",
+          ),
+        );
       } finally {
         await pool.end();
       }

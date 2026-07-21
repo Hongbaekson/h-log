@@ -367,6 +367,14 @@ feedback-and-persona-learning: pending
 - 운영 경계: 새 schema나 dependency를 추가하지 않았다. 실제 provider, cron/scheduler, OCI runtime, public auto-publish activation은 여전히 비활성화다.
 - 다음 실행 대상: 사용자 승인 후 `auto-publish-ops-hardening / Step 4: production-activation-and-rollback-smoke`.
 
+#### Step 4: production-activation-and-rollback-smoke
+
+- 상태: pending (local rollback readiness completed)
+- 현재 결과: retracted 글이 기존 검색 TTL cache에 남는 RED를 확인하고, cache hit도 현재 published selector를 통과한 결과만 반환하도록 수정했다. `003_publish_rollback_audit` migration과 PostgreSQL repository에 transaction 기반 retract/admin audit 저장, rollback verification 저장을 추가했다.
+- local 검증: fake-provider 성공 글을 철회한 뒤 public detail, Markdown, sitemap, feed, llms, search index, related posts에서 제거되고 `admin_actions` 1건과 `publish_verifications` 8건이 저장되는 통합 GREEN을 확인했다. 감사 로그 저장 실패 시 철회 상태도 rollback되는 원자성 검증을 포함해 PostgreSQL 통합 test 12/12, 전체 `npm run test` 120 pass/10 environment skip, `npm run typecheck`, `npm run lint`, `npm run build`, 기본/worker/dry-run Compose config가 통과했다.
+- 운영 경계: OCI read-only preflight에서 서버 artifact가 최신 migration/worker보다 이전 상태이고 production provider/model, server-local credential, scheduler가 준비되지 않은 것을 확인했다. 이 입력과 구현, migration 전 backup/restore rehearsal, canary 1건, live rollback smoke가 끝날 때까지 Step 4와 phase는 완료 처리하지 않는다.
+- 다음 실행 대상: provider/model 및 server-local credential 결정 후 production adapter와 bounded scheduler를 구현하고 OCI canary 1건과 rollback smoke를 실행한다.
+
 ## 이후 DB-first 단계
 
 1. DB 기반 수동 발행 블로그

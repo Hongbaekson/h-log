@@ -40,6 +40,7 @@ test(
       assert.deepEqual(firstRun.appliedVersions, [
         "001_blog_core",
         "002_publish_job_leases",
+        "003_publish_rollback_audit",
       ]);
 
       const extension = await database.query(
@@ -70,7 +71,7 @@ test(
 
       const secondRun = await runBlogMigrations(testUrl.toString());
       assert.deepEqual(secondRun.appliedVersions, []);
-      assert.equal(secondRun.currentVersion, "002_publish_job_leases");
+      assert.equal(secondRun.currentVersion, "003_publish_rollback_audit");
 
       const versions = await database.query(
         "select version from schema_migrations order by version",
@@ -78,6 +79,7 @@ test(
       assert.deepEqual(versions.rows, [
         { version: "001_blog_core" },
         { version: "002_publish_job_leases" },
+        { version: "003_publish_rollback_audit" },
       ]);
     } finally {
       await database.end();
