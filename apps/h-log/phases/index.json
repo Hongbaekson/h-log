@@ -58,7 +58,7 @@
     {
       "dir": "auto-publish-ops-hardening",
       "status": "pending",
-      "summary": "Steps 0-3 completed. Step 4 local rollback readiness now removes retracted content from cached search and every public/crawler surface while persisting PostgreSQL admin_actions and publish_verifications. Production provider/model, server-local credentials, scheduler wiring, OCI canary, and live rollback smoke remain pending."
+      "summary": "Steps 0-3 completed. Step 4 local rollback readiness and the Hermes openai-codex/gpt-5.6-sol included-cost article provider smoke are complete. Server-local Hermes OAuth, worker packaging, 09:00 KST scheduler wiring, OCI canary, and live rollback smoke remain pending."
     },
     {
       "dir": "feedback-and-persona-learning",

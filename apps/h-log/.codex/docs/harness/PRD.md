@@ -113,7 +113,7 @@ local runtime에서 완료된 항목:
 - 자동 발행 품질 게이트
 - 검증 실패 시 비공개 실패 상태 유지
 
-현재 daily pipeline은 adapter 기반 contract다. 실제 외부 수집, LLM/embedding 호출, DB write, scheduler 실행은 아직 활성화하지 않는다.
+현재 daily pipeline은 adapter 기반 contract다. Hermes `openai-codex`/`gpt-5.6-sol` article provider는 Codex OAuth의 `included` usage만 허용하는 local one-shot smoke를 통과했지만, 실제 외부 수집, DB write, 09:00 KST scheduler와 production publish는 아직 활성화하지 않는다.
 
 ### A-04: PostgreSQL/worker runtime 통합
 

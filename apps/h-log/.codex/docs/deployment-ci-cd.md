@@ -168,6 +168,16 @@ CI/CD secret으로만 관리한다.
 
 저장소에 secret, server IP, API key를 커밋하지 않는다.
 
+## Hermes Codex OAuth
+
+자동 글 writer는 OpenAI Platform API key 대신 Hermes의 `openai-codex` OAuth를 사용한다.
+
+- 실행마다 provider는 `openai-codex`, model은 `gpt-5.6-sol`로 명시한다.
+- `HLOG_HERMES_COMMAND`와 `HLOG_HERMES_MODEL`은 server-local runtime 설정으로만 둔다.
+- OAuth 등록은 실행 host에서 `hermes auth add openai-codex --type oauth --no-browser`로 수행하고 auth state를 저장소나 image에 복사하지 않는다.
+- usage report가 `cost_status=included`, `estimated_cost_usd=0`, `api_calls=1`이 아니면 자동 글 생성을 중단한다. API key provider fallback은 두지 않는다.
+- 현재 worker image에는 Hermes CLI/OAuth state가 포함되지 않는다. Hermes와 worker의 실행 경계 및 09:00 KST scheduler가 별도 검증되기 전에는 production schedule을 켜지 않는다.
+
 ## OCI Guardrails
 
 - 서버 접속, firewall/security list 변경, 실제 compose restart는 사용자 승인 후 수행한다.

@@ -1096,6 +1096,7 @@ daily_budget:
 - diagram_generation_max: 1
 - publish_max: 1
 - retry_max_per_stage: 2
+- production_canary_retry_max_per_stage: 1
 - estimated_cost_limit_usd: configurable
 ```
 
@@ -1106,6 +1107,7 @@ daily_budget:
 - 같은 실패 사유가 2회 반복되면 해당 일자는 발행을 포기한다.
 - publish는 하루 최대 1회로 제한한다.
 - 비용 한도 초과 시 `budget_exceeded` failure로 남기고 새 자동 생성/비용성 job을 차단한다.
+- 자동 글 LLM은 Hermes `openai-codex`/`gpt-5.6-sol`의 `cost_status=included`, `estimated_cost_usd=0` 실행만 허용하며 OpenAI Platform API key fallback은 두지 않는다.
 ```
 
 추가로 모든 외부 호출은 `usage_events`에 남긴다.
@@ -1442,13 +1444,13 @@ admin_actions
 
 ```text
 Next.js / Node worker
-- 스케줄 실행
+- `Asia/Seoul` 매일 09:00 bounded schedule 실행
 - DB 저장
 - 발행 상태 관리
 - 임베딩/검색/IndexNow/Discord job 실행
 - 공개 URL, Markdown URL, 검색 반영 검증
 
-Hermes 또는 LLM agent
+Hermes (`openai-codex` / `gpt-5.6-sol`)
 - 주제 수집
 - 웹 조사
 - 자료 요약
@@ -1567,7 +1569,8 @@ daily-blog-cron
 - 정정/비공개/retract 명령 제공 - PostgreSQL retract와 admin audit local 완료
 - public content와 DB version hash 정기 비교
 - retracted 글의 cache/public/crawler/search/related 제거와 rollback verification 저장 - local 완료
-- 사용자 승인 후 provider/scheduler/OCI canary 최대 1건 실행 - provider/model 및 server-local credential 결정 대기
+- Hermes Codex OAuth article provider와 included-cost local one-shot smoke - 완료
+- 사용자 승인 후 provider/scheduler/OCI canary 최대 1건 실행 - server-local Hermes/OAuth, worker packaging, 09:00 KST scheduler 대기
 - canary rollback/unpublish/retract smoke - production pending
 
 7단계: 성과 피드백.

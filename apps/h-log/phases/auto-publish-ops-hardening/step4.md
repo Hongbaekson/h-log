@@ -36,7 +36,10 @@
 - `003_publish_rollback_audit` migration으로 `publish_verifications`, `admin_actions`를 실제 PostgreSQL schema에 추가했다.
 - PostgreSQL repository의 철회 상태와 `admin_actions` 저장을 한 transaction으로 묶고, rollback surface 8종의 `publish_verifications` 저장을 추가했다.
 - local fake-provider 발행 성공 글을 철회한 뒤 public URL, Markdown, sitemap, feed, llms, search index, related posts에서 모두 제거되고 감사/검증 record가 남는 통합 GREEN을 확인했다.
-- OCI read-only preflight 결과, 현재 서버 artifact에는 최신 migration/worker/provider/scheduler runtime이 없고 provider 설정도 준비되지 않았다. Provider/model 선택과 server-local credential 주입, scheduler 구현 및 배포 전 backup/restore rehearsal 뒤에만 실제 canary를 진행한다.
+- Provider/model은 Hermes `openai-codex`/`gpt-5.6-sol`로 결정했다. OpenAI Platform API key는 사용하지 않는다.
+- Hermes one-shot adapter는 verified input만 JSON prompt로 전달하고, usage report가 요청 provider/model, `cost_status=included`, `estimated_cost_usd=0`, `api_calls=1`과 일치하지 않으면 실패한다. 실제 local OAuth smoke에서 이 계약과 구조화 JSON 응답을 확인했다.
+- Daily pipeline의 generation audit는 고정 adapter 이름 대신 실제 model을 기록한다.
+- OCI read-only preflight 결과, 현재 서버 artifact에는 최신 migration/worker/provider/scheduler runtime이 없다. Server-local Hermes/OAuth 준비, worker와 Hermes 실행 경계, `Asia/Seoul` 매일 09:00·publish 최대 1개·retry 최대 1회 scheduler 구현 및 배포 전 backup/restore rehearsal 뒤에만 실제 canary를 진행한다.
 - 따라서 이 step과 phase 상태는 실제 production canary 및 rollback smoke가 끝날 때까지 `pending`으로 유지한다.
 
 ## 인수 기준

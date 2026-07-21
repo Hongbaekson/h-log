@@ -228,6 +228,7 @@ describe("daily auto article pipeline", () => {
     assert.equal(second.status, "duplicate_daily_publish");
     assert.equal(state.store.posts.length, 1);
     assert.equal(state.store.versions.length, 1);
+    assert.equal(state.generationRuns[0]?.model, "fake-writer");
     assert.equal(
       selectPublicBlogRouteEntries(state.store.posts, state.store.versions)
         .length,

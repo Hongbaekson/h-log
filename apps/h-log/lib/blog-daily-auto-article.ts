@@ -319,7 +319,7 @@ export async function runDailyAutoArticlePipeline(
       createdAt: input.runAt,
       gateResult: "passed",
       inputSourceIds: postSources.map((source) => source.id),
-      model: "daily-auto-article-adapter",
+      model: generation.usage.model ?? "daily-auto-article-adapter",
       output: validation.normalizedOutput,
       personaVersion: "hlog-persona-v1",
       postId,
