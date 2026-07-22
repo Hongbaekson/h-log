@@ -30,7 +30,7 @@
       "step": 4,
       "name": "production-activation-and-rollback-smoke",
       "status": "pending",
-      "summary": "Local rollback readiness, the Hermes openai-codex/gpt-5.6-sol article provider smoke, and the private publishing persistence handoff are complete. The pipeline can stop with queued required jobs before any public transition. Server-local Hermes OAuth, the PostgreSQL one-shot runner, required job adapter packaging, 09:00 KST scheduler wiring, OCI migration deployment, canary publish, and live rollback smoke remain pending."
+      "summary": "Local rollback readiness, the Hermes openai-codex/gpt-5.6-sol article provider smoke, the private publishing persistence handoff, and the PostgreSQL/Hermes one-shot runner with a Seoul daily advisory lock are complete. Server-local Hermes OAuth verification, required job adapter packaging, 09:00 KST scheduler wiring, OCI migration deployment, canary publish, and live rollback smoke remain pending."
     }
   ]
 }

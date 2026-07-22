@@ -58,7 +58,7 @@
     {
       "dir": "auto-publish-ops-hardening",
       "status": "pending",
-      "summary": "Steps 0-3 completed. Step 4 local rollback readiness, the Hermes openai-codex/gpt-5.6-sol included-cost article provider smoke, and the private publishing persistence handoff are complete. Server-local Hermes OAuth, the PostgreSQL one-shot runner, required job adapter packaging, 09:00 KST scheduler wiring, OCI canary, and live rollback smoke remain pending."
+      "summary": "Steps 0-3 completed. Step 4 local rollback readiness, the Hermes openai-codex/gpt-5.6-sol included-cost article provider smoke, the private publishing persistence handoff, and the PostgreSQL/Hermes one-shot runner with a Seoul daily advisory lock are complete. Server-local Hermes OAuth verification, required job adapter packaging, 09:00 KST scheduler wiring, OCI canary, and live rollback smoke remain pending."
     },
     {
       "dir": "feedback-and-persona-learning",

@@ -176,7 +176,8 @@ CI/CD secret으로만 관리한다.
 - `HLOG_HERMES_COMMAND`와 `HLOG_HERMES_MODEL`은 server-local runtime 설정으로만 둔다.
 - OAuth 등록은 실행 host에서 `hermes auth add openai-codex --type oauth --no-browser`로 수행하고 auth state를 저장소나 image에 복사하지 않는다.
 - usage report가 `cost_status=included`, `estimated_cost_usd=0`, `api_calls=1`이 아니면 자동 글 생성을 중단한다. API key provider fallback은 두지 않는다.
-- 현재 worker image에는 Hermes CLI/OAuth state가 포함되지 않는다. Hermes와 worker의 실행 경계 및 09:00 KST scheduler가 별도 검증되기 전에는 production schedule을 켜지 않는다.
+- `HLOG_AUTO_PUBLISH_INPUT_FILE`은 서버 로컬의 검증된 topic/research/context JSON을 가리키며 저장소나 image에 포함하지 않는다. `npm run auto-publish:once`는 서울 날짜 advisory lock과 기존 daily post 확인 후 private `publishing` aggregate까지만 저장한다.
+- 현재 worker image에는 Hermes CLI/OAuth state와 one-shot runner packaging이 포함되지 않는다. Required job adapter와 09:00 KST scheduler가 별도 검증되기 전에는 production schedule을 켜지 않는다.
 
 ## OCI Guardrails
 

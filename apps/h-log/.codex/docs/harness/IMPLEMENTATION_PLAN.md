@@ -370,11 +370,12 @@ feedback-and-persona-learning: pending
 #### Step 4: production-activation-and-rollback-smoke
 
 - 상태: pending (local rollback readiness completed)
-- 현재 결과: retracted 글이 기존 검색 TTL cache에 남는 RED를 확인하고, cache hit도 현재 published selector를 통과한 결과만 반환하도록 수정했다. `003_publish_rollback_audit` migration과 PostgreSQL repository에 transaction 기반 retract/admin audit 저장, rollback verification 저장을 추가했다. Provider/model은 Hermes `openai-codex`/`gpt-5.6-sol`로 결정했고, `included`/estimated cost 0이 아닌 실행을 거부하는 article adapter와 실제 local one-shot smoke를 추가했다.
+- 현재 결과: retracted 글이 기존 검색 TTL cache에 남는 RED를 확인하고, cache hit도 현재 published selector를 통과한 결과만 반환하도록 수정했다. `003_publish_rollback_audit` migration과 PostgreSQL repository에 transaction 기반 retract/admin audit 저장, rollback verification 저장을 추가했다. Provider/model은 Hermes `openai-codex`/`gpt-5.6-sol`로 결정했고, `included`/estimated cost 0이 아닌 실행을 거부하는 article adapter와 실제 local one-shot smoke를 추가했다. PostgreSQL/Hermes one-shot runner는 서울 날짜 advisory lock과 결정적 post ID 중복 확인을 먼저 수행하고, 검증된 결과를 `publishing` aggregate로 저장한 뒤 public 전이 전에 종료한다.
 - local 검증: fake-provider 성공 글을 철회한 뒤 public detail, Markdown, sitemap, feed, llms, search index, related posts에서 제거되고 `admin_actions` 1건과 `publish_verifications` 8건이 저장되는 통합 GREEN을 확인했다. 감사 로그 저장 실패 시 철회 상태도 rollback되는 원자성 검증을 포함해 PostgreSQL 통합 test 12/12, 전체 `npm run test` 120 pass/10 environment skip, `npm run typecheck`, `npm run lint`, `npm run build`, 기본/worker/dry-run Compose config가 통과했다.
 - provider 검증: missing provider module RED, generation model audit RED, tool-loop 차단 RED를 확인한 뒤 focused test 10/10, 전체 `npm run test` 124 pass/11 environment skip, `npm run lint`, `npm run typecheck`, `npm run build`, 실제 Hermes one-shot의 `openai-codex`/`gpt-5.6-sol`/estimated cost 0 JSON 응답이 통과했다.
-- 운영 경계: OCI read-only preflight에서 서버 artifact가 최신 migration/worker보다 이전 상태이고 server-local Hermes/OAuth, worker packaging, scheduler가 준비되지 않은 것을 확인했다. 이 입력과 구현, migration 전 backup/restore rehearsal, canary 1건, live rollback smoke가 끝날 때까지 Step 4와 phase는 완료 처리하지 않는다.
-- 다음 실행 대상: server-local Hermes OAuth와 worker 실행 경계를 정한 뒤 `Asia/Seoul` 09:00, publish 최대 1개, retry 최대 1회의 bounded scheduler를 구현하고 OCI canary 1건과 rollback smoke를 실행한다.
+- runner 검증: missing runner RED 후 서울 날짜 중복 DB 확인 전에는 usage/Hermes/persistence가 실행되지 않는 focused test 2/2, daily pipeline 포함 focused test 9/9, `npm run typecheck`, `npm run lint`가 통과했다.
+- 운영 경계: OCI read-only preflight에서 서버 artifact가 최신 migration/worker보다 이전 상태이고 server-local Hermes OAuth 검증, required job adapter packaging, scheduler가 준비되지 않은 것을 확인했다. 이 입력과 구현, migration 전 backup/restore rehearsal, canary 1건, live rollback smoke가 끝날 때까지 Step 4와 phase는 완료 처리하지 않는다.
+- 다음 실행 대상: server-local Hermes OAuth를 runner 실행 host에서 확인하고 required job adapter를 packaging한 뒤 `Asia/Seoul` 09:00, publish 최대 1개, retry 최대 1회의 bounded scheduler를 구현하고 OCI canary 1건과 rollback smoke를 실행한다.
 
 ## 이후 DB-first 단계
 
