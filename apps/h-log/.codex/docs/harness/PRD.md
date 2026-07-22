@@ -113,7 +113,7 @@ local runtime에서 완료된 항목:
 - 자동 발행 품질 게이트
 - 검증 실패 시 비공개 실패 상태 유지
 
-현재 daily pipeline은 adapter 기반 contract다. 검증된 생성 결과는 선택적 persistence callback을 통해 `publishing` post와 queued required jobs로 넘기고 public worker 실행 전에 비공개 상태로 멈출 수 있다. PostgreSQL one-shot runner는 서울 날짜별 advisory lock과 기존 post 확인 후에만 Hermes `openai-codex`/`gpt-5.6-sol`을 호출하고 이 private aggregate를 저장한다. 실제 입력 수집 자동화, server-local OAuth 검증, required job adapter packaging, 09:00 KST scheduler와 production publish는 아직 활성화하지 않는다.
+현재 daily pipeline은 adapter 기반 contract다. 검증된 생성 결과는 선택적 persistence callback을 통해 `publishing` post와 queued required jobs로 넘기고 public worker 실행 전에 비공개 상태로 멈출 수 있다. PostgreSQL one-shot runner는 서울 날짜별 advisory lock과 기존 post 확인 후에만 Hermes `openai-codex`/`gpt-5.6-sol`을 호출하고 이 private aggregate를 저장한다. Required adapter는 `render`/`privacy_scan`을 공개 전에 처리하고 제한된 canary 전환 뒤 public URL/Markdown/sitemap/content hash를 검증하며 실패 canary를 `correction_pending`으로 숨긴다. Bounded cycle은 해당 daily post의 required job만 유한 횟수로 drain하고, 공식 Hermes image를 사용한 Compose service와 09:00 KST systemd timer는 packaging만 완료했다. 실제 입력 수집 자동화, OCI container-local OAuth 검증, timer 활성화와 production publish는 아직 수행하지 않는다.
 
 ### A-04: PostgreSQL/worker runtime 통합
 

@@ -41,7 +41,11 @@
 - Daily pipeline의 generation audit는 고정 adapter 이름 대신 실제 model을 기록한다.
 - Daily pipeline은 production persistence callback이 있으면 검증된 생성 결과를 비공개 `publishing` aggregate와 queued required jobs로 넘기고, required job adapter나 public 전이를 실행하지 않은 채 종료한다. 같은 day key의 callback과 LLM 중복 실행도 local state에서 차단한다.
 - PostgreSQL/Hermes one-shot runner는 서버 로컬 JSON 입력을 fail closed로 검사하고, 서울 날짜별 advisory lock과 `post-YYYY-MM-DD` 존재 여부를 usage/Hermes 호출 전에 확인한다. 통과한 결과는 기존 repository로 비공개 저장하며 required publish job은 실행하지 않는다.
-- OCI read-only preflight 결과, 현재 서버 artifact에는 최신 migration/worker/provider/scheduler runtime이 없다. 다음 순서는 server-local Hermes OAuth 검증, required job adapter packaging, `Asia/Seoul` 매일 09:00·publish 최대 1개·retry 최대 1회 scheduler, 배포 전 backup/restore rehearsal이다. 그 뒤에만 실제 canary를 진행한다.
+- Published-only public route에서는 `publishing` 글의 `public_url`, `.md`, sitemap 검증이 성공할 수 없다. Required job adapter는 `render`/`privacy_scan` 사전 검증을 먼저 끝내고 제한된 canary를 `published`로 전환한 뒤 public surface와 content hash를 검증하며, 실패 시 즉시 `correction_pending`으로 숨기는 2단계 순서로 packaging했다.
+- Adapter focused test 22/22와 격리 PostgreSQL worker 통합 test 6/6이 통과했다. Worker는 여전히 manual `--once`이며 scheduler나 OCI runtime은 활성화하지 않았다.
+- Bounded cycle은 deterministic daily post의 required job만 required job 수 + idle probe 1회까지 처리한다. 공식 Hermes image 기반 Compose service와 `Asia/Seoul` 매일 09:00 systemd timer를 packaging했다. Hermes가 logged-out 상태에도 exit 0을 반환하는 RED를 별도 preflight로 차단했고, focused scheduler/auth test 11/11과 scheduler profile Compose config가 통과했다.
+- 2026-07-22 OCI read-only preflight 결과, 기준 경로에는 root-level 이전 source artifact와 Docker만 있고 host Node/npm/Hermes, production env, timer는 없었다. Image build, `hermes_data` OAuth, production input mount, timer enable은 수행하지 않았다.
+- 다음 순서는 최신 artifact 반영, container-local Hermes OAuth, 배포 전 backup/restore rehearsal, migration, timer 활성화 전 수동 canary 1건과 rollback smoke다.
 - 따라서 이 step과 phase 상태는 실제 production canary 및 rollback smoke가 끝날 때까지 `pending`으로 유지한다.
 
 ## 인수 기준

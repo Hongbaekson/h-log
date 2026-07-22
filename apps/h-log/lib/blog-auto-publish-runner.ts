@@ -54,7 +54,7 @@ export async function runDailyAutoPublishOnce(
   }
 
   try {
-    const postId = `post-${dayKey}`;
+    const postId = createDailyAutoPublishPostId(input.runAt);
 
     if (await input.hasPersistedPost(postId)) {
       return duplicateResult(state);
@@ -79,6 +79,10 @@ export async function runDailyAutoPublishOnce(
   } finally {
     await releaseLock();
   }
+}
+
+export function createDailyAutoPublishPostId(runAt: Timestamp): string {
+  return `post-${toSeoulDayKey(runAt)}`;
 }
 
 export function parseDailyAutoPublishInput(

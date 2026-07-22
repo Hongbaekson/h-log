@@ -177,7 +177,53 @@ CI/CD secret으로만 관리한다.
 - OAuth 등록은 실행 host에서 `hermes auth add openai-codex --type oauth --no-browser`로 수행하고 auth state를 저장소나 image에 복사하지 않는다.
 - usage report가 `cost_status=included`, `estimated_cost_usd=0`, `api_calls=1`이 아니면 자동 글 생성을 중단한다. API key provider fallback은 두지 않는다.
 - `HLOG_AUTO_PUBLISH_INPUT_FILE`은 서버 로컬의 검증된 topic/research/context JSON을 가리키며 저장소나 image에 포함하지 않는다. `npm run auto-publish:once`는 서울 날짜 advisory lock과 기존 daily post 확인 후 private `publishing` aggregate까지만 저장한다.
-- 현재 worker image에는 Hermes CLI/OAuth state와 one-shot runner packaging이 포함되지 않는다. Required job adapter와 09:00 KST scheduler가 별도 검증되기 전에는 production schedule을 켜지 않는다.
+- `Dockerfile.auto-publish`는 공식 `nousresearch/hermes-agent:v2026.7.7.2` image에 H-Log runner만 추가한다. OAuth state는 image가 아니라 Compose `hermes_data` volume에 저장한다.
+- `npm run auto-publish:cycle`은 generation 뒤 같은 `post-YYYY-MM-DD`의 required job만 required job 수 + idle probe 1회까지 처리한다. `failed`, `retrying`, 한도 초과는 non-zero로 중단한다.
+- `deploy/systemd/hlog-auto-publish.timer`는 `Asia/Seoul` 매일 09:00로 packaging했지만 OCI canary/rollback 전에는 enable하지 않는다.
+
+2026-07-22 read-only preflight에서 OCI 기준 경로에는 이전 source artifact와 Docker만 있었고 host Node/npm/Hermes, production env, scheduler는 없었다. Host에 runtime을 중복 설치하지 않고 아래 container 경계로 준비한다.
+
+서버 로컬 `.env`에는 secret이 아니라 production env 파일 경로만 둔다.
+
+```dotenv
+HLOG_AUTO_PUBLISH_ENV_FILE=/opt/stacks/h-log/deploy/env.production
+```
+
+`deploy/env.production`에는 실제 `DATABASE_URL`, public base URL, privacy 목록과 container 내부 입력 경로를 두고 저장소에 커밋하지 않는다.
+
+```dotenv
+HLOG_AUTO_PUBLISH_INPUT_FILE=/run/secrets/hlog-auto-publish-input.json
+```
+
+서버 로컬 `compose.override.yaml`에서 검증된 입력 파일을 read-only로 mount한다. 실제 host 경로나 내용은 저장소에 기록하지 않는다.
+
+```yaml
+services:
+  hlog-auto-publish:
+    volumes:
+      - /server-local/private/auto-publish-input.json:/run/secrets/hlog-auto-publish-input.json:ro
+```
+
+최신 artifact와 production override를 반영한 뒤 image와 OAuth volume을 준비한다.
+
+```bash
+cd /opt/stacks/h-log
+docker compose --profile scheduler build hlog-auto-publish
+docker compose --profile scheduler run --rm --no-deps hlog-auto-publish hermes auth add openai-codex --type oauth --no-browser
+docker compose --profile scheduler run --rm --no-deps hlog-auto-publish npm run auth:preflight
+```
+
+OAuth status, backup/restore rehearsal, migration, 수동 canary와 rollback smoke가 모두 통과한 뒤에만 user timer를 연결하고 활성화한다.
+
+```bash
+systemctl --user link /opt/stacks/h-log/deploy/systemd/hlog-auto-publish.service
+systemctl --user link /opt/stacks/h-log/deploy/systemd/hlog-auto-publish.timer
+systemctl --user daemon-reload
+systemctl --user enable --now hlog-auto-publish.timer
+systemctl --user list-timers hlog-auto-publish.timer
+```
+
+로그아웃 후에도 user timer가 필요하면 운영 계정에 대한 lingering을 서버 관리자 권한으로 별도 활성화한다. OAuth/device code, production input, env 값은 timer journal에 출력하지 않는다.
 
 ## OCI Guardrails
 

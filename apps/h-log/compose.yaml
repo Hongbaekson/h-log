@@ -61,6 +61,33 @@ services:
       hlog-redis:
         condition: service_healthy
     networks:
+      - app_net
+      - data_net
+      - egress_net
+    restart: "no"
+
+  hlog-auto-publish:
+    build:
+      context: .
+      dockerfile: Dockerfile.auto-publish
+    image: hlog-auto-publish:dev
+    profiles:
+      - scheduler
+    env_file:
+      - ${HLOG_AUTO_PUBLISH_ENV_FILE:-./deploy/env.dev}
+    environment:
+      HERMES_HOME: /opt/data
+      HLOG_HERMES_COMMAND: hermes
+      HLOG_WORKER_PUBLIC_BASE_URL: http://hlog-nginx
+    volumes:
+      - hermes_data:/opt/data
+    depends_on:
+      hlog-nginx:
+        condition: service_started
+      hlog-postgres:
+        condition: service_healthy
+    networks:
+      - app_net
       - data_net
       - egress_net
     restart: "no"
@@ -136,6 +163,7 @@ services:
     restart: unless-stopped
 
 volumes:
+  hermes_data:
   postgres_data:
   redis_data:
 

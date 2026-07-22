@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import pg from "pg";
 
 import {
+  createDailyAutoPublishPostId,
   parseDailyAutoPublishInput,
   runDailyAutoPublishOnce,
 } from "../lib/blog-auto-publish-runner.ts";
@@ -33,6 +34,7 @@ const dailyInput = parseDailyAutoPublishInput(
 );
 const pool = new pg.Pool({ connectionString: databaseUrl });
 const repository = createPostgresBlogRepository(pool);
+const runAt = new Date().toISOString();
 
 try {
   const result = await runDailyAutoPublishOnce({
@@ -50,13 +52,13 @@ try {
     persistPublishingArticle: (aggregate) =>
       repository.savePost({ assets: [], ...aggregate }),
     policy: resolveUsageBudgetPolicy(process.env),
-    runAt: new Date().toISOString(),
+    runAt,
     usageLedger: createPostgresBlogUsageLedger(pool),
   });
 
   console.log(
     JSON.stringify({
-      postId: result.post?.id ?? null,
+      postId: result.post?.id ?? createDailyAutoPublishPostId(runAt),
       status: result.status,
       versionId: result.version?.id ?? null,
     }),

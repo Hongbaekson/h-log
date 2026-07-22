@@ -2,11 +2,19 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  createDailyAutoPublishPostId,
   parseDailyAutoPublishInput,
   runDailyAutoPublishOnce,
 } from "./blog-auto-publish-runner.ts";
 
 describe("daily auto publish one-shot runner", () => {
+  it("derives the same daily post id across the UTC to Seoul boundary", () => {
+    assert.equal(
+      createDailyAutoPublishPostId("2026-07-21T15:30:00.000Z"),
+      "post-2026-07-22",
+    );
+  });
+
   it("checks the Seoul daily post before usage, Hermes, or persistence", async () => {
     const checkedPostIds: string[] = [];
     let generationCalls = 0;

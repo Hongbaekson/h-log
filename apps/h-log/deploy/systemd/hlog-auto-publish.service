@@ -1,0 +1,11 @@
+[Unit]
+Description=H-Log bounded daily auto publish cycle
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/stacks/h-log
+ExecStartPre=/usr/bin/docker compose --profile scheduler run --rm --no-deps hlog-auto-publish npm run auth:preflight
+ExecStart=/usr/bin/docker compose --profile scheduler run --rm hlog-auto-publish npm run auto-publish:cycle
+TimeoutStartSec=30min

@@ -2,6 +2,8 @@ import type { Pool, QueryResultRow } from "pg";
 
 import {
   assertBlogPostStatusTransition,
+  postPublishRequiredJobTypes,
+  prePublishRequiredJobTypes,
   recordPublishJobFailure,
   type BlogPostStatus,
   type PublishJobImportance,
@@ -40,22 +42,49 @@ export type RunPersistentWorkerOnceResult =
 
 export async function runPersistentWorkerOnce({
   adapter,
+  importance,
   pool,
+  postId,
   runAt,
   workerId,
 }: {
   adapter: PersistentWorkerAdapter;
+  importance?: PublishJobImportance;
   pool: Pool;
+  postId?: string;
   runAt: Timestamp;
   workerId: string;
 }): Promise<RunPersistentWorkerOnceResult> {
   const claimed = await pool.query(
     `with next_job as (
-       select id
-       from publish_jobs
-       where status in ('queued', 'retrying')
-          or (status = 'running' and lease_expires_at <= $1)
-       order by id
+       select job.id
+       from publish_jobs job
+       join posts post on post.id = job.post_id
+       where (
+         job.status in ('queued', 'retrying')
+         or (job.status = 'running' and job.lease_expires_at <= $1)
+       )
+       and ($5::text is null or job.post_id = $5)
+       and ($6::text is null or job.importance = $6)
+       and (
+         (
+           job.importance = 'required'
+           and job.type = any($3::text[])
+           and post.status in ('publishing', 'verifying')
+         )
+         or (
+           job.importance = 'required'
+           and job.type = any($4::text[])
+           and post.status = 'published'
+         )
+         or (job.importance = 'retryable' and post.status = 'published')
+       )
+       order by case
+         when job.type = any($3::text[]) then 0
+         when job.type = any($4::text[]) then 1
+         else 2
+       end,
+       job.id
        for update skip locked
        limit 1
      )
@@ -67,7 +96,14 @@ export async function runPersistentWorkerOnce({
          finished_at = null
      where id = (select id from next_job)
      returning *`,
-    [runAt, workerId],
+    [
+      runAt,
+      workerId,
+      [...prePublishRequiredJobTypes],
+      [...postPublishRequiredJobTypes],
+      postId ?? null,
+      importance ?? null,
+    ],
   );
 
   if (claimed.rowCount === 0) {
@@ -232,6 +268,9 @@ export async function runPersistentWorkerOnce({
 
     if (
       finishedJob.importance === "required" &&
+      (prePublishRequiredJobTypes as readonly string[]).includes(
+        finishedJob.type,
+      ) &&
       currentVersionId === finishedJob.postVersionId &&
       (postStatus === "publishing" || postStatus === "verifying")
     ) {
@@ -242,9 +281,14 @@ export async function runPersistentWorkerOnce({
            where post_id = $1
              and post_version_id = $2
              and importance = 'required'
+             and type = any($3::text[])
              and status <> 'succeeded'
          ) as value`,
-        [finishedJob.postId, finishedJob.postVersionId],
+        [
+          finishedJob.postId,
+          finishedJob.postVersionId,
+          [...prePublishRequiredJobTypes],
+        ],
       );
 
       if (!incomplete.rows[0]?.value) {

@@ -1,7 +1,7 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
 작성일: 2026-06-25
-최종 계획 정리: 2026-07-10
+최종 계획 정리: 2026-07-22
 
 이 문서는 기존 `personal-portfolio-site-plan.md`의 `MDX file-based content`, `DB 없음`, `챗봇 MVP 제외` 방향과 별개로, 블로그를 처음부터 DB/CMS/API/worker 기반 완전 자동 발행 시스템으로 확장할 때의 기준안이다.
 
@@ -20,7 +20,7 @@
 - DB content model, published-only route, 검색/SEO, 연구/생성, daily pipeline, diagram storage/insertion gate는 contract/test baseline까지 완료됐다.
 - PostgreSQL `pg` driver, `001_blog_core` schema migration, local Compose migration runner와 최소 blog repository는 완료됐다.
 - public blog, crawler output, search는 공통 PostgreSQL published-current source를 읽는다.
-- Compose worker는 DB job을 최대 한 건 처리하고 종료하는 manual `--once` runner이며 외부 adapter는 비활성화돼 있다.
+- Compose worker는 DB job을 최대 한 건 처리하고 종료하는 `--once` runner다. Required adapter는 공개 전 render/privacy와 제한된 canary 공개 후 public URL/Markdown/sitemap/content hash를 분리해 검증하며, scheduler cycle은 같은 daily post의 required job만 유한 횟수로 처리한다. Retryable external adapter와 production timer는 아직 비활성화돼 있다.
 - fake-provider local Compose dry-run에서 성공 글의 HTML/Markdown/crawler 공개와 required 실패 글의 비공개 상태를 검증했다.
 - auto-publish-ops-hardening / Step 0의 deterministic idempotency key와 중복 저장 수렴을 완료했다.
 - auto-publish-ops-hardening / Step 1의 PostgreSQL lease owner/expiry, timeout 재획득, stale owner 거부, 동일 오류 2회 retry stop과 durable `usage_events` 기록을 완료했다.
@@ -28,7 +28,9 @@
 - auto-publish-ops-hardening / Step 3의 LLM 입력 전·writer 출력 후·공개 조회 경계 privacy scanner와 redaction을 완료했다.
 - auto-publish-ops-hardening / Step 4에서 검증된 생성 결과를 비공개 `publishing` aggregate와 queued required jobs로 넘기고 persistent worker 실행 전 종료하는 persistence handoff를 완료했다.
 - PostgreSQL/Hermes one-shot runner는 서울 날짜별 advisory lock과 기존 post 확인 후에만 생성하고 private persistence handoff를 실행한다.
-- 다음 실행 대상은 사용자 승인 후 진행하는 auto-publish-ops-hardening / Step 4 production activation과 rollback smoke다.
+- Manual worker required adapter packaging과 사전/사후 검증 단계 전이의 격리 PostgreSQL 검증을 완료했다.
+- 공식 Hermes image 기반 Compose service와 09:00 KST systemd timer packaging을 완료했다. OCI에는 Docker만 있고 container-local OAuth, production input/env, timer가 없음을 read-only로 확인했으므로 활성화하지 않았다.
+- 다음 실행 대상은 최신 artifact 반영, container-local OAuth, backup/restore rehearsal, migration, timer 활성화 전 수동 canary 1건과 rollback smoke다.
 ```
 
 따라서 문서에서 `completed`는 contract 완료와 runtime 완료를 구분해 쓴다. Production 자동 발행 완료는 PostgreSQL persistence, persistent worker, 운영 안정화, 승인된 canary와 rollback smoke까지 통과한 뒤에만 선언한다.
@@ -948,12 +950,19 @@ claim 예시:
 공개 전 필수 검증:
 
 ```text
+1. HTML/Markdown 렌더링 오류 없음
+2. 공개 예정 본문 민감정보 없음
+3. post_versions의 canonical content_hash 무결성 확인
+```
+
+제한된 canary 공개 직후 필수 검증:
+
+```text
 1. /blog/:slug 200 확인
 2. /blog/:slug.md 200 확인
 3. sitemap.xml에 URL 포함 확인
-4. HTML/Markdown 렌더링 오류 없음
-5. 공개 본문 민감정보 없음
-6. post_versions의 최신 content_hash와 공개 본문 일치
+4. post_versions의 최신 content_hash와 공개 Markdown 일치
+5. 하나라도 실패하면 즉시 correction_pending으로 전환해 public route에서 숨김
 ```
 
 발행 직후 검증:
@@ -1476,9 +1485,10 @@ daily-blog-cron
   -> generateArticle(persona.md)
   -> validateArticle()
   -> createPostVersion(status="ready_to_publish")
-  -> runRequiredPublishJobs()
+  -> runPrePublishRequiredJobs(render, privacy_scan)
+  -> markPublishedCanary()
   -> verifyPublicUrlAndContentHash()
-  -> markPublished()
+  -> hideCanaryOnRequiredFailure()
   -> enqueueRetryableJobs()
   -> notifyDiscord()
 ```
@@ -1487,8 +1497,9 @@ daily-blog-cron
 
 ```text
 - validateArticle()은 글 품질 검증이다.
-- runRequiredPublishJobs()는 공개 전 기술 검증이다.
-- markPublished() 이전에는 public route에서 글을 노출하지 않는다.
+- render/privacy_scan은 공개 전 기술 검증이다.
+- public_url/md_url/sitemap/content_version_match는 published-only route 때문에 제한된 canary 전환 직후 실행한다.
+- 공개 직후 required 검증이 실패하면 correction_pending으로 전환해 즉시 public route에서 숨긴다.
 - embedding/search/IndexNow/Discord는 공개 후 재시도 가능한 job으로 둔다.
 ```
 
@@ -1558,7 +1569,7 @@ daily-blog-cron
 - 정적 production store를 DB-backed public/crawler/search read path로 전환
 - placeholder worker를 DB job 하나를 처리하고 종료하는 manual `--once` runner로 교체
 - fake/disabled provider만 사용한 local Compose end-to-end dry-run - 완료
-- 실제 provider, scheduler, OCI 변경, public publish는 아직 활성화하지 않음
+- 실제 provider credential, OCI scheduler, public publish는 아직 활성화하지 않음
 
 6단계: 운영 안정화와 production activation.
 
@@ -1574,7 +1585,7 @@ daily-blog-cron
 - Hermes Codex OAuth article provider와 included-cost local one-shot smoke - 완료
 - 생성 결과의 private `publishing` persistence handoff - 완료
 - PostgreSQL/Hermes one-shot runner와 durable daily duplicate guard - 완료
-- 사용자 승인 후 provider/scheduler/OCI canary 최대 1건 실행 - server-local Hermes OAuth 검증, required job adapter packaging, 09:00 KST scheduler 대기
+- 사용자 승인 후 provider/scheduler/OCI canary 최대 1건 실행 - required job adapter와 bounded 09:00 KST scheduler packaging 완료, OCI container-local Hermes OAuth와 수동 canary 대기
 - canary rollback/unpublish/retract smoke - production pending
 
 7단계: 성과 피드백.

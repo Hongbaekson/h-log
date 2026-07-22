@@ -30,7 +30,7 @@
       "step": 4,
       "name": "production-activation-and-rollback-smoke",
       "status": "pending",
-      "summary": "Local rollback readiness, the Hermes openai-codex/gpt-5.6-sol article provider smoke, the private publishing persistence handoff, and the PostgreSQL/Hermes one-shot runner with a Seoul daily advisory lock are complete. Server-local Hermes OAuth verification, required job adapter packaging, 09:00 KST scheduler wiring, OCI migration deployment, canary publish, and live rollback smoke remain pending."
+      "summary": "Local rollback readiness, the Hermes openai-codex/gpt-5.6-sol included-cost article provider smoke, private persistence, the PostgreSQL/Hermes one-shot runner, required publish-job adapter, and bounded 09:00 KST Compose/systemd scheduler packaging are complete. OCI container-local Hermes OAuth, production input mount, migration deployment, canary publish, timer activation, and live rollback smoke remain pending."
     }
   ]
 }

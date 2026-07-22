@@ -110,7 +110,7 @@ test(
 );
 
 test(
-  "publishes the post only after every required job succeeds",
+  "publishes the post only after every pre-publish required job succeeds",
   { skip: databaseUrl ? false : "DATABASE_URL is required" },
   async () => {
     await withTestDatabase("hlog_worker_publish_test", async (testUrl) => {
@@ -155,6 +155,75 @@ test(
         assert.equal(result.postStatus, "published");
         assert.equal(published.rows[0]?.status, "published");
         assert.equal(published.rows[0]?.published_at.toISOString(), runAt);
+      } finally {
+        await pool.end();
+      }
+    });
+  },
+);
+
+test(
+  "runs public verification after canary publish and hides it on required failure",
+  { skip: databaseUrl ? false : "DATABASE_URL is required" },
+  async () => {
+    await withTestDatabase("hlog_worker_public_verification_test", async (testUrl) => {
+      const pool = new Pool({ connectionString: testUrl });
+      const processedTypes: string[] = [];
+
+      try {
+        await seedPostWithJobs(pool, ["job-z-render", "job-y-privacy"]);
+        await pool.query(
+          `insert into publish_jobs (
+             id, post_id, post_version_id, type, importance, idempotency_key,
+             status, retry_count
+           ) values ($1, $2, $3, 'public_url', 'required', $4, 'queued', 0)`,
+          [
+            "job-a-public-url",
+            "post-worker",
+            "version-worker",
+            "public_url:version-worker:test-hash",
+          ],
+        );
+        const adapter = {
+          async run(job: { type: string }) {
+            processedTypes.push(job.type);
+
+            return job.type === "public_url"
+              ? { error: "public URL returned 500", status: "failed" as const }
+              : { status: "succeeded" as const };
+          },
+        };
+
+        await runPersistentWorkerOnce({
+          adapter,
+          pool,
+          runAt,
+          workerId: "worker-public-verification",
+        });
+        const canary = await runPersistentWorkerOnce({
+          adapter,
+          pool,
+          runAt,
+          workerId: "worker-public-verification",
+        });
+
+        assert.equal(canary.status, "succeeded");
+        assert.equal(canary.postStatus, "published");
+
+        const failed = await runPersistentWorkerOnce({
+          adapter,
+          pool,
+          runAt,
+          workerId: "worker-public-verification",
+        });
+        const post = await pool.query("select status from posts where id = $1", [
+          "post-worker",
+        ]);
+
+        assert.equal(failed.status, "failed");
+        assert.equal(failed.postStatus, "correction_pending");
+        assert.equal(post.rows[0]?.status, "correction_pending");
+        assert.deepEqual(processedTypes, ["privacy_scan", "render", "public_url"]);
       } finally {
         await pool.end();
       }

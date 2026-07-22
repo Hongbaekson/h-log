@@ -269,6 +269,18 @@ export const publishVerificationCheckTypes = [
   "content_version_match",
 ] as const;
 
+export const prePublishRequiredJobTypes = [
+  "render",
+  "privacy_scan",
+] as const satisfies readonly RequiredPublishJobType[];
+
+export const postPublishRequiredJobTypes = [
+  "public_url",
+  "md_url",
+  "sitemap",
+  "content_version_match",
+] as const satisfies readonly RequiredPublishJobType[];
+
 export const publishVerificationStatuses = ["passed", "failed"] as const;
 
 export const qualityGateStatuses = ["passed", "failed", "warning"] as const;
@@ -598,6 +610,10 @@ function getRequiredPublishJobFailureStatus(
 
   if (postStatus === "verifying") {
     return "failed_verification";
+  }
+
+  if (postStatus === "published") {
+    return "correction_pending";
   }
 
   throw new Error(

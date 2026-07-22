@@ -14,6 +14,8 @@
     "test:worker": "node --no-warnings --test --experimental-strip-types lib/blog-persistent-worker.integration.test.ts",
     "test:dry-run": "node --no-warnings --test --experimental-strip-types lib/blog-local-dry-run.integration.test.ts",
     "db:migrate": "node scripts/blog-migrations.mjs",
+    "auth:preflight": "node --no-warnings --experimental-strip-types scripts/blog-hermes-auth-preflight.mjs",
+    "auto-publish:cycle": "node --no-warnings --experimental-strip-types scripts/blog-auto-publish-cycle.mjs --once",
     "auto-publish:once": "node --no-warnings --experimental-strip-types scripts/blog-auto-publish.mjs --once",
     "dry-run:local": "node --no-warnings --experimental-strip-types scripts/blog-local-dry-run.mjs",
     "worker:once": "node --no-warnings --experimental-strip-types scripts/blog-worker.mjs --once",

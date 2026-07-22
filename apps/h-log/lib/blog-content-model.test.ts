@@ -17,6 +17,8 @@ import {
   isCurrentPublishedVersion,
   publishVerificationCheckTypes,
   publishVerificationStatuses,
+  postPublishRequiredJobTypes,
+  prePublishRequiredJobTypes,
   recordPublishJobFailure,
   renderCrawlerMarkdownForPostVersion,
   requiredPublishJobTypes,
@@ -394,6 +396,13 @@ describe("blog DB content model contract", () => {
       "sitemap",
       "content_version_match",
     ]);
+    assert.deepEqual(prePublishRequiredJobTypes, ["render", "privacy_scan"]);
+    assert.deepEqual(postPublishRequiredJobTypes, [
+      "public_url",
+      "md_url",
+      "sitemap",
+      "content_version_match",
+    ]);
     assert.deepEqual(retryablePublishJobTypes, [
       "embedding",
       "search_index",
@@ -440,6 +449,18 @@ describe("blog DB content model contract", () => {
     });
 
     assert.equal(verificationResult.postStatus, "failed_verification");
+
+    const publishedResult = recordPublishJobFailure({
+      error: "public Markdown drift",
+      finishedAt: "2026-06-25T00:02:30.000Z",
+      job: createPublishJob({
+        id: "job-published-required",
+        type: "content_version_match",
+      }),
+      postStatus: "published",
+    });
+
+    assert.equal(publishedResult.postStatus, "correction_pending");
   });
 
   it("keeps a published post public when a retryable job fails", () => {
