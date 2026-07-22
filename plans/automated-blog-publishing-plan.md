@@ -26,6 +26,7 @@
 - auto-publish-ops-hardening / Step 1의 PostgreSQL lease owner/expiry, timeout 재획득, stale owner 거부, 동일 오류 2회 retry stop과 durable `usage_events` 기록을 완료했다.
 - auto-publish-ops-hardening / Step 2의 공통 `usage_events` 원장, UTC 일/월 비용 집계, LLM/embedding/IndexNow/Discord budget guard를 완료했다.
 - auto-publish-ops-hardening / Step 3의 LLM 입력 전·writer 출력 후·공개 조회 경계 privacy scanner와 redaction을 완료했다.
+- auto-publish-ops-hardening / Step 4에서 검증된 생성 결과를 비공개 `publishing` aggregate와 queued required jobs로 넘기고 persistent worker 실행 전 종료하는 persistence handoff를 완료했다.
 - 다음 실행 대상은 사용자 승인 후 진행하는 auto-publish-ops-hardening / Step 4 production activation과 rollback smoke다.
 ```
 
@@ -1570,7 +1571,8 @@ daily-blog-cron
 - public content와 DB version hash 정기 비교
 - retracted 글의 cache/public/crawler/search/related 제거와 rollback verification 저장 - local 완료
 - Hermes Codex OAuth article provider와 included-cost local one-shot smoke - 완료
-- 사용자 승인 후 provider/scheduler/OCI canary 최대 1건 실행 - server-local Hermes/OAuth, worker packaging, 09:00 KST scheduler 대기
+- 생성 결과의 private `publishing` persistence handoff - 완료
+- 사용자 승인 후 provider/scheduler/OCI canary 최대 1건 실행 - server-local Hermes/OAuth, PostgreSQL one-shot runner, required job adapter packaging, 09:00 KST scheduler 대기
 - canary rollback/unpublish/retract smoke - production pending
 
 7단계: 성과 피드백.

@@ -236,6 +236,65 @@ describe("daily auto article pipeline", () => {
     );
   });
 
+  it("persists a generated article privately before persistent publish jobs run", async () => {
+    const state = createDailyAutoArticlePipelineState();
+    const baseInput = createPipelineInput();
+    let generationCalls = 0;
+    let persistenceCalls = 0;
+    let requiredJobCalls = 0;
+    let persistedPostStatus: string | null = null;
+    let persistedJobStatuses: string[] = [];
+    const persistPublishingArticle: NonNullable<
+      DailyAutoArticlePipelineInput["persistPublishingArticle"]
+    > = async (aggregate) => {
+      persistenceCalls += 1;
+      persistedPostStatus = aggregate.post.status;
+      persistedJobStatuses = aggregate.publishJobs.map((job) => job.status);
+    };
+    const result = await runDailyAutoArticlePipeline(
+      createPipelineInput({
+        generateArticle: (input) => {
+          generationCalls += 1;
+          return baseInput.generateArticle(input);
+        },
+        persistPublishingArticle,
+        runRequiredPublishJob: () => {
+          requiredJobCalls += 1;
+          return Promise.resolve({ status: "succeeded" });
+        },
+        state,
+      }),
+    );
+    const duplicate = await runDailyAutoArticlePipeline(
+      createPipelineInput({
+        generateArticle: (input) => {
+          generationCalls += 1;
+          return baseInput.generateArticle(input);
+        },
+        persistPublishingArticle,
+        runId: "daily-run-2026-07-08-duplicate-persistence",
+        state,
+      }),
+    );
+
+    assert.equal(result.status, "publishing");
+    assert.equal(duplicate.status, "duplicate_daily_publish");
+    assert.equal(result.post?.status, "publishing");
+    assert.equal(persistedPostStatus, "publishing");
+    assert.deepEqual(
+      persistedJobStatuses,
+      Array.from({ length: 6 }, () => "queued"),
+    );
+    assert.equal(generationCalls, 1);
+    assert.equal(persistenceCalls, 1);
+    assert.equal(requiredJobCalls, 0);
+    assert.equal(
+      selectPublicBlogRouteEntries(state.store.posts, state.store.versions)
+        .length,
+      0,
+    );
+  });
+
   it("keeps no_topic, weak_sources, and budget_exceeded runs private", async () => {
     const cases: readonly {
       input: Partial<DailyAutoArticlePipelineInput>;

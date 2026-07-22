@@ -103,10 +103,21 @@ export type GenerateArticleResult = {
   usage: UsageMeasurement;
 };
 
+export type PersistPublishingArticleInput = {
+  post: PostRecord;
+  publishJobs: readonly PublishJobRecord[];
+  sources: readonly PostSourceRecord[];
+  tags: readonly PostTagRecord[];
+  version: PostVersionRecord;
+};
+
 export type DailyAutoArticlePipelineInput = {
   dayKey: string;
   generateArticle(input: GenerateArticleInput): Promise<GenerateArticleResult>;
   personalContextItems: readonly PersonalContextItemRecord[];
+  persistPublishingArticle?(
+    input: PersistPublishingArticleInput,
+  ): Promise<void>;
   policy?: Partial<DailyAutoArticlePipelinePolicy>;
   privacyScanPolicy?: BlogPrivacyScanPolicy;
   researchPackSources: readonly ResearchPackSourceInput[];
@@ -127,6 +138,7 @@ export type DailyAutoArticlePipelineStatus =
   | "generation_failed"
   | "no_topic"
   | "publish_failed"
+  | "publishing"
   | "published"
   | "weak_sources";
 
@@ -171,8 +183,13 @@ export async function runDailyAutoArticlePipeline(
     ...DEFAULT_DAILY_AUTO_ARTICLE_POLICY,
     ...input.policy,
   };
+  const postId = `post-${toIdSegment(input.dayKey)}`;
 
-  if (getDailyPublishedCount(input) >= policy.dailyPublishLimit) {
+  if (
+    getDailyPublishedCount(input) >= policy.dailyPublishLimit ||
+    (input.persistPublishingArticle &&
+      input.state.store.posts.some((post) => post.id === postId))
+  ) {
     return emptyResult(input, "duplicate_daily_publish");
   }
 
@@ -244,7 +261,6 @@ export async function runDailyAutoArticlePipeline(
     return emptyResult(input, "generation_failed");
   }
 
-  const postId = `post-${toIdSegment(input.dayKey)}`;
   const postVersionId = `version-${toIdSegment(input.dayKey)}`;
   const generationInputPrivacyScan = scanBlogPrivacyText(
     JSON.stringify({
@@ -335,23 +351,62 @@ export async function runDailyAutoArticlePipeline(
     researchPackId: researchPack.id,
     writerOutput: validation.normalizedOutput,
   });
-  const publishingPost = toReadyToPublishPost({
+  const readyToPublishPost = toReadyToPublishPost({
     input,
     postId,
     version,
     writerOutput: validation.normalizedOutput,
   });
 
-  assertBlogPostStatusTransition(publishingPost.status, "publishing");
+  assertBlogPostStatusTransition(readyToPublishPost.status, "publishing");
+  const publishingPost: PostRecord = {
+    ...readyToPublishPost,
+    status: "publishing",
+  };
   const publishJobs = createRequiredPublishJobs({
-    post: { ...publishingPost, status: "publishing" },
+    post: publishingPost,
     runAt: input.runAt,
     version,
   });
+  const sources = postSources.map((source): PostSourceRecord => ({
+    ...source,
+    postId,
+  }));
+  const tags = validation.normalizedOutput.tags.map(
+    (tag): PostTagRecord => ({
+      createdAt: input.runAt,
+      id: `tag-${postId}-${toIdSegment(tag)}`,
+      postId,
+      tag,
+    }),
+  );
+
+  if (input.persistPublishingArticle) {
+    await input.persistPublishingArticle({
+      post: publishingPost,
+      publishJobs,
+      sources,
+      tags,
+      version,
+    });
+    input.state.publishJobs.push(...publishJobs);
+    input.state.store.posts.push(publishingPost);
+    input.state.store.sources.push(...sources);
+    input.state.store.tags.push(...tags);
+    input.state.store.versions.push(version);
+
+    return {
+      post: publishingPost,
+      status: "publishing",
+      store: input.state.store,
+      version,
+    };
+  }
+
   const publishResult = await runRequiredPublishJobs({
     input,
     jobs: publishJobs,
-    post: { ...publishingPost, status: "publishing" },
+    post: publishingPost,
     policy,
     version,
   });
@@ -373,20 +428,8 @@ export async function runDailyAutoArticlePipeline(
 
   input.state.store.posts.push(publishedPost);
   input.state.store.versions.push(version);
-  input.state.store.sources.push(
-    ...postSources.map((source): PostSourceRecord => ({
-      ...source,
-      postId,
-    })),
-  );
-  input.state.store.tags.push(
-    ...validation.normalizedOutput.tags.map((tag): PostTagRecord => ({
-      createdAt: input.runAt,
-      id: `tag-${postId}-${toIdSegment(tag)}`,
-      postId,
-      tag,
-    })),
-  );
+  input.state.store.sources.push(...sources);
+  input.state.store.tags.push(...tags);
   input.state.dailyPublishedCounts.set(
     input.dayKey,
     getDailyPublishedCount(input) + 1,
@@ -624,7 +667,7 @@ function getDailyPublishedCount(input: DailyAutoArticlePipelineInput): number {
 
 function emptyResult(
   input: DailyAutoArticlePipelineInput,
-  status: Exclude<DailyAutoArticlePipelineStatus, "published">,
+  status: Exclude<DailyAutoArticlePipelineStatus, "published" | "publishing">,
 ): DailyAutoArticlePipelineResult {
   return {
     post: null,
