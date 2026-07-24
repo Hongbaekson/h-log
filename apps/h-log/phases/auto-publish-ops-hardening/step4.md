@@ -45,7 +45,9 @@
 - Adapter focused test 22/22와 격리 PostgreSQL worker 통합 test 6/6이 통과했다. Worker는 여전히 manual `--once`이며 scheduler나 OCI runtime은 활성화하지 않았다.
 - Bounded cycle은 deterministic daily post의 required job만 required job 수 + idle probe 1회까지 처리한다. 공식 Hermes image 기반 Compose service와 `Asia/Seoul` 매일 09:00 systemd timer를 packaging했다. Hermes가 logged-out 상태에도 exit 0을 반환하는 RED를 별도 preflight로 차단했고, focused scheduler/auth test 11/11과 scheduler profile Compose config가 통과했다.
 - 2026-07-22 OCI read-only preflight 결과, 기준 경로에는 root-level 이전 source artifact와 Docker만 있고 host Node/npm/Hermes, production env, timer는 없었다. Image build, `hermes_data` OAuth, production input mount, timer enable은 수행하지 않았다.
-- 다음 순서는 최신 artifact 반영, container-local Hermes OAuth, 배포 전 backup/restore rehearsal, migration, timer 활성화 전 수동 canary 1건과 rollback smoke다.
+- 2026-07-24 commit `08cff26815d304460f335d7d1459fd0d01f8e1af` artifact를 OCI 기준 경로 `/opt/stacks/h-log`에 반영하고 이전 artifact를 `/opt/stacks/h-log.previous-08cff26`에 보존했다. 기존 Compose service는 재시작하지 않았고 모두 정상 상태를 유지했다.
+- 같은 날 `hlog_hermes_data` volume의 container-local `openai-codex` OAuth를 완료했으며 `npm run auth:preflight`가 `authenticated`로 통과했다. Timer는 설치하거나 활성화하지 않았다.
+- 다음 순서는 production input 준비, 배포 전 backup/restore rehearsal, migration, timer 활성화 전 수동 canary 1건과 rollback smoke다.
 - 따라서 이 step과 phase 상태는 실제 production canary 및 rollback smoke가 끝날 때까지 `pending`으로 유지한다.
 
 ## 인수 기준
