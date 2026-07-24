@@ -47,7 +47,11 @@
 - 2026-07-22 OCI read-only preflight 결과, 기준 경로에는 root-level 이전 source artifact와 Docker만 있고 host Node/npm/Hermes, production env, timer는 없었다. Image build, `hermes_data` OAuth, production input mount, timer enable은 수행하지 않았다.
 - 2026-07-24 commit `08cff26815d304460f335d7d1459fd0d01f8e1af` artifact를 OCI 기준 경로 `/opt/stacks/h-log`에 반영하고 이전 artifact를 `/opt/stacks/h-log.previous-08cff26`에 보존했다. 기존 Compose service는 재시작하지 않았고 모두 정상 상태를 유지했다.
 - 같은 날 `hlog_hermes_data` volume의 container-local `openai-codex` OAuth를 완료했으며 `npm run auth:preflight`가 `authenticated`로 통과했다. Timer는 설치하거나 활성화하지 않았다.
-- 다음 순서는 production input 준비, 배포 전 backup/restore rehearsal, migration, timer 활성화 전 수동 canary 1건과 rollback smoke다.
+- Pre-migration logical dump `hlog-postgres-20260724T005953Z-08cff26-pg16.dump`를 mode `600`으로 생성하고 custom dump 형식을 검증했다. 운영 volume과 분리된 임시 network/container에 복구한 뒤 migrations `001_blog_core`-`003_publish_rollback_audit` 적용, 재실행 `applied=0`, `vector`, 9개 핵심 table, 빈 `content_hash=0`을 확인했으며 임시 자원은 제거했다.
+- Rehearsal 후 기존 service는 정상 상태를 유지했고 public/crawler route는 redirect 반영 기준 200, `/admin`과 `/api/internal/smoke`는 404였다. Timer는 계속 비활성이다.
+- OCI web/PostgreSQL이 저장소 placeholder DB credential을 사용하고 있어 해당 값을 production env에 복사하지 않았다. Server-local credential 회전과 service 재기동은 별도 승인 경계다.
+- 같은 날 local registry audit에서 확인한 high 취약점 4건은 `next`/`eslint-config-next` 16.2.11, transitive `brace-expansion` 1.1.16/5.0.8, `js-yaml` 4.3.0, `sharp` 0.35.3 override로 해소했다. `npm audit` 0건, 전체 test/lint/typecheck/build, Node 24 Alpine production image build와 image 내부 `sharp` PNG 변환이 통과했지만 OCI의 `08cff26` artifact는 아직 이 패치를 포함하지 않는다.
+- 다음 순서는 server-local DB credential 회전, production env/input read-only mount, live migration, timer 활성화 전 수동 canary 1건과 rollback smoke다.
 - 따라서 이 step과 phase 상태는 실제 production canary 및 rollback smoke가 끝날 때까지 `pending`으로 유지한다.
 
 ## 인수 기준

@@ -29,8 +29,8 @@
 - auto-publish-ops-hardening / Step 4에서 검증된 생성 결과를 비공개 `publishing` aggregate와 queued required jobs로 넘기고 persistent worker 실행 전 종료하는 persistence handoff를 완료했다.
 - PostgreSQL/Hermes one-shot runner는 서울 날짜별 advisory lock과 기존 post 확인 후에만 생성하고 private persistence handoff를 실행한다.
 - Manual worker required adapter packaging과 사전/사후 검증 단계 전이의 격리 PostgreSQL 검증을 완료했다.
-- 공식 Hermes image 기반 Compose service와 09:00 KST systemd timer packaging을 완료했다. Commit `08cff26815d304460f335d7d1459fd0d01f8e1af` artifact를 OCI 기준 경로에 반영하고 이전 artifact를 rollback 경로에 보존했으며, container-local OAuth와 fail-closed auth preflight를 완료했다. Production input/env와 timer는 아직 활성화하지 않았다.
-- 다음 실행 대상은 production input 준비, backup/restore rehearsal, migration, timer 활성화 전 수동 canary 1건과 rollback smoke다.
+- 공식 Hermes image 기반 Compose service와 09:00 KST systemd timer packaging을 완료했다. Commit `08cff26815d304460f335d7d1459fd0d01f8e1af` artifact를 OCI 기준 경로에 반영하고 이전 artifact를 rollback 경로에 보존했으며, container-local OAuth와 fail-closed auth preflight를 완료했다. Pre-migration logical backup은 격리 DB에 복구해 migrations `001`-`003` 적용과 idempotent 재실행까지 검증했다. Production env/input과 timer는 아직 활성화하지 않았다.
+- 다음 실행 대상은 저장소 placeholder를 사용하는 현재 DB credential의 server-local 회전, production env/input read-only mount, live migration, timer 활성화 전 수동 canary 1건과 rollback smoke다.
 ```
 
 따라서 문서에서 `completed`는 contract 완료와 runtime 완료를 구분해 쓴다. Production 자동 발행 완료는 PostgreSQL persistence, persistent worker, 운영 안정화, 승인된 canary와 rollback smoke까지 통과한 뒤에만 선언한다.
@@ -1585,7 +1585,7 @@ daily-blog-cron
 - Hermes Codex OAuth article provider와 included-cost local one-shot smoke - 완료
 - 생성 결과의 private `publishing` persistence handoff - 완료
 - PostgreSQL/Hermes one-shot runner와 durable daily duplicate guard - 완료
-- 사용자 승인 후 provider/scheduler/OCI canary 최대 1건 실행 - required job adapter, bounded 09:00 KST scheduler packaging, OCI artifact 반영, container-local Hermes OAuth 완료; production input과 수동 canary 대기
+- 사용자 승인 후 provider/scheduler/OCI canary 최대 1건 실행 - required job adapter, bounded 09:00 KST scheduler packaging, OCI artifact/OAuth와 pre-migration backup/isolated restore rehearsal 완료; server-local credential/env/input, live migration과 수동 canary 대기
 - canary rollback/unpublish/retract smoke - production pending
 
 7단계: 성과 피드백.

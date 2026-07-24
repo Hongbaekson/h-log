@@ -30,7 +30,7 @@
       "step": 4,
       "name": "production-activation-and-rollback-smoke",
       "status": "pending",
-      "summary": "The Step 4 artifact is deployed to the canonical OCI path with the previous artifact retained for rollback, and container-local Hermes openai-codex OAuth passes the fail-closed preflight. Production input, backup/restore rehearsal, migration deployment, canary publish, timer activation, and live rollback smoke remain pending."
+      "summary": "The Step 4 artifact is deployed with rollback retention, container-local Hermes openai-codex OAuth passes preflight, and a pre-migration logical backup plus isolated restore/migration rehearsal passed. Server-local credential rotation, production env/input, live migration, canary publish, timer activation, and live rollback smoke remain pending."
     }
   ]
 }

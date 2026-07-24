@@ -10,7 +10,7 @@
 - Blog content direction: DB-backed `posts`/`post_versions` with generated Markdown/HTML
 - Compatibility content: existing MD/MDX loader is import/transition support only
 - Backend: Next.js route handlers first; automation contracts, a manual `--once` persistent worker, the local fake-provider end-to-end dry-run, a local-smoked Hermes Codex OAuth article adapter, a PostgreSQL private-persistence one-shot runner, and a bounded 09:00 KST Compose/systemd scheduler package exist, while the production timer remains disabled
-- Database: PostgreSQL + pgvector schema migration, the minimal blog repository, the DB-backed public read path, the persistent worker, and the local end-to-end dry-run are implemented; `auto-publish-ops-hardening` is active with Steps 0-3 completed, Step 4 packaging deployed to the canonical OCI path, and container-local Hermes OAuth verified, while production input, backup/restore rehearsal, migration deployment, canary, timer activation, and live rollback remain pending
+- Database: PostgreSQL + pgvector schema migration, the minimal blog repository, the DB-backed public read path, the persistent worker, and the local end-to-end dry-run are implemented; `auto-publish-ops-hardening` is active with Steps 0-3 completed, Step 4 packaging deployed to the canonical OCI path, container-local Hermes OAuth verified, and a pre-migration logical backup plus isolated restore/migration rehearsal complete, while server-local credential rotation, production input, live migration, canary, timer activation, and live rollback remain pending
 - Deploy target: OCI server with Docker Compose and Nginx
 - Infrastructure: OCI Compute first; web, worker, PostgreSQL, Redis, and Nginx are Compose-managed unless a later ADR selects managed services
 
