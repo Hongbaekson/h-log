@@ -102,11 +102,11 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 ### ADR-010: contract 완료와 runtime 완료를 분리한다
 
-**결정**: 순수 TypeScript contract와 테스트가 완료된 phase는 contract baseline으로 기록한다. 실제 PostgreSQL schema/migration, DB repository, persistent worker, provider/scheduler activation이 없는 상태를 production runtime 완료로 표현하지 않는다. 다이어그램 삽입 계약 다음에 `blog-runtime-integration`을 실행하고, 운영 안정화와 승인된 canary 이후에만 feedback/persona learning으로 이동한다.
+**결정**: 순수 TypeScript contract와 테스트가 완료된 phase는 contract baseline으로 기록한다. 실제 PostgreSQL schema/migration, DB repository, persistent worker, provider/scheduler activation이 없는 상태를 production runtime 완료로 표현하지 않는다. 다이어그램 삽입 계약 다음에 `blog-runtime-integration`을 실행한다. 운영 안정화와 승인된 canary 이후에는 feedback/persona의 aggregate signal contract를 진행할 수 있지만, 실제 신호 수집과 persona 변경은 production HTTPS origin과 반복 schedule이 활성화된 뒤에만 수행한다.
 
-**이유**: PostgreSQL schema/repository/public read path, manual `--once` worker, fake-provider end-to-end dry-run은 구현됐다. 실제 provider/scheduler 활성화와 운영 안정화는 아직 남아 있다. 계약과 local runtime이 충분하다는 이유로 성과 학습을 먼저 진행하면 검증된 운영 데이터와 실패 신호가 없는 상태에서 최적화 계약만 늘어난다.
+**이유**: PostgreSQL schema/repository/public read path, manual `--once` worker, fake-provider end-to-end dry-run과 production canary/rollback은 검증됐다. 실제 신호가 없는데 persona를 바꾸는 것은 허용할 수 없지만, 어떤 aggregate만 허용하고 언제 학습을 차단할지를 정하는 contract는 실제 수집 전에 고정해야 안전하다.
 
-**트레이드오프**: phase가 하나 늘고 production 자동 발행까지 시간이 더 필요하다. 대신 완료 상태가 실제 운영 준비도를 과장하지 않고, local DB vertical slice와 production activation 승인 경계가 명확해진다.
+**트레이드오프**: feedback Step 0은 contract completed여도 실제 성과 데이터가 있다는 뜻이 아니다. 대신 완료 상태가 실제 운영 준비도를 과장하지 않고, local contract와 production collection/learning activation 경계가 명확해진다.
 
 **운영 경계**:
 
@@ -135,7 +135,22 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **이유**: public route는 `status=published`인 current version만 노출한다. 생성 process가 persistence 전에 URL 검증과 공개 전이를 함께 수행하면 실제 DB/public read path를 검증할 수 없고, process 종료 시 생성 결과와 job 상태도 잃는다. 비공개 DB handoff를 먼저 만들면 scheduler 재시작과 worker lease 경계를 유지하면서 공개 side effect를 뒤로 미룰 수 있다.
 
-**트레이드오프**: PostgreSQL/Hermes one-shot runner, required job adapter, bounded Compose/systemd scheduler와 OCI container-local OAuth는 검증됐지만 server-local production credential/env/input과 live migration이 없으면 production run을 시작하지 않는다. Server runner는 같은 서울 날짜의 advisory lock과 durable post 여부를 DB에서 먼저 확인하고, scheduler worker는 그 daily post의 required job만 처리하면서 publish 전 `render`/`privacy_scan`과 publish 후 public smoke를 분리한다. Public required 검증 실패 canary는 `correction_pending`으로 숨긴다.
+**트레이드오프**: PostgreSQL/Hermes one-shot runner, required job adapter, bounded Compose/systemd scheduler, OCI container-local OAuth, server-local production credential/env/input, live migration과 bounded canary는 검증됐다. Server runner는 같은 서울 날짜의 advisory lock과 durable post 여부를 DB에서 먼저 확인하고, scheduler worker는 그 daily post의 required job만 처리하면서 publish 전 `render`/`privacy_scan`과 publish 후 public smoke를 분리한다. Public required 검증 실패 canary는 `correction_pending`으로 숨긴다. 실제 HTTPS public origin이 없으므로 반복 timer는 비활성으로 유지한다.
+
+### ADR-013: 도메인 구매는 production collection cutover까지 미룬다
+
+**결정**: 도메인 구매와 DNS/TLS 연결은 로컬 기능, aggregate 성과 신호 contract, synthetic fixture 검증의 선행 조건으로 두지 않는다. 실제 공개 HTTPS smoke, 성과 신호 수집 endpoint, 반복 production timer를 활성화하기 직전에 사용자에게 도메인이 필요하다고 알리고 cutover를 진행한다.
+
+**이유**: 현재 남은 로컬 contract는 hostname과 무관하다. 도메인을 일찍 구매해도 visitor-safe 집계 규칙이나 persona eligibility 검증 품질이 높아지지 않으며, 실제 공개 트래픽을 받기 전에는 운영 signal도 생기지 않는다.
+
+**트레이드오프**: 도메인 전환 전에는 실제 유입, 체류, 공유, 검색 클릭 데이터를 검증할 수 없다. 따라서 synthetic fixture를 실제 성과로 기록하지 않고 persona version도 변경하지 않는다.
+
+**활성화 gate**:
+
+- 사용자가 실제 HTTPS public origin을 정한다.
+- DNS/TLS와 public 80/443 smoke를 확인한다.
+- privacy 조직명/비공개 저장소 목록을 server-local secret에 설정한다.
+- 그 뒤에만 signal collection과 09:00 KST timer를 활성화한다.
 
 ## 공식/내부 기준
 

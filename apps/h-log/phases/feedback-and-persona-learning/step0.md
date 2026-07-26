@@ -18,7 +18,8 @@
 
 성과 피드백에 필요한 공개-safe signal contract를 만든다.
 
-- `blog-runtime-integration`과 `auto-publish-ops-hardening`이 완료되고 실제 aggregate signal이 존재할 때만 시작한다.
+- 도메인과 무관한 aggregate signal schema, privacy validation, persona-learning eligibility contract는 로컬에서 먼저 완성한다.
+- 실제 signal 수집, 운영 DB 적재, 성과 판정과 persona 반영은 production HTTPS origin과 timer가 활성화되어 실제 aggregate signal이 생긴 뒤에만 시작한다.
 - 조회, 검색 유입, 공유, 체류 시간, 검색 클릭 같은 aggregate signal을 정의한다.
 - 개인식별 정보와 visitor session memory는 저장하지 않는다.
 - raw IP, user agent, referrer 전체값, cookie/session id는 저장하지 않는다.
@@ -39,6 +40,12 @@ npm run typecheck
 3. aggregate signal만 persona learning 후보로 연결되는지 확인한다.
 4. `npm run test`, `npm run typecheck`를 실행한다.
 5. 성공 시 phase index의 step status를 갱신한다.
+
+## 운영 활성화 경계
+
+- 이 step의 contract 완료에는 도메인 구매가 필요하지 않다.
+- 실제 signal 수집 endpoint, public HTTPS smoke, production timer 활성화를 시작하기 직전에 사용자에게 도메인이 필요하다고 알린다.
+- 도메인 전환 전에는 synthetic fixture로 contract만 검증하고, 실제 성과가 있는 것처럼 기록하거나 persona를 변경하지 않는다.
 
 ## 하지 말 것
 

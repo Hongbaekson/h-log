@@ -58,11 +58,12 @@
     {
       "dir": "auto-publish-ops-hardening",
       "status": "pending",
-      "summary": "Steps 0-3 completed. Step 4 artifact 70fd31c is live with server-local credential rotation, production env/input, migrations 001-003, production audit 0, a successful Hermes canary across required/public/crawler/search/usage surfaces, and an audited eight-surface rollback. Timer activation remains pending until the user supplies the real HTTPS public origin and privacy organization/private-repository lists."
+      "summary": "Steps 0-3 completed. Step 4 artifact 70fd31c is live with server-local credential rotation, production env/input, migrations 001-003, production audit 0, a successful Hermes canary across required/public/crawler/search/usage surfaces, and an audited eight-surface rollback. Timer activation is intentionally deferred until a real HTTPS public origin and privacy organization/private-repository lists are needed for production cutover."
     },
     {
       "dir": "feedback-and-persona-learning",
-      "status": "pending"
+      "status": "pending",
+      "summary": "Step 0 contract completed locally without a domain: aggregate content performance signals reject visitor-level data and gate title/structure/angle learning candidates by explicit thresholds. Steps 1-2 and all real signal collection/persona activation remain pending."
     }
   ]
 }

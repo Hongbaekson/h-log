@@ -58,8 +58,8 @@
 - Daily canary가 HTML/Markdown/content hash까지 통과한 뒤 sitemap에서 숨겨지는 RED를 확인했다. 원인은 내부 worker fetch origin과 canonical public origin을 같은 값으로 비교한 것이며, `70fd31c`에서 두 origin을 분리하고 회귀 test를 추가했다.
 - 고유 수동 live canary `post-2026-07-26-live-canary`는 required job 6/6 + idle, public HTML/Markdown 200, canonical sitemap, feed, llms, search, source/LLM usage를 모두 통과했다. 이후 repository `retractPost`로 철회해 8개 surface가 제거됐고 `admin_actions` 1건과 `publish_verifications` 8건이 저장됐다. 앞선 숨김 canary도 같은 경로로 철회해 동일한 감사 기록을 남겼다.
 - OCI 기준 artifact는 `70fd31cf2756273219b19553a36c1a2e1843b004`이며 이전 artifact와 pre-migration backup을 rollback 경로에 보존했다. 카나리 2건은 모두 `retracted`이고 timer는 `not-found/inactive`다.
-- 남은 activation gate는 사용자가 정하는 실제 HTTPS `HLOG_PUBLIC_BASE_URL`, `HLOG_PRIVACY_ORGANIZATION_NAMES`, `HLOG_PRIVACY_PRIVATE_REPOSITORIES`다. localhost canonical과 빈 privacy 목록으로 반복 timer를 켜지 않는다.
-- 따라서 production canary와 rollback smoke는 완료했지만 scheduled production activation 전까지 이 step과 phase 상태는 `pending`으로 유지한다. 다음 phase `feedback-and-persona-learning`도 이 phase completed 및 실제 aggregate signal이 선행 조건이므로 시작하지 않는다.
+- 남은 activation gate는 사용자가 실제 공개 운영을 시작할 때 정하는 HTTPS `HLOG_PUBLIC_BASE_URL`, `HLOG_PRIVACY_ORGANIZATION_NAMES`, `HLOG_PRIVACY_PRIVATE_REPOSITORIES`다. localhost canonical과 빈 privacy 목록으로 반복 timer를 켜지 않는다.
+- 따라서 production canary와 rollback smoke는 완료했지만 scheduled production activation 전까지 이 step과 phase 상태는 `pending`으로 유지한다. 도메인과 무관한 `feedback-and-persona-learning / Step 0` aggregate contract는 진행할 수 있지만 실제 signal collection과 persona 변경은 이 activation gate 뒤에만 수행한다.
 
 ## 인수 기준
 
@@ -79,6 +79,11 @@ npm run build
 5. rollback smoke 결과가 publish_verifications와 admin_actions에 기록되는지 확인한다.
 6. `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`를 실행한다.
 7. 성공 시 phase index의 step status를 갱신한다.
+
+## 도메인 알림 시점
+
+- 실제 signal collection endpoint, public HTTPS smoke, 09:00 KST timer 활성화를 시작하기 직전에 사용자에게 도메인이 필요하다고 알린다.
+- 그 전까지는 도메인을 구매하지 않아도 로컬 contract/test 단계를 계속 진행할 수 있다.
 
 ## 하지 말 것
 

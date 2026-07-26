@@ -9,8 +9,8 @@
 - Styling: Tailwind CSS
 - Blog content direction: DB-backed `posts`/`post_versions` with generated Markdown/HTML
 - Compatibility content: existing MD/MDX loader is import/transition support only
-- Backend: Next.js route handlers first; automation contracts, a manual `--once` persistent worker, the local fake-provider end-to-end dry-run, a local-smoked Hermes Codex OAuth article adapter, a PostgreSQL private-persistence one-shot runner, and a bounded 09:00 KST Compose/systemd scheduler package exist, while the production timer remains disabled
-- Database: PostgreSQL + pgvector schema migration, the minimal blog repository, the DB-backed public read path, the persistent worker, and the local end-to-end dry-run are implemented; `auto-publish-ops-hardening` is active with Steps 0-3 completed, Step 4 packaging deployed to the canonical OCI path, container-local Hermes OAuth verified, and a pre-migration logical backup plus isolated restore/migration rehearsal complete, while server-local credential rotation, production input, live migration, canary, timer activation, and live rollback remain pending
+- Backend: Next.js route handlers first; automation contracts, a manual `--once` persistent worker, the local fake-provider end-to-end dry-run, a Hermes Codex OAuth article adapter, a PostgreSQL private-persistence one-shot runner, and a bounded 09:00 KST Compose/systemd scheduler package exist, while the production timer remains disabled
+- Database: PostgreSQL + pgvector schema migration, the minimal blog repository, the DB-backed public read path, the persistent worker, and the local end-to-end dry-run are implemented; server-local credential rotation, production input, live migrations, a bounded Hermes canary, and audited rollback are verified on OCI. Scheduled activation remains pending until a real HTTPS public origin and privacy organization/private-repository lists are supplied
 - Deploy target: OCI server with Docker Compose and Nginx
 - Infrastructure: OCI Compute first; web, worker, PostgreSQL, Redis, and Nginx are Compose-managed unless a later ADR selects managed services
 
@@ -98,5 +98,5 @@ npm run dev
 - Home H1은 담백하게 쓴다. 기본형은 `백엔드 개발자 손홍백입니다`로 둔다.
 - 공개 전 고객사명, 성과 수치, 이메일, PDF, 프로필 사진 공개 여부를 확인한다.
 - 전화번호, 생년월일, 내부 URL, 서버 IP, API key, 비공개 저장소명은 노출하지 않는다.
-- full CMS와 방문자 챗봇을 만들지 않는다. 다음 blog phase는 자동 발행 운영 안정화에 한정한다.
+- full CMS와 방문자 챗봇을 만들지 않는다. 도메인 없이 aggregate 성과 신호의 로컬 contract를 구현할 수 있지만 실제 수집, persona 반영, production timer는 공개 HTTPS origin이 준비되기 전까지 활성화하지 않는다.
 - 한 작업 단위에서 페이지 여러 개와 배포 설정을 동시에 바꾸지 않는다.

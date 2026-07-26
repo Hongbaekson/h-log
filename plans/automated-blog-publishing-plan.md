@@ -29,8 +29,8 @@
 - auto-publish-ops-hardening / Step 4에서 검증된 생성 결과를 비공개 `publishing` aggregate와 queued required jobs로 넘기고 persistent worker 실행 전 종료하는 persistence handoff를 완료했다.
 - PostgreSQL/Hermes one-shot runner는 서울 날짜별 advisory lock과 기존 post 확인 후에만 생성하고 private persistence handoff를 실행한다.
 - Manual worker required adapter packaging과 사전/사후 검증 단계 전이의 격리 PostgreSQL 검증을 완료했다.
-- 공식 Hermes image 기반 Compose service와 09:00 KST systemd timer packaging을 완료했다. Commit `08cff26815d304460f335d7d1459fd0d01f8e1af` artifact를 OCI 기준 경로에 반영하고 이전 artifact를 rollback 경로에 보존했으며, container-local OAuth와 fail-closed auth preflight를 완료했다. Pre-migration logical backup은 격리 DB에 복구해 migrations `001`-`003` 적용과 idempotent 재실행까지 검증했다. Production env/input과 timer는 아직 활성화하지 않았다.
-- 다음 실행 대상은 저장소 placeholder를 사용하는 현재 DB credential의 server-local 회전, production env/input read-only mount, live migration, timer 활성화 전 수동 canary 1건과 rollback smoke다.
+- 공식 Hermes image 기반 Compose service와 09:00 KST systemd timer packaging을 완료했다. OCI에는 server-local credential/env/input과 migrations `001`-`003`, Hermes OAuth, bounded canary와 audited rollback까지 검증한 artifact `70fd31cf2756273219b19553a36c1a2e1843b004`가 반영돼 있다. Production timer는 아직 비활성화돼 있다.
+- 다음 로컬 실행 대상은 도메인과 무관한 aggregate 성과 신호 contract다. 실제 HTTPS public origin, privacy 목록, signal collection과 production timer는 도메인이 실제로 필요한 production cutover 시점까지 미룬다.
 ```
 
 따라서 문서에서 `completed`는 contract 완료와 runtime 완료를 구분해 쓴다. Production 자동 발행 완료는 PostgreSQL persistence, persistent worker, 운영 안정화, 승인된 canary와 rollback smoke까지 통과한 뒤에만 선언한다.
@@ -136,8 +136,8 @@ AI workflow
 3. PostgreSQL schema/migration/repository와 DB-backed public read path - 완료
 4. persistent manual worker와 local fake-provider end-to-end dry-run - 완료
 5. idempotency, job lock, cost ledger, privacy scanner 운영 안정화 완료
-6. 사용자 승인 기반 provider/scheduler/OCI canary와 rollback smoke
-7. 실제 aggregate signal이 쌓인 뒤 persona feedback learning
+6. 사용자 승인 기반 provider/OCI canary와 rollback smoke - 완료, scheduled activation은 도메인 cutover까지 보류
+7. aggregate signal contract는 로컬에서 먼저 완료하고, 실제 signal이 쌓인 뒤 persona feedback learning 활성화
 ```
 
 ## 목표 파이프라인
@@ -1585,8 +1585,9 @@ daily-blog-cron
 - Hermes Codex OAuth article provider와 included-cost local one-shot smoke - 완료
 - 생성 결과의 private `publishing` persistence handoff - 완료
 - PostgreSQL/Hermes one-shot runner와 durable daily duplicate guard - 완료
-- 사용자 승인 후 provider/scheduler/OCI canary 최대 1건 실행 - required job adapter, bounded 09:00 KST scheduler packaging, OCI artifact/OAuth와 pre-migration backup/isolated restore rehearsal 완료; server-local credential/env/input, live migration과 수동 canary 대기
-- canary rollback/unpublish/retract smoke - production pending
+- 사용자 승인 후 provider/OCI canary 최대 1건 실행 - required job adapter, bounded 09:00 KST scheduler packaging, OCI artifact/OAuth, server-local credential/env/input, live migration과 수동 canary 완료
+- canary rollback/unpublish/retract smoke - production 완료
+- 실제 HTTPS public origin과 privacy 목록을 적용한 반복 timer - 도메인 cutover까지 보류
 
 7단계: 성과 피드백.
 
@@ -1594,7 +1595,8 @@ daily-blog-cron
 - 성공 글의 제목/구조/앵글을 `persona_examples`로 축적
 - 실패한 생성 결과는 금지 패턴으로 축적
 - visitor identifier, session memory, raw IP 없이 aggregate signal만 사용
-- runtime/ops phase 전에 학습 contract를 먼저 확장하지 않음
+- aggregate signal schema/privacy/eligibility contract는 도메인 없이 로컬 synthetic fixture로 먼저 검증
+- 실제 signal collection, 성과 판정, persona 변경은 production HTTPS origin과 timer 활성화 뒤에만 수행
 
 ### 완료 상태 기록 규칙
 
@@ -1611,6 +1613,10 @@ production activated
 - 운영 안정화 gate 통과
 - 사용자 승인된 provider/scheduler/OCI canary 통과
 - rollback 또는 retract smoke 통과
+
+feedback contract completed
+- aggregate signal schema와 visitor-safe validation을 synthetic fixture로 검증함
+- 실제 signal collection 또는 persona 변경 완료를 의미하지 않음
 ```
 
 ## 비즈니스 로직 체크리스트

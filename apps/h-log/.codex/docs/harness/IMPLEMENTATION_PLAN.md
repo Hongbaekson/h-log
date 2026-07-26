@@ -44,7 +44,7 @@ apps/h-log/AGENTS.md
 | phase index 없음 | 보완 완료 | `apps/h-log/phases/index.json` 생성 |
 | 자동 블로그 계획과 MVP 방향 충돌 가능 | 정리 완료 | file-based track은 active phase index에서 제거하고, DB-first track을 다음 실행 대상으로 기록 |
 | contract 완료와 runtime 완료 혼동 | 보완 완료 | local PostgreSQL migration/repository/public read path/manual worker/fake-provider dry-run을 local runtime 완료로 기록하고 provider/scheduler activation은 별도로 유지 |
-| 성과 학습이 운영 안정화보다 먼저 배치됨 | 순서 수정 | runtime integration과 ops hardening 이후에 aggregate signal/persona learning 진행 |
+| 성과 학습이 운영 안정화보다 먼저 배치됨 | 경계 분리 | 승인된 canary 뒤 aggregate signal contract는 로컬 진행하고, 실제 수집/persona 변경은 HTTPS origin과 timer 활성화 뒤 진행 |
 | visitor chatbot 오해 가능 | 통제 필요 | 모든 문서에서 chatbot 제외 명시 |
 | 자동 글의 허위 경험 표현 위험 | 통제 필요 | evidence 기반 article mode와 claim gate를 강제 |
 
@@ -64,8 +64,8 @@ topic-research-generation: completed, steps 0-3 completed
 auto-article-generation: completed, steps 0-3 completed
 diagram-assets-automation: completed, steps 0-2 completed
 blog-runtime-integration: completed, steps 0-4 completed
-auto-publish-ops-hardening: pending, steps 0-3 completed
-feedback-and-persona-learning: pending
+auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
+feedback-and-persona-learning: pending, Step 0 contract completed
 ```
 
 `completed`인 DB/검색/자동 글 phase는 현재 contract/test baseline 완료를 뜻한다. Local PostgreSQL persistence, migration, manual worker는 구현됐지만 외부 provider와 scheduler가 동작한다는 뜻은 아니다.
@@ -380,7 +380,19 @@ feedback-and-persona-learning: pending
 - production 활성화 검증: server-local DB credential 회전, `hlog` DB rename, mode `600` env/input, live migrations `001`-`003`, web/PostgreSQL/Nginx health를 확인했다. Hermes schema RED는 verified source 전달과 enum/URL array prompt 계약으로 수정했고, sitemap RED는 internal worker origin과 canonical public origin 분리로 수정했다.
 - live canary/rollback: `post-2026-07-26-live-canary`가 required job 6/6 + idle, HTML/Markdown, sitemap/feed/llms, search, usage를 통과했다. Repository 철회 후 8개 surface 제거, `admin_actions` 1건, `publish_verifications` 8건을 확인했다. 앞선 숨김 canary도 같은 감사 경로로 철회했다.
 - 운영 경계: OCI 기준 artifact는 `70fd31cf2756273219b19553a36c1a2e1843b004`이고 이전 artifact와 pre-migration backup을 보존했다. Timer는 `not-found/inactive`다. 실제 HTTPS `HLOG_PUBLIC_BASE_URL`과 privacy 조직/비공개 저장소 목록을 사용자가 정하기 전에는 반복 발행을 활성화하지 않는다.
-- 다음 실행 대상: 사용자 설정 3종을 server-local env에 반영하고 public HTTPS smoke 후 09:00 KST timer를 활성화한다. 그때 Step 4/phase를 completed로 바꾸고, 실제 aggregate signal이 생긴 뒤에만 `feedback-and-persona-learning / Step 0`을 시작한다.
+- activation 실행 대상: 사용자가 실제 공개 운영을 시작할 때 HTTPS public origin과 privacy 목록을 server-local env에 반영하고 public HTTPS smoke 후 09:00 KST timer를 활성화한다. 도메인 구매 전에는 이 작업을 실행하지 않는다.
+- 로컬 실행 대상: production canary/rollback으로 운영 경계를 확인했으므로 `feedback-and-persona-learning / Step 0`의 aggregate schema/privacy/eligibility contract는 도메인 없이 진행한다. 실제 signal collection과 persona 변경은 activation 뒤로 남긴다.
+
+## 현재 성과 피드백 phase
+
+### feedback-and-persona-learning / Step 0: usage-and-performance-signals
+
+- 상태: contract completed
+- 결과: `lib/blog-performance-signals.ts`에 조회, 검색 유입, 공유, 체류 초, 검색 클릭의 aggregate record와 persona learning eligibility contract를 추가했다. Visitor/session/cookie ID, raw IP, user agent, full referrer는 런타임에서 거부하고, 같은 집계 구간에서 설정한 signal threshold를 모두 충족한 글만 title/structure/angle 학습 후보로 반환한다.
+- 검증: missing module RED 후 focused test 4/4, `npm run test`, `npm run typecheck`, `npm run lint`, `npm run build`
+- 운영 경계: synthetic fixture만 사용했다. 실제 signal endpoint/DB persistence, 성과 판정, persona version 변경, production timer는 추가하지 않았다.
+- 다음 로컬 실행 대상: `feedback-and-persona-learning / Step 1: persona-example-learning`.
+- 도메인 알림 시점: 실제 signal collection endpoint, public HTTPS smoke, production timer activation을 시작하기 직전.
 
 ## 이후 DB-first 단계
 
@@ -394,13 +406,13 @@ feedback-and-persona-learning: pending
 8. 다이어그램 asset 자동화 - completed, Steps 0-2 completed
 9. PostgreSQL/worker runtime 통합
 10. 운영 안정화와 승인된 production canary
-11. 성과 피드백과 persona learning
+11. 성과 피드백 contract와, production HTTPS 활성화 후 persona learning
 
 ## 완료 기준
 
 - Harness baseline 문서와 phase template이 존재한다.
 - root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
 - `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
-- 다음 실행 대상은 phase registry의 첫 번째 pending phase이다.
+- 다음 실행 대상은 phase registry의 첫 번째 pending step을 기본으로 하되, production activation처럼 외부 설정을 기다리는 step과 독립적인 local contract는 명시된 운영 경계 안에서 진행할 수 있다.
 - contract 완료와 production runtime 완료를 구분해 기록한다.
 - 문서 검증과 `git diff --check`가 통과한다.

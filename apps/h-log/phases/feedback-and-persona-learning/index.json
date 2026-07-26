@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "usage-and-performance-signals",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a domain-independent aggregate content performance contract for views, search referrals, shares, engaged seconds, and search clicks. Visitor/session/cookie identifiers, raw IP, user agent, and full referrer are rejected; only posts meeting explicit aggregate thresholds become title/structure/angle learning candidates. Actual collection and persona changes remain disabled until production HTTPS activation."
     },
     {
       "step": 1,
