@@ -28,6 +28,7 @@ import {
   type ApplyToMeGenerationInput,
   type PersonalContextItemRecord,
   type ResearchPackRecord,
+  type ResearchPackPostSourceRecord,
   type ResearchPackSourceInput,
   type TopicCandidateRecord,
   type TopicResearchRuntimeState,
@@ -95,6 +96,7 @@ export type GenerateArticleInput = {
   postId: string;
   postVersionId: string;
   researchPack: ResearchPackRecord;
+  sources: readonly ResearchPackPostSourceRecord[];
   topicCandidate: TopicCandidateRecord;
 };
 
@@ -288,6 +290,7 @@ export async function runDailyAutoArticlePipeline(
     postId,
     postVersionId,
     researchPack,
+    sources: postSources,
     topicCandidate,
   });
   if (!generation?.usage) {

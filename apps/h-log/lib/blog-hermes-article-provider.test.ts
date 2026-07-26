@@ -37,6 +37,15 @@ const generationInput = {
   postId: "post-2026-07-21",
   postVersionId: "version-2026-07-21",
   researchPack: { id: "research-pack-runtime" },
+  sources: [
+    {
+      id: "source-runtime",
+      sourceRole: "official",
+      summary: "Verified runtime release summary.",
+      title: "Runtime release",
+      url: "https://example.com/runtime",
+    },
+  ],
   topicCandidate: { id: "topic-runtime" },
 } as unknown as GenerateArticleInput;
 
@@ -75,6 +84,14 @@ describe("Hermes article provider", () => {
     assert.deepEqual(invocation.toolsets, ["web"]);
     assert.match(invocation.prompt, /Return exactly one JSON object/);
     assert.match(invocation.prompt, /Do not call tools/);
+    assert.match(
+      invocation.prompt,
+      /Allowed claim types: version, date, price, api, performance, security, benchmark, support, opinion\./,
+    );
+    assert.match(
+      invocation.prompt,
+      /sources must be an array of URL strings selected from INPUT\.sources/,
+    );
     assert.deepEqual(result.output, writerOutput);
     assert.deepEqual(result.usage, {
       estimatedCost: 0,

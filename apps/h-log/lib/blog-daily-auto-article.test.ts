@@ -148,6 +148,48 @@ function createPipelineInput(
 }
 
 describe("daily auto article pipeline", () => {
+  it("passes verified research source metadata to the article writer", async () => {
+    let receivedSources: unknown;
+    const baseInput = createPipelineInput();
+    const result = await runDailyAutoArticlePipeline(
+      createPipelineInput({
+        generateArticle: (input) => {
+          receivedSources = input.sources;
+          return baseInput.generateArticle(input);
+        },
+      }),
+    );
+
+    assert.equal(result.status, "published");
+    assert.ok(Array.isArray(receivedSources));
+    assert.equal(receivedSources.length, 1);
+    assert.deepEqual(
+      {
+        fetchedAt: receivedSources[0]?.fetchedAt,
+        id: receivedSources[0]?.id,
+        postId: receivedSources[0]?.postId,
+        publisher: receivedSources[0]?.publisher,
+        researchPackId: receivedSources[0]?.researchPackId,
+        sourceRole: receivedSources[0]?.sourceRole,
+        summary: receivedSources[0]?.summary,
+        title: receivedSources[0]?.title,
+        url: receivedSources[0]?.url,
+      },
+      {
+        fetchedAt: runAt,
+        id: "source-runtime",
+        postId: null,
+        publisher: "Example Runtime",
+        researchPackId: "research-pack-topic-source-runtime",
+        sourceRole: "official",
+        summary: "A concise source summary for the research pack.",
+        title: "Runtime release note",
+        url: "https://example.com/releases/runtime",
+      },
+    );
+    assert.match(receivedSources[0]?.snapshotHash ?? "", /^[a-f0-9]{64}$/);
+  });
+
   it("rejects an LLM result that has no usage event", async () => {
     await assert.rejects(
       runDailyAutoArticlePipeline(

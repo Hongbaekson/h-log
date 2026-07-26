@@ -8,6 +8,10 @@ import type {
   GenerateArticleResult,
 } from "./blog-daily-auto-article.ts";
 import type { ArticleWriterOutput } from "./blog-article-generation.ts";
+import {
+  articleClaimTypes,
+  blogArticleModes,
+} from "./blog-content-model.ts";
 import type { UsageMeasurement } from "./blog-usage-ledger.ts";
 
 const HERMES_PROVIDER = "openai-codex";
@@ -131,7 +135,12 @@ function createHermesArticlePrompt(input: GenerateArticleInput): string {
     "Return exactly one JSON object and no Markdown code fence or commentary.",
     "Do not call tools. Use only the verified INPUT below.",
     "Required camelCase fields: title, slug, description, tags, articleMode, contentMarkdown, claims, sources, evidencePaths, personalContextIds, publishDecision, blockReason.",
-    "Each claim must contain id, text, type and one verified sourceId, sourceUrl, or evidencePath.",
+    `Allowed article modes: ${blogArticleModes.join(", ")}.`,
+    `Allowed claim types: ${articleClaimTypes.join(", ")}.`,
+    "tags, evidencePaths, personalContextIds, and sources must each be JSON arrays of strings.",
+    "sources must be an array of URL strings selected from INPUT.sources[].url; never return source objects or invent a URL.",
+    "Each claim must contain id, text, one allowed type, and one verified sourceId, sourceUrl, or evidencePath.",
+    "A claim sourceId must exactly match INPUT.sources[].id and sourceUrl must exactly match INPUT.sources[].url.",
     "Use publishDecision=block when the supplied evidence cannot support publication.",
     `INPUT=${JSON.stringify(input)}`,
   ].join("\n");
