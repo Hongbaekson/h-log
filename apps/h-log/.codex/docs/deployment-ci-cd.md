@@ -193,11 +193,17 @@ HLOG_AUTO_PUBLISH_ENV_FILE=/opt/stacks/h-log/deploy/env.production
 
 `deploy/env.production`에는 실제 `DATABASE_URL`, public base URL, privacy 목록과 container 내부 입력 경로를 두고 저장소에 커밋하지 않는다. PostgreSQL container에는 application env를 넘기지 않고 `deploy/postgres.env.production`의 `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`만 주입한다.
 
+- `HLOG_PUBLIC_BASE_URL`은 sitemap/feed/llms에 기록할 실제 HTTPS canonical origin이다.
+- `HLOG_WORKER_PUBLIC_BASE_URL`은 container가 Nginx를 확인할 내부 fetch origin이다. Worker는 내부 origin으로 요청하되 sitemap에는 canonical origin이 있는지 검증한다.
+- Timer 활성화 전 `HLOG_PRIVACY_ORGANIZATION_NAMES`, `HLOG_PRIVACY_PRIVATE_REPOSITORIES`를 실제 차단 대상의 JSON string array로 설정한다. localhost canonical 또는 확인되지 않은 빈 목록을 scheduled production 값으로 사용하지 않는다.
+
 ```dotenv
 HLOG_AUTO_PUBLISH_INPUT_FILE=/run/secrets/hlog-auto-publish-input.json
 ```
 
 서버 로컬 `compose.override.yaml`에서 검증된 입력 파일을 read-only로 mount한다. 실제 host 경로나 내용은 저장소에 기록하지 않는다.
+
+공식 Hermes image의 runtime user는 UID `10000`이다. Host/container UID가 다르면 mode `600` 파일이 `EACCES`로 실패하므로 입력 파일은 UID `10000` 소유 + mode `600`으로 두고, container에서 readable이면서 not writable인지 확인한다. Env/DB secret 파일은 application container에 bind mount하지 않고 Compose `env_file` 경계로만 주입한다.
 
 ```yaml
 services:
@@ -215,7 +221,7 @@ docker compose --profile scheduler run --rm --no-deps hlog-auto-publish hermes a
 docker compose --profile scheduler run --rm --no-deps hlog-auto-publish npm run auth:preflight
 ```
 
-OAuth status, backup/restore rehearsal, migration, 수동 canary와 rollback smoke가 모두 통과한 뒤에만 user timer를 연결하고 활성화한다.
+OAuth status, backup/restore rehearsal, migration, 수동 canary와 rollback smoke가 모두 통과하고 실제 HTTPS canonical origin 및 privacy 목록이 설정된 뒤에만 user timer를 연결하고 활성화한다.
 
 ```bash
 systemctl --user link /opt/stacks/h-log/deploy/systemd/hlog-auto-publish.service

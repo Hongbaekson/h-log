@@ -58,7 +58,7 @@
     {
       "dir": "auto-publish-ops-hardening",
       "status": "pending",
-      "summary": "Steps 0-3 completed. Step 4 packaging is deployed with rollback artifact retention, container-local Hermes OAuth passes preflight, and a pre-migration logical backup plus isolated restore/migration rehearsal passed. Server-local credential rotation, production env/input, live migration, canary, timer activation, and live rollback smoke remain pending."
+      "summary": "Steps 0-3 completed. Step 4 artifact 70fd31c is live with server-local credential rotation, production env/input, migrations 001-003, production audit 0, a successful Hermes canary across required/public/crawler/search/usage surfaces, and an audited eight-surface rollback. Timer activation remains pending until the user supplies the real HTTPS public origin and privacy organization/private-repository lists."
     },
     {
       "dir": "feedback-and-persona-learning",

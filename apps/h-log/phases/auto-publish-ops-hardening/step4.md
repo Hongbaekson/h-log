@@ -29,7 +29,7 @@
 - 실패 시 Discord/운영 알림은 retryable로 처리한다.
 - provider, scheduler, 공개 발행, OCI compose 변경은 각각 승인된 범위 안에서만 실행한다.
 
-## 현재 진행 상태 (2026-07-21)
+## 현재 진행 상태 (2026-07-26)
 
 - 사용자에게 provider/scheduler, OCI, canary 1건, rollback 범위를 알리고 진행 승인을 받았다.
 - 철회 전 채운 검색 TTL cache에서 retracted 글이 남는 RED를 확인한 뒤, cached result도 현재 published selector로 다시 거르도록 수정했다.
@@ -49,10 +49,17 @@
 - 같은 날 `hlog_hermes_data` volume의 container-local `openai-codex` OAuth를 완료했으며 `npm run auth:preflight`가 `authenticated`로 통과했다. Timer는 설치하거나 활성화하지 않았다.
 - Pre-migration logical dump `hlog-postgres-20260724T005953Z-08cff26-pg16.dump`를 mode `600`으로 생성하고 custom dump 형식을 검증했다. 운영 volume과 분리된 임시 network/container에 복구한 뒤 migrations `001_blog_core`-`003_publish_rollback_audit` 적용, 재실행 `applied=0`, `vector`, 9개 핵심 table, 빈 `content_hash=0`을 확인했으며 임시 자원은 제거했다.
 - Rehearsal 후 기존 service는 정상 상태를 유지했고 public/crawler route는 redirect 반영 기준 200, `/admin`과 `/api/internal/smoke`는 404였다. Timer는 계속 비활성이다.
-- OCI web/PostgreSQL이 저장소 placeholder DB credential을 사용하고 있어 해당 값을 production env에 복사하지 않았다. Server-local credential 회전과 service 재기동은 별도 승인 경계다.
-- 같은 날 local registry audit에서 확인한 high 취약점 4건은 `next`/`eslint-config-next` 16.2.11, transitive `brace-expansion` 1.1.16/5.0.8, `js-yaml` 4.3.0, `sharp` 0.35.3 override로 해소했다. `npm audit` 0건, 전체 test/lint/typecheck/build, Node 24 Alpine production image build와 image 내부 `sharp` PNG 변환이 통과했지만 OCI의 `08cff26` artifact는 아직 이 패치를 포함하지 않는다.
-- 다음 순서는 server-local DB credential 회전, production env/input read-only mount, live migration, timer 활성화 전 수동 canary 1건과 rollback smoke다.
-- 따라서 이 step과 phase 상태는 실제 production canary 및 rollback smoke가 끝날 때까지 `pending`으로 유지한다.
+- `d5704f2`에서 application runtime env와 PostgreSQL bootstrap env를 분리했다. OCI에는 mode `600` server-local `.env`, application env, PostgreSQL env, Compose override, 카나리 입력을 준비하고 입력 bind mount는 Hermes UID `10000` 소유 + read-only로 검증했다.
+- Placeholder DB credential을 원격에서 생성한 server-local 값으로 회전하고 기존 빈 `hlog_dev` DB를 `hlog`로 변경했다. 회전 직전 `hlog-postgres-20260726T044902Z-pre-5b9e6d2-pg16.dump`를 생성해 custom format과 mode `600`을 확인했다.
+- `001_blog_core`-`003_publish_rollback_audit` live migration이 `applied=3`, 재실행이 `applied=0`으로 통과했고 application table 9개, `hlog:hlog_app` 연결, web/PostgreSQL/Nginx health, public/crawler route와 admin/internal 404 경계를 확인했다.
+- 새 PostCSS advisory `GHSA-r28c-9q8g-f849`로 production audit이 실패한 원인을 확인하고 override를 `8.5.23`으로 올린 `5b9e6d2`를 배포했다. `npm audit --omit=dev`와 auto-publish image 내부 production audit은 0건이다. Full audit의 9 high는 ESLint 계열이 고정한 `minimatch@3`/`brace-expansion@1` dev-only 경로이며 호환되는 upstream fix가 없어 production gate와 분리했다.
+- 첫 production 입력은 Hermes UID와 host UID가 달라 mode `600` 파일을 읽지 못했지만 post 생성 전에 실패했다. 입력 파일 소유자를 runtime UID `10000`으로 제한하고 container에서 readable + not writable를 다시 확인했다.
+- 실제 Hermes 출력이 허용되지 않은 claim type과 source object를 반환하는 RED를 확인했다. `0db789f`에서 verified research source metadata를 writer에 전달하고 허용 enum 및 URL string array 계약을 prompt에 명시했으며 focused 12/12, 전체 test/lint/typecheck/build와 production audit 0을 통과했다.
+- Daily canary가 HTML/Markdown/content hash까지 통과한 뒤 sitemap에서 숨겨지는 RED를 확인했다. 원인은 내부 worker fetch origin과 canonical public origin을 같은 값으로 비교한 것이며, `70fd31c`에서 두 origin을 분리하고 회귀 test를 추가했다.
+- 고유 수동 live canary `post-2026-07-26-live-canary`는 required job 6/6 + idle, public HTML/Markdown 200, canonical sitemap, feed, llms, search, source/LLM usage를 모두 통과했다. 이후 repository `retractPost`로 철회해 8개 surface가 제거됐고 `admin_actions` 1건과 `publish_verifications` 8건이 저장됐다. 앞선 숨김 canary도 같은 경로로 철회해 동일한 감사 기록을 남겼다.
+- OCI 기준 artifact는 `70fd31cf2756273219b19553a36c1a2e1843b004`이며 이전 artifact와 pre-migration backup을 rollback 경로에 보존했다. 카나리 2건은 모두 `retracted`이고 timer는 `not-found/inactive`다.
+- 남은 activation gate는 사용자가 정하는 실제 HTTPS `HLOG_PUBLIC_BASE_URL`, `HLOG_PRIVACY_ORGANIZATION_NAMES`, `HLOG_PRIVACY_PRIVATE_REPOSITORIES`다. localhost canonical과 빈 privacy 목록으로 반복 timer를 켜지 않는다.
+- 따라서 production canary와 rollback smoke는 완료했지만 scheduled production activation 전까지 이 step과 phase 상태는 `pending`으로 유지한다. 다음 phase `feedback-and-persona-learning`도 이 phase completed 및 실제 aggregate signal이 선행 조건이므로 시작하지 않는다.
 
 ## 인수 기준
 
