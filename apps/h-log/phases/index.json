@@ -62,8 +62,8 @@
     },
     {
       "dir": "feedback-and-persona-learning",
-      "status": "pending",
-      "summary": "Steps 0-1 contracts completed locally without a domain: aggregate content performance signals reject visitor-level data and gate learning candidates by explicit thresholds; persona examples retain bounded style summaries only, with content-hashed inactive versions, explicit activation, and regression rollback. Step 2 and all real signal collection/persona activation remain pending."
+      "status": "completed",
+      "summary": "Steps 0-2 contract baseline completed locally without a domain: aggregate content signals reject visitor-level data, persona examples retain bounded style summaries with version rollback, and repeated generation failures stop after the second same-day candidate failure while storing only privacy-redacted summaries. Real signal collection, production persona activation, and the timer remain deferred to the HTTPS domain cutover."
     }
   ]
 }

@@ -98,5 +98,5 @@ npm run dev
 - Home H1은 담백하게 쓴다. 기본형은 `백엔드 개발자 손홍백입니다`로 둔다.
 - 공개 전 고객사명, 성과 수치, 이메일, PDF, 프로필 사진 공개 여부를 확인한다.
 - 전화번호, 생년월일, 내부 URL, 서버 IP, API key, 비공개 저장소명은 노출하지 않는다.
-- full CMS와 방문자 챗봇을 만들지 않는다. 도메인 없이 aggregate 성과 신호의 로컬 contract를 구현할 수 있지만 실제 수집, persona 반영, production timer는 공개 HTTPS origin이 준비되기 전까지 활성화하지 않는다.
+- full CMS와 방문자 챗봇을 만들지 않는다. Aggregate 성과 신호, persona version/rollback, 반복 생성 실패 차단의 로컬 contract는 완료됐지만 실제 수집, persona 반영, failure registry persistence, production timer는 공개 HTTPS origin이 준비되기 전까지 활성화하지 않는다.
 - 한 작업 단위에서 페이지 여러 개와 배포 설정을 동시에 바꾸지 않는다.

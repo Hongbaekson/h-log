@@ -37,6 +37,13 @@ npm run typecheck
 3. `npm run test`, `npm run typecheck`를 실행한다.
 4. 성공 시 phase index의 step status를 갱신한다.
 
+## 운영 활성화 경계
+
+- 이 step의 contract 완료에는 도메인이 필요하지 않다.
+- 같은 일자·후보·실패 유형의 첫 실패는 후보 우선순위를 낮추고, 두 번째 실패는 해당 일자 발행을 포기하며 이후 등록은 거부한다.
+- Registry에는 최대 160자의 privacy-redacted summary만 저장하고, 실제 generation prompt/quality gate 연결과 DB persistence는 production HTTPS 활성화 뒤에 수행한다.
+- Step 2 완료 뒤 남은 다음 작업은 실제 공개 origin, privacy 목록, signal collection과 production timer를 연결하는 domain cutover다.
+
 ## 하지 말 것
 
 - 실패한 LLM 출력 전체를 무제한 저장하지 말 것.

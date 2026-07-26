@@ -30,7 +30,7 @@
 - PostgreSQL/Hermes one-shot runner는 서울 날짜별 advisory lock과 기존 post 확인 후에만 생성하고 private persistence handoff를 실행한다.
 - Manual worker required adapter packaging과 사전/사후 검증 단계 전이의 격리 PostgreSQL 검증을 완료했다.
 - 공식 Hermes image 기반 Compose service와 09:00 KST systemd timer packaging을 완료했다. OCI에는 server-local credential/env/input과 migrations `001`-`003`, Hermes OAuth, bounded canary와 audited rollback까지 검증한 artifact `70fd31cf2756273219b19553a36c1a2e1843b004`가 반영돼 있다. Production timer는 아직 비활성화돼 있다.
-- Aggregate 성과 신호와 persona example/version rollback contract를 도메인 없이 완료했다. 다음 로컬 실행 대상은 failure pattern registry이며, 실제 HTTPS public origin, privacy 목록, signal collection과 production timer는 도메인이 필요한 production cutover 시점까지 미룬다.
+- Aggregate 성과 신호, persona example/version rollback, 반복 생성 실패 차단 contract를 도메인 없이 모두 완료했다. 다음 단계인 실제 HTTPS public origin, privacy 목록, signal collection과 production timer 연결부터는 도메인이 필요한 production cutover로 진행한다.
 ```
 
 따라서 문서에서 `completed`는 contract 완료와 runtime 완료를 구분해 쓴다. Production 자동 발행 완료는 PostgreSQL persistence, persistent worker, 운영 안정화, 승인된 canary와 rollback smoke까지 통과한 뒤에만 선언한다.
@@ -1593,9 +1593,10 @@ daily-blog-cron
 
 - 조회/검색 유입/공유/체류 시간 기준으로 성과 좋은 글을 표시
 - 성공 글의 제목/구조/앵글을 `persona_examples`로 축적
-- 실패한 생성 결과는 금지 패턴으로 축적
+- 실패한 생성 결과는 금지 패턴으로 축적 - 같은 일자·후보·실패 유형의 두 번째 실패에서 당일 발행 중단 contract 완료
 - visitor identifier, session memory, raw IP 없이 aggregate signal만 사용
-- aggregate signal schema/privacy/eligibility와 persona example/version/rollback contract는 도메인 없이 로컬 synthetic fixture로 검증 완료
+- aggregate signal schema/privacy/eligibility, persona example/version/rollback, failure registry contract는 도메인 없이 로컬 synthetic fixture로 검증 완료
+- failure registry는 failed model output을 거부하고 최대 160자의 privacy-redacted summary만 prompt/quality gate guidance에 사용
 - persona example은 title/section/closing/evidence summary만 보존하고 published body는 저장하지 않음
 - 새 persona version은 inactive + content hash로 생성하고 명시적 활성화와 성과 악화 rollback만 허용
 - 실제 signal collection, 성과 판정, persona 변경은 production HTTPS origin과 timer 활성화 뒤에만 수행

@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "failure-pattern-registry",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a domain-independent generation failure registry for weak_sources, unsafe_claim, privacy_risk, no_evidence, and style_drift. A first same-day candidate failure lowers priority, a second identical failure abandons that day's publish, and further registration is rejected. Only bounded privacy-redacted summaries feed structured prompt and quality-gate guidance; failed model output fields are rejected."
     }
   ]
 }

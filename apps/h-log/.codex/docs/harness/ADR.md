@@ -141,7 +141,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **결정**: 도메인 구매와 DNS/TLS 연결은 로컬 기능, aggregate 성과 신호 contract, synthetic fixture 검증의 선행 조건으로 두지 않는다. 실제 공개 HTTPS smoke, 성과 신호 수집 endpoint, 반복 production timer를 활성화하기 직전에 사용자에게 도메인이 필요하다고 알리고 cutover를 진행한다.
 
-**이유**: 현재 남은 로컬 contract는 hostname과 무관하다. 도메인을 일찍 구매해도 visitor-safe 집계 규칙이나 persona eligibility 검증 품질이 높아지지 않으며, 실제 공개 트래픽을 받기 전에는 운영 signal도 생기지 않는다.
+**이유**: hostname과 무관한 aggregate/persona/failure registry contract는 로컬에서 모두 완성했다. 실제 공개 트래픽을 받기 전에는 운영 signal이 생기지 않으므로 다음 collection/persona/timer 단계부터 HTTPS origin을 요구한다.
 
 **트레이드오프**: 도메인 전환 전에는 실제 유입, 체류, 공유, 검색 클릭 데이터를 검증할 수 없다. 따라서 synthetic fixture를 실제 성과로 기록하지 않고 persona version도 변경하지 않는다.
 
@@ -151,6 +151,14 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 - DNS/TLS와 public 80/443 smoke를 확인한다.
 - privacy 조직명/비공개 저장소 목록을 server-local secret에 설정한다.
 - 그 뒤에만 signal collection과 09:00 KST timer를 활성화한다.
+
+### ADR-014: 반복 생성 실패는 두 번째 동일 패턴에서 당일 발행을 중단한다
+
+**결정**: 같은 일자·후보·실패 유형의 첫 실패는 후보 우선순위를 낮추고 한 번만 재시도를 허용한다. 두 번째 동일 실패는 해당 일자의 발행 포기로 전환하고 이후 등록을 거부한다. Registry에는 실패 원문이나 model output 대신 privacy-redacted 단일행 summary만 저장한다.
+
+**이유**: 품질 게이트를 같은 입력으로 반복 호출하면 비용만 증가하고 새로운 근거가 생기지 않는다. 반면 첫 실패만으로 하루 전체를 중단하면 다른 후보나 보강된 입력을 시도할 기회를 잃는다.
+
+**트레이드오프**: 두 번의 실패 뒤에는 자동 복구보다 안전한 중단을 택하므로 운영자가 다음 날 후보/source/persona를 보완해야 한다. Structured prompt rule과 quality gate reason은 생성할 수 있지만 실제 provider prompt/DB 연결은 production activation에서 별도로 검증한다.
 
 ## 공식/내부 기준
 
