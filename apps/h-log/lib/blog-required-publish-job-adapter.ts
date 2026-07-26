@@ -43,6 +43,7 @@ export type RequiredPublishJobCandidate = {
 };
 
 export type RequiredPublishJobAdapterOptions = {
+  canonicalPublicBaseUrl?: string;
   fetch?: Fetch;
   loadCandidate(
     job: PublishJobRecord,
@@ -52,12 +53,16 @@ export type RequiredPublishJobAdapterOptions = {
 };
 
 export function createRequiredPublishJobAdapter({
+  canonicalPublicBaseUrl,
   fetch: fetchImpl = globalThis.fetch,
   loadCandidate,
   privacyScanPolicy,
   publicBaseUrl,
 }: RequiredPublishJobAdapterOptions): PersistentWorkerAdapter {
   const publicOrigin = normalizePublicOrigin(publicBaseUrl);
+  const canonicalPublicOrigin = normalizePublicOrigin(
+    canonicalPublicBaseUrl ?? publicBaseUrl,
+  );
 
   return {
     async run(job) {
@@ -86,6 +91,7 @@ export function createRequiredPublishJobAdapter({
       }
 
       return runPostPublishCheck({
+        canonicalPublicOrigin,
         candidate,
         fetch: fetchImpl,
         publicOrigin,
@@ -96,17 +102,20 @@ export function createRequiredPublishJobAdapter({
 }
 
 export function createPostgresRequiredPublishJobAdapter({
+  canonicalPublicBaseUrl,
   fetch,
   pool,
   privacyScanPolicy,
   publicBaseUrl,
 }: {
+  canonicalPublicBaseUrl?: string;
   fetch?: Fetch;
   pool: Pool;
   privacyScanPolicy?: BlogPrivacyScanPolicy;
   publicBaseUrl: string;
 }): PersistentWorkerAdapter {
   return createRequiredPublishJobAdapter({
+    canonicalPublicBaseUrl,
     fetch,
     loadCandidate: (job) => loadPostgresCandidate(pool, job),
     privacyScanPolicy,
@@ -142,17 +151,20 @@ function runPrePublishCheck(
 }
 
 async function runPostPublishCheck({
+  canonicalPublicOrigin,
   candidate,
   fetch,
   publicOrigin,
   type,
 }: {
+  canonicalPublicOrigin: string;
   candidate: RequiredPublishJobCandidate;
   fetch: Fetch;
   publicOrigin: string;
   type: (typeof postPublishRequiredJobTypes)[number];
 }): Promise<PersistentWorkerAdapterResult> {
   const publicUrl = `${publicOrigin}/blog/${candidate.post.slug}`;
+  const canonicalPublicUrl = `${canonicalPublicOrigin}/blog/${candidate.post.slug}`;
   const markdownUrl = `${publicUrl}.md`;
 
   if (type === "public_url") {
@@ -166,7 +178,7 @@ async function runPostPublishCheck({
       return result;
     }
 
-    return result.text.includes(publicUrl)
+    return result.text.includes(canonicalPublicUrl)
       ? { status: "succeeded" }
       : failed(type, "published URL is missing");
   }

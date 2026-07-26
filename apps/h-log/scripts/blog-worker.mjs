@@ -16,6 +16,8 @@ if (!process.env.DATABASE_URL) {
 
 const publicBaseUrl =
   process.env.HLOG_WORKER_PUBLIC_BASE_URL ?? process.env.HLOG_PUBLIC_BASE_URL;
+const canonicalPublicBaseUrl =
+  process.env.HLOG_PUBLIC_BASE_URL ?? publicBaseUrl;
 
 if (!publicBaseUrl) {
   throw new Error("HLOG_WORKER_PUBLIC_BASE_URL or HLOG_PUBLIC_BASE_URL is required");
@@ -27,6 +29,7 @@ const postId = process.env.HLOG_WORKER_POST_ID?.trim() || undefined;
 try {
   const result = await runPersistentWorkerOnce({
     adapter: createPostgresRequiredPublishJobAdapter({
+      canonicalPublicBaseUrl,
       pool,
       privacyScanPolicy: createBlogPrivacyScanPolicyFromEnvironment(process.env),
       publicBaseUrl,

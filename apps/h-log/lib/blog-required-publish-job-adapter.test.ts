@@ -122,6 +122,29 @@ describe("required publish job adapter", () => {
     ]);
   });
 
+  it("checks the canonical URL while fetching through an internal worker origin", async () => {
+    const requested: string[] = [];
+    const adapter = createRequiredPublishJobAdapter({
+      canonicalPublicBaseUrl: "https://blog.example.com",
+      fetch: async (input) => {
+        const url = String(input);
+        requested.push(url);
+
+        return new Response(
+          "<loc>https://blog.example.com/blog/required-adapter</loc>",
+          { status: 200 },
+        );
+      },
+      loadCandidate: async () => createCandidate(),
+      publicBaseUrl: "http://hlog-nginx",
+    });
+
+    assert.deepEqual(await adapter.run(createJob("sitemap")), {
+      status: "succeeded",
+    });
+    assert.deepEqual(requested, ["http://hlog-nginx/sitemap.xml"]);
+  });
+
   it("fails closed before fetching a public surface for a private post", async () => {
     let fetchCalls = 0;
     const adapter = createRequiredPublishJobAdapter({
