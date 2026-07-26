@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "persona-example-learning",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a domain-independent persona learning contract that accepts only qualified aggregate performance candidates, stores bounded title/section/closing/evidence summaries without published bodies, creates inactive content-hashed persona versions, requires explicit activation, and records rollback to the predecessor on performance regression. No production persona was changed."
     },
     {
       "step": 2,

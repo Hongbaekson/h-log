@@ -65,7 +65,7 @@ auto-article-generation: completed, steps 0-3 completed
 diagram-assets-automation: completed, steps 0-2 completed
 blog-runtime-integration: completed, steps 0-4 completed
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
-feedback-and-persona-learning: pending, Step 0 contract completed
+feedback-and-persona-learning: pending, Steps 0-1 contracts completed
 ```
 
 `completed`인 DB/검색/자동 글 phase는 현재 contract/test baseline 완료를 뜻한다. Local PostgreSQL persistence, migration, manual worker는 구현됐지만 외부 provider와 scheduler가 동작한다는 뜻은 아니다.
@@ -381,7 +381,7 @@ feedback-and-persona-learning: pending, Step 0 contract completed
 - live canary/rollback: `post-2026-07-26-live-canary`가 required job 6/6 + idle, HTML/Markdown, sitemap/feed/llms, search, usage를 통과했다. Repository 철회 후 8개 surface 제거, `admin_actions` 1건, `publish_verifications` 8건을 확인했다. 앞선 숨김 canary도 같은 감사 경로로 철회했다.
 - 운영 경계: OCI 기준 artifact는 `70fd31cf2756273219b19553a36c1a2e1843b004`이고 이전 artifact와 pre-migration backup을 보존했다. Timer는 `not-found/inactive`다. 실제 HTTPS `HLOG_PUBLIC_BASE_URL`과 privacy 조직/비공개 저장소 목록을 사용자가 정하기 전에는 반복 발행을 활성화하지 않는다.
 - activation 실행 대상: 사용자가 실제 공개 운영을 시작할 때 HTTPS public origin과 privacy 목록을 server-local env에 반영하고 public HTTPS smoke 후 09:00 KST timer를 활성화한다. 도메인 구매 전에는 이 작업을 실행하지 않는다.
-- 로컬 실행 대상: production canary/rollback으로 운영 경계를 확인했으므로 `feedback-and-persona-learning / Step 0`의 aggregate schema/privacy/eligibility contract는 도메인 없이 진행한다. 실제 signal collection과 persona 변경은 activation 뒤로 남긴다.
+- 로컬 실행 대상: production canary/rollback으로 운영 경계를 확인했으므로 `feedback-and-persona-learning`의 aggregate/persona/failure contracts는 도메인 없이 진행한다. 실제 signal collection과 persona 변경은 activation 뒤로 남긴다.
 
 ## 현재 성과 피드백 phase
 
@@ -391,8 +391,17 @@ feedback-and-persona-learning: pending, Step 0 contract completed
 - 결과: `lib/blog-performance-signals.ts`에 조회, 검색 유입, 공유, 체류 초, 검색 클릭의 aggregate record와 persona learning eligibility contract를 추가했다. Visitor/session/cookie ID, raw IP, user agent, full referrer는 런타임에서 거부하고, 같은 집계 구간에서 설정한 signal threshold를 모두 충족한 글만 title/structure/angle 학습 후보로 반환한다.
 - 검증: missing module RED 후 focused test 4/4, `npm run test`, `npm run typecheck`, `npm run lint`, `npm run build`
 - 운영 경계: synthetic fixture만 사용했다. 실제 signal endpoint/DB persistence, 성과 판정, persona version 변경, production timer는 추가하지 않았다.
-- 다음 로컬 실행 대상: `feedback-and-persona-learning / Step 1: persona-example-learning`.
+- 후속 결과: `feedback-and-persona-learning / Step 1: persona-example-learning` contract completed.
 - 도메인 알림 시점: 실제 signal collection endpoint, public HTTPS smoke, production timer activation을 시작하기 직전.
+
+### feedback-and-persona-learning / Step 1: persona-example-learning
+
+- 상태: contract completed
+- 결과: `lib/blog-persona-learning.ts`에 aggregate threshold를 통과한 candidate만 받는 persona example contract를 추가했다. Example은 title/section/closing pattern과 evidence density만 저장하고 published body field를 거부하며 source content는 SHA-256 hash로만 연결한다. Persona version은 content hash를 가진 inactive record로 생성되고, 명시적 active 전환과 성과 악화 시 직전 predecessor rollback record를 지원한다.
+- 검증: missing module RED 후 focused test 4/4, `npm run test`, `npm run typecheck`, `npm run lint`, `npm run build`
+- 운영 경계: synthetic candidate/version으로만 검증했다. Production persona 저장소, prompt, DB, signal collection, timer는 변경하지 않았다.
+- 다음 로컬 실행 대상: `feedback-and-persona-learning / Step 2: failure-pattern-registry`.
+- 도메인 알림 시점: 실제 signal collection과 production persona activation을 시작하기 직전.
 
 ## 이후 DB-first 단계
 

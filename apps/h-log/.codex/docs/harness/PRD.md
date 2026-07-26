@@ -115,6 +115,8 @@ local runtime에서 완료된 항목:
 
 현재 daily pipeline은 adapter 기반 contract다. 검증된 생성 결과는 선택적 persistence callback을 통해 `publishing` post와 queued required jobs로 넘기고 public worker 실행 전에 비공개 상태로 멈출 수 있다. PostgreSQL one-shot runner는 서울 날짜별 advisory lock과 기존 post 확인 후에만 Hermes `openai-codex`/`gpt-5.6-sol`을 호출하고 이 private aggregate를 저장한다. Required adapter는 `render`/`privacy_scan`을 공개 전에 처리하고 제한된 canary 전환 뒤 public URL/Markdown/sitemap/content hash를 검증하며 실패 canary를 `correction_pending`으로 숨긴다. Bounded cycle은 해당 daily post의 required job만 유한 횟수로 drain하고, 공식 Hermes image를 사용한 Compose service와 09:00 KST systemd timer를 packaging했다. OCI server-local credential/env/input, live migration, bounded Hermes canary와 audited rollback smoke까지 완료했다. 실제 HTTPS public origin과 privacy 목록이 없으므로 반복 timer와 실제 성과 신호 수집은 활성화하지 않는다.
 
+Feedback local contract는 aggregate threshold를 통과한 글에서 title/section/closing/evidence 요약만 persona example로 만들고, 원문 전체를 저장하지 않는다. Persona version은 content hash를 가진 비활성 record로 먼저 생성하며 명시적 활성화와 직전 version rollback을 지원한다. 이 상태 전이는 synthetic fixture 검증이며 실제 production persona를 변경하지 않는다.
+
 ### A-04: PostgreSQL/worker runtime 통합
 
 다이어그램 삽입 계약을 완료한 뒤, contract-only 구현을 실제 local runtime의 한 vertical slice로 연결한다.

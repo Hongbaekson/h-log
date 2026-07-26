@@ -18,6 +18,7 @@
 
 성과 좋은 글의 구조를 persona examples로 축적하는 contract를 만든다.
 
+- Step 0의 aggregate threshold를 통과한 candidate만 입력으로 받는다.
 - 제목 패턴, section 구조, closing pattern, evidence density를 요약해 저장한다.
 - 원문 전체를 persona example에 복사하지 않는다.
 - persona version 변경은 active flag와 hash를 가진다.
@@ -36,6 +37,12 @@ npm run typecheck
 2. persona version hash와 active 전환을 검증한다.
 3. `npm run test`, `npm run typecheck`를 실행한다.
 4. 성공 시 phase index의 step status를 갱신한다.
+
+## 운영 활성화 경계
+
+- 이 step의 contract 완료에는 도메인이 필요하지 않다.
+- Synthetic candidate로 example/version/rollback 상태 전이만 검증한다.
+- 실제 성과 데이터로 persona version을 활성화하는 작업은 production HTTPS signal collection 이후에만 수행한다.
 
 ## 하지 말 것
 

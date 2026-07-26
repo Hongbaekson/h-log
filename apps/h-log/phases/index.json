@@ -63,7 +63,7 @@
     {
       "dir": "feedback-and-persona-learning",
       "status": "pending",
-      "summary": "Step 0 contract completed locally without a domain: aggregate content performance signals reject visitor-level data and gate title/structure/angle learning candidates by explicit thresholds. Steps 1-2 and all real signal collection/persona activation remain pending."
+      "summary": "Steps 0-1 contracts completed locally without a domain: aggregate content performance signals reject visitor-level data and gate learning candidates by explicit thresholds; persona examples retain bounded style summaries only, with content-hashed inactive versions, explicit activation, and regression rollback. Step 2 and all real signal collection/persona activation remain pending."
     }
   ]
 }
