@@ -186,10 +186,12 @@ CI/CD secret으로만 관리한다.
 서버 로컬 `.env`에는 secret이 아니라 production env 파일 경로만 둔다.
 
 ```dotenv
+HLOG_RUNTIME_ENV_FILE=/opt/stacks/h-log/deploy/env.production
+HLOG_POSTGRES_ENV_FILE=/opt/stacks/h-log/deploy/postgres.env.production
 HLOG_AUTO_PUBLISH_ENV_FILE=/opt/stacks/h-log/deploy/env.production
 ```
 
-`deploy/env.production`에는 실제 `DATABASE_URL`, public base URL, privacy 목록과 container 내부 입력 경로를 두고 저장소에 커밋하지 않는다.
+`deploy/env.production`에는 실제 `DATABASE_URL`, public base URL, privacy 목록과 container 내부 입력 경로를 두고 저장소에 커밋하지 않는다. PostgreSQL container에는 application env를 넘기지 않고 `deploy/postgres.env.production`의 `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`만 주입한다.
 
 ```dotenv
 HLOG_AUTO_PUBLISH_INPUT_FILE=/run/secrets/hlog-auto-publish-input.json

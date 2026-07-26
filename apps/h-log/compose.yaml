@@ -21,7 +21,7 @@ services:
       dockerfile: Dockerfile
     image: hlog-web:dev
     env_file:
-      - ./deploy/env.dev
+      - ${HLOG_RUNTIME_ENV_FILE:-./deploy/env.dev}
     expose:
       - "3000"
     depends_on:
@@ -53,7 +53,7 @@ services:
     profiles:
       - worker
     env_file:
-      - ./deploy/env.dev
+      - ${HLOG_RUNTIME_ENV_FILE:-./deploy/env.dev}
     command: ["npm", "run", "worker:once"]
     depends_on:
       hlog-postgres:
@@ -101,7 +101,7 @@ services:
     profiles:
       - tools
     env_file:
-      - ./deploy/env.dev
+      - ${HLOG_RUNTIME_ENV_FILE:-./deploy/env.dev}
     depends_on:
       hlog-postgres:
         condition: service_healthy
@@ -118,7 +118,7 @@ services:
     profiles:
       - dry-run
     env_file:
-      - ./deploy/env.dev
+      - ${HLOG_RUNTIME_ENV_FILE:-./deploy/env.dev}
     environment:
       HLOG_DRY_RUN_BASE_URL: http://hlog-nginx
     depends_on:
@@ -133,10 +133,8 @@ services:
 
   hlog-postgres:
     image: pgvector/pgvector:pg16
-    environment:
-      POSTGRES_DB: hlog_dev
-      POSTGRES_USER: hlog_app
-      POSTGRES_PASSWORD: replace-with-local-dev-password
+    env_file:
+      - ${HLOG_POSTGRES_ENV_FILE:-./deploy/postgres.env.dev}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

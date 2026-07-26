@@ -14,6 +14,10 @@ build/
 .env
 .env.*
 !.env.example
+apps/h-log/compose.override.yaml
+apps/h-log/deploy/env.production
+apps/h-log/deploy/postgres.env.production
+apps/h-log/private/
 
 # Logs
 *.log
