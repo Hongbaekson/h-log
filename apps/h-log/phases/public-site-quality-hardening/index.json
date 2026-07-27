@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "public-content-approval-and-privacy-audit",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-07-27 public defaults were approved: unapproved organization names and internal workflows will be generalized, detailed metrics require evidence, the profile photo and GitHub are public, email/contact form and light theme are excluded, and /portfolio is canonical. All 2 PDF pages and the public UI data were audited; the PDF download remains deferred until organization identifiers and resume filenames are aligned in Step 5."
     },
     {
       "step": 1,

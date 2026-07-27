@@ -38,6 +38,8 @@ Java/Spring 기반 백엔드를 개발합니다. 반복되는 작업은 줄이�
 - 한국어 UI copy
 - 공개 가능한 경력/프로젝트/기술 스택 정리
 - 민감정보 노출 방지
+- 승인되지 않은 조직 식별자·내부 흐름 일반화와 근거 기반 정량 성과
+- dark-only 출시 theme, 공개 GitHub, 비공개 이메일, Contact form 제외
 - SEO 기본값: metadata, sitemap, robots, canonical, JSON-LD
 - OCI Docker Compose + Nginx 배포 준비
 
@@ -132,6 +134,8 @@ Feedback local contract는 aggregate threshold를 통과한 글에서 title/sect
 
 - MVP 사이트는 `npm run lint`, `npm run test`, `npm run typecheck`, `npm run build`를 통과한다.
 - 공개 페이지에는 전화번호, 생년월일, 내부 URL, 서버 IP, API key, 비공개 저장소명, 고객사 내부 업무 흐름이 노출되지 않는다.
+- 공개 프로젝트 수는 실제 data source에서 계산하고, 상세 성과 수치는 근거 자료가 확인된 값만 사용한다.
+- `/portfolio`를 canonical route로 사용하고 `/projects`는 308 영구 redirect로만 제공한다.
 - Blog public route는 `status=published`인 최신 `post_version`만 노출한다.
 - file-based loader는 DB import/transition support로만 남기고, DB-first phase가 시작되면 public source of truth가 되지 않는다.
 - 자동 블로그 전환 시 failed generation, failed publish, failed verification 상태의 글은 공개 URL에 노출되지 않는다.

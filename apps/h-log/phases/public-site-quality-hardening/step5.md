@@ -34,6 +34,7 @@
 - 소개 문단을 2개 이내로 줄이고 긴 본문 폭을 약 70자 수준으로 제한한다.
 - Skills는 빠르게 훑을 수 있는 compact group으로 유지한다.
 - Step 0 결정에 따라 프로필 사진을 유지하거나 제거한다.
+- Step 0의 PDF 공개 보류 조건을 해소한다. 조직 식별자가 일반화된 안전한 이력서 PDF만 공개하고, 안전한 교체본이 없으면 download CTA와 API를 공개 상태로 유지하지 않는다.
 - PDF UI label, API `Content-Disposition`, fallback file name을 `이력서` 기준으로 일치시킨다.
 - 다운로드는 일반 링크와 기존 server rate limiter로 처리하고 250ms timer, 가짜 준비 상태, client cooldown은 제거한다.
 - Server의 실제 5회/분 rate limit과 trusted client ID 경계는 유지한다.
@@ -53,8 +54,9 @@ npm run build
 2. 기존 resume/download 테스트를 GREEN으로 만들고 server rate-limit 회귀가 없는지 확인한다.
 3. 320/390px에서 경력이 과도한 스크롤 뒤로 밀리지 않고 본문이 너무 넓거나 잘리지 않는지 확인한다.
 4. 다운로드 응답의 한글/ASCII filename과 public asset이 일치하는지 확인한다.
-5. Client state 제거 후 사용하지 않는 interval, cooldown, import가 남지 않았는지 확인한다.
-6. 성공 시 phase index의 Step 5를 `completed`로 갱신한다.
+5. 공개 PDF 전 페이지를 다시 확인해 Step 0의 조직 식별자 일반화와 개인정보 경계가 유지되는지 검증한다.
+6. Client state 제거 후 사용하지 않는 interval, cooldown, import가 남지 않았는지 확인한다.
+7. 성공 시 phase index의 Step 5를 `completed`로 갱신한다.
 
 ## 하지 말 것
 

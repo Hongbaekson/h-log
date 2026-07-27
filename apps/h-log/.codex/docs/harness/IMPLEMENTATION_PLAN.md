@@ -64,7 +64,7 @@ topic-research-generation: completed, steps 0-3 completed
 auto-article-generation: completed, steps 0-3 completed
 diagram-assets-automation: completed, steps 0-2 completed
 blog-runtime-integration: completed, steps 0-4 completed
-public-site-quality-hardening: pending, steps 0-9 pending
+public-site-quality-hardening: pending, Step 0 completed, steps 1-9 pending
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 ```
@@ -344,9 +344,10 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 
 ### 확인된 출시 전 격차
 
-- Home의 `8+`, Portfolio의 실제 프로젝트 6개, 미사용 통계의 `5+`처럼 공개 수치가 서로 다르다.
-- Resume 다운로드 표면과 실제 파일명이 이력서/자기소개서로 일치하지 않는다.
-- 고객사·회사명, 정량 성과, 프로필 사진, PDF, 이메일 공개 범위와 PDF 내부 금지 정보는 사용자 승인 및 수동 검수가 필요하다.
+- Home의 `8+`, Portfolio의 실제 프로젝트 6개, 미사용 통계의 `5+`처럼 공개 수치가 서로 다르며 Step 2에서 실제 project data source로 통일해야 한다.
+- Resume 다운로드 표면과 실제 파일명이 이력서/자기소개서로 일치하지 않으며 Step 5에서 `이력서`로 통일해야 한다.
+- Step 0에서 조직 식별자와 내부 흐름은 일반화, 상세 성과 수치는 근거 확인 전 공개 보류, 프로필 사진과 GitHub는 공개, 이메일과 Contact form은 비공개로 확정했다.
+- PDF 2페이지의 금지 정보 검수는 통과했지만 조직 식별자 일반화와 filename 정렬 전까지 public download를 보류한다.
 - 중앙 교차 타임라인은 데스크톱 공백이 크고 모바일 카드 폭을 줄여 프로젝트 비교가 어렵다.
 - Resume는 모바일에서 긴 소개와 전체 기술 목록 뒤에 경력이 나타난다.
 - 공통 metadata, canonical, JSON-LD, robots, OG/Twitter 자산과 정적 페이지·Portfolio 상세를 포함하는 sitemap이 불완전하다.
@@ -357,7 +358,7 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 
 목표는 전면 재디자인이 아니라 공개 신뢰도, 채용 담당자의 스캔 속도, 접근성, SEO, 개인정보 안전성을 높이는 것이다. 새 UI/Markdown/theme 의존성을 추가하지 않고 장식성 client code를 제거해 순 코드량 감소를 우선한다.
 
-0. `public-content-approval-and-privacy-audit`: 고객사·회사명, 수치, 사진, PDF, GitHub/이메일, theme, canonical route의 공개 결정을 기록하고 PDF 전 페이지를 수동 검수한다.
+0. `public-content-approval-and-privacy-audit`: completed. 공개 결정을 기록하고 PDF 2페이지와 profile/public UI data를 검수했다.
 1. `shared-shell-accessibility-baseline`: skip link, focus-visible, container/mobile overflow와 승인된 theme 범위를 공통 shell에서 고정한다.
 2. `home-evidence-first-simplification`: 실제 데이터에서 수치를 계산하고 radar/rotator를 검증된 성과와 현재 관심사로 교체한다.
 3. `portfolio-list-scanability`: 중앙 타임라인을 Featured 2개와 compact grid로 바꾸고 장식성 reveal code를 제거한다.
@@ -368,18 +369,21 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 8. `seo-and-crawler-foundation`: metadataBase, 페이지별 metadata/canonical, Person/WebSite/BlogPosting JSON-LD, OG/Twitter, favicon, robots, 전체 sitemap과 `/projects` 영구 redirect를 완성한다.
 9. `public-launch-quality-gate-and-doc-sync`: 전체 gate, DB-backed Blog smoke, 데스크톱/모바일/키보드/Lighthouse/개인정보 검증 후 실제 구현 상태에 맞춰 문서를 동기화한다.
 
-### 권장 기본안
+### 확정된 공개 기본안
 
 - 공개 초기 theme은 dark-only로 두고, light theme을 유지하려면 classname 부분 selector 보정이 아닌 별도 token refactor로 분리한다.
-- Contact form은 만들지 않는다. GitHub는 공개 후보로 두고 이메일은 명시 승인 후에만 노출한다.
+- Contact form은 만들지 않는다. GitHub는 공개하고 이메일은 노출하지 않는다.
 - canonical route는 `/portfolio`로 두고 `/projects`는 308 영구 redirect로 유지한다.
+- 승인되지 않은 조직 식별자와 내부 흐름은 일반화하고 상세 성과 수치는 근거 자료가 확인된 경우에만 공개한다.
+- 프로필 사진은 유지하고, PDF는 조직 식별자 일반화와 `이력서` 명칭 통일 후 공개한다.
 - Home은 DB-backed 최신 글을 조회하지 않고 Blog 링크만 제공해 DB 장애와 첫 화면을 분리한다.
 - Markdown package, 목차, 코드 복사, analytics는 실제 공개 콘텐츠 요구가 생기기 전에는 추가하지 않는다.
 
 ### 실행 경계
 
-- 첫 실행 대상은 `public-site-quality-hardening / Step 0: public-content-approval-and-privacy-audit`다.
-- Step 0의 공개 결정이 완료되기 전에는 고객사명, 정량 수치, 이메일, PDF, 프로필 사진을 임의로 유지·삭제하지 않는다.
+- Step 0은 2026-07-27 완료했다.
+- 다음 실행 대상은 `public-site-quality-hardening / Step 1: shared-shell-accessibility-baseline`이다.
+- Steps 2-5는 Step 0의 일반화, 근거 기반 수치, profile/PDF/contact 결정을 production behavior에 반영한다.
 - 이 phase는 도메인 구매, DNS/TLS, OCI mutation, signal collection, persona activation, 09:00 KST timer 활성화를 수행하지 않는다.
 - Production behavior를 바꾸는 Steps 1-8은 각각 TDD RED -> GREEN -> REFACTOR와 가장 가까운 browser/gate 검증을 따른다.
 

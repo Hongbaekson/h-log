@@ -160,6 +160,20 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **트레이드오프**: 두 번의 실패 뒤에는 자동 복구보다 안전한 중단을 택하므로 운영자가 다음 날 후보/source/persona를 보완해야 한다. Structured prompt rule과 quality gate reason은 생성할 수 있지만 실제 provider prompt/DB 연결은 production activation에서 별도로 검증한다.
 
+### ADR-015: 도메인 공개 기본값은 일반화된 콘텐츠와 dark-only `/portfolio`다
+
+**결정**: 승인되지 않은 고객사명·회사명과 현재 회사 내부 흐름은 일반화하고, 상세 성과 수치는 근거 자료가 확인된 값만 공개한다. 공개 프로젝트 수는 실제 project data source에서 계산한다. 프로필 사진과 GitHub는 공개하되 이메일과 Contact form은 공개하지 않는다. 이력서 PDF는 전 페이지 개인정보 검수와 조직 식별자 일반화, `이력서` 명칭 통일을 마친 뒤 공개한다. 초기 theme은 dark-only이며 `/portfolio`를 canonical route로 사용하고 `/projects`는 308 영구 redirect로만 제공한다.
+
+**이유**: 채용 담당자가 확인할 수 있는 사실과 공개 가능한 경력만 남기고, 조직 식별·개인정보·근거 없는 수치로 인한 신뢰 및 보안 리스크를 줄이기 위해서다. 현재 light theme과 별도 Contact form은 출시 품질에 비해 유지보수 범위가 크다.
+
+**트레이드오프**: 일부 프로젝트 제목과 성과 표현의 구체성이 낮아지고 이메일 연락 경로가 없다. 대신 GitHub와 명확한 Portfolio/Resume 표면을 제공하고, 추가 공개는 근거 자료나 별도 승인이 생겼을 때만 확장한다.
+
+**검수 기록**:
+
+- 2026-07-27에 이력서 PDF 2페이지와 프로필 asset을 직접 확인했다.
+- PDF의 공개 금지 정보는 발견되지 않았지만 조직 식별자 일반화 전까지 download는 보류한다.
+- 이번 결정은 domain, DNS/TLS, OCI, signal collection, persona activation, production timer 변경을 승인하지 않는다.
+
 ## 공식/내부 기준
 
 - Next.js docs

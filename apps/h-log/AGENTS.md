@@ -17,11 +17,11 @@
 ## Product Direction
 
 - UI copy language: Korean
-- `Projects` 화면 표기는 `Portfolio`로 사용한다. 라우트는 `/projects`를 유지한다.
+- `Projects` 화면 표기와 canonical route는 `Portfolio`, `/portfolio`를 사용한다. `/projects`는 308 영구 redirect 호환 경로로만 유지한다.
 - 핵심 메시지: `백엔드 개발자 손홍백입니다`
 - 보조 메시지: `Java/Spring 기반 백엔드를 개발합니다. 반복되는 작업은 줄이고, 운영하기 쉬운 구조를 고민합니다.`
 - 디자인 방향: Clean Dark Engineer Portfolio + Subtle AI Workflow Console
-- MVP pages: `/`, `/resume`, `/projects`, `/projects/[slug]`, `/blog`, `/blog/[slug]`
+- MVP pages: `/`, `/resume`, `/portfolio`, `/portfolio/[slug]`, `/blog`, `/blog/[slug]`
 - 제외: 방문자 RAG 챗봇, SSE 대화 UI, 방문자 세션 메모리, 댓글, 공개 조회수
 - 관리자 기능은 DB phase에서 preview/save/publish 중심의 최소 운영 화면만 허용한다.
 
@@ -96,7 +96,9 @@ npm run dev
 
 - 루트 `plans` 문서를 기준으로 하되, 상세 내용은 앱 내부 문서로 필요한 만큼만 읽는다.
 - Home H1은 담백하게 쓴다. 기본형은 `백엔드 개발자 손홍백입니다`로 둔다.
-- 공개 전 고객사명, 성과 수치, 이메일, PDF, 프로필 사진 공개 여부를 확인한다.
+- 2026-07-27 공개 결정에 따라 승인되지 않은 고객사·회사명과 내부 흐름은 일반화하고, 근거가 확인되지 않은 상세 성과 수치는 공개하지 않는다.
+- 프로필 사진과 GitHub는 공개할 수 있다. 이메일과 Contact form은 공개하지 않고, PDF는 조직 식별자 일반화와 `이력서` 명칭 통일 후 공개한다.
+- 도메인 공개 초기 theme은 dark-only로 유지한다. Light theme은 별도 token refactor 없이는 다시 추가하지 않는다.
 - 전화번호, 생년월일, 내부 URL, 서버 IP, API key, 비공개 저장소명은 노출하지 않는다.
 - full CMS와 방문자 챗봇을 만들지 않는다. Aggregate 성과 신호, persona version/rollback, 반복 생성 실패 차단의 로컬 contract는 완료됐지만 실제 수집, persona 반영, failure registry persistence, production timer는 공개 HTTPS origin이 준비되기 전까지 활성화하지 않는다.
 - 한 작업 단위에서 페이지 여러 개와 배포 설정을 동시에 바꾸지 않는다.
