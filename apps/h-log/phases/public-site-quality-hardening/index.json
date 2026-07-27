@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "shared-shell-accessibility-baseline",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a keyboard-visible skip link and focusable main target, made Escape close mobile navigation and restore focus, simplified shared responsive widths, and removed the unapproved ThemeToggle and light-theme overrides. Focused RED/GREEN tests, the full test/lint/typecheck/build gates, and Chrome checks at 320/390/768/1440 px passed without horizontal overflow."
     },
     {
       "step": 2,

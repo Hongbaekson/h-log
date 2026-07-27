@@ -64,7 +64,7 @@ topic-research-generation: completed, steps 0-3 completed
 auto-article-generation: completed, steps 0-3 completed
 diagram-assets-automation: completed, steps 0-2 completed
 blog-runtime-integration: completed, steps 0-4 completed
-public-site-quality-hardening: pending, Step 0 completed, steps 1-9 pending
+public-site-quality-hardening: pending, Steps 0-1 completed, steps 2-9 pending
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 ```
@@ -359,7 +359,7 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 목표는 전면 재디자인이 아니라 공개 신뢰도, 채용 담당자의 스캔 속도, 접근성, SEO, 개인정보 안전성을 높이는 것이다. 새 UI/Markdown/theme 의존성을 추가하지 않고 장식성 client code를 제거해 순 코드량 감소를 우선한다.
 
 0. `public-content-approval-and-privacy-audit`: completed. 공개 결정을 기록하고 PDF 2페이지와 profile/public UI data를 검수했다.
-1. `shared-shell-accessibility-baseline`: skip link, focus-visible, container/mobile overflow와 승인된 theme 범위를 공통 shell에서 고정한다.
+1. `shared-shell-accessibility-baseline`: completed. 키보드에 노출되는 skip link와 focus 가능한 main target을 추가하고, 모바일 메뉴 Escape 닫기/포커스 복귀, 공통 container 폭, 승인된 dark-only theme 범위를 고정했다. Focused RED/GREEN, 전체 test/lint/typecheck/build, Chrome 320/390/768/1440px 검증을 통과했다.
 2. `home-evidence-first-simplification`: 실제 데이터에서 수치를 계산하고 radar/rotator를 검증된 성과와 현재 관심사로 교체한다.
 3. `portfolio-list-scanability`: 중앙 타임라인을 Featured 2개와 compact grid로 바꾸고 장식성 reveal code를 제거한다.
 4. `portfolio-detail-clarity`: 중복 아키텍처 설명을 줄이고 문제-판단-결과와 프로젝트 데이터 무결성을 선명하게 한다.
@@ -381,8 +381,8 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 
 ### 실행 경계
 
-- Step 0은 2026-07-27 완료했다.
-- 다음 실행 대상은 `public-site-quality-hardening / Step 1: shared-shell-accessibility-baseline`이다.
+- Steps 0-1은 완료했다.
+- 다음 실행 대상은 `public-site-quality-hardening / Step 2: home-evidence-first-simplification`이다.
 - Steps 2-5는 Step 0의 일반화, 근거 기반 수치, profile/PDF/contact 결정을 production behavior에 반영한다.
 - 이 phase는 도메인 구매, DNS/TLS, OCI mutation, signal collection, persona activation, 09:00 KST timer 활성화를 수행하지 않는다.
 - Production behavior를 바꾸는 Steps 1-8은 각각 TDD RED -> GREEN -> REFACTOR와 가장 가까운 browser/gate 검증을 따른다.

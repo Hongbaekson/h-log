@@ -6,20 +6,6 @@ import { siteConfig } from "@/lib/site";
 
 import "./globals.css";
 
-const themeScript = `
-(() => {
-  try {
-    const storedTheme = localStorage.getItem("h-log-theme");
-    const theme = storedTheme === "light" ? "light" : "dark";
-    document.documentElement.dataset.theme = theme;
-    document.documentElement.style.colorScheme = theme;
-  } catch {
-    document.documentElement.dataset.theme = "dark";
-    document.documentElement.style.colorScheme = "dark";
-  }
-})();
-`;
-
 export const metadata: Metadata = {
   title: siteConfig.title,
   description: siteConfig.description,
@@ -31,13 +17,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html data-theme="dark" lang="ko" suppressHydrationWarning>
-      <head>
-        <script>{themeScript}</script>
-      </head>
+    <html lang="ko">
       <body>
+        <a
+          className="fixed left-4 top-4 z-50 -translate-y-24 rounded-lg bg-cyan-300 px-4 py-2 font-semibold text-slate-950 transition-transform focus:translate-y-0 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-slate-950 motion-reduce:transition-none"
+          href="#main-content"
+        >
+          본문으로 건너뛰기
+        </a>
         <Header />
-        <main className="min-w-0 overflow-x-hidden">{children}</main>
+        <main
+          className="min-w-0 overflow-x-hidden focus:outline-none"
+          id="main-content"
+          tabIndex={-1}
+        >
+          {children}
+        </main>
         <Footer />
       </body>
     </html>

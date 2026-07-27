@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Braces, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
-import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { siteConfig } from "@/lib/site";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
 
   const isActiveNavItem = (href: string) => {
@@ -21,8 +21,16 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-3 z-30 px-3">
-      <div className="mx-auto flex h-14 w-[calc(100%_-_2rem)] max-w-[21rem] min-w-0 items-center justify-between gap-2 rounded-2xl border border-slate-700/70 bg-[#080d18]/86 px-3 shadow-[0_18px_60px_rgb(0_0_0_/_0.25)] backdrop-blur-xl sm:w-full sm:max-w-6xl md:px-4">
+    <header
+      className="sticky top-3 z-30 px-3 sm:px-5"
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && isMenuOpen) {
+          setIsMenuOpen(false);
+          menuButtonRef.current?.focus();
+        }
+      }}
+    >
+      <div className="mx-auto flex h-14 w-full max-w-6xl min-w-0 items-center justify-between gap-2 rounded-2xl border border-slate-700/70 bg-[#080d18]/86 px-3 shadow-[0_18px_60px_rgb(0_0_0_/_0.25)] backdrop-blur-xl md:px-4">
         <Link
           className="inline-flex min-w-0 items-center gap-2 rounded-xl px-2 py-2 text-sm font-semibold text-slate-100 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
           href="/"
@@ -53,13 +61,13 @@ export function Header() {
           })}
         </nav>
         <div className="flex shrink-0 items-center gap-2">
-          <ThemeToggle />
           <button
             aria-controls="mobile-navigation"
             aria-expanded={isMenuOpen}
             aria-label={isMenuOpen ? "메뉴 닫기" : "메뉴 열기"}
             className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-slate-700 bg-slate-900/50 text-slate-200 transition-colors hover:border-cyan-300/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 md:hidden"
             onClick={() => setIsMenuOpen((current) => !current)}
+            ref={menuButtonRef}
             type="button"
           >
             {isMenuOpen ? (
@@ -73,7 +81,7 @@ export function Header() {
       {isMenuOpen ? (
         <nav
           aria-label="Mobile navigation"
-          className="mx-auto mt-2 grid w-[calc(100%_-_2rem)] max-w-[21rem] gap-1 rounded-2xl border border-slate-700/70 bg-[#080d18]/92 p-2 shadow-[0_18px_60px_rgb(0_0_0_/_0.25)] backdrop-blur-xl sm:w-full sm:max-w-6xl md:hidden"
+          className="mx-auto mt-2 grid w-full max-w-6xl gap-1 rounded-2xl border border-slate-700/70 bg-[#080d18]/92 p-2 shadow-[0_18px_60px_rgb(0_0_0_/_0.25)] backdrop-blur-xl md:hidden"
           id="mobile-navigation"
         >
           {siteConfig.navItems.map((item) => {
