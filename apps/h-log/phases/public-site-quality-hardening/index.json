@@ -1,0 +1,56 @@
+{
+  "project": "h-log",
+  "phase": "public-site-quality-hardening",
+  "steps": [
+    {
+      "step": 0,
+      "name": "public-content-approval-and-privacy-audit",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "shared-shell-accessibility-baseline",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "home-evidence-first-simplification",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "portfolio-list-scanability",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "name": "portfolio-detail-clarity",
+      "status": "pending"
+    },
+    {
+      "step": 5,
+      "name": "resume-scanability-and-download-contract",
+      "status": "pending"
+    },
+    {
+      "step": 6,
+      "name": "blog-discovery-resilience",
+      "status": "pending"
+    },
+    {
+      "step": 7,
+      "name": "blog-detail-readability",
+      "status": "pending"
+    },
+    {
+      "step": 8,
+      "name": "seo-and-crawler-foundation",
+      "status": "pending"
+    },
+    {
+      "step": 9,
+      "name": "public-launch-quality-gate-and-doc-sync",
+      "status": "pending"
+    }
+  ]
+}

@@ -30,7 +30,7 @@
       "step": 4,
       "name": "production-activation-and-rollback-smoke",
       "status": "pending",
-      "summary": "Artifact 70fd31c is live with server-local credential rotation, production env/input, migrations 001-003, production audit 0, and healthy web/PostgreSQL/Nginx. A production Hermes canary passed all six required jobs plus HTML, Markdown, sitemap, feed, llms, search, and usage checks; repository rollback removed it from eight surfaces and persisted admin/verifications audit. Timer activation is intentionally deferred until a real HTTPS public origin and privacy organization/private-repository lists are needed for production cutover."
+      "summary": "Artifact 70fd31c is live with server-local credential rotation, production env/input, migrations 001-003, production audit 0, and healthy web/PostgreSQL/Nginx. A production Hermes canary passed all six required jobs plus HTML, Markdown, sitemap, feed, llms, search, and usage checks; repository rollback removed it from eight surfaces and persisted admin/verifications audit. Timer activation is intentionally deferred until public-site-quality-hardening is complete and a real HTTPS public origin plus privacy organization/private-repository lists are ready for production cutover."
     }
   ]
 }

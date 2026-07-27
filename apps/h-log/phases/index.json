@@ -56,9 +56,14 @@
       "summary": "Steps 0-4 completed: PostgreSQL migration and repository, DB-backed public reads, a manual persistent worker, and a deterministic fake-provider Compose dry-run now verify one published success and one private required failure through the real Nginx/public/crawler boundary. No external provider, scheduler, OCI, or production publish activation was added."
     },
     {
+      "dir": "public-site-quality-hardening",
+      "status": "pending",
+      "summary": "Domain-cutover prerequisite. Steps 0-9 cover public-content approval and privacy review, shared accessibility, evidence-first Home, scan-friendly Portfolio, Resume clarity, Blog resilience and readability, complete SEO/crawler coverage, and a final public-launch gate. This phase does not authorize domain, DNS, TLS, OCI, or production timer changes."
+    },
+    {
       "dir": "auto-publish-ops-hardening",
       "status": "pending",
-      "summary": "Steps 0-3 completed. Step 4 artifact 70fd31c is live with server-local credential rotation, production env/input, migrations 001-003, production audit 0, a successful Hermes canary across required/public/crawler/search/usage surfaces, and an audited eight-surface rollback. Timer activation is intentionally deferred until a real HTTPS public origin and privacy organization/private-repository lists are needed for production cutover."
+      "summary": "Steps 0-3 completed. Step 4 artifact 70fd31c is live with server-local credential rotation, production env/input, migrations 001-003, production audit 0, a successful Hermes canary across required/public/crawler/search/usage surfaces, and an audited eight-surface rollback. Timer activation is intentionally deferred until public-site-quality-hardening is complete and a real HTTPS public origin plus privacy organization/private-repository lists are ready for production cutover."
     },
     {
       "dir": "feedback-and-persona-learning",

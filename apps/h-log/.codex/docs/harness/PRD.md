@@ -142,6 +142,7 @@ Feedback local contract는 aggregate threshold를 통과한 글에서 title/sect
 - production 자동 발행 완료는 실제 PostgreSQL persistence, persistent worker, 승인된 canary, rollback smoke가 모두 확인된 경우에만 선언한다.
 - aggregate 성과 신호의 schema/privacy/학습 eligibility contract는 도메인 없이 로컬에서 완성할 수 있다.
 - 반복 생성 실패 contract는 같은 일자·후보·실패 유형의 첫 실패에서 우선순위를 낮추고 두 번째 실패에서 당일 발행을 중단하며, 원문 출력 대신 privacy-redacted summary만 저장한다.
+- 도메인 컷오버 전 공개 콘텐츠 승인, PDF 개인정보 검수, 주요 화면 접근성·모바일 탐색성, 페이지별 metadata/canonical/JSON-LD와 전체 sitemap을 `public-site-quality-hardening` phase에서 검증한다.
 - 실제 성과 신호 수집, persona 변경, scheduled production activation은 실제 HTTPS public origin이 준비된 뒤에만 수행한다.
 
 ## 구현 정책
@@ -149,5 +150,5 @@ Feedback local contract는 aggregate threshold를 통과한 글에서 title/sect
 - 구현 계획과 단계 실행은 Harness 구조를 따른다.
 - production code 구현 또는 수정은 TDD를 기본으로 한다.
 - phase 파일은 `apps/h-log/phases/` 아래에 둔다.
-- 실행 순서는 `diagram-assets-automation -> blog-runtime-integration -> auto-publish-ops-hardening -> feedback-and-persona-learning` contract다. Feedback Steps 0-2 contract baseline은 완료됐으며, 다음 production signal collection/persona activation/timer 단계부터 실제 HTTPS public origin을 요구한다.
+- 실행 순서는 `diagram-assets-automation -> blog-runtime-integration -> public-site-quality-hardening -> auto-publish-ops-hardening -> feedback-and-persona-learning` contract다. Feedback Steps 0-2 contract baseline은 완료됐으며, 공개 사이트 품질 게이트를 통과한 뒤 production signal collection/persona activation/timer 단계부터 실제 HTTPS public origin을 요구한다.
 - 설계 변경이 생기면 `PRD.md`, `ADR.md`, `ARCHITECTURE.md` 중 관련 문서를 함께 갱신한다.
