@@ -1,10 +1,36 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 
 import { createPortfolioCardModel } from "./portfolio-card.ts";
 import { getProjectBySlug, projects } from "./projects.ts";
 
+const homeSource = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+const projectSource = readFileSync(new URL("./projects.ts", import.meta.url), "utf8");
+const globalStylesSource = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+
 describe("portfolio project content", () => {
+  it("derives the Home project count from the public project collection", () => {
+    assert.match(homeSource, /projects\.length/);
+    assert.doesNotMatch(homeSource, /value:\s*"8\+"/);
+  });
+
+  it("keeps Home evidence-based without decorative skill scores or rotating roles", () => {
+    assert.match(homeSource, /featuredProject\.(title|summary)/);
+    assert.match(homeSource, /github\.com\/Hongbaekson/);
+    assert.match(homeSource, /href="\/blog"/);
+    assert.doesNotMatch(homeSource, /mailto:/);
+    assert.doesNotMatch(
+      homeSource,
+      /TechnicalSkillsRadar|RotatingFocusMetric|radarAxes|rotatingFocusItems/,
+    );
+  });
+
+  it("removes unused Home-only statistics and decorative styles", () => {
+    assert.doesNotMatch(projectSource, /portfolioStats/);
+    assert.doesNotMatch(globalStylesSource, /\.radar-|\.metric-rotator/);
+  });
+
   it("explains the workflow automation metrics with visitor-facing descriptions", () => {
     const project = getProjectBySlug("opnerd-workflow-automation");
 

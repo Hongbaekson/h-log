@@ -395,12 +395,6 @@ export const projects = [
   },
 ] satisfies Project[];
 
-export const portfolioStats = [
-  { label: "Years", value: "5+" },
-  { label: "Projects", value: `${projects.length}` },
-  { label: "Tech Stack", value: "30+" },
-];
-
 export function getProjectBySlug(slug: string): Project | undefined {
   return projects.find((project) => project.slug === slug);
 }

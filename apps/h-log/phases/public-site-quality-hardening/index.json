@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "home-evidence-first-simplification",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Replaced the hard-coded project count, skill radar, rotating roles, and decorative status dashboard with projects.length, one representative project from the public collection, and a concise current focus. Home remains a Server Component, links to Portfolio, Resume, the approved public GitHub, and Blog without querying the Blog database, and exposes no email. Focused RED/GREEN, full test/lint/typecheck/build gates, and Chrome checks at 320/390/768/1440 px passed without horizontal overflow."
     },
     {
       "step": 3,
