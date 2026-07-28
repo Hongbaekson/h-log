@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, CheckCircle2, Terminal } from "lucide-react";
+import { ArrowLeft, Terminal } from "lucide-react";
 
 import { GithubWebhookArchitectureDiagram } from "@/components/portfolio/GithubWebhookArchitectureDiagram";
 import { Badge, Container } from "@/components/ui";
-import { getProjectBySlug, projects, projectToneClasses } from "@/lib/projects";
+import { getProjectBySlug, projects } from "@/lib/projects";
 
 type Project = NonNullable<ReturnType<typeof getProjectBySlug>>;
 
@@ -35,7 +35,7 @@ export async function generateMetadata({
 
   return {
     description: project.summary,
-    title: `${project.title} | Portfolio`,
+    title: `${project.context} | Portfolio`,
   };
 }
 
@@ -56,149 +56,58 @@ function SectionHeading({
   );
 }
 
-function MetricRibbon({ project }: { project: Project }) {
-  const metrics = [
-    ...project.metrics,
-    {
-      description: "자동화 설계 범위",
-      label: "Scope",
-      value: project.type,
-    },
-  ];
-
-  return (
-    <dl className="grid border-y border-slate-700/80 md:grid-cols-4">
-      {metrics.map((metric) => (
-        <div
-          className="border-b border-slate-800 py-5 md:border-b-0 md:border-r md:px-5 md:last:border-r-0"
-          key={metric.label}
-        >
-          <dt className="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-slate-500">
-            {metric.label}
-          </dt>
-          <dd className="metric-value metric-value-cyan mt-3 text-2xl font-bold tracking-tight">
-            {metric.value}
-          </dd>
-          <p className="mt-2 text-sm leading-6 text-slate-400">
-            {metric.description}
-          </p>
-        </div>
-      ))}
-    </dl>
-  );
-}
-
 function SystemMap({ project }: { project: Project }) {
-  const Icon = project.icon;
-
   return (
     <section className="border-t border-slate-700/80 pt-10">
       <SectionHeading eyebrow="System Architecture" title="시스템 흐름" />
-
-      <div className="grid gap-6 lg:grid-cols-[19rem_1fr]">
-        <aside className="border-l border-cyan-300/40 pl-5">
-          <div
-            className={`grid h-12 w-12 place-items-center rounded-xl border ${projectToneClasses[project.tone]}`}
+      <ol className="grid overflow-hidden rounded-2xl border border-slate-700/80 bg-[#080d18]/55 md:grid-cols-3">
+        {project.detail.architecture.map((item) => (
+          <li
+            className="border-b border-slate-700/80 p-5 text-sm leading-7 text-slate-300 last:border-b-0 md:border-r md:border-b-0 md:last:border-r-0"
+            key={item}
           >
-            <Icon aria-hidden="true" size={21} strokeWidth={2} />
-          </div>
-          <h3 className="card-heading mt-5 text-xl text-white">{project.context}</h3>
-          <p className="mt-4 text-sm leading-7 text-slate-400">{project.problem}</p>
-        </aside>
-
-        <div className="overflow-hidden rounded-2xl border border-slate-700/80 bg-[#080d18]/55">
-          <div className="grid gap-0 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-stretch">
-            {project.detail.architecture.map((item, index) => (
-              <div className="contents" key={item}>
-                <div className="min-h-44 p-5">
-                  <p className="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-slate-500">
-                    Layer 0{index + 1}
-                  </p>
-                  <h4 className="card-heading mt-4 text-lg text-white">
-                    {["Input", "Process", "Operate"][index] ?? "Layer"}
-                  </h4>
-                  <p className="mt-4 text-sm leading-7 text-slate-300">{item}</p>
-                </div>
-                {index < project.detail.architecture.length - 1 ? (
-                  <div className="hidden w-px bg-slate-700/80 md:block">
-                    <ArrowRight
-                      aria-hidden="true"
-                      className="-ml-2 mt-20 bg-[#080d18] text-cyan-200"
-                      size={17}
-                      strokeWidth={2}
-                    />
-                  </div>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Details({ project }: { project: Project }) {
-  const detailItems = [
-    ...project.detail.architecture,
-    ...project.detail.role,
-  ];
-
-  return (
-    <section className="border-t border-slate-700/80 pt-10">
-      <SectionHeading eyebrow="Details" title="상세 내용" />
-      <ul className="grid gap-x-8 gap-y-4 text-sm leading-7 text-slate-300 md:grid-cols-2">
-        {detailItems.map((item) => (
-          <li className="flex gap-3 border-t border-slate-800 pt-4" key={item}>
-            <span className="mt-[0.7rem] h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
-            <span>{item}</span>
+            {item}
           </li>
         ))}
-      </ul>
+      </ol>
     </section>
   );
 }
 
-function Highlights({ project }: { project: Project }) {
+function ProjectStory({ project }: { project: Project }) {
   return (
-    <section className="border-t border-slate-700/80 pt-10">
-      <SectionHeading eyebrow="Highlights" title="문제 해결 흐름" />
-      <div className="grid gap-10">
-        {project.approach.map((solution, index) => {
-          const problem =
-            index === 0
-              ? project.problem
-              : (project.detail.decisions[index - 1] ?? project.detail.decisions[0]);
-          const result = project.impact[index] ?? project.impact[0];
+    <section className="grid gap-10 border-t border-slate-700/80 pt-10">
+      <div>
+        <SectionHeading eyebrow="Problem" title="해결해야 했던 문제" />
+        <p className="max-w-3xl text-base leading-8 text-slate-300">{project.problem}</p>
+      </div>
 
-          return (
-            <article
-              className="grid gap-5 border-t border-slate-800 pt-6 lg:grid-cols-[6rem_1fr]"
-              key={solution}
+      <div className="border-t border-slate-800 pt-10">
+        <SectionHeading eyebrow="Decision" title="선택한 접근" />
+        <ul className="grid gap-4 md:grid-cols-2">
+          {project.approach.map((item) => (
+            <li
+              className="border-l border-cyan-300/40 pl-5 text-sm leading-7 text-slate-300"
+              key={item}
             >
-              <div className="font-mono text-3xl font-bold text-slate-600">
-                0{index + 1}
-              </div>
-              <div>
-                <h3 className="card-heading text-xl text-white">{solution}</h3>
-                <div className="mt-5 grid gap-5 lg:grid-cols-3">
-                  {[
-                    { label: "Problem", value: problem },
-                    { label: "Solution", value: solution },
-                    { label: "Result", value: result },
-                  ].map((item) => (
-                    <div className="border-l border-slate-700 pl-4" key={item.label}>
-                      <p className="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-cyan-200">
-                        {item.label}
-                      </p>
-                      <p className="mt-3 text-sm leading-7 text-slate-300">{item.value}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </article>
-          );
-        })}
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="border-t border-slate-800 pt-10">
+        <SectionHeading eyebrow="Result" title="확인된 결과" />
+        <ul className="grid gap-4 md:grid-cols-2">
+          {project.impact.map((item) => (
+            <li
+              className="border-l border-emerald-300/40 pl-5 text-sm leading-7 text-slate-300"
+              key={item}
+            >
+              {item}
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
@@ -246,33 +155,34 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
                 <span className="font-mono uppercase tracking-[0.18em]">{project.type}</span>
               </Badge>
               <h1 className="hero-heading hero-reveal hero-reveal-3 mt-6 max-w-4xl text-4xl leading-[1.08] tracking-normal text-white md:text-6xl">
-                {project.title}
+                {project.context}
               </h1>
               <p className="hero-reveal hero-reveal-4 mt-5 text-sm font-semibold text-cyan-200 md:text-base">
-                {project.company} | {project.period}
+                {project.period}
               </p>
               <p className="hero-reveal hero-reveal-5 mt-6 max-w-2xl text-base leading-8 text-slate-300 md:text-lg">
                 {project.summary}
               </p>
             </div>
 
-            <div className="hero-status-card border-y border-slate-700/80 py-4">
-              {[
-                "Overview",
-                "Architecture",
-                "Details",
-                "Highlights",
-                "Stack",
-              ].map((item) => (
-                <div
-                  className="flex items-center justify-between border-b border-slate-800 py-3 text-sm font-semibold text-slate-300 last:border-b-0"
-                  key={item}
-                >
-                  {item}
-                  <CheckCircle2 aria-hidden="true" className="text-cyan-200" size={15} />
-                </div>
-              ))}
-            </div>
+            <aside
+              aria-labelledby="project-role-heading"
+              className="border-y border-slate-700/80 py-5"
+            >
+              <h2
+                className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200"
+                id="project-role-heading"
+              >
+                담당 역할
+              </h2>
+              <ul className="mt-4 grid gap-3 text-sm leading-6 text-slate-300">
+                {project.detail.role.map((item) => (
+                  <li className="border-l border-slate-700 pl-4" key={item}>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </aside>
           </div>
         </Container>
       </section>
@@ -280,13 +190,12 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
       <section className="pb-24">
         <Container>
           <div className="grid gap-10">
-            {project.slug === "opnerd-workflow-automation" ? (
+            <ProjectStory project={project} />
+            {project.slug === "github-issues-workflow-automation" ? (
               <GithubWebhookArchitectureDiagram />
-            ) : null}
-            <MetricRibbon project={project} />
-            <SystemMap project={project} />
-            <Details project={project} />
-            <Highlights project={project} />
+            ) : (
+              <SystemMap project={project} />
+            )}
             <TechStack project={project} />
           </div>
         </Container>

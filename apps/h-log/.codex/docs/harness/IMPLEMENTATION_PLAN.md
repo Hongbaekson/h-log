@@ -64,7 +64,7 @@ topic-research-generation: completed, steps 0-3 completed
 auto-article-generation: completed, steps 0-3 completed
 diagram-assets-automation: completed, steps 0-2 completed
 blog-runtime-integration: completed, steps 0-4 completed
-public-site-quality-hardening: pending, Steps 0-3 completed, steps 4-9 pending
+public-site-quality-hardening: pending, Steps 0-4 completed, steps 5-9 pending
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 ```
@@ -349,6 +349,7 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 - Step 0에서 조직 식별자와 내부 흐름은 일반화, 상세 성과 수치는 근거 확인 전 공개 보류, 프로필 사진과 GitHub는 공개, 이메일과 Contact form은 비공개로 확정했다.
 - PDF 2페이지의 금지 정보 검수는 통과했지만 조직 식별자 일반화와 filename 정렬 전까지 public download를 보류한다.
 - 중앙 교차 타임라인의 데스크톱 공백과 모바일 폭 문제는 Step 3에서 Featured 2개와 경력 프로젝트 grid로 교체해 해결했다.
+- Portfolio 상세의 조직 식별자, 근거 미확인 수치, 중복 architecture, 문제-판단-결과 index fallback은 Step 4에서 공개 안전한 데이터와 단일 architecture surface로 교체해 해결했다.
 - Resume는 모바일에서 긴 소개와 전체 기술 목록 뒤에 경력이 나타난다.
 - 공통 metadata, canonical, JSON-LD, robots, OG/Twitter 자산과 정적 페이지·Portfolio 상세를 포함하는 sitemap이 불완전하다.
 - Skip link, 검색 focus-visible, 활성 필터 의미, Blog loading/error/empty 상태를 보강해야 한다.
@@ -362,7 +363,7 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 1. `shared-shell-accessibility-baseline`: completed. 키보드에 노출되는 skip link와 focus 가능한 main target을 추가하고, 모바일 메뉴 Escape 닫기/포커스 복귀, 공통 container 폭, 승인된 dark-only theme 범위를 고정했다. Focused RED/GREEN, 전체 test/lint/typecheck/build, Chrome 320/390/768/1440px 검증을 통과했다.
 2. `home-evidence-first-simplification`: completed. `projects.length`와 공개 collection의 대표 프로젝트를 사용하고, radar/rotator와 미사용 통계·스타일을 제거했다. GitHub와 Blog CTA를 제공하되 이메일과 DB-backed 최신 글 조회는 추가하지 않았다. Focused RED/GREEN, 전체 test/lint/typecheck/build, Chrome 320/390/768/1440px 검증을 통과했다.
 3. `portfolio-list-scanability`: completed. 승인된 project collection을 Featured 2개와 경력 프로젝트 4개 grid로 나누고, 모든 card를 기간-역할-핵심 판단-검증된 결과 순서로 통일했다. 조직 식별자와 근거 미확인 수치를 목록에서 제외하고 장식성 `ScrollRevealItem`과 전용 CSS를 제거했다. Focused RED/GREEN, 전체 test/lint/typecheck/build, 6개 상세 route HTTP 200, Chrome 320/390/768/1440px 검증을 통과했다.
-4. `portfolio-detail-clarity`: 중복 아키텍처 설명을 줄이고 문제-판단-결과와 프로젝트 데이터 무결성을 선명하게 한다.
+4. `portfolio-detail-clarity`: completed. 조직 식별자와 근거 미확인 수치, 내부 흐름을 일반화하고, role과 문제-판단-결과를 architecture보다 먼저 배치했다. index 기반 approach/result fallback을 제거하고 프로젝트마다 하나의 architecture surface만 렌더링하며, workflow diagram은 focus 가능한 contained horizontal scroll로 단순화했다. Focused RED/GREEN 11/11, 전체 175 tests(163 pass, DB 12 skip), lint/typecheck/build, 신규 6개 route HTTP 200와 폐기 6개 route HTTP 404, Chrome 320/390/768/1440px 검증을 통과했다.
 5. `resume-scanability-and-download-contract`: 경력을 앞세우고 PDF 명칭/다운로드 동작과 모바일 읽기 폭을 정리한다.
 6. `blog-discovery-resilience`: 검색/태그의 focus와 활성 상태, 최소 검색어, empty/loading/error 경계를 보강한다.
 7. `blog-detail-readability`: 본문 폭과 한국어 보조 문구를 정리하고 실제 공개 fixture가 요구할 때만 안전 렌더러를 확장한다.
@@ -381,9 +382,9 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 
 ### 실행 경계
 
-- Steps 0-3은 완료했다.
-- 다음 실행 대상은 `public-site-quality-hardening / Step 4: portfolio-detail-clarity`이다.
-- Steps 4-5는 Step 0의 일반화, 근거 기반 수치, profile/PDF/contact 결정을 production behavior에 반영한다.
+- Steps 0-4는 완료했다.
+- 다음 실행 대상은 `public-site-quality-hardening / Step 5: resume-scanability-and-download-contract`이다.
+- Step 5는 Step 0의 일반화와 PDF/contact 결정을 Resume production behavior에 반영한다.
 - 이 phase는 도메인 구매, DNS/TLS, OCI mutation, signal collection, persona activation, 09:00 KST timer 활성화를 수행하지 않는다.
 - Production behavior를 바꾸는 Steps 1-8은 각각 TDD RED -> GREEN -> REFACTOR와 가장 가까운 browser/gate 검증을 따른다.
 

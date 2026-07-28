@@ -10,16 +10,24 @@ const portfolioSource = readFileSync(
   new URL("../app/portfolio/page.tsx", import.meta.url),
   "utf8",
 );
+const portfolioDetailSource = readFileSync(
+  new URL("../app/portfolio/[slug]/page.tsx", import.meta.url),
+  "utf8",
+);
+const workflowDiagramSource = readFileSync(
+  new URL("../components/portfolio/GithubWebhookArchitectureDiagram.tsx", import.meta.url),
+  "utf8",
+);
 const projectSource = readFileSync(new URL("./projects.ts", import.meta.url), "utf8");
 const globalStylesSource = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
 const expectedPortfolioSlugs = [
-  "opnerd-workflow-automation",
-  "cgv-pos-kiosk-nextgen",
-  "naracellar-sales-system",
-  "tonymoly-crm-dormant-customer",
-  "gala-data-migration",
-  "tonymoly-backoffice-operation",
+  "github-issues-workflow-automation",
+  "pos-kiosk-modernization",
+  "sales-system-modernization",
+  "crm-customer-notification",
+  "database-platform-migration",
+  "backoffice-reliability-improvement",
 ];
 
 describe("portfolio project content", () => {
@@ -29,7 +37,7 @@ describe("portfolio project content", () => {
   });
 
   it("keeps Home evidence-based without decorative skill scores or rotating roles", () => {
-    assert.match(homeSource, /featuredProject\.(title|summary)/);
+    assert.match(homeSource, /featuredProject\.(context|summary)/);
     assert.match(homeSource, /github\.com\/Hongbaekson/);
     assert.match(homeSource, /href="\/blog"/);
     assert.doesNotMatch(homeSource, /mailto:/);
@@ -44,35 +52,18 @@ describe("portfolio project content", () => {
     assert.doesNotMatch(globalStylesSource, /\.radar-|\.metric-rotator/);
   });
 
-  it("explains the workflow automation metrics with visitor-facing descriptions", () => {
-    const project = getProjectBySlug("opnerd-workflow-automation");
-
-    assert.ok(project);
-    assert.match(project.summary, /Webhook/);
-    assert.deepEqual(
-      project.metrics.map((metric) => ({
-        description: metric.description,
-        label: metric.label,
-        value: metric.value,
-      })),
-      [
-        {
-          description: "서명 검증 · 중복 방지",
-          label: "Webhook",
-          value: "검증·저장",
-        },
-        {
-          description: "Discord 알림 실패 격리",
-          label: "Queue/DLQ",
-          value: "재시도",
-        },
-        {
-          description: "요약 · intent 분석 분리",
-          label: "LLM Worker",
-          value: "읽기 전용",
-        },
-      ],
+  it("keeps public project data free of organization identifiers and unsupported metrics", () => {
+    assert.doesNotMatch(
+      projectSource,
+      /오프너드|아스템즈|CGV|나라셀라|토니모리|갈라 인터내셔널/i,
     );
+
+    for (const project of projects) {
+      assert.ok(!("company" in project));
+      assert.ok(!("metrics" in project));
+      assert.ok(!("title" in project));
+      assert.ok(project.impact.every((item) => !/\d/.test(item)));
+    }
   });
 
   it("keeps the six public projects in their approved order without duplicates", () => {
@@ -83,7 +74,7 @@ describe("portfolio project content", () => {
   });
 
   it("builds public-safe portfolio card facts in one consistent order", () => {
-    const project = getProjectBySlug("opnerd-workflow-automation");
+    const project = getProjectBySlug("github-issues-workflow-automation");
 
     assert.ok(project);
 
@@ -120,13 +111,51 @@ describe("portfolio project content", () => {
     assert.doesNotMatch(globalStylesSource, /\.portfolio-reveal-/);
   });
 
+  it("renders independent problem, decision, and result groups without index fallbacks", () => {
+    const problemIndex = portfolioDetailSource.indexOf('eyebrow="Problem"');
+    const decisionIndex = portfolioDetailSource.indexOf('eyebrow="Decision"');
+    const resultIndex = portfolioDetailSource.indexOf('eyebrow="Result"');
+
+    assert.ok(problemIndex >= 0);
+    assert.ok(problemIndex < decisionIndex);
+    assert.ok(decisionIndex < resultIndex);
+    assert.match(portfolioDetailSource, /project\.approach\.map/);
+    assert.match(portfolioDetailSource, /project\.impact\.map/);
+    assert.doesNotMatch(portfolioDetailSource, /detail\.decisions|,\s*index\)/);
+
+    for (const project of projects) {
+      assert.ok(project.problem.trim());
+      assert.ok(project.approach.length > 0);
+      assert.ok(project.impact.length > 0);
+      assert.ok(!("decisions" in project.detail));
+    }
+  });
+
+  it("shows each architecture description once and keeps the diagram scroll boundary accessible", () => {
+    assert.equal(
+      portfolioDetailSource.match(/project\.detail\.architecture\.map/g)?.length,
+      1,
+    );
+    assert.doesNotMatch(portfolioDetailSource, /\.\.\.project\.detail\.architecture/);
+    assert.match(
+      portfolioDetailSource,
+      /project\.slug === "github-issues-workflow-automation"[\s\S]*GithubWebhookArchitectureDiagram[\s\S]*SystemMap/,
+    );
+    assert.match(workflowDiagramSource, /aria-describedby=/);
+    assert.match(workflowDiagramSource, /tabIndex=\{0\}/);
+    assert.match(workflowDiagramSource, /overflow-x-auto/);
+    assert.doesNotMatch(
+      workflowDiagramSource,
+      /Company Edge|Bot Backend Boundary|D-01|회사 Edge/,
+    );
+  });
+
   it("includes the CI/CD deployment automation story in the workflow detail", () => {
-    const project = getProjectBySlug("opnerd-workflow-automation");
+    const project = getProjectBySlug("github-issues-workflow-automation");
 
     assert.ok(project);
     assert.ok(project.approach.some((item) => item.includes("CI/CD")));
-    assert.ok(project.detail.decisions.some((item) => item.includes("수동 배포")));
-    assert.ok(project.impact.some((item) => item.includes("평균 3분")));
+    assert.ok(project.impact.some((item) => item.includes("배포")));
   });
 
 });

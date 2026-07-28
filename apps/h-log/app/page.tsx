@@ -124,7 +124,7 @@ export default function HomePage() {
 
             <div className="mt-4 rounded-xl border border-cyan-300/20 bg-cyan-300/5 p-4">
               <p className="text-xs font-semibold text-cyan-200">대표 프로젝트</p>
-              <h3 className="card-heading mt-2 text-lg text-white">{featuredProject.title}</h3>
+              <h3 className="card-heading mt-2 text-lg text-white">{featuredProject.context}</h3>
               <p className="mt-2 text-sm leading-6 text-slate-300">{featuredProject.summary}</p>
               <ButtonLink
                 className="mt-2 justify-start px-0"

@@ -29,7 +29,8 @@
     {
       "step": 4,
       "name": "portfolio-detail-clarity",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Generalized organization-identifying titles, company fields, six routes, and internal workflow descriptions; removed unsupported metric fields and index-based approach/result fallback; placed role and qualitative result before architecture; rendered one architecture surface per project; and reduced the workflow diagram to a focusable, contained public-safe flow. Focused RED/GREEN, 175 tests (163 passed and 12 database tests skipped), lint/typecheck/build, six active 200 plus six retired 404 route checks, and Chrome 320/390/768/1440 px checks passed without page overflow."
     },
     {
       "step": 5,
