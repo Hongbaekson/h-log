@@ -23,7 +23,8 @@
     {
       "step": 3,
       "name": "portfolio-list-scanability",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Replaced the alternating central timeline with two Featured projects and a four-project career grid backed by the existing approved project collection. Every card now presents period, role, core decision, and verified result in one order without organization names or unsupported metrics; the unused ScrollRevealItem and portfolio reveal CSS were removed. Focused RED/GREEN, full test/lint/typecheck/build gates, six detail-route HTTP checks, and Chrome checks at 320/390/768/1440 px passed without horizontal overflow."
     },
     {
       "step": 4,

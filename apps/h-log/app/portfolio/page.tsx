@@ -6,133 +6,96 @@ import {
   Terminal,
 } from "lucide-react";
 
-import { ScrollRevealItem } from "@/components/ui/ScrollRevealItem";
 import { Badge, Container } from "@/components/ui";
 import { createPortfolioCardModel } from "@/lib/portfolio-card";
 import { projects, projectToneClasses } from "@/lib/projects";
 
-const orderedProjectSlugs = [
-  "opnerd-workflow-automation",
-  "cgv-pos-kiosk-nextgen",
-  "naracellar-sales-system",
-  "tonymoly-crm-dormant-customer",
-  "gala-data-migration",
-  "tonymoly-backoffice-operation",
-] as const;
+const featuredProjects = projects.slice(0, 2);
+const remainingProjects = projects.slice(2);
+const activeProjectCount = projects.filter((project) => project.period.includes("현재")).length;
 
-const orderedProjects = orderedProjectSlugs
-  .map((slug) => projects.find((project) => project.slug === slug))
-  .filter((project): project is (typeof projects)[number] => Boolean(project));
-
-const activeProjectCount = orderedProjects.filter((project) => project.period.includes("현재")).length;
-
-function ProjectTimelineItem({
-  index,
+function ProjectCard({
+  featured = false,
   project,
 }: {
-  index: number;
+  featured?: boolean;
   project: (typeof projects)[number];
 }) {
   const card = createPortfolioCardModel(project);
   const Icon = project.icon;
-  const alignLeft = index % 2 === 0;
 
   return (
-    <ScrollRevealItem
-      className="portfolio-reveal-item relative pl-14 md:grid md:grid-cols-[minmax(0,1fr)_5rem_minmax(0,1fr)] md:items-start md:gap-0 md:pl-0"
-      delayMs={Math.min(index * 50, 180)}
-      side={alignLeft ? "left" : "right"}
+    <Link
+      aria-label={`${card.title} 프로젝트 상세 보기`}
+      className={`group flex h-full min-w-0 flex-col rounded-lg border border-slate-700/80 bg-slate-950/72 shadow-[0_22px_56px_rgb(2_6_23/0.18)] transition-colors duration-200 hover:border-cyan-300/55 hover:bg-slate-900/78 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 ${
+        featured ? "p-6 md:p-7" : "p-5 md:p-6"
+      }`}
+      href={`/portfolio/${project.slug}`}
     >
-      <div
-        className={`portfolio-reveal-dot absolute left-5 top-7 z-10 grid h-5 w-5 -translate-x-1/2 place-items-center rounded-full border ${
-          card.isCurrent
-            ? "border-cyan-200 bg-cyan-300/25 shadow-[0_0_0_6px_rgb(34_211_238/0.12)]"
-            : "border-blue-200/70 bg-blue-300/20 shadow-[0_0_0_6px_rgb(96_165_250/0.10)]"
-        } md:left-1/2 md:top-9`}
-        aria-hidden="true"
-      >
+      <div className="flex items-start justify-between gap-4">
+        <Badge tone={card.isCurrent ? "cyan" : "slate"}>{card.statusLabel}</Badge>
         <span
-          className={`h-2 w-2 rounded-full ${card.isCurrent ? "bg-cyan-100" : "bg-blue-200"}`}
-        />
+          className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg border ${projectToneClasses[project.tone]}`}
+          aria-hidden="true"
+        >
+          <Icon size={18} strokeWidth={2} />
+        </span>
       </div>
 
-      <Link
-        className={`portfolio-reveal-card group block cursor-pointer rounded-lg border border-slate-700/80 bg-slate-950/72 p-5 shadow-[0_22px_56px_rgb(2_6_23/0.18)] transition-colors duration-200 hover:border-cyan-300/55 hover:bg-slate-900/78 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 md:p-6 ${
-          alignLeft ? "md:col-start-1 md:row-start-1" : "md:col-start-3 md:row-start-1"
+      <h2
+        className={`card-heading mt-5 break-words tracking-tight text-white ${
+          featured ? "text-2xl md:text-3xl" : "text-xl md:text-2xl"
         }`}
-        href={`/portfolio/${project.slug}`}
       >
-        <div className="flex flex-wrap items-center gap-3">
-          <span
-            className={`inline-flex h-8 items-center justify-center rounded-full border px-3 font-mono text-xs font-bold tracking-[0.12em] ${
-              card.isCurrent
-                ? "border-cyan-300/40 bg-cyan-300/12 text-cyan-100"
-                : "border-slate-700 bg-slate-900/70 text-slate-300"
-            }`}
-          >
-            {card.statusLabel}
-          </span>
-          <span className="font-mono text-sm font-semibold text-slate-500">
+        {card.title}
+      </h2>
+
+      <dl className="mt-6 grid gap-5 border-t border-slate-800 pt-5">
+        <div className="grid min-w-0 gap-1 sm:grid-cols-[6rem_minmax(0,1fr)] sm:gap-4">
+          <dt className="font-mono text-[0.68rem] font-bold uppercase tracking-[0.14em] text-slate-500">
+            기간
+          </dt>
+          <dd className="break-words text-sm font-semibold leading-6 text-slate-300">
             {card.periodLabel}
-          </span>
+          </dd>
         </div>
-
-        <div className="mt-5 flex items-start justify-between gap-4">
-          <div>
-            <h2 className="card-heading text-2xl tracking-tight text-white">
-              {project.title}
-            </h2>
-            <div className="mt-2 flex items-center gap-2 text-sm font-semibold text-slate-500">
-              <span className="h-1.5 w-1.5 rounded-full bg-cyan-300/70" aria-hidden="true" />
-              <span>{project.company}</span>
-            </div>
-          </div>
-          <span
-            className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg border ${projectToneClasses[project.tone]}`}
-          >
-            <Icon aria-hidden="true" size={18} strokeWidth={2} />
-          </span>
+        <div className="grid min-w-0 gap-1 sm:grid-cols-[6rem_minmax(0,1fr)] sm:gap-4">
+          <dt className="font-mono text-[0.68rem] font-bold uppercase tracking-[0.14em] text-slate-500">
+            역할
+          </dt>
+          <dd className="break-words text-sm leading-6 text-slate-300">{card.role}</dd>
         </div>
-
-        <p className="mt-5 text-base leading-7 text-slate-400">{card.description}</p>
-
-        <div className="mt-5 flex flex-wrap gap-2">
-          {card.stack.map((item) => (
-            <Badge key={item} tone="slate">
-              {item}
-            </Badge>
-          ))}
+        <div className="grid min-w-0 gap-1 sm:grid-cols-[6rem_minmax(0,1fr)] sm:gap-4">
+          <dt className="font-mono text-[0.68rem] font-bold uppercase tracking-[0.14em] text-slate-500">
+            핵심 판단
+          </dt>
+          <dd className="break-words text-sm leading-6 text-slate-300">
+            {card.decision}
+          </dd>
         </div>
-
-        <dl className="mt-6 grid gap-4 border-t border-slate-800 pt-5 sm:grid-cols-3">
-          {card.metrics.map((metric) => (
-            <div className="min-w-0" key={metric.label}>
-              <dt className="font-mono text-[0.64rem] uppercase tracking-[0.14em] text-slate-500">
-                {metric.label}
-              </dt>
-              <dd className="mt-2 text-2xl font-extrabold tracking-tight text-cyan-100">
-                {metric.value}
-              </dd>
-              <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">
-                {metric.caption}
-              </p>
-            </div>
-          ))}
-        </dl>
-
-        <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-cyan-100 transition-colors group-hover:text-white">
-          상세 보기
-          <ArrowRight aria-hidden="true" size={17} strokeWidth={2} />
+        <div className="grid min-w-0 gap-1 sm:grid-cols-[6rem_minmax(0,1fr)] sm:gap-4">
+          <dt className="font-mono text-[0.68rem] font-bold uppercase tracking-[0.14em] text-slate-500">
+            검증된 결과
+          </dt>
+          <dd className="break-words text-sm leading-6 text-slate-300">
+            {card.result}
+          </dd>
         </div>
-      </Link>
+      </dl>
 
-      <div
-        className={`portfolio-reveal-connector hidden h-px w-10 self-start bg-slate-700/80 md:col-start-2 md:row-start-1 md:mt-[2.8rem] md:block ${
-          alignLeft ? "md:justify-self-start" : "md:justify-self-end"
-        }`}
-        aria-hidden="true"
-      />
-    </ScrollRevealItem>
+      <div className="mt-6 flex flex-wrap gap-2">
+        {card.stack.map((item) => (
+          <Badge key={item} tone="slate">
+            {item}
+          </Badge>
+        ))}
+      </div>
+
+      <div className="mt-auto flex items-center gap-2 pt-7 text-sm font-semibold text-cyan-100 transition-colors group-hover:text-white">
+        상세 보기
+        <ArrowRight aria-hidden="true" size={17} strokeWidth={2} />
+      </div>
+    </Link>
   );
 }
 
@@ -187,7 +150,7 @@ export default function PortfolioPage() {
                       projects
                     </div>
                     <div className="mt-0.5 text-sm font-semibold text-white">
-                      {orderedProjects.length}개 프로젝트
+                      {projects.length}개 프로젝트
                     </div>
                   </div>
                 </div>
@@ -197,15 +160,46 @@ export default function PortfolioPage() {
         </Container>
       </section>
 
-      <section className="pb-24">
+      <section aria-labelledby="featured-projects" className="pb-12">
         <Container>
-          <ol className="relative space-y-12 md:space-y-16">
-            <span
-              className="absolute bottom-0 left-5 top-0 w-px bg-gradient-to-b from-cyan-300/0 via-cyan-300/45 to-blue-300/0 md:left-1/2"
-              aria-hidden="true"
-            />
-            {orderedProjects.map((project, index) => (
-              <ProjectTimelineItem index={index} key={project.slug} project={project} />
+          <div className="max-w-2xl">
+            <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-cyan-200">
+              Featured
+            </p>
+            <h2 id="featured-projects" className="mt-2 text-2xl font-extrabold text-white md:text-3xl">
+              대표 프로젝트
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-slate-400">
+              현재의 문제 해결 방식과 시스템 설계 역량을 가장 잘 보여주는 작업입니다.
+            </p>
+          </div>
+
+          <ol className="mt-6 grid gap-5 lg:grid-cols-2">
+            {featuredProjects.map((project) => (
+              <li className="min-w-0" key={project.slug}>
+                <ProjectCard featured project={project} />
+              </li>
+            ))}
+          </ol>
+        </Container>
+      </section>
+
+      <section aria-labelledby="career-projects" className="pb-24">
+        <Container>
+          <div className="max-w-2xl">
+            <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-blue-200">
+              Career Archive
+            </p>
+            <h2 id="career-projects" className="mt-2 text-2xl font-extrabold text-white md:text-3xl">
+              경력 프로젝트
+            </h2>
+          </div>
+
+          <ol className="mt-6 grid gap-4 lg:grid-cols-2">
+            {remainingProjects.map((project) => (
+              <li className="min-w-0" key={project.slug}>
+                <ProjectCard project={project} />
+              </li>
             ))}
           </ol>
         </Container>

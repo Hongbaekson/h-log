@@ -151,57 +151,6 @@ a {
   background-image: linear-gradient(110deg, #67e8f9 0%, #f8fafc 44%, #38bdf8 100%);
 }
 
-.portfolio-reveal-item[data-reveal-ready="true"][data-visible="false"] .portfolio-reveal-card,
-.portfolio-reveal-item[data-reveal-ready="true"][data-visible="false"] .portfolio-reveal-dot,
-.portfolio-reveal-item[data-reveal-ready="true"][data-visible="false"] .portfolio-reveal-connector {
-  opacity: 0;
-}
-
-.portfolio-reveal-item[data-reveal-ready="true"][data-visible="false"] .portfolio-reveal-card {
-  filter: blur(8px);
-  transform: translateY(22px);
-}
-
-.portfolio-reveal-item[data-reveal-ready="true"][data-visible="false"] .portfolio-reveal-dot {
-  transform: translateX(-50%) scale(0.58);
-}
-
-.portfolio-reveal-item[data-reveal-ready="true"][data-visible="false"] .portfolio-reveal-connector {
-  transform: scaleX(0.35);
-}
-
-.portfolio-reveal-card,
-.portfolio-reveal-dot,
-.portfolio-reveal-connector {
-  transition-duration: 680ms;
-  transition-property: opacity, filter, transform;
-  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, filter, transform;
-}
-
-.portfolio-reveal-card {
-  transition-delay: calc(var(--portfolio-reveal-delay, 0ms) + 90ms);
-}
-
-.portfolio-reveal-dot {
-  transition-delay: var(--portfolio-reveal-delay, 0ms);
-}
-
-.portfolio-reveal-connector {
-  transform-origin: center;
-  transition-delay: calc(var(--portfolio-reveal-delay, 0ms) + 60ms);
-}
-
-@media (min-width: 768px) {
-  .portfolio-reveal-item[data-side="left"][data-reveal-ready="true"][data-visible="false"] .portfolio-reveal-card {
-    transform: translateX(-20px) translateY(16px);
-  }
-
-  .portfolio-reveal-item[data-side="right"][data-reveal-ready="true"][data-visible="false"] .portfolio-reveal-card {
-    transform: translateX(20px) translateY(16px);
-  }
-}
-
 @keyframes hero-name-gradient-flow {
   0% {
     background-position: 0% 50%;
@@ -290,10 +239,7 @@ a {
   .hero-name-gradient,
   .hero-signal-cursor,
   .hero-status-card,
-  .metric-value,
-  .portfolio-reveal-card,
-  .portfolio-reveal-dot,
-  .portfolio-reveal-connector {
+  .metric-value {
     opacity: 1;
     filter: none;
     transform: none;
