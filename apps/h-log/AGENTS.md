@@ -97,7 +97,7 @@ npm run dev
 - 루트 `plans` 문서를 기준으로 하되, 상세 내용은 앱 내부 문서로 필요한 만큼만 읽는다.
 - Home H1은 담백하게 쓴다. 기본형은 `백엔드 개발자 손홍백입니다`로 둔다.
 - 2026-07-27 공개 결정에 따라 승인되지 않은 고객사·회사명과 내부 흐름은 일반화하고, 근거가 확인되지 않은 상세 성과 수치는 공개하지 않는다.
-- 프로필 사진과 GitHub는 공개할 수 있다. 이메일과 Contact form은 공개하지 않고, PDF는 조직 식별자 일반화와 `이력서` 명칭 통일 후 공개한다.
+- 프로필 사진과 GitHub는 공개한다. 이메일과 Contact form은 공개하지 않으며, 안전하게 일반화된 교체본이 준비될 때까지 PDF 다운로드도 공개하지 않는다. PDF를 다시 공개할 때는 전 페이지를 검수하고 UI·파일명을 `이력서`로 통일한다.
 - 도메인 공개 초기 theme은 dark-only로 유지한다. Light theme은 별도 token refactor 없이는 다시 추가하지 않는다.
 - 전화번호, 생년월일, 내부 URL, 서버 IP, API key, 비공개 저장소명은 노출하지 않는다.
 - full CMS와 방문자 챗봇을 만들지 않는다. Aggregate 성과 신호, persona version/rollback, 반복 생성 실패 차단의 로컬 contract는 완료됐지만 실제 수집, persona 반영, failure registry persistence, production timer는 공개 HTTPS origin이 준비되기 전까지 활성화하지 않는다.

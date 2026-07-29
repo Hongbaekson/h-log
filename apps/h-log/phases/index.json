@@ -58,7 +58,7 @@
     {
       "dir": "public-site-quality-hardening",
       "status": "pending",
-      "summary": "Domain-cutover prerequisite. Steps 0-4 completed the public-content/privacy decisions, shared shell accessibility baseline, evidence-first Home simplification, scan-friendly Portfolio list, and public-safe Portfolio detail clarity. Steps 5-9 remain for Resume clarity, Blog resilience and readability, complete SEO/crawler coverage, and a final public-launch gate. This phase does not authorize domain, DNS, TLS, OCI, or production timer changes."
+      "summary": "Domain-cutover prerequisite. Steps 0-5 completed the public-content/privacy decisions, shared shell accessibility baseline, evidence-first Home simplification, scan-friendly Portfolio surfaces, and Resume clarity with the unsafe legacy PDF download withheld. Steps 6-9 remain for Blog resilience and readability, complete SEO/crawler coverage, and a final public-launch gate. This phase does not authorize domain, DNS, TLS, OCI, or production timer changes."
     },
     {
       "dir": "auto-publish-ops-hardening",

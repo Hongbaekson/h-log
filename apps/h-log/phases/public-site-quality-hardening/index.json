@@ -6,7 +6,7 @@
       "step": 0,
       "name": "public-content-approval-and-privacy-audit",
       "status": "completed",
-      "summary": "2026-07-27 public defaults were approved: unapproved organization names and internal workflows will be generalized, detailed metrics require evidence, the profile photo and GitHub are public, email/contact form and light theme are excluded, and /portfolio is canonical. All 2 PDF pages and the public UI data were audited; the PDF download remains deferred until organization identifiers and resume filenames are aligned in Step 5."
+      "summary": "2026-07-27 public defaults were approved: unapproved organization names and internal workflows will be generalized, detailed metrics require evidence, the profile photo and GitHub are public, email/contact form and light theme are excluded, and /portfolio is canonical. All 2 PDF pages and the public UI data were audited; the PDF download was deferred to Step 5 for organization-identifier and filename alignment."
     },
     {
       "step": 1,
@@ -35,7 +35,8 @@
     {
       "step": 5,
       "name": "resume-scanability-and-download-contract",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Moved Experience directly after a two-paragraph, 70-character-width profile summary and compacted Skills ahead of Education. Generalized organization identifiers and removed unsupported detailed metrics. Because no safe generalized PDF source exists, removed the old public PDF, download CTA/API, client timer/cooldown, and now-unused download helpers. Focused RED/GREEN 3/3, all 171 tests (159 passed, 12 database tests skipped), lint/typecheck/build, and Chrome 320/390 px overflow checks passed."
     },
     {
       "step": 6,

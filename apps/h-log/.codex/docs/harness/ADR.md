@@ -172,6 +172,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 - 2026-07-27에 이력서 PDF 2페이지와 프로필 asset을 직접 확인했다.
 - PDF의 공개 금지 정보는 발견되지 않았지만 조직 식별자 일반화 전까지 download는 보류한다.
+- 2026-07-29 Step 5에서는 일반화된 안전한 교체 원본이 없어 기존 PDF와 download CTA/API를 제거했다. 새 PDF는 전 페이지 재검수와 조직 식별자 일반화, `이력서` 명칭 정렬을 모두 통과한 뒤에만 다시 공개한다.
 - 이번 결정은 domain, DNS/TLS, OCI, signal collection, persona activation, production timer 변경을 승인하지 않는다.
 
 ## 공식/내부 기준
