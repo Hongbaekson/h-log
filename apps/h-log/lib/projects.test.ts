@@ -36,20 +36,23 @@ describe("portfolio project content", () => {
     assert.doesNotMatch(homeSource, /value:\s*"8\+"/);
   });
 
-  it("keeps Home evidence-based without decorative skill scores or rotating roles", () => {
+  it("keeps Home evidence-based while showing the technical skills radar", () => {
     assert.match(homeSource, /featuredProject\.(context|summary)/);
     assert.match(homeSource, /github\.com\/Hongbaekson/);
     assert.match(homeSource, /href="\/blog"/);
     assert.doesNotMatch(homeSource, /mailto:/);
-    assert.doesNotMatch(
-      homeSource,
-      /TechnicalSkillsRadar|RotatingFocusMetric|radarAxes|rotatingFocusItems/,
-    );
+    assert.match(homeSource, /function TechnicalSkillsRadar/);
+    assert.match(homeSource, /Technical skills radar chart/);
+    assert.match(homeSource, /<TechnicalSkillsRadar \/>/);
+    assert.match(homeSource, /radar-label fill-slate-400 text-xl font-semibold/);
+    assert.doesNotMatch(homeSource, /RotatingFocusMetric|rotatingFocusItems/);
   });
 
-  it("removes unused Home-only statistics and decorative styles", () => {
+  it("restores only the radar styles without unused Home-only statistics", () => {
     assert.doesNotMatch(projectSource, /portfolioStats/);
-    assert.doesNotMatch(globalStylesSource, /\.radar-|\.metric-rotator/);
+    assert.match(globalStylesSource, /\.radar-grid/);
+    assert.match(globalStylesSource, /\.radar-skill-layer/);
+    assert.doesNotMatch(globalStylesSource, /\.metric-rotator/);
   });
 
   it("keeps public project data free of organization identifiers and unsupported metrics", () => {

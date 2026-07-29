@@ -138,6 +138,44 @@ a {
   will-change: opacity, filter, transform;
 }
 
+.radar-grid {
+  opacity: 0;
+  animation: radar-fade-in 650ms ease-out 420ms forwards;
+}
+
+.radar-label {
+  opacity: 0;
+  animation: radar-fade-in 650ms ease-out 700ms forwards;
+}
+
+.radar-skill-pulse,
+.radar-skill-layer {
+  opacity: 0;
+  transform: scale(0.05);
+  transform-box: view-box;
+  transform-origin: center;
+}
+
+.radar-skill-pulse {
+  animation: radar-pulse 2200ms ease-out 420ms forwards;
+}
+
+.radar-skill-layer {
+  animation: radar-expand 2100ms cubic-bezier(0.16, 1, 0.3, 1) 520ms forwards;
+}
+
+.radar-skill-shape {
+  filter: drop-shadow(0 0 14px rgb(79 140 255 / 0.28));
+}
+
+.radar-skill-point {
+  opacity: 0;
+  transform: scale(0.3);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: radar-point-in 480ms ease-out 2100ms forwards;
+}
+
 .metric-value {
   display: inline-block;
   color: transparent;
@@ -228,6 +266,55 @@ a {
   }
 }
 
+@keyframes radar-fade-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes radar-expand {
+  0% {
+    opacity: 0;
+    transform: scale(0.05);
+  }
+
+  18% {
+    opacity: 1;
+  }
+
+  72% {
+    transform: scale(1.04);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes radar-pulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.05);
+  }
+
+  24% {
+    opacity: 0.36;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.16);
+  }
+}
+
+@keyframes radar-point-in {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
@@ -239,10 +326,20 @@ a {
   .hero-name-gradient,
   .hero-signal-cursor,
   .hero-status-card,
-  .metric-value {
+  .metric-value,
+  .radar-grid,
+  .radar-label,
+  .radar-skill-pulse,
+  .radar-skill-layer,
+  .radar-skill-shape,
+  .radar-skill-point {
     opacity: 1;
     filter: none;
     transform: none;
     animation: none;
+  }
+
+  .radar-skill-pulse {
+    opacity: 0;
   }
 }

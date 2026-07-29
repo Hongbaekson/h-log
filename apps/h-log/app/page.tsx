@@ -47,6 +47,87 @@ const strengthItems = [
   },
 ];
 
+const radarCenter = { x: 180, y: 160 };
+
+const radarAxes = [
+  { anchor: "middle", label: "Backend", labelX: 180, labelY: 26, value: 0.9, x: 180, y: 44 },
+  { anchor: "start", label: "Database", labelX: 314, labelY: 96, value: 0.82, x: 280, y: 102 },
+  { anchor: "start", label: "DevOps", labelX: 314, labelY: 232, value: 0.78, x: 280, y: 218 },
+  { anchor: "middle", label: "Frontend", labelX: 180, labelY: 306, value: 0.56, x: 180, y: 276 },
+  { anchor: "end", label: "Infra", labelX: 46, labelY: 232, value: 0.76, x: 80, y: 218 },
+  { anchor: "end", label: "Monitoring", labelX: 46, labelY: 96, value: 0.64, x: 80, y: 102 },
+] as const;
+
+const radarLevels = [1, 0.75, 0.5, 0.25] as const;
+
+function radarPoint(axis: (typeof radarAxes)[number], scale: number) {
+  const x = radarCenter.x + (axis.x - radarCenter.x) * scale;
+  const y = radarCenter.y + (axis.y - radarCenter.y) * scale;
+
+  return `${x},${y}`;
+}
+
+function TechnicalSkillsRadar() {
+  const skillPolygon = radarAxes.map((axis) => radarPoint(axis, axis.value)).join(" ");
+
+  return (
+    <svg
+      aria-labelledby="technical-skills-title"
+      className="mx-auto h-44 w-full max-w-sm"
+      role="img"
+      viewBox="0 0 360 320"
+    >
+      <title id="technical-skills-title">Technical skills radar chart</title>
+      {radarLevels.map((level) => (
+        <polygon
+          className="radar-grid fill-transparent stroke-slate-700/80"
+          key={level}
+          points={radarAxes.map((axis) => radarPoint(axis, level)).join(" ")}
+          strokeWidth="1"
+        />
+      ))}
+      <polygon
+        className="radar-skill-pulse fill-cyan-300/10 stroke-cyan-300/30"
+        points={skillPolygon}
+        strokeLinejoin="round"
+        strokeWidth="2"
+      />
+      <g className="radar-skill-layer">
+        <polygon
+          className="radar-skill-shape fill-blue-500/20 stroke-blue-400"
+          points={skillPolygon}
+          strokeLinejoin="round"
+          strokeWidth="2"
+        />
+        {radarAxes.map((axis) => {
+          const [x, y] = radarPoint(axis, axis.value).split(",");
+
+          return (
+            <circle
+              className="radar-skill-point fill-blue-300"
+              cx={x}
+              cy={y}
+              key={`${axis.label}-point`}
+              r="3"
+            />
+          );
+        })}
+      </g>
+      {radarAxes.map((axis) => (
+        <text
+          className="radar-label fill-slate-400 text-xl font-semibold"
+          key={`${axis.label}-label`}
+          textAnchor={axis.anchor}
+          x={axis.labelX}
+          y={axis.labelY}
+        >
+          {axis.label}
+        </text>
+      ))}
+    </svg>
+  );
+}
+
 export default function HomePage() {
   return (
     <>
@@ -141,6 +222,13 @@ export default function HomePage() {
               <p className="mt-1 text-sm font-semibold leading-6 text-slate-100">
                 운영 가능한 백엔드와 안전한 AI 워크플로우
               </p>
+            </div>
+
+            <div className="mt-4 rounded-xl border border-slate-700/70 bg-[#080d18]/70 p-4">
+              <p className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-cyan-200">
+                Technical Skills
+              </p>
+              <TechnicalSkillsRadar />
             </div>
           </Card>
         </Container>
