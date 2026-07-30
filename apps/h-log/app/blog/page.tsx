@@ -77,14 +77,26 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link
-                    className="rounded-full border border-slate-700 px-3 py-1 text-xs font-semibold text-slate-300 transition-colors hover:border-cyan-300/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
+                    aria-current={!index.selectedTag ? "page" : undefined}
+                    className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors hover:border-cyan-300/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 ${
+                      !index.selectedTag
+                        ? "border-cyan-300/60 bg-cyan-300/10 text-cyan-100"
+                        : "border-slate-700 text-slate-300"
+                    }`}
                     href="/blog"
                   >
                     전체
                   </Link>
                   {index.tagCounts.map((tagCount) => (
                     <Link
-                      className="rounded-full border border-slate-700 px-3 py-1 text-xs font-semibold text-slate-300 transition-colors hover:border-cyan-300/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
+                      aria-current={
+                        index.selectedTag === tagCount.tag ? "page" : undefined
+                      }
+                      className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors hover:border-cyan-300/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 ${
+                        index.selectedTag === tagCount.tag
+                          ? "border-cyan-300/60 bg-cyan-300/10 text-cyan-100"
+                          : "border-slate-700 text-slate-300"
+                      }`}
                       href={`/blog?tag=${encodeURIComponent(tagCount.tag)}`}
                       key={tagCount.tag}
                     >
@@ -106,63 +118,80 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                 </Link>
               ) : null}
 
-              {index.posts.map((post) => (
-                <article
-                  className="group border-t border-slate-700/80 py-7 transition-colors hover:border-cyan-300/50"
-                  key={post.slug}
-                >
-                  <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400">
-                    <span className="inline-flex items-center gap-2">
-                      <CalendarDays aria-hidden="true" size={15} strokeWidth={2} />
-                      <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
-                    </span>
-                    <span className="font-mono text-xs uppercase tracking-[0.16em] text-cyan-200">
-                      {post.articleMode.replaceAll("_", " ")}
-                    </span>
-                  </div>
-                  <h2 className="card-heading mt-4 text-2xl leading-tight text-white md:text-3xl">
-                    <Link
-                      className="transition-colors group-hover:text-cyan-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
-                      href={post.href}
-                    >
-                      {post.title}
-                    </Link>
+              {index.posts.length === 0 ? (
+                <div className="border-y border-slate-700/80 py-10">
+                  <h2 className="card-heading text-xl text-white">
+                    {index.selectedTag
+                      ? `${index.selectedTag} 태그의 공개 글이 없습니다.`
+                      : "아직 공개된 글이 없습니다."}
                   </h2>
-                  <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 md:text-base">
-                    {post.description}
+                  <p className="mt-3 text-sm leading-7 text-slate-400">
+                    {index.selectedTag
+                      ? "다른 태그를 선택하거나 전체 글을 확인해 주세요."
+                      : "검증을 마친 글이 발행되면 이곳에서 확인할 수 있습니다."}
                   </p>
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {post.tags.map((tag) => (
-                      <Badge key={tag} tone="slate">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </article>
-              ))}
-
-              <div className="flex flex-col gap-3 border-t border-slate-700/80 pt-6 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm text-slate-400">
-                  {index.pagination.currentPage} / {index.pagination.totalPages} page
-                </p>
-                <div className="flex gap-2">
-                  {index.pagination.currentPage > 1 ? (
-                    <PaginationLink
-                      label="이전"
-                      page={index.pagination.currentPage - 1}
-                      tag={selectedTag}
-                    />
-                  ) : null}
-                  {index.pagination.currentPage < index.pagination.totalPages ? (
-                    <PaginationLink
-                      icon="next"
-                      label="다음"
-                      page={index.pagination.currentPage + 1}
-                      tag={selectedTag}
-                    />
-                  ) : null}
                 </div>
-              </div>
+              ) : (
+                index.posts.map((post) => (
+                  <article
+                    className="group border-t border-slate-700/80 py-7 transition-colors hover:border-cyan-300/50"
+                    key={post.slug}
+                  >
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400">
+                      <span className="inline-flex items-center gap-2">
+                        <CalendarDays aria-hidden="true" size={15} strokeWidth={2} />
+                        <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
+                      </span>
+                      <span className="font-mono text-xs uppercase tracking-[0.16em] text-cyan-200">
+                        {post.articleMode.replaceAll("_", " ")}
+                      </span>
+                    </div>
+                    <h2 className="card-heading mt-4 text-2xl leading-tight text-white md:text-3xl">
+                      <Link
+                        className="transition-colors group-hover:text-cyan-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
+                        href={post.href}
+                      >
+                        {post.title}
+                      </Link>
+                    </h2>
+                    <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 md:text-base">
+                      {post.description}
+                    </p>
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      {post.tags.map((tag) => (
+                        <Badge key={tag} tone="slate">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </article>
+                ))
+              )}
+
+              {index.pagination.totalItems > 0 ? (
+                <div className="flex flex-col gap-3 border-t border-slate-700/80 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm text-slate-400">
+                    {index.pagination.currentPage} / {index.pagination.totalPages} page
+                  </p>
+                  <div className="flex gap-2">
+                    {index.pagination.currentPage > 1 ? (
+                      <PaginationLink
+                        label="이전"
+                        page={index.pagination.currentPage - 1}
+                        tag={selectedTag}
+                      />
+                    ) : null}
+                    {index.pagination.currentPage < index.pagination.totalPages ? (
+                      <PaginationLink
+                        icon="next"
+                        label="다음"
+                        page={index.pagination.currentPage + 1}
+                        tag={selectedTag}
+                      />
+                    ) : null}
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
         </Container>

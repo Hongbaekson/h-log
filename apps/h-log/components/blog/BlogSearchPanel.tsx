@@ -75,11 +75,14 @@ export function BlogSearchPanel() {
             strokeWidth={2}
           />
           <input
-            className="h-12 w-full rounded-xl border border-slate-700 bg-slate-950/40 pr-4 pl-11 text-sm font-medium text-white outline-none transition-colors placeholder:text-slate-500 hover:border-slate-500 focus:border-cyan-300"
+            aria-describedby="blog-search-help"
+            className="h-12 w-full rounded-xl border border-slate-700 bg-slate-950/40 pr-4 pl-11 text-sm font-medium text-white outline-none transition-colors placeholder:text-slate-500 hover:border-slate-500 focus-visible:border-cyan-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
             id="blog-search-query"
             maxLength={120}
+            minLength={2}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="pgvector, OCI, Nginx"
+            required
             type="search"
             value={query}
           />
@@ -102,6 +105,9 @@ export function BlogSearchPanel() {
           검색
         </button>
       </form>
+      <p className="mt-2 text-xs text-slate-400" id="blog-search-help">
+        검색어를 2자 이상 입력해 주세요.
+      </p>
 
       <div aria-live="polite" className="mt-5 min-h-8">
         {snapshot.status === "idle" ? null : <SearchSnapshotView snapshot={snapshot} />}

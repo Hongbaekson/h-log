@@ -41,7 +41,8 @@
     {
       "step": 6,
       "name": "blog-discovery-resilience",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added a visible two-character search requirement and focus-visible input, aria-current selected tag navigation, distinct unfiltered/tag/search empty states, and route loading/error boundaries that never replace database failures with fixtures. Focused RED/GREEN 14/14, all 175 tests (163 passed, 12 database tests skipped), lint/typecheck/build, and actual DATABASE_URL smoke for the 200 Blog list, 200 empty search, 429 rate limit, and isolated database-failure browser boundary passed."
     },
     {
       "step": 7,
