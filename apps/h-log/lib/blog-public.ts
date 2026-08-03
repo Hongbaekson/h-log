@@ -31,6 +31,10 @@ export type PublicBlogSourceLink = {
 export type PublicBlogInlineContent =
   | {
       text: string;
+      type: "code";
+    }
+  | {
+      text: string;
       type: "strong";
     }
   | {
@@ -277,14 +281,18 @@ function buildPublicBlogContentBlock(block: string): PublicBlogContentBlock {
 
 function buildInlineContent(value: string): PublicBlogInlineContent[] {
   const children: PublicBlogInlineContent[] = [];
-  const strongPattern = /\*\*([^*]+)\*\*/g;
+  const inlinePattern = /(\*\*([^*]+)\*\*|`([^`]+)`)/g;
   let lastIndex = 0;
 
-  for (const match of value.matchAll(strongPattern)) {
+  for (const match of value.matchAll(inlinePattern)) {
     const matchIndex = match.index ?? 0;
 
     pushTextContent(children, value.slice(lastIndex, matchIndex));
-    pushStrongContent(children, match[1] ?? "");
+    if (match[2]) {
+      pushStrongContent(children, match[2]);
+    } else {
+      pushCodeContent(children, match[3] ?? "");
+    }
     lastIndex = matchIndex + match[0].length;
   }
 
@@ -308,6 +316,15 @@ function pushStrongContent(
 ): void {
   if (text) {
     children.push({ text, type: "strong" });
+  }
+}
+
+function pushCodeContent(
+  children: PublicBlogInlineContent[],
+  text: string,
+): void {
+  if (text) {
+    children.push({ text, type: "code" });
   }
 }
 

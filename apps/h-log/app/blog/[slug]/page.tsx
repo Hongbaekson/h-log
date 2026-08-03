@@ -9,6 +9,8 @@ import {
   getPublicBlogPostBySlug,
   type PublicBlogContentBlock,
   type PublicBlogInlineContent,
+  type PublicBlogPost,
+  type PublicBlogSourceLink,
 } from "@/lib/blog-public";
 import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
 
@@ -29,7 +31,7 @@ export async function generateMetadata({
 
   if (!post) {
     return {
-      title: "Blog",
+      title: "블로그",
     };
   }
 
@@ -43,7 +45,7 @@ export async function generateMetadata({
       title: post.title,
       type: "article",
     },
-    title: `${post.title} | Blog`,
+    title: `${post.title} | 블로그`,
   };
 }
 
@@ -65,7 +67,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
             href="/blog"
           >
             <ArrowLeft aria-hidden="true" size={17} strokeWidth={2} />
-            Blog
+            블로그 목록
           </Link>
 
           <div className="mt-8 max-w-4xl">
@@ -76,7 +78,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                 </Badge>
               ))}
             </div>
-            <h1 className="hero-heading mt-6 text-4xl leading-[1.08] tracking-normal text-white md:text-6xl">
+            <h1 className="hero-heading mt-6 break-words text-4xl leading-[1.08] tracking-normal text-white md:text-6xl">
               {post.title}
             </h1>
             <p className="mt-5 max-w-3xl text-base leading-8 text-slate-300 md:text-lg">
@@ -84,7 +86,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
             </p>
             <p className="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-cyan-200">
               <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time> ·{" "}
-              {post.articleMode.replaceAll("_", " ")}
+              {formatArticleMode(post.articleMode)}
             </p>
           </div>
         </Container>
@@ -92,16 +94,19 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
 
       <section className="pb-24">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-[1fr_16rem]">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,72ch)_16rem] lg:justify-between">
             <article
-              className="min-w-0 border-y border-slate-700/80 py-8 text-slate-300 [&_code]:rounded-md [&_code]:bg-slate-950/70 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-cyan-100 [&_h1]:sr-only [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-normal [&_h2]:text-white [&_p]:mt-5 [&_p]:leading-8 [&_pre]:mt-5 [&_pre]:overflow-x-auto [&_pre]:rounded-xl [&_pre]:border [&_pre]:border-slate-700 [&_pre]:bg-slate-950/70 [&_pre]:p-4"
+              className="min-w-0 max-w-[72ch] border-y border-slate-700/80 py-8 text-slate-300 [&_code]:rounded-md [&_code]:bg-slate-950/70 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-cyan-100 [&_h1]:sr-only [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-normal [&_h2]:text-white [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-white [&_p]:mt-5 [&_p]:leading-8 [&_pre]:mt-6 [&_pre]:overflow-x-auto [&_pre]:rounded-xl [&_pre]:border [&_pre]:border-slate-700 [&_pre]:bg-slate-950/70 [&_pre]:p-4 [&_pre]:focus-visible:outline [&_pre]:focus-visible:outline-2 [&_pre]:focus-visible:outline-offset-4 [&_pre]:focus-visible:outline-cyan-300"
             >
               {post.contentBlocks.map(renderContentBlock)}
             </article>
 
             <aside className="lg:sticky lg:top-24 lg:self-start">
               <div className="border-y border-slate-700/80 py-5">
-                <h2 className="text-sm font-semibold text-white">Source links</h2>
+                <h2 className="text-sm font-semibold text-white">참고 출처</h2>
+                <p className="mt-2 text-xs leading-5 text-slate-400">
+                  글 작성에 참고한 공개 자료입니다. 외부 링크는 새 창에서 열립니다.
+                </p>
                 <div className="mt-4 grid gap-3">
                   {post.sourceLinks.map((source) => (
                     <a
@@ -114,8 +119,9 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                       <span className="flex items-start justify-between gap-3">
                         <span>
                           <span className="block font-semibold">{source.title}</span>
+                          <span className="sr-only"> (새 창에서 열림)</span>
                           <span className="mt-1 block text-xs text-slate-500">
-                            {source.publisher} · {source.role}
+                            {source.publisher} · {formatSourceRole(source.role)}
                           </span>
                         </span>
                         <ExternalLink
@@ -132,7 +138,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                     href={post.markdownHref}
                   >
                     <FileText aria-hidden="true" size={16} strokeWidth={2} />
-                    Markdown
+                    Markdown 원문 보기
                   </a>
                 </div>
               </div>
@@ -176,7 +182,7 @@ function renderContentBlock(block: PublicBlogContentBlock, index: number) {
 
   if (block.type === "code") {
     return (
-      <pre key={index}>
+      <pre key={index} tabIndex={0}>
         <code>{block.code}</code>
       </pre>
     );
@@ -199,10 +205,38 @@ function renderContentBlock(block: PublicBlogContentBlock, index: number) {
 
 function renderInlineContent(children: readonly PublicBlogInlineContent[]) {
   return children.map((child, index) => {
+    if (child.type === "code") {
+      return <code key={index}>{child.text}</code>;
+    }
+
     if (child.type === "strong") {
       return <strong key={index}>{child.text}</strong>;
     }
 
     return <span key={index}>{child.text}</span>;
   });
+}
+
+function formatArticleMode(value: PublicBlogPost["articleMode"]): string {
+  const labels: Record<PublicBlogPost["articleMode"], string> = {
+    applied_analysis: "적용 분석",
+    document_analysis: "문서 분석",
+    experiment: "실험 기록",
+    ops_incident: "운영 회고",
+    project_record: "프로젝트 기록",
+  };
+
+  return labels[value];
+}
+
+function formatSourceRole(value: PublicBlogSourceLink["role"]): string {
+  const labels: Record<PublicBlogSourceLink["role"], string> = {
+    discovery: "발견 자료",
+    official: "공식 자료",
+    original: "원문",
+    reaction: "반응 자료",
+    reference: "참고 자료",
+  };
+
+  return labels[value];
 }

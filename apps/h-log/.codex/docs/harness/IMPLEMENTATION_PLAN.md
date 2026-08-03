@@ -64,7 +64,7 @@ topic-research-generation: completed, steps 0-3 completed
 auto-article-generation: completed, steps 0-3 completed
 diagram-assets-automation: completed, steps 0-2 completed
 blog-runtime-integration: completed, steps 0-4 completed
-public-site-quality-hardening: pending, Steps 0-6 completed, steps 7-9 pending
+public-site-quality-hardening: pending, Steps 0-7 completed, steps 8-9 pending
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 ```
@@ -366,7 +366,7 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 4. `portfolio-detail-clarity`: completed. 조직 식별자와 근거 미확인 수치, 내부 흐름을 일반화하고, role과 문제-판단-결과를 architecture보다 먼저 배치했다. index 기반 approach/result fallback을 제거하고 프로젝트마다 하나의 architecture surface만 렌더링하며, workflow diagram은 focus 가능한 contained horizontal scroll로 단순화했다. Focused RED/GREEN 11/11, 전체 175 tests(163 pass, DB 12 skip), lint/typecheck/build, 신규 6개 route HTTP 200와 폐기 6개 route HTTP 404, Chrome 320/390/768/1440px 검증을 통과했다.
 5. `resume-scanability-and-download-contract`: completed. 소개를 두 문단·70자 폭으로 줄이고 경력을 기술/학력보다 앞에 배치했으며 조직 식별자와 근거 미확인 수치를 일반화했다. 안전한 교체 원본이 없는 기존 PDF와 CTA/API, timer/cooldown 및 download 전용 코드를 제거했다. Focused RED/GREEN 3/3, 전체 171 tests(159 pass, DB 12 skip), lint/typecheck/build, Chrome 320/390px overflow 검증을 통과했다.
 6. `blog-discovery-resilience`: completed. 검색 입력에 focus-visible과 보이는 2자 최소 안내를 연결하고 태그 navigation의 선택 상태를 `aria-current`와 시각 스타일로 표시했다. 전체/태그/검색 0건을 구분하고 `/blog` loading/error 경계를 추가했으며 DB 오류를 fixture로 숨기지 않는다. Focused RED/GREEN 14/14, 전체 175 tests(163 pass, DB 12 skip), lint/typecheck/build, 실제 DB 목록 200·빈 검색 200/0건·rate limit 429와 격리 DB 장애 Chrome 검증을 통과했다.
-7. `blog-detail-readability`: 본문 폭과 한국어 보조 문구를 정리하고 실제 공개 fixture가 요구할 때만 안전 렌더러를 확장한다.
+7. `blog-detail-readability`: completed. 본문을 최대 72ch로 제한하고 모바일 제목 줄바꿈, heading/paragraph/code 간격, 키보드로 접근 가능한 code block overflow를 보강했다. 글 모드·출처 역할·목록/출처/Markdown 문구를 한국어로 정리하고, 저장 HTML 주입 없이 실제 공개 compatibility fixture가 사용하는 inline code만 렌더러에 추가했다. Focused RED/GREEN 10/10, 전체 179 tests(167 pass, DB 12 skip), lint/typecheck/build, 실제 DB 게시글 Chrome 390/1440px 검증을 통과했다.
 8. `seo-and-crawler-foundation`: metadataBase, 페이지별 metadata/canonical, Person/WebSite/BlogPosting JSON-LD, OG/Twitter, favicon, robots, 전체 sitemap과 `/projects` 영구 redirect를 완성한다.
 9. `public-launch-quality-gate-and-doc-sync`: 전체 gate, DB-backed Blog smoke, 데스크톱/모바일/키보드/Lighthouse/개인정보 검증 후 실제 구현 상태에 맞춰 문서를 동기화한다.
 
@@ -382,9 +382,9 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 
 ### 실행 경계
 
-- Steps 0-6은 완료했다.
-- 다음 실행 대상은 `public-site-quality-hardening / Step 7: blog-detail-readability`이다.
-- Step 6은 DB-backed Blog의 검색/태그 접근성과 loading/empty/error 경계를 보강했고 실제 DB 정상·빈 검색·rate-limit 및 격리 DB 장애 화면을 검증했다.
+- Steps 0-7은 완료했다.
+- 다음 실행 대상은 `public-site-quality-hardening / Step 8: seo-and-crawler-foundation`이다.
+- Step 7은 DB-backed Blog 상세의 72ch 본문 폭, 모바일 제목 줄바꿈, 키보드 code block overflow, 한국어 출처 안내를 보강했고 실제 DB 게시글을 390/1440px에서 검증했다. 안전 렌더러는 compatibility fixture가 요구한 inline code만 추가했다.
 - 이 phase는 도메인 구매, DNS/TLS, OCI mutation, signal collection, persona activation, 09:00 KST timer 활성화를 수행하지 않는다.
 - Production behavior를 바꾸는 Steps 1-8은 각각 TDD RED -> GREEN -> REFACTOR와 가장 가까운 browser/gate 검증을 따른다.
 

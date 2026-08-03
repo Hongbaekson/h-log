@@ -16,6 +16,7 @@ import {
   getPublicBlogPostMarkdown,
   type BlogContentStore,
 } from "./blog-public.ts";
+import { blogContentStore } from "./blog-public-data.ts";
 
 const baseTimestamp = "2026-06-25T00:00:00.000Z";
 const diagramAssetHash = "a".repeat(64);
@@ -234,6 +235,25 @@ describe("DB-backed public blog routes", () => {
         type: "code",
       },
     ]);
+  });
+
+  it("renders inline code required by the published compatibility fixture", () => {
+    const detail = getPublicBlogPostBySlug(
+      "db-first-public-boundary",
+      blogContentStore,
+    );
+
+    assert.ok(detail);
+    assert.equal(
+      detail.contentBlocks.some(
+        (block) =>
+          block.type === "paragraph" &&
+          block.children.some(
+            (child) => child.type === "code" && child.text === "posts",
+          ),
+      ),
+      true,
+    );
   });
 
   it("inserts at most one verified current-version diagram after the first H2", () => {

@@ -98,7 +98,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **이유**: 저장 또는 생성된 HTML은 XSS sink가 되기 쉽다. Markdown을 canonical input으로 두고 React의 escaping을 사용하면 DB-backed 발행 모델을 유지하면서 공개 렌더링의 공격 표면을 줄일 수 있다.
 
-**트레이드오프**: 현재 공개 렌더러는 heading, paragraph, strong, fenced code block 중심의 좁은 Markdown 표면만 지원한다. 링크, 리스트, 표, 이미지 같은 richer Markdown은 허용 목록과 테스트를 먼저 추가한 뒤 확장한다.
+**트레이드오프**: 현재 공개 렌더러는 heading, paragraph, strong, inline code, fenced code block 중심의 좁은 Markdown 표면만 지원한다. 링크, 리스트, 표, 이미지 같은 richer Markdown은 허용 목록과 테스트를 먼저 추가한 뒤 확장한다.
 
 ### ADR-010: contract 완료와 runtime 완료를 분리한다
 
