@@ -8,7 +8,10 @@ import {
   type PostVersionRecord,
 } from "./blog-content-model.ts";
 import type { BlogContentStore } from "./blog-public.ts";
-import { buildBlogCrawlerOutputs } from "./blog-crawler-output.ts";
+import {
+  buildBlogCrawlerOutputs,
+  buildPublicSitemapXml,
+} from "./blog-crawler-output.ts";
 
 const baseTimestamp = "2026-06-30T00:00:00.000Z";
 const diagramAlt = "Crawler output must not repeat this diagram description";
@@ -153,6 +156,44 @@ describe("blog crawler outputs", () => {
     assert.doesNotMatch(
       `${outputs.feedXml}\n${outputs.llmsTxt}\n${outputs.llmsFullTxt}`,
       new RegExp(diagramAlt),
+    );
+  });
+
+  it("combines public site paths with published blog posts only in the sitemap", () => {
+    const sitemapXml = buildPublicSitemapXml(createStore(), {
+      origin: "https://h-log.example",
+      paths: [
+        "/",
+        "/resume",
+        "/portfolio",
+        "/portfolio/public-project",
+        "/blog",
+      ],
+    });
+
+    for (const path of [
+      "/",
+      "/resume",
+      "/portfolio",
+      "/portfolio/public-project",
+      "/blog",
+      "/blog/newer-public",
+      "/blog/crawler-public",
+    ]) {
+      assert.match(sitemapXml, new RegExp(`<loc>https://h-log\\.example${path}</loc>`));
+    }
+
+    assert.doesNotMatch(
+      sitemapXml,
+      /\/projects|preview-hidden|failed-hidden/,
+    );
+
+    const outputs = buildBlogCrawlerOutputs(createStore(), {
+      origin: "https://h-log.example",
+    });
+    assert.doesNotMatch(
+      `${outputs.feedXml}\n${outputs.llmsTxt}\n${outputs.llmsFullTxt}`,
+      /portfolio\/public-project/,
     );
   });
 });

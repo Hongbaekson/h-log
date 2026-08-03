@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   ArrowRight,
   BookOpen,
@@ -12,6 +13,17 @@ import {
 
 import { Badge, ButtonLink, Card, Container } from "@/components/ui";
 import { projects } from "@/lib/projects";
+import { siteConfig } from "@/lib/site";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+  description: siteConfig.description,
+  title: {
+    absolute: siteConfig.title,
+  },
+};
 
 const careerStart = {
   year: 2021,

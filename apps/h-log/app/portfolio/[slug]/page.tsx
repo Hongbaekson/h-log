@@ -34,8 +34,18 @@ export async function generateMetadata({
   }
 
   return {
+    alternates: {
+      canonical: `/portfolio/${slug}`,
+    },
     description: project.summary,
-    title: `${project.context} | Portfolio`,
+    openGraph: {
+      description: project.summary,
+      images: ["/opengraph-image"],
+      title: project.context,
+      type: "article",
+      url: `/portfolio/${slug}`,
+    },
+    title: `${project.context} | 포트폴리오`,
   };
 }
 

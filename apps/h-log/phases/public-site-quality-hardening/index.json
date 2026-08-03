@@ -52,7 +52,8 @@
     {
       "step": 8,
       "name": "seo-and-crawler-foundation",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added request-time root metadataBase, title template, shared OG/Twitter defaults, page-specific metadata and canonical URLs for every public page family, safe React-data Person/WebSite/BlogPosting JSON-LD, a favicon, a generated 1200x630 PNG OG image, robots.txt, and a sitemap that combines static and all Portfolio routes with published Blog entries while feed/llms remain Blog-only. Production origin validation rejects missing, non-HTTPS, localhost, and private hosts; legacy /projects routes now return 308. Focused RED/GREEN 8/8, all 185 tests (173 passed and 12 database tests skipped), lint/typecheck/build, and production-container HTTP checks for canonical, JSON-LD, 11 sitemap entries, crawler boundaries, assets, and redirects passed."
     },
     {
       "step": 9,

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, FileText } from "lucide-react";
 
+import { JsonLd } from "@/components/seo/JsonLd";
 import { Badge, Container } from "@/components/ui";
 import {
   getPublicBlogPostBySlug,
@@ -13,6 +14,8 @@ import {
   type PublicBlogSourceLink,
 } from "@/lib/blog-public";
 import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
+import { resolvePublicSiteOrigin } from "@/lib/public-site-origin";
+import { siteConfig } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
@@ -42,8 +45,10 @@ export async function generateMetadata({
     description: post.description,
     openGraph: {
       description: post.description,
+      images: ["/opengraph-image"],
       title: post.title,
       type: "article",
+      url: post.href,
     },
     title: `${post.title} | 블로그`,
   };
@@ -58,8 +63,29 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
     notFound();
   }
 
+  const origin = resolvePublicSiteOrigin("http://localhost:3000");
+  const postUrl = new URL(post.href, `${origin}/`).toString();
+  const blogPostingJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    author: {
+      "@type": "Person",
+      name: siteConfig.name,
+      url: origin,
+    },
+    dateModified: post.updatedAt,
+    datePublished: post.publishedAt,
+    description: post.description,
+    headline: post.title,
+    inLanguage: "ko-KR",
+    keywords: post.tags,
+    mainEntityOfPage: postUrl,
+    url: postUrl,
+  };
+
   return (
     <>
+      <JsonLd data={blogPostingJsonLd} />
       <section className="pt-12 pb-10 md:pt-16">
         <Container>
           <Link

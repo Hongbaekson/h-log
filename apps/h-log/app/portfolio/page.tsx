@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   Activity,
@@ -9,6 +10,15 @@ import {
 import { Badge, Container } from "@/components/ui";
 import { createPortfolioCardModel } from "@/lib/portfolio-card";
 import { projects, projectToneClasses } from "@/lib/projects";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/portfolio",
+  },
+  description:
+    "백엔드 시스템, 운영 자동화, 데이터베이스 성능 개선 경험을 문제와 판단, 검증된 결과 중심으로 정리한 포트폴리오입니다.",
+  title: "포트폴리오",
+};
 
 const featuredProjects = projects.slice(0, 2);
 const remainingProjects = projects.slice(2);

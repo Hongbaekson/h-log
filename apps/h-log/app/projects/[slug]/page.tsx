@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
 type ProjectsRedirectPageProps = {
   params: Promise<{
@@ -9,5 +9,5 @@ type ProjectsRedirectPageProps = {
 export default async function ProjectsRedirectPage({ params }: ProjectsRedirectPageProps) {
   const { slug } = await params;
 
-  redirect(`/portfolio/${slug}`);
+  permanentRedirect(`/portfolio/${slug}`);
 }

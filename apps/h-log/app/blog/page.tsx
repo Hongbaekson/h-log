@@ -10,9 +10,12 @@ import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/blog",
+  },
   description:
     "백엔드 개발, 운영, 자동화 워크플로우를 DB 기반 블로그로 정리합니다.",
-  title: "Blog | 손홍백",
+  title: "블로그",
 };
 
 type BlogPageProps = {

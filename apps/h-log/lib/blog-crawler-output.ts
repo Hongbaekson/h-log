@@ -16,6 +16,15 @@ export type BuildBlogCrawlerOutputsOptions = {
   origin: string;
 };
 
+export type BuildPublicSitemapOptions = BuildBlogCrawlerOutputsOptions & {
+  paths: readonly string[];
+};
+
+type SitemapEntry = {
+  href: string;
+  updatedAt?: string;
+};
+
 export function buildBlogCrawlerOutputs(
   store: BlogContentStore,
   options: BuildBlogCrawlerOutputsOptions,
@@ -30,16 +39,28 @@ export function buildBlogCrawlerOutputs(
   };
 }
 
+export function buildPublicSitemapXml(
+  store: BlogContentStore,
+  options: BuildPublicSitemapOptions,
+): string {
+  const blogEntries = buildPostPublishCrawlerOutputManifest(store)["sitemap.xml"];
+  const entries = [
+    ...options.paths.map((href) => ({ href })),
+    ...blogEntries,
+  ];
+
+  return renderSitemapXml(entries, options.origin);
+}
+
 function renderSitemapXml(
-  entries: readonly PostPublishCrawlerOutputEntry[],
+  entries: readonly SitemapEntry[],
   origin: string,
 ): string {
   const urls = entries
     .map(
       (entry) => `  <url>
     <loc>${escapeXml(toAbsoluteUrl(origin, entry.href))}</loc>
-    <lastmod>${escapeXml(entry.updatedAt)}</lastmod>
-  </url>`,
+${entry.updatedAt ? `    <lastmod>${escapeXml(entry.updatedAt)}</lastmod>\n` : ""}  </url>`,
     )
     .join("\n");
 

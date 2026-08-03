@@ -64,7 +64,7 @@ topic-research-generation: completed, steps 0-3 completed
 auto-article-generation: completed, steps 0-3 completed
 diagram-assets-automation: completed, steps 0-2 completed
 blog-runtime-integration: completed, steps 0-4 completed
-public-site-quality-hardening: pending, Steps 0-7 completed, steps 8-9 pending
+public-site-quality-hardening: pending, Steps 0-8 completed, step 9 pending
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 ```
@@ -351,7 +351,7 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 - 중앙 교차 타임라인의 데스크톱 공백과 모바일 폭 문제는 Step 3에서 Featured 2개와 경력 프로젝트 grid로 교체해 해결했다.
 - Portfolio 상세의 조직 식별자, 근거 미확인 수치, 중복 architecture, 문제-판단-결과 index fallback은 Step 4에서 공개 안전한 데이터와 단일 architecture surface로 교체해 해결했다.
 - Resume의 긴 소개와 기술 목록 뒤에 밀리던 경력은 Step 5에서 두 문단 요약 바로 뒤로 이동하고 기술 목록을 압축해 해결했다.
-- 공통 metadata, canonical, JSON-LD, robots, OG/Twitter 자산과 정적 페이지·Portfolio 상세를 포함하는 sitemap이 불완전하다.
+- 공통 metadata, canonical, JSON-LD, robots, OG/Twitter 자산과 정적 페이지·Portfolio 상세를 포함하는 sitemap은 Step 8에서 완성했다.
 - Skip link는 Step 1에서, 검색 focus-visible·활성 필터 의미·Blog loading/error/empty 상태는 Step 6에서 보강했다.
 - 회전 문구, `ScrollRevealItem`, PDF 다운로드 타이머는 정보 가치보다 client JavaScript와 유지보수 비용이 커서 해당 단계에서 제거했다.
 
@@ -367,7 +367,7 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 5. `resume-scanability-and-download-contract`: completed. 소개를 두 문단·70자 폭으로 줄이고 경력을 기술/학력보다 앞에 배치했으며 조직 식별자와 근거 미확인 수치를 일반화했다. 안전한 교체 원본이 없는 기존 PDF와 CTA/API, timer/cooldown 및 download 전용 코드를 제거했다. Focused RED/GREEN 3/3, 전체 171 tests(159 pass, DB 12 skip), lint/typecheck/build, Chrome 320/390px overflow 검증을 통과했다.
 6. `blog-discovery-resilience`: completed. 검색 입력에 focus-visible과 보이는 2자 최소 안내를 연결하고 태그 navigation의 선택 상태를 `aria-current`와 시각 스타일로 표시했다. 전체/태그/검색 0건을 구분하고 `/blog` loading/error 경계를 추가했으며 DB 오류를 fixture로 숨기지 않는다. Focused RED/GREEN 14/14, 전체 175 tests(163 pass, DB 12 skip), lint/typecheck/build, 실제 DB 목록 200·빈 검색 200/0건·rate limit 429와 격리 DB 장애 Chrome 검증을 통과했다.
 7. `blog-detail-readability`: completed. 본문을 최대 72ch로 제한하고 모바일 제목 줄바꿈, heading/paragraph/code 간격, 키보드로 접근 가능한 code block overflow를 보강했다. 글 모드·출처 역할·목록/출처/Markdown 문구를 한국어로 정리하고, 저장 HTML 주입 없이 실제 공개 compatibility fixture가 사용하는 inline code만 렌더러에 추가했다. Focused RED/GREEN 10/10, 전체 179 tests(167 pass, DB 12 skip), lint/typecheck/build, 실제 DB 게시글 Chrome 390/1440px 검증을 통과했다.
-8. `seo-and-crawler-foundation`: metadataBase, 페이지별 metadata/canonical, Person/WebSite/BlogPosting JSON-LD, OG/Twitter, favicon, robots, 전체 sitemap과 `/projects` 영구 redirect를 완성한다.
+8. `seo-and-crawler-foundation`: completed. Request-time `metadataBase`, title template과 OG/Twitter 기본값, 모든 공개 page family의 metadata/canonical, 안전한 React data 기반 Person/WebSite/BlogPosting JSON-LD, favicon, 1200x630 PNG OG image, robots를 추가했다. Sitemap route는 정적·Portfolio 전체와 published Blog만 조합하고 feed/llms는 Blog-only로 유지한다. Production origin은 명시적인 public HTTPS `HLOG_PUBLIC_BASE_URL`만 허용하고 `/projects` 두 route는 308로 전환했다. Focused RED/GREEN 8/8, 전체 185 tests(173 pass, DB 12 skip), lint/typecheck/build와 production container의 canonical 6개 family, JSON-LD, sitemap 11개 entry, crawler boundary, asset, redirect HTTP smoke를 통과했다.
 9. `public-launch-quality-gate-and-doc-sync`: 전체 gate, DB-backed Blog smoke, 데스크톱/모바일/키보드/Lighthouse/개인정보 검증 후 실제 구현 상태에 맞춰 문서를 동기화한다.
 
 ### 확정된 공개 기본안
@@ -382,9 +382,9 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 
 ### 실행 경계
 
-- Steps 0-7은 완료했다.
-- 다음 실행 대상은 `public-site-quality-hardening / Step 8: seo-and-crawler-foundation`이다.
-- Step 7은 DB-backed Blog 상세의 72ch 본문 폭, 모바일 제목 줄바꿈, 키보드 code block overflow, 한국어 출처 안내를 보강했고 실제 DB 게시글을 390/1440px에서 검증했다. 안전 렌더러는 compatibility fixture가 요구한 inline code만 추가했다.
+- Steps 0-8은 완료했다.
+- 다음 실행 대상은 `public-site-quality-hardening / Step 9: public-launch-quality-gate-and-doc-sync`이다.
+- Step 8은 public HTTPS origin 하나로 metadata, canonical, JSON-LD, robots, OG/Twitter, 정적·Portfolio·published Blog sitemap을 정렬하고 redirect source와 비공개 Blog가 crawler surface에 섞이지 않게 했다. Production container에서 공개 metadata와 308 redirect를 실제 HTTP로 검증했다.
 - 이 phase는 도메인 구매, DNS/TLS, OCI mutation, signal collection, persona activation, 09:00 KST timer 활성화를 수행하지 않는다.
 - Production behavior를 바꾸는 Steps 1-8은 각각 TDD RED -> GREEN -> REFACTOR와 가장 가까운 browser/gate 검증을 따른다.
 
