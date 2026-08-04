@@ -36,6 +36,7 @@ export type BlogPostAggregate = {
 
 export type PostgresBlogRepository = {
   findPublicBlogContent(): Promise<BlogContentStore>;
+  findPublicBlogContentBySlug(slug: string): Promise<BlogContentStore>;
   retractPost(
     input: AdminPostVisibilityInput,
   ): Promise<{ adminAction: AdminActionRecord; post: PostRecord }>;
@@ -60,74 +61,37 @@ export function createPostgresBlogRepository(
       ]);
       const posts = postResult.rows.map(mapPost);
       const versions = versionResult.rows.map(mapPostVersion);
-      const publicEntries = selectPublicBlogRouteEntries(
+      return findPrivacySafePublicBlogContent(
+        pool,
         posts,
         versions,
         options.privacyScanPolicy,
       );
-      const publicPostIds = publicEntries.map(({ post }) => post.id);
-      const publicVersionIds = publicEntries.map(({ version }) => version.id);
+    },
 
-      if (publicPostIds.length === 0) {
-        return { assets: [], posts: [], sources: [], tags: [], versions: [] };
+    async findPublicBlogContentBySlug(slug) {
+      const postResult = await pool.query(
+        "select * from posts where slug = $1",
+        [slug],
+      );
+      const posts = postResult.rows.map(mapPost);
+      const post = posts[0];
+
+      if (!post || post.status !== "published" || !post.currentVersionId) {
+        return emptyBlogContentStore();
       }
 
-      const [tagResult, sourceResult, assetResult] = await Promise.all([
-        pool.query(
-          "select * from post_tags where post_id = any($1::text[]) order by id",
-          [publicPostIds],
-        ),
-        pool.query(
-          "select * from post_sources where post_id = any($1::text[]) order by id",
-          [publicPostIds],
-        ),
-        pool.query(
-          `select * from post_assets
-           where post_id = any($1::text[])
-             and post_version_id = any($2::text[])
-           order by id`,
-          [publicPostIds, publicVersionIds],
-        ),
-      ]);
-
-      const tags = tagResult.rows.map(mapPostTag);
-      const sources = sourceResult.rows.map(mapPostSource);
-      const assets = assetResult.rows.map(mapPostAsset);
-      const privacySafeEntries = publicEntries.filter(({ post, version }) =>
-        scanBlogPrivacyText(
-          JSON.stringify({
-            assets: assets.filter(
-              (asset) =>
-                asset.postId === post.id && asset.postVersionId === version.id,
-            ),
-            post,
-            sources: sources.filter((source) => source.postId === post.id),
-            tags: tags.filter((tag) => tag.postId === post.id),
-            version,
-          }),
-          options.privacyScanPolicy,
-        ).status === "passed",
-      );
-      const privacySafePostIds = new Set(
-        privacySafeEntries.map(({ post }) => post.id),
-      );
-      const privacySafeVersionIds = new Set(
-        privacySafeEntries.map(({ version }) => version.id),
+      const versionResult = await pool.query(
+        "select * from post_versions where id = $1 and post_id = $2",
+        [post.currentVersionId, post.id],
       );
 
-      return {
-        assets: assets.filter(
-          (asset) =>
-            privacySafePostIds.has(asset.postId) &&
-            privacySafeVersionIds.has(asset.postVersionId),
-        ),
-        posts: privacySafeEntries.map(({ post }) => post),
-        sources: sources.filter((source) =>
-          privacySafePostIds.has(source.postId),
-        ),
-        tags: tags.filter((tag) => privacySafePostIds.has(tag.postId)),
-        versions: privacySafeEntries.map(({ version }) => version),
-      };
+      return findPrivacySafePublicBlogContent(
+        pool,
+        posts,
+        versionResult.rows.map(mapPostVersion),
+        options.privacyScanPolicy,
+      );
     },
 
     async savePublishJob(job) {
@@ -274,6 +238,83 @@ export function createPostgresBlogRepository(
       }
     },
   };
+}
+
+async function findPrivacySafePublicBlogContent(
+  pool: Pool,
+  posts: readonly PostRecord[],
+  versions: readonly PostVersionRecord[],
+  privacyScanPolicy: BlogPrivacyScanPolicy | undefined,
+): Promise<BlogContentStore> {
+  const publicEntries = selectPublicBlogRouteEntries(
+    posts,
+    versions,
+    privacyScanPolicy,
+  );
+  const publicPostIds = publicEntries.map(({ post }) => post.id);
+  const publicVersionIds = publicEntries.map(({ version }) => version.id);
+
+  if (publicPostIds.length === 0) {
+    return emptyBlogContentStore();
+  }
+
+  const [tagResult, sourceResult, assetResult] = await Promise.all([
+    pool.query(
+      "select * from post_tags where post_id = any($1::text[]) order by id",
+      [publicPostIds],
+    ),
+    pool.query(
+      "select * from post_sources where post_id = any($1::text[]) order by id",
+      [publicPostIds],
+    ),
+    pool.query(
+      `select * from post_assets
+       where post_id = any($1::text[])
+         and post_version_id = any($2::text[])
+       order by id`,
+      [publicPostIds, publicVersionIds],
+    ),
+  ]);
+
+  const tags = tagResult.rows.map(mapPostTag);
+  const sources = sourceResult.rows.map(mapPostSource);
+  const assets = assetResult.rows.map(mapPostAsset);
+  const privacySafeEntries = publicEntries.filter(({ post, version }) =>
+    scanBlogPrivacyText(
+      JSON.stringify({
+        assets: assets.filter(
+          (asset) => asset.postId === post.id && asset.postVersionId === version.id,
+        ),
+        post,
+        sources: sources.filter((source) => source.postId === post.id),
+        tags: tags.filter((tag) => tag.postId === post.id),
+        version,
+      }),
+      privacyScanPolicy,
+    ).status === "passed",
+  );
+  const privacySafePostIds = new Set(
+    privacySafeEntries.map(({ post }) => post.id),
+  );
+  const privacySafeVersionIds = new Set(
+    privacySafeEntries.map(({ version }) => version.id),
+  );
+
+  return {
+    assets: assets.filter(
+      (asset) =>
+        privacySafePostIds.has(asset.postId) &&
+        privacySafeVersionIds.has(asset.postVersionId),
+    ),
+    posts: privacySafeEntries.map(({ post }) => post),
+    sources: sources.filter((source) => privacySafePostIds.has(source.postId)),
+    tags: tags.filter((tag) => privacySafePostIds.has(tag.postId)),
+    versions: privacySafeEntries.map(({ version }) => version),
+  };
+}
+
+function emptyBlogContentStore(): BlogContentStore {
+  return { assets: [], posts: [], sources: [], tags: [], versions: [] };
 }
 
 async function insertAdminAction(

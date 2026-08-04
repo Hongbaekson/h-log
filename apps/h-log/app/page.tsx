@@ -225,6 +225,7 @@ export default function HomePage() {
                 variant="ghost"
               >
                 자세히 보기
+                <span className="sr-only">: {featuredProject.context} 상세 보기</span>
                 <ArrowRight aria-hidden="true" size={16} strokeWidth={2} />
               </ButtonLink>
             </div>

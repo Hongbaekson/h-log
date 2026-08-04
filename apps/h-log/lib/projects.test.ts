@@ -41,6 +41,10 @@ describe("portfolio project content", () => {
     assert.match(homeSource, /github\.com\/Hongbaekson/);
     assert.match(homeSource, /href="\/blog"/);
     assert.doesNotMatch(homeSource, /mailto:/);
+    assert.match(
+      homeSource,
+      /<span className="sr-only">:\s*\{featuredProject\.context\} 상세 보기<\/span>/,
+    );
     assert.match(homeSource, /function TechnicalSkillsRadar/);
     assert.match(homeSource, /Technical skills radar chart/);
     assert.match(homeSource, /<TechnicalSkillsRadar \/>/);

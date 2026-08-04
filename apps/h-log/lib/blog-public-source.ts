@@ -30,12 +30,24 @@ export function createBlogPublicContentLoader(
 }
 
 export const loadPublicBlogContentStore = cache(async () => {
-  const repository = createPostgresBlogRepository(getBlogPublicPool(), {
-    privacyScanPolicy: createBlogPrivacyScanPolicyFromEnvironment(process.env),
-  });
+  const repository = createPublicBlogRepository();
 
   return repository.findPublicBlogContent();
 });
+
+export const loadPublicBlogContentStoreBySlug = cache(async (slug: string) => {
+  const repository = createPublicBlogRepository();
+
+  return repository.findPublicBlogContentBySlug(slug);
+});
+
+export async function isPublicBlogSlug(slug: string): Promise<boolean> {
+  const store = await createPublicBlogRepository().findPublicBlogContentBySlug(
+    slug,
+  );
+
+  return store.posts.length > 0;
+}
 
 export function getBlogUsageLedger(): BlogUsageLedger {
   return createPostgresBlogUsageLedger(getBlogPublicPool());
@@ -55,4 +67,10 @@ function getBlogPublicPool(): pg.Pool {
   }
 
   return sharedGlobal.hlogBlogPublicPool;
+}
+
+function createPublicBlogRepository(): PostgresBlogRepository {
+  return createPostgresBlogRepository(getBlogPublicPool(), {
+    privacyScanPolicy: createBlogPrivacyScanPolicyFromEnvironment(process.env),
+  });
 }

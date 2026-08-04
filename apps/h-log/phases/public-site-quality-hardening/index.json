@@ -18,7 +18,7 @@
       "step": 2,
       "name": "home-evidence-first-simplification",
       "status": "completed",
-      "summary": "Replaced the hard-coded project count, skill radar, rotating roles, and decorative status dashboard with projects.length, one representative project from the public collection, and a concise current focus. Home remains a Server Component, links to Portfolio, Resume, the approved public GitHub, and Blog without querying the Blog database, and exposes no email. Focused RED/GREEN, full test/lint/typecheck/build gates, and Chrome checks at 320/390/768/1440 px passed without horizontal overflow."
+      "summary": "Replaced the hard-coded project count, skill radar, rotating roles, and decorative status dashboard with projects.length, one representative project from the public collection, and a concise current focus. Home remains a Server Component, links to Portfolio, Resume, the approved public GitHub, and Blog without querying the Blog database, and exposes no email. The representative-project link now includes its project context for descriptive navigation. Focused RED/GREEN, full test/lint/typecheck/build gates, and Chrome checks at 320/390/768/1440 px passed without horizontal overflow."
     },
     {
       "step": 3,
@@ -58,7 +58,8 @@
     {
       "step": 9,
       "name": "public-launch-quality-gate-and-doc-sync",
-      "status": "pending"
+      "status": "completed",
+      "summary": "A production-like Compose dry-run verified published Blog HTML/Markdown and crawler outputs while failed/private slugs receive strict HTTP 404 through a small database-backed Proxy boundary. Six public pages passed Chrome checks at 320/390/768/1440 px with no horizontal overflow, first-Tab skip links, and reduced-motion coverage. Lighthouse measured Performance 96, Accessibility 96, Best Practices 100, and SEO 100. The public privacy constraints (no Contact/email, PDF download, or light theme) and canonical DB-backed routes were rechecked; roadmap and planning docs now state the current baseline. Next execution target is auto-publish-ops-hardening Step 4, which remains approval-required until a real HTTPS public origin and privacy organization/private-repository lists are supplied."
     }
   ]
 }

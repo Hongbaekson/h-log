@@ -31,4 +31,12 @@ describe("DB-backed public blog read path", () => {
       assert.match(source, /resolvePublicSiteOrigin/);
     }
   });
+
+  it("checks only Blog detail slugs before rendering", async () => {
+    const source = await readFile(new URL("../proxy.ts", import.meta.url), "utf8");
+
+    assert.match(source, /isPublicBlogSlug/);
+    assert.match(source, /slug\.endsWith\("\.md"\)/);
+    assert.match(source, /matcher: "\/blog\/:slug"/);
+  });
 });

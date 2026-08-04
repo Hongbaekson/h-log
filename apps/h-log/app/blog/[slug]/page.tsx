@@ -13,7 +13,7 @@ import {
   type PublicBlogPost,
   type PublicBlogSourceLink,
 } from "@/lib/blog-public";
-import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
+import { loadPublicBlogContentStoreBySlug } from "@/lib/blog-public-source";
 import { resolvePublicSiteOrigin } from "@/lib/public-site-origin";
 import { siteConfig } from "@/lib/site";
 
@@ -29,7 +29,7 @@ export async function generateMetadata({
   params,
 }: BlogDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const store = await loadPublicBlogContentStore();
+  const store = await loadPublicBlogContentStoreBySlug(slug);
   const post = getPublicBlogPostBySlug(slug, store);
 
   if (!post) {
@@ -56,7 +56,7 @@ export async function generateMetadata({
 
 export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const { slug } = await params;
-  const store = await loadPublicBlogContentStore();
+  const store = await loadPublicBlogContentStoreBySlug(slug);
   const post = getPublicBlogPostBySlug(slug, store);
 
   if (!post) {

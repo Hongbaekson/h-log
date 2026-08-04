@@ -1,5 +1,7 @@
 # Implementation Roadmap
 
+> **현재 구현 기준 (2026-08):** 앱은 `apps/h-log`에 있으며 공개 경로는 `/`, `/resume`, `/portfolio`, `/portfolio/[slug]`, `/blog`, `/blog/[slug]`이다. `/projects`는 `/portfolio`로 308 redirect하는 호환 경로다. Blog는 PostgreSQL `posts`/`post_versions`의 published 현재 버전을 개인정보 검사 뒤 읽고, Contact·이메일·PDF 다운로드·light theme은 공개하지 않는다. 아래 내용은 초기 실행 계획 기록으로, 현재 기준과 충돌할 경우 이 문단과 `apps/h-log/AGENTS.md`를 따른다.
+
 이 문서는 `apps/hongbaek-site`를 작은 단위로 구현하기 위한 실행 순서다.
 
 ## Unit 0: Decisions

@@ -68,6 +68,21 @@ test(
           "asset-published",
         ]);
 
+        const publishedBySlug = await repository.findPublicBlogContentBySlug(
+          "published",
+        );
+        const privateBySlug = await repository.findPublicBlogContentBySlug(
+          "failed",
+        );
+        const privacyRiskBySlug =
+          await repository.findPublicBlogContentBySlug("privacy-risk");
+
+        assert.deepEqual(publishedBySlug.posts.map(({ id }) => id), [
+          "post-published",
+        ]);
+        assert.deepEqual(privateBySlug.posts, []);
+        assert.deepEqual(privacyRiskBySlug.posts, []);
+
         const jobs = await pool.query("select id from publish_jobs order by id");
         assert.deepEqual(
           jobs.rows.map(({ id }) => id),
