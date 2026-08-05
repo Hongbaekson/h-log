@@ -140,6 +140,8 @@ AI workflow
 7. aggregate signal contract는 로컬에서 먼저 완료하고, 실제 signal이 쌓인 뒤 persona feedback learning 활성화
 ```
 
+Production activation 전에는 별도 refactoring sequence를 먼저 수행한다. 순서는 published-current SQL read boundary, bounded process-local search state, rootless job image와 조건부 unused Redis removal, canonical public origin/reproducible build input hardening이다. 이 sequence는 실제 provider, domain, DNS/TLS, OCI mutation, timer activation을 포함하지 않으며, 모든 완료 후에도 HTTPS origin과 privacy 목록을 받는 activation gate를 유지한다.
+
 ## 목표 파이프라인
 
 ```text

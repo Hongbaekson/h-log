@@ -56,8 +56,20 @@ export function createPostgresBlogRepository(
   return {
     async findPublicBlogContent() {
       const [postResult, versionResult] = await Promise.all([
-        pool.query("select * from posts order by id"),
-        pool.query("select * from post_versions order by id"),
+        pool.query(
+          `select * from posts
+           where status = 'published'
+             and current_version_id is not null
+           order by id`,
+        ),
+        pool.query(
+          `select post_versions.* from post_versions
+           join posts
+             on posts.id = post_versions.post_id
+            and posts.status = 'published'
+            and posts.current_version_id = post_versions.id
+           order by post_versions.id`,
+        ),
       ]);
       const posts = postResult.rows.map(mapPost);
       const versions = versionResult.rows.map(mapPostVersion);
@@ -71,7 +83,10 @@ export function createPostgresBlogRepository(
 
     async findPublicBlogContentBySlug(slug) {
       const postResult = await pool.query(
-        "select * from posts where slug = $1",
+        `select * from posts
+         where slug = $1
+           and status = 'published'
+           and current_version_id is not null`,
         [slug],
       );
       const posts = postResult.rows.map(mapPost);

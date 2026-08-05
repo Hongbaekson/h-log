@@ -1,0 +1,16 @@
+{
+  "project": "h-log",
+  "phase": "release-input-hardening",
+  "steps": [
+    {
+      "step": 0,
+      "name": "canonical-public-origin-validation",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "reproducible-production-build-inputs",
+      "status": "pending"
+    }
+  ]
+}

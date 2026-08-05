@@ -1,0 +1,16 @@
+{
+  "project": "h-log",
+  "phase": "container-least-privilege",
+  "steps": [
+    {
+      "step": 0,
+      "name": "rootless-job-images",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "remove-unused-redis-service",
+      "status": "pending"
+    }
+  ]
+}

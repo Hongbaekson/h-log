@@ -1,0 +1,12 @@
+{
+  "project": "h-log",
+  "phase": "public-read-boundary-hardening",
+  "steps": [
+    {
+      "step": 0,
+      "name": "published-current-sql-boundary",
+      "status": "completed",
+      "summary": "Aggregate and slug public reads now constrain SQL candidates to published current versions before relation loading and privacy scanning."
+    }
+  ]
+}

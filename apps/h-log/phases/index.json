@@ -61,6 +61,26 @@
       "summary": "Steps 0-9 completed the public-content/privacy decisions, shared shell accessibility baseline, evidence-first Home simplification, scan-friendly Portfolio surfaces, Resume clarity with the unsafe legacy PDF download withheld, resilient DB-backed Blog discovery/detail states, complete metadata and crawler coverage, and final DB/HTTP/browser/Lighthouse/doc quality gates. This completion does not authorize domain, DNS, TLS, OCI, or production timer changes; auto-publish-ops-hardening Step 4 remains approval-required until a real HTTPS public origin and privacy organization/private-repository lists are supplied."
     },
     {
+      "dir": "public-read-boundary-hardening",
+      "status": "completed",
+      "summary": "Step 0 completed: aggregate and slug public reads now constrain SQL candidates to published current versions before the privacy scanner and public relation queries run."
+    },
+    {
+      "dir": "search-runtime-bounds",
+      "status": "pending",
+      "summary": "Before production activation, bound process-local search history and cache memory while preserving published-only cache invalidation and the durable usage ledger."
+    },
+    {
+      "dir": "container-least-privilege",
+      "status": "pending",
+      "summary": "Before production activation, make database job images rootless and remove the Redis Compose topology only if the confirmed no-consumer precondition still holds."
+    },
+    {
+      "dir": "release-input-hardening",
+      "status": "pending",
+      "summary": "Before production activation, use one strict canonical public-origin rule and make production build inputs reproducible after a separately approved live dependency audit."
+    },
+    {
       "dir": "auto-publish-ops-hardening",
       "status": "pending",
       "summary": "Steps 0-3 completed. Step 4 artifact 70fd31c is live with server-local credential rotation, production env/input, migrations 001-003, production audit 0, a successful Hermes canary across required/public/crawler/search/usage surfaces, and an audited eight-surface rollback. Timer activation is intentionally deferred until public-site-quality-hardening is complete and a real HTTPS public origin plus privacy organization/private-repository lists are ready for production cutover."
