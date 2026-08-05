@@ -67,8 +67,8 @@
     },
     {
       "dir": "search-runtime-bounds",
-      "status": "pending",
-      "summary": "Before production activation, bound process-local search history and cache memory while preserving published-only cache invalidation and the durable usage ledger."
+      "status": "completed",
+      "summary": "Step 0 completed: process-local search history and cache are pruned before evaluation and capped at 100 entries, while embedding usage stays in the durable PostgreSQL ledger and cache-hit published filtering remains intact."
     },
     {
       "dir": "container-least-privilege",

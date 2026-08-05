@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "bounded-process-local-search-state",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Expired request history and cache entries are pruned before evaluation, both process-local collections are capped at 100 entries, and embedding usage remains only in the durable usage ledger."
     }
   ]
 }

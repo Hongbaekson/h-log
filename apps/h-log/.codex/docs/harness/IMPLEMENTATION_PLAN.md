@@ -66,7 +66,7 @@ diagram-assets-automation: completed, steps 0-2 completed
 blog-runtime-integration: completed, steps 0-4 completed
 public-site-quality-hardening: completed, Steps 0-9 completed
 public-read-boundary-hardening: completed, Step 0 published-current SQL boundary
-search-runtime-bounds: pending, Step 0 bounded process-local search state
+search-runtime-bounds: completed, Step 0 bounded process-local search state
 container-least-privilege: pending, Steps 0-1 rootless job images and conditional Redis removal
 release-input-hardening: pending, Steps 0-1 canonical origin validation and reproducible build inputs
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred

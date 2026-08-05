@@ -182,7 +182,6 @@ export type BlogSearchApiResponse = {
 export type BlogSearchRuntimeState = {
   queryCache: Map<string, BlogSearchQueryCacheEntry>;
   requestHistory: BlogSearchRequestHistoryEntry[];
-  usageEvents: BlogSearchUsageEvent[];
 };
 
 export type HandleBlogSearchApiRequestInput = {
@@ -207,6 +206,7 @@ const DEFAULT_BLOG_SEARCH_API_POLICY: BlogSearchApiPolicy = {
   queryCacheTtlMs: 5 * 60_000,
   resultLimit: 10,
 };
+const BLOG_SEARCH_RUNTIME_ENTRY_LIMIT = 100;
 const TAG_FALLBACK_MAX_SCORE = 0.35;
 
 export function searchPublishedBlogPosts(
@@ -370,7 +370,6 @@ export function createBlogSearchRuntimeState(): BlogSearchRuntimeState {
   return {
     queryCache: new Map(),
     requestHistory: [],
-    usageEvents: [],
   };
 }
 
@@ -383,6 +382,12 @@ export async function handleBlogSearchApiRequest(
     ...DEFAULT_BLOG_SEARCH_API_POLICY,
     ...input.policy,
   };
+  pruneBlogSearchRequestHistory(
+    state.requestHistory,
+    policy.requestWindowMs,
+    requestedAt,
+  );
+  pruneBlogSearchCacheEntries(state.queryCache, requestedAt);
   const cacheProbe = assessBlogSearchRequest({
     clientId: input.clientId,
     history: state.requestHistory,
@@ -463,7 +468,6 @@ export async function handleBlogSearchApiRequest(
       crypto.randomUUID(),
     );
     await input.usageLedger.recordUsageEvent(usageEvent);
-    state.usageEvents.push(usageEvent);
   }
 
   const response: BlogSearchApiResponse = {
@@ -482,11 +486,16 @@ export async function handleBlogSearchApiRequest(
     normalizedQuery: assessment.normalizedQuery,
     requestedAt,
   });
+  pruneBlogSearchRequestHistory(
+    state.requestHistory,
+    policy.requestWindowMs,
+    requestedAt,
+  );
   state.queryCache.set(assessment.cacheKey, {
     expiresAt: requestedAt + policy.queryCacheTtlMs,
     response,
   });
-  pruneExpiredBlogSearchCacheEntries(state.queryCache, requestedAt);
+  pruneBlogSearchCacheEntries(state.queryCache, requestedAt);
 
   return response;
 }
@@ -598,7 +607,24 @@ function getFreshBlogSearchCacheEntry(
   return cached;
 }
 
-function pruneExpiredBlogSearchCacheEntries(
+function pruneBlogSearchRequestHistory(
+  requestHistory: BlogSearchRequestHistoryEntry[],
+  requestWindowMs: number,
+  requestedAt: number,
+): void {
+  while (
+    requestHistory.length > 0 &&
+    requestedAt - requestHistory[0]!.requestedAt > requestWindowMs
+  ) {
+    requestHistory.shift();
+  }
+
+  while (requestHistory.length > BLOG_SEARCH_RUNTIME_ENTRY_LIMIT) {
+    requestHistory.shift();
+  }
+}
+
+function pruneBlogSearchCacheEntries(
   queryCache: Map<string, BlogSearchQueryCacheEntry>,
   requestedAt: number,
 ): void {
@@ -606,6 +632,16 @@ function pruneExpiredBlogSearchCacheEntries(
     if (cached.expiresAt <= requestedAt) {
       queryCache.delete(cacheKey);
     }
+  }
+
+  while (queryCache.size > BLOG_SEARCH_RUNTIME_ENTRY_LIMIT) {
+    const oldestCacheKey = queryCache.keys().next().value;
+
+    if (oldestCacheKey === undefined) {
+      return;
+    }
+
+    queryCache.delete(oldestCacheKey);
   }
 }
 

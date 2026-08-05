@@ -20,6 +20,7 @@ import {
   selectPublishedRelatedPostCandidates,
   type BlogSearchEmbeddingAdapter,
 } from "./blog-search.ts";
+import type { BlogUsageEventRecord, BlogUsageLedger } from "./blog-usage-ledger.ts";
 
 const baseTimestamp = "2026-06-27T00:00:00.000Z";
 const usageLedger = {
@@ -378,11 +379,81 @@ describe("blog search contract", () => {
     assert.equal(second.guardReason, "cache_hit");
     assert.equal(second.cached, true);
     assert.equal(embeddingCalls, 1);
-    assert.equal(state.usageEvents.length, 1);
     assert.deepEqual(
       second.results.map((result) => result.slug),
       first.results.map((result) => result.slug),
     );
+  });
+
+  it("prunes expired runtime state before evaluating a blocked request", async () => {
+    const now = Date.parse(baseTimestamp);
+    const state = createBlogSearchRuntimeState();
+
+    await handleBlogSearchApiRequest({
+      clientId: "visitor-1",
+      policy: {
+        queryCacheTtlMs: 100,
+        requestWindowMs: 100,
+      },
+      query: "oci",
+      requestedAt: now,
+      state,
+      store: createStore(),
+    });
+    const blocked = await handleBlogSearchApiRequest({
+      clientId: "visitor-1",
+      policy: {
+        queryCacheTtlMs: 100,
+        requestWindowMs: 100,
+      },
+      query: "a",
+      requestedAt: now + 1_000,
+      state,
+      store: createStore(),
+    });
+
+    assert.equal(blocked.guardReason, "query_too_short");
+    assert.deepEqual(state.requestHistory, []);
+    assert.equal(state.queryCache.size, 0);
+  });
+
+  it("bounds runtime state and keeps embedding usage in the durable ledger", async () => {
+    const now = Date.parse(baseTimestamp);
+    const state = createBlogSearchRuntimeState();
+    const recordedUsageEvents: BlogUsageEventRecord[] = [];
+    const usageLedger: BlogUsageLedger = {
+      getUsageCostTotals: () =>
+        Promise.resolve({ dailyEstimatedCost: 0, monthlyEstimatedCost: 0 }),
+      recordUsageEvent: (event) => {
+        recordedUsageEvents.push(event);
+        return Promise.resolve();
+      },
+    };
+
+    for (let index = 0; index <= 100; index += 1) {
+      await handleBlogSearchApiRequest({
+        clientId: `visitor-${index}`,
+        embeddingAdapter: {
+          async embedSearchQuery() {
+            return {
+              model: "fake-search-embedding",
+              provider: "fake",
+              vectorScores: [],
+            };
+          },
+        },
+        query: `unique-query-${index}`,
+        requestedAt: now + index,
+        state,
+        store: createStore(),
+        usageLedger,
+      });
+    }
+
+    assert.equal("usageEvents" in state, false);
+    assert.equal(state.requestHistory.length, 100);
+    assert.equal(state.queryCache.size, 100);
+    assert.equal(recordedUsageEvents.length, 101);
   });
 
   it("removes a retracted post from cached search and llms outputs immediately", async () => {
@@ -531,7 +602,6 @@ describe("blog search contract", () => {
     assert.equal(second.guardReason, "search_ready");
     assert.equal(second.cached, false);
     assert.equal(embeddingCalls, 2);
-    assert.equal(state.usageEvents.length, 2);
   });
 
   it("blocks short, abnormal, and rate-limited queries before embedding is called", async () => {
@@ -601,6 +671,5 @@ describe("blog search contract", () => {
     assert.equal(rateLimited.status, "blocked");
     assert.equal(rateLimited.guardReason, "rate_limited");
     assert.equal(embeddingCalls, 1);
-    assert.equal(state.usageEvents.length, 1);
   });
 });
