@@ -12,7 +12,7 @@
 - Backend: Next.js route handlers first; automation contracts, a manual `--once` persistent worker, the local fake-provider end-to-end dry-run, a Hermes Codex OAuth article adapter, a PostgreSQL private-persistence one-shot runner, and a bounded 09:00 KST Compose/systemd scheduler package exist, while the production timer remains disabled
 - Database: PostgreSQL + pgvector schema migration, the minimal blog repository, the DB-backed public read path, the persistent worker, and the local end-to-end dry-run are implemented; server-local credential rotation, production input, live migrations, a bounded Hermes canary, and audited rollback are verified on OCI. Scheduled activation remains pending until a real HTTPS public origin and privacy organization/private-repository lists are supplied
 - Deploy target: OCI server with Docker Compose and Nginx
-- Infrastructure: OCI Compute first; web, worker, PostgreSQL, Redis, and Nginx are Compose-managed unless a later ADR selects managed services
+- Infrastructure: OCI Compute first; web, worker, PostgreSQL, and Nginx are Compose-managed unless a later ADR selects managed services
 
 ## Product Direction
 

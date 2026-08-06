@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "remove-unused-redis-service",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Confirmed there is no Redis client or runtime consumer, then removed the Compose service, dependencies, and unused REDIS_URL while preserving the existing Docker volume and avoiding OCI changes; all Compose profiles, tests, lint, typecheck, and build passed."
     }
   ]
 }

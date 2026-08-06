@@ -72,8 +72,8 @@
     },
     {
       "dir": "container-least-privilege",
-      "status": "pending",
-      "summary": "Step 0 completed: database job images use production-only dependencies and the non-root node user. Step 1 may remove Redis only if the confirmed no-consumer precondition still holds."
+      "status": "completed",
+      "summary": "Steps 0-1 completed: database job images use production-only dependencies and the non-root node user, and the confirmed-unused Redis Compose topology was removed. Existing Docker volumes and OCI runtime were not changed."
     },
     {
       "dir": "release-input-hardening",

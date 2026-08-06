@@ -70,7 +70,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 ### ADR-008: 배포 기본값은 OCI Compute + Docker Compose + Nginx다
 
-**결정**: 현재 deploy target은 OCI Compute 기반 self-hosted runtime이다. Docker Compose로 `web`, `worker`, `postgresql+pgvector`, `redis`, `nginx`를 관리하고, Nginx가 80/443 TLS 종료와 reverse proxy를 담당한다.
+**결정**: 현재 deploy target은 OCI Compute 기반 self-hosted runtime이다. Docker Compose로 `web`, `worker`, `postgresql+pgvector`, `nginx`를 관리하고, Nginx가 80/443 TLS 종료와 reverse proxy를 담당한다.
 
 **이유**: 개인 사이트 운영 비용과 통제 범위에 맞고, 기존 계획과 일치한다.
 
@@ -79,7 +79,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 **운영 경계**:
 
 - public ingress는 Nginx 80/443으로 제한한다.
-- PostgreSQL과 Redis는 private compose network에만 둔다.
+- PostgreSQL은 private compose network에만 둔다.
 - 로컬 검증도 같은 Compose service boundary를 사용하되, 로컬 public ingress는 `localhost:8080 -> hlog-nginx -> hlog-web`으로 둔다.
 - `deploy/env.dev`는 placeholder-only local development 값만 담고, 운영 secret은 서버 로컬 파일 또는 CI/CD secret으로만 주입한다.
 - SSH, 서버 IP, DB password, API key는 저장소에 기록하지 않는다.

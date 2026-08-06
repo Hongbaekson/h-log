@@ -51,11 +51,9 @@ Internet
   -> Nginx 80/443
   -> h-log web container
   -> PostgreSQL + pgvector
-  -> Redis
 
 blog worker container
   -> PostgreSQL + pgvector
-  -> Redis
   -> external APIs: LLM, embedding, IndexNow, Discord
 ```
 
@@ -63,11 +61,11 @@ blog worker container
 
 ```text
 - OCI Compute 1대를 우선한다.
-- Docker Compose로 web, worker, PostgreSQL + pgvector, Redis, Nginx를 관리한다.
+- Docker Compose로 web, worker, PostgreSQL + pgvector, Nginx를 관리한다.
 - Nginx는 TLS 종료와 reverse proxy를 담당한다.
-- PostgreSQL/Redis는 public internet에 열지 않는다.
+- PostgreSQL은 public internet에 열지 않는다.
 - 외부 공개 포트는 80/443만 기본 허용하고, SSH는 제한된 접근으로 둔다.
-- app image는 immutable artifact로 배포하고, DB/Redis data는 volume으로 분리한다.
+- app image는 immutable artifact로 배포하고, PostgreSQL data는 volume으로 분리한다.
 - `.env.production`, DB password, API key, SSH key, 서버 IP는 저장소에 커밋하지 않는다.
 - DB 백업은 PostgreSQL logical dump부터 시작하고, local/test restore rehearsal을 통과한 뒤에만 운영 복구 절차로 인정한다.
 - 배포 smoke/rollback은 별도 runbook으로 두고, public route, Markdown endpoint, Nginx admin/internal 차단, container health, migration/content_hash gate를 확인한다.
@@ -140,7 +138,7 @@ AI workflow
 7. aggregate signal contract는 로컬에서 먼저 완료하고, 실제 signal이 쌓인 뒤 persona feedback learning 활성화
 ```
 
-Production activation 전에는 별도 refactoring sequence를 먼저 수행한다. 순서는 published-current SQL read boundary, bounded process-local search state, rootless job image와 조건부 unused Redis removal, canonical public origin/reproducible build input hardening이다. 이 sequence는 실제 provider, domain, DNS/TLS, OCI mutation, timer activation을 포함하지 않으며, 모든 완료 후에도 HTTPS origin과 privacy 목록을 받는 activation gate를 유지한다.
+Production activation 전에는 별도 refactoring sequence를 먼저 수행한다. published-current SQL read boundary, bounded process-local search state, rootless job image와 confirmed-unused Redis removal은 완료됐고, canonical public origin/reproducible build input hardening이 남아 있다. 이 sequence는 실제 provider, domain, DNS/TLS, OCI mutation, timer activation을 포함하지 않으며, 모든 완료 후에도 HTTPS origin과 privacy 목록을 받는 activation gate를 유지한다.
 
 ## 목표 파이프라인
 
@@ -1508,9 +1506,9 @@ daily-blog-cron
 0단계: OCI 인프라/배포 foundation을 별도 phase로 둔다.
 
 - OCI Compute 기반 production topology 확정
-- Docker Compose 서비스 경계: web, worker, PostgreSQL + pgvector, Redis, Nginx
+- Docker Compose 서비스 경계: web, worker, PostgreSQL + pgvector, Nginx
 - Nginx reverse proxy, TLS, 보안 헤더, upload/body limit, 고정 upstream, 신뢰 가능한 client IP forwarding 정책
-- DB/Redis volume, PostgreSQL logical dump, pgvector/migration/content_hash 복구 리허설 정책
+- PostgreSQL volume, PostgreSQL logical dump, pgvector/migration/content_hash 복구 리허설 정책
 - registry pull, compose restart, deploy smoke, rollback runbook
 - 이전 image tag, server-local env, migration rollback 가능 여부를 기준으로 한 rollback 판단
 - 실제 OCI 서버 접속, 배포, 방화벽 변경은 명시 승인 후 수행
@@ -1665,7 +1663,7 @@ Chatbot: 제외
 Automation: 핵심 기능
 Search: keyword + vector hybrid
 Deploy: OCI Compute + Docker Compose + Nginx 기준
-Runtime: web, worker, PostgreSQL + pgvector, Redis를 OCI에서 운영
+Runtime: web, worker, PostgreSQL + pgvector를 OCI에서 운영
 ```
 
 주의:

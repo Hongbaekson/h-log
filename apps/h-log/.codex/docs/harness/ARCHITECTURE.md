@@ -79,7 +79,6 @@ apps/h-log/
 - Docker Compose runtime
 - Nginx reverse proxy와 TLS
 - PostgreSQL + pgvector instance
-- Redis instance
 - 백업/복구
 - secret injection
 - 배포 runner
@@ -91,14 +90,14 @@ Internet
   -> OCI network/security list
   -> Nginx 80/443
   -> Next.js web container
-  -> PostgreSQL + pgvector / Redis
+  -> PostgreSQL + pgvector
 
 blog worker container
-  -> PostgreSQL + pgvector / Redis
+  -> PostgreSQL + pgvector
   -> external APIs
 ```
 
-PostgreSQL과 Redis는 public internet에 노출하지 않는다. 서버 IP, SSH key, DB password, API key는 저장소나 공개 문서에 남기지 않는다.
+PostgreSQL은 public internet에 노출하지 않는다. 서버 IP, SSH key, DB password, API key는 저장소나 공개 문서에 남기지 않는다.
 
 ## Local/OCI Runtime Topology Contract
 
@@ -111,7 +110,6 @@ Local developer machine
      -> hlog-web        Next.js standalone runtime, internal 3000
      -> hlog-worker     manual/profile-only --once persistent job runner
      -> hlog-postgres   PostgreSQL + pgvector, data_net only
-     -> hlog-redis      Redis, data_net only
 ```
 
 ```text
@@ -121,20 +119,19 @@ OCI Compute
      -> hlog-web        internal 3000
      -> hlog-worker     manual or scheduled background jobs after automation phases
      -> hlog-postgres   private network and persistent volume
-     -> hlog-redis      private network and persistent volume
 ```
 
 Compose networks:
 
 - `public_net`: host ingress to `hlog-nginx`.
 - `app_net`: `hlog-nginx` to `hlog-web`.
-- `data_net`: `hlog-web`/`hlog-worker` to PostgreSQL/Redis.
+- `data_net`: `hlog-web`/`hlog-worker` to PostgreSQL.
 - `egress_net`: worker outbound access for later external APIs, with no published host ports.
 
 Current repo config:
 
 - `Dockerfile`: Next.js standalone production image.
-- `compose.yaml`: local-first Compose topology for web, profile-gated manual worker and migration runner, PostgreSQL + pgvector, Redis, and Nginx.
+- `compose.yaml`: local-first Compose topology for web, profile-gated manual worker and migration runner, PostgreSQL + pgvector, and Nginx.
 - `migrations/001_blog_core.sql`: `vector` extension과 `posts`, `post_versions`, `post_tags`, `post_sources`, `post_assets`, `publish_jobs`의 첫 schema version.
 - `migrations/002_publish_job_leases.sql`: `publish_jobs`에 lease owner/expiry와 claim index를 추가해 process-local lock 없이 만료된 작업만 재획득하게 하고, source fetch/LLM/embedding/diagram/IndexNow/Discord와 retry stop을 공통 형식으로 기록하는 `usage_events` ledger를 만든다.
 - `migrations/003_publish_rollback_audit.sql`: rollback surface 결과를 저장하는 `publish_verifications`와 운영자 철회 사유를 저장하는 `admin_actions`를 만든다.
@@ -154,11 +151,11 @@ Current repo config:
 - `.codex/docs/backup-restore-runbook.md`: PostgreSQL logical dump, local/test restore rehearsal, pgvector extension, `schema_migrations` version, content hash, and public smoke verification checklist. It does not contain production dump files, server IPs, or credentials.
 - `.codex/docs/deploy-smoke-rollback-runbook.md`: local/OCI deploy smoke, registry pull, compose up, health/log checks, phase-gated sitemap/feed/llms checks, private route blocking checks, migration rollback gate, and previous-image approval-only rollback procedure. It does not contain server IPs, SSH key paths, registry tokens, or production secrets.
 
-Container environment is scoped by service. PostgreSQL receives only `POSTGRES_*` values, Redis receives no application secrets, and web/worker receive only the runtime URLs and mode flags needed for local validation.
+Container environment is scoped by service. PostgreSQL receives only `POSTGRES_*` values, and web/worker receive only the runtime URLs and mode flags needed for local validation.
 
 The worker service is intentionally profile-gated and non-automatic. It must not call LLM, embedding, IndexNow, Discord, or publish jobs unless a tested job path explicitly enables side effects. The current IndexNow/Discord retryable job contract keeps delivery behind adapters and disables external side effects by default.
 
-Kubernetes is not required for the initial OCI deployment. If a later ADR adopts Kubernetes, the current service boundary maps directly to `Deployment`/`Service` for web and worker, `StatefulSet` or managed services for PostgreSQL/Redis, `Ingress` for Nginx edge behavior, and `Job`/`CronJob` for migration, backup, and worker tasks.
+Kubernetes is not required for the initial OCI deployment. If a later ADR adopts Kubernetes, the current service boundary maps directly to `Deployment`/`Service` for web and worker, `StatefulSet` or managed services for PostgreSQL, `Ingress` for Nginx edge behavior, and `Job`/`CronJob` for migration, backup, and worker tasks.
 
 ## Backup/Restore Boundary
 
