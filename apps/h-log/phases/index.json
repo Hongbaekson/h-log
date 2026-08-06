@@ -73,7 +73,7 @@
     {
       "dir": "container-least-privilege",
       "status": "pending",
-      "summary": "Before production activation, make database job images rootless and remove the Redis Compose topology only if the confirmed no-consumer precondition still holds."
+      "summary": "Step 0 completed: database job images use production-only dependencies and the non-root node user. Step 1 may remove Redis only if the confirmed no-consumer precondition still holds."
     },
     {
       "dir": "release-input-hardening",

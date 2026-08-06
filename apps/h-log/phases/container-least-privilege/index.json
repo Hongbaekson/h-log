@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "rootless-job-images",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Worker, migrations, and dry-run targets now use production-only dependencies and the non-root node user; Compose config, target builds, non-root smokes, tests, lint, typecheck, and build passed."
     },
     {
       "step": 1,

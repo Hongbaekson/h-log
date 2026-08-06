@@ -5,6 +5,15 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
+FROM node:24-alpine AS job-deps
+
+WORKDIR /app
+
+COPY --chown=node:node package.json package-lock.json ./
+RUN chown node:node /app
+USER node
+RUN npm ci --omit=dev
+
 FROM node:24-alpine AS builder
 
 WORKDIR /app
@@ -15,18 +24,18 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
-FROM deps AS migrations
+FROM job-deps AS migrations
 
-COPY lib ./lib
-COPY migrations ./migrations
-COPY scripts ./scripts
+COPY --chown=node:node lib ./lib
+COPY --chown=node:node migrations ./migrations
+COPY --chown=node:node scripts ./scripts
 
 CMD ["npm", "run", "db:migrate"]
 
-FROM deps AS worker
+FROM job-deps AS worker
 
-COPY lib ./lib
-COPY scripts ./scripts
+COPY --chown=node:node lib ./lib
+COPY --chown=node:node scripts ./scripts
 
 CMD ["npm", "run", "worker:once"]
 
