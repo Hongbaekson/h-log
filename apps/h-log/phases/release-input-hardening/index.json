@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "reproducible-production-build-inputs",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Node, Nginx, pgvector, and Hermes production bases now use confirmed multi-architecture manifest digests with source/rollback records; lockfile-only production review passed, while live registry audit remains explicitly approval-gated."
     }
   ]
 }

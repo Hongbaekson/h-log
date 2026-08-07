@@ -130,8 +130,9 @@ Compose networks:
 
 Current repo config:
 
-- `Dockerfile`: Next.js standalone production image.
-- `compose.yaml`: local-first Compose topology for web, profile-gated manual worker and migration runner, PostgreSQL + pgvector, and Nginx.
+- `Dockerfile`: `node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43` 기반 Next.js standalone production image.
+- `Dockerfile.auto-publish`: `nousresearch/hermes-agent:v2026.7.7.2@sha256:9c841866021c54c4596849f6135717e8a4d52ba510b7f52c50aef1de1a283973` 기반 Hermes job image.
+- `compose.yaml`: digest-pinned Nginx와 PostgreSQL + pgvector를 사용하는 local-first Compose topology for web, profile-gated manual worker and migration runner.
 - `migrations/001_blog_core.sql`: `vector` extension과 `posts`, `post_versions`, `post_tags`, `post_sources`, `post_assets`, `publish_jobs`의 첫 schema version.
 - `migrations/002_publish_job_leases.sql`: `publish_jobs`에 lease owner/expiry와 claim index를 추가해 process-local lock 없이 만료된 작업만 재획득하게 하고, source fetch/LLM/embedding/diagram/IndexNow/Discord와 retry stop을 공통 형식으로 기록하는 `usage_events` ledger를 만든다.
 - `migrations/003_publish_rollback_audit.sql`: rollback surface 결과를 저장하는 `publish_verifications`와 운영자 철회 사유를 저장하는 `admin_actions`를 만든다.

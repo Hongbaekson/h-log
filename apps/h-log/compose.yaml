@@ -2,7 +2,7 @@ name: hlog
 
 services:
   hlog-nginx:
-    image: nginx:1.27-alpine
+    image: nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
     depends_on:
       hlog-web:
         condition: service_healthy
@@ -128,7 +128,7 @@ services:
     restart: "no"
 
   hlog-postgres:
-    image: pgvector/pgvector:pg16
+    image: pgvector/pgvector:pg16@sha256:a36250871de0833b8757561c72f2477ef1ddd1101afa4e617fb552e0de514c6b
     env_file:
       - ${HLOG_POSTGRES_ENV_FILE:-./deploy/postgres.env.dev}
     volumes:

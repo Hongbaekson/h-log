@@ -77,8 +77,8 @@
     },
     {
       "dir": "release-input-hardening",
-      "status": "pending",
-      "summary": "Step 0 completed: required publish verification now shares the strict production canonical-origin validation while preserving the internal worker fetch origin. Step 1 remains pending: reproducible production build inputs and a separately approved live dependency audit."
+      "status": "completed",
+      "summary": "Steps 0-1 completed: required publish verification shares strict production canonical-origin validation, and Node/Nginx/pgvector/Hermes release bases are digest-pinned with source/rollback records. Lockfile-only production review passed; live registry audit remains separately approval-gated."
     },
     {
       "dir": "auto-publish-ops-hardening",

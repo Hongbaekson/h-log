@@ -68,7 +68,7 @@ public-site-quality-hardening: completed, Steps 0-9 completed
 public-read-boundary-hardening: completed, Step 0 published-current SQL boundary
 search-runtime-bounds: completed, Step 0 bounded process-local search state
 container-least-privilege: completed, Steps 0-1 rootless job images and confirmed-unused Redis removal
-release-input-hardening: pending, Step 0 canonical origin validation completed; Step 1 reproducible build inputs pending
+release-input-hardening: completed, Steps 0-1 canonical origin validation and reproducible production build inputs completed; live dependency audit remains separately approval-gated
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 ```
@@ -401,7 +401,7 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 1. `public-read-boundary-hardening / Step 0`: aggregate public read를 SQL에서 published current version으로 제한한다. private draft/version을 public web process가 불필요하게 읽지 않아야 하며 privacy scanner는 유지한다.
 2. `search-runtime-bounds / Step 0`: process-local search history/cache/ephemeral usage state를 bounded하게 만든다. durable PostgreSQL usage ledger와 published-only cached result filtering은 유지한다.
 3. `container-least-privilege / Step 0-1`: migration/worker/dry-run image를 rootless production dependency runtime으로 만들고, 모든 consumer 부재를 확인해 unused Redis Compose service를 제거했다. Redis volume 삭제나 OCI mutation은 이 phase 범위가 아니다.
-4. `release-input-hardening / Step 0`: canonical public origin validation을 metadata/crawler와 required publish verification에 공통화했다. credentialed, private, special-use origin은 production에서 fetch 전에 차단하며 internal worker fetch origin은 분리해 유지한다. Step 1은 actual release base image digest와 live production dependency audit evidence를 재현 가능하게 기록하며, registry audit은 dependency metadata를 전송하므로 별도 사용자 승인 후에만 실행한다.
+4. `release-input-hardening / Steps 0-1`: canonical public origin validation을 metadata/crawler와 required publish verification에 공통화했다. credentialed, private, special-use origin은 production에서 fetch 전에 차단하며 internal worker fetch origin은 분리해 유지한다. Node, Nginx, pgvector, Hermes release base image는 confirmed multi-architecture manifest digest로 pin했고 source artifact/rollback reference를 runbook에 기록했다. lockfile-only production review는 통과했지만 registry audit은 dependency metadata를 전송하므로 별도 사용자 승인 후에만 실행한다.
 
 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
 

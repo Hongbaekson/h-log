@@ -4,7 +4,7 @@
 
 ## 범위
 
-- 대상 runtime: `hlog-nginx`, `hlog-web`, `hlog-postgres`, `hlog-redis`
+- 대상 runtime: `hlog-nginx`, `hlog-web`, `hlog-postgres`
 - local ingress: `http://localhost:8080`
 - production ingress: Nginx 80/443
 - app image: Next.js standalone image
@@ -37,12 +37,29 @@ docker compose --profile dry-run config --quiet
 
 기록에 서버 IP, DB password, API key, private URL, SSH key path를 남기지 않는다.
 
+## Reproducible Release Inputs
+
+2026-08-07 read-only Docker Hub manifest 확인값이다. source artifact는 각 `docker buildx imagetools inspect <image:tag>` 결과이며, tag만 변경하거나 digest만 임의로 바꾸지 않는다.
+
+| 용도 | immutable reference | 확인된 platform |
+| --- | --- | --- |
+| Next.js build/job/runtime | `node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43` | `linux/amd64`, `linux/arm64` |
+| Nginx ingress | `nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10` | `linux/amd64`, `linux/arm64` |
+| PostgreSQL + pgvector | `pgvector/pgvector:pg16@sha256:a36250871de0833b8757561c72f2477ef1ddd1101afa4e617fb552e0de514c6b` | `linux/amd64`, `linux/arm64` |
+| Hermes auto-publish | `nousresearch/hermes-agent:v2026.7.7.2@sha256:9c841866021c54c4596849f6135717e8a4d52ba510b7f52c50aef1de1a283973` | `linux/amd64`, `linux/arm64` |
+
+`hlog-*:dev`는 local Compose build output 이름이며 upstream source image가 아니다. 실제 OCI release note에는 target platform, app registry `image@sha256`, git SHA, 위 base-image set와 이전 전체 `image@sha256` set를 함께 남긴다. 이전 set가 rollback reference다. OCI platform override, image pull, Compose restart는 이 runbook 변경으로 승인되지 않는다.
+
+### Production Dependency Audit Evidence
+
+2026-08-07에는 lockfile-only 검토로 `npm ls --package-lock-only --omit=dev --all`을 통과했고, lockfile v3 production package 69개가 모두 `resolved`와 `integrity`를 가진 것을 확인했다. registry metadata를 보내는 `npm audit --omit=dev` live 실행은 사용자 명시 승인이 없어 수행하지 않았으므로 현재 vulnerability 0건을 주장하지 않는다. 이전 phase의 audit 0건 기록은 historical evidence일 뿐이다. 승인 후에는 실행 날짜, 정확한 command, exit code, `--omit=dev` 결과를 이 release note에 추가한다.
+
 ## Local Smoke
 
 운영 배포 전 같은 Compose boundary를 로컬에서 먼저 확인한다.
 
 ```bash
-docker compose up -d hlog-postgres hlog-redis hlog-web hlog-nginx
+docker compose up -d hlog-postgres hlog-web hlog-nginx
 docker compose ps
 docker compose logs --tail=100 hlog-web hlog-nginx
 ```
@@ -87,16 +104,14 @@ Nginx 보안 헤더와 upstream proxy 경계도 확인한다.
 curl -fsSI http://localhost:8080/ | sed -n '1,20p'
 ```
 
-PostgreSQL과 Redis는 host port를 publish하지 않아야 한다.
+PostgreSQL은 host port를 publish하지 않아야 한다.
 
 ```bash
 docker compose exec -T hlog-postgres pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"
-docker compose exec -T hlog-redis redis-cli ping
 docker compose port hlog-postgres 5432
-docker compose port hlog-redis 6379
 ```
 
-`docker compose port`가 PostgreSQL 또는 Redis host port를 반환하면 배포를 멈춘다.
+`docker compose port`가 PostgreSQL host port를 반환하면 배포를 멈춘다.
 
 ## Phase-Gated Public Smoke
 
@@ -191,7 +206,7 @@ rollback 후에는 production smoke를 다시 실행한다. smoke가 계속 실�
 - container health가 정상이다.
 - `/`, `/resume`, `/portfolio`, `/blog`, published blog detail, `.md` endpoint smoke가 통과했다.
 - `/admin`과 `/api/internal`이 public ingress에서 404다.
-- PostgreSQL과 Redis host port가 publish되지 않았다.
+- PostgreSQL host port가 publish되지 않았다.
 - phase-gated crawler route는 구현 상태에 맞게 200 또는 expected 404로 기록했다.
 - Nginx 보안 헤더와 upstream proxy 경계를 확인했다.
 - rollback image tag와 migration 판단 결과가 운영 노트에 남아 있다.

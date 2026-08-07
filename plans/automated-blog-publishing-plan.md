@@ -138,7 +138,7 @@ AI workflow
 7. aggregate signal contract는 로컬에서 먼저 완료하고, 실제 signal이 쌓인 뒤 persona feedback learning 활성화
 ```
 
-Production activation 전에는 별도 refactoring sequence를 먼저 수행한다. published-current SQL read boundary, bounded process-local search state, rootless job image와 confirmed-unused Redis removal, canonical public origin validation은 완료됐고 reproducible build input hardening이 남아 있다. Canonical origin은 required publish verification에도 공통 적용하며, production에서 credentialed, private, special-use origin을 fetch 전에 차단하고 internal worker fetch origin은 분리해 유지한다. 이 sequence는 실제 provider, domain, DNS/TLS, OCI mutation, timer activation을 포함하지 않으며, 모든 완료 후에도 HTTPS origin과 privacy 목록을 받는 activation gate를 유지한다.
+Production activation 전 refactoring sequence는 완료됐다. published-current SQL read boundary, bounded process-local search state, rootless job image와 confirmed-unused Redis removal, canonical public origin validation, reproducible build input hardening을 마쳤다. Node, Nginx, pgvector, Hermes base image는 confirmed multi-architecture manifest digest로 pin하고 source artifact/rollback reference를 runbook에 기록했다. lockfile-only production review는 통과했지만 registry audit은 dependency metadata를 전송하므로 별도 사용자 승인 후에만 실행한다. Canonical origin은 required publish verification에도 공통 적용하며, production에서 credentialed, private, special-use origin을 fetch 전에 차단하고 internal worker fetch origin은 분리해 유지한다. 이 sequence는 실제 provider, domain, DNS/TLS, OCI mutation, timer activation을 포함하지 않으며, 모든 완료 후에도 HTTPS origin과 privacy 목록을 받는 activation gate를 유지한다.
 
 ## 목표 파이프라인
 

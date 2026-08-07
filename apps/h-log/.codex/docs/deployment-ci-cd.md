@@ -20,7 +20,7 @@ Local development
 1. 로컬 MVP 개발
 2. 로컬 `npm run lint`와 `npm run build` 통과
 3. DB-backed blog의 local contract와 migration strategy 확정
-4. 로컬 Docker Compose로 web, manual `--once` worker, PostgreSQL + pgvector, Redis, Nginx topology 검증
+4. 로컬 Docker Compose로 web, manual `--once` worker, PostgreSQL + pgvector, Nginx topology 검증
 5. OCI에서 수동 배포 성공
 6. Nginx, 도메인, HTTPS 확인
 7. DB backup/restore와 deploy smoke/rollback 확인
@@ -34,9 +34,26 @@ Local development
 - 앱 컨테이너는 내부 포트 `3000`
 - Nginx가 외부 `80/443`에서 앱 컨테이너로 reverse proxy
 - PostgreSQL + pgvector는 DB-backed blog부터 필요하다
-- Redis는 worker queue/cache/search cost guard가 필요한 phase에서 추가한다
+- Redis Compose service는 confirmed-unused removal 이후 두지 않는다. 다시 도입하려면 실제 consumer와 별도 phase를 먼저 정한다.
 - worker는 자동 발행 phase 전까지 비활성 또는 수동 실행 가능하게 둔다
-- DB/Redis는 public internet에 노출하지 않는다
+- PostgreSQL은 public internet에 노출하지 않는다
+
+## Reproducible Release Inputs
+
+외부 production base image는 tag와 immutable multi-architecture manifest digest를 함께 고정한다. 2026-08-07에 아래 명령으로 read-only Docker Hub manifest를 확인했다.
+
+```bash
+docker buildx imagetools inspect <image:tag>
+```
+
+| 용도 | 고정 reference | 확인된 platform |
+| --- | --- | --- |
+| Next.js build/job/runtime | `node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43` | `linux/amd64`, `linux/arm64` |
+| Nginx ingress | `nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10` | `linux/amd64`, `linux/arm64` |
+| PostgreSQL + pgvector | `pgvector/pgvector:pg16@sha256:a36250871de0833b8757561c72f2477ef1ddd1101afa4e617fb552e0de514c6b` | `linux/amd64`, `linux/arm64` |
+| Hermes auto-publish | `nousresearch/hermes-agent:v2026.7.7.2@sha256:9c841866021c54c4596849f6135717e8a4d52ba510b7f52c50aef1de1a283973` | `linux/amd64`, `linux/arm64` |
+
+`hlog-*:dev`는 local `build` 산출 이름이므로 upstream release input이 아니다. 실제 OCI release는 server-local release note에 app registry `image@sha256`, git SHA, 위 base-image 목록, target platform과 이전 전체 `image@sha256` 목록을 함께 남긴다. digest 변경은 이 manifest 기록을 source artifact로 삼고, 이전 목록을 rollback reference로 보존한다. 아직 OCI platform을 override하거나 image를 pull/restart하지 않는다.
 
 ## Server-Local Compose Directory
 
@@ -52,7 +69,7 @@ Local development
 
 ```bash
 docker compose config
-docker compose up hlog-postgres hlog-redis hlog-web hlog-nginx
+docker compose up hlog-postgres hlog-web hlog-nginx
 ```
 
 로컬 ingress는 `http://localhost:8080`만 사용한다. PostgreSQL과 Redis는 host port를 publish하지 않고 Compose `data_net`에서만 접근한다.
@@ -118,12 +135,15 @@ npm run build
 dependency나 보안 경계가 바뀌는 변경은 아래 local security check도 함께 실행한다.
 
 ```bash
+# 사용자 명시 승인 후에만 실행: registry에 dependency metadata를 보낸다.
 npm audit --audit-level=moderate
 gitleaks detect --source <source-only-temp-dir> --no-git --redact
 semgrep scan --novcs --no-git-ignore --config p/owasp-top-ten --config p/secrets --timeout=60 --exclude node_modules --exclude .next --exclude tsconfig.tsbuildinfo .
 ```
 
 `gitleaks`와 `semgrep`은 설치된 경우에만 실행한다. `source-only-temp-dir`는 `git ls-files`와 `git ls-files --others --exclude-standard` 결과를 복사해 만들고, generated build output인 `.next`, `node_modules`, `tsconfig.tsbuildinfo`는 제외한다. Semgrep도 필요하면 `--novcs --no-git-ignore`를 붙여 git 미추적 소스 파일까지 포함한다.
+
+`npm audit`은 registry에 dependency metadata를 보내므로 사용자 명시 승인 후에만 실행한다. `release-input-hardening / Step 1`의 2026-08-07 검토는 `npm ls --package-lock-only --omit=dev --all`과 lockfile v3의 production package 69개 `resolved`/`integrity` 확인만 수행했다. `npm audit --omit=dev`는 실행하지 않았으며, 이전 phase에 기록된 audit 0건을 현재 결과로 주장하지 않는다. 승인 후에는 실행 날짜, 정확한 command, exit code와 `--omit=dev` 결과를 release note에 남긴다.
 
 ## CD Strategy
 
@@ -163,7 +183,6 @@ CI/CD secret으로만 관리한다.
 - registry token
 - domain-specific env vars
 - PostgreSQL password
-- Redis password 또는 internal auth 설정
 - LLM, embedding, IndexNow, Discord provider token
 
 저장소에 secret, server IP, API key를 커밋하지 않는다.
@@ -177,7 +196,7 @@ CI/CD secret으로만 관리한다.
 - OAuth 등록은 실행 host에서 `hermes auth add openai-codex --type oauth --no-browser`로 수행하고 auth state를 저장소나 image에 복사하지 않는다.
 - usage report가 `cost_status=included`, `estimated_cost_usd=0`, `api_calls=1`이 아니면 자동 글 생성을 중단한다. API key provider fallback은 두지 않는다.
 - `HLOG_AUTO_PUBLISH_INPUT_FILE`은 서버 로컬의 검증된 topic/research/context JSON을 가리키며 저장소나 image에 포함하지 않는다. `npm run auto-publish:once`는 서울 날짜 advisory lock과 기존 daily post 확인 후 private `publishing` aggregate까지만 저장한다.
-- `Dockerfile.auto-publish`는 공식 `nousresearch/hermes-agent:v2026.7.7.2` image에 H-Log runner만 추가한다. OAuth state는 image가 아니라 Compose `hermes_data` volume에 저장한다.
+- `Dockerfile.auto-publish`는 공식 `nousresearch/hermes-agent:v2026.7.7.2@sha256:9c841866021c54c4596849f6135717e8a4d52ba510b7f52c50aef1de1a283973` image에 H-Log runner만 추가한다. OAuth state는 image가 아니라 Compose `hermes_data` volume에 저장한다.
 - `npm run auto-publish:cycle`은 generation 뒤 같은 `post-YYYY-MM-DD`의 required job만 required job 수 + idle probe 1회까지 처리한다. `failed`, `retrying`, 한도 초과는 non-zero로 중단한다.
 - `deploy/systemd/hlog-auto-publish.timer`는 `Asia/Seoul` 매일 09:00로 packaging했지만 OCI canary/rollback 전에는 enable하지 않는다.
 
