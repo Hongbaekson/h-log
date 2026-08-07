@@ -78,7 +78,7 @@
     {
       "dir": "release-input-hardening",
       "status": "pending",
-      "summary": "Before production activation, use one strict canonical public-origin rule and make production build inputs reproducible after a separately approved live dependency audit."
+      "summary": "Step 0 completed: required publish verification now shares the strict production canonical-origin validation while preserving the internal worker fetch origin. Step 1 remains pending: reproducible production build inputs and a separately approved live dependency audit."
     },
     {
       "dir": "auto-publish-ops-hardening",

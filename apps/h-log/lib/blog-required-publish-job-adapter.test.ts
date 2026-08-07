@@ -145,6 +145,32 @@ describe("required publish job adapter", () => {
     assert.deepEqual(requested, ["http://hlog-nginx/sitemap.xml"]);
   });
 
+  it("rejects a non-public production canonical origin before fetching through the internal worker origin", () => {
+    const previousNodeEnv = process.env.NODE_ENV;
+    Reflect.set(process.env, "NODE_ENV", "production");
+
+    try {
+      assert.throws(
+        () =>
+          createRequiredPublishJobAdapter({
+            canonicalPublicBaseUrl: "https://192.0.2.1",
+            fetch: async () => {
+              throw new Error("unexpected fetch");
+            },
+            loadCandidate: async () => createCandidate(),
+            publicBaseUrl: "http://hlog-nginx",
+          }),
+        /HLOG_PUBLIC_BASE_URL/,
+      );
+    } finally {
+      if (previousNodeEnv === undefined) {
+        Reflect.deleteProperty(process.env, "NODE_ENV");
+      } else {
+        Reflect.set(process.env, "NODE_ENV", previousNodeEnv);
+      }
+    }
+  });
+
   it("fails closed before fetching a public surface for a private post", async () => {
     let fetchCalls = 0;
     const adapter = createRequiredPublishJobAdapter({

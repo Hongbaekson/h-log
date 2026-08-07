@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "canonical-public-origin-validation",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Production canonical origins now use the shared validator before required publish verification, rejecting credentialed, private, and special-use addresses while preserving the internal worker fetch origin."
     },
     {
       "step": 1,

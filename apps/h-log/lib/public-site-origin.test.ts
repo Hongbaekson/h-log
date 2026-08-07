@@ -40,12 +40,21 @@ describe("public site origin", () => {
       "https://10.0.0.8",
       "https://172.16.0.8",
       "https://192.168.1.8",
+      "https://100.64.0.1",
+      "https://192.0.0.8",
+      "https://192.0.2.1",
+      "https://198.18.0.1",
+      "https://198.51.100.1",
+      "https://203.0.113.1",
+      "https://224.0.0.1",
+      "https://240.0.0.1",
       "https://h-log.local",
       "https://hlog-web",
       "https://service.corp.internal",
       "https://user:password@blog.example.com",
       "https://[::1]",
       "https://[::ffff:127.0.0.1]",
+      "https://[2001:db8::1]",
     ]) {
       assert.throws(
         () =>

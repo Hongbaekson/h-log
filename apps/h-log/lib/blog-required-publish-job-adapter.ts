@@ -19,6 +19,7 @@ import {
   scanBlogPrivacyText,
   type BlogPrivacyScanPolicy,
 } from "./blog-privacy-scanner.ts";
+import { resolvePublicSiteOrigin } from "./public-site-origin.ts";
 
 type Fetch = (
   input: RequestInfo | URL,
@@ -60,7 +61,7 @@ export function createRequiredPublishJobAdapter({
   publicBaseUrl,
 }: RequiredPublishJobAdapterOptions): PersistentWorkerAdapter {
   const publicOrigin = normalizePublicOrigin(publicBaseUrl);
-  const canonicalPublicOrigin = normalizePublicOrigin(
+  const canonicalPublicOrigin = normalizeCanonicalPublicOrigin(
     canonicalPublicBaseUrl ?? publicBaseUrl,
   );
 
@@ -333,6 +334,10 @@ function normalizePublicOrigin(value: string): string {
   }
 
   return url.origin;
+}
+
+function normalizeCanonicalPublicOrigin(value: string): string {
+  return normalizePublicOrigin(resolvePublicSiteOrigin(value, value));
 }
 
 function isRequiredPublishJobType(

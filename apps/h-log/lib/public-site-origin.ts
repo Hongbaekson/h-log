@@ -43,7 +43,8 @@ function isPrivateHostname(hostname: string): boolean {
     normalizedHostname === "::1" ||
     normalizedHostname.startsWith("::ffff:") ||
     /^(?:fc|fd)[0-9a-f]{2}:/.test(normalizedHostname) ||
-    normalizedHostname.startsWith("fe80:")
+    normalizedHostname.startsWith("fe80:") ||
+    normalizedHostname.startsWith("2001:db8:")
   ) {
     return true;
   }
@@ -67,9 +68,13 @@ function isPrivateHostname(hostname: string): boolean {
   return (
     octets[0] === 0 ||
     octets[0] === 10 ||
+    (octets[0] === 100 && octets[1] >= 64 && octets[1] <= 127) ||
     octets[0] === 127 ||
     (octets[0] === 169 && octets[1] === 254) ||
     (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) ||
-    (octets[0] === 192 && octets[1] === 168)
+    (octets[0] === 192 && (octets[1] === 0 || octets[1] === 168)) ||
+    (octets[0] === 198 && (octets[1] === 18 || octets[1] === 19 || octets[1] === 51)) ||
+    (octets[0] === 203 && octets[1] === 0) ||
+    octets[0] >= 224
   );
 }
