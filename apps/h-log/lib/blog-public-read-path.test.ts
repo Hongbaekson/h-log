@@ -39,4 +39,13 @@ describe("DB-backed public blog read path", () => {
     assert.match(source, /slug\.endsWith\("\.md"\)/);
     assert.match(source, /matcher: "\/blog\/:slug"/);
   });
+
+  it("keeps the public source free of a test-only content loader", async () => {
+    const source = await readFile(
+      new URL("./blog-public-source.ts", import.meta.url),
+      "utf8",
+    );
+
+    assert.doesNotMatch(source, /createBlogPublicContentLoader/);
+  });
 });

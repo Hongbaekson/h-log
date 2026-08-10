@@ -15,7 +15,6 @@ import {
   getPublicBlogPostBySlug,
   getPublicBlogPostMarkdown,
 } from "./blog-public.ts";
-import { createBlogPublicContentLoader } from "./blog-public-source.ts";
 import {
   createBlogSearchRuntimeState,
   handleBlogSearchApiRequest,
@@ -41,8 +40,7 @@ test(
         await repository.savePost(createAggregate("corrected", "corrected"));
         await repository.savePost(createAggregate("retracted", "retracted"));
 
-        const loadStore = createBlogPublicContentLoader(repository);
-        const store = await loadStore();
+        const store = await repository.findPublicBlogContent();
         const index = getPublicBlogIndex(store);
         const detail = getPublicBlogPostBySlug("database-only", store);
         const markdown = getPublicBlogPostMarkdown("database-only", store);

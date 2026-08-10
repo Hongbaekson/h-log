@@ -5,7 +5,6 @@ import {
   createPostgresBlogRepository,
   type PostgresBlogRepository,
 } from "./blog-postgres-repository.ts";
-import type { BlogContentStore } from "./blog-public.ts";
 import {
   createPostgresBlogUsageLedger,
   type BlogUsageLedger,
@@ -14,20 +13,9 @@ import { createBlogPrivacyScanPolicyFromEnvironment } from "./blog-privacy-scann
 
 const { Pool } = pg;
 
-type BlogPublicRepository = Pick<
-  PostgresBlogRepository,
-  "findPublicBlogContent"
->;
-
 type BlogPoolGlobal = typeof globalThis & {
   hlogBlogPublicPool?: pg.Pool;
 };
-
-export function createBlogPublicContentLoader(
-  repository: BlogPublicRepository,
-): () => Promise<BlogContentStore> {
-  return () => repository.findPublicBlogContent();
-}
 
 export const loadPublicBlogContentStore = cache(async () => {
   const repository = createPublicBlogRepository();

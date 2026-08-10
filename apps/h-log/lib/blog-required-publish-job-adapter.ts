@@ -250,27 +250,6 @@ async function loadPostgresCandidate(
   pool: Pool,
   job: PublishJobRecord,
 ): Promise<RequiredPublishJobCandidate> {
-  const candidate = await pool.query(
-    `select p.id as post_id,
-            p.slug,
-            p.status,
-            p.current_version_id,
-            v.id as version_id,
-            v.post_id as version_post_id,
-            v.content_markdown,
-            v.content_html,
-            v.content_hash
-     from posts p
-     join post_versions v on v.id = $2 and v.post_id = p.id
-     where p.id = $1`,
-    [job.postId, job.postVersionId],
-  );
-  const row = candidate.rows[0];
-
-  if (!row) {
-    throw new Error("required publish candidate not found");
-  }
-
   const [post, version, tags, sources, assets] = await Promise.all([
     pool.query("select * from posts where id = $1", [job.postId]),
     pool.query("select * from post_versions where id = $1", [job.postVersionId]),
@@ -285,13 +264,19 @@ async function loadPostgresCandidate(
       [job.postId, job.postVersionId],
     ),
   ]);
+  const postRow = post.rows[0];
+  const versionRow = version.rows[0];
+
+  if (!postRow || !versionRow) {
+    throw new Error("required publish candidate not found");
+  }
 
   return {
     post: {
-      currentVersionId: row.current_version_id,
-      id: row.post_id,
-      slug: row.slug,
-      status: row.status as BlogPostStatus,
+      currentVersionId: postRow.current_version_id,
+      id: postRow.id,
+      slug: postRow.slug,
+      status: postRow.status as BlogPostStatus,
     },
     privacyText: JSON.stringify({
       assets: assets.rows,
@@ -301,11 +286,11 @@ async function loadPostgresCandidate(
       version: version.rows[0],
     }),
     version: {
-      contentHash: row.content_hash,
-      contentHtml: row.content_html,
-      contentMarkdown: row.content_markdown,
-      id: row.version_id,
-      postId: row.version_post_id,
+      contentHash: versionRow.content_hash,
+      contentHtml: versionRow.content_html,
+      contentMarkdown: versionRow.content_markdown,
+      id: versionRow.id,
+      postId: versionRow.post_id,
     },
   };
 }

@@ -8,6 +8,7 @@ import {
   type RequiredPublishJobType,
 } from "./blog-content-model.ts";
 import {
+  createPostgresRequiredPublishJobAdapter,
   createRequiredPublishJobAdapter,
   type RequiredPublishJobCandidate,
 } from "./blog-required-publish-job-adapter.ts";
@@ -77,6 +78,57 @@ describe("required publish job adapter", () => {
       status: "succeeded",
     });
     assert.equal(fetchCalls, 0);
+  });
+
+  it("loads a required candidate with its five necessary queries", async () => {
+    const queries: string[] = [];
+    const candidate = createCandidate({
+      post: { ...createCandidate().post, status: "publishing" },
+    });
+    const postRow = {
+      current_version_id: candidate.post.currentVersionId,
+      id: candidate.post.id,
+      slug: candidate.post.slug,
+      status: candidate.post.status,
+    };
+    const versionRow = {
+      content_hash: candidate.version.contentHash,
+      content_html: candidate.version.contentHtml,
+      content_markdown: candidate.version.contentMarkdown,
+      id: candidate.version.id,
+      post_id: candidate.version.postId,
+    };
+    const adapter = createPostgresRequiredPublishJobAdapter({
+      pool: {
+        query: async (query: string) => {
+          queries.push(query);
+
+          if (query.includes("from post_tags")) {
+            return { rows: [] };
+          }
+
+          if (query.includes("from post_sources")) {
+            return { rows: [] };
+          }
+
+          if (query.includes("from post_assets")) {
+            return { rows: [] };
+          }
+
+          if (query.includes("from post_versions")) {
+            return { rows: [versionRow] };
+          }
+
+          return { rows: [postRow] };
+        },
+      } as never,
+      publicBaseUrl: "https://example.com",
+    });
+
+    assert.deepEqual(await adapter.run(createJob("render")), {
+      status: "succeeded",
+    });
+    assert.equal(queries.length, 5);
   });
 
   it("checks published public, Markdown, sitemap, and content hash surfaces", async () => {
