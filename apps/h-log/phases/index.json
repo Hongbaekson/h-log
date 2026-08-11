@@ -58,7 +58,7 @@
     {
       "dir": "public-site-quality-hardening",
       "status": "completed",
-      "summary": "Steps 0-9 completed the public-content/privacy decisions, shared shell accessibility baseline, evidence-first Home simplification, scan-friendly Portfolio surfaces, Resume clarity with the unsafe legacy PDF download withheld, resilient DB-backed Blog discovery/detail states, complete metadata and crawler coverage, and final DB/HTTP/browser/Lighthouse/doc quality gates. This completion does not authorize domain, DNS, TLS, OCI, or production timer changes; auto-publish-ops-hardening Step 4 remains approval-required until a real HTTPS public origin and privacy organization/private-repository lists are supplied."
+      "summary": "Steps 0-10 completed the public-content/privacy decisions, shared shell accessibility baseline, evidence-first Home simplification, career-evidence-aligned Portfolio and Resume surfaces, resilient DB-backed Blog discovery/detail states, complete metadata and crawler coverage, and final DB/HTTP/browser/Lighthouse/doc quality gates. The Go GitHub/Discord automation is separated as a side project, the source PDF remains private, and the Home radar remains unchanged. This completion does not authorize domain, DNS, TLS, OCI, or production timer changes; auto-publish-ops-hardening Step 4 remains approval-required until a real HTTPS public origin and privacy organization/private-repository lists are supplied."
     },
     {
       "dir": "public-read-boundary-hardening",

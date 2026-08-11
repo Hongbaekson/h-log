@@ -15,74 +15,63 @@ export const metadata: Metadata = {
 
 const skillGroups = [
   {
-    items: ["Java", "JavaScript", "Go"],
-    title: "언어",
-  },
-  {
-    items: ["Spring Boot", "React", "Node.js (Express)"],
-    title: "프레임워크",
+    items: ["Java", "Spring Boot", "Spring", "JPA", "QueryDSL", "MyBatis", "Spring Batch", "JWT / RBAC"],
+    title: "실무 핵심 · Backend",
   },
   {
     items: ["PostgreSQL", "Oracle", "MySQL", "MS-SQL", "DB2", "Redis / Redisson", "Elasticsearch"],
-    title: "데이터베이스",
+    title: "실무 핵심 · Data",
   },
   {
-    items: ["Docker", "Kubernetes", "AWS", "OCI"],
-    title: "인프라",
+    items: ["Kafka", "OpenTelemetry", "Micrometer"],
+    title: "실무 핵심 · Messaging & Observability",
   },
   {
-    items: ["GitHub Actions", "Jenkins", "OpenTelemetry"],
-    title: "DevOps",
+    items: ["Docker", "Kubernetes", "Gitea", "Gitea Actions", "Jenkins", "Git"],
+    title: "실무 핵심 · Delivery",
   },
   {
-    items: ["Claude Code", "Codex", "Hermes Agent"],
-    title: "AI",
+    items: ["OpenAPI Spec-First", "Claude Code", "Codex"],
+    title: "AI 개발 워크플로우",
   },
   {
-    items: [
-      "Gitea",
-      "Git",
-      "SVN",
-      "JSP",
-      "JPA",
-      "Kafka",
-      "JWT",
-    ],
-    title: "기타",
+    items: ["Go", "TypeScript", "Next.js", "React", "Node.js", "GitHub Actions", "AWS", "OCI", "Hermes Agent"],
+    title: "개인 프로젝트·운영",
   },
 ] as const;
 
 const timelineItems = [
   {
     highlights: [
-      "OpenAPI Spec-First 기반 REST API 개발 워크플로우와 팀 기준 정리",
-      "Claude Code/Codex 기반 개발 프로세스와 팀 컨벤션 문서화",
-      "GitHub Actions로 빌드, 테스트, 배포 아티팩트 검증과 배포 흐름 자동화",
-      "GitHub Issues Webhook과 Discord 기반 이슈 알림·조회 자동화 설계",
+      "OpenAPI Spec-First와 Claude Code/Codex 워크플로우로 단순 기능 평균 구현 시간을 1일에서 2시간으로 단축",
+      "AI 개발 규칙과 도메인 문서화로 코드 리뷰의 컨벤션 지적을 약 80% 감소",
+      "Gitea Actions 기반 빌드·테스트·배포 흐름 운영",
       "Spring Event + AFTER_COMMIT + REQUIRES_NEW 기반 트랜잭션 분리 설계",
-      "Redisson RBlockingQueue + DLQ 패턴으로 비동기 처리 및 장애 복구 자동화",
+      "Redisson RBlockingQueue + DLQ로 API 응답 시간을 약 80% 단축하고 처리량을 2배로 개선",
       "JWT Access/Refresh, RBAC, Permission 단위 인증·인가 모델 설계",
-      "OpenTelemetry + Micrometer 기반 분산 트레이싱 및 장애 분석 체계 구축",
+      "OpenTelemetry + Micrometer 분산 추적으로 장애 원인 식별 시간을 약 87% 단축",
+      "Redis 캐시 예열 시간을 35분 36초에서 68초로 단축",
     ],
     period: "2025.03 - 현재",
     role: "B2B 솔루션 기업 / Backend Developer",
     summary: "B2B 솔루션 백엔드 개발과 데이터 파이프라인 구축을 담당했습니다.",
-    tags: ["Java 21", "Spring Boot 3.x", "JPA", "QueryDSL", "PostgreSQL", "Redis", "Redisson", "OpenTelemetry"],
+    tags: ["Java 21", "Spring Boot 3.x", "JPA", "QueryDSL", "PostgreSQL", "Redisson", "OpenTelemetry", "Gitea Actions"],
   },
   {
     highlights: [
-      "POS/KIOSK 차세대 프로젝트에서 Redis 캐시 적용으로 조회 성능 개선",
-      "Kafka 기반 비동기 알림 처리로 결제 응답 지연 문제 개선",
-      "Spring Batch Chunk 처리로 대량 데이터 배치 안정화",
-      "GitHub Actions 기반 CI/CD 파이프라인 구축 및 배포 자동화",
-      "MyBatis Lazy Loading, 복합 인덱스 설계로 주요 API 조회 성능 최적화",
-      "CRM 휴면 고객 알림 자동화 및 카카오톡 API 연동 개발",
-      "DB 마이그레이션 및 백오피스 운영 안정화 수행",
+      "POS/KIOSK 조회 응답을 3,000ms에서 900ms, 결제 응답을 2,000ms에서 500ms로 단축",
+      "Spring Batch로 10만 건 처리 시간을 40분에서 15분으로 단축",
+      "영업정보 시스템 반복 기능 개발을 2주에서 5일로 줄이고 조회 쿼리 수를 약 70% 절감",
+      "복합 인덱스로 검색 응답을 3,000ms에서 500ms로 단축",
+      "CRM 휴면 고객 알림을 수동 5분에서 즉시 처리로 자동화",
+      "DB2 기반 400개 규모의 테이블·Stored Procedure를 MS-SQL로 전환",
+      "백오피스 월 장애를 8건에서 2건, 배치 복구를 1시간에서 5분으로 단축",
+      "Jenkins 기반 빌드·배포 흐름 운영",
     ],
     period: "2021.07 - 2025.01",
     role: "시스템 통합·솔루션 기업 / Backend Developer",
     summary: "SI, 솔루션, POS/KIOSK 및 백오피스 시스템 개발·운영을 수행했습니다.",
-    tags: ["Java", "Spring Boot", "Spring Batch", "MyBatis", "Oracle", "MySQL", "Redis", "Kafka", "GitHub Actions", "CI/CD"],
+    tags: ["Java", "Spring Boot", "Spring Batch", "MyBatis", "Oracle", "MySQL", "Redis", "Kafka", "Jenkins"],
   },
 ] as const;
 

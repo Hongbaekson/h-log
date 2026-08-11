@@ -64,7 +64,7 @@ topic-research-generation: completed, steps 0-3 completed
 auto-article-generation: completed, steps 0-3 completed
 diagram-assets-automation: completed, steps 0-2 completed
 blog-runtime-integration: completed, steps 0-4 completed
-public-site-quality-hardening: completed, Steps 0-9 completed
+public-site-quality-hardening: completed, Steps 0-10 completed
 public-read-boundary-hardening: completed, Step 0 published-current SQL boundary
 search-runtime-bounds: completed, Step 0 bounded process-local search state
 container-least-privilege: completed, Steps 0-1 rootless job images and confirmed-unused Redis removal
@@ -372,7 +372,8 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 6. `blog-discovery-resilience`: completed. 검색 입력에 focus-visible과 보이는 2자 최소 안내를 연결하고 태그 navigation의 선택 상태를 `aria-current`와 시각 스타일로 표시했다. 전체/태그/검색 0건을 구분하고 `/blog` loading/error 경계를 추가했으며 DB 오류를 fixture로 숨기지 않는다. Focused RED/GREEN 14/14, 전체 175 tests(163 pass, DB 12 skip), lint/typecheck/build, 실제 DB 목록 200·빈 검색 200/0건·rate limit 429와 격리 DB 장애 Chrome 검증을 통과했다.
 7. `blog-detail-readability`: completed. 본문을 최대 72ch로 제한하고 모바일 제목 줄바꿈, heading/paragraph/code 간격, 키보드로 접근 가능한 code block overflow를 보강했다. 글 모드·출처 역할·목록/출처/Markdown 문구를 한국어로 정리하고, 저장 HTML 주입 없이 실제 공개 compatibility fixture가 사용하는 inline code만 렌더러에 추가했다. Focused RED/GREEN 10/10, 전체 179 tests(167 pass, DB 12 skip), lint/typecheck/build, 실제 DB 게시글 Chrome 390/1440px 검증을 통과했다.
 8. `seo-and-crawler-foundation`: completed. Request-time `metadataBase`, title template과 OG/Twitter 기본값, 모든 공개 page family의 metadata/canonical, 안전한 React data 기반 Person/WebSite/BlogPosting JSON-LD, favicon, 1200x630 PNG OG image, robots를 추가했다. Sitemap route는 정적·Portfolio 전체와 published Blog만 조합하고 feed/llms는 Blog-only로 유지한다. Production origin은 명시적인 public HTTPS `HLOG_PUBLIC_BASE_URL`만 허용하고 `/projects` 두 route는 308로 전환했다. Focused RED/GREEN 8/8, 전체 185 tests(173 pass, DB 12 skip), lint/typecheck/build와 production container의 canonical 6개 family, JSON-LD, sitemap 11개 entry, crawler boundary, asset, redirect HTTP smoke를 통과했다.
-9. `public-launch-quality-gate-and-doc-sync`: 전체 gate, DB-backed Blog smoke, 데스크톱/모바일/키보드/Lighthouse/개인정보 검증 후 실제 구현 상태에 맞춰 문서를 동기화한다.
+9. `public-launch-quality-gate-and-doc-sync`: completed. 전체 gate, DB-backed Blog smoke, 데스크톱/모바일/키보드/Lighthouse/개인정보 검증 후 실제 구현 상태에 맞춰 문서를 동기화했다.
+10. `career-content-evidence-alignment`: completed. 근거가 확인된 현재 경력 Featured 3건과 기존 경력 성과를 공개 copy에 반영하고, Go 자동화는 개인 프로젝트로 분리했다. Resume의 도구명과 기술 범위를 정렬했으며 원본 PDF와 조직 식별자는 공개하지 않고 Home 기술 레이더를 유지했다. Focused test 15/15, 전체 181 pass/12 DB skip, lint/typecheck/build, 12개 production HTTP route와 content smoke가 통과했다.
 
 ### 확정된 공개 기본안
 
@@ -386,11 +387,11 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 
 ### 실행 경계
 
-- Steps 0-8은 완료했다.
-- 다음 실행 대상은 `public-site-quality-hardening / Step 9: public-launch-quality-gate-and-doc-sync`이다.
+- Steps 0-10은 완료했다.
+- 다음 실행 대상은 승인 경계가 유지된 `auto-publish-ops-hardening / Step 4`다.
 - Step 8은 public HTTPS origin 하나로 metadata, canonical, JSON-LD, robots, OG/Twitter, 정적·Portfolio·published Blog sitemap을 정렬하고 redirect source와 비공개 Blog가 crawler surface에 섞이지 않게 했다. Production container에서 공개 metadata와 308 redirect를 실제 HTTP로 검증했다.
 - 이 phase는 도메인 구매, DNS/TLS, OCI mutation, signal collection, persona activation, 09:00 KST timer 활성화를 수행하지 않는다.
-- Production behavior를 바꾸는 Steps 1-8은 각각 TDD RED -> GREEN -> REFACTOR와 가장 가까운 browser/gate 검증을 따른다.
+- Production behavior를 바꾸는 Steps 1-8과 Step 10은 각각 TDD RED -> GREEN -> REFACTOR와 가장 가까운 browser/gate 검증을 따른다.
 
 ## 현재 운영 안정화 phase
 
@@ -505,6 +506,6 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 - root `.codex/skills`에 dogfood에서 확인한 skill 4개가 h-log에 맞게 추가된다.
 - `apps/h-log/phases/index.json`이 DB-first 실행 순서를 기록한다.
 - 다음 실행 대상은 phase registry의 첫 번째 pending step을 기본으로 하되, production activation처럼 외부 설정을 기다리는 step과 독립적인 local contract는 명시된 운영 경계 안에서 진행할 수 있다.
-- 도메인 컷오버 전에 `public-site-quality-hardening` Steps 0-9를 완료하고 공개 콘텐츠, 접근성, 모바일 탐색성, SEO/crawler, DB-backed Blog smoke를 검증한다.
+- 도메인 컷오버 전에 `public-site-quality-hardening` Steps 0-10을 완료하고 공개 콘텐츠, 접근성, 모바일 탐색성, SEO/crawler, DB-backed Blog smoke를 검증한다.
 - contract 완료와 production runtime 완료를 구분해 기록한다.
 - 문서 검증과 `git diff --check`가 통과한다.

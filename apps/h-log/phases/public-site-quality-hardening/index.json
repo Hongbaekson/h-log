@@ -60,6 +60,12 @@
       "name": "public-launch-quality-gate-and-doc-sync",
       "status": "completed",
       "summary": "A production-like Compose dry-run verified published Blog HTML/Markdown and crawler outputs while failed/private slugs receive strict HTTP 404 through a small database-backed Proxy boundary. Six public pages passed Chrome checks at 320/390/768/1440 px with no horizontal overflow, first-Tab skip links, and reduced-motion coverage. Lighthouse measured Performance 96, Accessibility 96, Best Practices 100, and SEO 100. The public privacy constraints (no Contact/email, PDF download, or light theme) and canonical DB-backed routes were rechecked; roadmap and planning docs now state the current baseline. Next execution target is auto-publish-ops-hardening Step 4, which remains approval-required until a real HTTPS public origin and privacy organization/private-repository lists are supplied."
+    },
+    {
+      "step": 10,
+      "name": "career-content-evidence-alignment",
+      "status": "completed",
+      "summary": "Aligned Portfolio and Resume with approved career evidence: three current Java/Spring cases are Featured, five prior career projects retain verified metrics, and the Go GitHub/Discord automation is explicitly a side project. Gitea Actions, Jenkins, cache warmup, and professional-versus-personal skill boundaries now match the source while organization identifiers and the source PDF remain private and the Home radar remains unchanged. Focused tests passed 15/15; the full suite passed 181 with 12 database skips, plus lint, typecheck, build, 12 production HTTP route checks, and content smoke."
     }
   ]
 }

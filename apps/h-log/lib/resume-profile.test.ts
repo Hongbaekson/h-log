@@ -28,6 +28,18 @@ describe("resume profile", () => {
     assert.doesNotMatch(page, /오프너드|아스템즈|약 85%|평균 3분/);
   });
 
+  it("aligns career evidence and separates professional skills from side-project tools", async () => {
+    const page = await readFile("app/resume/page.tsx", "utf8");
+
+    assert.match(page, /Gitea Actions 기반 빌드·테스트·배포 흐름 운영/);
+    assert.match(page, /캐시 예열 시간을 35분 36초에서 68초로 단축/);
+    assert.match(page, /장애 원인 식별 시간을 약 87% 단축/);
+    assert.doesNotMatch(page, /GitHub Issues 변경과 Discord 알림 흐름 자동화/);
+    assert.doesNotMatch(page, /GitHub Actions 기반 CI\/CD 파이프라인 구축 및 배포 자동화/);
+    assert.match(page, /실무 핵심/);
+    assert.match(page, /개인 프로젝트·운영/);
+  });
+
   it("withholds the unsafe PDF download surface until a safe replacement exists", async () => {
     const page = await readFile("app/resume/page.tsx", "utf8");
 

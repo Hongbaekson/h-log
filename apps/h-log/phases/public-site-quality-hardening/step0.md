@@ -69,6 +69,13 @@ Production code를 바꾸기 전에 공개 범위와 출시 기본 결정을 사
 - 이번 Step에서는 production code, public asset, domain, DNS/TLS, OCI, signal collection, persona, production timer를 변경하지 않았다.
 - 다음 실행 대상은 `Step 1: shared-shell-accessibility-baseline`이다.
 
+## 2026-08-11 추가 결정
+
+- 사용자가 별도로 제공한 경력기술서를 근거 자료로 확인하고, 조직 식별자를 제거한 선택 성과 수치를 공개하는 데 동의했다.
+- 근거 자료 원본은 저장소와 공개 asset에 복사하지 않으며 기존 PDF 다운로드 보류 결정을 유지한다.
+- 경력기술서에 없는 GitHub Issues·Discord 자동화는 개인 프로젝트로 분리한다.
+- Home의 기술 레이더는 사용자 요청에 따라 현재 구현을 그대로 유지한다.
+
 ## 인수 기준
 
 ```bash

@@ -22,6 +22,9 @@ const projectSource = readFileSync(new URL("./projects.ts", import.meta.url), "u
 const globalStylesSource = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
 const expectedPortfolioSlugs = [
+  "ai-backend-workflow-standardization",
+  "redisson-async-processing-recovery",
+  "opentelemetry-observability",
   "github-issues-workflow-automation",
   "pos-kiosk-modernization",
   "sales-system-modernization",
@@ -59,56 +62,93 @@ describe("portfolio project content", () => {
     assert.doesNotMatch(globalStylesSource, /\.metric-rotator/);
   });
 
-  it("keeps public project data free of organization identifiers and unsupported metrics", () => {
+  it("keeps public project data free of organization identifiers and limits metrics to approved evidence", () => {
     assert.doesNotMatch(
       projectSource,
       /오프너드|아스템즈|CGV|나라셀라|토니모리|갈라 인터내셔널/i,
     );
 
+    const approvedMetricFragments = [
+      "1일에서 2시간",
+      "약 80%",
+      "2배",
+      "30초 이내",
+      "약 87%",
+      "3,000ms에서 900ms",
+      "2,000ms에서 500ms",
+      "10만 건을 40분에서 15분",
+      "2주에서 5일",
+      "약 70%",
+      "2,000ms에서 600ms",
+      "3,000ms에서 500ms",
+      "5분에서 즉시 처리",
+      "2,000ms에서 800ms",
+      "400개 규모",
+      "월 8건에서 2건",
+      "4,000ms에서 1,000ms",
+      "1시간에서 5분",
+    ];
+
     for (const project of projects) {
       assert.ok(!("company" in project));
       assert.ok(!("metrics" in project));
       assert.ok(!("title" in project));
-      assert.ok(project.impact.every((item) => !/\d/.test(item)));
+      for (const item of [...project.impact, project.summary].filter((copy) => /\d/.test(copy))) {
+        assert.ok(
+          approvedMetricFragments.some((fragment) => item.includes(fragment)),
+          `Unapproved metric in ${project.slug}: ${item}`,
+        );
+      }
     }
   });
 
-  it("keeps the six public projects in their approved order without duplicates", () => {
+  it("separates three featured career cases, five career projects, and one side project", () => {
     const slugs = projects.map((project) => project.slug);
 
     assert.deepEqual(slugs, expectedPortfolioSlugs);
     assert.equal(new Set(slugs).size, projects.length);
+    assert.deepEqual(
+      projects.filter((project) => project.section === "featured").map((project) => project.slug),
+      expectedPortfolioSlugs.slice(0, 3),
+    );
+    assert.equal(projects.filter((project) => project.section === "career").length, 5);
+    assert.deepEqual(
+      projects.filter((project) => project.section === "side").map((project) => project.slug),
+      ["github-issues-workflow-automation"],
+    );
   });
 
   it("builds public-safe portfolio card facts in one consistent order", () => {
-    const project = getProjectBySlug("github-issues-workflow-automation");
+    const project = getProjectBySlug("ai-backend-workflow-standardization");
 
     assert.ok(project);
 
     const card = createPortfolioCardModel(project);
 
-    assert.equal(card.title, "Go 기반 Discord와 GitHub Issues 운영 자동화 설계");
+    assert.equal(card.title, "AI 기반 백엔드 개발 워크플로우 표준화");
     assert.equal(card.periodLabel, "2025.03 ~");
-    assert.equal(card.role, "Webhook MVP 범위와 단계별 확장 로드맵 정리");
-    assert.equal(card.decision, "GitHub Webhook 수신·서명 검증·중복 방지 흐름 설계");
+    assert.equal(card.role, "AI 개발 워크플로우 설계와 팀 적용 기준 정리");
+    assert.equal(card.decision, "OpenAPI Spec-First 반복 구현을 Claude Code·Codex 워크플로우로 표준화");
     assert.equal(
       card.result,
-      "Go 기반 GitHub Issues Webhook을 서명 검증·중복 방지·저장 흐름으로 안전하게 수신하고, Discord 알림과 LLM 요약을 PGMQ Queue/Worker 뒤로 분리해 운영 자동화를 확장할 수 있게 설계했습니다.",
+      "OpenAPI Spec-First와 AI 도구 활용 기준을 문서화해 단순 기능 평균 구현 시간을 1일에서 2시간으로 줄이고 컨벤션 리뷰 지적을 약 80% 낮췄습니다.",
     );
     assert.deepEqual(card.stack, [
-      "Go 1.26.x",
-      "net/http",
-      "PostgreSQL",
-      "PGMQ",
+      "Java",
+      "Spring Boot",
+      "OpenAPI",
+      "Claude Code",
     ]);
     assert.ok(!("metrics" in card));
   });
 
-  it("renders two featured projects and the remaining grid from the same collection", () => {
-    assert.match(portfolioSource, /const featuredProjects = projects\.slice\(0,\s*2\)/);
-    assert.match(portfolioSource, /const remainingProjects = projects\.slice\(2\)/);
+  it("renders featured, career, and side projects from the same collection", () => {
+    assert.match(portfolioSource, /section === "featured"/);
+    assert.match(portfolioSource, /section === "career"/);
+    assert.match(portfolioSource, /section === "side"/);
     assert.match(portfolioSource, /featuredProjects\.map/);
-    assert.match(portfolioSource, /remainingProjects\.map/);
+    assert.match(portfolioSource, /careerProjects\.map/);
+    assert.match(portfolioSource, /sideProjects\.map/);
     assert.match(portfolioSource, /href=\{`\/portfolio\/\$\{project\.slug\}`\}/);
     assert.doesNotMatch(portfolioSource, /project\.company|card\.metrics/);
   });

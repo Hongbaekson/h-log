@@ -20,9 +20,10 @@ export const metadata: Metadata = {
   title: "포트폴리오",
 };
 
-const featuredProjects = projects.slice(0, 2);
-const remainingProjects = projects.slice(2);
-const activeProjectCount = projects.filter((project) => project.period.includes("현재")).length;
+const featuredProjects = projects.filter((project) => project.section === "featured");
+const careerProjects = projects.filter((project) => project.section === "career");
+const sideProjects = projects.filter((project) => project.section === "side");
+const activeProjectCount = featuredProjects.length;
 
 function ProjectCard({
   featured = false,
@@ -184,7 +185,7 @@ export default function PortfolioPage() {
             </p>
           </div>
 
-          <ol className="mt-6 grid gap-5 lg:grid-cols-2">
+          <ol className="mt-6 grid gap-5 lg:grid-cols-3">
             {featuredProjects.map((project) => (
               <li className="min-w-0" key={project.slug}>
                 <ProjectCard featured project={project} />
@@ -194,7 +195,7 @@ export default function PortfolioPage() {
         </Container>
       </section>
 
-      <section aria-labelledby="career-projects" className="pb-24">
+      <section aria-labelledby="career-projects" className="pb-12">
         <Container>
           <div className="max-w-2xl">
             <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-blue-200">
@@ -206,7 +207,31 @@ export default function PortfolioPage() {
           </div>
 
           <ol className="mt-6 grid gap-4 lg:grid-cols-2">
-            {remainingProjects.map((project) => (
+            {careerProjects.map((project) => (
+              <li className="min-w-0" key={project.slug}>
+                <ProjectCard project={project} />
+              </li>
+            ))}
+          </ol>
+        </Container>
+      </section>
+
+      <section aria-labelledby="side-projects" className="pb-24">
+        <Container>
+          <div className="max-w-2xl">
+            <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-violet-200">
+              Side Project
+            </p>
+            <h2 id="side-projects" className="mt-2 text-2xl font-extrabold text-white md:text-3xl">
+              개인 프로젝트
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-slate-400">
+              실무 경력과 구분해 직접 설계하고 운영하는 자동화 프로젝트입니다.
+            </p>
+          </div>
+
+          <ol className="mt-6 grid gap-4 lg:grid-cols-2">
+            {sideProjects.map((project) => (
               <li className="min-w-0" key={project.slug}>
                 <ProjectCard project={project} />
               </li>
