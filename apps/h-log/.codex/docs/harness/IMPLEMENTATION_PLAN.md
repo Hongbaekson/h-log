@@ -69,6 +69,7 @@ public-read-boundary-hardening: completed, Step 0 published-current SQL boundary
 search-runtime-bounds: completed, Step 0 bounded process-local search state
 container-least-privilege: completed, Steps 0-1 rootless job images and confirmed-unused Redis removal
 release-input-hardening: completed, Steps 0-1 canonical origin validation and reproducible production build inputs completed; live dependency audit remains separately approval-gated
+integration-test-gate-hardening: completed, Step 0 aggregate PostgreSQL integration and CI gate completed
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 ```
@@ -403,6 +404,7 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 2. `search-runtime-bounds / Step 0`: process-local search history/cache/ephemeral usage state를 bounded하게 만든다. durable PostgreSQL usage ledger와 published-only cached result filtering은 유지한다.
 3. `container-least-privilege / Step 0-1`: migration/worker/dry-run image를 rootless production dependency runtime으로 만들고, 모든 consumer 부재를 확인해 unused Redis Compose service를 제거했다. Redis volume 삭제나 OCI mutation은 이 phase 범위가 아니다.
 4. `release-input-hardening / Steps 0-1`: canonical public origin validation을 metadata/crawler와 required publish verification에 공통화했다. credentialed, private, special-use origin은 production에서 fetch 전에 차단하며 internal worker fetch origin은 분리해 유지한다. Node, Nginx, pgvector, Hermes release base image는 confirmed multi-architecture manifest digest로 pin했고 source artifact/rollback reference를 runbook에 기록했다. lockfile-only production review는 통과했지만 registry audit은 dependency metadata를 전송하므로 별도 사용자 승인 후에만 실행한다.
+5. `integration-test-gate-hardening / Step 0`: 기존 PostgreSQL integration suite를 fail-fast aggregate command로 묶고 ephemeral pgvector 기반 GitHub Actions에서 기본 앱 gate와 함께 실행한다. 새 runtime service나 production secret은 추가하지 않는다.
 
 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
 

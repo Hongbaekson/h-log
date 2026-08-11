@@ -127,9 +127,16 @@ docker compose --profile worker run --rm hlog-worker
 ```bash
 npm ci
 npm run test
+npm run test:integration
 npm run typecheck
 npm run lint
 npm run build
+```
+
+`.github/workflows/h-log.yml`은 임시 pgvector PostgreSQL service에만 `DATABASE_URL`을 주입해 통합 테스트를 실행한다. 로컬에서는 기존 `hlog-migrate` image를 재사용한다.
+
+```bash
+docker compose --profile tools run --rm --build hlog-migrate npm run test:integration
 ```
 
 dependency나 보안 경계가 바뀌는 변경은 아래 local security check도 함께 실행한다.

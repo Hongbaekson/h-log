@@ -81,6 +81,11 @@
       "summary": "Steps 0-1 completed: required publish verification shares strict production canonical-origin validation, and Node/Nginx/pgvector/Hermes release bases are digest-pinned with source/rollback records. Lockfile-only production review passed; live registry audit remains separately approval-gated."
     },
     {
+      "dir": "integration-test-gate-hardening",
+      "status": "completed",
+      "summary": "Step 0 completed: one fail-fast command runs the five existing PostgreSQL integration suites, and a SHA-pinned GitHub Actions workflow verifies unit, 13 integration tests, typecheck, lint, and build against ephemeral pgvector without production changes."
+    },
+    {
       "dir": "auto-publish-ops-hardening",
       "status": "pending",
       "summary": "Steps 0-3 completed. Step 4 artifact 70fd31c is live with server-local credential rotation, production env/input, migrations 001-003, production audit 0, a successful Hermes canary across required/public/crawler/search/usage surfaces, and an audited eight-surface rollback. Timer activation is intentionally deferred until public-site-quality-hardening is complete and a real HTTPS public origin plus privacy organization/private-repository lists are ready for production cutover."

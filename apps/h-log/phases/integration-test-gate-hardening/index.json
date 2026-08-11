@@ -1,0 +1,12 @@
+{
+  "project": "h-log",
+  "phase": "integration-test-gate-hardening",
+  "steps": [
+    {
+      "step": 0,
+      "name": "aggregate-db-integration-and-ci-gate",
+      "status": "completed",
+      "summary": "The five existing PostgreSQL integration suites now run behind one fail-fast command and a SHA-pinned GitHub Actions workflow verifies them against ephemeral pgvector with the standard app gates, without changing production infrastructure."
+    }
+  ]
+}

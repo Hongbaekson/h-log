@@ -17,6 +17,7 @@
 ```bash
 npm run lint
 npm run test
+npm run test:integration # DATABASE_URL required
 npm run typecheck
 npm run build
 ```

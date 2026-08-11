@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test": "node --no-warnings --test --experimental-strip-types lib/**/*.test.ts",
+    "test:integration": "node -e \"if (!process.env.DATABASE_URL) { console.error('DATABASE_URL is required for integration tests'); process.exit(1) }\" && npm run test:migrations && npm run test:repository && npm run test:public-read-path && npm run test:worker && npm run test:dry-run",
     "test:migrations": "node --test scripts/blog-migrations.integration.test.mjs",
     "test:repository": "node --no-warnings --test --experimental-strip-types lib/blog-postgres-repository.integration.test.ts",
     "test:public-read-path": "node --no-warnings --test --experimental-strip-types lib/blog-public-read-path.integration.test.ts",

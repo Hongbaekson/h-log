@@ -31,6 +31,7 @@
 - Manual worker required adapter packaging과 사전/사후 검증 단계 전이의 격리 PostgreSQL 검증을 완료했다.
 - 공식 Hermes image 기반 Compose service와 09:00 KST systemd timer packaging을 완료했다. OCI에는 server-local credential/env/input과 migrations `001`-`003`, Hermes OAuth, bounded canary와 audited rollback까지 검증한 artifact `70fd31cf2756273219b19553a36c1a2e1843b004`가 반영돼 있다. Production timer는 아직 비활성화돼 있다.
 - Aggregate 성과 신호, persona example/version rollback, 반복 생성 실패 차단 contract를 도메인 없이 모두 완료했다. 다음 단계인 실제 HTTPS public origin, privacy 목록, signal collection과 production timer 연결부터는 도메인이 필요한 production cutover로 진행한다.
+- 기존 PostgreSQL integration suite 5종은 하나의 fail-fast 명령과 ephemeral pgvector 기반 GitHub Actions gate로 검증한다. 이 gate는 production domain, OCI, timer를 변경하지 않는다.
 ```
 
 따라서 문서에서 `completed`는 contract 완료와 runtime 완료를 구분해 쓴다. Production 자동 발행 완료는 PostgreSQL persistence, persistent worker, 운영 안정화, 승인된 canary와 rollback smoke까지 통과한 뒤에만 선언한다.
@@ -138,7 +139,7 @@ AI workflow
 7. aggregate signal contract는 로컬에서 먼저 완료하고, 실제 signal이 쌓인 뒤 persona feedback learning 활성화
 ```
 
-Production activation 전 refactoring sequence는 완료됐다. published-current SQL read boundary, bounded process-local search state, rootless job image와 confirmed-unused Redis removal, canonical public origin validation, reproducible build input hardening을 마쳤다. Node, Nginx, pgvector, Hermes base image는 confirmed multi-architecture manifest digest로 pin하고 source artifact/rollback reference를 runbook에 기록했다. lockfile-only production review는 통과했지만 registry audit은 dependency metadata를 전송하므로 별도 사용자 승인 후에만 실행한다. Canonical origin은 required publish verification에도 공통 적용하며, production에서 credentialed, private, special-use origin을 fetch 전에 차단하고 internal worker fetch origin은 분리해 유지한다. 이 sequence는 실제 provider, domain, DNS/TLS, OCI mutation, timer activation을 포함하지 않으며, 모든 완료 후에도 HTTPS origin과 privacy 목록을 받는 activation gate를 유지한다.
+Production activation 전 refactoring sequence는 완료됐다. published-current SQL read boundary, bounded process-local search state, rootless job image와 confirmed-unused Redis removal, canonical public origin validation, reproducible build input hardening을 마쳤고, 기존 PostgreSQL integration suite 5종은 fail-fast aggregate command와 ephemeral pgvector CI gate로 묶었다. Node, Nginx, pgvector, Hermes base image는 confirmed multi-architecture manifest digest로 pin하고 source artifact/rollback reference를 runbook에 기록했다. lockfile-only production review는 통과했지만 registry audit은 dependency metadata를 전송하므로 별도 사용자 승인 후에만 실행한다. Canonical origin은 required publish verification에도 공통 적용하며, production에서 credentialed, private, special-use origin을 fetch 전에 차단하고 internal worker fetch origin은 분리해 유지한다. 이 sequence는 실제 provider, domain, DNS/TLS, OCI mutation, timer activation을 포함하지 않으며, 모든 완료 후에도 HTTPS origin과 privacy 목록을 받는 activation gate를 유지한다.
 
 ## 목표 파이프라인
 
