@@ -1,18 +1,23 @@
 # H-Log Site Instructions
 
-이 앱은 손홍백 개인 사이트입니다. 포트폴리오만이 아니라 Resume, Portfolio, Blog를 포함하는 개인 브랜딩 사이트로 개발합니다.
+이 앱은 손홍백 개인 사이트입니다. Resume, Portfolio, Blog를 포함하는 개인 브랜딩 사이트로 개발합니다.
+
+## Source of Truth
+
+- 현재 phase 상태와 다음 작업은 `phases/index.json`과 해당 phase의 `index.json`을 순서대로 확인해 판단한다.
+- 구현 현황과 운영 준비 상태를 이 문서에 복제하지 않는다. live phase 레지스트리와 현재 코드가 우선한다.
+- Harness 작업은 `.codex/docs/harness/WORKFLOW.md`와 루트 `.codex/skills/harness/SKILL.md`를 따른다.
+- Production code 변경은 루트 `.codex/skills/tdd/SKILL.md`에 따라 focused failing test를 먼저 확인한다.
 
 ## Stack Definition
 
 - Language: TypeScript
 - Frontend: React + Next.js App Router
 - Styling: Tailwind CSS
-- Blog content direction: DB-backed `posts`/`post_versions` with generated Markdown/HTML
-- Compatibility content: existing MD/MDX loader is import/transition support only
-- Backend: Next.js route handlers first; automation contracts, a manual `--once` persistent worker, the local fake-provider end-to-end dry-run, a Hermes Codex OAuth article adapter, a PostgreSQL private-persistence one-shot runner, and a bounded 09:00 KST Compose/systemd scheduler package exist, while the production timer remains disabled
-- Database: PostgreSQL + pgvector schema migration, the minimal blog repository, the DB-backed public read path, the persistent worker, and the local end-to-end dry-run are implemented; server-local credential rotation, production input, live migrations, a bounded Hermes canary, and audited rollback are verified on OCI. Scheduled activation remains pending until a real HTTPS public origin and privacy organization/private-repository lists are supplied
-- Deploy target: OCI server with Docker Compose and Nginx
-- Infrastructure: OCI Compute first; web, worker, PostgreSQL, and Nginx are Compose-managed unless a later ADR selects managed services
+- Blog content: PostgreSQL `posts`/`post_versions` 기반 Markdown/HTML. 기존 MD/MDX loader는 import/transition 용도로만 유지한다.
+- Backend: Next.js route handlers와 필요한 worker/job entrypoint를 우선한다.
+- Database: PostgreSQL + pgvector
+- Deployment: OCI Compute의 Docker Compose와 Nginx. 별도 phase 또는 ADR 없이 새 런타임 계층을 추가하지 않는다.
 
 ## Product Direction
 
@@ -23,21 +28,21 @@
 - 디자인 방향: Clean Dark Engineer Portfolio + Subtle AI Workflow Console
 - MVP pages: `/`, `/resume`, `/portfolio`, `/portfolio/[slug]`, `/blog`, `/blog/[slug]`
 - 제외: 방문자 RAG 챗봇, SSE 대화 UI, 방문자 세션 메모리, 댓글, 공개 조회수
-- 관리자 기능은 DB phase에서 preview/save/publish 중심의 최소 운영 화면만 허용한다.
+- 관리자 기능은 preview/save/publish 중심의 최소 운영 화면만 허용한다.
 
 ## Lazy-Load Documents
 
-필요한 경우에만 아래 문서를 읽는다.
+작업에 필요한 문서만 읽는다.
 
 - `.codex/docs/implementation-roadmap.md`: 작은 단위 구현 순서
 - `.codex/docs/deployment-ci-cd.md`: OCI, Docker, Nginx, CI/CD 작업
-- `.codex/docs/harness/PRD.md`: h-log 제품 범위와 자동 블로그 전환 기준
+- `.codex/docs/harness/PRD.md`: 제품 범위와 자동 블로그 전환 기준
 - `.codex/docs/harness/ADR.md`: 기술 결정과 트레이드오프
 - `.codex/docs/harness/ARCHITECTURE.md`: 현재 앱 구조와 자동 블로그 전환 구조
-- `.codex/docs/harness/WORKFLOW.md`: Harness 기반 실행 규칙
+- `.codex/docs/harness/WORKFLOW.md`: Harness 실행 규칙
 - `.codex/docs/harness/AGENT_LOOP.md`: 한 step 단위 반복 개발 루프
 - `.codex/docs/harness/IMPLEMENTATION_PLAN.md`: phase 후보와 전환 단계
-- `.codex/rules/frontend.md`: UI, 컴포넌트, 스타일 작성 규칙
+- `.codex/rules/frontend.md`: UI, 컴포넌트, 스타일 규칙
 - `.codex/rules/content-seo-privacy.md`: 콘텐츠, SEO, 개인정보 공개 기준
 - `../../plans/personal-portfolio-site-development-plan.md`: 기준 개발 계획
 - `../../plans/personal-portfolio-design-direction.md`: 디자인 기준
@@ -45,60 +50,35 @@
 
 ## Development Process
 
-큰 작업을 한 번에 처리하지 않는다. 항상 아래 순서로 쪼갠다.
+1. `phases/index.json`과 현재 phase 문서에서 한 step의 범위와 성공 기준을 확인한다.
+2. Production behavior 변경은 focused failing test를 먼저 재현하고 최소 코드로 통과시킨다.
+3. 변경에 가까운 검증을 실행한 뒤 아래 필수 gate를 통과시킨다.
+4. 기능 phase가 바뀐 경우에만 phase 상태와 관련 Harness 문서를 함께 갱신한다.
 
-1. Project setup
-2. Design tokens and base UI
-3. DB content model and publishing boundary
-4. Projects list and detail
-5. Home page
-6. Resume page
-7. DB-backed Blog list and detail
-8. SEO and quality
-9. OCI Docker Compose/Nginx deployment foundation
-10. CI/CD
-
-한 단위가 끝날 때마다 가능한 검증을 수행하고, 다음 단위로 넘어간다.
-
-Harness 작업은 `.codex/docs/harness/WORKFLOW.md`와 루트 `.codex/skills/harness/SKILL.md`를 따른다. Production code 변경은 루트 `.codex/skills/tdd/SKILL.md` 기준으로 failing test를 먼저 확인한다.
-
-## Expected Structure
-
-```text
-apps/h-log/
-  app/
-  components/
-  content/
-  lib/
-  public/
-  styles/
-  .codex/
-    docs/
-    rules/
-```
+한 작업 단위에서 페이지 여러 개와 배포 설정을 동시에 바꾸지 않는다.
 
 ## Validation
 
-앱 생성 후 기본 검증 명령은 다음과 같다.
+Production code 변경의 기본 gate는 다음과 같다.
 
 ```bash
+npm run test
 npm run lint
+npm run typecheck
 npm run build
+git diff --check
 ```
 
-UI 작업을 한 경우 개발 서버를 띄워 데스크톱과 모바일 뷰포트를 확인한다.
-
-```bash
-npm run dev
-```
+- 문서나 JSON만 변경하면 관련 파서 또는 형식 검사와 `git diff --check`만 실행한다.
+- DB, repository, worker, migration을 변경하면 `package.json`의 관련 integration test를 추가로 실행한다.
+- UI를 변경하면 `npm run dev`로 데스크톱과 모바일 뷰포트를 확인한다.
 
 ## Guardrails
 
 - 루트 `plans` 문서를 기준으로 하되, 상세 내용은 앱 내부 문서로 필요한 만큼만 읽는다.
-- Home H1은 담백하게 쓴다. 기본형은 `백엔드 개발자 손홍백입니다`로 둔다.
-- 2026-07-27 공개 결정에 따라 승인되지 않은 고객사·회사명과 내부 흐름은 일반화하고, 근거가 확인되지 않은 상세 성과 수치는 공개하지 않는다.
+- Home H1 기본형은 `백엔드 개발자 손홍백입니다`로 둔다.
+- 승인되지 않은 고객사·회사명과 내부 흐름은 일반화하고, 근거가 확인되지 않은 상세 성과 수치는 공개하지 않는다.
 - 프로필 사진과 GitHub는 공개한다. 이메일과 Contact form은 공개하지 않으며, 안전하게 일반화된 교체본이 준비될 때까지 PDF 다운로드도 공개하지 않는다. PDF를 다시 공개할 때는 전 페이지를 검수하고 UI·파일명을 `이력서`로 통일한다.
 - 도메인 공개 초기 theme은 dark-only로 유지한다. Light theme은 별도 token refactor 없이는 다시 추가하지 않는다.
 - 전화번호, 생년월일, 내부 URL, 서버 IP, API key, 비공개 저장소명은 노출하지 않는다.
-- full CMS와 방문자 챗봇을 만들지 않는다. Aggregate 성과 신호, persona version/rollback, 반복 생성 실패 차단의 로컬 contract는 완료됐지만 실제 수집, persona 반영, failure registry persistence, production timer는 공개 HTTPS origin이 준비되기 전까지 활성화하지 않는다.
-- 한 작업 단위에서 페이지 여러 개와 배포 설정을 동시에 바꾸지 않는다.
+- OCI, DNS, TLS, production 환경값, live migration, canary, timer, 실제 외부 API 호출과 자동 발행 활성화는 사용자 명시 승인 없이 수행하지 않는다.
