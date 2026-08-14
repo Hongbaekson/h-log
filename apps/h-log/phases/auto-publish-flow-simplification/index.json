@@ -1,0 +1,12 @@
+{
+  "project": "h-log",
+  "phase": "auto-publish-flow-simplification",
+  "steps": [
+    {
+      "step": 0,
+      "name": "production-generation-handoff-only",
+      "status": "completed",
+      "summary": "The generation pipeline now requires private aggregate persistence, rejects generated slugs already present in PostgreSQL, and contains no inline required-job, retry, or public-transition path."
+    }
+  ]
+}

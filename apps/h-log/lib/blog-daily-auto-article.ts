@@ -59,7 +59,6 @@ export type DailyAutoArticleMutableStore = {
 };
 
 export type DailyAutoArticlePipelineState = {
-  dailyPublishedCounts: Map<string, number>;
   generationRuns: PostGenerationRunRecord[];
   publishJobs: PublishJobRecord[];
   qualityGateResults: QualityGateResultRecord[];
@@ -69,26 +68,7 @@ export type DailyAutoArticlePipelineState = {
 };
 
 export type DailyAutoArticlePipelinePolicy = UsageBudgetPolicy & {
-  dailyPublishLimit: number;
   minTopicScore: number;
-  retryLimit: number;
-};
-
-export type RunRequiredPublishJobResult =
-  | {
-      status: "succeeded";
-    }
-  | {
-      error: string;
-      status: "failed";
-    };
-
-export type RunRequiredPublishJobInput = {
-  attempt: number;
-  job: PublishJobRecord;
-  post: PostRecord;
-  runId: string;
-  version: PostVersionRecord;
 };
 
 export type GenerateArticleInput = {
@@ -116,8 +96,9 @@ export type PersistPublishingArticleInput = {
 export type DailyAutoArticlePipelineInput = {
   dayKey: string;
   generateArticle(input: GenerateArticleInput): Promise<GenerateArticleResult>;
+  hasPersistedPostSlug(slug: string): Promise<boolean>;
   personalContextItems: readonly PersonalContextItemRecord[];
-  persistPublishingArticle?(
+  persistPublishingArticle(
     input: PersistPublishingArticleInput,
   ): Promise<void>;
   policy?: Partial<DailyAutoArticlePipelinePolicy>;
@@ -126,9 +107,6 @@ export type DailyAutoArticlePipelineInput = {
   requestedContextIds?: readonly string[];
   runAt: Timestamp;
   runId: string;
-  runRequiredPublishJob(
-    input: RunRequiredPublishJobInput,
-  ): Promise<RunRequiredPublishJobResult>;
   state: DailyAutoArticlePipelineState;
   topicSources: readonly TopicSourceInput[];
   usageLedger: BlogUsageLedger;
@@ -139,9 +117,7 @@ export type DailyAutoArticlePipelineStatus =
   | "duplicate_daily_publish"
   | "generation_failed"
   | "no_topic"
-  | "publish_failed"
   | "publishing"
-  | "published"
   | "weak_sources";
 
 export type DailyAutoArticlePipelineResult = {
@@ -153,14 +129,11 @@ export type DailyAutoArticlePipelineResult = {
 
 const DEFAULT_DAILY_AUTO_ARTICLE_POLICY: DailyAutoArticlePipelinePolicy = {
   ...UNLIMITED_USAGE_BUDGET,
-  dailyPublishLimit: 1,
   minTopicScore: 1,
-  retryLimit: 2,
 };
 
 export function createDailyAutoArticlePipelineState(): DailyAutoArticlePipelineState {
   return {
-    dailyPublishedCounts: new Map(),
     generationRuns: [],
     publishJobs: [],
     qualityGateResults: [],
@@ -187,11 +160,7 @@ export async function runDailyAutoArticlePipeline(
   };
   const postId = `post-${toIdSegment(input.dayKey)}`;
 
-  if (
-    getDailyPublishedCount(input) >= policy.dailyPublishLimit ||
-    (input.persistPublishingArticle &&
-      input.state.store.posts.some((post) => post.id === postId))
-  ) {
+  if (input.state.store.posts.some((post) => post.id === postId)) {
     return emptyResult(input, "duplicate_daily_publish");
   }
 
@@ -316,10 +285,11 @@ export async function runDailyAutoArticlePipeline(
   }
 
   const writerOutput = generation.output;
+  const existingPublishedSlugs = (await input.hasPersistedPostSlug(writerOutput.slug))
+    ? [writerOutput.slug]
+    : [];
   const validation = validateArticleWriterOutput({
-    existingPublishedSlugs: input.state.store.posts.flatMap((post) =>
-      post.status === "published" ? [post.slug] : [],
-    ),
+    existingPublishedSlugs,
     generatedAt: input.runAt,
     output: writerOutput,
     postId,
@@ -384,63 +354,22 @@ export async function runDailyAutoArticlePipeline(
     }),
   );
 
-  if (input.persistPublishingArticle) {
-    await input.persistPublishingArticle({
-      post: publishingPost,
-      publishJobs,
-      sources,
-      tags,
-      version,
-    });
-    input.state.publishJobs.push(...publishJobs);
-    input.state.store.posts.push(publishingPost);
-    input.state.store.sources.push(...sources);
-    input.state.store.tags.push(...tags);
-    input.state.store.versions.push(version);
-
-    return {
-      post: publishingPost,
-      status: "publishing",
-      store: input.state.store,
-      version,
-    };
-  }
-
-  const publishResult = await runRequiredPublishJobs({
-    input,
-    jobs: publishJobs,
+  await input.persistPublishingArticle({
     post: publishingPost,
-    policy,
+    publishJobs,
+    sources,
+    tags,
     version,
   });
-  input.state.publishJobs.push(...publishResult.jobs);
-
-  if (!publishResult.succeeded) {
-    return emptyResult(input, "publish_failed");
-  }
-
-  assertBlogPostStatusTransition("publishing", "verifying");
-  assertBlogPostStatusTransition("verifying", "published");
-
-  const publishedPost: PostRecord = {
-    ...publishingPost,
-    publishedAt: input.runAt,
-    status: "published",
-    updatedAt: input.runAt,
-  };
-
-  input.state.store.posts.push(publishedPost);
-  input.state.store.versions.push(version);
+  input.state.publishJobs.push(...publishJobs);
+  input.state.store.posts.push(publishingPost);
   input.state.store.sources.push(...sources);
   input.state.store.tags.push(...tags);
-  input.state.dailyPublishedCounts.set(
-    input.dayKey,
-    getDailyPublishedCount(input) + 1,
-  );
+  input.state.store.versions.push(version);
 
   return {
-    post: publishedPost,
-    status: "published",
+    post: publishingPost,
+    status: "publishing",
     store: input.state.store,
     version,
   };
@@ -568,109 +497,9 @@ function createRequiredPublishJobs({
   }));
 }
 
-async function runRequiredPublishJobs({
-  input,
-  jobs,
-  policy,
-  post,
-  version,
-}: {
-  input: DailyAutoArticlePipelineInput;
-  jobs: readonly PublishJobRecord[];
-  policy: DailyAutoArticlePipelinePolicy;
-  post: PostRecord;
-  version: PostVersionRecord;
-}): Promise<{ jobs: PublishJobRecord[]; succeeded: boolean }> {
-  const completedJobs: PublishJobRecord[] = [];
-
-  for (const job of jobs) {
-    const result = await runRequiredPublishJobWithRetry({
-      input,
-      job,
-      policy,
-      post,
-      version,
-    });
-
-    completedJobs.push(result.job);
-
-    if (!result.succeeded) {
-      return {
-        jobs: completedJobs,
-        succeeded: false,
-      };
-    }
-  }
-
-  return {
-    jobs: completedJobs,
-    succeeded: true,
-  };
-}
-
-async function runRequiredPublishJobWithRetry({
-  input,
-  job,
-  policy,
-  post,
-  version,
-}: {
-  input: DailyAutoArticlePipelineInput;
-  job: PublishJobRecord;
-  policy: DailyAutoArticlePipelinePolicy;
-  post: PostRecord;
-  version: PostVersionRecord;
-}): Promise<{ job: PublishJobRecord; succeeded: boolean }> {
-  let lastError = "required publish job failed";
-
-  for (let attempt = 1; attempt <= policy.retryLimit; attempt += 1) {
-    const result = await input.runRequiredPublishJob({
-      attempt,
-      job: {
-        ...job,
-        retryCount: attempt - 1,
-        status: "running",
-      },
-      post,
-      runId: input.runId,
-      version,
-    });
-
-    if (result.status === "succeeded") {
-      return {
-        job: {
-          ...job,
-          error: null,
-          finishedAt: input.runAt,
-          retryCount: attempt - 1,
-          status: "succeeded",
-        },
-        succeeded: true,
-      };
-    }
-
-    lastError = result.error;
-  }
-
-  return {
-    job: {
-      ...job,
-      error: lastError,
-      finishedAt: input.runAt,
-      retryCount: Math.max(0, policy.retryLimit - 1),
-      status: "failed",
-    },
-    succeeded: false,
-  };
-}
-
-function getDailyPublishedCount(input: DailyAutoArticlePipelineInput): number {
-  return input.state.dailyPublishedCounts.get(input.dayKey) ?? 0;
-}
-
 function emptyResult(
   input: DailyAutoArticlePipelineInput,
-  status: Exclude<DailyAutoArticlePipelineStatus, "published" | "publishing">,
+  status: Exclude<DailyAutoArticlePipelineStatus, "publishing">,
 ): DailyAutoArticlePipelineResult {
   return {
     post: null,

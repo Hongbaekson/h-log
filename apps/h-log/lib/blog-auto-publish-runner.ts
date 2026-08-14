@@ -25,19 +25,12 @@ export type DailyAutoPublishInputFile = {
 
 type DailyAutoPublishOnceInput = Omit<
   DailyAutoArticlePipelineInput,
-  | "dayKey"
-  | "persistPublishingArticle"
-  | "runId"
-  | "runRequiredPublishJob"
-  | "state"
+  "dayKey" | "runId" | "state"
 > & {
   acquireDailyRunLock(
     lockKey: string,
   ): Promise<(() => Promise<void>) | null>;
   hasPersistedPost(postId: string): Promise<boolean>;
-  persistPublishingArticle: NonNullable<
-    DailyAutoArticlePipelineInput["persistPublishingArticle"]
-  >;
 };
 
 export async function runDailyAutoPublishOnce(
@@ -63,17 +56,7 @@ export async function runDailyAutoPublishOnce(
     return await runDailyAutoArticlePipeline({
       ...input,
       dayKey,
-      policy: {
-        ...input.policy,
-        dailyPublishLimit: 1,
-        retryLimit: 1,
-      },
       runId: `daily-run-${dayKey}`,
-      runRequiredPublishJob: async () => {
-        throw new Error(
-          "one-shot generation must stop before required publish jobs",
-        );
-      },
       state,
     });
   } finally {

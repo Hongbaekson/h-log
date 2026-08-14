@@ -49,6 +49,14 @@ try {
 
       return query.rows[0]?.value === true;
     },
+    hasPersistedPostSlug: async (slug) => {
+      const query = await pool.query(
+        "select exists(select 1 from posts where slug = $1) as value",
+        [slug],
+      );
+
+      return query.rows[0]?.value === true;
+    },
     persistPublishingArticle: (aggregate) =>
       repository.savePost({ assets: [], ...aggregate }),
     policy: resolveUsageBudgetPolicy(process.env),

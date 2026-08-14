@@ -36,6 +36,9 @@ describe("daily auto publish one-shot runner", () => {
         checkedPostIds.push(postId);
         return true;
       },
+      hasPersistedPostSlug: async () => {
+        throw new Error("slug lookup must not run for an existing daily post");
+      },
       personalContextItems: [],
       persistPublishingArticle: async () => {
         persistenceCalls += 1;
