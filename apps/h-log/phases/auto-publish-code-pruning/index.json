@@ -1,0 +1,42 @@
+{
+  "project": "h-log",
+  "phase": "auto-publish-code-pruning",
+  "steps": [
+    {
+      "step": 1,
+      "name": "remove-auto-publish-memory-mirror",
+      "status": "completed",
+      "summary": "Removed the mutable pipeline state/store mirror and kept duplicate ownership in the runner plus PostgreSQL, durable usage recording, privacy gates, and one private aggregate persistence call."
+    },
+    {
+      "step": 2,
+      "name": "remove-unused-content-hash-reconciliation",
+      "status": "pending",
+      "summary": "Recheck callers, then remove the unused in-memory reconciliation contract while preserving the live required-verification hash check."
+    },
+    {
+      "step": 3,
+      "name": "remove-unwired-retryable-job-executor",
+      "status": "pending",
+      "summary": "Recheck callers, then remove the unwired retryable executor contract while preserving persistent-worker retry ownership."
+    },
+    {
+      "step": 4,
+      "name": "remove-unwired-performance-signals",
+      "status": "pending",
+      "summary": "Recheck callers, then remove the unpersisted performance-signal contract and its isolated tests."
+    },
+    {
+      "step": 5,
+      "name": "remove-unwired-persona-learning",
+      "status": "pending",
+      "summary": "Recheck callers, then remove the inactive persona-learning contract and its isolated tests."
+    },
+    {
+      "step": 6,
+      "name": "remove-unwired-failure-pattern-registry",
+      "status": "pending",
+      "summary": "Recheck callers, then remove the unpersisted failure-pattern contract and its isolated tests."
+    }
+  ]
+}

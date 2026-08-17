@@ -3,7 +3,6 @@ import { describe, it } from "node:test";
 
 import { selectPublicBlogRouteEntries } from "./blog-content-model.ts";
 import {
-  createDailyAutoArticlePipelineState,
   runDailyAutoArticlePipeline,
   type DailyAutoArticlePipelineInput,
 } from "./blog-daily-auto-article.ts";
@@ -137,7 +136,6 @@ function createPipelineInput(
     runId: "daily-run-2026-07-08",
     hasPersistedPostSlug: () => Promise.resolve(false),
     persistPublishingArticle: () => Promise.resolve(),
-    state: createDailyAutoArticlePipelineState(),
     topicSources: [createTopicSource()],
     usageLedger: {
       getUsageCostTotals: () =>
@@ -228,7 +226,6 @@ describe("daily auto article pipeline", () => {
 
   it("blocks persistence when the generated slug already exists", async () => {
     const checkedSlugs: string[] = [];
-    const state = createDailyAutoArticlePipelineState();
     let persistenceCalls = 0;
     const result = await runDailyAutoArticlePipeline(
       createPipelineInput({
@@ -239,22 +236,16 @@ describe("daily auto article pipeline", () => {
         persistPublishingArticle: async () => {
           persistenceCalls += 1;
         },
-        state,
       }),
     );
 
     assert.equal(result.status, "generation_failed");
     assert.deepEqual(checkedSlugs, ["runtime-release-note"]);
     assert.equal(persistenceCalls, 0);
-    assert.deepEqual(
-      state.qualityGateResults.map((gate) => gate.gateName),
-      ["article_quality_gate:duplicate_topic"],
-    );
   });
 
   it("blocks sensitive generation input before calling the LLM adapter", async () => {
     const fakeToken = `sk-${"x".repeat(24)}`;
-    const state = createDailyAutoArticlePipelineState();
     let generationCalls = 0;
     const result = await runDailyAutoArticlePipeline(
       createPipelineInput({
@@ -267,54 +258,26 @@ describe("daily auto article pipeline", () => {
             summary: `Public-safe label was wrong: api_key=${fakeToken}`,
           }),
         ],
-        state,
       }),
     );
 
     assert.equal(result.status, "generation_failed");
     assert.equal(generationCalls, 0);
-    assert.deepEqual(
-      state.qualityGateResults.map((gate) => gate.gateName),
-      ["article_quality_gate:privacy_risk"],
-    );
-    assert.match(state.qualityGateResults[0]?.message ?? "", /\[REDACTED\]/);
-    assert.equal(JSON.stringify(state.qualityGateResults).includes(fakeToken), false);
-  });
-
-  it("persists at most one private article when the same daily cron is duplicated", async () => {
-    const state = createDailyAutoArticlePipelineState();
-    const first = await runDailyAutoArticlePipeline(
-      createPipelineInput({ state }),
-    );
-    const second = await runDailyAutoArticlePipeline(
-      createPipelineInput({
-        runId: "daily-run-2026-07-08-duplicate",
-        state,
-      }),
-    );
-
-    assert.equal(first.status, "publishing");
-    assert.equal(second.status, "duplicate_daily_publish");
-    assert.equal(state.store.posts.length, 1);
-    assert.equal(state.store.versions.length, 1);
-    assert.equal(state.generationRuns[0]?.model, "fake-writer");
-    assert.equal(
-      selectPublicBlogRouteEntries(state.store.posts, state.store.versions)
-        .length,
-      0,
-    );
   });
 
   it("persists a generated article privately before persistent publish jobs run", async () => {
-    const state = createDailyAutoArticlePipelineState();
     const baseInput = createPipelineInput();
     let generationCalls = 0;
     let persistenceCalls = 0;
+    const persistedAggregates: Parameters<
+      DailyAutoArticlePipelineInput["persistPublishingArticle"]
+    >[0][] = [];
     let persistedPostStatus: string | null = null;
     let persistedJobStatuses: string[] = [];
     const persistPublishingArticle: DailyAutoArticlePipelineInput["persistPublishingArticle"] =
       async (aggregate) => {
         persistenceCalls += 1;
+        persistedAggregates.push(aggregate);
         persistedPostStatus = aggregate.post.status;
         persistedJobStatuses = aggregate.publishJobs.map((job) => job.status);
       };
@@ -325,23 +288,10 @@ describe("daily auto article pipeline", () => {
           return baseInput.generateArticle(input);
         },
         persistPublishingArticle,
-        state,
-      }),
-    );
-    const duplicate = await runDailyAutoArticlePipeline(
-      createPipelineInput({
-        generateArticle: (input) => {
-          generationCalls += 1;
-          return baseInput.generateArticle(input);
-        },
-        persistPublishingArticle,
-        runId: "daily-run-2026-07-08-duplicate-persistence",
-        state,
       }),
     );
 
     assert.equal(result.status, "publishing");
-    assert.equal(duplicate.status, "duplicate_daily_publish");
     assert.equal(result.post?.status, "publishing");
     assert.equal(persistedPostStatus, "publishing");
     assert.deepEqual(
@@ -350,9 +300,13 @@ describe("daily auto article pipeline", () => {
     );
     assert.equal(generationCalls, 1);
     assert.equal(persistenceCalls, 1);
+    const persistedAggregate = persistedAggregates[0];
+    assert.ok(persistedAggregate);
     assert.equal(
-      selectPublicBlogRouteEntries(state.store.posts, state.store.versions)
-        .length,
+      selectPublicBlogRouteEntries(
+        [persistedAggregate.post],
+        [persistedAggregate.version],
+      ).length,
       0,
     );
   });
@@ -397,20 +351,15 @@ describe("daily auto article pipeline", () => {
     ];
 
     for (const testCase of cases) {
-      const state = createDailyAutoArticlePipelineState();
       const result = await runDailyAutoArticlePipeline(
         createPipelineInput({
-          state,
           ...testCase.input,
         }),
       );
 
       assert.equal(result.status, testCase.status);
-      assert.equal(state.store.posts.length, 0);
-      assert.deepEqual(
-        selectPublicBlogRouteEntries(state.store.posts, state.store.versions),
-        [],
-      );
+      assert.equal(result.post, null);
+      assert.equal(result.version, null);
     }
   });
 

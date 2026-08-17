@@ -4,18 +4,14 @@ import {
   createPostVersionContentFromMarkdown,
   getPublishJobImportance,
   requiredPublishJobTypes,
-  type PostGenerationRunRecord,
   type PostRecord,
   type PostSourceRecord,
   type PostTagRecord,
   type PostVersionRecord,
   type PublishJobRecord,
-  type QualityGateResultRecord,
   type Timestamp,
 } from "./blog-content-model.ts";
-import type { BlogContentStore } from "./blog-public.ts";
 import {
-  createArticleGenerationRunRecord,
   validateArticleWriterOutput,
   type ArticleWriterOutput,
   type NormalizedArticleWriterOutput,
@@ -31,14 +27,12 @@ import {
   type ResearchPackPostSourceRecord,
   type ResearchPackSourceInput,
   type TopicCandidateRecord,
-  type TopicResearchRuntimeState,
   type TopicSourceInput,
 } from "./blog-topic-research.ts";
 import {
   createBlogUsageEvent,
   isUsageBudgetExceeded,
   UNLIMITED_USAGE_BUDGET,
-  type BlogUsageEventRecord,
   type BlogUsageLedger,
   type UsageBudgetPolicy,
   type UsageCostTotals,
@@ -48,24 +42,7 @@ import {
   createBlogPrivacyScanPolicyFromEnvironment,
   scanBlogPrivacyText,
   type BlogPrivacyScanPolicy,
-  type BlogPrivacyScanResult,
 } from "./blog-privacy-scanner.ts";
-
-export type DailyAutoArticleMutableStore = {
-  posts: PostRecord[];
-  sources: PostSourceRecord[];
-  tags: PostTagRecord[];
-  versions: PostVersionRecord[];
-};
-
-export type DailyAutoArticlePipelineState = {
-  generationRuns: PostGenerationRunRecord[];
-  publishJobs: PublishJobRecord[];
-  qualityGateResults: QualityGateResultRecord[];
-  store: DailyAutoArticleMutableStore;
-  topicResearchState: TopicResearchRuntimeState;
-  usageEvents: BlogUsageEventRecord[];
-};
 
 export type DailyAutoArticlePipelinePolicy = UsageBudgetPolicy & {
   minTopicScore: number;
@@ -107,7 +84,6 @@ export type DailyAutoArticlePipelineInput = {
   requestedContextIds?: readonly string[];
   runAt: Timestamp;
   runId: string;
-  state: DailyAutoArticlePipelineState;
   topicSources: readonly TopicSourceInput[];
   usageLedger: BlogUsageLedger;
 };
@@ -123,7 +99,6 @@ export type DailyAutoArticlePipelineStatus =
 export type DailyAutoArticlePipelineResult = {
   post: PostRecord | null;
   status: DailyAutoArticlePipelineStatus;
-  store: BlogContentStore;
   version: PostVersionRecord | null;
 };
 
@@ -131,22 +106,6 @@ const DEFAULT_DAILY_AUTO_ARTICLE_POLICY: DailyAutoArticlePipelinePolicy = {
   ...UNLIMITED_USAGE_BUDGET,
   minTopicScore: 1,
 };
-
-export function createDailyAutoArticlePipelineState(): DailyAutoArticlePipelineState {
-  return {
-    generationRuns: [],
-    publishJobs: [],
-    qualityGateResults: [],
-    store: {
-      posts: [],
-      sources: [],
-      tags: [],
-      versions: [],
-    },
-    topicResearchState: createTopicResearchRuntimeState(),
-    usageEvents: [],
-  };
-}
 
 export async function runDailyAutoArticlePipeline(
   input: DailyAutoArticlePipelineInput,
@@ -160,20 +119,16 @@ export async function runDailyAutoArticlePipeline(
   };
   const postId = `post-${toIdSegment(input.dayKey)}`;
 
-  if (input.state.store.posts.some((post) => post.id === postId)) {
-    return emptyResult(input, "duplicate_daily_publish");
-  }
-
   let usageCostTotals = await input.usageLedger.getUsageCostTotals(input.runAt);
 
   if (isUsageBudgetExceeded(usageCostTotals, policy)) {
-    return emptyResult(input, "budget_exceeded");
+    return emptyResult("budget_exceeded");
   }
 
   const collection = collectTopicCandidates({
     collectedAt: input.runAt,
     sources: input.topicSources,
-    state: input.state.topicResearchState,
+    state: createTopicResearchRuntimeState(),
   });
   for (const event of collection.usageEvents) {
     const usageEvent = createBlogUsageEvent({
@@ -191,12 +146,11 @@ export async function runDailyAutoArticlePipeline(
       status: event.status,
     });
     await input.usageLedger.recordUsageEvent(usageEvent);
-    input.state.usageEvents.push(usageEvent);
     usageCostTotals = addUsageCost(usageCostTotals, usageEvent.estimatedCost);
   }
 
   if (isUsageBudgetExceeded(usageCostTotals, policy)) {
-    return emptyResult(input, "budget_exceeded");
+    return emptyResult("budget_exceeded");
   }
 
   const topicCandidate = rankTopicCandidates(collection.candidates).find(
@@ -204,7 +158,7 @@ export async function runDailyAutoArticlePipeline(
   );
 
   if (!topicCandidate) {
-    return emptyResult(input, "no_topic");
+    return emptyResult("no_topic");
   }
 
   const { postSources, researchPack } = buildResearchPack({
@@ -215,7 +169,7 @@ export async function runDailyAutoArticlePipeline(
   });
 
   if (!researchPack.canSupportStrongClaims) {
-    return emptyResult(input, "weak_sources");
+    return emptyResult("weak_sources");
   }
 
   const applyToMe = buildApplyToMeContext({
@@ -229,7 +183,7 @@ export async function runDailyAutoArticlePipeline(
   });
 
   if (!applyToMe.generationInput) {
-    return emptyResult(input, "generation_failed");
+    return emptyResult("generation_failed");
   }
 
   const postVersionId = `version-${toIdSegment(input.dayKey)}`;
@@ -243,15 +197,7 @@ export async function runDailyAutoArticlePipeline(
   );
 
   if (generationInputPrivacyScan.status === "blocked") {
-    input.state.qualityGateResults.push(
-      createPreGenerationPrivacyFailure({
-        generatedAt: input.runAt,
-        postId,
-        postVersionId,
-        privacyScan: generationInputPrivacyScan,
-      }),
-    );
-    return emptyResult(input, "generation_failed");
+    return emptyResult("generation_failed");
   }
 
   const generation = await input.generateArticle({
@@ -274,14 +220,13 @@ export async function runDailyAutoArticlePipeline(
     status: "success",
   });
   await input.usageLedger.recordUsageEvent(llmUsageEvent);
-  input.state.usageEvents.push(llmUsageEvent);
   usageCostTotals = addUsageCost(
     usageCostTotals,
     llmUsageEvent.estimatedCost,
   );
 
   if (isUsageBudgetExceeded(usageCostTotals, policy)) {
-    return emptyResult(input, "budget_exceeded");
+    return emptyResult("budget_exceeded");
   }
 
   const writerOutput = generation.output;
@@ -296,26 +241,10 @@ export async function runDailyAutoArticlePipeline(
     postVersionId,
     privacyScanPolicy,
   });
-  input.state.qualityGateResults.push(...validation.qualityGateResults);
 
   if (!validation.normalizedOutput || validation.status !== "passed") {
-    return emptyResult(input, "generation_failed");
+    return emptyResult("generation_failed");
   }
-
-  input.state.generationRuns.push(
-    createArticleGenerationRunRecord({
-      applyToMeResultId: applyToMe.applyToMeResult.id,
-      createdAt: input.runAt,
-      gateResult: "passed",
-      inputSourceIds: postSources.map((source) => source.id),
-      model: generation.usage.model ?? "daily-auto-article-adapter",
-      output: validation.normalizedOutput,
-      personaVersion: "hlog-persona-v1",
-      postId,
-      postVersionId,
-      promptHash: `${input.runId}:prompt`,
-    }),
-  );
 
   const version = toPostVersionRecord({
     input,
@@ -361,16 +290,10 @@ export async function runDailyAutoArticlePipeline(
     tags,
     version,
   });
-  input.state.publishJobs.push(...publishJobs);
-  input.state.store.posts.push(publishingPost);
-  input.state.store.sources.push(...sources);
-  input.state.store.tags.push(...tags);
-  input.state.store.versions.push(version);
 
   return {
     post: publishingPost,
     status: "publishing",
-    store: input.state.store,
     version,
   };
 }
@@ -381,28 +304,6 @@ function rankTopicCandidates(
   return [...candidates].sort(
     (a, b) => b.score - a.score || a.title.localeCompare(b.title, "ko"),
   );
-}
-
-function createPreGenerationPrivacyFailure({
-  generatedAt,
-  postId,
-  postVersionId,
-  privacyScan,
-}: {
-  generatedAt: Timestamp;
-  postId: string;
-  postVersionId: string;
-  privacyScan: BlogPrivacyScanResult;
-}): QualityGateResultRecord {
-  return {
-    createdAt: generatedAt,
-    gateName: "article_quality_gate:privacy_risk",
-    id: `quality-gate:${postId}:${postVersionId}:privacy-risk-llm-input`,
-    message: `llm_input ${privacyScan.auditMessage}`,
-    postId,
-    postVersionId,
-    status: "failed",
-  };
 }
 
 function addUsageCost(
@@ -498,13 +399,11 @@ function createRequiredPublishJobs({
 }
 
 function emptyResult(
-  input: DailyAutoArticlePipelineInput,
   status: Exclude<DailyAutoArticlePipelineStatus, "publishing">,
 ): DailyAutoArticlePipelineResult {
   return {
     post: null,
     status,
-    store: input.state.store,
     version: null,
   };
 }

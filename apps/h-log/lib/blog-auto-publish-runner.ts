@@ -3,7 +3,6 @@ import {
   type Timestamp,
 } from "./blog-content-model.ts";
 import {
-  createDailyAutoArticlePipelineState,
   runDailyAutoArticlePipeline,
   type DailyAutoArticlePipelineInput,
   type DailyAutoArticlePipelineResult,
@@ -25,7 +24,7 @@ export type DailyAutoPublishInputFile = {
 
 type DailyAutoPublishOnceInput = Omit<
   DailyAutoArticlePipelineInput,
-  "dayKey" | "runId" | "state"
+  "dayKey" | "runId"
 > & {
   acquireDailyRunLock(
     lockKey: string,
@@ -37,27 +36,25 @@ export async function runDailyAutoPublishOnce(
   input: DailyAutoPublishOnceInput,
 ): Promise<DailyAutoArticlePipelineResult> {
   const dayKey = toSeoulDayKey(input.runAt);
-  const state = createDailyAutoArticlePipelineState();
   const releaseLock = await input.acquireDailyRunLock(
     `daily-auto-publish:${dayKey}`,
   );
 
   if (!releaseLock) {
-    return duplicateResult(state);
+    return duplicateResult();
   }
 
   try {
     const postId = createDailyAutoPublishPostId(input.runAt);
 
     if (await input.hasPersistedPost(postId)) {
-      return duplicateResult(state);
+      return duplicateResult();
     }
 
     return await runDailyAutoArticlePipeline({
       ...input,
       dayKey,
       runId: `daily-run-${dayKey}`,
-      state,
     });
   } finally {
     await releaseLock();
@@ -98,13 +95,10 @@ export function parseDailyAutoPublishInput(
   };
 }
 
-function duplicateResult(
-  state: ReturnType<typeof createDailyAutoArticlePipelineState>,
-): DailyAutoArticlePipelineResult {
+function duplicateResult(): DailyAutoArticlePipelineResult {
   return {
     post: null,
     status: "duplicate_daily_publish",
-    store: state.store,
     version: null,
   };
 }

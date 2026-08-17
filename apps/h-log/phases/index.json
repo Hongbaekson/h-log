@@ -91,6 +91,11 @@
       "summary": "Step 0 completed: the test-only inline publish/retry branch was removed, generation now has one private-persistence path, and an indexed PostgreSQL existence query rejects persisted slugs before aggregate persistence. Required jobs, retries, and public transition remain exclusively owned by the persistent worker."
     },
     {
+      "dir": "auto-publish-code-pruning",
+      "status": "pending",
+      "summary": "Step 1 completed: the daily generation path no longer maintains a test-only mutable mirror after durable persistence. Steps 2-6 remain pending for separately verified unused reconciliation, retry-executor, performance-signal, persona-learning, and failure-pattern modules."
+    },
+    {
       "dir": "auto-publish-ops-hardening",
       "status": "pending",
       "summary": "Steps 0-3 completed. Step 4 artifact 70fd31c is live with server-local credential rotation, production env/input, migrations 001-003, production audit 0, a successful Hermes canary across required/public/crawler/search/usage surfaces, and an audited eight-surface rollback. Timer activation is intentionally deferred until public-site-quality-hardening is complete and a real HTTPS public origin plus privacy organization/private-repository lists are ready for production cutover."
