@@ -33,7 +33,7 @@
     {
       "dir": "post-publish-seo-automation",
       "status": "completed",
-      "summary": "Steps 0-3 completed: post-publish verification jobs, crawler outputs, retryable IndexNow/Discord adapters, and published-only content hash reconciliation with publish_verifications failure handoff are tested."
+      "summary": "Steps 0-3 completed: post-publish verification jobs, crawler outputs, retryable IndexNow/Discord adapters, and required publish-adapter content-hash verification are tested."
     },
     {
       "dir": "topic-research-generation",
@@ -93,7 +93,7 @@
     {
       "dir": "auto-publish-code-pruning",
       "status": "pending",
-      "summary": "Step 1 completed: the daily generation path no longer maintains a test-only mutable mirror after durable persistence. Steps 2-6 remain pending for separately verified unused reconciliation, retry-executor, performance-signal, persona-learning, and failure-pattern modules."
+      "summary": "Steps 1-2 completed: the daily generation path no longer maintains a test-only mutable mirror after durable persistence, and the confirmed-unused reconciliation module was removed. Steps 3-6 remain pending for separately verified retry-executor, performance-signal, persona-learning, and failure-pattern modules."
     },
     {
       "dir": "auto-publish-ops-hardening",

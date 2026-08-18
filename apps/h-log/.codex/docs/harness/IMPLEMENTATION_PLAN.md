@@ -196,11 +196,11 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 - 결과: `lib/blog-post-publish-retryable-jobs.ts`와 테스트로 IndexNow 제출과 Discord 발행 알림을 retryable job contract로 고정했다. 실제 외부 호출은 adapter 뒤에 두고 `allowExternalSideEffects`가 명시된 경우에만 실행한다. deterministic idempotency key를 adapter 호출 전 검증하고, 실패 시 글의 `published` 상태를 유지하면서 `retry_count`/`error`를 갱신한다. retry limit에 도달하면 무한 재시도하지 않고 operator alert 결과만 남긴다. webhook URL, token, channel id는 코드/fixture에 남기지 않는다.
 - 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-post-publish-retryable-jobs.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-post-publish-retryable-jobs.test.ts`
 
-### post-publish-seo-automation / Step 3: content-hash-reconciliation
+### post-publish-seo-automation / Step 3: content-hash-reconciliation (later pruned)
 
 - 상태: completed
-- 결과: `lib/blog-content-hash-reconciliation.ts`와 테스트로 published current version만 대상으로 public HTML, `/blog/:slug.md`, `sitemap.xml`, `feed.xml`, `llms.txt`, `llms-full.txt`의 `content_hash`를 DB version hash와 비교한다. mismatch는 warning이 아니라 `publish_verifications`의 failed `content_version_match` required failure로 기록하고, 본문 excerpt를 verification result에 저장하지 않는다. 실패 결과는 `published -> correction_pending` 운영 검토와 correction/retraction handoff를 남긴다.
-- 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-content-hash-reconciliation.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-content-hash-reconciliation.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-post-publish-verification.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-crawler-output.test.ts`
+- 결과: 당시에는 isolated reconciliation contract를 검증했으나, live caller가 없음을 재확인한 뒤 `auto-publish-code-pruning / Step 2`에서 모듈과 test를 제거했다. Required publish adapter의 per-publish Markdown `content_hash` 검증은 유지한다.
+- 검증: 초기 RED/GREEN 뒤, pruning 단계에서 `node --no-warnings --test --experimental-strip-types lib/blog-required-publish-job-adapter.test.ts`로 남은 required verification을 확인한다.
 - 완료 후 주제 수집 phase로 이동했다.
 
 ## 현재 주제 수집 진행 상태

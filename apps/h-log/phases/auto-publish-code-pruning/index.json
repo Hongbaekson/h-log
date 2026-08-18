@@ -11,8 +11,8 @@
     {
       "step": 2,
       "name": "remove-unused-content-hash-reconciliation",
-      "status": "pending",
-      "summary": "Recheck callers, then remove the unused in-memory reconciliation contract while preserving the live required-verification hash check."
+      "status": "completed",
+      "summary": "Confirmed no production caller and removed the isolated reconciliation module and test. The required publish adapter still verifies the published Markdown against the current content hash."
     },
     {
       "step": 3,
