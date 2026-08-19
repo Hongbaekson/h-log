@@ -17,8 +17,8 @@
     {
       "step": 3,
       "name": "remove-unwired-retryable-job-executor",
-      "status": "pending",
-      "summary": "Recheck callers, then remove the unwired retryable executor contract while preserving persistent-worker retry ownership."
+      "status": "completed",
+      "summary": "Confirmed the executor had no live caller, moved its sole retry-limit constant into the persistent worker, and removed the executor with its isolated test. Worker lease, retry stop, and operator audit remain verified."
     },
     {
       "step": 4,

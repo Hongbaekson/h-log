@@ -190,11 +190,11 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 - 결과: `lib/blog-crawler-output.ts`와 route handlers로 `sitemap.xml`, `feed.xml`, `llms.txt`, `llms-full.txt`를 생성한다. 출력은 Step 0의 published-only manifest를 재사용하고, current version `content_hash`를 검증하며, preview/failed/unpublished/retracted 글은 제외한다. `llms-full.txt`는 공개된 글의 canonical Markdown만 싣고 source raw snapshot, 내부 evidence path, secret, private URL은 추가로 노출하지 않는다.
 - 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-crawler-output.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-crawler-output.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-post-publish-verification.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-public.test.ts`, `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`
 
-### post-publish-seo-automation / Step 2: indexnow-discord-retryable-jobs
+### post-publish-seo-automation / Step 2: indexnow-discord-retryable-jobs (later pruned)
 
 - 상태: completed
-- 결과: `lib/blog-post-publish-retryable-jobs.ts`와 테스트로 IndexNow 제출과 Discord 발행 알림을 retryable job contract로 고정했다. 실제 외부 호출은 adapter 뒤에 두고 `allowExternalSideEffects`가 명시된 경우에만 실행한다. deterministic idempotency key를 adapter 호출 전 검증하고, 실패 시 글의 `published` 상태를 유지하면서 `retry_count`/`error`를 갱신한다. retry limit에 도달하면 무한 재시도하지 않고 operator alert 결과만 남긴다. webhook URL, token, channel id는 코드/fixture에 남기지 않는다.
-- 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-post-publish-retryable-jobs.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-post-publish-retryable-jobs.test.ts`
+- 결과: 초기 adapter contract는 live caller가 없음을 재확인한 뒤 `auto-publish-code-pruning / Step 3`에서 모듈과 test를 제거했다. persistent worker가 lease, retry stop, operator audit을 계속 소유하며 IndexNow/Discord side effect는 새로 연결하지 않는다.
+- 검증: 초기 RED/GREEN 뒤, pruning 단계에서 `docker compose --profile tools run --rm --build hlog-migrate npm run test:worker`로 worker retry/lease 동작을 확인한다.
 
 ### post-publish-seo-automation / Step 3: content-hash-reconciliation (later pruned)
 
@@ -406,7 +406,7 @@ feedback-and-persona-learning: completed, Steps 0-2 contract baseline completed
 4. `release-input-hardening / Steps 0-1`: canonical public origin validation을 metadata/crawler와 required publish verification에 공통화했다. credentialed, private, special-use origin은 production에서 fetch 전에 차단하며 internal worker fetch origin은 분리해 유지한다. Node, Nginx, pgvector, Hermes release base image는 confirmed multi-architecture manifest digest로 pin했고 source artifact/rollback reference를 runbook에 기록했다. lockfile-only production review는 통과했지만 registry audit은 dependency metadata를 전송하므로 별도 사용자 승인 후에만 실행한다.
 5. `integration-test-gate-hardening / Step 0`: 기존 PostgreSQL integration suite를 fail-fast aggregate command로 묶고 ephemeral pgvector 기반 GitHub Actions에서 기본 앱 gate와 함께 실행한다. 새 runtime service나 production secret은 추가하지 않는다.
 6. `auto-publish-flow-simplification / Step 0`: generation pipeline의 test-only inline publish/retry 분기를 제거하고 production과 동일하게 private `publishing` aggregate 저장까지만 수행한다. 생성 slug는 단일 indexed PostgreSQL 존재 조회로 persistence 전에 중복을 차단하고, required job/retry/public 전이는 persistent worker만 소유한다.
-7. `auto-publish-code-pruning / Steps 1-6`: Step 1에서 durable persistence 뒤의 test-only mutable mirror와 pipeline `state/store` contract를 제거했다. 남은 unused reconciliation, retry executor, performance signal, persona learning, failure pattern module은 live caller를 각 step 시작 시 다시 확인한 뒤 하나씩 삭제한다.
+7. `auto-publish-code-pruning / Steps 1-6`: Steps 1-3에서 durable persistence 뒤의 test-only mutable mirror, unused reconciliation, unwired retry executor를 제거했다. persistent worker는 retry limit, lease, retry stop, operator audit을 계속 소유한다. 남은 performance signal, persona learning, failure pattern module은 live caller를 각 step 시작 시 다시 확인한 뒤 하나씩 삭제한다.
 
 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
 

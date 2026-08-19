@@ -12,7 +12,8 @@ import {
   type PublishJobType,
   type Timestamp,
 } from "./blog-content-model.ts";
-import { DEFAULT_POST_PUBLISH_RETRY_LIMIT } from "./blog-post-publish-retryable-jobs.ts";
+
+const PERSISTENT_WORKER_RETRY_LIMIT = 3;
 
 export type PersistentWorkerAdapterResult =
   | { status: "failed"; error: string }
@@ -149,7 +150,7 @@ export async function runPersistentWorkerOnce({
       job.error === adapterResult.error;
     const retryLimitReached =
       failure.job.status === "retrying" &&
-      failure.job.retryCount >= DEFAULT_POST_PUBLISH_RETRY_LIMIT;
+      failure.job.retryCount >= PERSISTENT_WORKER_RETRY_LIMIT;
     const finishedJob: PublishJobRecord =
       repeatedSameFailure || retryLimitReached
         ? { ...failure.job, status: "failed" }

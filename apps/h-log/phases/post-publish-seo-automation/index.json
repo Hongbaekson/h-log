@@ -18,7 +18,7 @@
       "step": 2,
       "name": "indexnow-discord-retryable-jobs",
       "status": "completed",
-      "summary": "Added adapter-backed retryable IndexNow and Discord job execution contract. External side effects are disabled by default, deterministic idempotency keys are enforced before adapter calls, failures keep published posts public, retry_count/error are recorded, and retry-limit exhaustion returns an operator alert instead of retrying forever."
+      "summary": "The earlier adapter-backed IndexNow and Discord retry executor was removed in auto-publish-code-pruning Step 3 after a caller recheck found it unwired. Persistent-worker retry ownership remains; no external side effect is connected."
     },
     {
       "step": 3,
