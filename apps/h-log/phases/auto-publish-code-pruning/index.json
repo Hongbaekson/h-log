@@ -22,15 +22,15 @@
     },
     {
       "step": 4,
-      "name": "remove-unwired-performance-signals",
-      "status": "pending",
-      "summary": "Recheck callers, then remove the unpersisted performance-signal contract and its isolated tests."
+      "name": "remove-unwired-persona-learning",
+      "status": "completed",
+      "summary": "Confirmed no live caller or production persistence and removed the inactive persona-learning module and isolated test. Article validation and provider prompts are unchanged."
     },
     {
       "step": 5,
-      "name": "remove-unwired-persona-learning",
+      "name": "remove-unwired-performance-signals",
       "status": "pending",
-      "summary": "Recheck callers, then remove the inactive persona-learning contract and its isolated tests."
+      "summary": "Recheck callers, then remove the unpersisted performance-signal contract and its isolated tests."
     },
     {
       "step": 6,

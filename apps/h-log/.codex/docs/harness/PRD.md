@@ -117,7 +117,7 @@ local runtime에서 완료된 항목:
 
 현재 daily pipeline은 adapter 기반 contract다. 검증된 생성 결과는 선택적 persistence callback을 통해 `publishing` post와 queued required jobs로 넘기고 public worker 실행 전에 비공개 상태로 멈출 수 있다. PostgreSQL one-shot runner는 서울 날짜별 advisory lock과 기존 post 확인 후에만 Hermes `openai-codex`/`gpt-5.6-sol`을 호출하고 이 private aggregate를 저장한다. Required adapter는 `render`/`privacy_scan`을 공개 전에 처리하고 제한된 canary 전환 뒤 public URL/Markdown/sitemap/content hash를 검증하며 실패 canary를 `correction_pending`으로 숨긴다. Bounded cycle은 해당 daily post의 required job만 유한 횟수로 drain하고, 공식 Hermes image를 사용한 Compose service와 09:00 KST systemd timer를 packaging했다. OCI server-local credential/env/input, live migration, bounded Hermes canary와 audited rollback smoke까지 완료했다. 실제 HTTPS public origin과 privacy 목록이 없으므로 반복 timer와 실제 성과 신호 수집은 활성화하지 않는다.
 
-Feedback local contract는 aggregate threshold를 통과한 글에서 title/section/closing/evidence 요약만 persona example로 만들고, 원문 전체를 저장하지 않는다. Persona version은 content hash를 가진 비활성 record로 먼저 생성하며 명시적 활성화와 직전 version rollback을 지원한다. 생성 실패 registry는 같은 일자·후보·유형의 첫 실패에서 우선순위를 낮추고 두 번째 실패에서 당일 발행을 중단하며, failed model output 대신 privacy-redacted summary만 prompt/quality gate guidance에 사용한다. 이 상태 전이는 synthetic fixture 검증이며 실제 production persona나 provider prompt를 변경하지 않는다.
+Feedback local contract는 visitor-level data를 거부하는 aggregate signal과 privacy-redacted failure registry만 남긴다. 호출/지속성이 없던 persona example/version contract는 `auto-publish-code-pruning / Step 4`에서 제거했다. 실제 production persona persistence/prompt integration은 HTTPS public origin과 privacy/consent 설정 이후 별도 단계에서만 진행한다.
 
 ### A-04: PostgreSQL/worker runtime 통합
 
@@ -154,5 +154,5 @@ Feedback local contract는 aggregate threshold를 통과한 글에서 title/sect
 - 구현 계획과 단계 실행은 Harness 구조를 따른다.
 - production code 구현 또는 수정은 TDD를 기본으로 한다.
 - phase 파일은 `apps/h-log/phases/` 아래에 둔다.
-- 실행 순서는 `diagram-assets-automation -> blog-runtime-integration -> public-site-quality-hardening -> auto-publish-ops-hardening -> feedback-and-persona-learning` contract다. Feedback Steps 0-2 contract baseline은 완료됐으며, 공개 사이트 품질 게이트를 통과한 뒤 production signal collection/persona activation/timer 단계부터 실제 HTTPS public origin을 요구한다.
+- 실행 순서는 `diagram-assets-automation -> blog-runtime-integration -> public-site-quality-hardening -> auto-publish-ops-hardening -> feedback-and-persona-learning` contract다. Feedback Steps 0-2의 이력 중 미연결 persona contract는 pruning Step 4에서 제거했으며, 공개 사이트 품질 게이트를 통과한 뒤 production signal collection/persona activation/timer 단계부터 실제 HTTPS public origin을 요구한다.
 - 설계 변경이 생기면 `PRD.md`, `ADR.md`, `ARCHITECTURE.md` 중 관련 문서를 함께 갱신한다.

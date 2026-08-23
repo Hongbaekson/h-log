@@ -141,7 +141,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **결정**: 도메인 구매와 DNS/TLS 연결은 로컬 기능, aggregate 성과 신호 contract, synthetic fixture 검증의 선행 조건으로 두지 않는다. 실제 공개 HTTPS smoke, 성과 신호 수집 endpoint, 반복 production timer를 활성화하기 직전에 사용자에게 도메인이 필요하다고 알리고 cutover를 진행한다.
 
-**이유**: hostname과 무관한 aggregate/persona/failure registry contract는 로컬에서 모두 완성했다. 실제 공개 트래픽을 받기 전에는 운영 signal이 생기지 않으므로 다음 collection/persona/timer 단계부터 HTTPS origin을 요구한다.
+**이유**: hostname과 무관한 aggregate signal과 failure registry contract는 로컬에 남아 있다. 호출/지속성이 없던 persona contract는 pruning Step 4에서 제거했다. 실제 공개 트래픽을 받기 전에는 운영 signal이 생기지 않으므로 다음 collection/persona/timer 단계부터 HTTPS origin을 요구한다.
 
 **트레이드오프**: 도메인 전환 전에는 실제 유입, 체류, 공유, 검색 클릭 데이터를 검증할 수 없다. 따라서 synthetic fixture를 실제 성과로 기록하지 않고 persona version도 변경하지 않는다.
 
