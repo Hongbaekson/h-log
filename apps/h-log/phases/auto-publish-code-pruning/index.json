@@ -29,8 +29,8 @@
     {
       "step": 5,
       "name": "remove-unwired-performance-signals",
-      "status": "pending",
-      "summary": "Recheck callers, then remove the unpersisted performance-signal contract and its isolated tests."
+      "status": "completed",
+      "summary": "Confirmed no live caller or production persistence and removed the inactive performance-signal module and isolated test. No public analytics, visitor/session tracking, or schema was added."
     },
     {
       "step": 6,

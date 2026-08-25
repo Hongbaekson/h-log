@@ -102,11 +102,11 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 ### ADR-010: contract 완료와 runtime 완료를 분리한다
 
-**결정**: 순수 TypeScript contract와 테스트가 완료된 phase는 contract baseline으로 기록한다. 실제 PostgreSQL schema/migration, DB repository, persistent worker, provider/scheduler activation이 없는 상태를 production runtime 완료로 표현하지 않는다. 다이어그램 삽입 계약 다음에 `blog-runtime-integration`을 실행한다. 운영 안정화와 승인된 canary 이후에는 feedback/persona의 aggregate signal contract를 진행할 수 있지만, 실제 신호 수집과 persona 변경은 production HTTPS origin과 반복 schedule이 활성화된 뒤에만 수행한다.
+**결정**: 순수 TypeScript contract와 테스트가 완료된 phase는 contract baseline으로 기록한다. 실제 PostgreSQL schema/migration, DB repository, persistent worker, provider/scheduler activation이 없는 상태를 production runtime 완료로 표현하지 않는다. 다이어그램 삽입 계약 다음에 `blog-runtime-integration`을 실행한다. Feedback 이력의 performance-signal과 persona contract는 live caller/persistence가 없어 pruning Steps 4-5에서 제거했으며, 실제 신호 수집과 persona 변경은 production HTTPS origin과 반복 schedule이 활성화된 뒤 runtime 요구에 맞춰 설계한다.
 
-**이유**: PostgreSQL schema/repository/public read path, manual `--once` worker, fake-provider end-to-end dry-run과 production canary/rollback은 검증됐다. 실제 신호가 없는데 persona를 바꾸는 것은 허용할 수 없지만, 어떤 aggregate만 허용하고 언제 학습을 차단할지를 정하는 contract는 실제 수집 전에 고정해야 안전하다.
+**이유**: PostgreSQL schema/repository/public read path, manual `--once` worker, fake-provider end-to-end dry-run과 production canary/rollback은 검증됐다. 반면 실제 신호도 caller도 persistence도 없는 feedback contract는 현재 runtime을 보호하지 못하고 유지보수 표면만 늘린다.
 
-**트레이드오프**: feedback Step 0은 contract completed여도 실제 성과 데이터가 있다는 뜻이 아니다. 대신 완료 상태가 실제 운영 준비도를 과장하지 않고, local contract와 production collection/learning activation 경계가 명확해진다.
+**트레이드오프**: feedback Steps 0-1은 완료 이력으로 남지만 현재 production module이 있다는 뜻은 아니다. 실제 collection/learning 계약은 HTTPS와 privacy/consent 경계가 정해질 때 다시 설계해야 한다.
 
 **운영 경계**:
 
@@ -139,9 +139,9 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 ### ADR-013: 도메인 구매는 production collection cutover까지 미룬다
 
-**결정**: 도메인 구매와 DNS/TLS 연결은 로컬 기능, aggregate 성과 신호 contract, synthetic fixture 검증의 선행 조건으로 두지 않는다. 실제 공개 HTTPS smoke, 성과 신호 수집 endpoint, 반복 production timer를 활성화하기 직전에 사용자에게 도메인이 필요하다고 알리고 cutover를 진행한다.
+**결정**: 도메인 구매와 DNS/TLS 연결은 로컬 기능과 isolated synthetic fixture 검증의 선행 조건으로 두지 않는다. 실제 공개 HTTPS smoke, 성과 신호 수집 endpoint, 반복 production timer를 활성화하기 직전에 사용자에게 도메인이 필요하다고 알리고 cutover를 진행한다.
 
-**이유**: hostname과 무관한 aggregate signal과 failure registry contract는 로컬에 남아 있다. 호출/지속성이 없던 persona contract는 pruning Step 4에서 제거했다. 실제 공개 트래픽을 받기 전에는 운영 signal이 생기지 않으므로 다음 collection/persona/timer 단계부터 HTTPS origin을 요구한다.
+**이유**: 호출/지속성이 없던 performance-signal과 persona contract는 pruning Steps 4-5에서 제거했고 failure registry만 Step 6 재확인 대상으로 남아 있다. 실제 공개 트래픽을 받기 전에는 운영 signal이 생기지 않으므로 다음 collection/persona/timer 단계부터 HTTPS origin을 요구한다.
 
 **트레이드오프**: 도메인 전환 전에는 실제 유입, 체류, 공유, 검색 클릭 데이터를 검증할 수 없다. 따라서 synthetic fixture를 실제 성과로 기록하지 않고 persona version도 변경하지 않는다.
 
