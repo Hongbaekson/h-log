@@ -18,7 +18,7 @@
       "step": 2,
       "name": "failure-pattern-registry",
       "status": "completed",
-      "summary": "Added a domain-independent generation failure registry for weak_sources, unsafe_claim, privacy_risk, no_evidence, and style_drift. A first same-day candidate failure lowers priority, a second identical failure abandons that day's publish, and further registration is rejected. Only bounded privacy-redacted summaries feed structured prompt and quality-gate guidance; failed model output fields are rejected."
+      "summary": "The earlier local failure-pattern registry contract was verified, then removed in auto-publish-code-pruning Step 6 after confirming it had no live caller or production persistence. Quality gate, privacy scanner, and persistent worker failure handling are unchanged."
     }
   ]
 }

@@ -102,11 +102,11 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 ### ADR-010: contract 완료와 runtime 완료를 분리한다
 
-**결정**: 순수 TypeScript contract와 테스트가 완료된 phase는 contract baseline으로 기록한다. 실제 PostgreSQL schema/migration, DB repository, persistent worker, provider/scheduler activation이 없는 상태를 production runtime 완료로 표현하지 않는다. 다이어그램 삽입 계약 다음에 `blog-runtime-integration`을 실행한다. Feedback 이력의 performance-signal과 persona contract는 live caller/persistence가 없어 pruning Steps 4-5에서 제거했으며, 실제 신호 수집과 persona 변경은 production HTTPS origin과 반복 schedule이 활성화된 뒤 runtime 요구에 맞춰 설계한다.
+**결정**: 순수 TypeScript contract와 테스트가 완료된 phase는 contract baseline으로 기록한다. 실제 PostgreSQL schema/migration, DB repository, persistent worker, provider/scheduler activation이 없는 상태를 production runtime 완료로 표현하지 않는다. 다이어그램 삽입 계약 다음에 `blog-runtime-integration`을 실행한다. Feedback 이력의 persona, performance-signal, failure-pattern contract는 live caller/persistence가 없어 pruning Steps 4-6에서 제거했으며, 실제 신호 수집과 learning contract는 production HTTPS origin과 반복 schedule이 활성화된 뒤 runtime 요구에 맞춰 설계한다.
 
 **이유**: PostgreSQL schema/repository/public read path, manual `--once` worker, fake-provider end-to-end dry-run과 production canary/rollback은 검증됐다. 반면 실제 신호도 caller도 persistence도 없는 feedback contract는 현재 runtime을 보호하지 못하고 유지보수 표면만 늘린다.
 
-**트레이드오프**: feedback Steps 0-1은 완료 이력으로 남지만 현재 production module이 있다는 뜻은 아니다. 실제 collection/learning 계약은 HTTPS와 privacy/consent 경계가 정해질 때 다시 설계해야 한다.
+**트레이드오프**: feedback Steps 0-2는 완료 이력으로 남지만 현재 production module이 있다는 뜻은 아니다. 실제 collection/learning 계약은 HTTPS와 privacy/consent 경계가 정해질 때 다시 설계해야 한다.
 
 **운영 경계**:
 
@@ -141,7 +141,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **결정**: 도메인 구매와 DNS/TLS 연결은 로컬 기능과 isolated synthetic fixture 검증의 선행 조건으로 두지 않는다. 실제 공개 HTTPS smoke, 성과 신호 수집 endpoint, 반복 production timer를 활성화하기 직전에 사용자에게 도메인이 필요하다고 알리고 cutover를 진행한다.
 
-**이유**: 호출/지속성이 없던 performance-signal과 persona contract는 pruning Steps 4-5에서 제거했고 failure registry만 Step 6 재확인 대상으로 남아 있다. 실제 공개 트래픽을 받기 전에는 운영 signal이 생기지 않으므로 다음 collection/persona/timer 단계부터 HTTPS origin을 요구한다.
+**이유**: 호출/지속성이 없던 persona, performance-signal, failure-pattern contract는 pruning Steps 4-6에서 제거했다. 실제 공개 트래픽을 받기 전에는 운영 signal이 생기지 않으므로 다음 collection/persona/timer 단계부터 HTTPS origin을 요구한다.
 
 **트레이드오프**: 도메인 전환 전에는 실제 유입, 체류, 공유, 검색 클릭 데이터를 검증할 수 없다. 따라서 synthetic fixture를 실제 성과로 기록하지 않고 persona version도 변경하지 않는다.
 
@@ -152,13 +152,13 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 - privacy 조직명/비공개 저장소 목록을 server-local secret에 설정한다.
 - 그 뒤에만 signal collection과 09:00 KST timer를 활성화한다.
 
-### ADR-014: 반복 생성 실패는 두 번째 동일 패턴에서 당일 발행을 중단한다
+### ADR-014: 미연결 반복 생성 실패 contract는 제거한다
 
-**결정**: 같은 일자·후보·실패 유형의 첫 실패는 후보 우선순위를 낮추고 한 번만 재시도를 허용한다. 두 번째 동일 실패는 해당 일자의 발행 포기로 전환하고 이후 등록을 거부한다. Registry에는 실패 원문이나 model output 대신 privacy-redacted 단일행 summary만 저장한다.
+**결정**: live caller와 production persistence가 없는 failure-pattern registry contract를 `auto-publish-code-pruning / Step 6`에서 제거한다. 현재의 durable retry stop은 persistent worker가 계속 소유하며, generation-level 반복 실패 정책은 실제 provider/scheduler runtime 요구가 생길 때 다시 설계한다.
 
-**이유**: 품질 게이트를 같은 입력으로 반복 호출하면 비용만 증가하고 새로운 근거가 생기지 않는다. 반면 첫 실패만으로 하루 전체를 중단하면 다른 후보나 보강된 입력을 시도할 기회를 잃는다.
+**이유**: standalone in-memory registry와 isolated test는 현재 daily pipeline, provider prompt, quality gate, DB schema 어디에도 연결되지 않아 runtime을 보호하지 못한다.
 
-**트레이드오프**: 두 번의 실패 뒤에는 자동 복구보다 안전한 중단을 택하므로 운영자가 다음 날 후보/source/persona를 보완해야 한다. Structured prompt rule과 quality gate reason은 생성할 수 있지만 실제 provider prompt/DB 연결은 production activation에서 별도로 검증한다.
+**트레이드오프**: 같은 일자·후보 실패 두 번에서 당일 발행을 중단하는 synthetic contract는 더 이상 현재 동작이 아니다. 대신 기존 worker retry limit, 동일 실패 retry stop, privacy scanner, quality gate failure 처리는 유지한다.
 
 ### ADR-015: 도메인 공개 기본값은 일반화된 콘텐츠와 dark-only `/portfolio`다
 

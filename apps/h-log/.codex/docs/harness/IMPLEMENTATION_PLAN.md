@@ -44,7 +44,7 @@ apps/h-log/AGENTS.md
 | phase index 없음 | 보완 완료 | `apps/h-log/phases/index.json` 생성 |
 | 자동 블로그 계획과 MVP 방향 충돌 가능 | 정리 완료 | file-based track은 active phase index에서 제거하고, DB-first track을 다음 실행 대상으로 기록 |
 | contract 완료와 runtime 완료 혼동 | 보완 완료 | local PostgreSQL migration/repository/public read path/manual worker/fake-provider dry-run을 local runtime 완료로 기록하고 provider/scheduler activation은 별도로 유지 |
-| 성과 학습이 운영 안정화보다 먼저 배치됨 | 경계 분리 | 미연결 performance/persona contract는 pruning하고, 실제 수집/persona 변경은 HTTPS origin과 privacy/consent 설정 뒤 설계 |
+| 성과 학습이 운영 안정화보다 먼저 배치됨 | 경계 분리 | 미연결 persona/performance/failure-pattern contract는 pruning하고, 실제 수집/learning은 HTTPS origin과 privacy/consent 설정 뒤 설계 |
 | visitor chatbot 오해 가능 | 통제 필요 | 모든 문서에서 chatbot 제외 명시 |
 | 자동 글의 허위 경험 표현 위험 | 통제 필요 | evidence 기반 article mode와 claim gate를 강제 |
 
@@ -71,8 +71,8 @@ container-least-privilege: completed, Steps 0-1 rootless job images and confirme
 release-input-hardening: completed, Steps 0-1 canonical origin validation and reproducible production build inputs completed; live dependency audit remains separately approval-gated
 integration-test-gate-hardening: completed, Step 0 aggregate PostgreSQL integration and CI gate completed
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
-auto-publish-code-pruning: pending, Steps 1-5 completed, Step 6 pending
-feedback-and-persona-learning: completed history, Steps 0-1 later pruned, Step 2 pending pruning review
+auto-publish-code-pruning: completed, Steps 1-6 completed
+feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 ```
 
 `completed`인 DB/검색/자동 글 phase는 현재 contract/test baseline 완료를 뜻한다. Local PostgreSQL persistence, migration, manual worker는 구현됐지만 외부 provider와 scheduler가 동작한다는 뜻은 아니다.
@@ -407,7 +407,7 @@ feedback-and-persona-learning: completed history, Steps 0-1 later pruned, Step 2
 4. `release-input-hardening / Steps 0-1`: canonical public origin validation을 metadata/crawler와 required publish verification에 공통화했다. credentialed, private, special-use origin은 production에서 fetch 전에 차단하며 internal worker fetch origin은 분리해 유지한다. Node, Nginx, pgvector, Hermes release base image는 confirmed multi-architecture manifest digest로 pin했고 source artifact/rollback reference를 runbook에 기록했다. lockfile-only production review는 통과했지만 registry audit은 dependency metadata를 전송하므로 별도 사용자 승인 후에만 실행한다.
 5. `integration-test-gate-hardening / Step 0`: 기존 PostgreSQL integration suite를 fail-fast aggregate command로 묶고 ephemeral pgvector 기반 GitHub Actions에서 기본 앱 gate와 함께 실행한다. 새 runtime service나 production secret은 추가하지 않는다.
 6. `auto-publish-flow-simplification / Step 0`: generation pipeline의 test-only inline publish/retry 분기를 제거하고 production과 동일하게 private `publishing` aggregate 저장까지만 수행한다. 생성 slug는 단일 indexed PostgreSQL 존재 조회로 persistence 전에 중복을 차단하고, required job/retry/public 전이는 persistent worker만 소유한다.
-7. `auto-publish-code-pruning / Steps 1-6`: Steps 1-5에서 durable persistence 뒤의 test-only mutable mirror, unused reconciliation, unwired retry executor, persona learning, performance signal을 제거했다. persistent worker는 retry limit, lease, retry stop, operator audit을 계속 소유한다. 남은 failure pattern module은 Step 6 시작 시 live caller와 production persistence를 다시 확인한다.
+7. `auto-publish-code-pruning / Steps 1-6`: durable persistence 뒤의 test-only mutable mirror와 unused reconciliation, unwired retry executor, persona learning, performance signal, failure pattern을 제거했다. Persistent worker는 retry limit, lease, retry stop, operator audit을 계속 소유하고 quality gate와 privacy scanner도 유지한다.
 
 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
 
@@ -458,7 +458,7 @@ feedback-and-persona-learning: completed history, Steps 0-1 later pruned, Step 2
 - live canary/rollback: `post-2026-07-26-live-canary`가 required job 6/6 + idle, HTML/Markdown, sitemap/feed/llms, search, usage를 통과했다. Repository 철회 후 8개 surface 제거, `admin_actions` 1건, `publish_verifications` 8건을 확인했다. 앞선 숨김 canary도 같은 감사 경로로 철회했다.
 - 운영 경계: OCI 기준 artifact는 `70fd31cf2756273219b19553a36c1a2e1843b004`이고 이전 artifact와 pre-migration backup을 보존했다. Timer는 `not-found/inactive`다. 실제 HTTPS `HLOG_PUBLIC_BASE_URL`과 privacy 조직/비공개 저장소 목록을 사용자가 정하기 전에는 반복 발행을 활성화하지 않는다.
 - activation 실행 대상: `public-site-quality-hardening` Steps 0-9 완료 후, 사용자가 실제 공개 운영을 시작할 때 HTTPS public origin과 privacy 목록을 server-local env에 반영하고 public HTTPS smoke 후 09:00 KST timer를 활성화한다. 도메인 구매 전에는 이 작업을 실행하지 않는다.
-- 로컬 완료 결과: failure registry contract만 남아 있다. 미연결 persona와 performance signal contract는 `auto-publish-code-pruning` Steps 4-5에서 제거했고, 실제 signal collection, persona persistence/prompt integration, HTTPS smoke와 timer는 별도 production cutover로 남긴다.
+- 로컬 완료 결과: 미연결 persona, performance signal, failure registry contract는 `auto-publish-code-pruning` Steps 4-6에서 모두 제거했다. 실제 signal collection, learning contract, HTTPS smoke와 timer는 별도 production cutover로 남긴다.
 
 ## 현재 성과 피드백 phase
 
@@ -480,13 +480,13 @@ feedback-and-persona-learning: completed history, Steps 0-1 later pruned, Step 2
 - 후속 결과: `feedback-and-persona-learning / Step 2: failure-pattern-registry` contract completed.
 - 도메인 알림 시점: 실제 signal collection과 production persona/timer activation을 시작하기 전에 도메인과 privacy/consent 설정이 필요하다.
 
-### feedback-and-persona-learning / Step 2: failure-pattern-registry
+### feedback-and-persona-learning / Step 2: failure-pattern-registry (later pruned)
 
-- 상태: contract completed
-- 결과: `lib/blog-failure-pattern-registry.ts`에 `weak_sources`, `unsafe_claim`, `privacy_risk`, `no_evidence`, `style_drift`를 일자·후보별로 누적하는 contract를 추가했다. 첫 동일 실패는 후보 우선순위를 낮추고 한 번만 retry를 허용하며, 두 번째는 당일 발행 포기로 전환하고 이후 등록을 거부한다. Failed model output field는 거부하고 privacy scanner로 redaction한 단일행 160자 이하 summary만 prompt rule과 quality gate reason guidance에 사용한다.
-- 검증: missing module RED 후 focused test 3/3, 전체 test 153 pass/12 environment skip, `npm run typecheck`, `npm run lint`, `npm run build`
-- 운영 경계: synthetic record로만 검증했다. Production DB persistence, provider prompt 연결, signal collection, persona activation, timer는 변경하지 않았다.
-- 다음 실행 대상: `auto-publish-code-pruning / Step 6: remove-unwired-failure-pattern-registry`.
+- 상태: contract completed, later pruned
+- 결과: 초기 synthetic contract는 검증했지만 live caller와 production persistence가 없어 `auto-publish-code-pruning / Step 6`에서 모듈과 전용 테스트를 제거했다.
+- 검증: 삭제 전 focused characterization test 3/3, 삭제 후 focused quality/privacy/worker test 12/12, 전체 test 161 pass/12 environment skip, `npm run typecheck`, `npm run lint`, `npm run build`가 통과했다.
+- 운영 경계: quality gate, privacy scanner, persistent worker retry stop은 유지했고 대체 abstraction, schema, provider prompt 연결은 추가하지 않았다.
+- 다음 실행 대상: 사용자 승인 후 `auto-publish-ops-hardening / Step 4: production-activation-and-rollback-smoke`.
 - 사용자 설정: 도메인, `HLOG_PUBLIC_BASE_URL`, privacy 조직명/비공개 저장소 목록이 필요하다.
 
 ## 이후 DB-first 단계

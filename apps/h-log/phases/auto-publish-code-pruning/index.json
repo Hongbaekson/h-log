@@ -35,8 +35,8 @@
     {
       "step": 6,
       "name": "remove-unwired-failure-pattern-registry",
-      "status": "pending",
-      "summary": "Recheck callers, then remove the unpersisted failure-pattern contract and its isolated tests."
+      "status": "completed",
+      "summary": "Confirmed no live caller or production persistence and removed the inactive failure-pattern registry module and isolated test. Quality gate, privacy scanner, and persistent worker failure handling are unchanged."
     }
   ]
 }

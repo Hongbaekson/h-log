@@ -30,7 +30,7 @@
 - PostgreSQL/Hermes one-shot runner는 서울 날짜별 advisory lock과 기존 post 확인 후에만 생성하고 private persistence handoff를 실행한다.
 - Manual worker required adapter packaging과 사전/사후 검증 단계 전이의 격리 PostgreSQL 검증을 완료했다.
 - 공식 Hermes image 기반 Compose service와 09:00 KST systemd timer packaging을 완료했다. OCI에는 server-local credential/env/input과 migrations `001`-`003`, Hermes OAuth, bounded canary와 audited rollback까지 검증한 artifact `70fd31cf2756273219b19553a36c1a2e1843b004`가 반영돼 있다. Production timer는 아직 비활성화돼 있다.
-- 반복 생성 실패 차단 contract만 로컬에 남아 있다. 호출/지속성이 없던 persona와 aggregate 성과 신호 contract는 pruning Steps 4-5에서 제거했다. 실제 HTTPS public origin, privacy/consent 설정, signal collection과 production timer 연결부터는 별도 production cutover로 진행한다.
+- 호출/지속성이 없던 persona, aggregate 성과 신호, 반복 생성 실패 contract는 pruning Steps 4-6에서 제거했다. 실제 HTTPS public origin, privacy/consent 설정, signal collection과 production timer 연결부터는 별도 production cutover로 진행한다.
 - 기존 PostgreSQL integration suite 5종은 하나의 fail-fast 명령과 ephemeral pgvector 기반 GitHub Actions gate로 검증한다. 이 gate는 production domain, OCI, timer를 변경하지 않는다.
 ```
 
@@ -139,7 +139,7 @@ AI workflow
 7. 미연결 feedback contract는 pruning하고, 실제 signal 수집과 persona feedback learning은 HTTPS/privacy/consent 경계가 정해진 뒤 별도 설계
 ```
 
-Production activation 전 refactoring sequence는 code pruning Step 6만 남아 있다. published-current SQL read boundary, bounded process-local search state, rootless job image와 confirmed-unused Redis removal, canonical public origin validation, reproducible build input hardening을 마쳤고, 기존 PostgreSQL integration suite 5종은 fail-fast aggregate command와 ephemeral pgvector CI gate로 묶었다. Node, Nginx, pgvector, Hermes base image는 confirmed multi-architecture manifest digest로 pin하고 source artifact/rollback reference를 runbook에 기록했다. lockfile-only production review는 통과했지만 registry audit은 dependency metadata를 전송하므로 별도 사용자 승인 후에만 실행한다. Canonical origin은 required publish verification에도 공통 적용하며, production에서 credentialed, private, special-use origin을 fetch 전에 차단하고 internal worker fetch origin은 분리해 유지한다. 이 sequence는 실제 provider, domain, DNS/TLS, OCI mutation, timer activation을 포함하지 않으며, 모든 완료 후에도 HTTPS origin과 privacy 목록을 받는 activation gate를 유지한다.
+Production activation 전 refactoring sequence는 완료했다. published-current SQL read boundary, bounded process-local search state, rootless job image와 confirmed-unused Redis removal, canonical public origin validation, reproducible build input hardening을 마쳤고, 기존 PostgreSQL integration suite 5종은 fail-fast aggregate command와 ephemeral pgvector CI gate로 묶었다. Node, Nginx, pgvector, Hermes base image는 confirmed multi-architecture manifest digest로 pin하고 source artifact/rollback reference를 runbook에 기록했다. lockfile-only production review는 통과했지만 registry audit은 dependency metadata를 전송하므로 별도 사용자 승인 후에만 실행한다. Canonical origin은 required publish verification에도 공통 적용하며, production에서 credentialed, private, special-use origin을 fetch 전에 차단하고 internal worker fetch origin은 분리해 유지한다. 이 sequence는 실제 provider, domain, DNS/TLS, OCI mutation, timer activation을 포함하지 않으며, 모든 완료 후에도 HTTPS origin과 privacy 목록을 받는 activation gate를 유지한다.
 
 ## 목표 파이프라인
 
@@ -1592,12 +1592,8 @@ daily-blog-cron
 
 7단계: 성과 피드백.
 
-- 조회/검색 유입/공유/체류 시간 기준으로 성과 좋은 글을 표시
-- 성공 글의 제목/구조/앵글을 `persona_examples`로 축적
-- 실패한 생성 결과는 금지 패턴으로 축적 - 같은 일자·후보·실패 유형의 두 번째 실패에서 당일 발행 중단 contract 완료
-- 호출/지속성이 없던 aggregate signal과 persona example/version contract는 pruning Steps 4-5에서 제거
-- failure registry contract는 도메인 없이 로컬 synthetic fixture로 검증했으며 pruning Step 6의 caller/persistence 재확인 대상으로 남아 있음
-- failure registry는 failed model output을 거부하고 최대 160자의 privacy-redacted summary만 prompt/quality gate guidance에 사용
+- 호출/지속성이 없던 aggregate signal, persona example/version, failure registry contract는 pruning Steps 4-6에서 제거
+- persistent worker retry stop, article quality gate, privacy scanner는 유지
 - 실제 signal collection, 성과 판정, persona 변경은 production HTTPS origin과 privacy/consent 설정 뒤 새로 설계
 
 ### 완료 상태 기록 규칙
@@ -1617,8 +1613,7 @@ production activated
 - rollback 또는 retract smoke 통과
 
 feedback contract history completed
-- aggregate signal과 persona example/version/rollback contract는 synthetic fixture 검증 후 pruning Steps 4-5에서 제거함
-- failure registry contract는 pruning Step 6의 caller/persistence 재확인 대상으로 남아 있음
+- aggregate signal, persona example/version/rollback, failure registry contract는 synthetic fixture 검증 후 pruning Steps 4-6에서 제거함
 - 실제 signal collection 또는 persona 변경 완료를 의미하지 않음
 ```
 

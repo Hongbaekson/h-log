@@ -92,8 +92,8 @@
     },
     {
       "dir": "auto-publish-code-pruning",
-      "status": "pending",
-      "summary": "Steps 1-5 completed: the daily generation path no longer maintains a test-only mutable mirror after durable persistence, and the confirmed-unused reconciliation, retry executor, persona-learning, and performance-signal modules were removed. Step 6 remains pending for the separately verified failure-pattern module."
+      "status": "completed",
+      "summary": "Steps 1-6 completed: removed the test-only mutable mirror and confirmed-unused reconciliation, retry executor, persona-learning, performance-signal, and failure-pattern modules while preserving durable duplicate, quality/privacy, and persistent worker boundaries."
     },
     {
       "dir": "auto-publish-ops-hardening",
@@ -103,7 +103,7 @@
     {
       "dir": "feedback-and-persona-learning",
       "status": "completed",
-      "summary": "Steps 0-2 established local contracts; the unwired persona-learning and performance-signal contracts were later removed in code-pruning Steps 4-5. The failure-pattern registry remains synthetic. Real signal collection, production persona persistence/prompt integration, and the timer remain deferred to the HTTPS domain cutover."
+      "summary": "Steps 0-2 established local contracts; all three unwired feedback modules were later removed in code-pruning Steps 4-6 after confirming no live caller or production persistence. Real signal collection and learning contracts remain deferred until HTTPS/privacy/consent runtime requirements exist."
     }
   ]
 }
