@@ -265,6 +265,40 @@ describe("daily auto article pipeline", () => {
     assert.equal(generationCalls, 0);
   });
 
+  it("blocks persistence when a factual claim references an unknown research source", async () => {
+    const baseInput = createPipelineInput();
+    let persistenceCalls = 0;
+    const result = await runDailyAutoArticlePipeline(
+      createPipelineInput({
+        generateArticle: async (input) => {
+          const generation = await baseInput.generateArticle(input);
+
+          return {
+            ...generation,
+            output: createWriterOutput({
+              claims: [
+                {
+                  confidence: 0.91,
+                  id: "claim-runtime-api",
+                  sourceId: "source-invented",
+                  sourceUrl: "https://example.com/releases/runtime",
+                  text: "Runtime 9 changes one API behavior.",
+                  type: "api",
+                },
+              ],
+            }),
+          };
+        },
+        persistPublishingArticle: async () => {
+          persistenceCalls += 1;
+        },
+      }),
+    );
+
+    assert.equal(result.status, "generation_failed");
+    assert.equal(persistenceCalls, 0);
+  });
+
   it("persists a generated article privately before persistent publish jobs run", async () => {
     const baseInput = createPipelineInput();
     let generationCalls = 0;

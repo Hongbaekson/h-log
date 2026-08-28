@@ -96,6 +96,21 @@
       "summary": "Steps 1-6 completed: removed the test-only mutable mirror and confirmed-unused reconciliation, retry executor, persona-learning, performance-signal, and failure-pattern modules while preserving durable duplicate, quality/privacy, and persistent worker boundaries."
     },
     {
+      "dir": "generation-integrity-hardening",
+      "status": "pending",
+      "summary": "Step 0 completed: daily generation now blocks claims that fail the existing verified-source policy before private persistence. Steps 1-2 remain pending for real no-tool Hermes enforcement and redacted quality-gate failure-reason handoff."
+    },
+    {
+      "dir": "search-runtime-alignment",
+      "status": "pending",
+      "summary": "Steps 0-2 will remove fake embedding accounting from the current keyword-only route, run request guards before PostgreSQL public-store reads, and keep submitted search terms aligned with rendered results."
+    },
+    {
+      "dir": "runtime-contract-pruning",
+      "status": "pending",
+      "summary": "Steps 0-4 will re-check live callers and remove only the legacy file loader and unwired verification, diagram, admin, and model-mirror contracts while preserving DB-backed public, crawler, retract, claim, and rendering boundaries."
+    },
+    {
       "dir": "auto-publish-ops-hardening",
       "status": "pending",
       "summary": "Steps 0-3 completed. Step 4 artifact 70fd31c is live with server-local credential rotation, production env/input, migrations 001-003, production audit 0, a successful Hermes canary across required/public/crawler/search/usage surfaces, and an audited eight-surface rollback. Timer activation is intentionally deferred until public-site-quality-hardening is complete and a real HTTPS public origin plus privacy organization/private-repository lists are ready for production cutover."

@@ -1,0 +1,24 @@
+{
+  "project": "h-log",
+  "phase": "search-runtime-alignment",
+  "steps": [
+    {
+      "step": 0,
+      "name": "keyword-search-without-fake-embedding",
+      "status": "pending",
+      "summary": "Run the current public search as keyword-only without fabricating an embedding provider call or recording fake embedding usage, while preserving the optional real-provider contract."
+    },
+    {
+      "step": 1,
+      "name": "guard-before-public-store-load",
+      "status": "pending",
+      "summary": "Evaluate short, abnormal, duplicate, and rate-limited queries before loading the PostgreSQL-backed public store, without weakening cached-result retraction filtering."
+    },
+    {
+      "step": 2,
+      "name": "submitted-query-ui-consistency",
+      "status": "pending",
+      "summary": "Keep the visible search term and rendered result set tied to the same submitted query while an earlier request is in flight."
+    }
+  ]
+}

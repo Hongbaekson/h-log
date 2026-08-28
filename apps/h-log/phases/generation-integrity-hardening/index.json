@@ -1,0 +1,24 @@
+{
+  "project": "h-log",
+  "phase": "generation-integrity-hardening",
+  "steps": [
+    {
+      "step": 0,
+      "name": "claim-verifier-runtime-wiring",
+      "status": "completed",
+      "summary": "The daily generation path now runs normalized writer claims through the existing verifier with its verified post sources, blocking invalid factual claims before private persistence."
+    },
+    {
+      "step": 1,
+      "name": "hermes-no-tool-enforcement",
+      "status": "pending",
+      "summary": "Make the article-writing Hermes invocation unable to use web or other tools after research input has already been verified, while retaining the approved provider, model, OAuth, and included-cost gates."
+    },
+    {
+      "step": 2,
+      "name": "quality-gate-failure-reason-handoff",
+      "status": "pending",
+      "summary": "Carry redacted quality-gate failure categories and messages through the daily runner result instead of collapsing every blocked article into a generic generation_failed result."
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "project": "h-log",
+  "phase": "runtime-contract-pruning",
+  "steps": [
+    {
+      "step": 0,
+      "name": "remove-legacy-file-blog-loader",
+      "status": "pending",
+      "summary": "Re-check import and transition consumers, then remove the test-only file-based blog loader if the DB-backed public source is the only live runtime."
+    },
+    {
+      "step": 1,
+      "name": "shrink-post-publish-verification-contract",
+      "status": "pending",
+      "summary": "Keep the crawler manifest used by public outputs and remove only the verification, job-creation, and failure-decision contracts with no live caller."
+    },
+    {
+      "step": 2,
+      "name": "shrink-diagram-asset-contract",
+      "status": "pending",
+      "summary": "Keep the render-time diagram asset integrity predicate and remove only unwired planning, storage, failure, and audit helpers."
+    },
+    {
+      "step": 3,
+      "name": "shrink-admin-contract",
+      "status": "pending",
+      "summary": "Keep the PostgreSQL-backed retract and admin audit boundary and remove preview, draft, publish, correction, unpublish, and operational actions that have no live repository or route caller."
+    },
+    {
+      "step": 4,
+      "name": "remove-test-only-model-mirrors",
+      "status": "pending",
+      "summary": "Remove the stale table-name registry and unwired generation-run record factory while preserving live domain types, migrations, validation, persistence, and usage records."
+    }
+  ]
+}

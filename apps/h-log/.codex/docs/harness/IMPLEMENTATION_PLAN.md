@@ -50,7 +50,7 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
-수정된 `plans/automated-blog-publishing-plan.md` 기준으로 블로그 본선은 DB-first다. 기존 file-based loader는 완료된 호환 작업으로만 보존하고, `/blog` 목록/상세 구현은 DB phase에서 진행한다.
+수정된 `plans/automated-blog-publishing-plan.md` 기준으로 블로그 본선은 DB-first다. 기존 file-based loader는 public runtime이 아니며 `runtime-contract-pruning`에서 실제 import/transition consumer를 다시 확인한 뒤 삭제 여부를 확정한다.
 
 ```text
 phase-registry-bootstrap: completed
@@ -70,8 +70,12 @@ search-runtime-bounds: completed, Step 0 bounded process-local search state
 container-least-privilege: completed, Steps 0-1 rootless job images and confirmed-unused Redis removal
 release-input-hardening: completed, Steps 0-1 canonical origin validation and reproducible production build inputs completed; live dependency audit remains separately approval-gated
 integration-test-gate-hardening: completed, Step 0 aggregate PostgreSQL integration and CI gate completed
-auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
+auto-publish-flow-simplification: completed, Step 0 production generation handoff only
 auto-publish-code-pruning: completed, Steps 1-6 completed
+generation-integrity-hardening: pending, Steps 0-2 claim/tool/failure-reason runtime integrity
+search-runtime-alignment: pending, Steps 0-2 keyword runtime/accounting/DB-read/UI alignment
+runtime-contract-pruning: pending, Steps 0-4 live-caller recheck and deletion-only cleanup
+auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 ```
 
@@ -390,7 +394,7 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 ### 실행 경계
 
 - Steps 0-10은 완료했다.
-- 다음 실행 대상은 승인 경계가 유지된 `auto-publish-ops-hardening / Step 4`다.
+- 다음 실행 대상은 `generation-integrity-hardening / Step 1: hermes-no-tool-enforcement`다.
 - Step 8은 public HTTPS origin 하나로 metadata, canonical, JSON-LD, robots, OG/Twitter, 정적·Portfolio·published Blog sitemap을 정렬하고 redirect source와 비공개 Blog가 crawler surface에 섞이지 않게 했다. Production container에서 공개 metadata와 308 redirect를 실제 HTTP로 검증했다.
 - 이 phase는 도메인 구매, DNS/TLS, OCI mutation, signal collection, persona activation, 09:00 KST timer 활성화를 수행하지 않는다.
 - Production behavior를 바꾸는 Steps 1-8과 Step 10은 각각 TDD RED -> GREEN -> REFACTOR와 가장 가까운 browser/gate 검증을 따른다.
@@ -408,8 +412,19 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 5. `integration-test-gate-hardening / Step 0`: 기존 PostgreSQL integration suite를 fail-fast aggregate command로 묶고 ephemeral pgvector 기반 GitHub Actions에서 기본 앱 gate와 함께 실행한다. 새 runtime service나 production secret은 추가하지 않는다.
 6. `auto-publish-flow-simplification / Step 0`: generation pipeline의 test-only inline publish/retry 분기를 제거하고 production과 동일하게 private `publishing` aggregate 저장까지만 수행한다. 생성 slug는 단일 indexed PostgreSQL 존재 조회로 persistence 전에 중복을 차단하고, required job/retry/public 전이는 persistent worker만 소유한다.
 7. `auto-publish-code-pruning / Steps 1-6`: durable persistence 뒤의 test-only mutable mirror와 unused reconciliation, unwired retry executor, persona learning, performance signal, failure pattern을 제거했다. Persistent worker는 retry limit, lease, retry stop, operator audit을 계속 소유하고 quality gate와 privacy scanner도 유지한다.
+8. `generation-integrity-hardening / Steps 0-2`: Step 0에서 existing claim verifier를 daily persistence 전에 연결했다. Steps 1-2에서 Hermes writer의 실제 tool capability를 끄고 redacted quality-gate 실패 사유를 one-shot 결과까지 전달한다.
+9. `search-runtime-alignment / Steps 0-2`: 현재 keyword-only route의 fake embedding accounting을 제거하고, blocked query의 PostgreSQL read를 막으며, submitted query와 표시 결과를 일치시킨다. Future real embedding adapter와 related-post vector contract는 유지한다.
+10. `runtime-contract-pruning / Steps 0-4`: 각 step 시작 시 live caller를 다시 확인한 뒤 legacy file loader와 unwired verification, diagram, admin, model mirror만 삭제한다. DB-backed public/crawler/retract/rendering 경계는 유지한다.
 
-이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
+1-7과 8의 Step 0은 완료됐고, 8의 Steps 1-2와 9-10은 2026-08-28 live audit에서 추가된 pending local follow-up이다. 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
+
+### generation-integrity-hardening / Step 0: claim-verifier-runtime-wiring
+
+- 상태: completed
+- 결과: daily pipeline이 writer validation 뒤 normalized claim을 기존 `verifyArticleClaims`와 같은 run의 verified `postSources`로 검사한다. Unknown/discovery-only/contradicted/unsupported factual claim은 post/version 생성과 private persistence 전에 차단하며 opinion, privacy, article quality 계약은 유지한다.
+- 검증: unknown source persistence RED, focused GREEN 27/27, 전체 `npm run test` 174개 중 162 pass/12 DB skip, `npm run typecheck`, `npm run lint`, `npm run build` 통과.
+- 운영 경계: 새 verifier/table/external call, OCI/provider/timer/production DB 변경 없음.
+- 다음 실행 대상: `generation-integrity-hardening / Step 1: hermes-no-tool-enforcement`.
 
 ### auto-publish-ops-hardening
 
@@ -486,7 +501,7 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 - 결과: 초기 synthetic contract는 검증했지만 live caller와 production persistence가 없어 `auto-publish-code-pruning / Step 6`에서 모듈과 전용 테스트를 제거했다.
 - 검증: 삭제 전 focused characterization test 3/3, 삭제 후 focused quality/privacy/worker test 12/12, 전체 test 161 pass/12 environment skip, `npm run typecheck`, `npm run lint`, `npm run build`가 통과했다.
 - 운영 경계: quality gate, privacy scanner, persistent worker retry stop은 유지했고 대체 abstraction, schema, provider prompt 연결은 추가하지 않았다.
-- 다음 실행 대상: 사용자 승인 후 `auto-publish-ops-hardening / Step 4: production-activation-and-rollback-smoke`.
+- 다음 local 실행 대상: `generation-integrity-hardening / Step 1: hermes-no-tool-enforcement`. 운영 전환은 이후에도 별도 승인 상태로 유지한다.
 - 사용자 설정: 도메인, `HLOG_PUBLIC_BASE_URL`, privacy 조직명/비공개 저장소 목록이 필요하다.
 
 ## 이후 DB-first 단계

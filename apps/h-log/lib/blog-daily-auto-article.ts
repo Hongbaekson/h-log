@@ -21,6 +21,7 @@ import {
   buildResearchPack,
   collectTopicCandidates,
   createTopicResearchRuntimeState,
+  verifyArticleClaims,
   type ApplyToMeGenerationInput,
   type PersonalContextItemRecord,
   type ResearchPackRecord,
@@ -243,6 +244,26 @@ export async function runDailyAutoArticlePipeline(
   });
 
   if (!validation.normalizedOutput || validation.status !== "passed") {
+    return emptyResult("generation_failed");
+  }
+
+  const claimVerification = verifyArticleClaims({
+    checkedAt: input.runAt,
+    claims: validation.normalizedOutput.claims.map((claim) => ({
+      claimText: claim.text,
+      claimType: claim.type,
+      confidence: claim.confidence,
+      evidencePath: claim.evidencePath ?? undefined,
+      evidenceQuote: claim.evidenceQuote ?? undefined,
+      id: claim.id,
+      sourceId: claim.sourceId ?? undefined,
+    })),
+    postId,
+    postSources,
+    postVersionId,
+  });
+
+  if (claimVerification.status !== "passed") {
     return emptyResult("generation_failed");
   }
 
