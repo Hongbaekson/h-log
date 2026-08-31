@@ -98,7 +98,7 @@
     {
       "dir": "generation-integrity-hardening",
       "status": "pending",
-      "summary": "Step 0 completed: daily generation now blocks claims that fail the existing verified-source policy before private persistence. Steps 1-2 remain pending for real no-tool Hermes enforcement and redacted quality-gate failure-reason handoff."
+      "summary": "Steps 0-1 completed: daily generation verifies claims before private persistence, and Hermes writing now has no tool capability or model override outside the code-owned gpt-5.6-sol path. Step 2 remains pending for redacted quality-gate failure-reason handoff."
     },
     {
       "dir": "search-runtime-alignment",
@@ -108,7 +108,12 @@
     {
       "dir": "runtime-contract-pruning",
       "status": "pending",
-      "summary": "Steps 0-4 will re-check live callers and remove only the legacy file loader and unwired verification, diagram, admin, and model-mirror contracts while preserving DB-backed public, crawler, retract, claim, and rendering boundaries."
+      "summary": "Steps 0-9 will re-check live callers and remove legacy or test-only contracts, a redundant public-slug proxy, unused worker capabilities, and duplicated container defaults while preserving DB-backed public, crawler, retract, claim, rendering, scheduler-egress, and OAuth boundaries."
+    },
+    {
+      "dir": "public-surface-refactor-pruning",
+      "status": "pending",
+      "summary": "Steps 0-1 will move legacy project redirects to native Next configuration and share the repeated public-blog date and article-mode presentation rules after search UI alignment."
     },
     {
       "dir": "auto-publish-ops-hardening",

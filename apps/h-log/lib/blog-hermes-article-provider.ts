@@ -15,14 +15,15 @@ import {
 import type { UsageMeasurement } from "./blog-usage-ledger.ts";
 
 const HERMES_PROVIDER = "openai-codex";
-const DEFAULT_HERMES_MODEL = "gpt-5.6-sol";
-const HERMES_TOOLSETS = ["web"] as const;
+const HERMES_MODEL = "gpt-5.6-sol";
+const HERMES_TOOLSETS = ["context_engine"] as const;
 
 export type HermesOneShotInvocation = {
   command: string;
   model: string;
   prompt: string;
   provider: typeof HERMES_PROVIDER;
+  safeMode: true;
   toolsets: readonly string[];
 };
 
@@ -35,21 +36,28 @@ export type HermesOneShotRunner = (
   invocation: HermesOneShotInvocation,
 ) => Promise<HermesOneShotResult>;
 
+export function createHermesChildEnvironment(
+  environment: NodeJS.ProcessEnv = process.env,
+): NodeJS.ProcessEnv {
+  const childEnvironment = { ...environment };
+  delete childEnvironment.HERMES_KANBAN_TASK;
+  return childEnvironment;
+}
+
 export function createHermesArticleGenerator({
   command = process.env.HLOG_HERMES_COMMAND?.trim() || "hermes",
-  model = process.env.HLOG_HERMES_MODEL?.trim() || DEFAULT_HERMES_MODEL,
   runOneShot = runHermesOneShot,
 }: {
   command?: string;
-  model?: string;
   runOneShot?: HermesOneShotRunner;
 } = {}): (input: GenerateArticleInput) => Promise<GenerateArticleResult> {
   return async (input) => {
     const invocation: HermesOneShotInvocation = {
       command,
-      model,
+      model: HERMES_MODEL,
       prompt: createHermesArticlePrompt(input),
       provider: HERMES_PROVIDER,
+      safeMode: true,
       toolsets: HERMES_TOOLSETS,
     };
     const result = await runOneShot(invocation);
@@ -94,6 +102,7 @@ function executeHermes(
   usageFile: string,
 ): Promise<string> {
   const args = [
+    ...(invocation.safeMode ? ["--safe-mode"] : []),
     "--oneshot",
     invocation.prompt,
     "--usage-file",
@@ -104,7 +113,6 @@ function executeHermes(
     invocation.provider,
     "--toolsets",
     invocation.toolsets.join(","),
-    "--ignore-rules",
   ];
 
   return new Promise((resolve, reject) => {
@@ -113,6 +121,7 @@ function executeHermes(
       args,
       {
         encoding: "utf8",
+        env: createHermesChildEnvironment(),
         maxBuffer: 4 * 1024 * 1024,
         timeout: 5 * 60 * 1000,
         windowsHide: true,

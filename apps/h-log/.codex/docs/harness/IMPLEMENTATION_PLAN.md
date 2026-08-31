@@ -72,9 +72,10 @@ release-input-hardening: completed, Steps 0-1 canonical origin validation and re
 integration-test-gate-hardening: completed, Step 0 aggregate PostgreSQL integration and CI gate completed
 auto-publish-flow-simplification: completed, Step 0 production generation handoff only
 auto-publish-code-pruning: completed, Steps 1-6 completed
-generation-integrity-hardening: pending, Steps 0-2 claim/tool/failure-reason runtime integrity
+generation-integrity-hardening: pending, Steps 0-1 completed; Step 2 failure-reason runtime integrity pending
 search-runtime-alignment: pending, Steps 0-2 keyword runtime/accounting/DB-read/UI alignment
-runtime-contract-pruning: pending, Steps 0-4 live-caller recheck and deletion-only cleanup
+runtime-contract-pruning: pending, Steps 0-9 live-caller recheck, deletion-only cleanup, and duplicated runtime-default pruning
+public-surface-refactor-pruning: pending, Steps 0-1 native legacy redirects and shared blog presentation rules
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 ```
@@ -394,7 +395,7 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 ### 실행 경계
 
 - Steps 0-10은 완료했다.
-- 다음 실행 대상은 `generation-integrity-hardening / Step 1: hermes-no-tool-enforcement`다.
+- 다음 실행 대상은 `generation-integrity-hardening / Step 2: quality-gate-failure-reason-handoff`다.
 - Step 8은 public HTTPS origin 하나로 metadata, canonical, JSON-LD, robots, OG/Twitter, 정적·Portfolio·published Blog sitemap을 정렬하고 redirect source와 비공개 Blog가 crawler surface에 섞이지 않게 했다. Production container에서 공개 metadata와 308 redirect를 실제 HTTP로 검증했다.
 - 이 phase는 도메인 구매, DNS/TLS, OCI mutation, signal collection, persona activation, 09:00 KST timer 활성화를 수행하지 않는다.
 - Production behavior를 바꾸는 Steps 1-8과 Step 10은 각각 TDD RED -> GREEN -> REFACTOR와 가장 가까운 browser/gate 검증을 따른다.
@@ -412,11 +413,12 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 5. `integration-test-gate-hardening / Step 0`: 기존 PostgreSQL integration suite를 fail-fast aggregate command로 묶고 ephemeral pgvector 기반 GitHub Actions에서 기본 앱 gate와 함께 실행한다. 새 runtime service나 production secret은 추가하지 않는다.
 6. `auto-publish-flow-simplification / Step 0`: generation pipeline의 test-only inline publish/retry 분기를 제거하고 production과 동일하게 private `publishing` aggregate 저장까지만 수행한다. 생성 slug는 단일 indexed PostgreSQL 존재 조회로 persistence 전에 중복을 차단하고, required job/retry/public 전이는 persistent worker만 소유한다.
 7. `auto-publish-code-pruning / Steps 1-6`: durable persistence 뒤의 test-only mutable mirror와 unused reconciliation, unwired retry executor, persona learning, performance signal, failure pattern을 제거했다. Persistent worker는 retry limit, lease, retry stop, operator audit을 계속 소유하고 quality gate와 privacy scanner도 유지한다.
-8. `generation-integrity-hardening / Steps 0-2`: Step 0에서 existing claim verifier를 daily persistence 전에 연결했다. Steps 1-2에서 Hermes writer의 실제 tool capability를 끄고 redacted quality-gate 실패 사유를 one-shot 결과까지 전달한다.
+8. `generation-integrity-hardening / Steps 0-2`: Step 0에서 existing claim verifier를 daily persistence 전에 연결했고, Step 1에서 Hermes writer의 tool capability와 model override를 제거해 `gpt-5.6-sol` 단일 경로를 고정했다. Step 2는 redacted quality-gate 실패 사유를 one-shot 결과까지 전달한다.
 9. `search-runtime-alignment / Steps 0-2`: 현재 keyword-only route의 fake embedding accounting을 제거하고, blocked query의 PostgreSQL read를 막으며, submitted query와 표시 결과를 일치시킨다. Future real embedding adapter와 related-post vector contract는 유지한다.
-10. `runtime-contract-pruning / Steps 0-4`: 각 step 시작 시 live caller를 다시 확인한 뒤 legacy file loader와 unwired verification, diagram, admin, model mirror만 삭제한다. DB-backed public/crawler/retract/rendering 경계는 유지한다.
+10. `runtime-contract-pruning / Steps 0-9`: 각 step 시작 시 live caller를 다시 확인한 뒤 legacy file loader, unwired verification/diagram/admin/model mirror, test-only public fixture와 repository write API, 중복 slug proxy를 삭제한다. 이어 confirmed-unused worker mode/egress와 Compose/systemd의 동일 runtime override만 제거한다. DB-backed public/crawler/retract/rendering, scheduler egress, OAuth preflight 경계는 유지한다.
+11. `public-surface-refactor-pruning / Steps 0-1`: legacy `/projects` route component를 Next native permanent redirect로 대체하고, search UI 정합성 완료 뒤 세 public blog surface의 날짜와 article-mode 표시 규칙을 하나로 맞춘다. 새 date dependency나 generic UI utility는 추가하지 않는다.
 
-1-7과 8의 Step 0은 완료됐고, 8의 Steps 1-2와 9-10은 2026-08-28 live audit에서 추가된 pending local follow-up이다. 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
+1-7과 8의 Steps 0-1은 완료됐다. 2026-08-28 live audit의 8 Step 2와 9-10은 pending이며, 2026-08-31 audit에서 8의 model 고정 범위, 10의 Steps 5-9, 11을 추가했다. 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
 
 ### generation-integrity-hardening / Step 0: claim-verifier-runtime-wiring
 
@@ -425,6 +427,15 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 - 검증: unknown source persistence RED, focused GREEN 27/27, 전체 `npm run test` 174개 중 162 pass/12 DB skip, `npm run typecheck`, `npm run lint`, `npm run build` 통과.
 - 운영 경계: 새 verifier/table/external call, OCI/provider/timer/production DB 변경 없음.
 - 다음 실행 대상: `generation-integrity-hardening / Step 1: hermes-no-tool-enforcement`.
+
+### generation-integrity-hardening / Step 1: hermes-no-tool-enforcement
+
+- 상태: completed
+- 결과: Hermes writer는 `--safe-mode --toolsets context_engine`으로 실행해 tool definition 0개를 강제한다. `HLOG_HERMES_MODEL`과 factory `model` override를 제거하고 provider 내부의 `openai-codex`/`gpt-5.6-sol` 단일값을 invocation과 usage 검증에 사용한다. Child process에서는 `HERMES_KANBAN_TASK` 상속을 제거해 kanban toolset 자동 추가도 차단한다.
+- RED: 기존 invocation에 safe mode가 없고 environment/factory override가 각각 `env-override`, `caller-override`를 전달하는 focused 2 failure와 kanban 환경 변수 제거 helper 부재를 확인했다.
+- 검증: focused GREEN 6/6, 설치된 Hermes의 network-free tool/plugin/context compressor schema 0개 smoke, 전체 `npm run test` 176개 중 164 pass/12 DB skip, `npm run typecheck`, `npm run lint`, `npm run build`가 통과했다.
+- 운영 경계: 실제 Hermes/OAuth/model 호출, OCI 설정, timer, production DB를 변경하지 않았다.
+- 다음 실행 대상: `generation-integrity-hardening / Step 2: quality-gate-failure-reason-handoff`.
 
 ### auto-publish-ops-hardening
 
@@ -501,7 +512,7 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 - 결과: 초기 synthetic contract는 검증했지만 live caller와 production persistence가 없어 `auto-publish-code-pruning / Step 6`에서 모듈과 전용 테스트를 제거했다.
 - 검증: 삭제 전 focused characterization test 3/3, 삭제 후 focused quality/privacy/worker test 12/12, 전체 test 161 pass/12 environment skip, `npm run typecheck`, `npm run lint`, `npm run build`가 통과했다.
 - 운영 경계: quality gate, privacy scanner, persistent worker retry stop은 유지했고 대체 abstraction, schema, provider prompt 연결은 추가하지 않았다.
-- 다음 local 실행 대상: `generation-integrity-hardening / Step 1: hermes-no-tool-enforcement`. 운영 전환은 이후에도 별도 승인 상태로 유지한다.
+- 다음 local 실행 대상: `generation-integrity-hardening / Step 2: quality-gate-failure-reason-handoff`. 운영 전환은 이후에도 별도 승인 상태로 유지한다.
 - 사용자 설정: 도메인, `HLOG_PUBLIC_BASE_URL`, privacy 조직명/비공개 저장소 목록이 필요하다.
 
 ## 이후 DB-first 단계

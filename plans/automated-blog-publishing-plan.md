@@ -32,9 +32,10 @@
 - 공식 Hermes image 기반 Compose service와 09:00 KST systemd timer packaging을 완료했다. OCI에는 server-local credential/env/input과 migrations `001`-`003`, Hermes OAuth, bounded canary와 audited rollback까지 검증한 artifact `70fd31cf2756273219b19553a36c1a2e1843b004`가 반영돼 있다. Production timer는 아직 비활성화돼 있다.
 - 호출/지속성이 없던 persona, aggregate 성과 신호, 반복 생성 실패 contract는 pruning Steps 4-6에서 제거했다. 실제 HTTPS public origin, privacy/consent 설정, signal collection과 production timer 연결부터는 별도 production cutover로 진행한다.
 - 기존 PostgreSQL integration suite 5종은 하나의 fail-fast 명령과 ephemeral pgvector 기반 GitHub Actions gate로 검증한다. 이 gate는 production domain, OCI, timer를 변경하지 않는다.
-- `generation-integrity-hardening` Step 0의 existing claim verifier daily runtime 연결을 완료했다. Steps 1-2는 Hermes writer no-tool 강제와 redacted quality-gate 실패 사유 전달을 순서대로 진행한다.
+- `generation-integrity-hardening` Steps 0-1의 claim verifier 연결과 Hermes writer no-tool/`gpt-5.6-sol` 단일 경로를 완료했다. Step 2는 redacted quality-gate 실패 사유 전달을 진행한다.
 - `search-runtime-alignment` Steps 0-2는 fake embedding accounting 제거, blocked query의 eager PostgreSQL read 제거, submitted query UI 정합성을 순서대로 진행한다.
-- `runtime-contract-pruning` Steps 0-4는 매 step live caller를 재확인한 뒤 legacy file loader와 unwired verification/diagram/admin/model mirror만 삭제한다.
+- `runtime-contract-pruning` Steps 0-9는 매 step live caller를 재확인한 뒤 legacy/unwired/test-only contract, 중복 slug proxy, unused worker capability와 중복 container runtime default만 삭제한다.
+- `public-surface-refactor-pruning` Steps 0-1은 legacy project redirect를 Next native config로 옮기고, search UI 정합성 뒤 public blog date/article-mode 표시 규칙을 공유한다.
 ```
 
 따라서 문서에서 `completed`는 contract 완료와 runtime 완료를 구분해 쓴다. Production 자동 발행 완료는 PostgreSQL persistence, persistent worker, 운영 안정화, 승인된 canary와 rollback smoke까지 통과한 뒤에만 선언한다.
@@ -139,13 +140,13 @@ AI workflow
 4. persistent manual worker와 local fake-provider end-to-end dry-run - 완료
 5. idempotency, job lock, cost ledger, privacy scanner 운영 안정화 완료
 6. 사용자 승인 기반 provider/OCI canary와 rollback smoke - 완료, scheduled activation은 도메인 cutover까지 보류
-7. generation integrity, keyword search runtime 정합성, 남은 unwired contract pruning - pending local follow-up
+7. generation integrity, keyword search runtime 정합성, 남은 runtime/public surface pruning - pending local follow-up
 8. 미연결 feedback contract는 pruning하고, 실제 signal 수집과 persona feedback learning은 HTTPS/privacy/consent 경계가 정해진 뒤 별도 설계
 ```
 
 Production activation 전 1차 refactoring sequence는 완료했다. published-current SQL read boundary, bounded process-local search state, rootless job image와 confirmed-unused Redis removal, canonical public origin validation, reproducible build input hardening을 마쳤고, 기존 PostgreSQL integration suite 5종은 fail-fast aggregate command와 ephemeral pgvector CI gate로 묶었다. Node, Nginx, pgvector, Hermes base image는 confirmed multi-architecture manifest digest로 pin하고 source artifact/rollback reference를 runbook에 기록했다. lockfile-only production review는 통과했지만 registry audit은 dependency metadata를 전송하므로 별도 사용자 승인 후에만 실행한다. Canonical origin은 required publish verification에도 공통 적용하며, production에서 credentialed, private, special-use origin을 fetch 전에 차단하고 internal worker fetch origin은 분리해 유지한다.
 
-2026-08-28 live audit에서 세 local follow-up phase를 추가했다. `generation-integrity-hardening`은 claim verifier 연결을 완료했고 no-tool writer와 실패 사유 전달이 남았다. `search-runtime-alignment`는 현재 keyword-only runtime의 fake accounting과 eager DB read/UI mismatch를 정리한다. 마지막 `runtime-contract-pruning`은 live caller를 매번 재확인하면서 test-only contract만 삭제한다. 이 follow-up도 실제 provider, domain, DNS/TLS, OCI mutation, timer activation을 포함하지 않으며, 완료 후에도 HTTPS origin과 privacy 목록을 받는 `auto-publish-ops-hardening / Step 4` 승인 gate를 유지한다.
+2026-08-28 live audit에서 세 local follow-up phase를 추가했다. `generation-integrity-hardening`은 claim verifier 연결과 no-tool writer/단일 model 경로를 완료했고 실패 사유 전달만 남았다. `search-runtime-alignment`는 현재 keyword-only runtime의 fake accounting과 eager DB read/UI mismatch를 정리한다. `runtime-contract-pruning`은 live caller를 매번 재확인하면서 legacy/unwired/test-only contract와 중복 runtime 설정만 삭제한다. 2026-08-31 audit에서 native redirect와 public blog 표시 규칙을 다루는 `public-surface-refactor-pruning`을 추가했다. 이 follow-up도 실제 provider, domain, DNS/TLS, OCI mutation, timer activation을 포함하지 않으며, 완료 후에도 HTTPS origin과 privacy 목록을 받는 `auto-publish-ops-hardening / Step 4` 승인 gate를 유지한다.
 
 ## 목표 파이프라인
 

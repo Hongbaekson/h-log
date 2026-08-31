@@ -125,7 +125,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 **운영 경계**:
 
 - Node worker가 DB, 상태 전이, privacy/quality gate, publish, rollback을 계속 소유하고 Hermes는 검증된 입력을 구조화 article JSON으로 바꾸는 역할만 맡는다.
-- Hermes는 `--ignore-rules`와 `web` toolset으로 실행하고 writer prompt는 도구 호출 없이 전달된 verified input만 사용하도록 제한한다.
+- Hermes는 `--safe-mode`와 도구 정의가 비어 있는 명시적 `context_engine` toolset으로 실행해 user config/rules/plugins/MCP와 web/other tool capability를 함께 차단한다. Writer prompt도 전달된 verified input만 사용하도록 제한한다.
 - Hermes OAuth 상태와 실행 경로는 server-local runtime에만 두며 저장소, Compose placeholder env, CI log에 복사하지 않는다.
 - production schedule은 `Asia/Seoul` 매일 09:00, publish 최대 1개, stage retry 최대 1회로 고정한다. 공식 Hermes image 기반 Compose service와 systemd timer는 packaging했지만, container-local OAuth와 OCI canary/rollback이 검증될 때까지 timer는 활성화하지 않는다.
 

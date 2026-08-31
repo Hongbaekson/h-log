@@ -1,0 +1,18 @@
+{
+  "project": "h-log",
+  "phase": "public-surface-refactor-pruning",
+  "steps": [
+    {
+      "step": 0,
+      "name": "move-legacy-project-redirects-to-next-config",
+      "status": "pending",
+      "summary": "Replace the two redirect-only legacy project pages with native Next.js redirect rules while preserving the existing permanent redirect and SEO contracts."
+    },
+    {
+      "step": 1,
+      "name": "share-blog-presentation-formatters",
+      "status": "pending",
+      "summary": "After search-runtime-alignment Step 2, share the public blog date and article-mode presentation rules through a small domain-specific module backed only by native Intl APIs."
+    }
+  ]
+}

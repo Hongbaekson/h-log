@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 
 import type { GenerateArticleInput } from "./blog-daily-auto-article.ts";
 import {
+  createHermesChildEnvironment,
   createHermesArticleGenerator,
   type HermesOneShotInvocation,
 } from "./blog-hermes-article-provider.ts";
@@ -81,7 +82,8 @@ describe("Hermes article provider", () => {
     assert.equal(invocation.command, "hermes-test");
     assert.equal(invocation.provider, "openai-codex");
     assert.equal(invocation.model, "gpt-5.6-sol");
-    assert.deepEqual(invocation.toolsets, ["web"]);
+    assert.equal(invocation.safeMode, true);
+    assert.deepEqual(invocation.toolsets, ["context_engine"]);
     assert.match(invocation.prompt, /Return exactly one JSON object/);
     assert.match(invocation.prompt, /Do not call tools/);
     assert.match(
@@ -100,6 +102,61 @@ describe("Hermes article provider", () => {
       outputTokens: 456,
       provider: "openai-codex",
     });
+  });
+
+  it("does not allow environment or caller model overrides", async () => {
+    const invocations: HermesOneShotInvocation[] = [];
+    const previousModel = process.env.HLOG_HERMES_MODEL;
+    const runOneShot = async (input: HermesOneShotInvocation) => {
+      invocations.push(input);
+
+      return {
+        response: JSON.stringify(writerOutput),
+        usageReport: {
+          api_calls: 1,
+          completed: true,
+          cost_status: "included",
+          estimated_cost_usd: 0,
+          failed: false,
+          input_tokens: 123,
+          model: input.model,
+          output_tokens: 456,
+          provider: input.provider,
+        },
+      };
+    };
+
+    try {
+      process.env.HLOG_HERMES_MODEL = "env-override";
+      await createHermesArticleGenerator({ runOneShot })(generationInput);
+      const callerOverrideOptions = {
+        model: "caller-override",
+        runOneShot,
+      };
+      await createHermesArticleGenerator(callerOverrideOptions)(generationInput);
+    } finally {
+      if (previousModel === undefined) {
+        delete process.env.HLOG_HERMES_MODEL;
+      } else {
+        process.env.HLOG_HERMES_MODEL = previousModel;
+      }
+    }
+
+    assert.deepEqual(
+      invocations.map(({ model }) => model),
+      ["gpt-5.6-sol", "gpt-5.6-sol"],
+    );
+  });
+
+  it("removes Hermes kanban tool injection from the child environment", () => {
+    const environment = createHermesChildEnvironment({
+      HERMES_KANBAN_TASK: "task-123",
+      NODE_ENV: "test",
+      PATH: "test-path",
+    });
+
+    assert.equal(environment.HERMES_KANBAN_TASK, undefined);
+    assert.equal(environment.PATH, "test-path");
   });
 
   it("fails closed when Hermes reports a separately billed run", async () => {

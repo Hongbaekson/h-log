@@ -31,6 +31,36 @@
       "name": "remove-test-only-model-mirrors",
       "status": "pending",
       "summary": "Remove the stale table-name registry and unwired generation-run record factory while preserving live domain types, migrations, validation, persistence, and usage records."
+    },
+    {
+      "step": 5,
+      "name": "remove-test-only-public-data-fixture",
+      "status": "pending",
+      "summary": "Replace the sole test import with existing test store builders, then delete the 200-line public-data fixture that has no runtime caller."
+    },
+    {
+      "step": 6,
+      "name": "remove-test-only-repository-write-apis",
+      "status": "pending",
+      "summary": "Remove repository write methods used only as integration-test setup while preserving aggregate persistence, internal publish-job insertion, idempotency, and rollback verification coverage."
+    },
+    {
+      "step": 7,
+      "name": "remove-redundant-blog-slug-proxy",
+      "status": "pending",
+      "summary": "Remove the extra proxy-level published-slug lookup and let the DB-backed blog detail page own its existing not-found boundary while retaining the Markdown rewrite."
+    },
+    {
+      "step": 8,
+      "name": "prune-unused-worker-capabilities",
+      "status": "pending",
+      "summary": "Remove the unconsumed worker-mode setting and unused worker egress network without changing scheduler egress, database, Nginx, privacy, or cost boundaries."
+    },
+    {
+      "step": 9,
+      "name": "deduplicate-container-runtime-defaults",
+      "status": "pending",
+      "summary": "Use Docker image CMD and ENV as the single runtime defaults and remove identical Compose and systemd overrides while retaining the OAuth preflight."
     }
   ]
 }

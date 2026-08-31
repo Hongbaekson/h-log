@@ -11,8 +11,8 @@
     {
       "step": 1,
       "name": "hermes-no-tool-enforcement",
-      "status": "pending",
-      "summary": "Make the article-writing Hermes invocation unable to use web or other tools after research input has already been verified, while retaining the approved provider, model, OAuth, and included-cost gates."
+      "status": "completed",
+      "summary": "The article-writing Hermes invocation now uses safe mode with an explicit empty toolset, has no environment or factory model override, and pins invocation plus usage verification to the approved openai-codex/gpt-5.6-sol OAuth included-cost policy."
     },
     {
       "step": 2,
