@@ -22,7 +22,7 @@ test(
     const admin = new Client({ connectionString: adminUrl.toString() });
     await admin.connect();
     await admin.query(
-      "select pg_terminate_backend(pid) from pg_stat_activity where datname = $1",
+      "select pg_terminate_backend(pid, 5000) from pg_stat_activity where datname = $1",
       [testDatabaseName],
     );
     await admin.query(`drop database if exists ${testDatabaseName}`);
@@ -84,7 +84,7 @@ test(
     } finally {
       await database.end();
       await admin.query(
-        "select pg_terminate_backend(pid) from pg_stat_activity where datname = $1",
+        "select pg_terminate_backend(pid, 5000) from pg_stat_activity where datname = $1",
         [testDatabaseName],
       );
       await admin.query(`drop database if exists ${testDatabaseName}`);
