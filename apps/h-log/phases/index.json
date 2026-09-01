@@ -97,8 +97,8 @@
     },
     {
       "dir": "generation-integrity-hardening",
-      "status": "pending",
-      "summary": "Steps 0-1 completed: daily generation verifies claims before private persistence, and Hermes writing now has no tool capability or model override outside the code-owned gpt-5.6-sol path. Step 2 remains pending for redacted quality-gate failure-reason handoff."
+      "status": "completed",
+      "summary": "Steps 0-2 completed: daily generation verifies claims before private persistence, Hermes writing has no tool capability or model override outside the code-owned gpt-5.6-sol path, and one-shot failures expose only the stage plus redacted gate names and messages without new persistence."
     },
     {
       "dir": "search-runtime-alignment",

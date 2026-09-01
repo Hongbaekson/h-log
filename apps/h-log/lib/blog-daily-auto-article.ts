@@ -9,6 +9,7 @@ import {
   type PostTagRecord,
   type PostVersionRecord,
   type PublishJobRecord,
+  type QualityGateResultRecord,
   type Timestamp,
 } from "./blog-content-model.ts";
 import {
@@ -98,6 +99,10 @@ export type DailyAutoArticlePipelineStatus =
   | "weak_sources";
 
 export type DailyAutoArticlePipelineResult = {
+  failure?: {
+    qualityGateResults: Pick<QualityGateResultRecord, "gateName" | "message">[];
+    stage: "article_validation" | "claim_verification";
+  };
   post: PostRecord | null;
   status: DailyAutoArticlePipelineStatus;
   version: PostVersionRecord | null;
@@ -244,7 +249,12 @@ export async function runDailyAutoArticlePipeline(
   });
 
   if (!validation.normalizedOutput || validation.status !== "passed") {
-    return emptyResult("generation_failed");
+    return emptyResult("generation_failed", {
+      qualityGateResults: validation.qualityGateResults.map(
+        ({ gateName, message }) => ({ gateName, message }),
+      ),
+      stage: "article_validation",
+    });
   }
 
   const claimVerification = verifyArticleClaims({
@@ -264,7 +274,12 @@ export async function runDailyAutoArticlePipeline(
   });
 
   if (claimVerification.status !== "passed") {
-    return emptyResult("generation_failed");
+    return emptyResult("generation_failed", {
+      qualityGateResults: claimVerification.qualityGateResults.map(
+        ({ gateName, message }) => ({ gateName, message }),
+      ),
+      stage: "claim_verification",
+    });
   }
 
   const version = toPostVersionRecord({
@@ -421,8 +436,10 @@ function createRequiredPublishJobs({
 
 function emptyResult(
   status: Exclude<DailyAutoArticlePipelineStatus, "publishing">,
+  failure?: DailyAutoArticlePipelineResult["failure"],
 ): DailyAutoArticlePipelineResult {
   return {
+    ...(failure ? { failure } : {}),
     post: null,
     status,
     version: null,

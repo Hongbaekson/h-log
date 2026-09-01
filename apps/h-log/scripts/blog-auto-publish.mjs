@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import pg from "pg";
 
 import {
-  createDailyAutoPublishPostId,
+  createDailyAutoPublishOutput,
   parseDailyAutoPublishInput,
   runDailyAutoPublishOnce,
 } from "../lib/blog-auto-publish-runner.ts";
@@ -65,11 +65,7 @@ try {
   });
 
   console.log(
-    JSON.stringify({
-      postId: result.post?.id ?? createDailyAutoPublishPostId(runAt),
-      status: result.status,
-      versionId: result.version?.id ?? null,
-    }),
+    JSON.stringify(createDailyAutoPublishOutput(result, runAt)),
   );
 } finally {
   await pool.end();

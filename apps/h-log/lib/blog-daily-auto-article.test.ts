@@ -240,8 +240,50 @@ describe("daily auto article pipeline", () => {
     );
 
     assert.equal(result.status, "generation_failed");
+    assert.deepEqual(result.failure, {
+      qualityGateResults: [
+        {
+          gateName: "article_quality_gate:duplicate_topic",
+          message: "article duplicates an existing published topic",
+        },
+      ],
+      stage: "article_validation",
+    });
     assert.deepEqual(checkedSlugs, ["runtime-release-note"]);
     assert.equal(persistenceCalls, 0);
+  });
+
+  it("hands off a redacted privacy failure without writer output", async () => {
+    const fakeToken = `sk-${"x".repeat(24)}`;
+    const internalUrl = "http://authoring.internal/drafts/1";
+    const baseInput = createPipelineInput();
+    const result = await runDailyAutoArticlePipeline(
+      createPipelineInput({
+        generateArticle: async (input) => {
+          const generation = await baseInput.generateArticle(input);
+
+          return {
+            ...generation,
+            output: createWriterOutput({
+              contentMarkdown: `# Hidden draft\n\n${internalUrl}\n\n${fakeToken}\n`,
+            }),
+          };
+        },
+      }),
+    );
+
+    assert.equal(result.status, "generation_failed");
+    assert.equal(result.failure?.stage, "article_validation");
+    assert.deepEqual(
+      result.failure?.qualityGateResults.map((gate) => gate.gateName),
+      ["article_quality_gate:privacy_risk"],
+    );
+    assert.match(
+      result.failure?.qualityGateResults[0]?.message ?? "",
+      /\[REDACTED\]/,
+    );
+    assert.equal(JSON.stringify(result).includes(fakeToken), false);
+    assert.equal(JSON.stringify(result).includes(internalUrl), false);
   });
 
   it("blocks sensitive generation input before calling the LLM adapter", async () => {
@@ -267,6 +309,8 @@ describe("daily auto article pipeline", () => {
 
   it("blocks persistence when a factual claim references an unknown research source", async () => {
     const baseInput = createPipelineInput();
+    const claimText = "Runtime 9 changes one API behavior.";
+    const sourceUrl = "https://example.com/releases/runtime";
     let persistenceCalls = 0;
     const result = await runDailyAutoArticlePipeline(
       createPipelineInput({
@@ -281,8 +325,8 @@ describe("daily auto article pipeline", () => {
                   confidence: 0.91,
                   id: "claim-runtime-api",
                   sourceId: "source-invented",
-                  sourceUrl: "https://example.com/releases/runtime",
-                  text: "Runtime 9 changes one API behavior.",
+                  sourceUrl,
+                  text: claimText,
                   type: "api",
                 },
               ],
@@ -296,6 +340,18 @@ describe("daily auto article pipeline", () => {
     );
 
     assert.equal(result.status, "generation_failed");
+    assert.deepEqual(result.failure, {
+      qualityGateResults: [
+        {
+          gateName: "claim_source_policy:claim-runtime-api",
+          message:
+            "claim claim-runtime-api references unknown source source-invented",
+        },
+      ],
+      stage: "claim_verification",
+    });
+    assert.equal(JSON.stringify(result).includes(claimText), false);
+    assert.equal(JSON.stringify(result).includes(sourceUrl), false);
     assert.equal(persistenceCalls, 0);
   });
 

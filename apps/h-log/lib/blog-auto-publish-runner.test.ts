@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  createDailyAutoPublishOutput,
   createDailyAutoPublishPostId,
   parseDailyAutoPublishInput,
   runDailyAutoPublishOnce,
@@ -12,6 +13,54 @@ describe("daily auto publish one-shot runner", () => {
     assert.equal(
       createDailyAutoPublishPostId("2026-07-21T15:30:00.000Z"),
       "post-2026-07-22",
+    );
+  });
+
+  it("adds only redacted failure details to the operator output", () => {
+    assert.deepEqual(
+      createDailyAutoPublishOutput(
+        {
+          failure: {
+            qualityGateResults: [
+              {
+                gateName: "article_quality_gate:privacy_risk",
+                message: "privacy scan blocked: api_credential=[REDACTED]",
+              },
+            ],
+            stage: "article_validation",
+          },
+          post: null,
+          status: "generation_failed",
+          version: null,
+        },
+        "2026-07-21T15:30:00.000Z",
+      ),
+      {
+        failure: {
+          qualityGateResults: [
+            {
+              gateName: "article_quality_gate:privacy_risk",
+              message: "privacy scan blocked: api_credential=[REDACTED]",
+            },
+          ],
+          stage: "article_validation",
+        },
+        postId: "post-2026-07-22",
+        status: "generation_failed",
+        versionId: null,
+      },
+    );
+
+    assert.deepEqual(
+      createDailyAutoPublishOutput(
+        { post: null, status: "no_topic", version: null },
+        "2026-07-21T15:30:00.000Z",
+      ),
+      {
+        postId: "post-2026-07-22",
+        status: "no_topic",
+        versionId: null,
+      },
     );
   });
 

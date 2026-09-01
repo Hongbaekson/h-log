@@ -65,6 +65,18 @@ export function createDailyAutoPublishPostId(runAt: Timestamp): string {
   return `post-${toSeoulDayKey(runAt)}`;
 }
 
+export function createDailyAutoPublishOutput(
+  result: DailyAutoArticlePipelineResult,
+  runAt: Timestamp,
+) {
+  return {
+    ...(result.failure ? { failure: result.failure } : {}),
+    postId: result.post?.id ?? createDailyAutoPublishPostId(runAt),
+    status: result.status,
+    versionId: result.version?.id ?? null,
+  };
+}
+
 export function parseDailyAutoPublishInput(
   value: unknown,
 ): DailyAutoPublishInputFile {

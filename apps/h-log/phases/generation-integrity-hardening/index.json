@@ -17,8 +17,8 @@
     {
       "step": 2,
       "name": "quality-gate-failure-reason-handoff",
-      "status": "pending",
-      "summary": "Carry redacted quality-gate failure categories and messages through the daily runner result instead of collapsing every blocked article into a generic generation_failed result."
+      "status": "completed",
+      "summary": "Daily pipeline failures now carry the article-validation or claim-verification stage plus redacted gate names and messages through the one-shot operator JSON without adding persistence."
     }
   ]
 }
