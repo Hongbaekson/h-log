@@ -219,10 +219,15 @@ async function withTestDatabase(
     await runBlogMigrations(testUrl.toString());
     await run(testUrl.toString());
   } finally {
-    await admin.query(
-      "select pg_terminate_backend(pid, 5000) from pg_stat_activity where datname = $1",
-      [databaseName],
-    );
+    for (let attempt = 0; attempt < 50; attempt += 1) {
+      const connections = await admin.query(
+        "select 1 from pg_stat_activity where datname = $1 limit 1",
+        [databaseName],
+      );
+
+      if (connections.rowCount === 0) break;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
     await admin.query(`drop database if exists ${databaseName}`);
     await admin.end();
   }
