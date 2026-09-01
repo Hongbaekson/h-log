@@ -5,8 +5,8 @@
     {
       "step": 0,
       "name": "keyword-search-without-fake-embedding",
-      "status": "pending",
-      "summary": "Run the current public search as keyword-only without fabricating an embedding provider call or recording fake embedding usage, while preserving the optional real-provider contract."
+      "status": "completed",
+      "summary": "The current public route now uses the native keyword fallback without a fake embedding adapter, budget lookup, or usage row, while preserving the optional real-provider budget/ledger contract."
     },
     {
       "step": 1,

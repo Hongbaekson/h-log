@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 
 import {
@@ -23,6 +24,10 @@ import {
 import type { BlogUsageEventRecord, BlogUsageLedger } from "./blog-usage-ledger.ts";
 
 const baseTimestamp = "2026-06-27T00:00:00.000Z";
+const searchRouteSource = readFileSync(
+  new URL("../app/api/search/route.ts", import.meta.url),
+  "utf8",
+);
 const usageLedger = {
   getUsageCostTotals: () =>
     Promise.resolve({ dailyEstimatedCost: 0, monthlyEstimatedCost: 0 }),
@@ -167,6 +172,13 @@ function createChunk(
 }
 
 describe("blog search contract", () => {
+  it("does not fabricate embedding usage for the keyword-only route", () => {
+    assert.doesNotMatch(
+      searchRouteSource,
+      /localKeywordOnlyEmbeddingAdapter|keyword-only|h-log-local/,
+    );
+  });
+
   it("merges keyword and vector scores without exposing non-published posts", () => {
     const results = searchPublishedBlogPosts(createStore(), {
       query: "pgvector",

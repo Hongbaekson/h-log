@@ -103,7 +103,7 @@
     {
       "dir": "search-runtime-alignment",
       "status": "pending",
-      "summary": "Steps 0-2 will remove fake embedding accounting from the current keyword-only route, run request guards before PostgreSQL public-store reads, and keep submitted search terms aligned with rendered results."
+      "summary": "Step 0 completed: the current keyword-only route no longer fabricates embedding accounting. Steps 1-2 will run request guards before PostgreSQL public-store reads and keep submitted search terms aligned with rendered results."
     },
     {
       "dir": "runtime-contract-pruning",

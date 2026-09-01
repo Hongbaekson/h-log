@@ -72,8 +72,8 @@ release-input-hardening: completed, Steps 0-1 canonical origin validation and re
 integration-test-gate-hardening: completed, Step 0 aggregate PostgreSQL integration and CI gate completed
 auto-publish-flow-simplification: completed, Step 0 production generation handoff only
 auto-publish-code-pruning: completed, Steps 1-6 completed
-generation-integrity-hardening: pending, Steps 0-1 completed; Step 2 failure-reason runtime integrity pending
-search-runtime-alignment: pending, Steps 0-2 keyword runtime/accounting/DB-read/UI alignment
+generation-integrity-hardening: completed, Steps 0-2 claim, writer, and failure-reason runtime integrity
+search-runtime-alignment: pending, Step 0 completed; Steps 1-2 DB-read/UI alignment pending
 runtime-contract-pruning: pending, Steps 0-9 live-caller recheck, deletion-only cleanup, and duplicated runtime-default pruning
 public-surface-refactor-pruning: pending, Steps 0-1 native legacy redirects and shared blog presentation rules
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
@@ -395,7 +395,7 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 ### 실행 경계
 
 - Steps 0-10은 완료했다.
-- 다음 실행 대상은 `generation-integrity-hardening / Step 2: quality-gate-failure-reason-handoff`다.
+- 다음 local 실행 대상은 `search-runtime-alignment / Step 1: guard-before-public-store-load`다.
 - Step 8은 public HTTPS origin 하나로 metadata, canonical, JSON-LD, robots, OG/Twitter, 정적·Portfolio·published Blog sitemap을 정렬하고 redirect source와 비공개 Blog가 crawler surface에 섞이지 않게 했다. Production container에서 공개 metadata와 308 redirect를 실제 HTTP로 검증했다.
 - 이 phase는 도메인 구매, DNS/TLS, OCI mutation, signal collection, persona activation, 09:00 KST timer 활성화를 수행하지 않는다.
 - Production behavior를 바꾸는 Steps 1-8과 Step 10은 각각 TDD RED -> GREEN -> REFACTOR와 가장 가까운 browser/gate 검증을 따른다.
@@ -414,11 +414,11 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 6. `auto-publish-flow-simplification / Step 0`: generation pipeline의 test-only inline publish/retry 분기를 제거하고 production과 동일하게 private `publishing` aggregate 저장까지만 수행한다. 생성 slug는 단일 indexed PostgreSQL 존재 조회로 persistence 전에 중복을 차단하고, required job/retry/public 전이는 persistent worker만 소유한다.
 7. `auto-publish-code-pruning / Steps 1-6`: durable persistence 뒤의 test-only mutable mirror와 unused reconciliation, unwired retry executor, persona learning, performance signal, failure pattern을 제거했다. Persistent worker는 retry limit, lease, retry stop, operator audit을 계속 소유하고 quality gate와 privacy scanner도 유지한다.
 8. `generation-integrity-hardening / Steps 0-2`: Step 0에서 existing claim verifier를 daily persistence 전에 연결했고, Step 1에서 Hermes writer의 tool capability와 model override를 제거해 `gpt-5.6-sol` 단일 경로를 고정했다. Step 2에서 redacted quality-gate 실패 단계와 사유를 새 persistence 없이 one-shot 결과까지 전달했다.
-9. `search-runtime-alignment / Steps 0-2`: 현재 keyword-only route의 fake embedding accounting을 제거하고, blocked query의 PostgreSQL read를 막으며, submitted query와 표시 결과를 일치시킨다. Future real embedding adapter와 related-post vector contract는 유지한다.
+9. `search-runtime-alignment / Steps 0-2`: Step 0에서 현재 keyword-only route의 fake embedding accounting을 제거했다. Steps 1-2에서 blocked query의 PostgreSQL read를 막고 submitted query와 표시 결과를 일치시킨다. Future real embedding adapter와 related-post vector contract는 유지한다.
 10. `runtime-contract-pruning / Steps 0-9`: 각 step 시작 시 live caller를 다시 확인한 뒤 legacy file loader, unwired verification/diagram/admin/model mirror, test-only public fixture와 repository write API, 중복 slug proxy를 삭제한다. 이어 confirmed-unused worker mode/egress와 Compose/systemd의 동일 runtime override만 제거한다. DB-backed public/crawler/retract/rendering, scheduler egress, OAuth preflight 경계는 유지한다.
 11. `public-surface-refactor-pruning / Steps 0-1`: legacy `/projects` route component를 Next native permanent redirect로 대체하고, search UI 정합성 완료 뒤 세 public blog surface의 날짜와 article-mode 표시 규칙을 하나로 맞춘다. 새 date dependency나 generic UI utility는 추가하지 않는다.
 
-1-8은 완료됐다. 2026-08-28 live audit의 9-10은 pending이며, 2026-08-31 audit에서 8의 model 고정 범위, 10의 Steps 5-9, 11을 추가했다. 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
+1-8과 9의 Step 0은 완료됐다. 2026-08-28 live audit의 9 Steps 1-2와 10은 pending이며, 2026-08-31 audit에서 8의 model 고정 범위, 10의 Steps 5-9, 11을 추가했다. 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
 
 ### generation-integrity-hardening / Step 0: claim-verifier-runtime-wiring
 
@@ -445,6 +445,15 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 - 검증: focused GREEN 21/21, 전체 `npm run test` 178개 중 166 pass/12 DB skip, `npm run typecheck`, `npm run lint`, `npm run build`, JSON parse, `git diff --check` 통과.
 - 운영 경계: raw writer output, claim text, URL, 전체 gate record를 출력하지 않았고 DB table/migration/durable quality history, 실제 provider 호출, OCI/timer/domain 변경을 추가하지 않았다.
 - 다음 local 실행 대상: `search-runtime-alignment / Step 0: keyword-search-without-fake-embedding`.
+
+### search-runtime-alignment / Step 0: keyword-search-without-fake-embedding
+
+- 상태: completed
+- 결과: public `/api/search` route에서 `keyword-only`/`h-log-local` fake embedding adapter와 그 adapter에만 필요했던 route-level budget/ledger wiring을 제거했다. 실제 provider가 없는 현재 route는 existing keyword fallback만 사용하며 embedding `usage_events` row를 만들지 않는다. Optional real adapter의 budget/ledger contract와 related-post vector 계산은 유지했다.
+- RED: route source에 `localKeywordOnlyEmbeddingAdapter`가 남아 있어 fake embedding accounting 회귀 테스트 1건이 기대한 이유로 실패했다.
+- 검증: focused GREEN 14/14, 전체 `npm run test` 179개 중 167 pass/12 DB environment skip, `npm run typecheck`, `npm run lint`, `npm run build` 통과.
+- 운영 경계: schema, dependency, environment, external provider, OCI, timer를 변경하지 않았다.
+- 다음 local 실행 대상: `search-runtime-alignment / Step 1: guard-before-public-store-load`.
 
 ### auto-publish-ops-hardening
 

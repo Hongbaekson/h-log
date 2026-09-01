@@ -1,40 +1,23 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import {
-  getBlogUsageLedger,
-  loadPublicBlogContentStore,
-} from "@/lib/blog-public-source";
+import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
 import {
   createBlogSearchRuntimeState,
   handleBlogSearchApiRequest,
   type BlogSearchApiResponse,
-  type BlogSearchEmbeddingAdapter,
 } from "@/lib/blog-search";
-import { resolveUsageBudgetPolicy } from "@/lib/blog-usage-ledger";
 
 export const runtime = "nodejs";
 
 const searchRuntimeState = createBlogSearchRuntimeState();
-const localKeywordOnlyEmbeddingAdapter: BlogSearchEmbeddingAdapter = {
-  async embedSearchQuery() {
-    return {
-      model: "keyword-only",
-      provider: "h-log-local",
-      vectorScores: [],
-    };
-  },
-};
 
 export async function GET(request: NextRequest) {
   const store = await loadPublicBlogContentStore();
   const response = await handleBlogSearchApiRequest({
     clientId: getSearchClientId(request),
-    embeddingAdapter: localKeywordOnlyEmbeddingAdapter,
-    policy: resolveUsageBudgetPolicy(process.env),
     query: request.nextUrl.searchParams.get("q") ?? "",
     state: searchRuntimeState,
     store,
-    usageLedger: getBlogUsageLedger(),
   });
 
   return NextResponse.json(

@@ -105,6 +105,8 @@ local runtime에서 완료된 항목:
 
 위 항목의 순수 contract, public crawler/search surface, persistent job 상태 저장은 완료됐지만, 실제 provider runtime 연결은 A-04 이후 승인 경계에서 수행한다.
 
+현재 public `/api/search` runtime은 embedding provider가 연결되지 않은 keyword-only 경로다. 이 경로는 fake provider 호출이나 `usage_events` row를 만들지 않으며, real embedding adapter가 명시적으로 주입될 때만 기존 budget/usage contract를 사용한다.
+
 ### A-03: 완전 자동 글 생성 계약
 
 - GeekNews, 공식 release note, 기술 블로그, 보안/운영 소스 수집
