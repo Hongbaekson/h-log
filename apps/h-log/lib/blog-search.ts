@@ -187,11 +187,11 @@ export type BlogSearchRuntimeState = {
 export type HandleBlogSearchApiRequestInput = {
   clientId: string;
   embeddingAdapter?: BlogSearchEmbeddingAdapter;
+  loadStore: () => BlogContentStore | Promise<BlogContentStore>;
   policy?: Partial<BlogSearchApiPolicy>;
   query: string;
   requestedAt?: number;
   state?: BlogSearchRuntimeState;
-  store: BlogContentStore;
   usageLedger?: BlogUsageLedger;
 };
 
@@ -410,8 +410,9 @@ export async function handleBlogSearchApiRequest(
   });
 
   if (cached && assessment.reason === "cache_hit") {
+    const store = await input.loadStore();
     const publicPostIds = new Set(
-      selectPublicBlogRouteEntries(input.store.posts, input.store.versions).map(
+      selectPublicBlogRouteEntries(store.posts, store.versions).map(
         ({ post }) => post.id,
       ),
     );
@@ -470,10 +471,11 @@ export async function handleBlogSearchApiRequest(
     await input.usageLedger.recordUsageEvent(usageEvent);
   }
 
+  const store = await input.loadStore();
   const response: BlogSearchApiResponse = {
     cached: false,
     guardReason: assessment.reason,
-    results: searchPublishedBlogPosts(input.store, {
+    results: searchPublishedBlogPosts(store, {
       limit: policy.resultLimit,
       query: assessment.normalizedQuery,
       vectorScores,

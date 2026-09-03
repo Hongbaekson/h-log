@@ -103,7 +103,7 @@
     {
       "dir": "search-runtime-alignment",
       "status": "pending",
-      "summary": "Step 0 completed: the current keyword-only route no longer fabricates embedding accounting. Steps 1-2 will run request guards before PostgreSQL public-store reads and keep submitted search terms aligned with rendered results."
+      "summary": "Steps 0-1 completed: the current keyword-only route no longer fabricates embedding accounting, and blocked requests no longer load the PostgreSQL public store while cache hits retain current published filtering. Step 2 will keep submitted search terms aligned with rendered results."
     },
     {
       "dir": "runtime-contract-pruning",

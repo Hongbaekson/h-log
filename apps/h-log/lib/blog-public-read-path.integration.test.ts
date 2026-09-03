@@ -49,9 +49,9 @@ test(
         });
         const search = await handleBlogSearchApiRequest({
           clientId: "integration-test",
+          loadStore: async () => store,
           query: "PostgreSQL",
           state: createBlogSearchRuntimeState(),
-          store,
         });
 
         assert.deepEqual(index.posts.map(({ slug }) => slug), ["database-only"]);

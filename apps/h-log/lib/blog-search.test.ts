@@ -148,6 +148,10 @@ function createStore(): BlogContentStore {
   };
 }
 
+async function loadStore(): Promise<BlogContentStore> {
+  return createStore();
+}
+
 function createChunk(
   store: BlogContentStore,
   slug: string,
@@ -176,6 +180,11 @@ describe("blog search contract", () => {
     assert.doesNotMatch(
       searchRouteSource,
       /localKeywordOnlyEmbeddingAdapter|keyword-only|h-log-local/,
+    );
+    assert.match(searchRouteSource, /loadStore:\s*loadPublicBlogContentStore/);
+    assert.doesNotMatch(
+      searchRouteSource,
+      /await\s+loadPublicBlogContentStore\(\)/,
     );
   });
 
@@ -349,6 +358,76 @@ describe("blog search contract", () => {
     );
   });
 
+  it("loads the public store only after request guards allow search", async () => {
+    const now = Date.parse(baseTimestamp);
+    let storeLoads = 0;
+    const loadStore = async () => {
+      storeLoads += 1;
+      return createStore();
+    };
+    const duplicateState = createBlogSearchRuntimeState();
+    duplicateState.requestHistory.push({
+      clientId: "visitor-duplicate",
+      normalizedQuery: "pgvector",
+      requestedAt: now - 1_000,
+    });
+    const rateLimitedState = createBlogSearchRuntimeState();
+    rateLimitedState.requestHistory.push({
+      clientId: "visitor-rate-limited",
+      normalizedQuery: "oci",
+      requestedAt: now - 1_000,
+    });
+
+    const blocked = await Promise.all([
+      handleBlogSearchApiRequest({
+        clientId: "visitor-short",
+        loadStore,
+        query: "a",
+        requestedAt: now,
+      }),
+      handleBlogSearchApiRequest({
+        clientId: "visitor-abnormal",
+        loadStore,
+        query: "http://localhost/internal",
+        requestedAt: now,
+      }),
+      handleBlogSearchApiRequest({
+        clientId: "visitor-duplicate",
+        loadStore,
+        query: "pgvector",
+        requestedAt: now,
+        state: duplicateState,
+      }),
+      handleBlogSearchApiRequest({
+        clientId: "visitor-rate-limited",
+        loadStore,
+        policy: { maxRequestsPerWindow: 1 },
+        query: "nginx",
+        requestedAt: now,
+        state: rateLimitedState,
+      }),
+    ]);
+
+    assert.deepEqual(
+      blocked.map((response) => response.guardReason),
+      ["query_too_short", "abnormal_query", "duplicate_query", "rate_limited"],
+    );
+    assert.equal(storeLoads, 0);
+
+    const allowed = await handleBlogSearchApiRequest({
+      clientId: "visitor-allowed",
+      loadStore,
+      query: "pgvector",
+      requestedAt: now,
+    });
+
+    assert.equal(allowed.status, "ok");
+    assert.deepEqual(allowed.results.map((result) => result.slug), [
+      "postgres-restore",
+    ]);
+    assert.equal(storeLoads, 1);
+  });
+
   it("serves repeated queries from the TTL cache before embedding is called", async () => {
     const now = Date.parse(baseTimestamp);
     const state = createBlogSearchRuntimeState();
@@ -373,7 +452,7 @@ describe("blog search contract", () => {
       query: "pgvector",
       requestedAt: now,
       state,
-      store: createStore(),
+      loadStore,
       usageLedger,
     });
     const second = await handleBlogSearchApiRequest({
@@ -382,7 +461,7 @@ describe("blog search contract", () => {
       query: "pgvector",
       requestedAt: now + 1_000,
       state,
-      store: createStore(),
+      loadStore,
       usageLedger,
     });
 
@@ -410,7 +489,7 @@ describe("blog search contract", () => {
       query: "oci",
       requestedAt: now,
       state,
-      store: createStore(),
+      loadStore,
     });
     const blocked = await handleBlogSearchApiRequest({
       clientId: "visitor-1",
@@ -421,7 +500,7 @@ describe("blog search contract", () => {
       query: "a",
       requestedAt: now + 1_000,
       state,
-      store: createStore(),
+      loadStore,
     });
 
     assert.equal(blocked.guardReason, "query_too_short");
@@ -457,7 +536,7 @@ describe("blog search contract", () => {
         query: `unique-query-${index}`,
         requestedAt: now + index,
         state,
-        store: createStore(),
+        loadStore,
         usageLedger,
       });
     }
@@ -477,7 +556,7 @@ describe("blog search contract", () => {
       query: "pgvector",
       requestedAt: now,
       state,
-      store: publishedStore,
+      loadStore: async () => publishedStore,
     });
     const retractedStore: BlogContentStore = {
       ...publishedStore,
@@ -496,7 +575,7 @@ describe("blog search contract", () => {
       query: "pgvector",
       requestedAt: now + 1_000,
       state,
-      store: retractedStore,
+      loadStore: async () => retractedStore,
     });
     const crawler = buildBlogCrawlerOutputs(retractedStore, {
       origin: "https://example.com",
@@ -530,7 +609,7 @@ describe("blog search contract", () => {
       },
       query: "pgvector",
       requestedAt: Date.parse(baseTimestamp),
-      store: createStore(),
+      loadStore,
       usageLedger: {
         getUsageCostTotals: () =>
           Promise.resolve({ dailyEstimatedCost: 0.5, monthlyEstimatedCost: 10 }),
@@ -561,7 +640,7 @@ describe("blog search contract", () => {
         },
         query: "pgvector",
         requestedAt: Date.parse(baseTimestamp),
-        store: createStore(),
+        loadStore,
       }),
       /search embedding usage ledger is required/,
     );
@@ -594,7 +673,7 @@ describe("blog search contract", () => {
       query: "pgvector",
       requestedAt: now,
       state,
-      store: createStore(),
+      loadStore,
       usageLedger,
     });
     const second = await handleBlogSearchApiRequest({
@@ -607,7 +686,7 @@ describe("blog search contract", () => {
       query: "pgvector",
       requestedAt: now + 1_000,
       state,
-      store: createStore(),
+      loadStore,
       usageLedger,
     });
 
@@ -638,7 +717,7 @@ describe("blog search contract", () => {
       query: "a",
       requestedAt: now,
       state,
-      store: createStore(),
+      loadStore,
       usageLedger,
     });
     const abnormalQuery = await handleBlogSearchApiRequest({
@@ -647,7 +726,7 @@ describe("blog search contract", () => {
       query: "http://localhost:3000/internal",
       requestedAt: now + 1_000,
       state,
-      store: createStore(),
+      loadStore,
       usageLedger,
     });
     const firstAllowed = await handleBlogSearchApiRequest({
@@ -659,7 +738,7 @@ describe("blog search contract", () => {
       query: "oci",
       requestedAt: now + 2_000,
       state,
-      store: createStore(),
+      loadStore,
       usageLedger,
     });
     const rateLimited = await handleBlogSearchApiRequest({
@@ -671,7 +750,7 @@ describe("blog search contract", () => {
       query: "nginx",
       requestedAt: now + 3_000,
       state,
-      store: createStore(),
+      loadStore,
       usageLedger,
     });
 

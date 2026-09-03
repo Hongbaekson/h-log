@@ -11,8 +11,8 @@
     {
       "step": 1,
       "name": "guard-before-public-store-load",
-      "status": "pending",
-      "summary": "Evaluate short, abnormal, duplicate, and rate-limited queries before loading the PostgreSQL-backed public store, without weakening cached-result retraction filtering."
+      "status": "completed",
+      "summary": "The request handler now evaluates short, abnormal, duplicate, and rate-limited queries before loading the PostgreSQL-backed public store, while cache hits still reload current published state to remove retracted posts."
     },
     {
       "step": 2,

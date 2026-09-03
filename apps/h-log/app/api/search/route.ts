@@ -12,12 +12,11 @@ export const runtime = "nodejs";
 const searchRuntimeState = createBlogSearchRuntimeState();
 
 export async function GET(request: NextRequest) {
-  const store = await loadPublicBlogContentStore();
   const response = await handleBlogSearchApiRequest({
     clientId: getSearchClientId(request),
+    loadStore: loadPublicBlogContentStore,
     query: request.nextUrl.searchParams.get("q") ?? "",
     state: searchRuntimeState,
-    store,
   });
 
   return NextResponse.json(
