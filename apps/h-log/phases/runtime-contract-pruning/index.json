@@ -5,8 +5,8 @@
     {
       "step": 0,
       "name": "remove-legacy-file-blog-loader",
-      "status": "pending",
-      "summary": "Re-check import and transition consumers, then remove the test-only file-based blog loader if the DB-backed public source is the only live runtime."
+      "status": "completed",
+      "summary": "Removed the legacy file blog loader and its dedicated tests after confirming no runtime, import command, or fixture consumers. Existing content and PostgreSQL-backed public, Markdown, crawler, and search paths remain unchanged; characterization and app gates passed."
     },
     {
       "step": 1,

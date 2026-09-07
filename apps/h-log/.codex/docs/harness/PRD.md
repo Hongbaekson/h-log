@@ -63,12 +63,12 @@ H-01에서 제외한다.
 - 자동 발행 전에는 backup/restore, deploy smoke, rollback runbook이 있어야 한다.
 - managed DB나 managed runtime으로 바꾸려면 별도 ADR을 추가한다.
 
-### H-02: 파일 기반 블로그 호환 레이어
+### H-02: 파일 기반 블로그 호환 이력
 
-파일 기반 블로그는 본선이 아니라 전환/호환 레이어로 둔다.
+기존 Markdown/MDX loader는 live runtime, import command, fixture consumer 없이 전용 테스트에서만 사용돼 `runtime-contract-pruning / Step 0`에서 제거했다.
 
-- Markdown 또는 MDX 기반 글 loader는 기존 글 import 또는 임시 fixture 용도로만 사용한다.
-- `/blog`와 `/blog/[slug]` public route의 장기 source of truth는 DB 기반 `post_versions`다.
+- 기존 Markdown/MDX 콘텐츠는 보존하며 파일 import workflow는 현재 제공하지 않는다.
+- `/blog`와 `/blog/[slug]` public route의 source of truth는 DB 기반 `posts`와 `post_versions`다.
 - file-based list/detail 구현 계획은 active phase registry에서 제거한다.
 
 ### A-01: DB 기반 수동 발행 블로그 계약
@@ -141,7 +141,7 @@ Feedback Steps 0-2의 synthetic contract 이력은 남기되, live caller와 pro
 - 공개 프로젝트 수는 실제 data source에서 계산하고, 상세 성과 수치는 근거 자료가 확인된 값만 사용한다.
 - `/portfolio`를 canonical route로 사용하고 `/projects`는 308 영구 redirect로만 제공한다.
 - Blog public route는 `status=published`인 최신 `post_version`만 노출한다.
-- file-based loader는 DB import/transition support로만 남기고, DB-first phase가 시작되면 public source of truth가 되지 않는다.
+- Public blog는 PostgreSQL source만 사용하며, 사용하지 않는 파일 기반 loader나 import compatibility wrapper를 유지하지 않는다.
 - 자동 블로그 전환 시 failed generation, failed publish, failed verification 상태의 글은 공개 URL에 노출되지 않는다.
 - "직접 해봤다"는 표현은 실제 실험/코드/명령/로그/운영 기록이 있는 경우에만 사용한다.
 - GeekNews 같은 큐레이션 소스는 주제 발견 신호로만 쓰고, 기술 claim은 원문/공식 문서로 검증한다.

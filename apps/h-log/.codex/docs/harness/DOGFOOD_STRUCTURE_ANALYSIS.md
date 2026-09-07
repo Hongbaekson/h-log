@@ -64,6 +64,6 @@ Dogfood의 backend 전용 항목은 그대로 복사하지 않고 H-Log에 맞�
 ## 적용상 주의
 
 - 현재 h-log 블로그 본선은 DB 기반 수동 발행부터 시작한다.
-- 파일 기반 blog loader는 import/transition support로만 둔다.
+- 파일 기반 blog loader는 live import/transition consumer가 없어 `runtime-contract-pruning / Step 0`에서 제거했다.
 - 자동 글이 실제 경험처럼 보이지 않도록 evidence gate를 강제해야 한다.
 - 방문자 챗봇은 만들지 않는다.

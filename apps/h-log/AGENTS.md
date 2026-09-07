@@ -14,7 +14,7 @@
 - Language: TypeScript
 - Frontend: React + Next.js App Router
 - Styling: Tailwind CSS
-- Blog content: PostgreSQL `posts`/`post_versions` 기반 Markdown/HTML. 기존 MD/MDX loader는 import/transition 용도로만 유지한다.
+- Blog content: PostgreSQL `posts`/`post_versions` 기반 Markdown/HTML. 공개 블로그는 DB-backed source만 사용한다.
 - Backend: Next.js route handlers와 필요한 worker/job entrypoint를 우선한다.
 - Database: PostgreSQL + pgvector
 - Deployment: OCI Compute의 Docker Compose와 Nginx. 별도 phase 또는 ADR 없이 새 런타임 계층을 추가하지 않는다.

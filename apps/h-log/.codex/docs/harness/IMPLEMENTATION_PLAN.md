@@ -50,7 +50,7 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
-수정된 `plans/automated-blog-publishing-plan.md` 기준으로 블로그 본선은 DB-first다. 기존 file-based loader는 public runtime이 아니며 `runtime-contract-pruning`에서 실제 import/transition consumer를 다시 확인한 뒤 삭제 여부를 확정한다.
+수정된 `plans/automated-blog-publishing-plan.md` 기준으로 블로그 본선은 DB-first다. 기존 file-based loader는 live import/transition consumer가 없어 `runtime-contract-pruning / Step 0`에서 전용 테스트와 함께 제거했다.
 
 ```text
 phase-registry-bootstrap: completed
@@ -74,7 +74,7 @@ auto-publish-flow-simplification: completed, Step 0 production generation handof
 auto-publish-code-pruning: completed, Steps 1-6 completed
 generation-integrity-hardening: completed, Steps 0-2 claim, writer, and failure-reason runtime integrity
 search-runtime-alignment: completed, Steps 0-2 completed
-runtime-contract-pruning: pending, Steps 0-9 live-caller recheck, deletion-only cleanup, and duplicated runtime-default pruning
+runtime-contract-pruning: pending, Step 0 legacy file loader removal completed; Steps 1-9 remain
 public-surface-refactor-pruning: pending, Steps 0-1 native legacy redirects and shared blog presentation rules
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned
@@ -86,10 +86,10 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 
 ### 파일 기반 loader 호환 이력
 
-- 상태: completed
-- 역할: 기존 Markdown/MDX 글 import, fixture, 전환 지원
-- 주의: DB-first phase가 시작된 뒤 public source of truth로 확장하지 않는다.
-- active phase index에서는 제외한다. 새 블로그 목록/상세 구현은 `db-manual-publishing-mvp`에서만 진행한다.
+- 상태: contract completed, later pruned in `runtime-contract-pruning / Step 0`
+- 기존 역할: Markdown/MDX 글 import, fixture, 전환 지원을 위한 loader contract였지만 실제 consumer는 전용 테스트뿐이었다.
+- 정리 결과: loader와 전용 테스트 315줄을 삭제했다. 파일 import workflow나 대체 wrapper는 제공하지 않는다.
+- 경계: 기존 콘텐츠와 PostgreSQL-backed public route는 변경하지 않았다.
 
 ## 현재 DB-first 진행 상태
 
@@ -395,7 +395,7 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 ### 실행 경계
 
 - Steps 0-10은 완료했다.
-- 다음 local 실행 대상은 `runtime-contract-pruning / Step 0: remove-legacy-file-blog-loader`다.
+- 다음 local 실행 대상은 `runtime-contract-pruning / Step 1: shrink-post-publish-verification-contract`다.
 - Step 8은 public HTTPS origin 하나로 metadata, canonical, JSON-LD, robots, OG/Twitter, 정적·Portfolio·published Blog sitemap을 정렬하고 redirect source와 비공개 Blog가 crawler surface에 섞이지 않게 했다. Production container에서 공개 metadata와 308 redirect를 실제 HTTP로 검증했다.
 - 이 phase는 도메인 구매, DNS/TLS, OCI mutation, signal collection, persona activation, 09:00 KST timer 활성화를 수행하지 않는다.
 - Production behavior를 바꾸는 Steps 1-8과 Step 10은 각각 TDD RED -> GREEN -> REFACTOR와 가장 가까운 browser/gate 검증을 따른다.
@@ -471,6 +471,14 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 - 검증: focused RED 6 pass/1 fail과 같은 focused GREEN 7/7, 전체 `npm run test` 181개 중 169 pass/12 DB environment skip, `npm run typecheck`, `npm run lint`, `npm run build`가 통과했다. 임시 local PostgreSQL과 개발 서버에서 1440x1100 desktop, 390x844 mobile을 렌더링하고 Enter 제출 후 focus 유지, draft/submitted 분리, 최신 응답 뒤 이전 응답 무시, mobile input/button 경계를 확인했다.
 - 운영 경계: schema, dependency, API response, search guard/cache 정책, environment, OCI, timer를 변경하지 않았다.
 - 다음 local 실행 대상: `runtime-contract-pruning / Step 0: remove-legacy-file-blog-loader`.
+
+### runtime-contract-pruning / Step 0: remove-legacy-file-blog-loader
+
+- 상태: completed
+- 결과: repository-wide import/caller와 script/content migration 경로를 다시 확인했다. 전용 테스트 외 runtime, import command, fixture consumer가 없어 `lib/blog.ts`와 `lib/blog.test.ts` 315줄을 삭제하고 관련 문서의 import/transition 지원 표현을 정리했다.
+- 검증: 동작 변경 없는 삭제이므로 기존 characterization 32/32를 삭제 전에 확인했다. 삭제 후 public/crawler/search/SQL selector focused 29/29, 전체 `npm run test` 178개 중 166 pass/12 DB environment skip, `npm run typecheck`, `npm run lint`, `npm run build`가 통과했다.
+- 운영 경계: 기존 콘텐츠, DB/public source, route, dependency, 운영 설정은 변경하지 않았다. 대체 loader나 import CLI도 추가하지 않았다.
+- 다음 local 실행 대상: `runtime-contract-pruning / Step 1: shrink-post-publish-verification-contract`.
 
 ### auto-publish-ops-hardening
 

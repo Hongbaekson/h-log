@@ -22,7 +22,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 ### ADR-002: 블로그 본선은 DB 기반 수동 발행으로 전환한다
 
-**결정**: 블로그 public route의 장기 source of truth는 PostgreSQL 기반 `posts`와 `post_versions`다. 기존 Markdown/MDX loader는 import, fixture, 전환 지원 용도로만 둔다.
+**결정**: 블로그 public route의 source of truth는 PostgreSQL 기반 `posts`와 `post_versions`다. 기존 Markdown/MDX loader는 live import/transition consumer가 없어 `runtime-contract-pruning / Step 0`에서 제거했다. 기존 콘텐츠는 보존하며 새 import workflow는 실제 요구가 생기면 별도로 설계한다.
 
 **이유**: 수정된 `plans/automated-blog-publishing-plan.md`가 `Content: DB + generated Markdown/HTML`, `PostgreSQL + pgvector 필수`, 자동화 중심 방향을 명시한다. 자동 글 생성보다 먼저 published-only public boundary와 version/hash 모델이 안정돼야 한다.
 
