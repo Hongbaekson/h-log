@@ -7,7 +7,7 @@ import {
   LoaderCircle,
   Search,
 } from "lucide-react";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui";
 import type { BlogSearchApiResponse } from "@/lib/blog-search";
@@ -23,11 +23,13 @@ const initialSnapshot = createBlogSearchUiSnapshot({
 export function BlogSearchPanel() {
   const [query, setQuery] = useState("");
   const [snapshot, setSnapshot] = useState<BlogSearchUiSnapshot>(initialSnapshot);
+  const latestRequestId = useRef(0);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const nextQuery = query.trim();
+    const requestId = ++latestRequestId.current;
 
     setSnapshot(
       createBlogSearchUiSnapshot({
@@ -45,6 +47,10 @@ export function BlogSearchPanel() {
       );
       const body = (await response.json()) as BlogSearchApiResponse;
 
+      if (requestId !== latestRequestId.current) {
+        return;
+      }
+
       setSnapshot(
         createBlogSearchUiSnapshot({
           query: nextQuery,
@@ -52,6 +58,10 @@ export function BlogSearchPanel() {
         }),
       );
     } catch (error) {
+      if (requestId !== latestRequestId.current) {
+        return;
+      }
+
       setSnapshot(
         createBlogSearchUiSnapshot({
           errorMessage: error instanceof Error ? error.message : "unknown error",
@@ -110,7 +120,14 @@ export function BlogSearchPanel() {
       </p>
 
       <div aria-live="polite" className="mt-5 min-h-8">
-        {snapshot.status === "idle" ? null : <SearchSnapshotView snapshot={snapshot} />}
+        {snapshot.status === "idle" ? null : (
+          <div className="grid gap-3">
+            <p className="text-xs text-slate-400">
+              검색어: <span className="break-words font-mono text-cyan-200">{snapshot.query}</span>
+            </p>
+            <SearchSnapshotView snapshot={snapshot} />
+          </div>
+        )}
       </div>
     </div>
   );

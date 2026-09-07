@@ -17,8 +17,8 @@
     {
       "step": 2,
       "name": "submitted-query-ui-consistency",
-      "status": "pending",
-      "summary": "Keep the visible search term and rendered result set tied to the same submitted query while an earlier request is in flight."
+      "status": "completed",
+      "summary": "The visible search state now names the submitted query, keeps later draft edits separate, and ignores stale success or error responses from older requests."
     }
   ]
 }

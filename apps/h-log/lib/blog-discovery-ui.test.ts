@@ -18,6 +18,21 @@ describe("blog discovery UI", () => {
     assert.match(source, /2자 이상 입력해 주세요/);
   });
 
+  it("keeps search results tied to the latest submitted query", async () => {
+    const source = await readFile(
+      new URL("../components/blog/BlogSearchPanel.tsx", import.meta.url),
+      "utf8",
+    );
+
+    assert.match(source, /const latestRequestId = useRef\(0\)/);
+    assert.match(source, /const requestId = \+\+latestRequestId\.current/);
+    assert.equal(
+      source.match(/requestId !== latestRequestId\.current/g)?.length,
+      2,
+    );
+    assert.match(source, /검색어:\s*<span[\s\S]*?\{snapshot\.query\}/);
+  });
+
   it("exposes the selected tag links as current navigation", async () => {
     const source = await readFile(
       new URL("../app/blog/page.tsx", import.meta.url),

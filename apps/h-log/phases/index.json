@@ -102,8 +102,8 @@
     },
     {
       "dir": "search-runtime-alignment",
-      "status": "pending",
-      "summary": "Steps 0-1 completed: the current keyword-only route no longer fabricates embedding accounting, and blocked requests no longer load the PostgreSQL public store while cache hits retain current published filtering. Step 2 will keep submitted search terms aligned with rendered results."
+      "status": "completed",
+      "summary": "Steps 0-2 completed: the current keyword-only route no longer fabricates embedding accounting, blocked requests no longer load the PostgreSQL public store while cache hits retain current published filtering, and visible search state remains tied to the latest submitted query while stale responses are ignored."
     },
     {
       "dir": "runtime-contract-pruning",
