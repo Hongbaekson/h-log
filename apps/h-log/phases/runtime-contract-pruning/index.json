@@ -17,8 +17,8 @@
     {
       "step": 2,
       "name": "shrink-diagram-asset-contract",
-      "status": "pending",
-      "summary": "Keep the render-time diagram asset integrity predicate and remove only unwired planning, storage, failure, and audit helpers."
+      "status": "completed",
+      "summary": "Kept the render-time diagram asset integrity predicate used by the public renderer and removed the caller-free planning, storage, failure, and audit helpers with their dedicated tests. Existing asset rows, SVG files, and public insertion behavior remain unchanged."
     },
     {
       "step": 3,
