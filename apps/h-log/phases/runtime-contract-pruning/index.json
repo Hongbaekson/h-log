@@ -11,8 +11,8 @@
     {
       "step": 1,
       "name": "shrink-post-publish-verification-contract",
-      "status": "pending",
-      "summary": "Keep the crawler manifest used by public outputs and remove only the verification, job-creation, and failure-decision contracts with no live caller."
+      "status": "completed",
+      "summary": "Kept the published-current crawler manifest used by public outputs and removed the caller-free public-surface verification, job-creation, and failure-decision facade with its dedicated tests. The required publish adapter and persistent worker remain unchanged."
     },
     {
       "step": 2,

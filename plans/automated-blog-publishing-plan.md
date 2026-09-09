@@ -34,7 +34,7 @@
 - 기존 PostgreSQL integration suite 5종은 하나의 fail-fast 명령과 ephemeral pgvector 기반 GitHub Actions gate로 검증한다. 이 gate는 production domain, OCI, timer를 변경하지 않는다.
 - `generation-integrity-hardening` Steps 0-2의 claim verifier 연결, Hermes writer no-tool/`gpt-5.6-sol` 단일 경로, redacted quality-gate 실패 단계·사유의 one-shot handoff를 완료했다. 실패 이력용 DB persistence는 추가하지 않았다.
 - `search-runtime-alignment` Steps 0-2의 fake embedding accounting 제거, blocked query eager PostgreSQL read 차단, submitted query와 표시 결과 정합성을 완료했다. 이전 요청의 늦은 응답은 최신 결과를 덮어쓰지 않는다.
-- `runtime-contract-pruning` Step 0은 전용 테스트 외 live consumer가 없는 파일 기반 blog loader를 제거했다. 기존 콘텐츠와 DB-backed public source는 유지했다. Steps 1-9는 매 step live caller를 재확인한 뒤 unwired/test-only contract, 중복 slug proxy, unused worker capability와 중복 container runtime default만 삭제한다.
+- `runtime-contract-pruning` Steps 0-1은 전용 테스트 외 live consumer가 없는 파일 기반 blog loader와 post-publish verification facade를 제거했다. published-current crawler manifest와 live required adapter/worker는 유지했다. Steps 2-9는 매 step live caller를 재확인한 뒤 unwired/test-only contract, 중복 slug proxy, unused worker capability와 중복 container runtime default만 삭제한다.
 - `public-surface-refactor-pruning` Steps 0-1은 legacy project redirect를 Next native config로 옮기고, search UI 정합성 뒤 public blog date/article-mode 표시 규칙을 공유한다.
 ```
 

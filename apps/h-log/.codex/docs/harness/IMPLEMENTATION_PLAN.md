@@ -50,7 +50,7 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
-수정된 `plans/automated-blog-publishing-plan.md` 기준으로 블로그 본선은 DB-first다. 기존 file-based loader는 live import/transition consumer가 없어 `runtime-contract-pruning / Step 0`에서 전용 테스트와 함께 제거했다.
+수정된 `plans/automated-blog-publishing-plan.md` 기준으로 블로그 본선은 DB-first다. 기존 file-based loader와 caller가 없던 post-publish verification facade는 `runtime-contract-pruning / Steps 0-1`에서 전용 테스트와 함께 제거했다. published-current crawler manifest와 live required adapter/worker는 유지한다.
 
 ```text
 phase-registry-bootstrap: completed
@@ -74,7 +74,7 @@ auto-publish-flow-simplification: completed, Step 0 production generation handof
 auto-publish-code-pruning: completed, Steps 1-6 completed
 generation-integrity-hardening: completed, Steps 0-2 claim, writer, and failure-reason runtime integrity
 search-runtime-alignment: completed, Steps 0-2 completed
-runtime-contract-pruning: pending, Step 0 legacy file loader removal completed; Steps 1-9 remain
+runtime-contract-pruning: pending, Steps 0-1 legacy loader and caller-free verification facade removal completed; Steps 2-9 remain
 public-surface-refactor-pruning: pending, Steps 0-1 native legacy redirects and shared blog presentation rules
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned
@@ -186,15 +186,15 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 
 ### post-publish-seo-automation / Step 0: post-publish-verification-jobs
 
-- 상태: completed
-- 결과: `lib/blog-post-publish-verification.ts`와 테스트로 public URL, `/blog/:slug.md` surface의 `content_hash` 검증 contract를 고정했다. `sitemap.xml`, `feed.xml`, `llms.txt`, `llms-full.txt` crawler manifest는 published current version만 포함하며, preview/failed 상태 글은 제외한다. Required verification job과 retryable feed/llms/IndexNow/Discord job을 분리하고, required 실패는 publish 차단 또는 운영 검토 상태로, retryable 실패는 `published` 유지로 판정한다. 실제 IndexNow 제출과 Discord 알림 전송은 수행하지 않는다.
-- 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-post-publish-verification.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-post-publish-verification.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-public.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-search.test.ts`
+- 상태: completed, caller-free facade later pruned in `runtime-contract-pruning / Step 1`
+- 결과: 당시 `lib/blog-post-publish-verification.ts`와 전용 테스트로 public surface 검증, job 생성/실패 판정, published-current crawler manifest contract를 고정했다. 이후 live caller가 없던 검증/job/failure facade와 전용 테스트는 제거했고 crawler manifest는 유지했다. 실제 required 검증은 `lib/blog-required-publish-job-adapter.ts`, lease/retry/state 전이는 persistent worker와 content model이 담당한다.
+- 당시 검증: RED/GREEN focused `lib/blog-post-publish-verification.test.ts`, focused content model/public/search tests
 
 ### post-publish-seo-automation / Step 1: crawler-output-generation
 
 - 상태: completed
 - 결과: `lib/blog-crawler-output.ts`와 route handlers로 `sitemap.xml`, `feed.xml`, `llms.txt`, `llms-full.txt`를 생성한다. 출력은 Step 0의 published-only manifest를 재사용하고, current version `content_hash`를 검증하며, preview/failed/unpublished/retracted 글은 제외한다. `llms-full.txt`는 공개된 글의 canonical Markdown만 싣고 source raw snapshot, 내부 evidence path, secret, private URL은 추가로 노출하지 않는다.
-- 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-crawler-output.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-crawler-output.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-post-publish-verification.test.ts`, focused `node --no-warnings --test --experimental-strip-types lib/blog-public.test.ts`, `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`
+- 당시 검증: RED/GREEN focused `lib/blog-crawler-output.test.ts`, focused post-publish verification/public tests, `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`
 
 ### post-publish-seo-automation / Step 2: indexnow-discord-retryable-jobs (later pruned)
 
@@ -395,7 +395,7 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 ### 실행 경계
 
 - Steps 0-10은 완료했다.
-- 다음 local 실행 대상은 `runtime-contract-pruning / Step 1: shrink-post-publish-verification-contract`다.
+- 다음 local 실행 대상은 `runtime-contract-pruning / Step 2: shrink-diagram-asset-contract`다.
 - Step 8은 public HTTPS origin 하나로 metadata, canonical, JSON-LD, robots, OG/Twitter, 정적·Portfolio·published Blog sitemap을 정렬하고 redirect source와 비공개 Blog가 crawler surface에 섞이지 않게 했다. Production container에서 공개 metadata와 308 redirect를 실제 HTTP로 검증했다.
 - 이 phase는 도메인 구매, DNS/TLS, OCI mutation, signal collection, persona activation, 09:00 KST timer 활성화를 수행하지 않는다.
 - Production behavior를 바꾸는 Steps 1-8과 Step 10은 각각 TDD RED -> GREEN -> REFACTOR와 가장 가까운 browser/gate 검증을 따른다.
@@ -415,7 +415,7 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 7. `auto-publish-code-pruning / Steps 1-6`: durable persistence 뒤의 test-only mutable mirror와 unused reconciliation, unwired retry executor, persona learning, performance signal, failure pattern을 제거했다. Persistent worker는 retry limit, lease, retry stop, operator audit을 계속 소유하고 quality gate와 privacy scanner도 유지한다.
 8. `generation-integrity-hardening / Steps 0-2`: Step 0에서 existing claim verifier를 daily persistence 전에 연결했고, Step 1에서 Hermes writer의 tool capability와 model override를 제거해 `gpt-5.6-sol` 단일 경로를 고정했다. Step 2에서 redacted quality-gate 실패 단계와 사유를 새 persistence 없이 one-shot 결과까지 전달했다.
 9. `search-runtime-alignment / Steps 0-2`: Step 0에서 현재 keyword-only route의 fake embedding accounting을 제거했고, Step 1에서 blocked query의 PostgreSQL read를 막으면서 cache-hit published 재검증을 유지했다. Step 2에서 input draft와 submitted query를 분리하고 이전 요청의 늦은 success/error 응답을 무시해 표시 검색어와 결과를 일치시켰다. Future real embedding adapter와 related-post vector contract는 유지한다.
-10. `runtime-contract-pruning / Steps 0-9`: 각 step 시작 시 live caller를 다시 확인한 뒤 legacy file loader, unwired verification/diagram/admin/model mirror, test-only public fixture와 repository write API, 중복 slug proxy를 삭제한다. 이어 confirmed-unused worker mode/egress와 Compose/systemd의 동일 runtime override만 제거한다. DB-backed public/crawler/retract/rendering, scheduler egress, OAuth preflight 경계는 유지한다.
+10. `runtime-contract-pruning / Steps 0-9`: Steps 0-1에서 live caller가 없는 legacy file loader와 post-publish verification facade를 제거했다. 이후에도 각 step 시작 시 live caller를 다시 확인한 뒤 unwired diagram/admin/model mirror, test-only public fixture와 repository write API, 중복 slug proxy를 삭제한다. 이어 confirmed-unused worker mode/egress와 Compose/systemd의 동일 runtime override만 제거한다. DB-backed public/crawler/retract/rendering, scheduler egress, OAuth preflight 경계는 유지한다.
 11. `public-surface-refactor-pruning / Steps 0-1`: legacy `/projects` route component를 Next native permanent redirect로 대체하고, search UI 정합성 완료 뒤 세 public blog surface의 날짜와 article-mode 표시 규칙을 하나로 맞춘다. 새 date dependency나 generic UI utility는 추가하지 않는다.
 
 1-9는 완료됐다. 2026-08-28 live audit의 10과 2026-08-31 audit에서 추가한 11은 pending이며, 같은 audit에서 8의 model 고정 범위와 10의 Steps 5-9를 보강했다. 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
@@ -479,6 +479,14 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 - 검증: 동작 변경 없는 삭제이므로 기존 characterization 32/32를 삭제 전에 확인했다. 삭제 후 public/crawler/search/SQL selector focused 29/29, 전체 `npm run test` 178개 중 166 pass/12 DB environment skip, `npm run typecheck`, `npm run lint`, `npm run build`가 통과했다.
 - 운영 경계: 기존 콘텐츠, DB/public source, route, dependency, 운영 설정은 변경하지 않았다. 대체 loader나 import CLI도 추가하지 않았다.
 - 다음 local 실행 대상: `runtime-contract-pruning / Step 1: shrink-post-publish-verification-contract`.
+
+### runtime-contract-pruning / Step 1: shrink-post-publish-verification-contract
+
+- 상태: completed
+- 결과: `lib/blog-post-publish-verification.ts`에서 live caller가 없던 public-surface verification, verification job 생성, failure-decision contract를 전용 테스트와 함께 제거했다. public crawler route가 사용하는 published-current manifest builder와 type은 유지했다.
+- 검증: 삭제 전 characterization 13/13, 삭제 후 crawler/required adapter/persistent worker focused 10/10, 전체 `npm run test` 174개 중 162 pass/12 DB environment skip, `npm run typecheck`, `npm run lint`, `npm run build`, JSON parse, `git diff --check`가 통과했다.
+- 운영 경계: required publish adapter의 pre/post-publish 검증, persistent worker의 lease/retry/state 전이, content model, crawler output, schema, dependency, environment, OCI, timer를 변경하지 않았다.
+- 다음 local 실행 대상: `runtime-contract-pruning / Step 2: shrink-diagram-asset-contract`.
 
 ### auto-publish-ops-hardening
 
