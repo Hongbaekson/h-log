@@ -24,6 +24,8 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **결정**: 블로그 public route의 source of truth는 PostgreSQL 기반 `posts`와 `post_versions`다. 기존 Markdown/MDX loader는 live import/transition consumer가 없어 `runtime-contract-pruning / Step 0`에서 제거했다. 기존 콘텐츠는 보존하며 새 import workflow는 실제 요구가 생기면 별도로 설계한다.
 
+현재 관리자 runtime 계약은 PostgreSQL repository가 호출하는 retract와 같은 transaction의 `admin_actions` 감사 기록만 유지한다. live caller가 없는 preview, draft, publish, correction, unpublish, generic operational action은 `runtime-contract-pruning / Step 3`에서 제거했으며, 인증된 관리자 caller가 생기면 필요한 명령만 다시 설계한다.
+
 **이유**: 수정된 `plans/automated-blog-publishing-plan.md`가 `Content: DB + generated Markdown/HTML`, `PostgreSQL + pgvector 필수`, 자동화 중심 방향을 명시한다. 자동 글 생성보다 먼저 published-only public boundary와 version/hash 모델이 안정돼야 한다.
 
 **트레이드오프**: file-based MVP보다 초기 구현량이 늘어난다. 대신 이후 검색, 관련 글, `.md` endpoint, sitemap/feed/llms, 발행 검증, 정정/rollback을 같은 모델 위에서 처리할 수 있다.

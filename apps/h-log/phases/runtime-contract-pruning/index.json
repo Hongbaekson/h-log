@@ -23,8 +23,8 @@
     {
       "step": 3,
       "name": "shrink-admin-contract",
-      "status": "pending",
-      "summary": "Keep the PostgreSQL-backed retract and admin audit boundary and remove preview, draft, publish, correction, unpublish, and operational actions that have no live repository or route caller."
+      "status": "completed",
+      "summary": "Kept the PostgreSQL-backed retract and atomic admin audit boundary and removed preview, draft, publish, correction, unpublish, and generic operational actions with no live repository or route caller. Audit validation and public, crawler, search, and related removal remain unchanged."
     },
     {
       "step": 4,

@@ -149,12 +149,7 @@ export function createPostgresBlogRepository(
         const { adminAction, post } = retractAdminPost(
           {
             adminActions: [],
-            assets: [],
-            corrections: [],
             posts: existing.rows.map(mapPost),
-            sources: [],
-            tags: [],
-            versions: [],
           },
           input,
         );

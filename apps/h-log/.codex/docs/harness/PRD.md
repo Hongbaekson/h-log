@@ -79,7 +79,7 @@ H-01에서 제외한다.
 - public route는 `status=published` 최신 버전만 노출
 - Markdown/HTML 렌더링 저장
 - sitemap/feed/llms.txt 생성 준비
-- 관리자 UI는 최소 preview/save/publish만 포함
+- 관리자 route/UI는 아직 없으며, 현재 runtime은 PostgreSQL repository가 사용하는 retract와 `admin_actions` 원자적 감사 기록만 포함
 
 local runtime에서 완료된 항목:
 

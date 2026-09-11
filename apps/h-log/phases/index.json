@@ -108,7 +108,7 @@
     {
       "dir": "runtime-contract-pruning",
       "status": "pending",
-      "summary": "Steps 0-2 completed: removed the legacy file blog loader, caller-free post-publish verification facade, and unwired diagram planning/storage/failure/audit helpers while retaining the published-current crawler manifest, live required adapter/worker, and diagram render predicate. Steps 3-9 will re-check live callers and prune unwired contracts, a redundant public-slug proxy, unused worker capabilities, and duplicated container defaults while preserving DB-backed public, crawler, retract, claim, rendering, scheduler-egress, and OAuth boundaries."
+      "summary": "Steps 0-3 completed: removed the legacy file blog loader, caller-free post-publish verification facade, unwired diagram planning/storage/failure/audit helpers, and caller-free admin workflow while retaining the published-current crawler manifest, live required adapter/worker, diagram render predicate, and repository-backed retract/audit boundary. Steps 4-9 will re-check live callers and prune test-only contracts, a redundant public-slug proxy, unused worker capabilities, and duplicated container defaults while preserving DB-backed public, crawler, retract, claim, rendering, scheduler-egress, and OAuth boundaries."
     },
     {
       "dir": "public-surface-refactor-pruning",
