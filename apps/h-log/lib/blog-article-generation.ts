@@ -1,5 +1,3 @@
-import { createHash } from "node:crypto";
-
 import {
   articleClaimTypes,
   blogArticleModes,
@@ -8,8 +6,6 @@ import {
   type BlogArticleMode,
   type BlogPostStatus,
   type CanonicalPostVersionContent,
-  type PostGenerationRunGateResult,
-  type PostGenerationRunRecord,
   type QualityGateResultRecord,
   type Timestamp,
 } from "./blog-content-model.ts";
@@ -107,19 +103,6 @@ export type ValidateArticleWriterOutputResult = {
   status: "blocked" | "failed" | "passed";
 };
 
-export type CreateArticleGenerationRunRecordInput = {
-  applyToMeResultId: string;
-  createdAt: Timestamp;
-  gateResult: PostGenerationRunGateResult;
-  inputSourceIds: readonly string[];
-  model: string;
-  output: NormalizedArticleWriterOutput;
-  personaVersion: string;
-  postId: string;
-  postVersionId: string;
-  promptHash: string;
-};
-
 export function validateArticleWriterOutput(
   input: ValidateArticleWriterOutputInput,
 ): ValidateArticleWriterOutputResult {
@@ -172,34 +155,6 @@ export function validateArticleWriterOutput(
     ),
     qualityGateResults,
     status: "passed",
-  };
-}
-
-export function createArticleGenerationRunRecord(
-  input: CreateArticleGenerationRunRecordInput,
-): PostGenerationRunRecord {
-  const personaVersion = normalizeRequiredString(
-    input.personaVersion,
-    "persona_version",
-  );
-
-  return {
-    applyToMeResultId: normalizeRequiredString(
-      input.applyToMeResultId,
-      "apply_to_me_result_id",
-    ),
-    articleMode: input.output.articleMode,
-    createdAt: input.createdAt,
-    gateResult: input.gateResult,
-    id: `generation-run:${input.postId}:${input.postVersionId}`,
-    inputSourceIds: uniqueTrimmedStrings(input.inputSourceIds),
-    model: normalizeRequiredString(input.model, "model"),
-    outputHash: createArticleWriterOutputHash(input.output),
-    personalContextIds: uniqueTrimmedStrings(input.output.personalContextIds),
-    personaVersion,
-    postId: input.postId,
-    postVersionId: input.postVersionId,
-    promptHash: normalizeRequiredString(input.promptHash, "prompt_hash"),
   };
 }
 
@@ -467,16 +422,6 @@ function normalizeOptionalString(value: string | undefined): string | null {
   return trimmed ? trimmed : null;
 }
 
-function normalizeRequiredString(value: string, field: string): string {
-  const trimmed = value.trim();
-
-  if (!trimmed) {
-    throw new Error(`${field} is required`);
-  }
-
-  return trimmed;
-}
-
 function uniqueTrimmedStrings(values: readonly string[]): string[] {
   const result: string[] = [];
   const seen = new Set<string>();
@@ -503,13 +448,4 @@ function toIdSegment(value: string): string {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "") || "unknown"
   );
-}
-
-function createArticleWriterOutputHash(
-  output: NormalizedArticleWriterOutput,
-): string {
-  return createHash("sha256")
-    .update("h-log/article-writer-output/v1")
-    .update(JSON.stringify(output))
-    .digest("hex");
 }

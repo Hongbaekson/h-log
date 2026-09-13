@@ -34,7 +34,7 @@
 - 기존 PostgreSQL integration suite 5종은 하나의 fail-fast 명령과 ephemeral pgvector 기반 GitHub Actions gate로 검증한다. 이 gate는 production domain, OCI, timer를 변경하지 않는다.
 - `generation-integrity-hardening` Steps 0-2의 claim verifier 연결, Hermes writer no-tool/`gpt-5.6-sol` 단일 경로, redacted quality-gate 실패 단계·사유의 one-shot handoff를 완료했다. 실패 이력용 DB persistence는 추가하지 않았다.
 - `search-runtime-alignment` Steps 0-2의 fake embedding accounting 제거, blocked query eager PostgreSQL read 차단, submitted query와 표시 결과 정합성을 완료했다. 이전 요청의 늦은 응답은 최신 결과를 덮어쓰지 않는다.
-- `runtime-contract-pruning` Steps 0-3은 전용 테스트 외 live consumer가 없는 파일 기반 blog loader, post-publish verification facade, diagram 계획·저장·실패·감사 helper, admin preview/draft/publish/correction/unpublish/generic operational action을 제거했다. published-current crawler manifest, live required adapter/worker, diagram render predicate, repository-backed retract/audit는 유지했다. Steps 4-9는 매 step live caller를 재확인한 뒤 unwired/test-only contract, 중복 slug proxy, unused worker capability와 중복 container runtime default만 삭제한다.
+- `runtime-contract-pruning` Steps 0-4는 전용 테스트 외 live consumer가 없는 파일 기반 blog loader, post-publish verification facade, diagram 계획·저장·실패·감사 helper, admin preview/draft/publish/correction/unpublish/generic operational action, stale table/field registry와 generation-run factory를 제거했다. published-current crawler manifest, live required adapter/worker, diagram render predicate, repository-backed retract/audit, live domain validation과 persistence는 유지했다. Steps 5-9는 매 step live caller를 재확인한 뒤 test-only public fixture/repository write API, 중복 slug proxy, unused worker capability와 중복 container runtime default만 삭제한다.
 - `public-surface-refactor-pruning` Steps 0-1은 legacy project redirect를 Next native config로 옮기고, search UI 정합성 뒤 public blog date/article-mode 표시 규칙을 공유한다.
 ```
 
@@ -146,7 +146,7 @@ AI workflow
 
 Production activation 전 1차 refactoring sequence는 완료했다. published-current SQL read boundary, bounded process-local search state, rootless job image와 confirmed-unused Redis removal, canonical public origin validation, reproducible build input hardening을 마쳤고, 기존 PostgreSQL integration suite 5종은 fail-fast aggregate command와 ephemeral pgvector CI gate로 묶었다. Node, Nginx, pgvector, Hermes base image는 confirmed multi-architecture manifest digest로 pin하고 source artifact/rollback reference를 runbook에 기록했다. lockfile-only production review는 통과했지만 registry audit은 dependency metadata를 전송하므로 별도 사용자 승인 후에만 실행한다. Canonical origin은 required publish verification에도 공통 적용하며, production에서 credentialed, private, special-use origin을 fetch 전에 차단하고 internal worker fetch origin은 분리해 유지한다.
 
-2026-08-28 live audit에서 세 local follow-up phase를 추가했다. `generation-integrity-hardening`은 claim verifier 연결, no-tool writer/단일 model 경로, redacted 실패 사유의 one-shot handoff까지 완료했다. `search-runtime-alignment`는 현재 keyword-only runtime의 fake accounting과 blocked query eager DB read를 제거하고 submitted query와 표시 결과를 일치시켰으며, 이전 요청의 늦은 응답이 최신 결과를 덮어쓰지 않게 했다. 다음 local phase인 `runtime-contract-pruning`은 Steps 0-3에서 legacy/unwired contract와 caller-free admin workflow를 제거했으며, Step 4부터도 live caller를 매번 재확인하면서 test-only contract와 중복 runtime 설정만 삭제한다. 2026-08-31 audit에서 native redirect와 public blog 표시 규칙을 다루는 `public-surface-refactor-pruning`을 추가했다. 이 follow-up도 실제 provider, domain, DNS/TLS, OCI mutation, timer activation을 포함하지 않으며, 완료 후에도 HTTPS origin과 privacy 목록을 받는 `auto-publish-ops-hardening / Step 4` 승인 gate를 유지한다.
+2026-08-28 live audit에서 세 local follow-up phase를 추가했다. `generation-integrity-hardening`은 claim verifier 연결, no-tool writer/단일 model 경로, redacted 실패 사유의 one-shot handoff까지 완료했다. `search-runtime-alignment`는 현재 keyword-only runtime의 fake accounting과 blocked query eager DB read를 제거하고 submitted query와 표시 결과를 일치시켰으며, 이전 요청의 늦은 응답이 최신 결과를 덮어쓰지 않게 했다. 다음 local phase인 `runtime-contract-pruning`은 Steps 0-4에서 legacy/unwired contract, caller-free admin workflow와 test-only model mirror를 제거했으며, Step 5부터도 live caller를 매번 재확인하면서 test-only contract와 중복 runtime 설정만 삭제한다. 2026-08-31 audit에서 native redirect와 public blog 표시 규칙을 다루는 `public-surface-refactor-pruning`을 추가했다. 이 follow-up도 실제 provider, domain, DNS/TLS, OCI mutation, timer activation을 포함하지 않으며, 완료 후에도 HTTPS origin과 privacy 목록을 받는 `auto-publish-ops-hardening / Step 4` 승인 gate를 유지한다.
 
 ## 목표 파이프라인
 
@@ -468,7 +468,7 @@ Business Domain Patterns
 ```text
 - 원장에 없는 경험은 "내가 해봤다"로 쓰지 않는다.
 - 원장에 공개 불가로 표시된 기술/회사/프로젝트명은 본문에 쓰지 않는다.
-- 새 글이 발행되면 사용된 개인 맥락 id를 generation run에 남긴다.
+- 장기 target에서는 새 글이 발행되면 사용된 개인 맥락 id를 generation run에 남긴다.
 - 원장이 수정되면 persona처럼 version을 올린다.
 ```
 
@@ -1220,7 +1220,9 @@ LLM writer는 자유 텍스트만 반환하지 않고, 검증 가능한 구조�
 }
 ```
 
-## 최소 DB 모델
+## 최소 DB 모델 (장기 target)
+
+현재 durable table/column 구현의 source of truth는 `apps/h-log/migrations/*.sql`과 `apps/h-log/lib/blog-postgres-repository.ts` query다. 아래 목록은 향후 모델이며 현재 migration에 모두 구현됐다는 뜻이 아니다.
 
 ```text
 posts

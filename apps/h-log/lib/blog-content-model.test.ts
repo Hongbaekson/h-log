@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
-  BLOG_CONTENT_MODEL_TABLES,
   assertPostVersionContentHashMatches,
   assertBlogPostStatusTransition,
   adminActionActorTypes,
@@ -121,119 +120,6 @@ describe("blog DB content model contract", () => {
     );
   });
 
-  it("keeps post metadata separate from versioned content fields", () => {
-    const postFields: readonly string[] = BLOG_CONTENT_MODEL_TABLES.posts;
-    const versionFields: readonly string[] = BLOG_CONTENT_MODEL_TABLES.post_versions;
-    const correctionFields: readonly string[] =
-      BLOG_CONTENT_MODEL_TABLES.post_corrections;
-    const chunkFields: readonly string[] = BLOG_CONTENT_MODEL_TABLES.post_chunks;
-    const verificationFields: readonly string[] =
-      BLOG_CONTENT_MODEL_TABLES.publish_verifications;
-    const claimFields: readonly string[] = BLOG_CONTENT_MODEL_TABLES.article_claims;
-    const qualityGateFields: readonly string[] =
-      BLOG_CONTENT_MODEL_TABLES.quality_gate_results;
-    const generationRunFields: readonly string[] =
-      BLOG_CONTENT_MODEL_TABLES.post_generation_runs;
-    const assetFields: readonly string[] = BLOG_CONTENT_MODEL_TABLES.post_assets;
-
-    assert.ok(postFields.includes("current_version_id"));
-    assert.equal(postFields.includes("content_markdown"), false);
-    assert.equal(postFields.includes("content_html"), false);
-    assert.equal(postFields.includes("content_hash"), false);
-    assert.equal(postFields.includes("version_no"), false);
-
-    assert.ok(versionFields.includes("version_no"));
-    assert.ok(versionFields.includes("content_markdown"));
-    assert.ok(versionFields.includes("content_html"));
-    assert.ok(versionFields.includes("content_hash"));
-    assert.ok(BLOG_CONTENT_MODEL_TABLES.post_sources.includes("source_role"));
-    assert.ok(BLOG_CONTENT_MODEL_TABLES.publish_jobs.includes("idempotency_key"));
-    assert.ok(BLOG_CONTENT_MODEL_TABLES.publish_jobs.includes("retry_count"));
-    assert.ok(BLOG_CONTENT_MODEL_TABLES.admin_actions.includes("actor_type"));
-    assert.ok(BLOG_CONTENT_MODEL_TABLES.admin_actions.includes("actor_id"));
-    assert.deepEqual(correctionFields, [
-      "id",
-      "post_id",
-      "post_version_id",
-      "reason",
-      "previous_content_hash",
-      "corrected_content_hash",
-      "corrected_by",
-      "corrected_at",
-    ]);
-    assert.deepEqual(chunkFields, [
-      "id",
-      "post_id",
-      "post_version_id",
-      "content_hash",
-      "chunk_index",
-      "content",
-      "embedding",
-    ]);
-    assert.deepEqual(verificationFields, [
-      "id",
-      "post_id",
-      "post_version_id",
-      "check_type",
-      "status",
-      "response_code",
-      "result",
-      "checked_at",
-    ]);
-    assert.deepEqual(claimFields, [
-      "id",
-      "post_id",
-      "post_version_id",
-      "claim_text",
-      "claim_type",
-      "claim_category",
-      "source_id",
-      "evidence_quote",
-      "evidence_path",
-      "confidence",
-      "verified",
-      "verifier_result",
-      "created_at",
-    ]);
-    assert.deepEqual(qualityGateFields, [
-      "id",
-      "post_id",
-      "post_version_id",
-      "gate_name",
-      "status",
-      "message",
-      "created_at",
-    ]);
-    assert.deepEqual(generationRunFields, [
-      "id",
-      "post_id",
-      "post_version_id",
-      "model",
-      "prompt_hash",
-      "persona_version",
-      "input_source_ids",
-      "personal_context_ids",
-      "article_mode",
-      "apply_to_me_result_id",
-      "output_hash",
-      "gate_result",
-      "created_at",
-    ]);
-    assert.deepEqual(assetFields, [
-      "id",
-      "post_id",
-      "post_version_id",
-      "type",
-      "path",
-      "alt",
-      "status",
-      "asset_hash",
-      "verified_at",
-      "generated_by",
-      "created_at",
-    ]);
-  });
-
   it("tracks publish verification result boundaries", () => {
     assert.deepEqual(publishVerificationCheckTypes, [
       "public_url",
@@ -263,40 +149,13 @@ describe("blog DB content model contract", () => {
     assert.deepEqual(adminActionActorTypes, ["admin", "system", "discord", "cli"]);
   });
 
-  it("tracks article modes and apply-to-me ledger table fields", () => {
+  it("tracks article modes", () => {
     assert.deepEqual(blogArticleModes, [
       "experiment",
       "applied_analysis",
       "document_analysis",
       "project_record",
       "ops_incident",
-    ]);
-    assert.deepEqual(BLOG_CONTENT_MODEL_TABLES.personal_context_items, [
-      "id",
-      "category",
-      "title",
-      "summary",
-      "allowed_usage",
-      "public_safe",
-      "version",
-      "created_at",
-      "updated_at",
-    ]);
-    assert.deepEqual(BLOG_CONTENT_MODEL_TABLES.apply_to_me_results, [
-      "id",
-      "topic_candidate_id",
-      "research_pack_id",
-      "apply_categories",
-      "apply_targets",
-      "article_mode",
-      "hypothesis",
-      "commands_or_checks",
-      "evidence_paths",
-      "personal_context_ids",
-      "status",
-      "block_reason",
-      "summary",
-      "created_at",
     ]);
   });
 

@@ -29,8 +29,8 @@
     {
       "step": 4,
       "name": "remove-test-only-model-mirrors",
-      "status": "pending",
-      "summary": "Remove the stale table-name registry and unwired generation-run record factory while preserving live domain types, migrations, validation, persistence, and usage records."
+      "status": "completed",
+      "summary": "Removed the stale table-name and field registry plus the caller-free generation-run record factory and their dedicated assertions. Migrations and repository queries remain the schema source of truth; live domain types, article validation, content hashing, state transitions, persistence, and usage records remain unchanged."
     },
     {
       "step": 5,

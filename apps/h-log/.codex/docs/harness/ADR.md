@@ -56,7 +56,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 ### ADR-006: "해봤다" 표현은 증거가 있을 때만 쓴다
 
-**결정**: 실험형 글은 명령, 코드, 설정, 로그, API 호출, 로컬 재현, 비용 계산 같은 증거를 `post_generation_runs` 또는 research pack에 남긴 경우에만 허용한다.
+**결정**: 실험형 글은 명령, 코드, 설정, 로그, API 호출, 로컬 재현, 비용 계산 같은 evidence path를 writer output과 research pack에 남긴 경우에만 허용한다. `post_generation_runs`는 migration과 persistence가 생기기 전까지 장기 target이다.
 
 **이유**: 자동 글이 실제 경험처럼 보이는 것은 가장 큰 신뢰 리스크다.
 

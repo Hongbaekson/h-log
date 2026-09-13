@@ -121,6 +121,8 @@ local runtime에서 완료된 항목:
 
 Writer validation과 claim verification 실패는 `generation_failed` 상태를 유지하면서 선택적 `failure` field의 단계와 기존 redacted `gateName`/`message`만 one-shot operator JSON까지 전달한다. 이 결과는 새 DB 감사 이력이나 durable quality history가 아니다.
 
+현재 DB table/column 구현 여부의 source of truth는 `migrations/*.sql`과 `lib/blog-postgres-repository.ts` query다. `post_generation_runs`를 포함해 migration과 persistence가 없는 모델은 장기 target이며, runtime 진실처럼 보이던 table/field registry와 caller-free generation-run factory는 `runtime-contract-pruning / Step 4`에서 제거했다.
+
 Feedback Steps 0-2의 synthetic contract 이력은 남기되, live caller와 production persistence가 없던 persona, aggregate performance-signal, failure-pattern 모듈은 `auto-publish-code-pruning / Steps 4-6`에서 제거했다. 실제 production signal collection과 learning contract는 HTTPS public origin과 privacy/consent 설정 이후 runtime 요구에 맞춰 별도 설계한다.
 
 ### A-04: PostgreSQL/worker runtime 통합

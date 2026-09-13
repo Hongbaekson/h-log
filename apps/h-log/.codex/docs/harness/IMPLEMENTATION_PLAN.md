@@ -50,7 +50,7 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
-수정된 `plans/automated-blog-publishing-plan.md` 기준으로 블로그 본선은 DB-first다. 기존 file-based loader, caller가 없던 post-publish verification facade, unwired diagram 계획·저장·실패·감사 helper, caller-free admin workflow는 `runtime-contract-pruning / Steps 0-3`에서 전용 테스트와 함께 제거했다. published-current crawler manifest, live required adapter/worker, diagram render predicate, repository-backed retract/audit는 유지한다.
+수정된 `plans/automated-blog-publishing-plan.md` 기준으로 블로그 본선은 DB-first다. 기존 file-based loader, caller가 없던 post-publish verification facade, unwired diagram 계획·저장·실패·감사 helper, caller-free admin workflow, stale table/field registry와 unwired generation-run factory는 `runtime-contract-pruning / Steps 0-4`에서 전용 테스트와 함께 제거했다. published-current crawler manifest, live required adapter/worker, diagram render predicate, repository-backed retract/audit, domain validation과 persistence는 유지한다.
 
 ```text
 phase-registry-bootstrap: completed
@@ -74,7 +74,7 @@ auto-publish-flow-simplification: completed, Step 0 production generation handof
 auto-publish-code-pruning: completed, Steps 1-6 completed
 generation-integrity-hardening: completed, Steps 0-2 claim, writer, and failure-reason runtime integrity
 search-runtime-alignment: completed, Steps 0-2 completed
-runtime-contract-pruning: pending, Steps 0-3 legacy loader, caller-free verification facade, unwired diagram helper, and caller-free admin workflow removal completed; Steps 4-9 remain
+runtime-contract-pruning: pending, Steps 0-4 legacy loader, caller-free verification facade, unwired diagram helper, caller-free admin workflow, and test-only model mirror removal completed; Steps 5-9 remain
 public-surface-refactor-pruning: pending, Steps 0-1 native legacy redirects and shared blog presentation rules
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned
@@ -244,13 +244,13 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 ### auto-article-generation / Step 0: article-output-schema
 
 - 상태: completed
-- 결과: `lib/blog-article-generation.ts`와 `lib/blog-content-model.ts` 테스트로 LLM writer output schema, required field gate, public-route compatible slug/tag normalization, source/evidence-backed factual claim check, `publish_decision=block` private failure, `publish` result as `ready_to_publish` draft only, and `post_generation_runs` contract를 고정했다. 실제 LLM 호출, DB 저장, 공개 발행 side effect는 추가하지 않았다.
+- 결과: `lib/blog-article-generation.ts`와 `lib/blog-content-model.ts` 테스트로 LLM writer output schema, required field gate, public-route compatible slug/tag normalization, source/evidence-backed factual claim check, `publish_decision=block` private failure, `publish` result as `ready_to_publish` draft only를 고정했다. 당시 test-only `post_generation_runs` mirror도 추가했으나 live migration/persistence가 없어 `runtime-contract-pruning / Step 4`에서 제거했다. 실제 LLM 호출, DB 저장, 공개 발행 side effect는 추가하지 않았다.
 - 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-article-generation.test.ts`, RED focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-article-generation.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-content-model.test.ts`, `npm run typecheck`
 
 ### auto-article-generation / Step 1: persona-and-mode-selection
 
 - 상태: completed
-- 결과: `lib/blog-article-generation.ts`와 테스트로 `experiment` mode가 concrete experiment evidence path 없이 통과하지 못하도록 고정했다. `createArticleGenerationRunRecord`는 persona version, selected article mode, input source ids, personal_context_ids, prompt hash, output hash를 `post_generation_runs` 형태로 기록한다. Persona는 style/version 기록이며 factual claim verification을 대체하지 않는다. 실제 LLM 호출, DB 저장, 공개 발행 side effect는 추가하지 않았다.
+- 결과: `lib/blog-article-generation.ts`와 테스트로 `experiment` mode가 concrete experiment evidence path 없이 통과하지 못하도록 고정했다. 당시 caller-free `createArticleGenerationRunRecord`가 `post_generation_runs` 형태를 만들었지만 live persistence가 없어 `runtime-contract-pruning / Step 4`에서 제거했다. Persona는 style/version 경계이며 factual claim verification을 대체하지 않는다. 실제 LLM 호출, DB 저장, 공개 발행 side effect는 추가하지 않았다.
 - 검증: RED focused `node --no-warnings --test --experimental-strip-types lib/blog-article-generation.test.ts`, GREEN focused `node --no-warnings --test --experimental-strip-types lib/blog-article-generation.test.ts`, `npm run test`, `npm run typecheck`
 
 ### auto-article-generation / Step 2: quality-gate-publish-decision
@@ -395,7 +395,7 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 ### 실행 경계
 
 - Steps 0-10은 완료했다.
-- 다음 local 실행 대상은 `runtime-contract-pruning / Step 4: remove-test-only-model-mirrors`다.
+- 다음 local 실행 대상은 `runtime-contract-pruning / Step 5: remove-test-only-public-data-fixture`다.
 - Step 8은 public HTTPS origin 하나로 metadata, canonical, JSON-LD, robots, OG/Twitter, 정적·Portfolio·published Blog sitemap을 정렬하고 redirect source와 비공개 Blog가 crawler surface에 섞이지 않게 했다. Production container에서 공개 metadata와 308 redirect를 실제 HTTP로 검증했다.
 - 이 phase는 도메인 구매, DNS/TLS, OCI mutation, signal collection, persona activation, 09:00 KST timer 활성화를 수행하지 않는다.
 - Production behavior를 바꾸는 Steps 1-8과 Step 10은 각각 TDD RED -> GREEN -> REFACTOR와 가장 가까운 browser/gate 검증을 따른다.
@@ -415,10 +415,10 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 7. `auto-publish-code-pruning / Steps 1-6`: durable persistence 뒤의 test-only mutable mirror와 unused reconciliation, unwired retry executor, persona learning, performance signal, failure pattern을 제거했다. Persistent worker는 retry limit, lease, retry stop, operator audit을 계속 소유하고 quality gate와 privacy scanner도 유지한다.
 8. `generation-integrity-hardening / Steps 0-2`: Step 0에서 existing claim verifier를 daily persistence 전에 연결했고, Step 1에서 Hermes writer의 tool capability와 model override를 제거해 `gpt-5.6-sol` 단일 경로를 고정했다. Step 2에서 redacted quality-gate 실패 단계와 사유를 새 persistence 없이 one-shot 결과까지 전달했다.
 9. `search-runtime-alignment / Steps 0-2`: Step 0에서 현재 keyword-only route의 fake embedding accounting을 제거했고, Step 1에서 blocked query의 PostgreSQL read를 막으면서 cache-hit published 재검증을 유지했다. Step 2에서 input draft와 submitted query를 분리하고 이전 요청의 늦은 success/error 응답을 무시해 표시 검색어와 결과를 일치시켰다. Future real embedding adapter와 related-post vector contract는 유지한다.
-10. `runtime-contract-pruning / Steps 0-9`: Steps 0-3에서 live caller가 없는 legacy file loader, post-publish verification facade, diagram 계획·저장·실패·감사 helper, admin preview/draft/publish/correction/unpublish/generic operational action을 제거했다. 이후에도 각 step 시작 시 live caller를 다시 확인한 뒤 test-only model mirror, public fixture와 repository write API, 중복 slug proxy를 삭제한다. 이어 confirmed-unused worker mode/egress와 Compose/systemd의 동일 runtime override만 제거한다. DB-backed public/crawler/retract/audit/rendering, scheduler egress, OAuth preflight 경계는 유지한다.
+10. `runtime-contract-pruning / Steps 0-9`: Steps 0-4에서 live caller가 없는 legacy file loader, post-publish verification facade, diagram 계획·저장·실패·감사 helper, admin preview/draft/publish/correction/unpublish/generic operational action과 test-only model mirror를 제거했다. 이후에도 각 step 시작 시 live caller를 다시 확인한 뒤 public fixture와 repository write API, 중복 slug proxy를 삭제한다. 이어 confirmed-unused worker mode/egress와 Compose/systemd의 동일 runtime override만 제거한다. DB-backed public/crawler/retract/audit/rendering, scheduler egress, OAuth preflight 경계는 유지한다.
 11. `public-surface-refactor-pruning / Steps 0-1`: legacy `/projects` route component를 Next native permanent redirect로 대체하고, search UI 정합성 완료 뒤 세 public blog surface의 날짜와 article-mode 표시 규칙을 하나로 맞춘다. 새 date dependency나 generic UI utility는 추가하지 않는다.
 
-1-9는 완료됐다. 2026-08-28 live audit의 10은 Steps 0-3을 완료했고, 2026-08-31 audit에서 추가한 11은 pending이며, 같은 audit에서 8의 model 고정 범위와 10의 Steps 5-9를 보강했다. 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
+1-9는 완료됐다. 2026-08-28 live audit의 10은 Steps 0-4를 완료했고, 2026-08-31 audit에서 추가한 11은 pending이며, 같은 audit에서 8의 model 고정 범위와 10의 Steps 5-9를 보강했다. 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
 
 ### generation-integrity-hardening / Step 0: claim-verifier-runtime-wiring
 
@@ -503,6 +503,14 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 - 검증: 삭제 전 characterization 8/8, 삭제 후 focused 2/2, PostgreSQL integration 13/13, 전체 `npm run test` 159개 중 147 pass/12 DB environment skip, `npm run typecheck`, `npm run lint`, `npm run build`가 통과했다.
 - 운영 경계: post status와 `admin_actions`의 transaction/rollback, audit text 검증, public/crawler/search/related 제거를 유지했다. `/admin`, auth, Discord command, 새 API, schema, dependency, environment, OCI, timer는 변경하지 않았다.
 - 다음 local 실행 대상: `runtime-contract-pruning / Step 4: remove-test-only-model-mirrors`.
+
+### runtime-contract-pruning / Step 4: remove-test-only-model-mirrors
+
+- 상태: completed
+- 결과: repository-wide caller와 migrations `001`-`003`, repository query를 다시 확인했다. 실제 migration과 어긋난 `BLOG_CONTENT_MODEL_TABLES` table/field registry 및 field-list assertions, live caller와 persistence가 없던 `createArticleGenerationRunRecord` factory/input type/dedicated test를 제거했다.
+- 검증: 삭제 전 characterization 35/35, 삭제 후 article/content-model/daily focused 33/33, 전체 `npm run test` 157개 중 145 pass/12 DB environment skip, `npm run typecheck`, `npm run lint`, `npm run build`, phase JSON parse, removed-symbol scan, `git diff --check`가 통과했다.
+- 운영 경계: migrations와 repository query를 DB schema source of truth로 유지했다. live domain record type, article validation, content hash, post 상태 전이, aggregate persistence, usage ledger는 변경하지 않았고 새 migration/table/registry/dependency/environment/OCI/timer도 추가하지 않았다.
+- 다음 local 실행 대상: `runtime-contract-pruning / Step 5: remove-test-only-public-data-fixture`.
 
 ### auto-publish-ops-hardening
 
