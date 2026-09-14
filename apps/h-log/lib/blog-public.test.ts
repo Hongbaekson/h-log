@@ -16,7 +16,6 @@ import {
   getPublicBlogPostMarkdown,
   type BlogContentStore,
 } from "./blog-public.ts";
-import { blogContentStore } from "./blog-public-data.ts";
 
 const baseTimestamp = "2026-06-25T00:00:00.000Z";
 const diagramAssetHash = "a".repeat(64);
@@ -237,11 +236,15 @@ describe("DB-backed public blog routes", () => {
     ]);
   });
 
-  it("renders inline code required by the published compatibility fixture", () => {
-    const detail = getPublicBlogPostBySlug(
-      "db-first-public-boundary",
-      blogContentStore,
-    );
+  it("renders inline code from published Markdown", () => {
+    const store = createStore();
+    store.versions = [
+      createVersion({
+        contentMarkdown: "# Public One\n\nPublished `posts` content.\n",
+      }),
+      ...store.versions.slice(1),
+    ];
+    const detail = getPublicBlogPostBySlug("public-one", store);
 
     assert.ok(detail);
     assert.equal(

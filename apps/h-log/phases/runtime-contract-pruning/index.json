@@ -35,8 +35,8 @@
     {
       "step": 5,
       "name": "remove-test-only-public-data-fixture",
-      "status": "pending",
-      "summary": "Replace the sole test import with existing test store builders, then delete the 200-line public-data fixture that has no runtime caller."
+      "status": "completed",
+      "summary": "Replaced the sole test import with the existing test store builders and deleted the 200-line public-data fixture. PostgreSQL-backed public reads, published-current filtering, Markdown rendering, and inline-code behavior remain unchanged."
     },
     {
       "step": 6,

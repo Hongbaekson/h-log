@@ -108,7 +108,7 @@
     {
       "dir": "runtime-contract-pruning",
       "status": "pending",
-      "summary": "Steps 0-4 completed: removed the legacy file blog loader, caller-free post-publish verification facade, unwired diagram planning/storage/failure/audit helpers, caller-free admin workflow, stale table/field registry, and unwired generation-run factory while retaining the published-current crawler manifest, live required adapter/worker, diagram render predicate, repository-backed retract/audit, domain types, validation, and persistence boundaries. Steps 5-9 will re-check live callers and prune a test-only public fixture and repository write APIs, a redundant public-slug proxy, unused worker capabilities, and duplicated container defaults."
+      "summary": "Steps 0-5 completed: removed the legacy file blog loader, caller-free post-publish verification facade, unwired diagram planning/storage/failure/audit helpers, caller-free admin workflow, stale table/field registry, unwired generation-run factory, and test-only public-data fixture while retaining the published-current crawler manifest, live required adapter/worker, diagram render predicate, repository-backed retract/audit, DB-backed public source, domain types, validation, and persistence boundaries. Steps 6-9 will re-check live callers and prune test-only repository write APIs, a redundant public-slug proxy, unused worker capabilities, and duplicated container defaults."
     },
     {
       "dir": "public-surface-refactor-pruning",
