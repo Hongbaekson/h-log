@@ -96,7 +96,7 @@ test(
 );
 
 test(
-  "returns the existing persisted job for the same logical request",
+  "persists one job per logical request through the runtime aggregate API",
   { skip: databaseUrl ? false : "DATABASE_URL is required" },
   async () => {
     await withTestDatabase("hlog_repository_idempotency_test", async (testUrl) => {
@@ -104,23 +104,25 @@ test(
       const repository = createPostgresBlogRepository(pool);
 
       try {
+        assert.equal("savePublishJob" in repository, false);
+        assert.equal("savePublishVerification" in repository, false);
+
         const aggregate = createAggregate("idempotent", "publishing");
-        aggregate.publishJobs = [];
-        await repository.savePost(aggregate);
-
-        const job = createPublishJob(aggregate, "job-idempotent-first");
-        const first = await repository.savePublishJob(job);
-        const second = await repository.savePublishJob({
-          ...job,
-          id: "job-idempotent-duplicate",
+        const job = { ...aggregate.publishJobs[0], id: "job-idempotent-first" };
+        await repository.savePost({
+          ...aggregate,
+          publishJobs: [job, { ...job, id: "job-idempotent-duplicate" }],
         });
-
-        assert.deepEqual(second, first);
         await assert.rejects(
-          repository.savePublishJob({
-            ...job,
-            id: "job-idempotent-invalid-key",
-            idempotencyKey: "different-key-for-the-same-logical-job",
+          repository.savePost({
+            ...aggregate,
+            publishJobs: [
+              {
+                ...job,
+                id: "job-idempotent-invalid-key",
+                idempotencyKey: "different-key-for-the-same-logical-job",
+              },
+            ],
           }),
           /expected idempotency key/,
         );
@@ -137,15 +139,12 @@ test(
 
         const next = createAggregate("idempotent", "publishing", 2);
         next.assets = [];
-        next.publishJobs = [];
         next.sources = [];
         next.tags = [];
-        await repository.savePost(next);
+        const nextJob = { ...next.publishJobs[0], id: "job-idempotent-v2" };
+        await repository.savePost({ ...next, publishJobs: [nextJob] });
 
-        const nextJob = createPublishJob(next, "job-idempotent-v2");
-        const savedNext = await repository.savePublishJob(nextJob);
-
-        assert.notEqual(savedNext.idempotencyKey, first.idempotencyKey);
+        assert.notEqual(nextJob.idempotencyKey, job.idempotencyKey);
         const persistedCount = await pool.query(
           "select count(*)::int as count from publish_jobs",
         );
@@ -381,26 +380,4 @@ function createAggregate(
   ];
 
   return { assets, post, publishJobs, sources, tags, version };
-}
-
-function createPublishJob(
-  aggregate: ReturnType<typeof createAggregate>,
-  id: string,
-): PublishJobRecord {
-  return {
-    error: null,
-    finishedAt: null,
-    id,
-    idempotencyKey: createPublishJobIdempotencyKey(
-      "public_url",
-      aggregate.version,
-    ),
-    importance: "required",
-    postId: aggregate.post.id,
-    postVersionId: aggregate.version.id,
-    retryCount: 0,
-    startedAt: null,
-    status: "queued",
-    type: "public_url",
-  };
 }

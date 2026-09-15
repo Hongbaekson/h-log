@@ -145,16 +145,19 @@ test(
           "related_posts",
           "content_version_match",
         ] as const) {
-          await repository.savePublishVerification({
-            checkedAt: rollbackAt,
-            checkType,
-            id: `rollback:${result.success.postId}:${checkType}`,
-            postId: result.success.postId,
-            postVersionId: result.success.versionId,
-            responseCode: null,
-            result: "absent_after_retract",
-            status: "passed",
-          });
+          await pool.query(
+            `insert into publish_verifications (
+               id, post_id, post_version_id, check_type, status,
+               response_code, result, checked_at
+             ) values ($1, $2, $3, $4, 'passed', null, 'absent_after_retract', $5)`,
+            [
+              `rollback:${result.success.postId}:${checkType}`,
+              result.success.postId,
+              result.success.versionId,
+              checkType,
+              rollbackAt,
+            ],
+          );
         }
 
         const adminActions = await pool.query(

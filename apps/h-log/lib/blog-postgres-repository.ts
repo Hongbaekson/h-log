@@ -13,7 +13,6 @@ import {
   type PostVersionCreatedBy,
   type PostVersionRecord,
   type PublishJobRecord,
-  type PublishVerificationRecord,
 } from "./blog-content-model.ts";
 import {
   retractAdminPost,
@@ -40,8 +39,6 @@ export type PostgresBlogRepository = {
   retractPost(
     input: AdminPostVisibilityInput,
   ): Promise<{ adminAction: AdminActionRecord; post: PostRecord }>;
-  savePublishJob(job: PublishJobRecord): Promise<PublishJobRecord>;
-  savePublishVerification(record: PublishVerificationRecord): Promise<void>;
   savePost(aggregate: BlogPostAggregate): Promise<void>;
 };
 
@@ -109,34 +106,6 @@ export function createPostgresBlogRepository(
       );
     },
 
-    async savePublishJob(job) {
-      const client = await pool.connect();
-
-      try {
-        const versionResult = await client.query(
-          `select id, content_hash
-           from post_versions
-           where id = $1 and post_id = $2`,
-          [job.postVersionId, job.postId],
-        );
-
-        if (versionResult.rowCount === 0) {
-          throw new Error(
-            `publish job ${job.id}: post version ${job.postVersionId} not found`,
-          );
-        }
-
-        assertPublishJobIdempotencyKey(job, {
-          contentHash: versionResult.rows[0].content_hash,
-          id: versionResult.rows[0].id,
-        });
-
-        return await insertPublishJob(client, job);
-      } finally {
-        client.release();
-      }
-    },
-
     async retractPost(input) {
       const client = await pool.connect();
 
@@ -178,35 +147,6 @@ export function createPostgresBlogRepository(
         throw error;
       } finally {
         client.release();
-      }
-    },
-
-    async savePublishVerification(record) {
-      const result = await pool.query(
-        `insert into publish_verifications (
-           id, post_id, post_version_id, check_type, status,
-           response_code, result, checked_at
-         )
-         select $1, $2, $3, $4, $5, $6, $7, $8
-         from post_versions
-         where id = $3 and post_id = $2
-         returning id`,
-        [
-          record.id,
-          record.postId,
-          record.postVersionId,
-          record.checkType,
-          record.status,
-          record.responseCode,
-          record.result,
-          record.checkedAt,
-        ],
-      );
-
-      if (result.rowCount === 0) {
-        throw new Error(
-          `publish verification ${record.id}: post version ${record.postVersionId} not found`,
-        );
       }
     },
 

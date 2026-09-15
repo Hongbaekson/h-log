@@ -41,8 +41,8 @@
     {
       "step": 6,
       "name": "remove-test-only-repository-write-apis",
-      "status": "pending",
-      "summary": "Remove repository write methods used only as integration-test setup while preserving aggregate persistence, internal publish-job insertion, idempotency, and rollback verification coverage."
+      "status": "completed",
+      "summary": "Removed savePublishJob and savePublishVerification from the repository interface and implementation after confirming no non-test callers. Integration setup now uses savePost aggregate persistence and test-local rollback verification SQL; idempotency, rollback, and internal publish-job insertion remain unchanged."
     },
     {
       "step": 7,

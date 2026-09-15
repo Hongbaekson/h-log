@@ -12,6 +12,8 @@
 
 실제 migration과 어긋난 table/field registry와 live caller/persistence가 없던 generation-run factory는 `runtime-contract-pruning / Step 4`에서 제거했다. DB schema의 source of truth는 migration과 repository query이며 live domain type, article validation, content hash, 상태 전이, persistence는 유지한다. runtime caller가 없고 단위 테스트 하나만 import하던 `lib/blog-public-data.ts` fixture는 Step 5에서 제거했으며, 해당 테스트는 기존 local store/version builder를 사용한다.
 
+integration-test setup만 호출하던 repository의 `savePublishJob`과 `savePublishVerification`은 `runtime-contract-pruning / Step 6`에서 public interface와 구현을 제거했다. Publish-job 중복 수렴과 invalid-key 거부는 기존 `savePost` aggregate 경로로 검증하고, rollback 8종의 verification record 준비는 test-local SQL만 사용한다. Internal `insertPublishJob`, aggregate validation, migrations와 worker 상태 전이는 유지한다.
+
 위 자동화 항목은 contract/test baseline, local runtime, 제한된 production canary 검증으로 나뉜다. PostgreSQL `pg` driver, `001_blog_core`, `002_publish_job_leases`, `003_publish_rollback_audit` SQL migration, migration runner, 최소 blog repository, DB-backed public/crawler/search read path, lease 기반 manual `--once` persistent worker, local Compose 통합 테스트, Hermes Codex OAuth article provider, 검증된 생성 결과를 비공개 `publishing` aggregate와 queued required jobs로 넘기는 persistence handoff, 이를 실제 PostgreSQL repository와 Hermes 실행에 연결하는 one-shot runner, required publish job adapter와 bounded scheduler package가 구현됐다. OCI에서는 credential/env/input, live migration, canary, rollback까지 검증했으며 실제 HTTPS public origin이 없어서 반복 timer만 비활성 상태다. 공개 surface에는 정적 fixture fallback이 없다.
 
 현재 `package.json` 기준 검증 명령은 아래와 같다.
