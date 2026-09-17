@@ -57,3 +57,13 @@ git diff --check
 - detail page의 `notFound()` 또는 published-current DB query를 제거하지 말 것. Reason: 실제 public boundary다.
 - Markdown 요청을 detail HTML route로 합치지 말 것. Reason: `.md` compatibility contract는 별도 live route다.
 - 새 not-found compatibility page를 만들지 말 것. Reason: Next page boundary가 이미 404를 소유한다.
+
+## 실행 결과
+
+- 상태: completed
+- `proxy.ts`, `isPublicBlogSlug`, proxy 전용 source-shape assertion을 제거했다.
+- `/blog` page와 loading UI를 `(index)` route group으로 묶어 목록 loading contract를 유지하고, detail page의 기존 PostgreSQL published-current 조회와 `notFound()`가 missing/private HTTP 404를 직접 소유하게 했다.
+- 변경 전 published 200, missing/private 404, Markdown 200/404를 characterization했고, proxy 제거 직후 상위 loading boundary가 missing/private를 200으로 스트리밍하는 RED를 확인했다.
+- index-only loading boundary 적용 후 focused public/discovery 8/8, fake-provider public/crawler smoke, 전체 test 144 pass/12 DB environment skip, integration 13/13, typecheck/lint/build, phase JSON parse, removed-symbol scan, `git diff --check`를 통과했다.
+- detail canonical metadata, `/blog/:slug.md` rewrite/route, crawler output, privacy scan, index loading/error UI는 유지했다. 대체 middleware/rewrite/fallback과 schema/data/dependency/environment/OCI/timer 변경은 추가하지 않았다.
+- 다음 local 실행 대상은 `runtime-contract-pruning / Step 8: prune-unused-worker-capabilities`다.

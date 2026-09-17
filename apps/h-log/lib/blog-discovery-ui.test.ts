@@ -35,7 +35,7 @@ describe("blog discovery UI", () => {
 
   it("exposes the selected tag links as current navigation", async () => {
     const source = await readFile(
-      new URL("../app/blog/page.tsx", import.meta.url),
+      new URL("../app/blog/(index)/page.tsx", import.meta.url),
       "utf8",
     );
 
@@ -53,7 +53,7 @@ describe("blog discovery UI", () => {
 
   it("keeps the empty blog index distinct from an empty search result", async () => {
     const [pageSource, searchUiSource] = await Promise.all([
-      readFile(new URL("../app/blog/page.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../app/blog/(index)/page.tsx", import.meta.url), "utf8"),
       readFile(new URL("./blog-search-ui.ts", import.meta.url), "utf8"),
     ]);
 
@@ -68,7 +68,7 @@ describe("blog discovery UI", () => {
 
   it("provides explicit loading and retryable error boundaries for the DB-backed route", async () => {
     const [loadingSource, errorSource] = await Promise.all([
-      readFile(new URL("../app/blog/loading.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../app/blog/(index)/loading.tsx", import.meta.url), "utf8"),
       readFile(new URL("../app/blog/error.tsx", import.meta.url), "utf8"),
     ]);
 

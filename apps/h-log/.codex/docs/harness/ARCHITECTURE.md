@@ -14,6 +14,8 @@
 
 integration-test setup만 호출하던 repository의 `savePublishJob`과 `savePublishVerification`은 `runtime-contract-pruning / Step 6`에서 public interface와 구현을 제거했다. Publish-job 중복 수렴과 invalid-key 거부는 기존 `savePost` aggregate 경로로 검증하고, rollback 8종의 verification record 준비는 test-local SQL만 사용한다. Internal `insertPublishJob`, aggregate validation, migrations와 worker 상태 전이는 유지한다.
 
+Blog detail 앞에서 published slug를 중복 조회하던 `proxy.ts`와 전용 helper/assertion은 `runtime-contract-pruning / Step 7`에서 제거했다. `/blog` 목록 page와 loading UI는 URL 없는 `(index)` route group에 함께 두어 목록 loading contract를 유지하고, `/blog/[slug]` 상세 page의 기존 PostgreSQL 조회와 `notFound()`가 missing/private HTTP 404를 직접 소유한다. `/blog/:slug.md` rewrite, canonical metadata, crawler output과 privacy scan은 유지한다.
+
 위 자동화 항목은 contract/test baseline, local runtime, 제한된 production canary 검증으로 나뉜다. PostgreSQL `pg` driver, `001_blog_core`, `002_publish_job_leases`, `003_publish_rollback_audit` SQL migration, migration runner, 최소 blog repository, DB-backed public/crawler/search read path, lease 기반 manual `--once` persistent worker, local Compose 통합 테스트, Hermes Codex OAuth article provider, 검증된 생성 결과를 비공개 `publishing` aggregate와 queued required jobs로 넘기는 persistence handoff, 이를 실제 PostgreSQL repository와 Hermes 실행에 연결하는 one-shot runner, required publish job adapter와 bounded scheduler package가 구현됐다. OCI에서는 credential/env/input, live migration, canary, rollback까지 검증했으며 실제 HTTPS public origin이 없어서 반복 timer만 비활성 상태다. 공개 surface에는 정적 fixture fallback이 없다.
 
 현재 `package.json` 기준 검증 명령은 아래와 같다.

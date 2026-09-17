@@ -20,7 +20,7 @@ describe("site SEO metadata", () => {
       ["resume/page.tsx", /canonical:\s*"\/resume"/],
       ["portfolio/page.tsx", /canonical:\s*"\/portfolio"/],
       ["portfolio/[slug]/page.tsx", /canonical:\s*`\/portfolio\/\$\{slug\}`/],
-      ["blog/page.tsx", /canonical:\s*"\/blog"/],
+      ["blog/(index)/page.tsx", /canonical:\s*"\/blog"/],
       ["blog/[slug]/page.tsx", /canonical:\s*post\.href/],
     ] as const;
 

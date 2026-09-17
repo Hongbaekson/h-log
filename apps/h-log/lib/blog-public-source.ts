@@ -29,14 +29,6 @@ export const loadPublicBlogContentStoreBySlug = cache(async (slug: string) => {
   return repository.findPublicBlogContentBySlug(slug);
 });
 
-export async function isPublicBlogSlug(slug: string): Promise<boolean> {
-  const store = await createPublicBlogRepository().findPublicBlogContentBySlug(
-    slug,
-  );
-
-  return store.posts.length > 0;
-}
-
 export function getBlogUsageLedger(): BlogUsageLedger {
   return createPostgresBlogUsageLedger(getBlogPublicPool());
 }

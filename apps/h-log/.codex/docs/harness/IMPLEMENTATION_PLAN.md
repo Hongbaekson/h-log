@@ -50,7 +50,7 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
-수정된 `plans/automated-blog-publishing-plan.md` 기준으로 블로그 본선은 DB-first다. 기존 file-based loader, caller가 없던 post-publish verification facade, unwired diagram 계획·저장·실패·감사 helper, caller-free admin workflow, stale table/field registry, unwired generation-run factory와 test-only public-data fixture는 `runtime-contract-pruning / Steps 0-5`에서 제거했다. published-current crawler manifest, live required adapter/worker, diagram render predicate, repository-backed retract/audit, DB-backed public source, domain validation과 persistence는 유지한다.
+수정된 `plans/automated-blog-publishing-plan.md` 기준으로 블로그 본선은 DB-first다. 기존 file-based loader, caller가 없던 post-publish verification facade, unwired diagram 계획·저장·실패·감사 helper, caller-free admin workflow, stale table/field registry, unwired generation-run factory, test-only public-data fixture/repository write API와 중복 public-slug proxy는 `runtime-contract-pruning / Steps 0-7`에서 제거했다. published-current crawler manifest, live required adapter/worker, diagram render predicate, repository-backed retract/audit, DB-backed public source, page-owned detail 404, Markdown rewrite, domain validation과 persistence는 유지한다.
 
 ```text
 phase-registry-bootstrap: completed
@@ -74,7 +74,7 @@ auto-publish-flow-simplification: completed, Step 0 production generation handof
 auto-publish-code-pruning: completed, Steps 1-6 completed
 generation-integrity-hardening: completed, Steps 0-2 claim, writer, and failure-reason runtime integrity
 search-runtime-alignment: completed, Steps 0-2 completed
-runtime-contract-pruning: pending, Steps 0-5 legacy loader, caller-free verification facade, unwired diagram helper, caller-free admin workflow, test-only model mirror, and test-only public fixture removal completed; Steps 6-9 remain
+runtime-contract-pruning: pending, Steps 0-7 legacy loader, caller-free verification facade, unwired diagram helper, caller-free admin workflow, test-only model mirror/public fixture/repository write API, and redundant slug proxy removal completed; Steps 8-9 remain
 public-surface-refactor-pruning: pending, Steps 0-1 native legacy redirects and shared blog presentation rules
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned
@@ -527,6 +527,14 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 - 검증: 변경 전 characterization 5/5, API가 남아 있다는 이유로 focused RED 1건, 삭제 후 같은 focused GREEN 5/5를 확인했다. 전체 `npm run test` 157개 중 145 pass/12 DB environment skip, pinned pgvector의 `npm run test:integration` 13/13, `npm run typecheck`, `npm run lint`, `npm run build`, phase JSON parse, removed-caller scan, `git diff --check`가 통과했다.
 - 운영 경계: `savePost`, internal `insertPublishJob`, aggregate validation, migrations와 worker lease/retry/public transition은 변경하지 않았다. 새 production API, schema/data/dependency/environment/OCI/timer 변경은 추가하지 않았다.
 - 다음 local 실행 대상: `runtime-contract-pruning / Step 7: remove-redundant-blog-slug-proxy`.
+
+### runtime-contract-pruning / Step 7: remove-redundant-blog-slug-proxy
+
+- 상태: completed
+- 결과: Blog detail 앞에서 published slug를 중복 조회하던 `proxy.ts`, `isPublicBlogSlug`, proxy 전용 source-shape assertion을 제거했다. `/blog` page와 loading UI를 `(index)` route group으로 묶어 목록 loading contract를 유지하면서 detail page가 기존 PostgreSQL published-current 조회와 `notFound()`로 missing/private HTTP 404를 직접 반환하게 했다.
+- 검증: 변경 전 focused characterization 4/4와 production-like HTTP published 200, missing/private 404, Markdown 200/404를 확인했다. proxy 제거 직후 상위 loading boundary 때문에 missing/private가 200으로 스트리밍되는 RED를 확인하고, index-only loading boundary 적용 후 focused public/discovery 8/8, fake-provider public/crawler smoke, 전체 `npm run test` 156개 중 144 pass/12 DB environment skip, pinned pgvector `npm run test:integration` 13/13, `npm run typecheck`, `npm run lint`, `npm run build`, phase JSON parse, removed-symbol scan, `git diff --check`를 통과했다.
+- 운영 경계: detail canonical metadata, `/blog/:slug.md` rewrite/route, crawler output, privacy scan, published-current DB query와 index loading/error UI를 유지했다. 대체 middleware/rewrite/fallback, schema/data/dependency/environment/OCI/timer 변경은 추가하지 않았다.
+- 다음 local 실행 대상: `runtime-contract-pruning / Step 8: prune-unused-worker-capabilities`.
 
 ### auto-publish-ops-hardening
 

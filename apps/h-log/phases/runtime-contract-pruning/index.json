@@ -47,8 +47,8 @@
     {
       "step": 7,
       "name": "remove-redundant-blog-slug-proxy",
-      "status": "pending",
-      "summary": "Remove the extra proxy-level published-slug lookup and let the DB-backed blog detail page own its existing not-found boundary while retaining the Markdown rewrite."
+      "status": "completed",
+      "summary": "Removed the extra proxy-level published-slug lookup and its helper/assertion. The Blog index and loading UI now share an index-only route group so the DB-backed detail page owns real missing/private HTTP 404 responses without a prelookup; Markdown rewrite, canonical metadata, crawler output, and privacy boundaries remain unchanged."
     },
     {
       "step": 8,
