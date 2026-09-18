@@ -74,7 +74,7 @@ docker compose up hlog-postgres hlog-web hlog-nginx
 
 로컬 ingress는 `http://localhost:8080`만 사용한다. PostgreSQL과 Redis는 host port를 publish하지 않고 Compose `data_net`에서만 접근한다.
 
-Worker는 자동 발행 phase 전까지 profile로만 실행한다.
+Worker는 `worker` profile의 manual `--once` 실행으로 둔다. `hlog-worker`는 internal `app_net`/`data_net`만 사용해 PostgreSQL과 내부 Nginx에 접근하며 host port와 outbound network가 없다. `egress_net`은 Hermes OAuth writer가 사용하는 `hlog-auto-publish`에만 연결한다.
 
 ```bash
 docker compose --profile worker run --rm hlog-worker

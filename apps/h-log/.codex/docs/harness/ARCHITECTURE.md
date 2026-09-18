@@ -98,9 +98,14 @@ Internet
   -> Next.js web container
   -> PostgreSQL + pgvector
 
-blog worker container
+manual blog worker container
   -> PostgreSQL + pgvector
-  -> external APIs
+  -> internal Nginx verification
+
+auto-publish container
+  -> PostgreSQL + pgvector
+  -> internal Nginx verification
+  -> Hermes OAuth writer outbound
 ```
 
 PostgreSQL은 public internet에 노출하지 않는다. 서버 IP, SSH key, DB password, API key는 저장소나 공개 문서에 남기지 않는다.
@@ -130,9 +135,10 @@ OCI Compute
 Compose networks:
 
 - `public_net`: host ingress to `hlog-nginx`.
-- `app_net`: `hlog-nginx` to `hlog-web`.
-- `data_net`: `hlog-web`/`hlog-worker` to PostgreSQL.
-- `egress_net`: worker outbound access for later external APIs, with no published host ports.
+- `app_net`: internal Nginx/web traffic and worker/auto-publish HTTP verification.
+- `data_net`: internal PostgreSQL access for web, worker, auto-publish, migration and dry-run services.
+- `egress_net`: `hlog-auto-publish` Hermes OAuth writer outbound access, with no published host ports.
+- `hlog-worker`: `app_net` and `data_net` only, with no outbound network or published host ports.
 
 Current repo config:
 
@@ -159,7 +165,7 @@ Current repo config:
 - `.codex/docs/backup-restore-runbook.md`: PostgreSQL logical dump, local/test restore rehearsal, pgvector extension, `schema_migrations` version, content hash, and public smoke verification checklist. It does not contain production dump files, server IPs, or credentials.
 - `.codex/docs/deploy-smoke-rollback-runbook.md`: local/OCI deploy smoke, registry pull, compose up, health/log checks, phase-gated sitemap/feed/llms checks, private route blocking checks, migration rollback gate, and previous-image approval-only rollback procedure. It does not contain server IPs, SSH key paths, registry tokens, or production secrets.
 
-Container environment is scoped by service. PostgreSQL receives only `POSTGRES_*` values, and web/worker receive only the runtime URLs and mode flags needed for local validation.
+Container environment is scoped by service. PostgreSQL receives only `POSTGRES_*` values; web/worker receive runtime URLs, privacy lists and cost limits. The unconsumed worker mode setting and manual worker egress membership were removed in `runtime-contract-pruning / Step 8`.
 
 The worker service is intentionally profile-gated and non-automatic. It must not call LLM, embedding, IndexNow, Discord, or publish jobs unless a tested job path explicitly enables side effects. The current IndexNow/Discord retryable job contract keeps delivery behind adapters and disables external side effects by default.
 

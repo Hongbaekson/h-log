@@ -50,7 +50,7 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
-수정된 `plans/automated-blog-publishing-plan.md` 기준으로 블로그 본선은 DB-first다. 기존 file-based loader, caller가 없던 post-publish verification facade, unwired diagram 계획·저장·실패·감사 helper, caller-free admin workflow, stale table/field registry, unwired generation-run factory, test-only public-data fixture/repository write API와 중복 public-slug proxy는 `runtime-contract-pruning / Steps 0-7`에서 제거했다. published-current crawler manifest, live required adapter/worker, diagram render predicate, repository-backed retract/audit, DB-backed public source, page-owned detail 404, Markdown rewrite, domain validation과 persistence는 유지한다.
+수정된 `plans/automated-blog-publishing-plan.md` 기준으로 블로그 본선은 DB-first다. 기존 file-based loader, caller가 없던 post-publish verification facade, unwired diagram 계획·저장·실패·감사 helper, caller-free admin workflow, stale table/field registry, unwired generation-run factory, test-only public-data fixture/repository write API와 중복 public-slug proxy는 `runtime-contract-pruning / Steps 0-7`에서 제거했다. Step 8은 미사용 worker 모드 설정과 manual worker egress membership을 제거하고 내부 Nginx/PostgreSQL 접근과 auto-publish outbound를 유지했다. published-current crawler manifest, live required adapter/worker, diagram render predicate, repository-backed retract/audit, DB-backed public source, page-owned detail 404, Markdown rewrite, domain validation과 persistence는 유지한다.
 
 ```text
 phase-registry-bootstrap: completed
@@ -74,7 +74,7 @@ auto-publish-flow-simplification: completed, Step 0 production generation handof
 auto-publish-code-pruning: completed, Steps 1-6 completed
 generation-integrity-hardening: completed, Steps 0-2 claim, writer, and failure-reason runtime integrity
 search-runtime-alignment: completed, Steps 0-2 completed
-runtime-contract-pruning: pending, Steps 0-7 legacy loader, caller-free verification facade, unwired diagram helper, caller-free admin workflow, test-only model mirror/public fixture/repository write API, and redundant slug proxy removal completed; Steps 8-9 remain
+runtime-contract-pruning: pending, Steps 0-8 legacy loader, caller-free verification facade, unwired diagram helper, caller-free admin workflow, test-only model mirror/public fixture/repository write API, redundant slug proxy, and unused worker mode/egress removal completed; Step 9 remains
 public-surface-refactor-pruning: pending, Steps 0-1 native legacy redirects and shared blog presentation rules
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned
@@ -535,6 +535,14 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 - 검증: 변경 전 focused characterization 4/4와 production-like HTTP published 200, missing/private 404, Markdown 200/404를 확인했다. proxy 제거 직후 상위 loading boundary 때문에 missing/private가 200으로 스트리밍되는 RED를 확인하고, index-only loading boundary 적용 후 focused public/discovery 8/8, fake-provider public/crawler smoke, 전체 `npm run test` 156개 중 144 pass/12 DB environment skip, pinned pgvector `npm run test:integration` 13/13, `npm run typecheck`, `npm run lint`, `npm run build`, phase JSON parse, removed-symbol scan, `git diff --check`를 통과했다.
 - 운영 경계: detail canonical metadata, `/blog/:slug.md` rewrite/route, crawler output, privacy scan, published-current DB query와 index loading/error UI를 유지했다. 대체 middleware/rewrite/fallback, schema/data/dependency/environment/OCI/timer 변경은 추가하지 않았다.
 - 다음 local 실행 대상: `runtime-contract-pruning / Step 8: prune-unused-worker-capabilities`.
+
+### runtime-contract-pruning / Step 8: prune-unused-worker-capabilities
+
+- 상태: completed
+- 결과: 미사용 worker 모드 설정과 `hlog-worker`의 `egress_net` membership을 제거했다. 기존 adapter 테스트를 확장해 public URL, Markdown, sitemap, content hash 모두 내부 Nginx로 요청하고 canonical public origin은 별도로 검증하는 동작을 고정했다.
+- 검증: 변경 전 rendered Compose에서 불필요한 mode 주입과 worker egress가 남는 RED를 각각 확인했다. 삭제 후 Compose JSON의 차이가 두 제거 항목뿐임을 확인하고 focused 8/8, 전체 test 144 pass/12 DB environment skip, pinned pgvector integration 13/13, typecheck/lint/build, phase JSON parse, removed-setting scan, `git diff --check`를 통과했다.
+- 운영 경계: worker의 internal `app_net`/`data_net`, profile-gated `--once`, server-local env 주입, privacy/cost 및 required 검증 경계를 유지했다. `hlog-auto-publish`의 Hermes outbound와 OCI env/service/firewall/timer는 변경하지 않았다.
+- 다음 local 실행 대상: `runtime-contract-pruning / Step 9: deduplicate-container-runtime-defaults`.
 
 ### auto-publish-ops-hardening
 

@@ -59,7 +59,6 @@ services:
     networks:
       - app_net
       - data_net
-      - egress_net
     restart: "no"
 
   hlog-auto-publish:

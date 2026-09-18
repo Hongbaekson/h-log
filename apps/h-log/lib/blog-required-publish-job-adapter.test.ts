@@ -174,13 +174,17 @@ describe("required publish job adapter", () => {
     ]);
   });
 
-  it("checks the canonical URL while fetching through an internal worker origin", async () => {
+  it("checks every published surface through internal Nginx with a separate canonical origin", async () => {
     const requested: string[] = [];
     const adapter = createRequiredPublishJobAdapter({
       canonicalPublicBaseUrl: "https://blog.example.com",
       fetch: async (input) => {
         const url = String(input);
         requested.push(url);
+
+        if (url.endsWith(".md")) {
+          return new Response(content.contentMarkdown, { status: 200 });
+        }
 
         return new Response(
           "<loc>https://blog.example.com/blog/required-adapter</loc>",
@@ -191,10 +195,22 @@ describe("required publish job adapter", () => {
       publicBaseUrl: "http://hlog-nginx",
     });
 
-    assert.deepEqual(await adapter.run(createJob("sitemap")), {
-      status: "succeeded",
-    });
-    assert.deepEqual(requested, ["http://hlog-nginx/sitemap.xml"]);
+    for (const type of [
+      "public_url",
+      "md_url",
+      "sitemap",
+      "content_version_match",
+    ] as const) {
+      assert.deepEqual(await adapter.run(createJob(type)), {
+        status: "succeeded",
+      });
+    }
+    assert.deepEqual(requested, [
+      "http://hlog-nginx/blog/required-adapter",
+      "http://hlog-nginx/blog/required-adapter.md",
+      "http://hlog-nginx/sitemap.xml",
+      "http://hlog-nginx/blog/required-adapter.md",
+    ]);
   });
 
   it("rejects a non-public production canonical origin before fetching through the internal worker origin", () => {

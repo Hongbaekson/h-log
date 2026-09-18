@@ -53,8 +53,8 @@
     {
       "step": 8,
       "name": "prune-unused-worker-capabilities",
-      "status": "pending",
-      "summary": "Remove the unconsumed worker-mode setting and unused worker egress network without changing scheduler egress, database, Nginx, privacy, or cost boundaries."
+      "status": "completed",
+      "summary": "Removed the unconsumed worker mode setting and manual worker egress membership. Rendered Compose differs only by those removals; internal PostgreSQL/Nginx verification, profile-gated one-shot execution, scheduler Hermes outbound, and privacy/cost boundaries are preserved. Focused and isolated PostgreSQL integration checks passed."
     },
     {
       "step": 9,

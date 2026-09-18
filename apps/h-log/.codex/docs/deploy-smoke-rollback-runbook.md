@@ -23,8 +23,11 @@ npm run typecheck
 npm run build
 docker compose config
 docker compose --profile worker config --quiet
+docker compose --profile worker --profile scheduler config --format json
 docker compose --profile dry-run config --quiet
 ```
+
+Rendered Compose에서 `hlog-worker`는 internal `app_net`/`data_net`만 사용하고 host port가 없어야 한다. 내부 검증 origin은 `HLOG_WORKER_PUBLIC_BASE_URL=http://hlog-nginx`이며 canonical public origin과 구분한다. `hlog-auto-publish`의 `egress_net`, server-local env 주입과 privacy/cost 설정은 유지한다.
 
 배포 기록에는 아래 값만 남긴다.
 
