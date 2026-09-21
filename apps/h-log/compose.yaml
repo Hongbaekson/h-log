@@ -52,7 +52,6 @@ services:
       - worker
     env_file:
       - ${HLOG_RUNTIME_ENV_FILE:-./deploy/env.dev}
-    command: ["npm", "run", "worker:once"]
     depends_on:
       hlog-postgres:
         condition: service_healthy
@@ -71,8 +70,6 @@ services:
     env_file:
       - ${HLOG_AUTO_PUBLISH_ENV_FILE:-./deploy/env.dev}
     environment:
-      HERMES_HOME: /opt/data
-      HLOG_HERMES_COMMAND: hermes
       HLOG_WORKER_PUBLIC_BASE_URL: http://hlog-nginx
     volumes:
       - hermes_data:/opt/data

@@ -415,10 +415,10 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 7. `auto-publish-code-pruning / Steps 1-6`: durable persistence 뒤의 test-only mutable mirror와 unused reconciliation, unwired retry executor, persona learning, performance signal, failure pattern을 제거했다. Persistent worker는 retry limit, lease, retry stop, operator audit을 계속 소유하고 quality gate와 privacy scanner도 유지한다.
 8. `generation-integrity-hardening / Steps 0-2`: Step 0에서 existing claim verifier를 daily persistence 전에 연결했고, Step 1에서 Hermes writer의 tool capability와 model override를 제거해 `gpt-5.6-sol` 단일 경로를 고정했다. Step 2에서 redacted quality-gate 실패 단계와 사유를 새 persistence 없이 one-shot 결과까지 전달했다.
 9. `search-runtime-alignment / Steps 0-2`: Step 0에서 현재 keyword-only route의 fake embedding accounting을 제거했고, Step 1에서 blocked query의 PostgreSQL read를 막으면서 cache-hit published 재검증을 유지했다. Step 2에서 input draft와 submitted query를 분리하고 이전 요청의 늦은 success/error 응답을 무시해 표시 검색어와 결과를 일치시켰다. Future real embedding adapter와 related-post vector contract는 유지한다.
-10. `runtime-contract-pruning / Steps 0-9`: Steps 0-6에서 live caller가 없는 legacy file loader, post-publish verification facade, diagram 계획·저장·실패·감사 helper, admin preview/draft/publish/correction/unpublish/generic operational action, test-only model mirror, public fixture와 repository write API를 제거했다. 이후에도 각 step 시작 시 live caller를 다시 확인한 뒤 중복 slug proxy를 삭제한다. 이어 confirmed-unused worker mode/egress와 Compose/systemd의 동일 runtime override만 제거한다. DB-backed public/crawler/retract/audit/rendering, scheduler egress, OAuth preflight 경계는 유지한다.
+10. `runtime-contract-pruning / Steps 0-9`: live caller가 없는 legacy file loader, post-publish verification facade, diagram 계획·저장·실패·감사 helper, admin action, test-only model mirror, public fixture/repository write API와 중복 slug proxy를 제거했다. Confirmed-unused worker mode/egress와 Compose/systemd의 동일 runtime override도 제거했다. DB-backed public/crawler/retract/audit/rendering, image-owned runtime defaults, scheduler egress, OAuth preflight 경계는 유지한다.
 11. `public-surface-refactor-pruning / Steps 0-1`: legacy `/projects` route component를 Next native permanent redirect로 대체하고, search UI 정합성 완료 뒤 세 public blog surface의 날짜와 article-mode 표시 규칙을 하나로 맞춘다. 새 date dependency나 generic UI utility는 추가하지 않는다.
 
-1-9는 완료됐다. 2026-08-28 live audit의 10은 Steps 0-6을 완료했고, 2026-08-31 audit에서 추가한 11은 pending이며, 같은 audit에서 8의 model 고정 범위와 10의 Steps 6-9를 보강했다. 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
+1-10은 완료됐다. 2026-08-31 audit에서 추가한 11은 pending이며 다음 local 실행 대상이다. 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
 
 ### generation-integrity-hardening / Step 0: claim-verifier-runtime-wiring
 
@@ -543,6 +543,14 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 - 검증: 변경 전 rendered Compose에서 불필요한 mode 주입과 worker egress가 남는 RED를 각각 확인했다. 삭제 후 Compose JSON의 차이가 두 제거 항목뿐임을 확인하고 focused 8/8, 전체 test 144 pass/12 DB environment skip, pinned pgvector integration 13/13, typecheck/lint/build, phase JSON parse, removed-setting scan, `git diff --check`를 통과했다.
 - 운영 경계: worker의 internal `app_net`/`data_net`, profile-gated `--once`, server-local env 주입, privacy/cost 및 required 검증 경계를 유지했다. `hlog-auto-publish`의 Hermes outbound와 OCI env/service/firewall/timer는 변경하지 않았다.
 - 다음 local 실행 대상: `runtime-contract-pruning / Step 9: deduplicate-container-runtime-defaults`.
+
+### runtime-contract-pruning / Step 9: deduplicate-container-runtime-defaults
+
+- 상태: completed
+- 결과: worker/auto-publish image의 기존 CMD와 `HERMES_HOME`을 단일 runtime default로 남기고 동일한 Compose command/environment 및 systemd cycle command override를 제거했다.
+- 검증: focused RED 2건 뒤 GREEN 11/11, rendered Compose config, 두 image build/inspect, 전체 test 145 pass/12 DB environment skip, typecheck, lint, production build, phase JSON parse, `git diff --check`를 통과했다.
+- 운영 경계: OAuth preflight와 optional `HLOG_HERMES_COMMAND`, internal worker origin, OAuth volume, dependency, network, restart, timer, OCI 상태를 변경하지 않았다.
+- 다음 local 실행 대상: `public-surface-refactor-pruning / Step 0: move-legacy-project-redirects-to-next-config`.
 
 ### auto-publish-ops-hardening
 

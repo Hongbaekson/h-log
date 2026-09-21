@@ -59,8 +59,8 @@
     {
       "step": 9,
       "name": "deduplicate-container-runtime-defaults",
-      "status": "pending",
-      "summary": "Use Docker image CMD and ENV as the single runtime defaults and remove identical Compose and systemd overrides while retaining the OAuth preflight."
+      "status": "completed",
+      "summary": "Removed Compose and systemd overrides that duplicated the worker and auto-publish image CMD and ENV defaults. Image-owned one-shot and cycle commands plus HERMES_HOME remain the single defaults; OAuth preflight, optional HLOG_HERMES_COMMAND injection, internal worker origin, networks, dependencies, restart, and timer policy remain unchanged."
     }
   ]
 }

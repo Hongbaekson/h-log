@@ -107,8 +107,8 @@
     },
     {
       "dir": "runtime-contract-pruning",
-      "status": "pending",
-      "summary": "Steps 0-8 completed: removed the legacy file blog loader, caller-free post-publish verification facade, unwired diagram planning/storage/failure/audit helpers, caller-free admin workflow, stale table/field registry, unwired generation-run factory, test-only public-data fixture, test-only repository write APIs, the redundant public-slug proxy, and unused worker mode/egress while retaining the published-current crawler manifest, live required adapter/worker, diagram render predicate, repository-backed retract/audit, DB-backed public source, page-owned detail 404, Markdown rewrite, domain validation, aggregate persistence, and internal publish-job insertion. Manual worker access is limited to internal PostgreSQL/Nginx networks; scheduler Hermes outbound is preserved. Step 9 will re-check live callers and prune duplicated container defaults."
+      "status": "completed",
+      "summary": "Steps 0-9 completed: removed the legacy file blog loader, caller-free post-publish verification facade, unwired diagram planning/storage/failure/audit helpers, caller-free admin workflow, stale table/field registry, unwired generation-run factory, test-only public-data fixture, test-only repository write APIs, the redundant public-slug proxy, unused worker mode/egress, and duplicated Compose/systemd runtime defaults. Published-current crawler output, live required adapter/worker, diagram rendering, repository-backed retract/audit, DB-backed public reads, page-owned detail 404, Markdown rewrite, domain validation, aggregate persistence, image-owned worker/scheduler defaults, OAuth preflight, optional Hermes executable injection, internal worker access, and scheduler egress remain unchanged."
     },
     {
       "dir": "public-surface-refactor-pruning",

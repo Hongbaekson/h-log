@@ -68,3 +68,11 @@ git diff --check
 - image CMD 자체를 삭제하지 말 것. Reason: Compose와 systemd가 의존할 runtime source of truth다.
 - auto-publish cycle을 host Node/npm/Hermes 실행으로 바꾸지 말 것. Reason: OAuth state와 dependency는 container 경계에 고정돼 있다.
 - OCI service, timer enablement 또는 OAuth state를 직접 변경하지 말 것. Reason: production activation은 별도 승인 대상이다.
+
+## 실행 결과
+
+- 상태: completed
+- 결과: `hlog-worker`의 Compose command, `hlog-auto-publish`의 `HERMES_HOME`/기본 `HLOG_HERMES_COMMAND`, systemd의 cycle command override를 제거했다. Worker와 auto-publish image의 기존 CMD 및 image `HERMES_HOME`이 단일 기본값을 소유한다.
+- 검증: 기존 중복 override를 잡는 focused RED 2건을 확인한 뒤 focused GREEN 11/11, rendered Compose config, 두 image build/inspect, 전체 test 145 pass/12 DB environment skip, typecheck, lint, production build, phase JSON parse, `git diff --check`를 통과했다.
+- 운영 경계: OAuth `ExecStartPre`, optional `HLOG_HERMES_COMMAND`, `HLOG_WORKER_PUBLIC_BASE_URL`, OAuth volume, dependency, network, restart, timer, OCI 상태를 변경하지 않았다.
+- 다음 local 실행 대상: `public-surface-refactor-pruning / Step 0: move-legacy-project-redirects-to-next-config`.

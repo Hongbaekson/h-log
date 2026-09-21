@@ -16,6 +16,8 @@ integration-test setup만 호출하던 repository의 `savePublishJob`과 `savePu
 
 Blog detail 앞에서 published slug를 중복 조회하던 `proxy.ts`와 전용 helper/assertion은 `runtime-contract-pruning / Step 7`에서 제거했다. `/blog` 목록 page와 loading UI는 URL 없는 `(index)` route group에 함께 두어 목록 loading contract를 유지하고, `/blog/[slug]` 상세 page의 기존 PostgreSQL 조회와 `notFound()`가 missing/private HTTP 404를 직접 소유한다. `/blog/:slug.md` rewrite, canonical metadata, crawler output과 privacy scan은 유지한다.
 
+미사용 worker mode와 manual worker egress는 `runtime-contract-pruning / Step 8`에서 제거했다. Step 9에서는 worker/auto-publish image가 소유하는 CMD와 `HERMES_HOME`을 단일 runtime default로 남기고 동일한 Compose/systemd override를 제거했다. Systemd OAuth preflight, optional `HLOG_HERMES_COMMAND`, topology-specific `HLOG_WORKER_PUBLIC_BASE_URL`, scheduler egress와 timer 정책은 유지한다.
+
 위 자동화 항목은 contract/test baseline, local runtime, 제한된 production canary 검증으로 나뉜다. PostgreSQL `pg` driver, `001_blog_core`, `002_publish_job_leases`, `003_publish_rollback_audit` SQL migration, migration runner, 최소 blog repository, DB-backed public/crawler/search read path, lease 기반 manual `--once` persistent worker, local Compose 통합 테스트, Hermes Codex OAuth article provider, 검증된 생성 결과를 비공개 `publishing` aggregate와 queued required jobs로 넘기는 persistence handoff, 이를 실제 PostgreSQL repository와 Hermes 실행에 연결하는 one-shot runner, required publish job adapter와 bounded scheduler package가 구현됐다. OCI에서는 credential/env/input, live migration, canary, rollback까지 검증했으며 실제 HTTPS public origin이 없어서 반복 timer만 비활성 상태다. 공개 surface에는 정적 fixture fallback이 없다.
 
 현재 `package.json` 기준 검증 명령은 아래와 같다.
@@ -144,7 +146,7 @@ Current repo config:
 
 - `Dockerfile`: `node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43` 기반 Next.js standalone production image.
 - `Dockerfile.auto-publish`: `nousresearch/hermes-agent:v2026.7.7.2@sha256:9c841866021c54c4596849f6135717e8a4d52ba510b7f52c50aef1de1a283973` 기반 Hermes job image.
-- `compose.yaml`: digest-pinned Nginx와 PostgreSQL + pgvector를 사용하는 local-first Compose topology for web, profile-gated manual worker and migration runner.
+- `compose.yaml`: digest-pinned Nginx와 PostgreSQL + pgvector를 사용하는 local-first Compose topology for web, profile-gated manual worker and migration runner. Worker/auto-publish command와 `HERMES_HOME` 기본값은 image가 소유하며 Compose는 topology-specific 값만 주입한다.
 - `migrations/001_blog_core.sql`: `vector` extension과 `posts`, `post_versions`, `post_tags`, `post_sources`, `post_assets`, `publish_jobs`의 첫 schema version.
 - `migrations/002_publish_job_leases.sql`: `publish_jobs`에 lease owner/expiry와 claim index를 추가해 process-local lock 없이 만료된 작업만 재획득하게 하고, source fetch/LLM/embedding/diagram/IndexNow/Discord와 retry stop을 공통 형식으로 기록하는 `usage_events` ledger를 만든다.
 - `migrations/003_publish_rollback_audit.sql`: rollback surface 결과를 저장하는 `publish_verifications`와 운영자 철회 사유를 저장하는 `admin_actions`를 만든다.
