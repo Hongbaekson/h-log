@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
+import nextConfig from "../next.config.ts";
 
 function readAppSource(path: string): string {
   return readFileSync(new URL(`../app/${path}`, import.meta.url), "utf8");
@@ -64,25 +65,31 @@ describe("site SEO metadata", () => {
     );
   });
 
-  it("publishes crawler assets and keeps legacy project routes as permanent redirects", () => {
+  it("publishes crawler assets and keeps legacy project routes as permanent redirects", async () => {
     const iconPath = new URL("../app/icon.svg", import.meta.url);
     const openGraphImagePath = new URL(
       "../app/opengraph-image.tsx",
       import.meta.url,
     );
     const robotsPath = new URL("../app/robots.txt/route.ts", import.meta.url);
-    const projectsRedirectSource = readAppSource("projects/page.tsx");
-    const projectRedirectSource = readAppSource("projects/[slug]/page.tsx");
     const sitemapSource = readAppSource("sitemap.xml/route.ts");
+    const redirects = await nextConfig.redirects?.();
 
     assert.equal(existsSync(iconPath), true);
     assert.equal(existsSync(openGraphImagePath), true);
     assert.equal(existsSync(robotsPath), true);
-    assert.match(projectsRedirectSource, /permanentRedirect\("\/portfolio"\)/);
-    assert.match(
-      projectRedirectSource,
-      /permanentRedirect\(`\/portfolio\/\$\{slug\}`\)/,
-    );
+    assert.deepEqual(redirects, [
+      {
+        source: "/projects",
+        destination: "/portfolio",
+        permanent: true,
+      },
+      {
+        source: "/projects/:slug",
+        destination: "/portfolio/:slug",
+        permanent: true,
+      },
+    ]);
     assert.match(sitemapSource, /buildPublicSitemapXml/);
     assert.match(sitemapSource, /projects\.map/);
     assert.doesNotMatch(sitemapSource, /["'`]\/projects(?:\/|["'`])/);

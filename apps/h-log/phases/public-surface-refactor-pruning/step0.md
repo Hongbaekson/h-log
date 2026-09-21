@@ -59,3 +59,12 @@ git diff --check
 - redirect destination, slug 전달 방식, canonical URL을 바꾸지 말 것. Reason: 이 step은 동작 변경이 아니라 redirect 구현 축소다.
 - `next.config.ts`의 무관한 설정을 재구성하지 말 것. Reason: legacy route 두 개만 최소 범위로 옮긴다.
 - redirect 또는 URL 처리를 위한 dependency를 추가하지 말 것. Reason: platform 기능만으로 충분하다.
+
+## 실행 결과 (2026-09-22)
+
+- 상태: completed
+- RED: `site-seo.test.ts`가 `next.config.ts`의 두 redirect rule을 기대하도록 바꾼 뒤 실제 값이 `undefined`라 실패하는 것을 확인했다.
+- 구현: `next.config.ts`에 `/projects`와 `/projects/:slug`의 native permanent redirect를 추가하고 redirect-only page 두 개를 삭제했다. Canonical destination과 sitemap은 변경하지 않았다.
+- 검증: focused GREEN 3/3, 전체 test 145 pass/12 DB environment skip, typecheck, lint, production build를 통과했다. Standalone production server에서 `/projects`는 `/portfolio`로, `/projects/legacy-slug`는 `/portfolio/legacy-slug`로 각각 HTTP 308과 정확한 `Location`을 반환했다.
+- 운영 경계: middleware, wrapper, dependency, OCI, domain, DNS/TLS, timer를 추가하거나 변경하지 않았다.
+- 다음 local 실행 대상: `public-surface-refactor-pruning / Step 1: share-blog-presentation-formatters`.

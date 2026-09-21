@@ -5,8 +5,8 @@
     {
       "step": 0,
       "name": "move-legacy-project-redirects-to-next-config",
-      "status": "pending",
-      "summary": "Replace the two redirect-only legacy project pages with native Next.js redirect rules while preserving the existing permanent redirect and SEO contracts."
+      "status": "completed",
+      "summary": "Replaced the two redirect-only legacy project pages with native Next.js permanent redirect rules while preserving exact 308 destinations, canonical portfolio URLs, and sitemap exclusion."
     },
     {
       "step": 1,
