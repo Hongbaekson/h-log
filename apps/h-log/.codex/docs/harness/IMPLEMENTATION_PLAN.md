@@ -75,7 +75,7 @@ auto-publish-code-pruning: completed, Steps 1-6 completed
 generation-integrity-hardening: completed, Steps 0-2 claim, writer, and failure-reason runtime integrity
 search-runtime-alignment: completed, Steps 0-2 completed
 runtime-contract-pruning: completed, Steps 0-9 legacy/unwired/test-only contract, redundant slug proxy, unused worker capability, and duplicated runtime override removal completed
-public-surface-refactor-pruning: pending, Step 0 native legacy redirects completed; Step 1 shared blog presentation rules remains
+public-surface-refactor-pruning: completed, native legacy redirects and shared blog presentation rules completed
 terraform-infrastructure-adoption: pending, Steps 0-2 inventory, configuration, and approval-gated adoption planned
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned
@@ -396,7 +396,7 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 ### 실행 경계
 
 - Steps 0-10은 완료했다.
-- 다음 local 실행 대상은 `public-surface-refactor-pruning / Step 1: share-blog-presentation-formatters`다.
+- 다음 local 실행 대상은 `terraform-infrastructure-adoption / Step 0: inventory-oci-resources-and-state-boundary`다. OCI inventory는 별도 승인된 읽기 전용 범위에서만 진행한다.
 - Step 8은 public HTTPS origin 하나로 metadata, canonical, JSON-LD, robots, OG/Twitter, 정적·Portfolio·published Blog sitemap을 정렬하고 redirect source와 비공개 Blog가 crawler surface에 섞이지 않게 했다. Production container에서 공개 metadata와 308 redirect를 실제 HTTP로 검증했다.
 - 이 phase는 도메인 구매, DNS/TLS, OCI mutation, signal collection, persona activation, 09:00 KST timer 활성화를 수행하지 않는다.
 - Production behavior를 바꾸는 Steps 1-8과 Step 10은 각각 TDD RED -> GREEN -> REFACTOR와 가장 가까운 browser/gate 검증을 따른다.
@@ -417,9 +417,9 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 8. `generation-integrity-hardening / Steps 0-2`: Step 0에서 existing claim verifier를 daily persistence 전에 연결했고, Step 1에서 Hermes writer의 tool capability와 model override를 제거해 `gpt-5.6-sol` 단일 경로를 고정했다. Step 2에서 redacted quality-gate 실패 단계와 사유를 새 persistence 없이 one-shot 결과까지 전달했다.
 9. `search-runtime-alignment / Steps 0-2`: Step 0에서 현재 keyword-only route의 fake embedding accounting을 제거했고, Step 1에서 blocked query의 PostgreSQL read를 막으면서 cache-hit published 재검증을 유지했다. Step 2에서 input draft와 submitted query를 분리하고 이전 요청의 늦은 success/error 응답을 무시해 표시 검색어와 결과를 일치시켰다. Future real embedding adapter와 related-post vector contract는 유지한다.
 10. `runtime-contract-pruning / Steps 0-9`: live caller가 없는 legacy file loader, post-publish verification facade, diagram 계획·저장·실패·감사 helper, admin action, test-only model mirror, public fixture/repository write API와 중복 slug proxy를 제거했다. Confirmed-unused worker mode/egress와 Compose/systemd의 동일 runtime override도 제거했다. DB-backed public/crawler/retract/audit/rendering, image-owned runtime defaults, scheduler egress, OAuth preflight 경계는 유지한다.
-11. `public-surface-refactor-pruning / Steps 0-1`: Step 0에서 legacy `/projects` route component를 Next native permanent redirect로 대체했다. Step 1은 search UI 정합성 완료 뒤 세 public blog surface의 날짜와 article-mode 표시 규칙을 하나로 맞추며 새 date dependency나 generic UI utility는 추가하지 않는다.
+11. `public-surface-refactor-pruning / Steps 0-1`: Step 0에서 legacy `/projects` route component를 Next native permanent redirect로 대체했다. Step 1에서 세 public blog surface의 날짜 표시와 목록·상세의 한국어 article-mode label을 작은 presentation module로 통합했다. 새 date dependency나 generic UI utility는 추가하지 않았다.
 
-1-10은 완료됐고 2026-08-31 audit에서 추가한 11은 Step 0까지 완료됐다. 다음 local 실행 대상은 `public-surface-refactor-pruning / Step 1`이다. 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
+1-11은 완료됐다. 다음 local 실행 대상은 `terraform-infrastructure-adoption / Step 0`의 승인된 읽기 전용 OCI inventory다. 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
 
 ### generation-integrity-hardening / Step 0: claim-verifier-runtime-wiring
 
@@ -561,10 +561,18 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 - 운영 경계: middleware, wrapper, dependency, OCI, domain, DNS/TLS, timer를 추가하거나 변경하지 않았다.
 - 다음 local 실행 대상: `public-surface-refactor-pruning / Step 1: share-blog-presentation-formatters`.
 
+### public-surface-refactor-pruning / Step 1: share-blog-presentation-formatters
+
+- 상태: completed
+- 결과: 목록·상세·검색의 날짜 formatter를 단일 `ko-KR` `Intl.DateTimeFormat`으로 통합하고 목록·상세에서 상세 화면의 한국어 article-mode label을 공유한다. 검색 invalid-date 원문 fallback과 `<time dateTime>` 원본 값은 유지했다.
+- 검증: 기존 UI characterization 13/13 뒤 신규 module RED를 확인하고 focused GREEN 16/16, 전체 단위 테스트, typecheck, lint, build, phase JSON parse, `git diff --check`를 실행했다.
+- 운영 경계: date dependency, 검색 상태 변경, OCI, 도메인, DNS/TLS, timer 변경은 없다.
+- 다음 local 실행 대상: `terraform-infrastructure-adoption / Step 0: inventory-oci-resources-and-state-boundary` (OCI 읽기 전용 inventory는 별도 승인 필요).
+
 ### terraform-infrastructure-adoption
 
 - 상태: pending. 2026-09-22 사용자 요청으로 향후 클라우드 자원 관리를 Terraform으로 전환하는 계획을 추가했다. 코드나 운영 자원은 변경하지 않았다.
-- 순서: 현재 다음 local 작업인 `public-surface-refactor-pruning / Step 1`은 유지한다. 그 뒤 이 phase를 진행하며, 다음 OCI 자원 변경이나 DNS cutover 전에 편입 범위를 확인한다.
+- 순서: public surface 정리 뒤 이 phase를 진행한다. 다음 OCI 자원 변경이나 DNS cutover 전에 편입 범위를 확인한다.
 - Step 0 `inventory-oci-resources-and-state-boundary`: 승인된 읽기 전용 inventory로 H-Log 소유/공유 자원, import 지원, DB 저장 위치와 remote state 경계를 정한다.
 - Step 1 `codify-existing-oci-infrastructure`: 확인한 자원만 최소 Terraform root로 코드화하고 version pin, lockfile, secret 제외, fmt/validate와 import 계획을 준비한다.
 - Step 2 `adopt-existing-resources-with-no-change-plan`: 별도 승인 후 backend bootstrap과 state import를 진행한다. 자원 변경 없는 편입 및 import 후 no-change plan을 확인하고 이후 plan 검토/승인된 apply/드리프트 확인 절차를 기록한다.

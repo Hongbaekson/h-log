@@ -3,6 +3,15 @@ import { readFile } from "node:fs/promises";
 import { describe, it } from "node:test";
 
 describe("blog discovery UI", () => {
+  it("keeps the raw publication date in list time markup", async () => {
+    const source = await readFile(
+      new URL("../app/blog/(index)/page.tsx", import.meta.url),
+      "utf8",
+    );
+
+    assert.match(source, /<time dateTime=\{post\.publishedAt\}>/);
+  });
+
   it("keeps the search input guidance aligned with the two-character API minimum", async () => {
     const source = await readFile(
       new URL("../components/blog/BlogSearchPanel.tsx", import.meta.url),

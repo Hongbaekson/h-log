@@ -3,6 +3,15 @@ import { readFile } from "node:fs/promises";
 import { describe, it } from "node:test";
 
 describe("blog detail UI", () => {
+  it("keeps the raw publication date in detail time markup", async () => {
+    const source = await readFile(
+      new URL("../app/blog/[slug]/page.tsx", import.meta.url),
+      "utf8",
+    );
+
+    assert.match(source, /<time dateTime=\{post\.publishedAt\}>/);
+  });
+
   it("keeps the article readable and long code keyboard-scrollable", async () => {
     const source = await readFile(
       new URL("../app/blog/[slug]/page.tsx", import.meta.url),

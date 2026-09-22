@@ -45,6 +45,21 @@ describe("blog search UI snapshot", () => {
     assert.deepEqual(snapshot.items[0]?.tags, ["DB", "운영"]);
   });
 
+  it("keeps an invalid published date as the original label", () => {
+    const snapshot = createBlogSearchUiSnapshot({
+      query: "pgvector",
+      response: {
+        cached: false,
+        guardReason: "search_ready",
+        results: [{ ...baseResult, publishedAt: "invalid-date" }],
+        status: "ok",
+      },
+    });
+
+    assert.equal(snapshot.items[0]?.publishedAt, "invalid-date");
+    assert.equal(snapshot.items[0]?.publishedDateLabel, "invalid-date");
+  });
+
   it("maps loading, empty, rate-limited, and error states", () => {
     assert.equal(
       createBlogSearchUiSnapshot({

@@ -5,6 +5,10 @@ import { ArrowLeft, ArrowRight, CalendarDays, Tag } from "lucide-react";
 import { BlogSearchPanel } from "@/components/blog/BlogSearchPanel";
 import { Badge, Container } from "@/components/ui";
 import { getPublicBlogIndex } from "@/lib/blog-public";
+import {
+  formatPublicBlogArticleMode,
+  formatPublicBlogDate,
+} from "@/lib/blog-public-presentation";
 import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
 
 export const dynamic = "force-dynamic";
@@ -143,10 +147,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                     <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400">
                       <span className="inline-flex items-center gap-2">
                         <CalendarDays aria-hidden="true" size={15} strokeWidth={2} />
-                        <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
+                        <time dateTime={post.publishedAt}>{formatPublicBlogDate(post.publishedAt)}</time>
                       </span>
                       <span className="font-mono text-xs uppercase tracking-[0.16em] text-cyan-200">
-                        {post.articleMode.replaceAll("_", " ")}
+                        {formatPublicBlogArticleMode(post.articleMode)}
                       </span>
                     </div>
                     <h2 className="card-heading mt-4 text-2xl leading-tight text-white md:text-3xl">
@@ -230,12 +234,4 @@ function PaginationLink({
       {icon === "next" ? <ArrowRight aria-hidden="true" size={15} strokeWidth={2} /> : null}
     </Link>
   );
-}
-
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat("ko-KR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(new Date(value));
 }

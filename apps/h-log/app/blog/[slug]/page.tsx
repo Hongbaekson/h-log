@@ -10,9 +10,12 @@ import {
   getPublicBlogPostBySlug,
   type PublicBlogContentBlock,
   type PublicBlogInlineContent,
-  type PublicBlogPost,
   type PublicBlogSourceLink,
 } from "@/lib/blog-public";
+import {
+  formatPublicBlogArticleMode,
+  formatPublicBlogDate,
+} from "@/lib/blog-public-presentation";
 import { loadPublicBlogContentStoreBySlug } from "@/lib/blog-public-source";
 import { resolvePublicSiteOrigin } from "@/lib/public-site-origin";
 import { siteConfig } from "@/lib/site";
@@ -111,8 +114,8 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
               {post.description}
             </p>
             <p className="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-cyan-200">
-              <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time> ·{" "}
-              {formatArticleMode(post.articleMode)}
+              <time dateTime={post.publishedAt}>{formatPublicBlogDate(post.publishedAt)}</time> ·{" "}
+              {formatPublicBlogArticleMode(post.articleMode)}
             </p>
           </div>
         </Container>
@@ -176,14 +179,6 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   );
 }
 
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat("ko-KR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(new Date(value));
-}
-
 function renderContentBlock(block: PublicBlogContentBlock, index: number) {
   if (block.type === "diagram") {
     return (
@@ -241,18 +236,6 @@ function renderInlineContent(children: readonly PublicBlogInlineContent[]) {
 
     return <span key={index}>{child.text}</span>;
   });
-}
-
-function formatArticleMode(value: PublicBlogPost["articleMode"]): string {
-  const labels: Record<PublicBlogPost["articleMode"], string> = {
-    applied_analysis: "적용 분석",
-    document_analysis: "문서 분석",
-    experiment: "실험 기록",
-    ops_incident: "운영 회고",
-    project_record: "프로젝트 기록",
-  };
-
-  return labels[value];
 }
 
 function formatSourceRole(value: PublicBlogSourceLink["role"]): string {

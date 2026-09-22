@@ -20,6 +20,8 @@ Blog detail 앞에서 published slug를 중복 조회하던 `proxy.ts`와 전용
 
 Legacy `/projects`와 `/projects/:slug`는 `public-surface-refactor-pruning / Step 0`에서 redirect-only App Router page 대신 `next.config.ts`의 native permanent redirect가 소유한다. 두 경로는 각각 같은 `/portfolio` destination으로 HTTP 308을 반환하며 canonical URL과 sitemap은 계속 `/portfolio`만 공개한다.
 
+`public-surface-refactor-pruning / Step 1`에서 Blog 목록·상세·검색의 날짜 표시를 `lib/blog-public-presentation.ts`의 단일 native `Intl.DateTimeFormat`으로 합쳤다. 목록·상세의 article mode는 상세 화면의 한국어 label을 공유한다. 검색의 invalid-date 원문 fallback과 목록·상세의 `<time dateTime>` 원본 값은 유지한다.
+
 위 자동화 항목은 contract/test baseline, local runtime, 제한된 production canary 검증으로 나뉜다. PostgreSQL `pg` driver, `001_blog_core`, `002_publish_job_leases`, `003_publish_rollback_audit` SQL migration, migration runner, 최소 blog repository, DB-backed public/crawler/search read path, lease 기반 manual `--once` persistent worker, local Compose 통합 테스트, Hermes Codex OAuth article provider, 검증된 생성 결과를 비공개 `publishing` aggregate와 queued required jobs로 넘기는 persistence handoff, 이를 실제 PostgreSQL repository와 Hermes 실행에 연결하는 one-shot runner, required publish job adapter와 bounded scheduler package가 구현됐다. OCI에서는 credential/env/input, live migration, canary, rollback까지 검증했으며 실제 HTTPS public origin이 없어서 반복 timer만 비활성 상태다. 공개 surface에는 정적 fixture fallback이 없다.
 
 현재 `package.json` 기준 검증 명령은 아래와 같다.

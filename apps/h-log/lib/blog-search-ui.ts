@@ -4,6 +4,7 @@ import type {
   BlogSearchRequestAssessment,
   BlogSearchResult,
 } from "./blog-search.ts";
+import { formatPublicBlogDate } from "./blog-public-presentation.ts";
 
 export type BlogSearchUiStatus =
   | "blocked"
@@ -124,7 +125,7 @@ function toBlogSearchUiResultItem(
     href: result.href,
     matchReasonLabel: getBlogSearchMatchReasonLabel(result.matchReason),
     publishedAt: result.publishedAt,
-    publishedDateLabel: formatBlogSearchDate(result.publishedAt),
+    publishedDateLabel: formatPublicBlogDate(result.publishedAt),
     scoreLabel: `${Math.round(clampScore(result.score) * 100)}%`,
     slug: result.slug,
     tags: [...result.tags],
@@ -166,20 +167,6 @@ function getBlogSearchMatchReasonLabel(
   }
 
   return "키워드";
-}
-
-function formatBlogSearchDate(value: string): string {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat("ko-KR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(date);
 }
 
 function clampScore(score: number): number {

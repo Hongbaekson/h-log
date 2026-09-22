@@ -112,13 +112,13 @@
     },
     {
       "dir": "public-surface-refactor-pruning",
-      "status": "pending",
-      "summary": "Step 0 completed: legacy project redirects now use native Next configuration with the existing 308 and SEO contracts preserved. Step 1 remains to share repeated public-blog date and article-mode presentation rules."
+      "status": "completed",
+      "summary": "Steps 0-1 completed: legacy project redirects use native Next configuration with existing 308 and SEO contracts, while blog list/detail/search share the Korean date formatter and list/detail share exhaustive Korean article-mode labels."
     },
     {
       "dir": "terraform-infrastructure-adoption",
       "status": "pending",
-      "summary": "Planning only: inventory OCI ownership and state boundaries, codify confirmed resources, then adopt them through separately approved backend bootstrap/import and a no-change plan. Keep public-surface Step 1 next; do not change Compose releases, production resources, DNS/TLS, or timers as part of planning."
+      "summary": "Planning only: next inventory OCI ownership and state boundaries, codify confirmed resources, then adopt them through separately approved backend bootstrap/import and a no-change plan. Do not change Compose releases, production resources, DNS/TLS, or timers as part of planning."
     },
     {
       "dir": "auto-publish-ops-hardening",

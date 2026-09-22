@@ -11,8 +11,8 @@
     {
       "step": 1,
       "name": "share-blog-presentation-formatters",
-      "status": "pending",
-      "summary": "After search-runtime-alignment Step 2, share the public blog date and article-mode presentation rules through a small domain-specific module backed only by native Intl APIs."
+      "status": "completed",
+      "summary": "List, detail, and search now share one native Intl Korean date formatter; list and detail share the detail page's exhaustive Korean article-mode labels. Search invalid-date fallback and raw time attributes remain intact."
     }
   ]
 }

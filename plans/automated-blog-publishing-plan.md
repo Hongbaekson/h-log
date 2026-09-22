@@ -36,7 +36,7 @@
 - `generation-integrity-hardening` Steps 0-2의 claim verifier 연결, Hermes writer no-tool/`gpt-5.6-sol` 단일 경로, redacted quality-gate 실패 단계·사유의 one-shot handoff를 완료했다. 실패 이력용 DB persistence는 추가하지 않았다.
 - `search-runtime-alignment` Steps 0-2의 fake embedding accounting 제거, blocked query eager PostgreSQL read 차단, submitted query와 표시 결과 정합성을 완료했다. 이전 요청의 늦은 응답은 최신 결과를 덮어쓰지 않는다.
 - `runtime-contract-pruning` Steps 0-9를 완료했다. 전용 테스트 외 live consumer가 없는 legacy/unwired/test-only contract와 중복 slug proxy, 미사용 worker mode/egress를 제거했고, worker/auto-publish image의 CMD와 `HERMES_HOME`을 단일 runtime default로 남겨 동일한 Compose/systemd override를 삭제했다. Published-current crawler, required adapter/worker, diagram rendering, repository-backed retract/audit, DB-backed public source, page-owned detail 404, Markdown rewrite, persistence, internal worker origin, scheduler egress, OAuth preflight와 optional Hermes executable override는 유지한다.
-- `public-surface-refactor-pruning` Step 0에서 legacy project redirect를 Next native config로 옮겼다. Step 1은 search UI 정합성 뒤 public blog date/article-mode 표시 규칙을 공유한다.
+- `public-surface-refactor-pruning` Steps 0-1에서 legacy project redirect를 Next native config로 옮기고 public blog date/article-mode 표시 규칙을 공유했다. 다음은 승인된 읽기 전용 Terraform OCI inventory다.
 ```
 
 따라서 문서에서 `completed`는 contract 완료와 runtime 완료를 구분해 쓴다. Production 자동 발행 완료는 PostgreSQL persistence, persistent worker, 운영 안정화, 승인된 canary와 rollback smoke까지 통과한 뒤에만 선언한다.
@@ -157,13 +157,13 @@ AI workflow
 4. persistent manual worker와 local fake-provider end-to-end dry-run - 완료
 5. idempotency, job lock, cost ledger, privacy scanner 운영 안정화 완료
 6. 사용자 승인 기반 provider/OCI canary와 rollback smoke - 완료, scheduled activation은 도메인 cutover까지 보류
-7. generation integrity, search runtime, runtime contract, public surface Step 0 완료; public surface Step 1 - pending local follow-up
+7. generation integrity, search runtime, runtime contract, public surface Steps 0-1 완료; Terraform OCI inventory는 다음 승인 대상
 8. 미연결 feedback contract는 pruning하고, 실제 signal 수집과 persona feedback learning은 HTTPS/privacy/consent 경계가 정해진 뒤 별도 설계
 ```
 
 Production activation 전 1차 refactoring sequence는 완료했다. published-current SQL read boundary, bounded process-local search state, rootless job image와 confirmed-unused Redis removal, canonical public origin validation, reproducible build input hardening을 마쳤고, 기존 PostgreSQL integration suite 5종은 fail-fast aggregate command와 ephemeral pgvector CI gate로 묶었다. Node, Nginx, pgvector, Hermes base image는 confirmed multi-architecture manifest digest로 pin하고 source artifact/rollback reference를 runbook에 기록했다. lockfile-only production review는 통과했지만 registry audit은 dependency metadata를 전송하므로 별도 사용자 승인 후에만 실행한다. Canonical origin은 required publish verification에도 공통 적용하며, production에서 credentialed, private, special-use origin을 fetch 전에 차단하고 internal worker fetch origin은 분리해 유지한다.
 
-2026-08-28 live audit에서 세 local follow-up phase를 추가했다. `generation-integrity-hardening`은 claim verifier 연결, no-tool writer/단일 model 경로, redacted 실패 사유의 one-shot handoff까지 완료했다. `search-runtime-alignment`는 fake accounting과 blocked query eager DB read를 제거하고 submitted query와 표시 결과를 일치시켰다. `runtime-contract-pruning`은 Steps 0-9에서 legacy/unwired/test-only contract, 중복 slug proxy, 미사용 worker capability와 중복 container runtime default를 제거했다. `public-surface-refactor-pruning / Step 0`은 legacy project redirect를 native Next config로 옮겼고 다음 local 대상은 Step 1이다. 이 follow-up도 실제 provider, domain, DNS/TLS, OCI mutation, timer activation을 포함하지 않으며, 완료 후에도 HTTPS origin과 privacy 목록을 받는 `auto-publish-ops-hardening / Step 4` 승인 gate를 유지한다.
+2026-08-28 live audit에서 세 local follow-up phase를 추가했다. `generation-integrity-hardening`은 claim verifier 연결, no-tool writer/단일 model 경로, redacted 실패 사유의 one-shot handoff까지 완료했다. `search-runtime-alignment`는 fake accounting과 blocked query eager DB read를 제거하고 submitted query와 표시 결과를 일치시켰다. `runtime-contract-pruning`은 Steps 0-9에서 legacy/unwired/test-only contract, 중복 slug proxy, 미사용 worker capability와 중복 container runtime default를 제거했다. `public-surface-refactor-pruning / Steps 0-1`은 legacy project redirect를 native Next config로 옮기고 Blog 날짜·글 유형 표시를 통합했다. 다음 대상은 승인된 읽기 전용 `terraform-infrastructure-adoption / Step 0` inventory다. 이 follow-up도 실제 provider, domain, DNS/TLS, OCI mutation, timer activation을 포함하지 않으며, 완료 후에도 HTTPS origin과 privacy 목록을 받는 `auto-publish-ops-hardening / Step 4` 승인 gate를 유지한다.
 
 ## 목표 파이프라인
 
