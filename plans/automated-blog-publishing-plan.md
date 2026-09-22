@@ -12,6 +12,7 @@
 - 사람이 승인하는 수동 단계 대신, 자동 검증 게이트를 통과하지 못하면 발행하지 않고 실패 상태로 남긴다.
 - `zerry.co.kr`의 구조와 글쓰기 패턴은 참고하되, 카피/문체/디자인을 복제하지 않는다.
 - 운영 인프라와 클라우드는 OCI를 기본값으로 둔다.
+- 앞으로 클라우드 자원 관리는 Terraform을 기준으로 한다. 기존 자원 편입은 `terraform-infrastructure-adoption`에서 inventory → 코드화 → 승인된 import/no-change plan 순서로 진행한다. Compose/Nginx/systemd와 DB migration은 기존 배포 흐름을 유지한다.
 
 현재 결정과 구현 상태:
 
@@ -44,9 +45,20 @@
 
 ![챗봇 없는 자동 블로그 발행 아키텍처](./automated-blog-publishing-architecture.svg)
 
+### 2026-09-22 작성 runtime 확인
+
+목표 흐름은 지정 사이트의 최신 글감 수집 → 원문/공식 자료 확인 → topic/source/context JSON 전달 → Hermes 작성이다. JSON은 수집을 대신하는 것이 아니라 수집·검증 결과를 writer에 넘기는 형식이다. 정해 둔 기술 범위의 자료를 홍백님의 공개 가능한 경험·관점과 연결해 자연스러운 한국어로 쓰며, 아래 목표 흐름 전체가 현재 자동 실행된다는 뜻은 아니다.
+
+- 현재 `scripts/blog-auto-publish.mjs`는 `HLOG_AUTO_PUBLISH_INPUT_FILE`의 topic/source/context JSON을 읽는다. 저장소의 실행 경로에서는 지정 사이트를 조회해 이 JSON을 매일 갱신하는 수집기나 입력 자료의 freshness window 검증을 확인하지 못했다. 서버의 별도 수집 작업 존재 여부는 이번에 조회하지 않았다.
+- Hermes writer는 verified input만 받는 no-tool 경로다. 실제 prompt에 `persona.md` 본문이나 `humanize-korean` 규칙은 아직 주입하지 않는다. `hlog-persona-v1` 기록만으로 문체 적용 완료라고 볼 수 없다.
+- 완전 자동 작성 전에는 최신 자료 수집·원문 확인·신선도 기준과 persona/한국어 humanize 규칙을 runtime에 연결하고 검증해야 한다. Humanize는 사실, 출처, 코드, 수치를 바꾸지 않는 문체 단계이며 최종 본문은 기존 claim/privacy/quality gate를 다시 통과해야 한다. Writer의 도구 권한을 여는 방식으로 연결하지 않는다.
+- 저장소 운영 기록상 반복 timer는 실제 HTTPS origin과 privacy 목록을 기다리며 비활성이다. 이번 확인에서는 서버 상태를 조회하지 않았다. 대화에서 모델을 바꾸어도 코드에 고정한 Hermes `openai-codex`/`gpt-5.6-sol`은 바뀌지 않는다.
+
 ## OCI 인프라/클라우드 기준
 
 운영 클라우드는 OCI를 기본값으로 둔다. Vercel, Neon, Supabase 같은 managed runtime이나 managed DB는 기본안이 아니라 운영 단순화가 필요할 때 별도 ADR로 결정할 대안이다.
+
+Terraform 도입은 계획 단계다. 자원 관리 범위, private remote state/locking, import와 no-change 검증, 승인된 plan/apply 절차는 [배포 지침](../apps/h-log/.codex/docs/deployment-ci-cd.md#terraform-전환-계획)을 따른다. 이 결정은 실제 OCI/DNS/TLS 변경이나 자동 발행 활성화를 승인하지 않는다.
 
 초기 production topology:
 
@@ -1478,15 +1490,17 @@ Next.js / Node worker
 - 임베딩/검색/IndexNow/Discord job 실행
 - 공개 URL, Markdown URL, 검색 반영 검증
 
-Hermes (`openai-codex` / `gpt-5.6-sol`)
-- 주제 수집
-- 웹 조사
-- 자료 요약
+Hermes 밖의 수집/검증 단계 (외부 수집 runtime 미연결)
+- 주제 수집, 원문 조사, 최신성 확인
+- verified source/context JSON 준비
+
+Hermes (`openai-codex` / `gpt-5.6-sol`, no-tool writer)
+- 검증된 입력 자료 요약
 - 홍백님 기술 맥락에 접목
 - 작은 실험/대입 분석 계획 생성
 - 사건형 앵글 생성
-- persona 기반 글 작성
-- 스타일 자체 점검
+- persona 기반 글 작성 (문체 규칙 주입 미연결)
+- 한국어 humanize와 스타일 점검 (runtime 미연결)
 ```
 
 일일 실행 흐름:

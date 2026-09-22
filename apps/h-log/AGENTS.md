@@ -18,6 +18,7 @@
 - Backend: Next.js route handlers와 필요한 worker/job entrypoint를 우선한다.
 - Database: PostgreSQL + pgvector
 - Deployment: OCI Compute의 Docker Compose와 Nginx. 별도 phase 또는 ADR 없이 새 런타임 계층을 추가하지 않는다.
+- Infrastructure as Code: 앞으로 클라우드 자원은 Terraform으로 관리한다. 기존 자원은 소유 범위를 확인한 뒤 import하고 변경 없는 plan을 먼저 검증한다. Compose/Nginx/systemd와 DB migration은 기존 배포 흐름을 유지한다. Backend 생성, import/state 변경, apply는 별도 명시 승인 대상이다.
 
 ## Product Direction
 

@@ -76,6 +76,7 @@ generation-integrity-hardening: completed, Steps 0-2 claim, writer, and failure-
 search-runtime-alignment: completed, Steps 0-2 completed
 runtime-contract-pruning: completed, Steps 0-9 legacy/unwired/test-only contract, redundant slug proxy, unused worker capability, and duplicated runtime override removal completed
 public-surface-refactor-pruning: pending, Step 0 native legacy redirects completed; Step 1 shared blog presentation rules remains
+terraform-infrastructure-adoption: pending, Steps 0-2 inventory, configuration, and approval-gated adoption planned
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 ```
@@ -559,6 +560,15 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 - 검증: config assertion RED 뒤 focused GREEN 3/3, 전체 test 145 pass/12 DB environment skip, typecheck, lint, production build를 통과했다. Standalone production server에서 두 legacy 경로의 HTTP 308과 정확한 `Location`을 확인했다.
 - 운영 경계: middleware, wrapper, dependency, OCI, domain, DNS/TLS, timer를 추가하거나 변경하지 않았다.
 - 다음 local 실행 대상: `public-surface-refactor-pruning / Step 1: share-blog-presentation-formatters`.
+
+### terraform-infrastructure-adoption
+
+- 상태: pending. 2026-09-22 사용자 요청으로 향후 클라우드 자원 관리를 Terraform으로 전환하는 계획을 추가했다. 코드나 운영 자원은 변경하지 않았다.
+- 순서: 현재 다음 local 작업인 `public-surface-refactor-pruning / Step 1`은 유지한다. 그 뒤 이 phase를 진행하며, 다음 OCI 자원 변경이나 DNS cutover 전에 편입 범위를 확인한다.
+- Step 0 `inventory-oci-resources-and-state-boundary`: 승인된 읽기 전용 inventory로 H-Log 소유/공유 자원, import 지원, DB 저장 위치와 remote state 경계를 정한다.
+- Step 1 `codify-existing-oci-infrastructure`: 확인한 자원만 최소 Terraform root로 코드화하고 version pin, lockfile, secret 제외, fmt/validate와 import 계획을 준비한다.
+- Step 2 `adopt-existing-resources-with-no-change-plan`: 별도 승인 후 backend bootstrap과 state import를 진행한다. 자원 변경 없는 편입 및 import 후 no-change plan을 확인하고 이후 plan 검토/승인된 apply/드리프트 확인 절차를 기록한다.
+- 상세 정책: [배포 지침](../deployment-ci-cd.md#terraform-전환-계획). Terraform 도입은 Compose 배포, DB migration, provider/자동 발행 timer 활성화 승인을 포함하지 않는다.
 
 ### auto-publish-ops-hardening
 

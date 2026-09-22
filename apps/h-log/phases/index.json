@@ -116,6 +116,11 @@
       "summary": "Step 0 completed: legacy project redirects now use native Next configuration with the existing 308 and SEO contracts preserved. Step 1 remains to share repeated public-blog date and article-mode presentation rules."
     },
     {
+      "dir": "terraform-infrastructure-adoption",
+      "status": "pending",
+      "summary": "Planning only: inventory OCI ownership and state boundaries, codify confirmed resources, then adopt them through separately approved backend bootstrap/import and a no-change plan. Keep public-surface Step 1 next; do not change Compose releases, production resources, DNS/TLS, or timers as part of planning."
+    },
+    {
       "dir": "auto-publish-ops-hardening",
       "status": "pending",
       "summary": "Steps 0-3 completed. Step 4 artifact 70fd31c is live with server-local credential rotation, production env/input, migrations 001-003, production audit 0, a successful Hermes canary across required/public/crawler/search/usage surfaces, and an audited eight-surface rollback. Timer activation is intentionally deferred until public-site-quality-hardening is complete and a real HTTPS public origin plus privacy organization/private-repository lists are ready for production cutover."

@@ -28,6 +28,34 @@ Local development
 
 처음부터 CI/CD까지 한 번에 구현하지 않는다.
 
+## Terraform 전환 계획
+
+2026-09-22 결정: 앞으로 클라우드 자원은 Terraform으로 관리한다. 현재는 계획 단계이며 `.tf` 코드, OCI inventory, remote state, import/apply는 아직 실행하지 않았다. 실행 단위는 [`terraform-infrastructure-adoption`](../../phases/terraform-infrastructure-adoption/index.json)에 둔다. 기존 public surface 정리의 다음 Step 1은 그대로 유지한다.
+
+### 관리 범위
+
+- OCI Compute, 연결된 boot/block volume, VNIC/IP, network/security 자원 중 H-Log 소유로 확인한 것만 관리한다. 먼저 실제 DB 데이터가 어느 disk/volume에 있는지 확인한다.
+- 공유 VCN/subnet/IAM 등은 별도 소유권 합의 없이 import하거나 수정하지 않는다. 필요한 값은 data source 또는 비공개 입력으로 참조한다.
+- DNS는 도메인과 DNS provider가 정해진 뒤 해당 provider의 지원 범위에서 추가한다. 아직 provider나 zone을 가정하지 않는다.
+- Compose/Nginx/systemd 설정, 앱 image 배포, DB migration/backup, OAuth/secret 주입은 기존 배포 절차에 남긴다. Terraform provisioner로 배포나 timer 활성화를 실행하지 않는다.
+
+### 전환 순서와 검증
+
+1. **Inventory**: 승인된 read-only 조회로 대상 compartment와 자원을 좁혀 소유권, 의존성, import ID/resource address 매핑을 확인한다. 기존 다른 state가 관리하는 자원은 중복 편입하지 않는다. 식별자와 원본 export는 비공개로 보관한다.
+2. **코드화**: 확인된 자원만 `apps/h-log/infra/terraform/`의 작은 root module로 작성한다. Terraform CLI/provider의 지원 버전을 확인해 constraints와 `.terraform.lock.hcl`을 고정하고 `terraform fmt -check -recursive`, `terraform init -backend=false`, `terraform validate`를 검증한다. 이 단계의 init은 provider 설치만 허용하며 OCI 조회나 state 연결은 하지 않는다.
+3. **승인된 편입**: private backend 준비와 import/state 변경을 별도로 승인받는다. 사전 backup과 복구 경로를 확인하고, 검토한 import만 실행한다. 편입 plan에 기존 자원 create/update/delete/replace가 있으면 중단한다. Import 후 `terraform plan -detailed-exitcode`의 exit 0으로 변경 없음을 확인한다. Exit 1은 오류, exit 2는 차이이므로 완료로 처리하지 않는다.
+4. **이후 변경**: 고정 commit으로 만든 plan에서 비용, 네트워크 공개 범위, 교체/삭제와 DB disk 영향을 검토한다. 승인받은 저장 plan만 apply하고 재조회/plan으로 결과를 확인한다. Drift 확인이 곧 자동 수정 승인은 아니며 PR/push만으로 production apply하지 않는다.
+
+### State와 보안
+
+- 기본안은 OCI Object Storage의 native `oci` backend다. 전용 private bucket, state locking, bucket versioning, 최소 IAM 권한과 복구 절차를 준비한다.
+- Backend bucket/IAM bootstrap은 별도 승인과 별도 state로 관리한다. 아직 없는 bucket을 그 bucket에 의존하는 root에서 만들려고 하지 않는다.
+- `.terraform/`, `*.tfstate*`, 저장 plan, 실제 tfvars/backend 설정은 Git/공개 artifact에서 제외한다. Placeholder example과 provider lockfile만 커밋한다. CI에 OCI credential 없이 fmt/validate부터 연결한다.
+- Credential은 환경변수 또는 저장소 밖 OCI 설정으로 주입한다. State/plan에도 민감값이 남을 수 있으므로 접근·보관을 제한하고 plan 원문을 공개 log/comment에 올리지 않는다. DB password/OAuth/TLS private key는 Terraform 입력으로 옮기지 않는다.
+- 잠금 충돌은 원인을 확인하고 중단한다. `-lock=false`, 확인 없는 force-unlock, state 삭제나 `ignore_changes`로 차이를 숨기지 않는다.
+
+공식 지원 확인(2026-09-22): [OCI resource discovery](https://docs.oracle.com/en-us/iaas/tools/terraform-provider-oci/latest/docs/guides/resource_discovery.html), [Terraform import](https://developer.hashicorp.com/terraform/cli/import), [OCI backend와 locking/versioning](https://developer.hashicorp.com/terraform/language/backend/oci). 실제 자원별 import 지원과 CLI/provider 호환 버전은 Step 0-1에서 다시 확인한다.
+
 ## Runtime
 
 - Next.js standalone output 사용

@@ -56,6 +56,7 @@ H-01에서 제외한다.
 인프라와 클라우드는 OCI를 기본 운영 환경으로 둔다.
 
 - 초기 production target은 OCI Compute 1대다.
+- 앞으로 OCI 자원 관리는 Terraform을 기준으로 한다. 기존 자원은 재생성하지 않고 inventory, 코드화, 승인된 import와 no-change plan 순서로 편입한다. 실행 상태는 `terraform-infrastructure-adoption` phase에서 관리한다.
 - Docker Compose로 Next.js web, blog worker, PostgreSQL + pgvector, Nginx를 관리한다.
 - Nginx는 80/443 TLS 종료와 reverse proxy를 담당한다.
 - PostgreSQL은 public internet에 노출하지 않는다.

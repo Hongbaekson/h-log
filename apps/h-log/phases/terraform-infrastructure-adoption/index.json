@@ -1,0 +1,24 @@
+{
+  "project": "h-log",
+  "phase": "terraform-infrastructure-adoption",
+  "steps": [
+    {
+      "step": 0,
+      "name": "inventory-oci-resources-and-state-boundary",
+      "status": "pending",
+      "summary": "Confirm ownership, import support, data storage and private remote-state boundaries using separately authorized read-only inventory."
+    },
+    {
+      "step": 1,
+      "name": "codify-existing-oci-infrastructure",
+      "status": "pending",
+      "summary": "Add only confirmed Terraform resources, pinned versions, secret exclusions and backend-disabled validation; prepare import mapping without connecting production state."
+    },
+    {
+      "step": 2,
+      "name": "adopt-existing-resources-with-no-change-plan",
+      "status": "pending",
+      "summary": "Separately approve backend bootstrap and import/state changes, preserve existing resources, and verify a no-change plan before future approved infrastructure changes."
+    }
+  ]
+}

@@ -177,6 +177,18 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 - 2026-07-29 Step 5에서는 일반화된 안전한 교체 원본이 없어 기존 PDF와 download CTA/API를 제거했다. 새 PDF는 전 페이지 재검수와 조직 식별자 일반화, `이력서` 명칭 정렬을 모두 통과한 뒤에만 다시 공개한다.
 - 이번 결정은 domain, DNS/TLS, OCI, signal collection, persona activation, production timer 변경을 승인하지 않는다.
 
+### ADR-016: 클라우드 자원 관리는 Terraform으로 전환한다
+
+**결정**: 앞으로 H-Log 클라우드 자원 변경은 Terraform plan 검토와 승인된 apply로 진행한다. 기존 OCI 자원은 소유권과 provider import 지원을 확인한 뒤 편입하며, 재생성을 전제로 코드를 만들지 않는다. 공유 자원은 소유권 합의 전까지 data source로만 참조한다. Compose/Nginx/systemd 배포, DB migration과 자동 발행 활성화는 Terraform에 묶지 않는다.
+
+**이유**: OCI 공식 provider는 기존 자원 discovery/import를 지원한다. 현재 단일 Compute + Compose 구조를 유지하면서 클라우드 변경 내역과 실제 자원의 차이를 plan으로 검토할 수 있다.
+
+**상태/경계**: 2026-09-22 기준 계획만 추가했다. Terraform 코드, live inventory, backend, import와 apply는 미실행이다. `terraform-infrastructure-adoption`은 기존 public surface 정리 뒤, 다음 클라우드 변경 전에 진행한다. 초기 편입은 자원 create/update/delete/replace 없이 끝나야 하며, import 후 일반 plan의 변경 없음까지 확인한다.
+
+**State 정책**: OCI Object Storage의 native `oci` backend, state locking, bucket versioning을 기본안으로 둔다. Bucket/IAM bootstrap은 별도 승인과 별도 state 경계로 다룬다. State, plan, 실제 tfvars, backend 설정과 credential은 공개 저장소나 CI log에 남기지 않는다. 세부 절차는 [배포 지침](../deployment-ci-cd.md#terraform-전환-계획)에 둔다.
+
+**트레이드오프**: 기존 자원의 정확한 구성과 소유권을 조사해야 하며 state 접근·잠금·복구를 운영해야 한다. Terraform 자체는 DB backup이나 앱 배포 rollback을 대신하지 않는다.
+
 ## 공식/내부 기준
 
 - Next.js docs
