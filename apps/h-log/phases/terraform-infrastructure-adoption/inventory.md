@@ -20,7 +20,7 @@ Compose named volume과 OCI block volume은 같은 자원이 아니다. 현재 D
 
 - 기존 SSH alias와 key 등록을 찾아 접속을 확인했다. 로컬의 PATH 밖 OCI 설치 폴더에는 Python OCI SDK 2.177.0과 CLI package 파일이 있다. 해당 설치의 Scripts 폴더에 OCI 실행 파일은 없으며, 앞선 PATH/기본 Python 확인만으로 SDK 부재를 판단한 기록을 정정한다.
 - Windows 사용자, WSL 사용자/root와 서버 사용자/root의 기본 및 레거시 OCI 설정 파일을 찾지 못했다. 확인한 OCI/TF_VAR 환경변수에도 인증 설정이 없었고, 설치된 SDK의 기본 설정 로드는 ConfigFileNotFound로 실패했다. 사용자 문서 폴더와 등록된 연결 설정에서도 OCI API 설정 경로를 찾지 못했다. SSH key 등록과 OCI API 인증은 구분하며, 다른 사용자 지정 위치에 설정이 없다고 단정하지 않는다.
-- 사용자에게 기존 등록이 SSH key, OCI API key/CLI profile, 콘솔 로그인 중 어느 경로인지 확인 중이다. Instance Principal의 IAM 권한은 미확인이다. 키나 토큰 값과 로컬 인증 파일 경로는 공개 문서에 기록하지 않는다.
+- 사용자는 기존에 등록한 인증이 SSH 접속용 key라고 확인했다. [OCI 공식 문서](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm)에 따르면 API signing key는 Compute SSH key와 별도다. 남은 control-plane 조사에는 OCI API 인증과 조회 권한 또는 콘솔 조회 자료가 필요하다. Instance Principal의 IAM 권한은 미확인이다. 키나 토큰 값과 로컬 인증 파일 경로는 공개 문서에 기록하지 않는다.
 - 사용자의 수동 관리·기존 state 없음 확인으로 state 소유권 입력 대기는 해소됐다.
 - 인증 경로가 확인되면 이미 확인한 instance에서 범위를 좁혀 boot/block attachment, VNIC/IP, 연결된 subnet/VCN/security/route/gateway만 읽는다. 실제 ID/import 매핑과 backend 위치는 비공개 기록에 둔다.
 
