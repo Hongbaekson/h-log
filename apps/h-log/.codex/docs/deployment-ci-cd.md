@@ -30,7 +30,7 @@ Local development
 
 ## Terraform 전환 계획
 
-2026-09-22 결정: 앞으로 클라우드 자원은 Terraform으로 관리한다. Public surface 정리 뒤 [`terraform-infrastructure-adoption`](../../phases/terraform-infrastructure-adoption/index.json)의 Step 0을 진행 중이다. 2026-09-28 승인된 SSH/IMDS 조사에서 공유 Compute와 root filesystem의 PostgreSQL/Hermes volume을 확인했다. [조사 결과](../../phases/terraform-infrastructure-adoption/inventory.md)에 따라 공유 자원은 참조 대상으로 두며, OCI API 인증 경로와 기존 state 소유권·연결 자원 매핑이 미확인이라 blocked 상태다. Terraform 코드, backend, import/apply는 미실행이다.
+2026-09-22 결정: 앞으로 클라우드 자원은 Terraform으로 관리한다. Public surface 정리 뒤 [`terraform-infrastructure-adoption`](../../phases/terraform-infrastructure-adoption/index.json)의 Step 0을 진행 중이다. 2026-09-28 승인된 SSH/IMDS 조사에서 공유 Compute와 root filesystem의 PostgreSQL/Hermes volume을 확인했다. [조사 결과](../../phases/terraform-infrastructure-adoption/inventory.md)에 따라 공유 자원은 참조 대상으로 둔다. 사용자는 수동 관리 중이며 기존 state가 없다고 확인했다. 기존 로컬 OCI SDK는 찾았지만 기본 API 설정 로드는 실패했다. OCI API 인증 경로와 연결 자원 매핑이 미확인이라 blocked 상태다. Terraform 코드, backend, import/apply는 미실행이다.
 
 ### 관리 범위
 
