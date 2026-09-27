@@ -1,44 +1,48 @@
-# OCI inventory 사전 확인
+# OCI inventory 조사 결과
 
-2026-09-28 기준 Step 0은 blocked다. 로컬 구성과 공식 문서만 확인했으며 실제 자원 소유권, DB disk, import 매핑은 미확인이다. 자동 승인 검토가 명시적인 서버 접근 승인이 없다는 이유로 ssh oci 실행을 거절했다.
+2026-09-28 사용자가 OCI/SSH 읽기 전용 조사를 승인했다. 기존 ssh oci 접속과 host/instance metadata 조사는 성공했다. Step 0은 OCI control-plane 조회 인증 경로와 기존 state 소유권이 확인되지 않아 blocked 상태다. 원본 식별자는 저장소 밖 로컬 비공개 조사 기록에 보관했다.
 
-## 로컬에서 확인한 근거
+## 확인한 자원과 관리 경계
 
-| 근거 | 확인한 내용 | live 확인이 필요한 내용 |
+| 대상 | 직접 확인한 근거 | 관리 결정과 남은 확인 |
 | --- | --- | --- |
-| compose.yaml | hlog-postgres가 postgres_data를 /var/lib/postgresql/data에 연결한다. | 운영 override, host mount와 boot/block volume 대응 |
-| compose.yaml | hlog-auto-publish가 hermes_data를 /opt/data에 연결한다. | OAuth volume의 실제 disk와 보존 경계 |
-| 배포 지침 | 접속 alias는 ssh oci, Compose 기준 경로는 /opt/stacks/h-log다. | 실제 접속, 대상 instance와 compartment |
-| 로컬 도구 | SSH 설정 파일은 있다. PATH에 OCI/Terraform CLI가 없고 기본 ~/.oci/config도 없다. | 서버 도구와 읽기 전용 OCI 인증 경로 |
-| Git 추적 파일 | Terraform 구성과 state/tfvars 파일이 없다. | 저장소 밖 또는 OCI Resource Manager 등 기존 state 소유자 |
+| Compute | IMDS에서 instance/compartment 식별 정보와 VM.Standard.A1.Flex를 확인했다. H-Log 외 Compose 프로젝트가 2개 더 있다. | 공유 자원. ADR-016에 따라 H-Log state로 import하지 않고 참조한다. 기존 state 소유자는 확인 필요 |
+| PostgreSQL 데이터 | 운영 hlog-postgres의 mount와 hlog_postgres_data volume을 대조했다. local driver의 mount가 루트 ext4 filesystem에 있다. | Compose가 소유하는 데이터. 별도 OCI volume으로 코드화하지 않는다. 실제 boot volume OCID/attachment는 API 확인 필요 |
+| Hermes 데이터 | hlog_hermes_data도 local driver이며 같은 루트 filesystem을 사용한다. OAuth 파일 내용은 읽지 않았다. | 기존 volume을 보존한다. Secret/OAuth를 Terraform 입력으로 옮기지 않는다. |
+| Host disk | lsblk에서 disk 1개, 약 46.58 GiB를 확인했다. PostgreSQL/Hermes volume 모두 같은 루트 filesystem에 있다. | 공유 host의 root disk. H-Log 전용 import 대상에서 제외한다. OS에 보이지 않는 OCI attachment 유무는 미확인 |
+| VNIC/IP | IMDS에서 VNIC 1개의 식별 정보를 확인했다. | 공유 Compute의 연결 정보로 참조한다. primary 여부, public IP 유형과 subnet/NSG는 API 확인 필요 |
+| Network/security | VCN, subnet, security list/NSG, route/gateway의 control-plane 상세는 조회하지 못했다. | 전용/공유 및 기존 state 소유권 판정 대기. H-Log 전용이라고 가정하지 않는다. |
+| 기존 Terraform state | 로컬 Git 추적 파일과 서버 H-Log 디렉터리에 .tf/.tfstate 파일이 없었다. | 다른 저장소/OCI Resource Manager/remote state 부재의 증거는 아니다. 소유자 확인 대기 |
 
-Compose named volume은 OCI block volume 존재의 증거가 아니다. 운영 mount source에서 filesystem/device를 따라가 OCI attachment와 대조해야 DB disk를 판정할 수 있다. 저장소에 state가 없다는 사실도 다른 state 소유자가 없다는 증거가 아니다.
+Compose named volume과 OCI block volume은 같은 자원이 아니다. 현재 DB는 공유 host의 root filesystem에 있으므로 Compute/root disk의 교체나 삭제가 DB/OAuth 보존에 영향을 준다. H-Log 단독 state로 공유 자원의 lifecycle을 가져오지 않는다.
 
-## 승인 후 조회할 범위
+## 조회 경로와 남은 입력
 
-1. 기존 ssh oci 대상의 H-Log 디렉터리와 조회 도구 유무를 확인한다.
-2. H-Log PostgreSQL/Hermes volume의 mount와 해당 filesystem/device를 읽는다. DB query, dump, OAuth 파일 내용, container 환경값은 조회하지 않는다.
-3. 대상 instance에서 범위를 고정하고 연결된 boot/block volume, attachment, VNIC/IP, subnet/VCN, security list/NSG 및 연결된 route/gateway를 조회한다. 공유 여부가 불명확하면 관리 대상으로 확정하지 않는다.
-4. 해당 자원의 기존 state 관리자와 backend 위치를 확인한다. 전체 tenancy export나 state 내용 일괄 수집은 하지 않는다.
+- 로컬과 서버의 확인한 PATH에 OCI/Terraform CLI가 없으며 Python OCI SDK도 없다. 기본 OCI 설정 파일과 OCI/TF_VAR 인증 환경변수도 확인되지 않았다. 서버의 SSH/sudo 읽기는 가능하지만 OCI API 조회 권한이 있다는 뜻은 아니다. Instance Principal의 IAM 권한도 아직 확인하지 않았다.
+- 기존 OCI CLI 프로필/설정 파일 위치 또는 사용 가능한 콘솔 경로가 필요하다. 키나 토큰 값을 공개 문서나 대화에 넣지 않는다.
+- 대상 자원을 현재 수동 관리하는지, 기존 Terraform 또는 OCI Resource Manager state가 있는지 운영자 확인이 필요하다.
+- 인증 경로가 확인되면 이미 확인한 instance에서 범위를 좁혀 boot/block attachment, VNIC/IP, 연결된 subnet/VCN/security/route/gateway만 읽는다. 실제 ID/import 매핑과 backend 위치는 비공개 기록에 둔다.
 
-실제 식별자, IP, host mount, backend 위치와 import ID 매핑은 저장소 밖 비공개 운영 기록에 보관한다. 공개 결과에는 자원 유형, 전용/공유 판정, 관리/import 또는 참조 결정과 확인 일시만 남긴다.
+## Provider와 버전 후보
 
-## 공식 지원 확인
+2026-09-28 공식 stable release metadata에서 [Terraform 1.16.4](https://github.com/hashicorp/terraform/releases/tag/v1.16.4)와 [oracle/oci 9.3.0](https://github.com/oracle/terraform-provider-oci/releases/tag/v9.3.0)을 확인했다. 각각 2026-09-23과 2026-09-24 공개 버전이다. Step 1 검증 후보이며 설치, provider 초기화나 이 환경의 호환성 검증을 완료했다는 뜻은 아니다.
 
-아래는 provider의 import 지원이며 실제 자원의 존재나 편입 결정이 아니다.
-
-- [Compute instance](https://docs.oracle.com/en-us/iaas/tools/terraform-provider-oci/latest/docs/r/core_instance.html#import), [boot volume](https://docs.oracle.com/en-us/iaas/tools/terraform-provider-oci/latest/docs/r/core_boot_volume.html#import), [block volume attachment](https://docs.oracle.com/en-us/iaas/tools/terraform-provider-oci/latest/docs/r/core_volume_attachment.html#import)는 각각 ID import를 지원한다.
-- Volume 자체, primary/secondary VNIC, IP 유형, network/security 자원은 실제 유형과 공유 여부를 확인한 뒤 해당 provider 문서를 대조한다.
-- CLI/provider 조합은 미확정이다. 실제 자원과 실행 환경에 맞는 지원 버전 후보를 확인한 뒤 Step 1에서 버전 고정과 backend-disabled init/validate를 수행한다.
+- 공유 자원 조회에는 [instance data source](https://docs.oracle.com/en-us/iaas/tools/terraform-provider-oci/latest/docs/d/core_instance.html), [boot volume data source](https://docs.oracle.com/en-us/iaas/tools/terraform-provider-oci/latest/docs/d/core_boot_volume.html), [VNIC data source](https://docs.oracle.com/en-us/iaas/tools/terraform-provider-oci/latest/docs/d/core_vnic.html)가 있다.
+- [Compute instance](https://docs.oracle.com/en-us/iaas/tools/terraform-provider-oci/latest/docs/r/core_instance.html#import), [boot volume](https://docs.oracle.com/en-us/iaas/tools/terraform-provider-oci/latest/docs/r/core_boot_volume.html#import), [block volume attachment](https://docs.oracle.com/en-us/iaas/tools/terraform-provider-oci/latest/docs/r/core_volume_attachment.html#import)의 ID import 지원은 확인했다. 공유 자원 import 승인이나 실제 H-Log 전용 자원 존재의 근거로 사용하지 않는다.
+- Network/security 자원은 실제 유형과 소유권을 확인한 뒤 해당 provider resource/import 계약을 대조한다.
 
 ## State와 복구 경계
 
-ADR-016의 기본안은 전용 private bucket의 native [oci backend](https://developer.hashicorp.com/terraform/language/backend/oci)다. 공식 문서는 state locking, bucket versioning과 대상 bucket에 한정한 OBJECT_INSPECT, OBJECT_CREATE, OBJECT_DELETE, OBJECT_READ 권한을 안내한다. 실제 IAM 주체와 bucket은 아직 정하지 않았다.
+ADR-016의 기본안은 전용 private bucket의 native [oci backend](https://developer.hashicorp.com/terraform/language/backend/oci)다. State locking과 bucket versioning을 사용하고, state/lock object의 OBJECT_INSPECT, OBJECT_CREATE, OBJECT_DELETE, OBJECT_READ 권한을 대상 bucket에 한정한다. 실제 bucket, IAM 주체와 기존 backend 소유자는 아직 정하지 않았다.
 
-Backend bucket/IAM bootstrap은 앱 자원 state와 별도로 관리한다. State version 복구 전에는 writer를 중단하고 lock 소유자, 복구할 version, 실제 자원과의 대응을 확인해야 한다. State 복구는 DB 복구를 대신하지 않는다. DB 보존은 실제 mount/attachment와 기존 logical backup/restore 기록으로 별도 확인한다.
+Backend bucket/IAM bootstrap은 앱 자원 state와 별도로 관리한다. 복구 전에는 writer 중단과 lock 소유자 확인, 복구할 state version 및 실제 자원의 대응 확인이 필요하다. 잠금 무시나 확인 없는 force-unlock은 하지 않는다.
 
-## 재개 조건
+State 복구는 DB 복구를 대신하지 않는다. [기존 운영 기록](../auto-publish-ops-hardening/step4.md)은 2026-07-24 logical dump와 격리 restore 성공을 기록하지만 이번 조사에서 백업 파일의 현재 위치·보존 여부나 복구 가능성을 재검증하지 않았다. 이후 편입 전에는 [backup/restore runbook](../../.codex/docs/backup-restore-runbook.md)에 따라 기존 백업 위치와 복구 근거를 확인해야 한다.
 
-위 범위의 OCI/SSH 읽기 전용 조사 승인과 사용 가능한 인증 경로가 필요하다. 각 자원의 소유권과 관리/import 또는 참조 결정, DB disk 보존 근거, state 복구 경계, CLI/provider 후보를 확인해야 Step 0을 완료한다. 실제 inventory가 끝나기 전에는 Step 1을 시작하지 않는다.
+## 범위와 완료 조건
 
-Backend 생성, import/state 변경, apply, Compose 재기동, migration, DNS/TLS와 timer 활성화는 조사 범위에 포함하지 않는다. 이번 산출물은 문서이므로 phase JSON 파싱, 로컬 근거/공식 문서 대조, 민감정보 검사와 git diff --check로 검증한다.
+원격 작업은 instance metadata, H-Log container/volume mount, filesystem/device, 공유 여부 집계와 조회 도구 유무 확인으로 한정했다. DB query/dump, OAuth 내용 조회, 서버 파일 쓰기, 패키지 설치, backend 생성, import/state 변경, apply, Compose 재기동, migration, DNS/TLS와 timer 활성화는 수행하지 않았다.
+
+Step 0 완료에는 연결 자원 전체의 전용/공유 및 기존 state 소유권, 관리/import 또는 참조 결정, DB disk의 OCI attachment 대응과 state 복구 경계가 필요하다. API 인증 경로와 기존 state 확인을 기다리며 Step 1은 pending으로 유지한다. 확인된 H-Log 전용 cloud resource가 없으면 빈 Terraform module을 만들지 않고 관리 범위를 먼저 정한다.
+
+검증: 저장소 밖 host inventory와 공개 요약 대조, provider 공식 문서 대조, phase JSON 파싱, 문서 링크 확인, 민감정보 검사와 git diff --check. Production code 변경이 없어 TDD와 앱 build는 적용하지 않는다.

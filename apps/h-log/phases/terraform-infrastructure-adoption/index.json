@@ -6,8 +6,8 @@
       "step": 0,
       "name": "inventory-oci-resources-and-state-boundary",
       "status": "blocked",
-      "summary": "Local Compose/storage evidence, scoped read-only inventory, provider import references and state recovery boundaries are recorded in inventory.md; live ownership and import mapping remain unverified.",
-      "blocked_reason": "Automatic approval review rejected SSH access without explicit server-access approval. Scoped OCI/SSH read-only inventory approval and an available authentication route are required; local OCI/Terraform CLI and default OCI config are absent."
+      "summary": "User-approved SSH/IMDS inventory confirmed shared Compute and PostgreSQL/Hermes volumes on the shared root filesystem. Shared resources remain references under ADR-016; provider release candidates and recovery boundaries are recorded in inventory.md.",
+      "blocked_reason": "SSH access is approved and verified. OCI control-plane authentication and existing Terraform/Resource Manager state ownership remain unconfirmed; boot-volume mapping and connected network/security inventory are incomplete."
     },
     {
       "step": 1,

@@ -118,7 +118,7 @@
     {
       "dir": "terraform-infrastructure-adoption",
       "status": "blocked",
-      "summary": "Step 0 local preflight is recorded in inventory.md. Automatic approval review blocked remote SSH inventory pending explicit server-access approval and a usable read-only OCI authentication route. Live ownership, DB disk and import mapping remain unverified; Steps 1-2 are pending."
+      "summary": "Step 0 approved SSH/IMDS inventory confirmed shared Compute and root-filesystem PostgreSQL/Hermes storage. Control-plane authentication, connected-resource mapping and existing state ownership remain unconfirmed; Steps 1-2 are pending. See terraform-infrastructure-adoption/inventory.md."
     },
     {
       "dir": "auto-publish-ops-hardening",

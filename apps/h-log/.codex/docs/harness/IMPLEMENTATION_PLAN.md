@@ -76,7 +76,7 @@ generation-integrity-hardening: completed, Steps 0-2 claim, writer, and failure-
 search-runtime-alignment: completed, Steps 0-2 completed
 runtime-contract-pruning: completed, Steps 0-9 legacy/unwired/test-only contract, redundant slug proxy, unused worker capability, and duplicated runtime override removal completed
 public-surface-refactor-pruning: completed, native legacy redirects and shared blog presentation rules completed
-terraform-infrastructure-adoption: blocked, Step 0 local preflight recorded; explicit OCI/SSH read-only inventory approval and authentication route required; Steps 1-2 pending
+terraform-infrastructure-adoption: blocked, Step 0 approved SSH inventory confirms shared Compute/root storage; control-plane authentication and existing state ownership remain unconfirmed; Steps 1-2 pending
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 ```
@@ -571,7 +571,7 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 
 ### terraform-infrastructure-adoption
 
-- 상태: blocked. 2026-09-28 로컬 사전 확인과 조사 범위를 [inventory](../../../phases/terraform-infrastructure-adoption/inventory.md)에 기록했다. 자동 승인 검토가 명시적인 서버 접근 승인이 없어 SSH 접속을 거절했다. 실제 자원 소유권/DB disk와 CLI/provider 후보는 미확인이며 Step 1은 시작하지 않았다. OCI/SSH 읽기 전용 조사 승인과 사용 가능한 인증 경로가 필요하다.
+- 상태: blocked. 2026-09-28 승인된 SSH/IMDS 조사에서 공유 Compute와 root filesystem의 PostgreSQL/Hermes volume을 확인해 [inventory](../../../phases/terraform-infrastructure-adoption/inventory.md)에 기록했다. Terraform/provider stable 후보도 확인했다. 공유 자원은 참조 대상으로 두며 OCI API 인증 경로, 연결 자원 매핑과 기존 state 소유권 확인이 남았다. Step 1은 시작하지 않았다.
 - 순서: public surface 정리 뒤 이 phase를 진행한다. 다음 OCI 자원 변경이나 DNS cutover 전에 편입 범위를 확인한다.
 - Step 0 `inventory-oci-resources-and-state-boundary`: 승인된 읽기 전용 inventory로 H-Log 소유/공유 자원, import 지원, DB 저장 위치와 remote state 경계를 정한다.
 - Step 1 `codify-existing-oci-infrastructure`: 확인한 자원만 최소 Terraform root로 코드화하고 version pin, lockfile, secret 제외, fmt/validate와 import 계획을 준비한다.
