@@ -5,8 +5,9 @@
     {
       "step": 0,
       "name": "inventory-oci-resources-and-state-boundary",
-      "status": "pending",
-      "summary": "Confirm ownership, import support, data storage and private remote-state boundaries using separately authorized read-only inventory."
+      "status": "blocked",
+      "summary": "Local Compose/storage evidence, scoped read-only inventory, provider import references and state recovery boundaries are recorded in inventory.md; live ownership and import mapping remain unverified.",
+      "blocked_reason": "Automatic approval review rejected SSH access without explicit server-access approval. Scoped OCI/SSH read-only inventory approval and an available authentication route are required; local OCI/Terraform CLI and default OCI config are absent."
     },
     {
       "step": 1,

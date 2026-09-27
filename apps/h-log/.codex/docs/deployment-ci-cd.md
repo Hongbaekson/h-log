@@ -30,7 +30,7 @@ Local development
 
 ## Terraform 전환 계획
 
-2026-09-22 결정: 앞으로 클라우드 자원은 Terraform으로 관리한다. 현재는 계획 단계이며 `.tf` 코드, OCI inventory, remote state, import/apply는 아직 실행하지 않았다. 실행 단위는 [`terraform-infrastructure-adoption`](../../phases/terraform-infrastructure-adoption/index.json)에 둔다. 기존 public surface 정리의 다음 Step 1은 그대로 유지한다.
+2026-09-22 결정: 앞으로 클라우드 자원은 Terraform으로 관리한다. Public surface 정리는 완료했으며 다음 단계는 [`terraform-infrastructure-adoption`](../../phases/terraform-infrastructure-adoption/index.json)의 Step 0이다. 2026-09-28 [로컬 사전 확인과 조회 범위](../../phases/terraform-infrastructure-adoption/inventory.md)를 기록했으나 자동 승인 검토가 명시적인 서버 접근 승인 없이 SSH 접속을 허용하지 않아 blocked 상태다. `.tf` 코드, live OCI inventory, remote state, import/apply는 미실행이다.
 
 ### 관리 범위
 

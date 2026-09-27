@@ -117,8 +117,8 @@
     },
     {
       "dir": "terraform-infrastructure-adoption",
-      "status": "pending",
-      "summary": "Planning only: next inventory OCI ownership and state boundaries, codify confirmed resources, then adopt them through separately approved backend bootstrap/import and a no-change plan. Do not change Compose releases, production resources, DNS/TLS, or timers as part of planning."
+      "status": "blocked",
+      "summary": "Step 0 local preflight is recorded in inventory.md. Automatic approval review blocked remote SSH inventory pending explicit server-access approval and a usable read-only OCI authentication route. Live ownership, DB disk and import mapping remain unverified; Steps 1-2 are pending."
     },
     {
       "dir": "auto-publish-ops-hardening",
