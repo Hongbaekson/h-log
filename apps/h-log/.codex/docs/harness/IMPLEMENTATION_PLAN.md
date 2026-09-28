@@ -76,7 +76,7 @@ generation-integrity-hardening: completed, Steps 0-2 claim, writer, and failure-
 search-runtime-alignment: completed, Steps 0-2 completed
 runtime-contract-pruning: completed, Steps 0-9 legacy/unwired/test-only contract, redundant slug proxy, unused worker capability, and duplicated runtime override removal completed
 public-surface-refactor-pruning: completed, native legacy redirects and shared blog presentation rules completed
-terraform-infrastructure-adoption: blocked, Step 0 approved SSH inventory confirms shared Compute/root storage; manual management with no existing state confirmed; control-plane authentication and connected-resource mapping remain unconfirmed; Steps 1-2 pending
+terraform-infrastructure-adoption: blocked, Step 0 completed with verified OCI API/shared-resource inventory and no existing state; Step 1 awaits shared-infrastructure management scope; Step 2 pending
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 ```
@@ -396,7 +396,7 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 ### 실행 경계
 
 - Steps 0-10은 완료했다.
-- 다음 local 실행 대상은 `terraform-infrastructure-adoption / Step 0: inventory-oci-resources-and-state-boundary`다. OCI inventory는 별도 승인된 읽기 전용 범위에서만 진행한다.
+- 다음 local 실행 대상은 `terraform-infrastructure-adoption / Step 1: codify-existing-oci-infrastructure`다. Step 0의 읽기 전용 inventory는 완료했으며, 코드화 전 공유 자원 관리 범위를 결정해야 한다.
 - Step 8은 public HTTPS origin 하나로 metadata, canonical, JSON-LD, robots, OG/Twitter, 정적·Portfolio·published Blog sitemap을 정렬하고 redirect source와 비공개 Blog가 crawler surface에 섞이지 않게 했다. Production container에서 공개 metadata와 308 redirect를 실제 HTTP로 검증했다.
 - 이 phase는 도메인 구매, DNS/TLS, OCI mutation, signal collection, persona activation, 09:00 KST timer 활성화를 수행하지 않는다.
 - Production behavior를 바꾸는 Steps 1-8과 Step 10은 각각 TDD RED -> GREEN -> REFACTOR와 가장 가까운 browser/gate 검증을 따른다.
@@ -419,7 +419,7 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 10. `runtime-contract-pruning / Steps 0-9`: live caller가 없는 legacy file loader, post-publish verification facade, diagram 계획·저장·실패·감사 helper, admin action, test-only model mirror, public fixture/repository write API와 중복 slug proxy를 제거했다. Confirmed-unused worker mode/egress와 Compose/systemd의 동일 runtime override도 제거했다. DB-backed public/crawler/retract/audit/rendering, image-owned runtime defaults, scheduler egress, OAuth preflight 경계는 유지한다.
 11. `public-surface-refactor-pruning / Steps 0-1`: Step 0에서 legacy `/projects` route component를 Next native permanent redirect로 대체했다. Step 1에서 세 public blog surface의 날짜 표시와 목록·상세의 한국어 article-mode label을 작은 presentation module로 통합했다. 새 date dependency나 generic UI utility는 추가하지 않았다.
 
-1-11은 완료됐다. 다음 local 실행 대상은 `terraform-infrastructure-adoption / Step 0`의 승인된 읽기 전용 OCI inventory다. 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
+1-11은 완료됐다. 다음 local 실행 대상은 `terraform-infrastructure-adoption / Step 1`이며, 완료된 Step 0 inventory를 바탕으로 공유 자원 관리 범위를 먼저 결정한다. 이 sequence의 완료는 production activation 승인이나 domain/TLS/timer 활성화를 뜻하지 않는다. 모든 phase 완료 후에도 `auto-publish-ops-hardening / Step 4`의 real HTTPS origin, privacy 목록, public smoke, 09:00 KST timer 승인 gate를 그대로 따른다.
 
 ### generation-integrity-hardening / Step 0: claim-verifier-runtime-wiring
 
@@ -567,11 +567,11 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 - 결과: 목록·상세·검색의 날짜 formatter를 단일 `ko-KR` `Intl.DateTimeFormat`으로 통합하고 목록·상세에서 상세 화면의 한국어 article-mode label을 공유한다. 검색 invalid-date 원문 fallback과 `<time dateTime>` 원본 값은 유지했다.
 - 검증: 기존 UI characterization 13/13 뒤 신규 module RED를 확인하고 focused GREEN 16/16, 전체 단위 테스트, typecheck, lint, build, phase JSON parse, `git diff --check`를 실행했다.
 - 운영 경계: date dependency, 검색 상태 변경, OCI, 도메인, DNS/TLS, timer 변경은 없다.
-- 다음 local 실행 대상: `terraform-infrastructure-adoption / Step 0: inventory-oci-resources-and-state-boundary` (OCI 읽기 전용 inventory는 별도 승인 필요).
+- 다음 local 실행 대상: `terraform-infrastructure-adoption / Step 1: codify-existing-oci-infrastructure` (Step 0 완료, 공유 자원 관리 범위 결정 대기).
 
 ### terraform-infrastructure-adoption
 
-- 상태: blocked. 2026-09-28 승인된 SSH/IMDS 조사에서 공유 Compute와 root filesystem의 PostgreSQL/Hermes volume을 확인해 [inventory](../../../phases/terraform-infrastructure-adoption/inventory.md)에 기록했다. Terraform/provider stable 후보도 확인했다. 사용자는 수동 관리 중이며 기존 Terraform/OCI Resource Manager state가 없다고 확인했다. 기존 로컬 OCI SDK는 찾았지만 기본 API 설정 로드는 실패했다. 공유 자원은 참조 대상으로 두며 OCI API 인증 경로와 연결 자원 매핑 확인이 남았다. Step 1은 시작하지 않았다.
+- 상태: Step 0 completed, Step 1 blocked. 2026-09-28 OCI API 인증과 연결 자원 조회에 성공해 공유 Compute, 47 GiB boot volume, reserved public IP와 network/security/DHCP 경계를 [inventory](../../../phases/terraform-infrastructure-adoption/inventory.md)에 기록했다. 사용자는 수동 관리 중이며 기존 state가 없다고 확인했다. Provider 후보와 복구 경계도 확인했다. H-Log 단독 관리 대상은 없어 공유 인프라의 별도 root/state 관리 여부 또는 코드화 유예를 결정해야 한다. Terraform 코드는 아직 만들지 않았다.
 - 순서: public surface 정리 뒤 이 phase를 진행한다. 다음 OCI 자원 변경이나 DNS cutover 전에 편입 범위를 확인한다.
 - Step 0 `inventory-oci-resources-and-state-boundary`: 승인된 읽기 전용 inventory로 H-Log 소유/공유 자원, import 지원, DB 저장 위치와 remote state 경계를 정한다.
 - Step 1 `codify-existing-oci-infrastructure`: 확인한 자원만 최소 Terraform root로 코드화하고 version pin, lockfile, secret 제외, fmt/validate와 import 계획을 준비한다.

@@ -30,7 +30,7 @@ Local development
 
 ## Terraform 전환 계획
 
-2026-09-22 결정: 앞으로 클라우드 자원은 Terraform으로 관리한다. Public surface 정리 뒤 [`terraform-infrastructure-adoption`](../../phases/terraform-infrastructure-adoption/index.json)의 Step 0을 진행 중이다. 2026-09-28 승인된 SSH/IMDS 조사에서 공유 Compute와 root filesystem의 PostgreSQL/Hermes volume을 확인했다. [조사 결과](../../phases/terraform-infrastructure-adoption/inventory.md)에 따라 공유 자원은 참조 대상으로 둔다. 사용자는 수동 관리 중이며 기존 state가 없다고 확인했다. 기존 로컬 OCI SDK는 찾았지만 기본 API 설정 로드는 실패했다. OCI API 인증 경로와 연결 자원 매핑이 미확인이라 blocked 상태다. Terraform 코드, backend, import/apply는 미실행이다.
+2026-09-22 결정: 앞으로 클라우드 자원은 Terraform으로 관리한다. [`terraform-infrastructure-adoption`](../../phases/terraform-infrastructure-adoption/index.json)의 Step 0은 2026-09-28 승인된 SSH/IMDS 및 OCI API 조사로 완료했다. [조사 결과](../../phases/terraform-infrastructure-adoption/inventory.md)는 공유 Compute, 47 GiB boot volume의 PostgreSQL/Hermes 데이터, reserved public IP와 연결 network/security/DHCP를 확인한다. 사용자는 수동 관리 중이며 기존 state가 없다고 확인했다. 인증 blocker는 해소됐고, Step 1은 공유 인프라의 별도 관리 범위 또는 코드화 유예 결정 대기다. 현재 H-Log 단독 import 대상은 없으며 Terraform 코드, backend, import/apply는 미실행이다.
 
 ### 관리 범위
 

@@ -118,7 +118,7 @@
     {
       "dir": "terraform-infrastructure-adoption",
       "status": "blocked",
-      "summary": "Step 0 approved SSH/IMDS inventory confirmed shared Compute and root-filesystem PostgreSQL/Hermes storage. The user confirmed manual management with no existing state. Control-plane authentication and connected-resource mapping remain unconfirmed; Steps 1-2 are pending. See terraform-infrastructure-adoption/inventory.md."
+      "summary": "Step 0 completed: OCI API authentication, shared Compute/boot storage, reserved IP and connected network inventory verified; no existing state. Step 1 awaits shared-infrastructure ownership scope because no H-Log-exclusive cloud resource was identified; Step 2 pending. See terraform-infrastructure-adoption/inventory.md."
     },
     {
       "dir": "auto-publish-ops-hardening",
