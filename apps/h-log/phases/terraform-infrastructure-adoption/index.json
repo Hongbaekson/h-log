@@ -11,9 +11,8 @@
     {
       "step": 1,
       "name": "codify-existing-oci-infrastructure",
-      "status": "blocked",
-      "summary": "Add only confirmed Terraform resources, pinned versions, secret exclusions and backend-disabled validation; prepare import mapping without connecting production state.",
-      "blocked_reason": "The verified resources all support the shared Compute; no H-Log-exclusive cloud lifecycle owner was identified. Decide whether to manage shared infrastructure in a separate root/state or defer code until dedicated resources exist. Do not create an empty or reference-only Terraform state."
+      "status": "completed",
+      "summary": "Codified eight inventoried shared OCI resources in the isolated infra/terraform/oci-shared root, with boot volume/private IP references, disk preservation, pinned Terraform 1.16.4/OCI 9.3.0, Windows/Linux lockfile, private inputs/import mapping, Git exclusions and credential-free CI. Inventory/schema, fmt/backend-disabled init/validate, JSON/YAML/links and privacy checks passed. No backend connection, import, live plan/apply or production changes."
     },
     {
       "step": 2,

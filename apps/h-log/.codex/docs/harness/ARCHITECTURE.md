@@ -118,7 +118,7 @@ PostgreSQL은 public internet에 노출하지 않는다. 서버 IP, SSH key, DB 
 
 ## Local/OCI Runtime Topology Contract
 
-클라우드 자원 관리 목표는 Terraform이다(ADR-016). `terraform-infrastructure-adoption`에서 기존 OCI 자원을 inventory → 코드화 → 승인된 import/no-change plan 순서로 편입한다. 현재 Terraform 코드나 state는 없으며 아래 Compose runtime 구조도 바뀌지 않는다. Cloud resource lifecycle과 앱 release/DB migration/systemd timer의 실행 권한은 분리한다.
+클라우드 자원 관리 목표는 Terraform이다(ADR-016). `terraform-infrastructure-adoption`에서 기존 OCI 자원을 inventory → 코드화 → 승인된 import/no-change plan 순서로 편입한다. `infra/terraform/oci-shared/`에 공유 Compute/network/IP 8개의 구성과 boot volume/primary private IP 참조를 두고, H-Log 앱 state 및 backend bootstrap state와 분리한다. CLI/provider/lockfile과 credential 없는 CI 검증을 완료했으며 backend 연결, import, live plan/apply는 미실행이다. 아래 Compose runtime 구조는 유지하고 Cloud resource lifecycle과 앱 release/DB migration/systemd timer의 실행 권한을 분리한다.
 
 OCI에 올리기 전 로컬에서 같은 service boundary를 Docker Compose로 먼저 검증한다. 로컬과 OCI의 차이는 host port, domain/TLS, secret 주입 방식, image tag뿐이어야 한다.
 

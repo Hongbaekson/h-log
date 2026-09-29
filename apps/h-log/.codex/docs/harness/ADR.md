@@ -183,7 +183,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **이유**: OCI 공식 provider는 기존 자원 discovery/import를 지원한다. 현재 단일 Compute + Compose 구조를 유지하면서 클라우드 변경 내역과 실제 자원의 차이를 plan으로 검토할 수 있다.
 
-**상태/경계**: 2026-09-22 기준 계획만 추가했다. Terraform 코드, live inventory, backend, import와 apply는 미실행이다. `terraform-infrastructure-adoption`은 기존 public surface 정리 뒤, 다음 클라우드 변경 전에 진행한다. 초기 편입은 자원 create/update/delete/replace 없이 끝나야 하며, import 후 일반 plan의 변경 없음까지 확인한다.
+**상태/경계**: 2026-09-28 읽기 전용 inventory를 완료했다. 2026-09-29 사용자 진행 지시에 따라 공유 Compute와 연결 network/IP 8개를 `infra/terraform/oci-shared/`의 별도 root로 코드화했다. H-Log 앱 state와 backend bootstrap state는 분리하며, launch-owned boot volume/primary VNIC/private IP는 중복 관리하지 않는다. 고정 CLI/provider, lockfile과 credential 없는 CI 검증까지 완료했고 backend 생성/연결, import와 live plan/apply는 아직 미실행이다. 초기 편입은 자원 create/update/delete/replace 없이 끝나야 하며, import 후 일반 plan의 변경 없음까지 확인한다.
 
 **State 정책**: OCI Object Storage의 native `oci` backend, state locking, bucket versioning을 기본안으로 둔다. Bucket/IAM bootstrap은 별도 승인과 별도 state 경계로 다룬다. State, plan, 실제 tfvars, backend 설정과 credential은 공개 저장소나 CI log에 남기지 않는다. 세부 절차는 [배포 지침](../deployment-ci-cd.md#terraform-전환-계획)에 둔다.
 

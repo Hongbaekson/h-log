@@ -45,8 +45,12 @@ State 복구는 DB 복구를 대신하지 않는다. 현재 연결된 boot volum
 
 ## 완료 결과와 다음 결정
 
-Step 0은 연결 자원별 참조 결정, DB 저장 disk 대응, 기존 state 부재, provider 후보와 state 복구 경계를 확인해 completed다. Step 1은 관리 범위 결정 대기다. 확인된 자원이 모두 공유 참조 대상이므로, 공유 인프라를 별도 root/state에서 관리할지 또는 H-Log 전용 관리 자원이 생길 때까지 코드화를 유예할지 정해야 한다. 빈 Terraform module이나 참조만 담은 state를 먼저 만들지 않는다.
+Step 0은 연결 자원별 참조 결정, DB 저장 disk 대응, 기존 state 부재, provider 후보와 state 복구 경계를 확인해 completed다. 위 표는 Step 0의 H-Log 단독 state 경계이며, 공유 자원을 H-Log 앱 state에 편입하지 않는 결정은 유지한다.
 
-DB query/dump, OAuth 내용 조회, 서버 파일 쓰기, 패키지 설치, backend 생성, import/state 변경, apply, Compose 재기동, migration, DNS/TLS와 timer 활성화는 수행하지 않았다.
+2026-09-29 사용자 진행 지시에 따라 Step 1은 별도 [shared root](../../../../infra/terraform/oci-shared/README.md)에 공유 자원 8개를 코드화했다. 같은 11개 자원의 읽기 전용 GET이 성공했고 route table, security list, DHCP options가 VCN 기본 자원임을 확인했다. 따라서 `oci_core_default_*`를 사용하며, 부팅 디스크와 primary VNIC/private IP는 Compute와 중복 관리하지 않는다. 실제 설정과 import ID 대응은 저장소 밖 비공개 파일에 보관했다. Terraform 1.16.4/provider 9.3.0 설치·서명/체크섬·fmt/init/validate 검증을 완료했으며, 이는 실제 import나 no-change plan 완료를 뜻하지 않는다.
+
+다음은 Step 2의 별도 backend bootstrap과 공유 state 편입 승인이다. 공유 Compute/storage 편입 전에 현재 DB backup/restore 근거를 재확인하고, 검토된 자원만 import한 뒤 일반 plan exit 0을 확인한다.
+
+DB query/dump, OAuth 내용 조회, 서버 파일 쓰기와 서버 패키지 설치, backend 생성, import/state 변경, apply, Compose 재기동, migration, DNS/TLS와 timer 활성화는 수행하지 않았다.
 
 검증: SDK config와 실제 instance GET, 연결 자원 API 조회 및 attachment/IP 대응, provider 공식 문서 대조, phase JSON/step 경로/문서 링크 검사, 비공개 식별자 대조, 민감정보 검사와 git diff --check. Production code 변경이 없어 TDD와 앱 build는 적용하지 않는다.

@@ -6,11 +6,11 @@
 - `apps/h-log/.codex/docs/harness/`의 `PRD.md`, `ADR.md`, `ARCHITECTURE.md`, `WORKFLOW.md`, `AGENT_LOOP.md`, `IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/deployment-ci-cd.md`, `apps/h-log/.codex/docs/backup-restore-runbook.md`
 - `apps/h-log/phases/terraform-infrastructure-adoption/index.json`
-- Steps 0-1의 inventory/import 매핑과 `apps/h-log/infra/terraform/` 전체
+- Steps 0-1의 inventory/비공개 import 매핑과 `infra/terraform/oci-shared/` 전체
 
 ## 작업
 
-Backend bucket/IAM bootstrap과 import/state 변경의 대상·권한·복구 계획을 제시하고 각각 명시 승인을 받는다. Bootstrap은 별도 state 경계로 처리한다. 준비된 private backend의 접근 제한, locking/versioning과 backup을 확인한 뒤 검토한 자원만 편입한다. 편입 과정에서 기존 자원 create/update/delete/replace가 필요한 plan은 실행하지 않는다.
+Backend bucket/IAM bootstrap과 import/state 변경의 대상·권한·복구 계획을 제시하고 각각 명시 승인을 받는다. Step 1의 별도 shared root 코드화는 실제 편입 승인이 아니다. Bootstrap은 별도 state 경계로 처리한다. 준비된 private backend의 접근 제한, locking/versioning과 최신 DB backup/restore 근거를 확인한 뒤 Step 1의 검토된 공유 자원 8개만 편입한다. 부팅 디스크와 primary VNIC/private IP를 독립 resource로 중복 import하지 않는다. 편입 과정에서 기존 자원 create/update/delete/replace가 필요한 plan은 실행하지 않는다.
 
 ## 인수 기준
 
@@ -26,5 +26,5 @@ Backend bucket/IAM bootstrap과 import/state 변경의 대상·권한·복구 �
 
 ## 하지 말 것
 
-- 자원 재생성, 공유 자원 편입, 자동 승인 apply를 하지 말 것. Reason: 이번 승인은 기존 자원의 변경 없는 편입에 한정한다.
+- 자원 재생성, 매핑 밖 공유 자원 편입, 자동 승인 apply를 하지 말 것. Reason: 편입 승인은 검토한 기존 자원의 변경 없는 편입에 한정한다.
 - DNS/TLS 전환, Compose 배포, DB migration, timer/provider 활성화를 하지 말 것. Reason: 각각 별도 운영 승인 대상이다.

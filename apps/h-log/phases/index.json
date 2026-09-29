@@ -117,8 +117,8 @@
     },
     {
       "dir": "terraform-infrastructure-adoption",
-      "status": "blocked",
-      "summary": "Step 0 completed: OCI API authentication, shared Compute/boot storage, reserved IP and connected network inventory verified; no existing state. Step 1 awaits shared-infrastructure ownership scope because no H-Log-exclusive cloud resource was identified; Step 2 pending. See terraform-infrastructure-adoption/inventory.md."
+      "status": "pending",
+      "summary": "Steps 0-1 completed: verified shared OCI inventory and codified eight resources in an isolated shared Terraform root with pinned versions, private import mapping, state/secret exclusions and credential-free CI validation. Step 2 remains pending for separately approved backend bootstrap/import and a no-change plan; no production state or resources were changed."
     },
     {
       "dir": "auto-publish-ops-hardening",

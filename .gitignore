@@ -19,6 +19,19 @@ apps/h-log/deploy/env.production
 apps/h-log/deploy/postgres.env.production
 apps/h-log/private/
 
+# Terraform local inputs and generated artifacts
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfplan.*
+*.tfvars
+*.tfvars.json
+*.tfbackend
+*.tfbackend.json
+crash.log
+crash.*.log
+
 # Logs
 *.log
 npm-debug.log*

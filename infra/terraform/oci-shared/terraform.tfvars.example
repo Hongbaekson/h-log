@@ -1,0 +1,58 @@
+# Placeholder-only input reference. Copy values from the private inventory.
+# Never run plan/apply with this file or commit real identifiers or rules.
+region                = "REGION_FROM_PRIVATE_INVENTORY"
+compartment_id        = "COMPARTMENT_OCID_FROM_PRIVATE_INVENTORY"
+boot_volume_id        = "BOOT_VOLUME_OCID_FROM_PRIVATE_INVENTORY"
+primary_private_ip_id = "PRIVATE_IP_OCID_FROM_PRIVATE_INVENTORY"
+
+resource_metadata = {
+  instance         = { display_name = "EXISTING_INSTANCE_NAME", defined_tags = {}, freeform_tags = {} }
+  public_ip        = { display_name = "EXISTING_PUBLIC_IP_NAME", defined_tags = {}, freeform_tags = {} }
+  vcn              = { display_name = "EXISTING_VCN_NAME", defined_tags = {}, freeform_tags = {} }
+  subnet           = { display_name = "EXISTING_SUBNET_NAME", defined_tags = {}, freeform_tags = {} }
+  internet_gateway = { display_name = "EXISTING_GATEWAY_NAME", defined_tags = {}, freeform_tags = {} }
+  route_table      = { display_name = "EXISTING_ROUTE_TABLE_NAME", defined_tags = {}, freeform_tags = {} }
+  security_list    = { display_name = "EXISTING_SECURITY_LIST_NAME", defined_tags = {}, freeform_tags = {} }
+  dhcp_options     = { display_name = "EXISTING_DHCP_OPTIONS_NAME", defined_tags = {}, freeform_tags = {} }
+}
+
+instance = {
+  availability_domain = "AVAILABILITY_DOMAIN_FROM_PRIVATE_INVENTORY"
+  fault_domain        = "FAULT_DOMAIN_FROM_PRIVATE_INVENTORY"
+  shape               = "VM.Standard.A1.Flex"
+  ocpus               = 2
+  memory_in_gbs       = 12
+  image_id            = "ORIGINAL_IMAGE_OCID_FROM_PRIVATE_INVENTORY"
+  metadata            = { ssh_authorized_keys = "EXISTING_PUBLIC_SSH_KEYS_FROM_PRIVATE_INVENTORY" }
+  extended_metadata   = {}
+  vnic_display_name   = "EXISTING_VNIC_NAME"
+  hostname_label      = "EXISTING_HOSTNAME_LABEL"
+  private_ip          = "PRIVATE_IP_FROM_PRIVATE_INVENTORY"
+  vnic_defined_tags   = {}
+  vnic_freeform_tags  = {}
+  # Supply every existing plugin and its state, not just this example.
+  agent_plugins = { "Compute Instance Monitoring" = "ENABLED" }
+}
+
+vcn = {
+  cidr_blocks = ["VCN_CIDR_FROM_PRIVATE_INVENTORY"]
+  dns_label   = "EXISTING_VCN_DNS_LABEL"
+}
+
+subnet = {
+  cidr_block = "SUBNET_CIDR_FROM_PRIVATE_INVENTORY"
+  dns_label  = "EXISTING_SUBNET_DNS_LABEL"
+}
+
+# Supply all seven observed ingress rules and the observed egress rule.
+# These empty lists are intentionally not an operational ruleset.
+ingress_rules = []
+egress_rules  = []
+
+internet_route = {
+  destination      = "DEFAULT_ROUTE_FROM_PRIVATE_INVENTORY"
+  destination_type = "CIDR_BLOCK"
+  route_type       = "STATIC"
+}
+
+dhcp_search_domains = ["SEARCH_DOMAIN_FROM_PRIVATE_INVENTORY"]

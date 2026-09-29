@@ -30,19 +30,19 @@ Local development
 
 ## Terraform 전환 계획
 
-2026-09-22 결정: 앞으로 클라우드 자원은 Terraform으로 관리한다. [`terraform-infrastructure-adoption`](../../phases/terraform-infrastructure-adoption/index.json)의 Step 0은 2026-09-28 승인된 SSH/IMDS 및 OCI API 조사로 완료했다. [조사 결과](../../phases/terraform-infrastructure-adoption/inventory.md)는 공유 Compute, 47 GiB boot volume의 PostgreSQL/Hermes 데이터, reserved public IP와 연결 network/security/DHCP를 확인한다. 사용자는 수동 관리 중이며 기존 state가 없다고 확인했다. 인증 blocker는 해소됐고, Step 1은 공유 인프라의 별도 관리 범위 또는 코드화 유예 결정 대기다. 현재 H-Log 단독 import 대상은 없으며 Terraform 코드, backend, import/apply는 미실행이다.
+2026-09-22 결정: 앞으로 클라우드 자원은 Terraform으로 관리한다. [`terraform-infrastructure-adoption`](../../phases/terraform-infrastructure-adoption/index.json)의 Step 0은 2026-09-28 승인된 SSH/IMDS 및 OCI API 조사로 완료했다. [조사 결과](../../phases/terraform-infrastructure-adoption/inventory.md)는 공유 Compute, 47 GiB boot volume의 PostgreSQL/Hermes 데이터, reserved public IP와 연결 network/security/DHCP를 확인한다. 사용자는 수동 관리 중이며 기존 state가 없다고 확인했다. 2026-09-29 Step 1에서 공유 인프라를 별도 `infra/terraform/oci-shared/` root로 코드화하고 고정 CLI/provider, lockfile과 credential 없는 CI 검증을 완료했다. 실제 입력과 자원 8개의 import 매핑은 비공개로 보관한다. Backend 생성/연결, import와 live plan/apply는 Step 2에 남아 있다.
 
 ### 관리 범위
 
-- OCI Compute, 연결된 boot/block volume, VNIC/IP, network/security 자원 중 H-Log 소유로 확인한 것만 관리한다. 먼저 실제 DB 데이터가 어느 disk/volume에 있는지 확인한다.
-- 공유 VCN/subnet/IAM 등은 별도 소유권 합의 없이 import하거나 수정하지 않는다. 필요한 값은 data source 또는 비공개 입력으로 참조한다.
+- 확인된 공유 Compute, reserved IP, VCN/subnet/gateway와 default route/security/DHCP 8개를 독립 shared root/state 경계로 관리한다. H-Log 앱 state 및 backend bootstrap state와 분리한다. 실제 import와 자원 변경은 별도 승인 대상이다.
+- DB 데이터가 있는 boot volume과 primary VNIC/private IP는 Compute와 중복 관리하지 않는다. Boot volume과 IP assignment는 data source/비공개 입력으로 확인하고, IAM과 inventory 밖 공유 자원은 편입하지 않는다.
 - DNS는 도메인과 DNS provider가 정해진 뒤 해당 provider의 지원 범위에서 추가한다. 아직 provider나 zone을 가정하지 않는다.
 - Compose/Nginx/systemd 설정, 앱 image 배포, DB migration/backup, OAuth/secret 주입은 기존 배포 절차에 남긴다. Terraform provisioner로 배포나 timer 활성화를 실행하지 않는다.
 
 ### 전환 순서와 검증
 
 1. **Inventory**: 승인된 read-only 조회로 대상 compartment와 자원을 좁혀 소유권, 의존성, import ID/resource address 매핑을 확인한다. 기존 다른 state가 관리하는 자원은 중복 편입하지 않는다. 식별자와 원본 export는 비공개로 보관한다.
-2. **코드화**: 확인된 자원만 `apps/h-log/infra/terraform/`의 작은 root module로 작성한다. Terraform CLI/provider의 지원 버전을 확인해 constraints와 `.terraform.lock.hcl`을 고정하고 `terraform fmt -check -recursive`, `terraform init -backend=false`, `terraform validate`를 검증한다. 이 단계의 init은 provider 설치만 허용하며 OCI 조회나 state 연결은 하지 않는다.
+2. **코드화**: 확인된 공유 자원만 `infra/terraform/oci-shared/`의 작은 root module로 작성한다. Terraform 1.16.4/provider 9.3.0과 `.terraform.lock.hcl`을 고정하고 `terraform fmt -check -recursive`, `terraform init -backend=false -input=false -lockfile=readonly`, `terraform validate`를 검증한다. 이 단계의 init은 provider 설치만 허용하며 OCI 조회나 state 연결은 하지 않는다. 실제 설정 대응은 별도의 읽기 전용 inventory로 확인한다.
 3. **승인된 편입**: private backend 준비와 import/state 변경을 별도로 승인받는다. 사전 backup과 복구 경로를 확인하고, 검토한 import만 실행한다. 편입 plan에 기존 자원 create/update/delete/replace가 있으면 중단한다. Import 후 `terraform plan -detailed-exitcode`의 exit 0으로 변경 없음을 확인한다. Exit 1은 오류, exit 2는 차이이므로 완료로 처리하지 않는다.
 4. **이후 변경**: 고정 commit으로 만든 plan에서 비용, 네트워크 공개 범위, 교체/삭제와 DB disk 영향을 검토한다. 승인받은 저장 plan만 apply하고 재조회/plan으로 결과를 확인한다. Drift 확인이 곧 자동 수정 승인은 아니며 PR/push만으로 production apply하지 않는다.
 
