@@ -1,17 +1,22 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   ArrowRight,
   BookOpen,
+  Bot,
+  Cpu,
+  FileCode2,
+  ShieldCheck,
+  Workflow,
   Code2,
   Database,
   ExternalLink,
   FileText,
   FolderOpen,
   Sparkles,
-  Terminal,
 } from "lucide-react";
 
-import { Badge, ButtonLink, Card, Container } from "@/components/ui";
+import { ButtonLink, Container } from "@/components/ui";
 import { projects } from "@/lib/projects";
 import { siteConfig } from "@/lib/site";
 
@@ -45,17 +50,23 @@ const strengthItems = [
   {
     description: "도메인 규칙과 운영 흐름을 분리해 변경에 견디는 백엔드를 만듭니다.",
     icon: Code2,
-    title: "Backend Architecture",
+    title: "변화에 유연한 설계",
+    label: "BACKEND ARCHITECTURE",
+    tone: "blurple",
   },
   {
     description: "반복 작업을 자동화하고 알림, 요약, 검증 흐름으로 연결합니다.",
-    icon: Sparkles,
-    title: "AI Workflow",
+    icon: Workflow,
+    title: "반복을 줄이는 AI",
+    label: "AI WORKFLOW",
+    tone: "pink",
   },
   {
     description: "배포, 관측성, 장애 대응까지 고려해 운영 가능한 구조를 선호합니다.",
     icon: Database,
-    title: "Reliable Systems",
+    title: "운영까지 이어지는 책임",
+    label: "RELIABLE SYSTEMS",
+    tone: "blue",
   },
 ];
 
@@ -85,9 +96,9 @@ function TechnicalSkillsRadar() {
   return (
     <svg
       aria-labelledby="technical-skills-title"
-      className="mx-auto h-44 w-full max-w-sm"
+      className="skills-radar mx-auto w-full"
       role="img"
-      viewBox="0 0 360 320"
+      viewBox="-68 0 496 320"
     >
       <title id="technical-skills-title">Technical skills radar chart</title>
       {radarLevels.map((level) => (
@@ -142,137 +153,137 @@ function TechnicalSkillsRadar() {
 
 export default function HomePage() {
   return (
-    <>
-      <section className="pt-12 pb-14 md:pt-16 md:pb-20">
-        <Container className="grid items-start gap-8 md:grid-cols-[1.04fr_0.96fr] md:gap-10">
-          <div>
-            <Badge className="hero-reveal hero-reveal-1" tone="cyan">
-              <Terminal aria-hidden="true" size={14} strokeWidth={2} />
-              <span className="font-mono uppercase tracking-[0.18em]">profile.online</span>
-              <span className="hero-signal-cursor" aria-hidden="true" />
-            </Badge>
-
-            <h1 className="hero-heading hero-reveal hero-reveal-2 mt-6 max-w-3xl text-4xl leading-[1.1] tracking-normal text-white md:text-6xl">
+    <div className="home-design">
+      <section className="home-hero">
+        <Container className="home-hero-grid">
+          <div className="home-intro">
+            <p className="home-eyebrow">
+              <Sparkles aria-hidden="true" size={15} strokeWidth={1.8} />
+              BACKEND ENGINEER · AI WORKFLOW
+            </p>
+            <h1 className="hero-heading home-title">
               백엔드 개발자{" "}
               <br />
-              <span className="hero-name-gradient">손홍백</span>입니다
+              <span className="home-name">손홍백</span>입니다
             </h1>
-
-            <p className="hero-reveal hero-reveal-3 mt-6 max-w-2xl text-base leading-8 text-slate-300 md:text-lg">
-              Java/Spring 기반 백엔드를 개발합니다. 반복되는 작업은 줄이고, 운영하기 쉬운
-              구조를 고민합니다.
+            <p className="home-description">
+              Java/Spring 기반 백엔드를 개발합니다. 반복되는 작업은 줄이고,
+              운영하기 쉬운 구조를 고민합니다.
             </p>
-
-            <div className="hero-reveal hero-reveal-4 mt-8 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
-              <ButtonLink href="/portfolio">
-                <FolderOpen aria-hidden="true" size={18} strokeWidth={2} />
-                Portfolio
+            <div className="home-actions">
+              <ButtonLink className="home-primary" href="/portfolio">
+                Portfolio 보기
+                <ArrowRight aria-hidden="true" size={18} strokeWidth={1.8} />
               </ButtonLink>
               <ButtonLink href="/resume" variant="secondary">
-                <FileText aria-hidden="true" size={18} strokeWidth={2} />
+                <FileText aria-hidden="true" size={17} strokeWidth={1.8} />
                 이력서 보기
               </ButtonLink>
-              <ButtonLink
-                href="https://github.com/Hongbaekson"
-                rel="noreferrer"
-                target="_blank"
-                variant="secondary"
-              >
-                <ExternalLink aria-hidden="true" size={18} strokeWidth={2} />
-                GitHub
-              </ButtonLink>
-              <ButtonLink href="/blog" variant="ghost">
-                <BookOpen aria-hidden="true" size={18} strokeWidth={2} />
-                Blog
-              </ButtonLink>
             </div>
-          </div>
-
-          <Card className="hero-status-card overflow-hidden p-5 sm:p-6">
-            <div className="flex items-center justify-between gap-4">
+            <div className="home-text-links">
+              <a href="https://github.com/Hongbaekson" rel="noreferrer" target="_blank">
+                GitHub <ExternalLink aria-hidden="true" size={13} />
+              </a>
+              <Link href="/blog">
+                개발 기록 읽기 <BookOpen aria-hidden="true" size={14} />
+              </Link>
+            </div>
+            <dl className="home-metrics">
               <div>
-                <p className="font-mono text-xs uppercase tracking-[0.2em] text-cyan-200">
-                  Verified profile
-                </p>
-                <h2 className="card-heading mt-2 text-xl text-white">검증된 경력과 결과</h2>
+                <dt>실무 경력</dt>
+                <dd>{getCareerYear()}<span>년차</span></dd>
               </div>
-              <Terminal
-                aria-hidden="true"
-                className="shrink-0 text-cyan-200"
-                size={22}
-                strokeWidth={2}
-              />
-            </div>
-
-            <dl className="mt-5 grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-slate-700/70 bg-slate-950/35 p-4">
-                <dt className="text-xs text-slate-500">실무 경력</dt>
-                <dd className="mt-1 text-xl font-bold text-white">{getCareerYear()}년차</dd>
+              <div>
+                <dt>공개 프로젝트</dt>
+                <dd>{projects.length}<span>개</span></dd>
               </div>
-              <div className="rounded-xl border border-slate-700/70 bg-slate-950/35 p-4">
-                <dt className="text-xs text-slate-500">공개 프로젝트</dt>
-                <dd className="mt-1 text-xl font-bold text-white">{projects.length}개</dd>
+              <div>
+                <dt>주요 기술</dt>
+                <dd className="home-stack">Java<span>/</span>Spring</dd>
               </div>
             </dl>
+          </div>
 
-            <div className="mt-4 rounded-xl border border-cyan-300/20 bg-cyan-300/5 p-4">
-              <p className="text-xs font-semibold text-cyan-200">대표 프로젝트</p>
-              <h3 className="card-heading mt-2 text-lg text-white">{featuredProject.context}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-300">{featuredProject.summary}</p>
-              <ButtonLink
-                className="mt-2 justify-start px-0"
-                href={`/portfolio/${featuredProject.slug}`}
-                variant="ghost"
-              >
-                자세히 보기
-                <span className="sr-only">: {featuredProject.context} 상세 보기</span>
-                <ArrowRight aria-hidden="true" size={16} strokeWidth={2} />
-              </ButtonLink>
+          <aside aria-labelledby="engineering-profile-title" className="engineering-profile">
+            <div className="profile-topline">
+              <span className="profile-chip"><Cpu aria-hidden="true" size={18} strokeWidth={1.6} /></span>
+              <span className="font-mono">ENGINEERING PROFILE</span>
+              <span className="profile-corner" aria-hidden="true"><Sparkles size={18} strokeWidth={1.5} /></span>
             </div>
-
-            <div className="mt-4 border-t border-slate-700/70 pt-4">
-              <p className="text-xs text-slate-500">현재 관심사</p>
-              <p className="mt-1 text-sm font-semibold leading-6 text-slate-100">
-                운영 가능한 백엔드와 안전한 AI 워크플로우
-              </p>
+            <h2 id="engineering-profile-title">코드 너머의 구조를 봅니다.</h2>
+            <p className="profile-subtitle">백엔드, 자동화, 그리고 안정적인 운영.</p>
+            <TechnicalSkillsRadar />
+            <p className="skills-caption">기술 관심 영역 · 자기 평가</p>
+            <div className="profile-domains">
+              <span><Code2 aria-hidden="true" size={16} strokeWidth={1.7} />Backend</span>
+              <span><Bot aria-hidden="true" size={16} strokeWidth={1.7} />AI Workflow</span>
+              <span><Database aria-hidden="true" size={16} strokeWidth={1.7} />Systems</span>
             </div>
-
-            <div className="mt-4 rounded-xl border border-slate-700/70 bg-[#080d18]/70 p-4">
-              <p className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-cyan-200">
-                Technical Skills
-              </p>
-              <TechnicalSkillsRadar />
-            </div>
-          </Card>
+          </aside>
         </Container>
       </section>
 
-      <section className="pb-24">
+      <section aria-labelledby="selected-project-title" className="home-selected">
         <Container>
-          <div className="mb-6">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-cyan-200">
-              Working style
-            </p>
-            <h2 className="card-heading mt-2 text-2xl text-white">문제를 푸는 방식</h2>
+          <div className="featured-case">
+            <div className="featured-case-copy">
+              <p className="section-kicker"><FolderOpen aria-hidden="true" size={14} /> SELECTED WORK <span>01</span></p>
+              <h2 id="selected-project-title">{featuredProject.context}</h2>
+              <p className="featured-case-summary">{featuredProject.summary}</p>
+              <ButtonLink className="featured-case-link" href={`/portfolio/${featuredProject.slug}`} variant="ghost">
+                프로젝트 살펴보기
+                <span className="sr-only">: {featuredProject.context} 상세 보기</span>
+                <ArrowRight aria-hidden="true" size={17} strokeWidth={1.8} />
+              </ButtonLink>
+            </div>
+            <div aria-label="명세, AI 구현, 검증으로 이어지는 개발 흐름" className="workflow-visual">
+              <p className="font-mono">AI-ASSISTED DEVELOPMENT</p>
+              <div className="workflow-nodes">
+                <div className="workflow-node">
+                  <span className="workflow-icon"><FileCode2 aria-hidden="true" size={28} strokeWidth={1.5} /></span>
+                  <span>명세</span>
+                </div>
+                <ArrowRight aria-hidden="true" className="workflow-arrow" size={18} />
+                <div className="workflow-node">
+                  <span className="workflow-icon workflow-icon-ai"><Bot aria-hidden="true" size={32} strokeWidth={1.5} /></span>
+                  <span>AI 구현</span>
+                </div>
+                <ArrowRight aria-hidden="true" className="workflow-arrow" size={18} />
+                <div className="workflow-node">
+                  <span className="workflow-icon"><ShieldCheck aria-hidden="true" size={28} strokeWidth={1.5} /></span>
+                  <span>검증</span>
+                </div>
+              </div>
+              <div className="workflow-tools"><span>OpenAPI</span><span>Claude Code</span><span>Codex</span></div>
+            </div>
           </div>
+        </Container>
+      </section>
 
-          <div className="grid gap-4 md:grid-cols-3">
+      <section aria-labelledby="working-style-title" className="home-working-style">
+        <Container>
+          <div className="home-section-heading">
+            <div>
+              <p className="section-kicker">HOW I WORK</p>
+              <h2 id="working-style-title">문제를 푸는 방식</h2>
+            </div>
+            <p>설계에서 운영까지, 오래 쓰이는 코드를 위해.</p>
+          </div>
+          <div className="strength-grid">
             {strengthItems.map((item) => {
               const Icon = item.icon;
-
               return (
-                <Card className="p-5" key={item.title}>
-                  <div className="grid h-11 w-11 place-items-center rounded-2xl border border-blue-300/20 bg-blue-400/10 text-blue-100">
-                    <Icon aria-hidden="true" size={20} strokeWidth={2} />
-                  </div>
-                  <h3 className="card-heading mt-5 text-lg text-white">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-slate-400">{item.description}</p>
-                </Card>
+                <article className={`strength-item strength-${item.tone}`} key={item.title}>
+                  <span className="strength-icon"><Icon aria-hidden="true" size={23} strokeWidth={1.6} /></span>
+                  <p className="strength-label font-mono">{item.label}</p>
+                  <h3>{item.title}</h3>
+                  <p className="strength-description">{item.description}</p>
+                </article>
               );
             })}
           </div>
         </Container>
       </section>
-    </>
+    </div>
   );
 }

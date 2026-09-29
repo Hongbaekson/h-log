@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Braces, Menu, X } from "lucide-react";
+import { ArrowUpRight, Braces, Code2, Menu, X } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { siteConfig } from "@/lib/site";
@@ -22,7 +22,7 @@ export function Header() {
 
   return (
     <header
-      className="sticky top-3 z-30 px-3 sm:px-5"
+      className="site-header sticky top-0 z-30"
       onKeyDown={(event) => {
         if (event.key === "Escape" && isMenuOpen) {
           setIsMenuOpen(false);
@@ -30,15 +30,15 @@ export function Header() {
         }
       }}
     >
-      <div className="mx-auto flex h-14 w-full max-w-6xl min-w-0 items-center justify-between gap-2 rounded-2xl border border-slate-700/70 bg-[#080d18]/86 px-3 shadow-[0_18px_60px_rgb(0_0_0_/_0.25)] backdrop-blur-xl md:px-4">
+      <div className="site-header-inner mx-auto flex w-full max-w-6xl min-w-0 items-center justify-between gap-3 px-4 sm:px-5">
         <Link
-          className="inline-flex min-w-0 items-center gap-2 rounded-xl px-2 py-2 text-sm font-semibold text-slate-100 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
+          className="site-brand inline-flex min-w-0 items-center gap-3 rounded-xl py-2 font-semibold text-white"
           href="/"
         >
-          <span className="grid h-8 w-8 place-items-center rounded-xl border border-cyan-300/25 bg-cyan-300/10 text-cyan-100">
-            <Braces aria-hidden="true" size={17} strokeWidth={2} />
+          <span className="site-brand-mark grid h-10 w-10 place-items-center rounded-[14px]">
+            <Braces aria-hidden="true" size={22} strokeWidth={1.8} />
           </span>
-          <span className="truncate tracking-[0.16em]">h-log</span>
+          <span className="truncate tracking-tight">h-log<span className="brand-period">.</span></span>
         </Link>
         <nav aria-label="Primary navigation" className="hidden items-center gap-1 md:flex">
           {siteConfig.navItems.map((item) => {
@@ -47,11 +47,7 @@ export function Header() {
             return (
               <Link
                 aria-current={isActive ? "page" : undefined}
-                className={`rounded-xl px-3 py-2 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 ${
-                  isActive
-                    ? "bg-blue-400/10 text-blue-100 shadow-[inset_0_0_0_1px_rgb(96_165_250_/_0.22)]"
-                    : "text-slate-300 hover:bg-slate-800/75 hover:text-white"
-                }`}
+                className={`site-nav-link ${isActive ? "is-active" : ""}`}
                 href={item.href}
                 key={item.href}
               >
@@ -61,11 +57,16 @@ export function Header() {
           })}
         </nav>
         <div className="flex shrink-0 items-center gap-2">
+          <a className="header-github" href="https://github.com/Hongbaekson" rel="noreferrer" target="_blank" aria-label="GitHub 프로필 (새 창)">
+            <Code2 aria-hidden="true" size={17} strokeWidth={1.7} />
+            <span className="hidden sm:inline">GitHub</span>
+            <ArrowUpRight aria-hidden="true" className="hidden sm:block" size={14} />
+          </a>
           <button
             aria-controls="mobile-navigation"
             aria-expanded={isMenuOpen}
             aria-label={isMenuOpen ? "메뉴 닫기" : "메뉴 열기"}
-            className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-slate-700 bg-slate-900/50 text-slate-200 transition-colors hover:border-cyan-300/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 md:hidden"
+            className="site-menu-toggle inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl text-slate-200 transition-colors hover:text-white md:hidden"
             onClick={() => setIsMenuOpen((current) => !current)}
             ref={menuButtonRef}
             type="button"
@@ -81,7 +82,7 @@ export function Header() {
       {isMenuOpen ? (
         <nav
           aria-label="Mobile navigation"
-          className="mx-auto mt-2 grid w-full max-w-6xl gap-1 rounded-2xl border border-slate-700/70 bg-[#080d18]/92 p-2 shadow-[0_18px_60px_rgb(0_0_0_/_0.25)] backdrop-blur-xl md:hidden"
+          className="site-mobile-nav mx-auto grid w-full max-w-6xl gap-1 p-3 md:hidden"
           id="mobile-navigation"
         >
           {siteConfig.navItems.map((item) => {
@@ -90,18 +91,14 @@ export function Header() {
             return (
               <Link
                 aria-current={isActive ? "page" : undefined}
-                className={`flex items-center justify-between rounded-xl px-3 py-3 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 ${
-                  isActive
-                    ? "bg-blue-400/10 text-blue-100 shadow-[inset_0_0_0_1px_rgb(96_165_250_/_0.22)]"
-                    : "text-slate-300 hover:bg-slate-800/75 hover:text-white"
-                }`}
+                className={`site-nav-link flex items-center justify-between ${isActive ? "is-active" : ""}`}
                 href={item.href}
                 key={item.href}
                 onClick={() => setIsMenuOpen(false)}
               >
                 {item.label}
                 {isActive ? (
-                  <span className="h-2 w-2 rounded-full bg-cyan-200 shadow-[0_0_14px_rgb(34_211_238_/_0.55)]" />
+                  <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-indigo-300" />
                 ) : null}
               </Link>
             );

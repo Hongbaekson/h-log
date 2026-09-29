@@ -76,6 +76,7 @@ generation-integrity-hardening: completed, Steps 0-2 claim, writer, and failure-
 search-runtime-alignment: completed, Steps 0-2 completed
 runtime-contract-pruning: completed, Steps 0-9 legacy/unwired/test-only contract, redundant slug proxy, unused worker capability, and duplicated runtime override removal completed
 public-surface-refactor-pruning: completed, native legacy redirects and shared blog presentation rules completed
+discord-design-preview: completed Home/shared-shell design and browser screenshots; user accepted the design and requested commit/push; production deployment verification remains separate
 terraform-infrastructure-adoption: pending, Steps 0-1 completed with verified inventory and an isolated shared Terraform root; Step 2 awaits separate backend/import approval and no-change plan
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned
@@ -568,6 +569,12 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 - 검증: 기존 UI characterization 13/13 뒤 신규 module RED를 확인하고 focused GREEN 16/16, 전체 단위 테스트, typecheck, lint, build, phase JSON parse, `git diff --check`를 실행했다.
 - 운영 경계: date dependency, 검색 상태 변경, OCI, 도메인, DNS/TLS, timer 변경은 없다.
 - 다음 실행 대상: `terraform-infrastructure-adoption / Step 2: adopt-existing-resources-with-no-change-plan` (Steps 0-1 완료, 별도 backend/import 승인 필요).
+
+### discord-design-preview
+
+- 사용자 요청으로 Discord `DESIGN.md`를 설치하고 홈·공통 shell의 로컬 시안을 완성했다. Deep indigo/Blurple, 주 CTA의 green, 정돈된 AI 아이콘, 분리된 대표 프로젝트와 기술 프로필을 사용한다.
+- H1, 공개 데이터, 레이더 값, route/SEO는 유지한다. 36px 모바일 메뉴 RED 후 44px GREEN, 기존 characterization 15/15, 전체 테스트 151 pass/12 DB skip, lint/typecheck/build와 5개 폭 브라우저 검증을 통과했다.
+- 로컬 캡처 검토 후 사용자가 디자인 반영과 커밋·푸시를 승인했다. Blog는 DB 미연결 오류 상태만 확인했으며 운영 배포 검증은 별도다. 세부 방향은 `UI_GUIDE.md`와 해당 phase를 따른다.
 
 ### terraform-infrastructure-adoption
 

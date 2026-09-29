@@ -7,6 +7,14 @@
 
 ## 디자인 원칙
 
+### 2026-09-29 승인된 디자인
+
+사용자 요청으로 `apps/h-log/DESIGN.md`의 Discord 디자인을 설치했다. `discord-design-preview`에서 구현한 홈과 공통 shell의 화면 검토를 마치고 사용자 승인을 받았다. 아래 기존 팔레트보다 deep indigo `#0c0f23`/`#11152f`, raised surface `#191d3a`, Blurple `#5865f2`, lavender `#a3aaff`를 우선한다. Green `#35ed7e`는 홈의 주 CTA에만 사용한다. Magenta는 작은 AI 아이콘과 제한된 배경에만 쓴다.
+
+한국어 font stack, dark-only, 기존 공개 정보와 레이더 값은 유지한다. 게임 캐릭터나 전용 font 대신 Lucide의 일관된 선 두께와 명세 → AI 구현 → 검증의 벡터 요소를 사용한다. 확대된 display type, 24–32px 패널 모서리, 낮은 대비의 border와 넓은 간격으로 Discord의 표현을 개발자 포트폴리오에 맞게 조정한다. 사용자 승인 범위는 디자인 반영과 커밋·푸시이며 운영 배포 검증은 별도다.
+
+### 기본 원칙
+
 1. 개인 브랜딩 사이트지만 마케팅 랜딩보다 작업 기록과 운영 감각이 느껴져야 한다.
 2. Clean Dark Engineer Portfolio + Subtle AI Workflow Console 방향을 유지한다.
 3. 화면은 조용하고 밀도 있게 구성하되, 채용 담당자와 개발자가 핵심 정보를 빠르게 스캔할 수 있어야 한다.
