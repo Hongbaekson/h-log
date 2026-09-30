@@ -1,0 +1,3 @@
+# Use an absolute path outside the repository and temporary directories.
+# Restrict the directory ACL and back up both state and its backup privately.
+path = "ABSOLUTE_PRIVATE_DURABLE_DIRECTORY/bootstrap.tfstate"

@@ -2,7 +2,7 @@
 
 H-Log와 같은 Compute를 사용하는 앱들의 공통 cloud lifecycle을 위한 독립 root다. H-Log 앱 state와 backend bucket/IAM bootstrap state에 합치지 않는다. 2026-09-29 사용자 진행 지시에 따라 기존 [inventory](../../../apps/h-log/phases/terraform-infrastructure-adoption/inventory.md)의 공유 자원을 코드화했다.
 
-현재 완료 범위는 구성, provider lockfile, 비공개 입력/import 매핑 준비와 credential 없는 검증이다. Backend 생성·연결, import, live plan과 apply는 아직 실행하지 않았다. 이 디렉터리는 새 서버 생성용 템플릿이 아니다.
+현재 완료 범위는 구성, provider lockfile, 비공개 입력/import 매핑 준비와 credential 없는 검증이다. Step 2의 [별도 backend bootstrap](../oci-backend/README.md) 구성과 bucket 1개 생성 예정 saved plan도 준비했다. Shared remote backend 연결, import, shared live plan과 cloud apply는 아직 실행하지 않았다. 이 디렉터리는 새 서버 생성용 템플릿이 아니다.
 
 ## 관리 범위와 import 매핑
 
@@ -41,6 +41,6 @@ terraform -chdir=infra/terraform/oci-shared validate -no-color
 
 ## 다음 단계
 
-[Step 2](../../../apps/h-log/phases/terraform-infrastructure-adoption/step2.md)에서 최신 DB backup/restore 근거, 공유 자원 영향 범위, 실제 import ID와 복구 절차를 다시 확인한다. 전용 private OCI backend의 bucket/IAM bootstrap과 shared state import를 각각 승인받은 뒤 수행한다. Backend 좌표는 저장소 밖 `shared.tfbackend`로 전달하며 bootstrap state와 shared resource state의 object key를 분리한다.
+[Step 2](../../../apps/h-log/phases/terraform-infrastructure-adoption/step2.md)는 [편입·복구 runbook](adoption.md)을 따른다. 최신 DB backup/restore 근거, 공유 자원 영향 범위, 실제 import ID를 다시 확인하고 전용 private bucket 생성과 shared state import를 각각 승인받는다. 현재 운영자는 기존 관리자 권한을 보유하므로 중복 IAM 정책은 추가하지 않는다. Backend 좌표는 `shared.tfbackend.example`을 참고해 저장소 밖 `shared.tfbackend`로 전달한다. Bootstrap은 별도의 private local state를 사용하고 shared root는 OCI remote state를 사용한다.
 
 승인된 import 뒤 일반 `terraform plan -detailed-exitcode`의 exit 0을 확인해야 편입 완료다. Exit 1은 오류, exit 2는 차이이며 create/update/delete/replace가 있으면 중단한다. `ignore_changes`, `-lock=false` 또는 자동 승인 apply로 차이를 숨기지 않는다. 서버 배포, DNS/TLS, migration과 자동 발행 활성화는 별도 운영 단계다.

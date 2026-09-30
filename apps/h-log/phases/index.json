@@ -123,7 +123,7 @@
     {
       "dir": "terraform-infrastructure-adoption",
       "status": "pending",
-      "summary": "Steps 0-1 completed: verified shared OCI inventory and codified eight resources in an isolated shared Terraform root with pinned versions, private import mapping, state/secret exclusions and credential-free CI validation. Step 2 remains pending for separately approved backend bootstrap/import and a no-change plan; no production state or resources were changed."
+      "summary": "Steps 0-1 completed. Step 2 preparation includes an isolated private/versioned bucket bootstrap, a reviewed private saved plan with one create and no updates/deletes, backend examples, two-root credential-free CI and an adoption/state-recovery runbook. Bucket apply and eight shared-resource imports still require separate approval and current DB backup/restore evidence before the post-import no-change plan. No production state or resources were changed."
     },
     {
       "dir": "auto-publish-ops-hardening",

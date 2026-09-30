@@ -7,6 +7,7 @@
 - `apps/h-log/.codex/docs/deployment-ci-cd.md`, `apps/h-log/.codex/docs/backup-restore-runbook.md`
 - `apps/h-log/phases/terraform-infrastructure-adoption/index.json`
 - Steps 0-1의 inventory/비공개 import 매핑과 `infra/terraform/oci-shared/` 전체
+- `infra/terraform/oci-backend/README.md`와 bootstrap 구성, `infra/terraform/oci-shared/adoption.md`
 
 ## 작업
 
@@ -28,3 +29,13 @@ Backend bucket/IAM bootstrap과 import/state 변경의 대상·권한·복구 �
 
 - 자원 재생성, 매핑 밖 공유 자원 편입, 자동 승인 apply를 하지 말 것. Reason: 편입 승인은 검토한 기존 자원의 변경 없는 편입에 한정한다.
 - DNS/TLS 전환, Compose 배포, DB migration, timer/provider 활성화를 하지 말 것. Reason: 각각 별도 운영 승인 대상이다.
+
+## 준비 결과 (2026-09-30, approval-required)
+
+- 대상 compartment의 Object Storage namespace 조회가 성공했고 bucket 목록은 0개(추가 page 없음)였다. 현재 API 운영자는 Administrators 그룹 1개에 속한다. 중복 IAM 권한을 새로 만들지 않으며, 이는 최소 권한 전용 주체를 검증했다는 뜻이 아니다.
+- `infra/terraform/oci-backend/`에 private/versioned Standard bucket 1개만 정의했다. Bootstrap local state는 저장소·임시 디렉터리 밖의 private 영구 경로를 사용하고 shared remote state와 분리한다. 두 root의 고정 버전/lockfile과 credential 없는 CI 검증을 맞췄다.
+- Private 입력으로 local backend를 초기화하고 saved plan을 검토했다. Exit 2이며 `oci_objectstorage_bucket.state` **1 create, 0 update, 0 delete**만 포함한다. SHA-256은 `180a658c351068a5ed893a5e9943be6148220e0f089719cc284a6cfb5553fcd2`다. Raw plan/JSON/backend 설정은 저장소 밖에만 보존했고 managed bootstrap state는 아직 없다.
+- Shared backend placeholder와 편입·부분 실패 재개·no-change 판정·drift·state version 복구 절차를 준비했다. State overwrite에 필요한 `OBJECT_OVERWRITE`를 포함해 전용 주체의 최소 object 권한 5개를 명시했다.
+- 알려진 서버 backup 후보 디렉터리 3곳의 제한된 파일 metadata 조회에서는 dump를 찾지 못했다. 서버 전체에 백업이 없다는 의미가 아니며, 최신 DB backup/격리 restore 근거는 아직 미확인이다. 새 운영 dump/restore를 실행하려면 runbook의 별도 승인이 필요하다.
+- 검증: 두 root의 fmt/backend-disabled init/validate, private bootstrap saved plan action 확인, phase JSON/YAML/문서 링크, Git 제외·민감정보와 `git diff --check`.
+- Cloud apply, remote backend 연결, import/state 편입과 shared no-change plan은 미실행이다. Step 2는 pending을 유지한다. 다음은 위 bucket plan 적용 승인과 backup/restore 근거 확보, 그 뒤 8개 자원 편입 승인이다.

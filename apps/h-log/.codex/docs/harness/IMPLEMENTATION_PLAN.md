@@ -582,7 +582,7 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 - 순서: public surface 정리 뒤 이 phase를 진행한다. 다음 OCI 자원 변경이나 DNS cutover 전에 편입 범위를 확인한다.
 - Step 0 `inventory-oci-resources-and-state-boundary`: 승인된 읽기 전용 inventory로 H-Log 소유/공유 자원, import 지원, DB 저장 위치와 remote state 경계를 정한다.
 - Step 1 `codify-existing-oci-infrastructure`: 확인한 자원만 최소 Terraform root로 코드화하고 version pin, lockfile, secret 제외, fmt/validate와 import 계획을 준비한다.
-- Step 2 `adopt-existing-resources-with-no-change-plan`: 별도 승인 후 backend bootstrap과 state import를 진행한다. 자원 변경 없는 편입 및 import 후 no-change plan을 확인하고 이후 plan 검토/승인된 apply/드리프트 확인 절차를 기록한다.
+- Step 2 `adopt-existing-resources-with-no-change-plan`: pending (approval-required). 2026-09-30 별도 bucket bootstrap 구성과 private saved plan(1 create/0 update/0 delete), 두 root CI, backend 예시 및 [편입·복구 절차](../../../../../infra/terraform/oci-shared/adoption.md)를 준비·검증했다. 현재 관리자에게 중복 IAM 권한은 추가하지 않는다. Bucket apply 승인과 현재 DB backup/격리 restore 근거 확보 후 shared backend 연결/8개 import를 별도 승인받고, 일반 plan exit 0을 확인해야 완료다. Cloud apply/import는 미실행이다.
 - 상세 정책: [배포 지침](../deployment-ci-cd.md#terraform-전환-계획). Terraform 도입은 Compose 배포, DB migration, provider/자동 발행 timer 활성화 승인을 포함하지 않는다.
 
 ### auto-publish-ops-hardening

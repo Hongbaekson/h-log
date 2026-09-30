@@ -32,6 +32,8 @@ Local development
 
 2026-09-22 결정: 앞으로 클라우드 자원은 Terraform으로 관리한다. [`terraform-infrastructure-adoption`](../../phases/terraform-infrastructure-adoption/index.json)의 Step 0은 2026-09-28 승인된 SSH/IMDS 및 OCI API 조사로 완료했다. [조사 결과](../../phases/terraform-infrastructure-adoption/inventory.md)는 공유 Compute, 47 GiB boot volume의 PostgreSQL/Hermes 데이터, reserved public IP와 연결 network/security/DHCP를 확인한다. 사용자는 수동 관리 중이며 기존 state가 없다고 확인했다. 2026-09-29 Step 1에서 공유 인프라를 별도 `infra/terraform/oci-shared/` root로 코드화하고 고정 CLI/provider, lockfile과 credential 없는 CI 검증을 완료했다. 실제 입력과 자원 8개의 import 매핑은 비공개로 보관한다. Backend 생성/연결, import와 live plan/apply는 Step 2에 남아 있다.
 
+2026-09-30 Step 2 준비: [`infra/terraform/oci-backend/`](../../../../infra/terraform/oci-backend/README.md)에 private/versioned bucket 하나의 독립 bootstrap 구성과 private saved plan(1 create/0 update/0 delete)을 준비했다. Bootstrap은 별도 private local state, shared root는 OCI remote state를 사용한다. 현재 운영자는 기존 관리자 그룹에 속하므로 중복 IAM policy는 추가하지 않는다. 두 root의 credential 없는 CI와 [편입·실패 재개·drift·state 복구 절차](../../../../infra/terraform/oci-shared/adoption.md)를 검증했다. Bucket apply, shared remote backend 연결/import와 사후 no-change plan은 아직 미실행이며 최신 DB backup/격리 restore 근거도 확인해야 한다.
+
 ### 관리 범위
 
 - 확인된 공유 Compute, reserved IP, VCN/subnet/gateway와 default route/security/DHCP 8개를 독립 shared root/state 경계로 관리한다. H-Log 앱 state 및 backend bootstrap state와 분리한다. 실제 import와 자원 변경은 별도 승인 대상이다.
@@ -49,7 +51,8 @@ Local development
 ### State와 보안
 
 - 기본안은 OCI Object Storage의 native `oci` backend다. 전용 private bucket, state locking, bucket versioning, 최소 IAM 권한과 복구 절차를 준비한다.
-- Backend bucket/IAM bootstrap은 별도 승인과 별도 state로 관리한다. 아직 없는 bucket을 그 bucket에 의존하는 root에서 만들려고 하지 않는다.
+- Backend bucket/IAM bootstrap은 별도 승인과 별도 state로 관리한다. `oci-backend` root는 저장소·임시 폴더 밖의 private 영구 local state를 쓰며 승인된 bucket 1개만 생성한다. 아직 없는 bucket을 그 bucket에 의존하는 root에서 만들려고 하지 않는다. Bootstrap state/backup은 별도 private 복구 위치에 보존한다.
+- Native backend용 전용 주체의 권한은 대상 bucket에 한정한 `OBJECT_INSPECT`, `OBJECT_READ`, `OBJECT_CREATE`, `OBJECT_OVERWRITE`, `OBJECT_DELETE`다. 기존 관리자 사용을 최소 권한 전용 계정 검증으로 오인하지 않는다. 새 IAM 주체/권한이 필요하면 별도 승인받는다.
 - `.terraform/`, `*.tfstate*`, 저장 plan, 실제 tfvars/backend 설정은 Git/공개 artifact에서 제외한다. Placeholder example과 provider lockfile만 커밋한다. CI에 OCI credential 없이 fmt/validate부터 연결한다.
 - Credential은 환경변수 또는 저장소 밖 OCI 설정으로 주입한다. State/plan에도 민감값이 남을 수 있으므로 접근·보관을 제한하고 plan 원문을 공개 log/comment에 올리지 않는다. DB password/OAuth/TLS private key는 Terraform 입력으로 옮기지 않는다.
 - 잠금 충돌은 원인을 확인하고 중단한다. `-lock=false`, 확인 없는 force-unlock, state 삭제나 `ignore_changes`로 차이를 숨기지 않는다.

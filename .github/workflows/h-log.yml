@@ -5,12 +5,12 @@ on:
     paths:
       - "apps/h-log/**"
       - ".github/workflows/h-log.yml"
-      - "infra/terraform/oci-shared/**"
+      - "infra/terraform/**"
   pull_request:
     paths:
       - "apps/h-log/**"
       - ".github/workflows/h-log.yml"
-      - "infra/terraform/oci-shared/**"
+      - "infra/terraform/**"
 
 permissions:
   contents: read
@@ -19,9 +19,12 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      matrix:
+        root: [oci-backend, oci-shared]
     defaults:
       run:
-        working-directory: infra/terraform/oci-shared
+        working-directory: infra/terraform/${{ matrix.root }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2

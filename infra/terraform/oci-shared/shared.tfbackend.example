@@ -1,0 +1,7 @@
+# Coordinates only. Credentials remain in the external OCI configuration.
+bucket              = "APPROVED_PRIVATE_STATE_BUCKET_NAME"
+namespace           = "NAMESPACE_FROM_PRIVATE_INVENTORY"
+region              = "REGION_FROM_PRIVATE_INVENTORY"
+key                 = "oci-shared/terraform.tfstate"
+auth                = "APIKey"
+config_file_profile = "DEFAULT"

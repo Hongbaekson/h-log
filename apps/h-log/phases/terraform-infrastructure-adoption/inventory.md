@@ -37,7 +37,7 @@ Compose named volume과 OCI block volume은 같은 자원이 아니다. 이번�
 
 ## State와 복구 경계
 
-ADR-016의 기본안은 전용 private bucket의 native [oci backend](https://developer.hashicorp.com/terraform/language/backend/oci)다. State locking과 bucket versioning을 사용하고, state/lock object의 OBJECT_INSPECT, OBJECT_CREATE, OBJECT_DELETE, OBJECT_READ 권한을 대상 bucket에 한정한다. 기존 backend는 없다. 새 bucket과 IAM 주체는 관리 범위 결정 후 별도 승인으로 정한다.
+ADR-016의 기본안은 전용 private bucket의 native [oci backend](https://developer.hashicorp.com/terraform/language/backend/oci)다. State locking과 bucket versioning을 사용하고, state/lock object의 OBJECT_INSPECT, OBJECT_CREATE, OBJECT_OVERWRITE, OBJECT_DELETE, OBJECT_READ 권한을 대상 bucket에 한정한다. OBJECT_OVERWRITE는 기존 state를 갱신하는 데 필요한 [OCI 권한](https://docs.oracle.com/en-us/iaas/Content/Identity/Reference/objectstoragepolicyreference.htm)이다. 기존 backend는 없다. 새 bucket과 IAM 주체는 관리 범위 결정 후 별도 승인으로 정한다.
 
 Backend bucket/IAM bootstrap은 앱 자원 state와 별도로 관리한다. 복구 전에는 writer 중단과 lock 소유자 확인, 복구할 state version 및 실제 자원의 대응 확인이 필요하다. 잠금 무시나 확인 없는 force-unlock은 하지 않는다.
 

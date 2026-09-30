@@ -1,0 +1,5 @@
+# Placeholder reference only. Keep real values outside the repository.
+region         = "REGION_FROM_PRIVATE_INVENTORY"
+compartment_id = "COMPARTMENT_OCID_FROM_PRIVATE_INVENTORY"
+namespace      = "NAMESPACE_FROM_PRIVATE_INVENTORY"
+bucket_name    = "APPROVED_PRIVATE_STATE_BUCKET_NAME"
