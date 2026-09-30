@@ -45,4 +45,4 @@ Backend bucket/IAM bootstrap과 import/state 변경의 대상·권한·복구 �
 - 사용자는 준비 작업 뒤 운영 실행을 승인했지만, 이후 OCI 작업을 건드리지 않고 로컬 작업만 진행하도록 지시했다. 뒤의 보류 지시가 우선하며 앞선 승인으로 재개하지 않는다.
 - Bucket 생성, 운영 DB backup/restore, shared remote backend 연결과 import는 실행하지 않았다. 준비한 구성·문서·private plan은 보존한다.
 - Step 2와 phase는 `blocked`로 기록한다. 명시적인 재개 지시가 있으면 기존 plan의 유효성, 계정 사용량·무료 조건, 서버 여유 공간과 backup 근거를 다시 확인한다.
-- 다음 독립 local 작업은 [블로그 디자인 검증](../local-blog-design-verification/step0.md)이다.
+- 독립 local 작업인 [블로그 디자인 검증](../local-blog-design-verification/step0.md)은 완료했다. 이 결과는 OCI 작업의 재개 승인이 아니다.

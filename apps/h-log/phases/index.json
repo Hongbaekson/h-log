@@ -118,18 +118,18 @@
     {
       "dir": "discord-design-preview",
       "status": "completed",
-      "summary": "Home/shared-shell Discord design completed with refined AI icons, unchanged public content/radar values, accessible mobile navigation and desktop/mobile screenshots. Unit/lint/typecheck/build and five-width browser checks passed. User accepted the design and requested commit/push. Production deployment verification remains separate; Blog data validation requires a local DB."
+      "summary": "Home/shared-shell Discord design completed with refined AI icons, unchanged public content/radar values, accessible mobile navigation and desktop/mobile screenshots. Unit/lint/typecheck/build and five-width browser checks passed. User accepted the design and requested commit/push. Production deployment verification remains separate; populated Blog validation was subsequently completed in local-blog-design-verification."
     },
     {
       "dir": "local-blog-design-verification",
-      "status": "pending",
-      "summary": "Next local step: verify DB-backed Blog discovery/search/detail and crawler/private boundaries after the accepted design refresh, using isolated local PostgreSQL and existing fake-provider fixtures. OCI and real external providers remain out of scope."
+      "status": "completed",
+      "summary": "Step 0 completed: isolated PostgreSQL and fake-provider fixtures verified populated Blog navigation, search, detail, private/missing 404 and crawler boundaries. Fixed long list/search titles clipping mobile content. Layout checks at 1440/390/320px, desktop/mobile keyboard interaction, 13 integration tests and unit/lint/typecheck/build passed. OCI and real providers were not called."
     },
     {
       "dir": "terraform-infrastructure-adoption",
       "status": "blocked",
       "summary": "Steps 0-1 and Step 2 preparation are preserved in commit 2a49357. The user subsequently deferred all OCI work on 2026-09-30. No bucket creation, production backup/restore, remote state connection or resource import was executed.",
-      "blocked_reason": "User-directed OCI hold supersedes the earlier approval. Continue the independent local Blog verification step; do not resume OCI work from the earlier approval."
+      "blocked_reason": "User-directed OCI hold supersedes the earlier approval. Independent local Blog verification is complete; do not resume OCI work from the earlier approval."
     },
     {
       "dir": "auto-publish-ops-hardening",

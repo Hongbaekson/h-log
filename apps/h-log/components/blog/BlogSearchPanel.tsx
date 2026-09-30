@@ -190,7 +190,7 @@ function SearchSnapshotView({ snapshot }: { snapshot: BlogSearchUiSnapshot }) {
               </span>
               <span className="font-mono text-emerald-300">{item.scoreLabel}</span>
             </div>
-            <h2 className="card-heading mt-2 text-xl leading-tight text-white">
+            <h2 className="card-heading mt-2 text-xl leading-tight wrap-anywhere text-white">
               <Link
                 className="transition-colors hover:text-cyan-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
                 href={item.href}

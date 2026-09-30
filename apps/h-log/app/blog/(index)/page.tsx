@@ -153,7 +153,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                         {formatPublicBlogArticleMode(post.articleMode)}
                       </span>
                     </div>
-                    <h2 className="card-heading mt-4 text-2xl leading-tight text-white md:text-3xl">
+                    <h2 className="card-heading mt-4 text-2xl leading-tight wrap-anywhere text-white md:text-3xl">
                       <Link
                         className="transition-colors group-hover:text-cyan-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
                         href={post.href}
