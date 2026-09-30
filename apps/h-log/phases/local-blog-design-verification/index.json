@@ -1,0 +1,12 @@
+{
+  "project": "h-log",
+  "phase": "local-blog-design-verification",
+  "steps": [
+    {
+      "step": 0,
+      "name": "verify-db-backed-blog-after-design-refresh",
+      "status": "pending",
+      "summary": "Verify the refreshed shared design with an isolated local PostgreSQL database and the existing fake-provider fixtures. Cover populated blog discovery, search, detail, private-post 404, crawler output, and desktop/mobile layout without OCI or external provider calls."
+    }
+  ]
+}

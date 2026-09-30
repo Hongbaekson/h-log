@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-09-30 최신 실행 결정: 사용자가 OCI 작업을 보류했다. 앞선 실행 승인은 재개 근거로 사용하지 않으며 `terraform-infrastructure-adoption / Step 2`는 blocked다. 아래 완료 이력에 남은 Terraform “다음 실행” 안내보다 이 결정과 live phase registry를 우선한다. 다음 로컬 작업은 [`local-blog-design-verification / Step 0`](../../../phases/local-blog-design-verification/step0.md)으로, 최근 디자인 변경 때 DB 없이 unavailable 상태만 확인했던 Blog의 목록·검색·상세를 격리 local DB와 fake-provider로 검증한다.
+
 수정된 `plans/automated-blog-publishing-plan.md` 기준으로 블로그 본선은 DB-first다. 기존 file-based loader, caller가 없던 post-publish verification facade, unwired diagram 계획·저장·실패·감사 helper, caller-free admin workflow, stale table/field registry, unwired generation-run factory, test-only public-data fixture/repository write API와 중복 public-slug proxy는 `runtime-contract-pruning / Steps 0-7`에서 제거했다. Step 8은 미사용 worker 모드 설정과 manual worker egress membership을 제거했고, Step 9는 image-owned runtime default와 중복되던 Compose/systemd override를 제거했다. published-current crawler manifest, live required adapter/worker, diagram render predicate, repository-backed retract/audit, DB-backed public source, page-owned detail 404, Markdown rewrite, domain validation과 persistence는 유지한다.
 
 ```text
@@ -77,7 +79,8 @@ search-runtime-alignment: completed, Steps 0-2 completed
 runtime-contract-pruning: completed, Steps 0-9 legacy/unwired/test-only contract, redundant slug proxy, unused worker capability, and duplicated runtime override removal completed
 public-surface-refactor-pruning: completed, native legacy redirects and shared blog presentation rules completed
 discord-design-preview: completed Home/shared-shell design and browser screenshots; user accepted the design and requested commit/push; production deployment verification remains separate
-terraform-infrastructure-adoption: pending, Steps 0-1 completed with verified inventory and an isolated shared Terraform root; Step 2 awaits separate backend/import approval and no-change plan
+local-blog-design-verification: pending, next local step for populated Blog and desktop/mobile verification using isolated PostgreSQL and existing fake-provider fixtures
+terraform-infrastructure-adoption: blocked by user's OCI hold; Steps 0-1 and Step 2 preparation preserved, no cloud apply/import executed
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 ```
@@ -582,7 +585,7 @@ feedback-and-persona-learning: completed history, Steps 0-2 later pruned
 - 순서: public surface 정리 뒤 이 phase를 진행한다. 다음 OCI 자원 변경이나 DNS cutover 전에 편입 범위를 확인한다.
 - Step 0 `inventory-oci-resources-and-state-boundary`: 승인된 읽기 전용 inventory로 H-Log 소유/공유 자원, import 지원, DB 저장 위치와 remote state 경계를 정한다.
 - Step 1 `codify-existing-oci-infrastructure`: 확인한 자원만 최소 Terraform root로 코드화하고 version pin, lockfile, secret 제외, fmt/validate와 import 계획을 준비한다.
-- Step 2 `adopt-existing-resources-with-no-change-plan`: pending (approval-required). 2026-09-30 별도 bucket bootstrap 구성과 private saved plan(1 create/0 update/0 delete), 두 root CI, backend 예시 및 [편입·복구 절차](../../../../../infra/terraform/oci-shared/adoption.md)를 준비·검증했다. 현재 관리자에게 중복 IAM 권한은 추가하지 않는다. Bucket apply 승인과 현재 DB backup/격리 restore 근거 확보 후 shared backend 연결/8개 import를 별도 승인받고, 일반 plan exit 0을 확인해야 완료다. Cloud apply/import는 미실행이다.
+- Step 2 `adopt-existing-resources-with-no-change-plan`: blocked (사용자 OCI 보류). 2026-09-30 별도 bucket bootstrap 구성과 private saved plan(1 create/0 update/0 delete), 두 root CI, backend 예시 및 [편입·복구 절차](../../../../../infra/terraform/oci-shared/adoption.md)를 준비·검증하고 `2a49357`로 커밋·푸시했다. 뒤의 보류 지시가 앞선 실행 승인보다 우선한다. Bucket apply, 운영 backup/restore, remote backend 연결/import는 미실행이며 명시적인 재개 전까지 로컬 블로그 검증만 진행한다.
 - 상세 정책: [배포 지침](../deployment-ci-cd.md#terraform-전환-계획). Terraform 도입은 Compose 배포, DB migration, provider/자동 발행 timer 활성화 승인을 포함하지 않는다.
 
 ### auto-publish-ops-hardening

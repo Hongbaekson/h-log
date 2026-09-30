@@ -121,9 +121,15 @@
       "summary": "Home/shared-shell Discord design completed with refined AI icons, unchanged public content/radar values, accessible mobile navigation and desktop/mobile screenshots. Unit/lint/typecheck/build and five-width browser checks passed. User accepted the design and requested commit/push. Production deployment verification remains separate; Blog data validation requires a local DB."
     },
     {
-      "dir": "terraform-infrastructure-adoption",
+      "dir": "local-blog-design-verification",
       "status": "pending",
-      "summary": "Steps 0-1 completed. Step 2 preparation includes an isolated private/versioned bucket bootstrap, a reviewed private saved plan with one create and no updates/deletes, backend examples, two-root credential-free CI and an adoption/state-recovery runbook. Bucket apply and eight shared-resource imports still require separate approval and current DB backup/restore evidence before the post-import no-change plan. No production state or resources were changed."
+      "summary": "Next local step: verify DB-backed Blog discovery/search/detail and crawler/private boundaries after the accepted design refresh, using isolated local PostgreSQL and existing fake-provider fixtures. OCI and real external providers remain out of scope."
+    },
+    {
+      "dir": "terraform-infrastructure-adoption",
+      "status": "blocked",
+      "summary": "Steps 0-1 and Step 2 preparation are preserved in commit 2a49357. The user subsequently deferred all OCI work on 2026-09-30. No bucket creation, production backup/restore, remote state connection or resource import was executed.",
+      "blocked_reason": "User-directed OCI hold supersedes the earlier approval. Continue the independent local Blog verification step; do not resume OCI work from the earlier approval."
     },
     {
       "dir": "auto-publish-ops-hardening",

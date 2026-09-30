@@ -17,8 +17,9 @@
     {
       "step": 2,
       "name": "adopt-existing-resources-with-no-change-plan",
-      "status": "pending",
-      "summary": "Prepared the isolated private/versioned bucket bootstrap, backend examples, credential-free CI for both roots, and adoption/drift/state-recovery runbook. A private saved bootstrap plan has exactly one bucket create and no updates/deletes; fmt/init/validate passed. Existing operator is an administrator, so no redundant IAM grants are proposed. Approval-required: apply the reviewed bucket plan, confirm current DB backup/isolated restore evidence (separate approval if newly needed), then approve remote backend connection and eight imports. No cloud apply/import or post-import no-change plan has run."
+      "status": "blocked",
+      "summary": "Bootstrap configuration, reviewed private saved plan, backend examples, two-root CI and adoption/recovery runbook are committed in 2a49357. The user deferred OCI execution after approving it; no bucket apply, production backup/restore, remote backend connection or import has run.",
+      "blocked_reason": "2026-09-30 user instruction: leave OCI untouched and continue local work. Earlier approval is superseded. Resume only after an explicit instruction, then recheck plan freshness, usage/cost conditions and backup readiness."
     }
   ]
 }

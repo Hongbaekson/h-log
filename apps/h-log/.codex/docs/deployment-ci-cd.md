@@ -30,6 +30,8 @@ Local development
 
 ## Terraform 전환 계획
 
+**현재 실행 경계 (2026-09-30): 사용자가 OCI 작업을 보류했다.** 준비 구성·계획은 보존하지만 앞선 승인으로 bucket 생성, 운영 backup/restore, remote backend 연결/import를 실행하지 않는다. 명시적인 재개 지시 전에는 [독립 로컬 블로그 검증](../../phases/local-blog-design-verification/step0.md)을 진행한다. 실제 운영 작업은 아직 실행하지 않았다.
+
 2026-09-22 결정: 앞으로 클라우드 자원은 Terraform으로 관리한다. [`terraform-infrastructure-adoption`](../../phases/terraform-infrastructure-adoption/index.json)의 Step 0은 2026-09-28 승인된 SSH/IMDS 및 OCI API 조사로 완료했다. [조사 결과](../../phases/terraform-infrastructure-adoption/inventory.md)는 공유 Compute, 47 GiB boot volume의 PostgreSQL/Hermes 데이터, reserved public IP와 연결 network/security/DHCP를 확인한다. 사용자는 수동 관리 중이며 기존 state가 없다고 확인했다. 2026-09-29 Step 1에서 공유 인프라를 별도 `infra/terraform/oci-shared/` root로 코드화하고 고정 CLI/provider, lockfile과 credential 없는 CI 검증을 완료했다. 실제 입력과 자원 8개의 import 매핑은 비공개로 보관한다. Backend 생성/연결, import와 live plan/apply는 Step 2에 남아 있다.
 
 2026-09-30 Step 2 준비: [`infra/terraform/oci-backend/`](../../../../infra/terraform/oci-backend/README.md)에 private/versioned bucket 하나의 독립 bootstrap 구성과 private saved plan(1 create/0 update/0 delete)을 준비했다. Bootstrap은 별도 private local state, shared root는 OCI remote state를 사용한다. 현재 운영자는 기존 관리자 그룹에 속하므로 중복 IAM policy는 추가하지 않는다. 두 root의 credential 없는 CI와 [편입·실패 재개·drift·state 복구 절차](../../../../infra/terraform/oci-shared/adoption.md)를 검증했다. Bucket apply, shared remote backend 연결/import와 사후 no-change plan은 아직 미실행이며 최신 DB backup/격리 restore 근거도 확인해야 한다.

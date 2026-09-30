@@ -38,4 +38,11 @@ Backend bucket/IAM bootstrap과 import/state 변경의 대상·권한·복구 �
 - Shared backend placeholder와 편입·부분 실패 재개·no-change 판정·drift·state version 복구 절차를 준비했다. State overwrite에 필요한 `OBJECT_OVERWRITE`를 포함해 전용 주체의 최소 object 권한 5개를 명시했다.
 - 알려진 서버 backup 후보 디렉터리 3곳의 제한된 파일 metadata 조회에서는 dump를 찾지 못했다. 서버 전체에 백업이 없다는 의미가 아니며, 최신 DB backup/격리 restore 근거는 아직 미확인이다. 새 운영 dump/restore를 실행하려면 runbook의 별도 승인이 필요하다.
 - 검증: 두 root의 fmt/backend-disabled init/validate, private bootstrap saved plan action 확인, phase JSON/YAML/문서 링크, Git 제외·민감정보와 `git diff --check`.
-- Cloud apply, remote backend 연결, import/state 편입과 shared no-change plan은 미실행이다. Step 2는 pending을 유지한다. 다음은 위 bucket plan 적용 승인과 backup/restore 근거 확보, 그 뒤 8개 자원 편입 승인이다.
+- Cloud apply, remote backend 연결, import/state 편입과 shared no-change plan은 미실행이다. 이 준비 결과만으로 Step 2를 완료 처리하지 않는다.
+
+## 최신 실행 결정 (2026-09-30, 사용자 보류)
+
+- 사용자는 준비 작업 뒤 운영 실행을 승인했지만, 이후 OCI 작업을 건드리지 않고 로컬 작업만 진행하도록 지시했다. 뒤의 보류 지시가 우선하며 앞선 승인으로 재개하지 않는다.
+- Bucket 생성, 운영 DB backup/restore, shared remote backend 연결과 import는 실행하지 않았다. 준비한 구성·문서·private plan은 보존한다.
+- Step 2와 phase는 `blocked`로 기록한다. 명시적인 재개 지시가 있으면 기존 plan의 유효성, 계정 사용량·무료 조건, 서버 여유 공간과 backup 근거를 다시 확인한다.
+- 다음 독립 local 작업은 [블로그 디자인 검증](../local-blog-design-verification/step0.md)이다.
