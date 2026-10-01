@@ -224,7 +224,7 @@ describe("DB-backed public blog routes", () => {
       {
         children: [
           { text: "본문 ", type: "text" },
-          { text: "강조", type: "strong" },
+          { children: [{ text: "강조", type: "text" }], type: "strong" },
           { text: "와 <script>alert(\"x\")</script>", type: "text" },
         ],
         type: "paragraph",
@@ -311,6 +311,146 @@ describe("DB-backed public blog routes", () => {
       ),
       true,
     );
+  });
+
+  it("builds safe HTTPS, root-relative and fragment links without changing saved content", () => {
+    const version = createVersion({
+      contentMarkdown: "[공식 문서](https://nextjs.org/docs/app) · [글 목록](/blog?tag=DB) · [본문으로](#main-content)\n",
+    });
+    const originalVersion = { ...version };
+    const store = { ...createStore(), versions: [version] };
+    const detail = getPublicBlogPostBySlug("public-one", store);
+
+    assert.ok(detail);
+    assert.deepEqual(detail.contentBlocks, [{
+      type: "paragraph",
+      children: [
+        { type: "link", href: "https://nextjs.org/docs/app", children: [{ type: "text", text: "공식 문서" }] },
+        { type: "text", text: " · " },
+        { type: "link", href: "/blog?tag=DB", children: [{ type: "text", text: "글 목록" }] },
+        { type: "text", text: " · " },
+        { type: "link", href: "#main-content", children: [{ type: "text", text: "본문으로" }] },
+      ],
+    }]);
+    assert.equal(detail.contentHtml, version.contentHtml);
+    assert.equal(getPublicBlogPostMarkdown("public-one", store), version.contentMarkdown);
+    assert.deepEqual(version, originalVersion);
+  });
+
+  it("parses balanced parentheses, escapes and nested formatting in inline links", () => {
+    const store = {
+      ...createStore(),
+      versions: [createVersion({
+        contentMarkdown: [
+          "[공식 **문서** `API`](https://example.com/guide_(v2))",
+          String.raw`[괄호 \[예시\]](https://example.com/a\(b\))`,
+          "**[강조 링크](/blog)**",
+        ].join("\n\n"),
+      })],
+    };
+
+    assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [
+      { type: "paragraph", children: [{
+        type: "link", href: "https://example.com/guide_(v2)", children: [
+          { type: "text", text: "공식 " },
+          { type: "strong", children: [{ type: "text", text: "문서" }] },
+          { type: "text", text: " " },
+          { type: "code", text: "API" },
+        ],
+      }] },
+      { type: "paragraph", children: [{
+        type: "link", href: "https://example.com/a(b)", children: [{ type: "text", text: "괄호 [예시]" }],
+      }] },
+      { type: "paragraph", children: [{
+        type: "strong", children: [{ type: "link", href: "/blog", children: [{ type: "text", text: "강조 링크" }] }],
+      }] },
+    ]);
+  });
+
+  it("keeps code, escaped links, raw HTML and unsupported inline syntax literal", () => {
+    const paragraphs = [
+      "`[코드](https://example.com)`",
+      "`` `[중첩 코드](/blog)` ``",
+      String.raw`\[이스케이프](/blog)`,
+      '<a href="https://example.com">HTML 링크</a>',
+      "![그림](https://example.com/image.png)",
+      "[미완성](https://example.com",
+      "https://example.com",
+    ];
+    const store = {
+      ...createStore(),
+      versions: [createVersion({ contentMarkdown: paragraphs.join("\n\n") })],
+    };
+
+    assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [
+      { type: "paragraph", children: [{ type: "code", text: "[코드](https://example.com)" }] },
+      { type: "paragraph", children: [{ type: "code", text: "`[중첩 코드](/blog)`" }] },
+      ...paragraphs.slice(2).map((text, index) => ({
+        type: "paragraph", children: [{ type: "text", text: index === 0 ? text.slice(1) : text }],
+      })),
+    ]);
+  });
+
+  it("keeps rejected link destinations out of anchor nodes", () => {
+    for (const href of [
+      "javascript:alert(1)",
+      "jav&#x61;script:alert(1)",
+      "data:text/html,hello",
+      "vbscript:msgbox(1)",
+      "file:///example",
+      "http://example.com",
+      "//example.com",
+      String.raw`/\example.com`,
+      "../blog",
+      "blog",
+      "?tag=DB",
+      "<https://exa\tmple.com>",
+      "<https://example.com/a b>",
+      "</\u0000/example.com>",
+      "https://127.1/admin",
+      "https://0x7f000001/admin",
+      "https://[::1]/admin",
+      "https://%6cocalhost/admin",
+      "https://docs%2einternal/admin",
+      "https://docs%2ecorp/admin",
+      "https://docs%2elan/admin",
+    ]) {
+      const store = {
+        ...createStore(),
+        versions: [createVersion({ contentMarkdown: `[이동](${href})` })],
+      };
+      const detail = getPublicBlogPostBySlug("public-one", store);
+
+      assert.ok(detail, `fixture should reach the link renderer: ${href}`);
+      assert.deepEqual(detail.contentBlocks, [{
+        type: "paragraph", children: [{ type: "text", text: "이동" }],
+      }], href);
+    }
+  });
+
+  it("still withholds private content and non-current or unpublished versions containing links", () => {
+    for (const contentMarkdown of [
+      "[내부](https://localhost/admin)",
+      "[내부](https://10.0.0.7/admin)",
+      "[내부](https://docs.internal/admin)",
+    ]) {
+      const store = { ...createStore(), versions: [createVersion({ contentMarkdown })] };
+      assert.equal(getPublicBlogPostBySlug("public-one", store), undefined);
+      assert.equal(getPublicBlogPostMarkdown("public-one", store), undefined);
+    }
+    const store = {
+      ...createStore(),
+      versions: [createVersion({ id: "version-previous", contentMarkdown: "[이전 버전](/blog)" })],
+    };
+    assert.equal(getPublicBlogPostBySlug("public-one", store), undefined);
+    const previewStore = {
+      ...createStore(),
+      versions: [createVersion({
+        id: "version-preview", postId: "post-preview", contentMarkdown: "[비공개 글](/blog)",
+      })],
+    };
+    assert.equal(getPublicBlogPostBySlug("preview-one", previewStore), undefined);
+    assert.equal(getPublicBlogPostMarkdown("preview-one", previewStore), undefined);
   });
 
   it("inserts at most one verified current-version diagram after the first H2", () => {

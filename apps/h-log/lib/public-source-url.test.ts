@@ -20,8 +20,17 @@ describe("public source URL validation", () => {
       "https://127.0.0.1/admin",
       "https://10.0.0.7/admin",
       "https://internal.local/admin",
+      "https://docs.internal/admin",
+      "https://docs.corp/admin",
+      "https://docs.lan/admin",
+      "https://docs%2einternal/admin",
+      "https://docs.internal./admin",
+      "https://user:secret@example.com/admin",
+      "https://127.1/admin",
+      "https://0x7f000001/admin",
+      "https://[::1]/admin",
     ]) {
-      assert.equal(tryNormalizePublicSourceUrl(value), undefined);
+      assert.equal(tryNormalizePublicSourceUrl(value), undefined, value);
     }
   });
 });

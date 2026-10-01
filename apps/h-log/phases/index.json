@@ -133,7 +133,7 @@
     {
       "dir": "blog-reading-foundation",
       "status": "pending",
-      "summary": "Step 0 completed: fenced-code boundaries preserve blank lines and literal content; focused 27/27, unit 159 pass/12 DB skip, lint/typecheck/build and 1440/390/320px browser checks passed. Steps 1-3 pending; next is safe-inline-links. Discord style, the entire radar area, stored version/hash and OCI hold remain unchanged."
+      "summary": "Steps 0-1 completed: preserved fenced code and added validated typed inline links with nested labels and accessible navigation. Step 1 focused 17/17, unit 164 pass/12 DB skip, lint/typecheck/build and 1440/390/320px isolated DB browser checks passed. Steps 2-3 pending; next is semantic-lists-and-quotes. Discord style, the entire radar area, stored version/hash and OCI hold remain unchanged."
     },
     {
       "dir": "blog-reading-navigation",

@@ -26,7 +26,10 @@
 - `apps/h-log/lib/blog-public.ts`
 - `apps/h-log/lib/blog-public.test.ts`
 - `apps/h-log/lib/public-source-url.ts`
+- `apps/h-log/lib/public-source-url.test.ts`
 - `apps/h-log/app/blog/[slug]/page.tsx`
+- `apps/h-log/package.json`
+- `apps/h-log/package-lock.json`
 
 ## 작업
 
@@ -59,3 +62,15 @@ git diff --check
 - 저장 Markdown/HTML/hash나 기존 URL을 무단 재작성하지 말 것. 발행 무결성과 기존 링크를 유지해야 한다.
 - raw HTML 주입, private 글/내부 evidence/근거 없는 실적 노출을 허용하지 말 것. 공개 콘텐츠 경계를 유지해야 한다.
 - OCI·DNS/TLS·운영 timer·실제 provider 호출·공개 발행을 실행하지 말 것. 로컬 개선 계획이며 기존 OCI 보류는 유지된다.
+
+## 완료 기록 (2026-10-01)
+
+- RED: 링크가 일반 텍스트로 남는 기본 사례, 괄호/escape/중첩 강조, 여러 backtick code span과 escape, 차단 주소의 label 처리, 내부 도메인 검증에서 총 5개 실패를 확인했다.
+- GREEN: `marked@18.0.14`의 inline lexer만 사용한다. HTML 생성기는 호출하지 않으며 link/strong/code/text 허용 노드를 React로 렌더링한다. 저장 Markdown/HTML/hash 생성과 Markdown endpoint는 그대로다.
+- URL 정책: 공개 HTTPS, `/`로 시작하는 사이트 경로, `#` fragment를 허용한다. `//`, backslash, 공백/제어 문자, 일반 상대 경로와 위험한 scheme은 거부한다. HTTPS는 기존 public source validator로 검사하며 `.internal`, `.corp`, `.lan`도 차단하도록 보강했다. 거부된 목적지는 anchor 없이 label만 표시한다.
+- 읽기: 한글 label, 괄호가 있는 URL, escape, 강조/코드 label을 지원한다. raw HTML·이미지·미지원 inline 문법은 text로 두며 fenced code와 code span 안의 링크는 변환하지 않는다. 참조식 링크, HTML entity 해석과 전체 CommonMark 지원은 이번 완료 범위가 아니다.
+- 접근성: 공개 HTTPS 링크는 외부 아이콘·새 창 안내·`noopener noreferrer`와 Blurple focus outline을 사용한다. 내부 경로/fragment는 같은 창에서 이동하고 긴 label은 본문 안에서 줄바꿈한다.
+- 검증: `node --no-warnings --test --experimental-strip-types lib/blog-public.test.ts lib/public-source-url.test.ts` 17/17, `npm run test` 164 pass/12 DB environment skip, `npm run lint`, `npm run typecheck`, `npm run build`, phase JSON/참조 파일 검사와 `git diff --check` 통과.
+- 개발 서버: 격리 PostgreSQL의 합성 public/private 글로 1440/390/320px을 검증했다. 링크 6개, 중첩 강조/코드, Tab focus/Enter 새 창, opener 차단, 내부 경로/fragment 이동, 긴 글/긴 링크 줄바꿈, 빈 태그 결과, private/missing 상세 404와 private Markdown 404, 원문 동일성, HTML 미실행을 확인했다. 외부 이동은 브라우저에서 intercept해 실제 사이트 요청 없이 검사했다.
+- 검증용 개발 서버와 임시 메모리 DB를 종료했다. Schema/repository/worker/migration 변경이 없어 별도 DB integration suite는 실행하지 않았다.
+- 남은 일: Step 2 `semantic-lists-and-quotes`. 레이더 전체 영역·Discord 스타일·OCI 보류를 유지한다. 설치 시 `npm audit`에서 기존 의존성 7건(moderate 1/high 5/critical 1)이 보고됐고 새 Marked는 포함되지 않았다. 기존 Next.js 16.2.11/하위 의존성 보안 패치는 배포 재개 전 별도 범위로 검증해야 한다.

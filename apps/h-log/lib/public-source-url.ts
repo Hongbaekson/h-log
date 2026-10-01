@@ -34,6 +34,9 @@ function isInternalHostname(hostname: string): boolean {
     host === "localhost" ||
     host.endsWith(".localhost") ||
     host.endsWith(".local") ||
+    host.endsWith(".internal") ||
+    host.endsWith(".corp") ||
+    host.endsWith(".lan") ||
     !host.includes(".")
   ) {
     return true;

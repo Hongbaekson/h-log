@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "safe-inline-links",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added typed React inline links using the pinned Marked lexer, public HTTPS/root-relative/fragment validation, nested strong/code labels, and accessible external-link behavior. Hardened internal-domain checks; stored Markdown/HTML/hash and published-current privacy remain intact. RED 5 cases; focused 17/17, unit 164 pass/12 DB skip, lint/typecheck/build and 1440/390/320px isolated DB browser checks passed. Next: Step 2 semantic-lists-and-quotes."
     },
     {
       "step": 2,

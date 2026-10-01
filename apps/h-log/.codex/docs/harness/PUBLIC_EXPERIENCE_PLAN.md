@@ -51,10 +51,10 @@
 
 ## 이번 실행 단위
 
-[Phase 1 / Step 0](../../../phases/blog-reading-foundation/step0.md): 공개 renderer가 빈 줄로 fence 내부를 나누어 코드가 문단/제목으로 바뀌는 문제를 재현하고 수정한다.
+[Phase 1 / Step 1](../../../phases/blog-reading-foundation/step1.md): 안전한 본문 링크를 typed React anchor로 표시하고 괄호/escape/code span·내부 URL·외부 링크 접근성 경계를 검증했다.
 
-- 변경 후보: `apps/h-log/lib/blog-public.ts`, `apps/h-log/lib/blog-public.test.ts`.
-- 저장 content 생성/hash 알고리즘, migration, UI 스타일, 레이더는 변경하지 않는다.
+- 변경 파일: `apps/h-log/lib/blog-public.ts`, `lib/public-source-url.ts`, 대응 테스트, `app/blog/[slug]/page.tsx`, `package.json`, `package-lock.json`.
+- Marked inline lexer를 고정 버전으로 추가하고 기존 Discord 팔레트로 본문 링크의 focus/밑줄/줄바꿈을 적용했다. 저장 content 생성/hash 알고리즘, migration, 레이더는 그대로다.
 - 문서: 이 계획, 새 phase/step registry, PRD/ADR/ARCHITECTURE/IMPLEMENTATION_PLAN 중 관련 설명만 동기화한다.
 - 성공 기준: focused RED/GREEN, 기존 unit 회귀, lint/typecheck/build, 격리 local DB를 사용한 개발 서버 desktop/mobile 렌더링, JSON/path parser, `git diff --check`.
 - 커밋/푸시는 검증한 변경만 포함하고 일반 push를 사용한다.
@@ -81,4 +81,6 @@
 
 2026-10-01 Phase 1 / Step 0 완료: 코드 fence가 내부 빈 줄을 보존하도록 수정했다. RED 3개를 확인한 뒤 focused 27/27, unit 159 pass/12 DB skip, lint/typecheck/build, 1440/390/320px 개발 서버 검증을 통과했다. 저장 원문/hash와 private 404를 유지했다.
 
-다음 단계는 [Phase 1 / Step 1: 안전한 본문 링크](../../../phases/blog-reading-foundation/step1.md)다. 나머지 18개 step은 pending이며 계획 등록을 구현 완료로 간주하지 않는다.
+2026-10-01 Phase 1 / Step 1 완료: 안전한 HTTPS/내부 경로/fragment 링크, 중첩 강조와 코드 label, 위험한 주소 차단, 새 창 안내와 키보드 접근을 추가했다. RED 5개, focused 17/17, unit 164 pass/12 DB skip, lint/typecheck/build, 1440/390/320px 격리 DB 개발 서버 검증을 통과했다. 원문/해시·공개 경계·레이더·OCI 보류는 유지했다.
+
+다음 단계는 [Phase 1 / Step 2: 목록과 인용문](../../../phases/blog-reading-foundation/step2.md)이다. 나머지 17개 step은 pending이며 계획 등록을 구현 완료로 간주하지 않는다. 설치 시 확인된 기존 의존성의 보안 경고는 [구현 계획의 별도 후속 조치](IMPLEMENTATION_PLAN.md)에 기록했다.

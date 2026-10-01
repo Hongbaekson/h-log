@@ -1,3 +1,5 @@
+import { Lexer, type Token } from "marked";
+
 import {
   assertPostVersionContentHashMatches,
   renderCrawlerMarkdownForPostVersion,
@@ -34,8 +36,13 @@ export type PublicBlogInlineContent =
       type: "code";
     }
   | {
-      text: string;
+      children: PublicBlogInlineContent[];
       type: "strong";
+    }
+  | {
+      children: PublicBlogInlineContent[];
+      href: string;
+      type: "link";
     }
   | {
       text: string;
@@ -301,25 +308,46 @@ function buildPublicBlogContentBlock(block: string): PublicBlogContentBlock {
 }
 
 function buildInlineContent(value: string): PublicBlogInlineContent[] {
+  return buildInlineNodes(Lexer.lexInline(value, { gfm: false }));
+}
+
+function buildInlineNodes(tokens: readonly Token[]): PublicBlogInlineContent[] {
   const children: PublicBlogInlineContent[] = [];
-  const inlinePattern = /(\*\*([^*]+)\*\*|`([^`]+)`)/g;
-  let lastIndex = 0;
 
-  for (const match of value.matchAll(inlinePattern)) {
-    const matchIndex = match.index ?? 0;
+  for (const token of tokens) {
+    if (token.type === "codespan") {
+      children.push({ type: "code", text: token.text });
+    } else if (token.type === "strong") {
+      children.push({ type: "strong", children: buildInlineNodes(token.tokens!) });
+    } else if (token.type === "link") {
+      const label = buildInlineNodes(token.tokens!);
+      const href = normalizeInlineLink(token.href);
 
-    pushTextContent(children, value.slice(lastIndex, matchIndex));
-    if (match[2]) {
-      pushStrongContent(children, match[2]);
+      if (href) {
+        children.push({ type: "link", href, children: label });
+      } else {
+        children.push(...label);
+      }
     } else {
-      pushCodeContent(children, match[3] ?? "");
+      // HTML and unsupported syntax remain React text, never HTML markup.
+      pushTextContent(children, token.type === "escape" ? token.text : token.raw);
     }
-    lastIndex = matchIndex + match[0].length;
   }
 
-  pushTextContent(children, value.slice(lastIndex));
-
   return children;
+}
+
+function normalizeInlineLink(value: string): string | undefined {
+  // URL parsers can discard control characters or treat backslashes as slashes.
+  if (/[\\\u0000-\u0020\u007f]/.test(value)) {
+    return undefined;
+  }
+
+  if (value.startsWith("#") || value.startsWith("/") && !value.startsWith("//")) {
+    return value;
+  }
+
+  return tryNormalizePublicSourceUrl(value);
 }
 
 function pushTextContent(
@@ -327,25 +355,13 @@ function pushTextContent(
   text: string,
 ): void {
   if (text) {
-    children.push({ text, type: "text" });
-  }
-}
+    const previous = children.at(-1);
 
-function pushStrongContent(
-  children: PublicBlogInlineContent[],
-  text: string,
-): void {
-  if (text) {
-    children.push({ text, type: "strong" });
-  }
-}
-
-function pushCodeContent(
-  children: PublicBlogInlineContent[],
-  text: string,
-): void {
-  if (text) {
-    children.push({ text, type: "code" });
+    if (previous?.type === "text") {
+      previous.text += text;
+    } else {
+      children.push({ text, type: "text" });
+    }
   }
 }
 

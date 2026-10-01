@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -224,14 +225,36 @@ function renderContentBlock(block: PublicBlogContentBlock, index: number) {
   return <p key={index}>{renderInlineContent(block.children)}</p>;
 }
 
-function renderInlineContent(children: readonly PublicBlogInlineContent[]) {
+function renderInlineContent(children: readonly PublicBlogInlineContent[]): ReactNode {
   return children.map((child, index) => {
     if (child.type === "code") {
       return <code key={index}>{child.text}</code>;
     }
 
     if (child.type === "strong") {
-      return <strong key={index}>{child.text}</strong>;
+      return <strong key={index}>{renderInlineContent(child.children)}</strong>;
+    }
+
+    if (child.type === "link") {
+      const external = child.href.startsWith("https:");
+
+      return (
+        <a
+          className="rounded-sm text-[#b6bdff] underline decoration-[#b6bdff]/50 underline-offset-4 wrap-anywhere hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff]"
+          href={child.href}
+          key={index}
+          rel={external ? "noopener noreferrer" : undefined}
+          target={external ? "_blank" : undefined}
+        >
+          {renderInlineContent(child.children)}
+          {external && (
+            <>
+              <span className="sr-only"> (새 창에서 열림)</span>
+              <ExternalLink aria-hidden="true" className="ml-1 inline-block align-baseline" size={12} />
+            </>
+          )}
+        </a>
+      );
     }
 
     return <span key={index}>{child.text}</span>;
