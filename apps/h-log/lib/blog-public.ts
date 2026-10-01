@@ -192,10 +192,38 @@ function buildPublicBlogContentBlocks(
     return [];
   }
 
-  const blocks = normalized
-    .split(/\n{2,}/)
-    .filter(Boolean)
-    .map(buildPublicBlogContentBlock);
+  const blocks: PublicBlogContentBlock[] = [];
+  const lines = normalized.split("\n");
+  let paragraph: string[] = [];
+  const flushParagraph = () => {
+    if (paragraph.length > 0) {
+      blocks.push(buildPublicBlogContentBlock(paragraph.join("\n")));
+      paragraph = [];
+    }
+  };
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const fence = /^( {0,3})(`{3,}|~{3,})(.*)$/.exec(line);
+
+    if (fence && !(fence[2][0] === "`" && fence[3].includes("`"))) {
+      flushParagraph();
+      const closingFence = new RegExp(`^ {0,3}${fence[2][0]}{${fence[2].length},}[ \\t]*$`);
+      const indentation = new RegExp(`^ {0,${fence[1].length}}`);
+      const code: string[] = [];
+
+      for (index += 1; index < lines.length && !closingFence.test(lines[index]); index += 1) {
+        code.push(lines[index].replace(indentation, ""));
+      }
+
+      blocks.push({ type: "code", code: code.join("\n") });
+    } else if (/^[ \t]*$/.test(line)) {
+      flushParagraph();
+    } else {
+      paragraph.push(line);
+    }
+  }
+  flushParagraph();
 
   if (!diagram || diagram.type !== "diagram") {
     return blocks;
@@ -263,13 +291,6 @@ function buildPublicBlogContentBlock(block: string): PublicBlogContentBlock {
       children: buildInlineContent(block.slice(2).trim()),
       level: 1,
       type: "heading",
-    };
-  }
-
-  if (block.startsWith("```") && block.endsWith("```")) {
-    return {
-      code: block.split("\n").slice(1, -1).join("\n"),
-      type: "code",
     };
   }
 

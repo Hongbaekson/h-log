@@ -51,6 +51,15 @@ H-01에서 제외한다.
 - 방문자 RAG 챗봇
 - 자동 글 작성/자동 발행
 
+### H-03: 공개 읽기와 사례 연결 개선 계획
+
+2026-10-01 사용자 요청에 따라 [공개 경험 개선 계획](PUBLIC_EXPERIENCE_PLAN.md)을 등록했다. Markdown 기본 읽기 → 목차/코드 도구/관련 글 → 검색/홈 연결 → 포트폴리오 근거 → 수정 이력/시리즈 → 작은 Queue/DLQ 실험 순서로 한 step씩 구현한다. 후속 기능은 현재 구현 완료로 간주하지 않는다.
+
+- Discord dark-only 스타일과 현재 레이더의 데이터·축·형태·동작·배치·주변 영역을 보존한다.
+- 공개 글은 계속 published-current 데이터만 사용하고 richer Markdown은 typed React 요소와 허용 목록으로 확장한다.
+- 시리즈는 실제 관련 공개 글이 모인 뒤 도입하고 가상 실험은 실제 성과와 구분한다.
+- 기존 OCI 보류 및 실제 provider/공개 발행/timer 승인 경계는 유지한다.
+
 ### I-01: OCI self-hosted infrastructure
 
 인프라와 클라우드는 OCI를 기본 운영 환경으로 둔다.

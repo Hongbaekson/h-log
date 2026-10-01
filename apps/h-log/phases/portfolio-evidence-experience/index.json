@@ -1,0 +1,21 @@
+{
+  "project": "h-log",
+  "phase": "portfolio-evidence-experience",
+  "steps": [
+    {
+      "step": 0,
+      "name": "featured-hierarchy-and-discord",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "decision-and-evidence-detail",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "project-post-connections",
+      "status": "pending"
+    }
+  ]
+}

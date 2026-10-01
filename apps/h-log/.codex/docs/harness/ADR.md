@@ -102,6 +102,8 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **트레이드오프**: 현재 공개 렌더러는 heading, paragraph, strong, inline code, fenced code block 중심의 좁은 Markdown 표면만 지원한다. 링크, 리스트, 표, 이미지 같은 richer Markdown은 허용 목록과 테스트를 먼저 추가한 뒤 확장한다.
 
+2026-10-01 `blog-reading-foundation / Step 0`은 공개 block reader에서 fenced code 경계를 먼저 구분한다. 코드 내부 빈 줄과 literal Markdown/HTML은 React text로 유지한다. 저장된 HTML 생성 알고리즘과 content hash, Markdown endpoint는 변경하지 않는다. 이 단계는 전체 CommonMark 지원을 의미하지 않으며 링크·목록·표는 후속 step에서 별도로 확장한다.
+
 ### ADR-010: contract 완료와 runtime 완료를 분리한다
 
 **결정**: 순수 TypeScript contract와 테스트가 완료된 phase는 contract baseline으로 기록한다. 실제 PostgreSQL schema/migration, DB repository, persistent worker, provider/scheduler activation이 없는 상태를 production runtime 완료로 표현하지 않는다. 다이어그램 삽입 계약 다음에 `blog-runtime-integration`을 실행한다. Feedback 이력의 persona, performance-signal, failure-pattern contract는 live caller/persistence가 없어 pruning Steps 4-6에서 제거했으며, 실제 신호 수집과 learning contract는 production HTTPS origin과 반복 schedule이 활성화된 뒤 runtime 요구에 맞춰 설계한다.

@@ -12,6 +12,8 @@
 
 ## Design Direction
 
+현재 디자인은 `UI_GUIDE.md`의 2026-09-29 Discord 승인 팔레트를 우선한다. 2026-10-01 사용자 결정에 따라 레이더와 현재 주변 영역은 그대로 보존하며, 아래 초기 Automation Status Card 지침으로 대체하지 않는다.
+
 - Clean Dark Engineer Portfolio
 - Subtle AI Workflow Console
 - 과한 사이버펑크, particle, 3D, 장식성 배경은 피한다.

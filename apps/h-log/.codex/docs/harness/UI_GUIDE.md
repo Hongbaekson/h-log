@@ -15,6 +15,8 @@
 
 ### 기본 원칙
 
+2026-10-01 공개 경험 개선에서는 Discord 스타일을 유지하면서 Blog/Portfolio의 구조와 레이아웃을 조정한다. 레이더의 값뿐 아니라 축·형태·동작·배치와 현재 주변 영역 전체를 보존한다. 상세 순서는 [공개 경험 개선 계획](PUBLIC_EXPERIENCE_PLAN.md)과 phase registry를 따른다.
+
 1. 개인 브랜딩 사이트지만 마케팅 랜딩보다 작업 기록과 운영 감각이 느껴져야 한다.
 2. Clean Dark Engineer Portfolio + Subtle AI Workflow Console 방향을 유지한다.
 3. 화면은 조용하고 밀도 있게 구성하되, 채용 담당자와 개발자가 핵심 정보를 빠르게 스캔할 수 있어야 한다.

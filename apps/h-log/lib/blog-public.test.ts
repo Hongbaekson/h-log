@@ -236,6 +236,60 @@ describe("DB-backed public blog routes", () => {
     ]);
   });
 
+  it("preserves fenced code with blank lines and adjacent paragraphs", () => {
+    const code = 'const first = 1;\n\n## A literal heading\n<span>literal markup</span>';
+    const version = createVersion({
+      contentMarkdown: `# Public One\n\nBefore.\n\`\`\`typescript\n${code}\n\`\`\`\nAfter.\n`,
+    });
+    const store = { ...createStore(), versions: [version] };
+    const originalVersion = { ...version };
+
+    const detail = getPublicBlogPostBySlug("public-one", store);
+
+    assert.ok(detail);
+    assert.deepEqual(detail.contentBlocks, [
+      { type: "heading", level: 1, children: [{ type: "text", text: "Public One" }] },
+      { type: "paragraph", children: [{ type: "text", text: "Before." }] },
+      { type: "code", code },
+      { type: "paragraph", children: [{ type: "text", text: "After." }] },
+    ]);
+    assert.equal(getPublicBlogPostMarkdown("public-one", store), version.contentMarkdown);
+    assert.deepEqual(version, originalVersion);
+  });
+
+  it("closes code only with a matching fence of sufficient length", () => {
+    for (const marker of ["`", "~"]) {
+      const code = `first\n\n${marker.repeat(3)}\n${marker === "`" ? "~~~~" : "````"}\n${marker.repeat(4)} trailing text\nlast  `;
+      const indented = code.split("\n").map((line) => `  ${line}`).join("\n");
+      const store = {
+        ...createStore(),
+        versions: [createVersion({
+          contentMarkdown: `Before.\n\n  ${marker.repeat(4)}text\n${indented}\n ${marker.repeat(5)} \t\nAfter.\n`,
+        })],
+      };
+
+      assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [
+        { type: "paragraph", children: [{ type: "text", text: "Before." }] },
+        { type: "code", code },
+        { type: "paragraph", children: [{ type: "text", text: "After." }] },
+      ]);
+    }
+  });
+
+  it("keeps unclosed code fences literal through the end of the document", () => {
+    const store = {
+      ...createStore(),
+      versions: [createVersion({
+        contentMarkdown: "Before.\n\n~~~text\nfirst\n\n## Literal heading\n**literal emphasis**\n",
+      })],
+    };
+
+    assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [
+      { type: "paragraph", children: [{ type: "text", text: "Before." }] },
+      { type: "code", code: "first\n\n## Literal heading\n**literal emphasis**" },
+    ]);
+  });
+
   it("renders inline code from published Markdown", () => {
     const store = createStore();
     store.versions = [

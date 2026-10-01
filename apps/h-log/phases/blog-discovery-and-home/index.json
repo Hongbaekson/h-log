@@ -1,0 +1,26 @@
+{
+  "project": "h-log",
+  "phase": "blog-discovery-and-home",
+  "steps": [
+    {
+      "step": 0,
+      "name": "url-backed-search",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "compact-topic-filters",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "home-recent-posts",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "rss-and-work-evidence-links",
+      "status": "pending"
+    }
+  ]
+}

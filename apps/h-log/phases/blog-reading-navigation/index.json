@@ -1,0 +1,21 @@
+{
+  "project": "h-log",
+  "phase": "blog-reading-navigation",
+  "steps": [
+    {
+      "step": 0,
+      "name": "heading-anchors-and-toc",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "code-copy-and-language",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "related-post-navigation",
+      "status": "pending"
+    }
+  ]
+}

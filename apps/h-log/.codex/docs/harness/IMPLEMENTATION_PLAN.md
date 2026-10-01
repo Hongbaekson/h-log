@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-01 공개 경험 개선 요청: [상세 계획](PUBLIC_EXPERIENCE_PLAN.md)을 6개 phase/19개 step으로 등록했다. 실행 순서는 `blog-reading-foundation` → `blog-reading-navigation` → `blog-discovery-and-home` → `portfolio-evidence-experience` → `editorial-trust-and-series` → `backend-operations-lab`다. `blog-reading-foundation / Step 0: preserve-fenced-code`는 RED 3개, focused 27/27, unit 159 pass/12 DB skip, lint/typecheck/build와 1440/390/320px 개발 서버 검증 후 완료했다. 다음 단계는 `blog-reading-foundation / Step 1: safe-inline-links`이며 한 cycle에 한 step만 진행한다. 레이더 전체 영역과 Discord 스타일을 보존하고 OCI 보류는 유지한다. 아래 source collection 후보보다 이번 사용자 요청을 로컬 실행 우선순위로 둔다.
+
 2026-09-30 실행 결정: 사용자가 OCI 작업을 보류했다. 앞선 실행 승인은 재개 근거로 사용하지 않으며 `terraform-infrastructure-adoption / Step 2`는 blocked다. 아래 완료 이력에 남은 Terraform “다음 실행” 안내보다 이 결정과 live phase registry를 우선한다. 독립 로컬 작업인 [`local-blog-design-verification / Step 0`](../../../phases/local-blog-design-verification/step0.md)은 완료했다. 격리 local DB와 fake-provider로 글이 있는 Blog의 목록·검색·상세와 비공개 경계를 검증했고, 긴 제목이 모바일 목록·검색 결과를 잘라내는 문제를 수정했다. OCI와 운영 timer는 계속 보류한다.
 
 2026-10-01 [`generation-input-freshness / Step 0`](../../../phases/generation-input-freshness/step0.md)을 완료했다. 모든 research source의 수집 시각을 실행 전 24시간 범위로 검증하며 만료·미래·잘못된 값은 생성 side effect 전에 차단한다. Focused 21/21, unit 156 pass/12 DB skip, 격리 PostgreSQL integration 13/13 및 lint/typecheck/build가 통과했다. 다음 로컬 작업 후보는 수집/원문 확인 결과를 기존 topic/research/context JSON에 연결하는 단계다. 실제 수집기와 persona/humanize 연결은 별도 범위이며 이번 완료가 OCI나 timer 재개를 의미하지 않는다.

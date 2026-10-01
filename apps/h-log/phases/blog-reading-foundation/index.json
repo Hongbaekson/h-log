@@ -1,0 +1,27 @@
+{
+  "project": "h-log",
+  "phase": "blog-reading-foundation",
+  "steps": [
+    {
+      "step": 0,
+      "name": "preserve-fenced-code",
+      "status": "completed",
+      "summary": "Preserved blank lines, literal code and adjacent prose across top-level backtick/tilde fences without changing stored Markdown/HTML/hash. RED 3 cases; focused 27/27, unit 159 pass/12 DB skip, lint/typecheck/build and local DB-backed browser checks at 1440/390/320px passed. Next: Step 1 safe-inline-links; radar and OCI hold unchanged."
+    },
+    {
+      "step": 1,
+      "name": "safe-inline-links",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "semantic-lists-and-quotes",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "accessible-tables",
+      "status": "pending"
+    }
+  ]
+}

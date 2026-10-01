@@ -1,0 +1,16 @@
+{
+  "project": "h-log",
+  "phase": "backend-operations-lab",
+  "steps": [
+    {
+      "step": 0,
+      "name": "deterministic-queue-replay",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "lab-case-study-connection",
+      "status": "pending"
+    }
+  ]
+}

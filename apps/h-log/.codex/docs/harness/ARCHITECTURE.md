@@ -222,6 +222,8 @@ Source content / lib data
 
 ## DB 기반 수동 발행 데이터 흐름
 
+`blog-reading-foundation / Step 0`에서 공개 `lib/blog-public.ts`의 block reader는 line/fence 경계를 먼저 구분한다. Top-level backtick/tilde fence 안의 빈 줄·공백·heading/HTML 문자열은 하나의 code block으로 보존하고, 같은 문자/충분한 길이의 종료 조건 또는 문서 끝에서 닫는다. 기존 React text escaping, verified diagram 삽입, published-current selector와 저장 Markdown/HTML/hash 생성은 그대로다. 다른 Markdown 문법의 확장은 새 phase의 후속 step이며 아직 완료가 아니다.
+
 ```text
 Manual admin or internal API
   -> posts / post_versions
