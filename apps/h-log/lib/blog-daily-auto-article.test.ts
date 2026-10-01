@@ -147,6 +147,90 @@ function createPipelineInput(
 }
 
 describe("daily auto article pipeline", () => {
+  for (const [condition, fetchedAt] of [
+    ["expired", "2026-07-06T23:59:59.999Z"],
+    ["future", "2026-07-08T00:00:00.001Z"],
+    ["invalid", "invalid-source-timestamp"],
+  ]) {
+    it(`rejects ${condition} research before usage, generation, slug lookup, or persistence`, async () => {
+      const calls: string[] = [];
+      const baseInput = createPipelineInput();
+      const input = createPipelineInput({
+        generateArticle: async (generationInput) => {
+          calls.push("generate");
+          return baseInput.generateArticle(generationInput);
+        },
+        hasPersistedPostSlug: async () => {
+          calls.push("slug");
+          return false;
+        },
+        persistPublishingArticle: async () => {
+          calls.push("persist");
+        },
+        researchPackSources: [
+          createResearchPackSource(),
+          createResearchPackSource({
+            fetchedAt,
+            id: "invalid-source",
+          }),
+        ],
+        usageLedger: {
+          getUsageCostTotals: async () => {
+            calls.push("usage-read");
+            return { dailyEstimatedCost: 0, monthlyEstimatedCost: 0 };
+          },
+          recordUsageEvent: async () => {
+            calls.push("usage-write");
+          },
+        },
+      });
+
+      await assert.rejects(runDailyAutoArticlePipeline(input), {
+        message:
+          "researchPackSources[1].fetchedAt must be within the 24 hours ending at runAt",
+      });
+      assert.deepEqual(calls, []);
+    });
+  }
+
+  it("rejects an invalid run timestamp before reading the usage ledger", async () => {
+    await assert.rejects(
+      runDailyAutoArticlePipeline(
+        createPipelineInput({
+          runAt: "invalid-run-timestamp",
+          usageLedger: {
+            getUsageCostTotals: async () => assert.fail("usage must not be read"),
+            recordUsageEvent: async () => assert.fail("usage must not be written"),
+          },
+        }),
+      ),
+      { message: "runAt must be a valid timestamp" },
+    );
+  });
+
+  it("accepts fresh research through the inclusive 24-hour boundary across time zones", async () => {
+    for (const fetchedAt of [
+      runAt,
+      "2026-07-07T23:59:59.999Z",
+      "2026-07-07T00:00:00.001Z",
+      "2026-07-07T09:00:00.000+09:00",
+    ]) {
+      let persistenceCalls = 0;
+      const result = await runDailyAutoArticlePipeline(
+        createPipelineInput({
+          persistPublishingArticle: async ({ post }) => {
+            assert.equal(post.status, "publishing");
+            persistenceCalls += 1;
+          },
+          researchPackSources: [createResearchPackSource({ fetchedAt })],
+        }),
+      );
+
+      assert.equal(result.status, "publishing", fetchedAt);
+      assert.equal(persistenceCalls, 1, fetchedAt);
+    }
+  });
+
   it("passes verified research source metadata to the article writer", async () => {
     let receivedSources: unknown;
     const baseInput = createPipelineInput();

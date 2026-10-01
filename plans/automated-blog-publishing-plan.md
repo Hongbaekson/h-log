@@ -1,7 +1,7 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
 작성일: 2026-06-25
-최종 계획 정리: 2026-08-28
+최종 계획 정리: 2026-10-01
 
 이 문서는 기존 `personal-portfolio-site-plan.md`의 `MDX file-based content`, `DB 없음`, `챗봇 MVP 제외` 방향과 별개로, 블로그를 처음부터 DB/CMS/API/worker 기반 완전 자동 발행 시스템으로 확장할 때의 기준안이다.
 
@@ -49,10 +49,16 @@
 
 목표 흐름은 지정 사이트의 최신 글감 수집 → 원문/공식 자료 확인 → topic/source/context JSON 전달 → Hermes 작성이다. JSON은 수집을 대신하는 것이 아니라 수집·검증 결과를 writer에 넘기는 형식이다. 정해 둔 기술 범위의 자료를 홍백님의 공개 가능한 경험·관점과 연결해 자연스러운 한국어로 쓰며, 아래 목표 흐름 전체가 현재 자동 실행된다는 뜻은 아니다.
 
-- 현재 `scripts/blog-auto-publish.mjs`는 `HLOG_AUTO_PUBLISH_INPUT_FILE`의 topic/source/context JSON을 읽는다. 저장소의 실행 경로에서는 지정 사이트를 조회해 이 JSON을 매일 갱신하는 수집기나 입력 자료의 freshness window 검증을 확인하지 못했다. 서버의 별도 수집 작업 존재 여부는 이번에 조회하지 않았다.
+- 당시 `scripts/blog-auto-publish.mjs`는 `HLOG_AUTO_PUBLISH_INPUT_FILE`의 topic/source/context JSON을 읽었고, 지정 사이트를 조회해 이 JSON을 매일 갱신하는 수집기나 freshness window 검증은 확인하지 못했다. 서버의 별도 수집 작업 존재 여부는 조회하지 않았다. 이후 최신성 검증의 완료 범위는 아래 2026-10-01 기록을 따른다.
 - Hermes writer는 verified input만 받는 no-tool 경로다. 실제 prompt에 `persona.md` 본문이나 `humanize-korean` 규칙은 아직 주입하지 않는다. `hlog-persona-v1` 기록만으로 문체 적용 완료라고 볼 수 없다.
 - 완전 자동 작성 전에는 최신 자료 수집·원문 확인·신선도 기준과 persona/한국어 humanize 규칙을 runtime에 연결하고 검증해야 한다. Humanize는 사실, 출처, 코드, 수치를 바꾸지 않는 문체 단계이며 최종 본문은 기존 claim/privacy/quality gate를 다시 통과해야 한다. Writer의 도구 권한을 여는 방식으로 연결하지 않는다.
 - 저장소 운영 기록상 반복 timer는 실제 HTTPS origin과 privacy 목록을 기다리며 비활성이다. 이번 확인에서는 서버 상태를 조회하지 않았다. 대화에서 모델을 바꾸어도 코드에 고정한 Hermes `openai-codex`/`gpt-5.6-sol`은 바뀌지 않는다.
+
+### 2026-10-01 연구 입력 최신성 검증
+
+- `generation-input-freshness / Step 0` 완료: 공통 daily pipeline은 모든 `researchPackSources[].fetchedAt`을 `runAt` 이전 24시간 범위(양 끝 포함)로 검증한다. 만료·미래·잘못된 시각은 usage/LLM/slug 조회/저장 전에 실패하고 오류에 원래 자료 값을 넣지 않는다.
+- 기존 수집 시각을 재사용하며 새 JSON 필드·DB schema·환경 설정은 추가하지 않았다. 기사 발행일, topic 수집 시각, 개인 맥락의 최신성이나 실제 원문 수집을 보장하는 검사는 아니다.
+- 다음 후보는 수집/원문 확인 결과를 기존 JSON 입력에 연결하는 로컬 단계다. 실제 수집기와 persona/한국어 humanize runtime 연결은 남아 있으며 OCI와 운영 timer 보류는 유지한다. 현재 실행 순서는 live phase registry가 우선한다.
 
 ## OCI 인프라/클라우드 기준
 

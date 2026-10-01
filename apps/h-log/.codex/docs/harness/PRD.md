@@ -118,6 +118,8 @@ local runtime에서 완료된 항목:
 - 자동 발행 품질 게이트
 - 검증 실패 시 비공개 실패 상태 유지
 
+Daily pipeline은 모든 research source의 `fetchedAt`이 `runAt` 이전 24시간 이내인지 먼저 검사한다(양 끝 포함). 만료·미래·잘못된 시각은 사용량 조회/기록, LLM, slug 조회와 저장 전에 오류로 종료하며 원래 입력값을 오류에 넣지 않는다. 이는 자료를 다시 수집/확인한 시각의 검증이며 기사 발행일, topic 수집 시각이나 개인 맥락의 최신성을 보장하지 않는다. 실제 수집기와 persona/humanize runtime 연결은 후속 작업이다.
+
 현재 daily pipeline은 adapter 기반 contract다. Writer schema와 privacy/article quality gate를 통과한 normalized claim은 pipeline이 구성한 verified `postSources`를 기준으로 기존 `verifyArticleClaims`를 통과해야 하며, 실패하면 persistence 전에 비공개 `generation_failed`로 종료한다. 검증된 생성 결과만 선택적 persistence callback을 통해 `publishing` post와 queued required jobs로 넘기고 public worker 실행 전에 비공개 상태로 멈출 수 있다. PostgreSQL one-shot runner는 서울 날짜별 advisory lock과 기존 post 확인 후에만 Hermes `openai-codex`/`gpt-5.6-sol`을 호출하고 이 private aggregate를 저장한다. Required adapter는 `render`/`privacy_scan`을 공개 전에 처리하고 제한된 canary 전환 뒤 public URL/Markdown/sitemap/content hash를 검증하며 실패 canary를 `correction_pending`으로 숨긴다. Bounded cycle은 해당 daily post의 required job만 유한 횟수로 drain하고, 공식 Hermes image를 사용한 Compose service와 09:00 KST systemd timer를 packaging했다. OCI server-local credential/env/input, live migration, bounded Hermes canary와 audited rollback smoke까지 완료했다. 실제 HTTPS public origin과 privacy 목록이 없으므로 반복 timer와 실제 성과 신호 수집은 활성화하지 않는다.
 
 Writer validation과 claim verification 실패는 `generation_failed` 상태를 유지하면서 선택적 `failure` field의 단계와 기존 redacted `gateName`/`message`만 one-shot operator JSON까지 전달한다. 이 결과는 새 DB 감사 이력이나 durable quality history가 아니다.

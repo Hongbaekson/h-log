@@ -251,6 +251,8 @@ SQL migration - completed
 
 ## 자동 블로그 데이터 흐름
 
+`lib/blog-daily-auto-article.ts`는 usage나 provider에 접근하기 전에 모든 research source의 `fetchedAt`을 `runAt` 기준 24시간 범위(양 끝 포함)로 검사한다. 만료·미래·잘못된 시각은 값이 노출되지 않는 오류로 전파돼 one-shot runner의 lock 해제 후 cycle을 중단한다. 일일 중복 확인은 기존 runner 순서를 유지한다. 이 검사는 수집 시각의 유효기간만 다루며 JSON을 갱신하는 실제 수집기나 persona/humanize 연결은 아직 없다.
+
 ```text
 Daily topic collector
   -> source fetch and dedupe

@@ -50,7 +50,9 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
-2026-09-30 최신 실행 결정: 사용자가 OCI 작업을 보류했다. 앞선 실행 승인은 재개 근거로 사용하지 않으며 `terraform-infrastructure-adoption / Step 2`는 blocked다. 아래 완료 이력에 남은 Terraform “다음 실행” 안내보다 이 결정과 live phase registry를 우선한다. 독립 로컬 작업인 [`local-blog-design-verification / Step 0`](../../../phases/local-blog-design-verification/step0.md)은 완료했다. 격리 local DB와 fake-provider로 글이 있는 Blog의 목록·검색·상세와 비공개 경계를 검증했고, 긴 제목이 모바일 목록·검색 결과를 잘라내는 문제를 수정했다. 현재 등록된 독립 로컬 step은 모두 완료했으며 다음 로컬 기능은 별도 요청에서 범위를 정한다. OCI와 운영 timer는 계속 보류한다.
+2026-09-30 실행 결정: 사용자가 OCI 작업을 보류했다. 앞선 실행 승인은 재개 근거로 사용하지 않으며 `terraform-infrastructure-adoption / Step 2`는 blocked다. 아래 완료 이력에 남은 Terraform “다음 실행” 안내보다 이 결정과 live phase registry를 우선한다. 독립 로컬 작업인 [`local-blog-design-verification / Step 0`](../../../phases/local-blog-design-verification/step0.md)은 완료했다. 격리 local DB와 fake-provider로 글이 있는 Blog의 목록·검색·상세와 비공개 경계를 검증했고, 긴 제목이 모바일 목록·검색 결과를 잘라내는 문제를 수정했다. OCI와 운영 timer는 계속 보류한다.
+
+2026-10-01 [`generation-input-freshness / Step 0`](../../../phases/generation-input-freshness/step0.md)을 완료했다. 모든 research source의 수집 시각을 실행 전 24시간 범위로 검증하며 만료·미래·잘못된 값은 생성 side effect 전에 차단한다. Focused 21/21, unit 156 pass/12 DB skip, 격리 PostgreSQL integration 13/13 및 lint/typecheck/build가 통과했다. 다음 로컬 작업 후보는 수집/원문 확인 결과를 기존 topic/research/context JSON에 연결하는 단계다. 실제 수집기와 persona/humanize 연결은 별도 범위이며 이번 완료가 OCI나 timer 재개를 의미하지 않는다.
 
 수정된 `plans/automated-blog-publishing-plan.md` 기준으로 블로그 본선은 DB-first다. 기존 file-based loader, caller가 없던 post-publish verification facade, unwired diagram 계획·저장·실패·감사 helper, caller-free admin workflow, stale table/field registry, unwired generation-run factory, test-only public-data fixture/repository write API와 중복 public-slug proxy는 `runtime-contract-pruning / Steps 0-7`에서 제거했다. Step 8은 미사용 worker 모드 설정과 manual worker egress membership을 제거했고, Step 9는 image-owned runtime default와 중복되던 Compose/systemd override를 제거했다. published-current crawler manifest, live required adapter/worker, diagram render predicate, repository-backed retract/audit, DB-backed public source, page-owned detail 404, Markdown rewrite, domain validation과 persistence는 유지한다.
 
@@ -80,6 +82,7 @@ runtime-contract-pruning: completed, Steps 0-9 legacy/unwired/test-only contract
 public-surface-refactor-pruning: completed, native legacy redirects and shared blog presentation rules completed
 discord-design-preview: completed Home/shared-shell design and browser screenshots; user accepted the design and requested commit/push; production deployment verification remains separate
 local-blog-design-verification: completed, populated Blog/public boundaries and desktop/mobile interaction verified; long list/search title clipping fixed with browser RED/GREEN and all required gates passed
+generation-input-freshness: completed, Step 0 rejects expired/future/invalid research before daily generation side effects; local and isolated DB gates passed
 terraform-infrastructure-adoption: blocked by user's OCI hold; Steps 0-1 and Step 2 preparation preserved, no cloud apply/import executed
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned

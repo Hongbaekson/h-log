@@ -237,6 +237,7 @@ CI/CD secret으로만 관리한다.
 - OAuth 등록은 실행 host에서 `hermes auth add openai-codex --type oauth --no-browser`로 수행하고 auth state를 저장소나 image에 복사하지 않는다.
 - usage report가 `cost_status=included`, `estimated_cost_usd=0`, `api_calls=1`이 아니면 자동 글 생성을 중단한다. API key provider fallback은 두지 않는다.
 - `HLOG_AUTO_PUBLISH_INPUT_FILE`은 서버 로컬의 검증된 topic/research/context JSON을 가리키며 저장소나 image에 포함하지 않는다. `npm run auto-publish:once`는 서울 날짜 advisory lock과 기존 daily post 확인 후 private `publishing` aggregate까지만 저장한다.
+- 새 생성 전에 모든 `researchPackSources[].fetchedAt`이 실행 시각 이전 24시간 이내여야 한다(정확히 24시간 포함). 만료·미래·잘못된 시각은 usage/LLM/저장 전에 non-zero로 종료하고 cycle의 worker 실행을 막는다. 오래된 입력은 자료를 다시 수집/확인해 갱신해야 하며 timestamp만 바꾸지 않는다. 수집기 자동 갱신은 아직 연결되지 않았다.
 - `Dockerfile.auto-publish`는 공식 `nousresearch/hermes-agent:v2026.7.7.2@sha256:9c841866021c54c4596849f6135717e8a4d52ba510b7f52c50aef1de1a283973` image에 H-Log runner만 추가하며 cycle CMD와 `HERMES_HOME=/opt/data` 기본값을 소유한다. Compose/systemd는 이를 반복하지 않고, OAuth state는 image가 아니라 Compose `hermes_data` volume에 저장한다.
 - `npm run auto-publish:cycle`은 generation 뒤 같은 `post-YYYY-MM-DD`의 required job만 required job 수 + idle probe 1회까지 처리한다. `failed`, `retrying`, 한도 초과는 non-zero로 중단한다.
 - `deploy/systemd/hlog-auto-publish.service`는 explicit container-local OAuth preflight 뒤 image CMD를 실행한다. `deploy/systemd/hlog-auto-publish.timer`는 `Asia/Seoul` 매일 09:00로 packaging했지만 OCI canary/rollback 전에는 enable하지 않는다.

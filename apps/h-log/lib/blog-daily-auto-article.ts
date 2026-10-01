@@ -116,6 +116,22 @@ const DEFAULT_DAILY_AUTO_ARTICLE_POLICY: DailyAutoArticlePipelinePolicy = {
 export async function runDailyAutoArticlePipeline(
   input: DailyAutoArticlePipelineInput,
 ): Promise<DailyAutoArticlePipelineResult> {
+  const runAtMs = Date.parse(input.runAt);
+
+  if (Number.isNaN(runAtMs)) {
+    throw new Error("runAt must be a valid timestamp");
+  }
+
+  for (const [index, source] of input.researchPackSources.entries()) {
+    const ageMs = runAtMs - Date.parse(source.fetchedAt);
+
+    if (!Number.isFinite(ageMs) || ageMs < 0 || ageMs > 24 * 60 * 60 * 1_000) {
+      throw new Error(
+        `researchPackSources[${index}].fetchedAt must be within the 24 hours ending at runAt`,
+      );
+    }
+  }
+
   const privacyScanPolicy =
     input.privacyScanPolicy ??
     createBlogPrivacyScanPolicyFromEnvironment(process.env);

@@ -126,6 +126,11 @@
       "summary": "Step 0 completed: isolated PostgreSQL and fake-provider fixtures verified populated Blog navigation, search, detail, private/missing 404 and crawler boundaries. Fixed long list/search titles clipping mobile content. Layout checks at 1440/390/320px, desktop/mobile keyboard interaction, 13 integration tests and unit/lint/typecheck/build passed. OCI and real providers were not called."
     },
     {
+      "dir": "generation-input-freshness",
+      "status": "completed",
+      "summary": "Step 0 completed: the shared daily pipeline validates every research fetchedAt within the inclusive preceding 24 hours before usage, LLM, slug lookup or persistence. Expired/future/invalid input and time-zone boundaries passed focused tests; unit, 13 isolated PostgreSQL integration tests, lint, typecheck and build passed. Source collection and persona/humanize runtime wiring remain future work; OCI remains on hold."
+    },
+    {
       "dir": "terraform-infrastructure-adoption",
       "status": "blocked",
       "summary": "Steps 0-1 and Step 2 preparation are preserved in commit 2a49357. The user subsequently deferred all OCI work on 2026-09-30. No bucket creation, production backup/restore, remote state connection or resource import was executed.",

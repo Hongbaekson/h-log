@@ -1,0 +1,12 @@
+{
+  "project": "h-log",
+  "phase": "generation-input-freshness",
+  "steps": [
+    {
+      "step": 0,
+      "name": "reject-stale-research-before-generation",
+      "status": "completed",
+      "summary": "The shared daily pipeline rejects research fetched more than 24 hours ago, in the future, or with invalid timestamps before usage, generation, slug lookup, or persistence. Boundary/time-zone and no-side-effect tests passed: focused 21/21, unit 156 passed/12 DB skips, isolated PostgreSQL integration 13/13, lint, typecheck and build. No real provider, collector, OCI or timer was activated."
+    }
+  ]
+}
