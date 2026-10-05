@@ -100,13 +100,15 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **이유**: 저장 또는 생성된 HTML은 XSS sink가 되기 쉽다. Markdown을 canonical input으로 두고 React의 escaping을 사용하면 DB-backed 발행 모델을 유지하면서 공개 렌더링의 공격 표면을 줄일 수 있다.
 
-**트레이드오프**: 현재 공개 렌더러는 heading, paragraph, strong, inline code, safe inline link, fenced code block 중심의 좁은 Markdown 표면만 지원한다. 리스트, 표, 이미지 같은 richer Markdown은 허용 목록과 테스트를 먼저 추가한 뒤 확장한다.
+**트레이드오프**: 현재 공개 렌더러는 heading, paragraph, strong, inline code, safe inline link, code block, 순서/비순서 목록과 인용문을 지원한다. 표, 이미지 같은 richer Markdown은 허용 목록과 테스트를 먼저 추가한 뒤 확장한다.
 
 2026-10-01 `blog-reading-foundation / Step 0`은 공개 block reader에서 fenced code 경계를 먼저 구분한다. 코드 내부 빈 줄과 literal Markdown/HTML은 React text로 유지한다. 저장된 HTML 생성 알고리즘과 content hash, Markdown endpoint는 변경하지 않는다. 이 단계는 전체 CommonMark 지원을 의미하지 않으며 링크·목록·표는 후속 step에서 별도로 확장한다.
 
 2026-10-01 `blog-reading-foundation / Step 1`은 [Marked inline lexer](https://marked.js.org/using_pro#lexer)를 `marked@18.0.14`로 고정해 재사용한다. 중첩 괄호·escape·code span 우선순위를 별도 정규식 파서로 확장하지 않고 lexer token을 text/code/strong/link 허용 노드로 변환한다. Marked의 HTML renderer는 사용하지 않는다. Strong과 link label은 재귀형 children을 사용하고 raw HTML·미지원 inline 문법은 React text로 남긴다. GFM 자동 링크는 비활성화하고 참조식 링크·HTML entity 해석은 이번 단계에 포함하지 않는다.
 
 본문 목적지는 공개 HTTPS, 단일 `/`로 시작하는 사이트 경로, `#` fragment로 제한한다. 일반 상대 경로·protocol-relative URL·backslash·공백/제어 문자·위험한 scheme은 anchor로 출력하지 않는다. HTTPS는 `public-source-url.ts`의 URL 정규화와 private host 검사를 공유하며 privacy scanner와 일치하도록 `.internal`, `.corp`, `.lan`도 차단한다. 거부된 목적지는 label만 표시한다. HTTPS anchor는 `noopener noreferrer`, 새 창 안내, 외부 아이콘과 focus outline을 제공하고 내부 경로/fragment는 같은 창에서 이동한다. 저장 Markdown/HTML/hash와 published-current/privacy 경계는 그대로다.
+
+2026-10-06 `blog-reading-foundation / Step 2`는 기존 Marked block lexer를 사용해 목록·인용문·문단·코드의 중첩 경계를 구분한다. 목록은 시작 번호와 항목별 block 배열, 인용문은 block children을 보유하고 React의 `ol`/`ul`/`li`/`blockquote`로 렌더링한다. Inline 부분은 Step 1의 검증과 허용 목록을 재사용하며 미지원 블록/참조식 링크는 text로 남긴다. Marked 18.0.14의 trailing-tab fence 종료 회귀 때문에 Step 0의 scanner만 [공식 tokenizer override](https://marked.js.org/using_pro#tokenizer)로 재사용한다. 자체 중첩 Markdown 문법이나 새 의존성은 추가하지 않는다. 저장 원문/hash와 최상위 verified diagram 삽입 경계는 유지한다.
 
 ### ADR-010: contract 완료와 runtime 완료를 분리한다
 

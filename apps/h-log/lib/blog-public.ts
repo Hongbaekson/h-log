@@ -1,4 +1,4 @@
-import { Lexer, type Token } from "marked";
+import { Lexer, Marked, type Token, type Tokens } from "marked";
 
 import {
   assertPostVersionContentHashMatches,
@@ -14,6 +14,11 @@ import {
 } from "./blog-content-model.ts";
 import { isRenderableDiagramAsset } from "./blog-diagram-assets.ts";
 import { tryNormalizePublicSourceUrl } from "./public-source-url.ts";
+
+const publicBlockLexer = new Marked({
+  gfm: false,
+  tokenizer: { fences: tokenizePublicCodeFence },
+});
 
 export type BlogContentStore = {
   assets?: readonly PostAssetRecord[];
@@ -68,6 +73,15 @@ export type PublicBlogContentBlock =
   | {
       code: string;
       type: "code";
+    }
+  | {
+      items: PublicBlogContentBlock[][];
+      start: number | null;
+      type: "list";
+    }
+  | {
+      children: PublicBlogContentBlock[];
+      type: "blockquote";
     };
 
 export type PublicBlogPost = {
@@ -194,43 +208,7 @@ function buildPublicBlogContentBlocks(
   diagram: PublicBlogContentBlock | undefined,
 ): PublicBlogContentBlock[] {
   const normalized = markdown.replace(/\r\n?/g, "\n").trimEnd();
-
-  if (!normalized) {
-    return [];
-  }
-
-  const blocks: PublicBlogContentBlock[] = [];
-  const lines = normalized.split("\n");
-  let paragraph: string[] = [];
-  const flushParagraph = () => {
-    if (paragraph.length > 0) {
-      blocks.push(buildPublicBlogContentBlock(paragraph.join("\n")));
-      paragraph = [];
-    }
-  };
-
-  for (let index = 0; index < lines.length; index += 1) {
-    const line = lines[index];
-    const fence = /^( {0,3})(`{3,}|~{3,})(.*)$/.exec(line);
-
-    if (fence && !(fence[2][0] === "`" && fence[3].includes("`"))) {
-      flushParagraph();
-      const closingFence = new RegExp(`^ {0,3}${fence[2][0]}{${fence[2].length},}[ \\t]*$`);
-      const indentation = new RegExp(`^ {0,${fence[1].length}}`);
-      const code: string[] = [];
-
-      for (index += 1; index < lines.length && !closingFence.test(lines[index]); index += 1) {
-        code.push(lines[index].replace(indentation, ""));
-      }
-
-      blocks.push({ type: "code", code: code.join("\n") });
-    } else if (/^[ \t]*$/.test(line)) {
-      flushParagraph();
-    } else {
-      paragraph.push(line);
-    }
-  }
-  flushParagraph();
+  const blocks = buildBlockNodes(publicBlockLexer.lexer(normalized));
 
   if (!diagram || diagram.type !== "diagram") {
     return blocks;
@@ -276,35 +254,60 @@ function selectRenderableDiagram(
   };
 }
 
-function buildPublicBlogContentBlock(block: string): PublicBlogContentBlock {
-  if (block.startsWith("### ")) {
-    return {
-      children: buildInlineContent(block.slice(4).trim()),
-      level: 3,
-      type: "heading",
-    };
+// Preserve the existing fence boundary: Marked 18 omits trailing tabs on closers.
+function tokenizePublicCodeFence(source: string): Tokens.Code | false {
+  const fence = /^( {0,3})(`{3,}|~{3,})([^\n]*)/.exec(source);
+
+  if (!fence || fence[2][0] === "`" && fence[3].includes("`")) {
+    return false;
   }
 
-  if (block.startsWith("## ")) {
-    return {
-      children: buildInlineContent(block.slice(3).trim()),
-      level: 2,
-      type: "heading",
-    };
+  const lines = source.split("\n");
+  const closingFence = new RegExp(`^ {0,3}${fence[2][0]}{${fence[2].length},}[ \\t]*$`);
+  const indentation = new RegExp(`^ {0,${fence[1].length}}`);
+  let end = 1;
+
+  while (end < lines.length && !closingFence.test(lines[end])) {
+    end += 1;
   }
 
-  if (block.startsWith("# ")) {
-    return {
-      children: buildInlineContent(block.slice(2).trim()),
-      level: 1,
-      type: "heading",
-    };
-  }
+  const raw = lines.slice(0, end + 1).join("\n");
 
   return {
-    children: buildInlineContent(block.replace(/\n+/g, " ").trim()),
-    type: "paragraph",
+    type: "code",
+    raw: source.slice(0, raw.length + 1),
+    text: lines.slice(1, end).map((line) => line.replace(indentation, "")).join("\n"),
   };
+}
+
+function buildBlockNodes(tokens: readonly Token[]): PublicBlogContentBlock[] {
+  const blocks: PublicBlogContentBlock[] = [];
+
+  for (const token of tokens) {
+    if (token.type === "space") {
+      continue;
+    }
+    if (token.type === "code") {
+      blocks.push({ type: "code", code: token.text });
+    } else if (token.type === "list") {
+      blocks.push({
+        type: "list",
+        start: token.ordered ? token.start : null,
+        items: token.items.map((item: Tokens.ListItem) => buildBlockNodes(item.tokens)),
+      });
+    } else if (token.type === "blockquote") {
+      blocks.push({ type: "blockquote", children: buildBlockNodes(token.tokens!) });
+    } else if (token.type === "heading" && (token.depth === 1 || token.depth === 2 || token.depth === 3)) {
+      blocks.push({ type: "heading", level: token.depth, children: buildInlineContent(token.text) });
+    } else {
+      const text = token.type === "paragraph" || token.type === "text" ? token.text : token.raw;
+
+      // Reuse the inline allowlist; unsupported blocks remain visible text.
+      blocks.push({ type: "paragraph", children: buildInlineContent(text.replace(/\n+/g, " ").trim()) });
+    }
+  }
+
+  return blocks;
 }
 
 function buildInlineContent(value: string): PublicBlogInlineContent[] {

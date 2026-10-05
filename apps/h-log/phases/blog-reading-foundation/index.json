@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "semantic-lists-and-quotes",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Reused Marked block lexing with a typed list/blockquote allowlist and the existing fence scanner as a tokenizer override. Preserved ordered starts, nested/multi-paragraph items, literal code and safe inline links; rendered native list/quote semantics and visible nested headings. RED 5 cases plus fence/tab and nested-heading UI regressions; focused 21/21, unit 170 pass/12 DB skip, lint/typecheck/build and isolated DB browser checks at 1440/390/320px passed. Next: Step 3 accessible-tables; radar and OCI hold unchanged."
     },
     {
       "step": 3,

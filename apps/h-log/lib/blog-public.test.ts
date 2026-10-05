@@ -159,6 +159,10 @@ function createStore(): BlogContentStore {
   };
 }
 
+function textParagraph(text: string) {
+  return { type: "paragraph", children: [{ type: "text", text }] };
+}
+
 describe("DB-backed public blog routes", () => {
   it("builds public detail and markdown output without exposing preview posts", () => {
     const store = createStore();
@@ -288,6 +292,114 @@ describe("DB-backed public blog routes", () => {
       { type: "paragraph", children: [{ type: "text", text: "Before." }] },
       { type: "code", code: "first\n\n## Literal heading\n**literal emphasis**" },
     ]);
+  });
+
+  it("preserves list order, starting numbers and surrounding prose without rewriting saved content", () => {
+    const version = createVersion({
+      contentMarkdown: "Before.\n\n- first\n- second\n\n3. third\n4. fourth\n\n0) zero\n1) one\n\nAfter.\n",
+    });
+    const originalVersion = { ...version };
+    const store = { ...createStore(), versions: [version] };
+    const detail = getPublicBlogPostBySlug("public-one", store);
+
+    assert.ok(detail);
+    assert.deepEqual(detail.contentBlocks, [
+      textParagraph("Before."),
+      { type: "list", start: null, items: [[textParagraph("first")], [textParagraph("second")]] },
+      { type: "list", start: 3, items: [[textParagraph("third")], [textParagraph("fourth")]] },
+      { type: "list", start: 0, items: [[textParagraph("zero")], [textParagraph("one")]] },
+      textParagraph("After."),
+    ]);
+    assert.equal(detail.contentHtml, version.contentHtml);
+    assert.equal(getPublicBlogPostMarkdown("public-one", store), version.contentMarkdown);
+    assert.deepEqual(version, originalVersion);
+  });
+
+  it("keeps multiple paragraphs, mixed nested lists and quotes inside their list item", () => {
+    const store = {
+      ...createStore(),
+      versions: [createVersion({
+        contentMarkdown: "- first\n  continuation\n\n  second paragraph\n  1. nested\n     > quoted\n\n- last\n",
+      })],
+    };
+
+    assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [{
+      type: "list", start: null, items: [
+        [
+          textParagraph("first continuation"),
+          textParagraph("second paragraph"),
+          { type: "list", start: 1, items: [[
+            textParagraph("nested"),
+            { type: "blockquote", children: [textParagraph("quoted")] },
+          ]] },
+        ],
+        [textParagraph("last")],
+      ],
+    }]);
+  });
+
+  it("preserves quote paragraphs, lazy continuation and nested safe inline content", () => {
+    const store = {
+      ...createStore(),
+      versions: [createVersion({
+        contentMarkdown: '> first\ncontinuation\n>\n> second\n>\n> > [문서](/blog)\n>\n> [위험](javascript:alert(1)) <script>alert("x")</script>\n\nAfter.\n',
+      })],
+    };
+
+    assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [
+      { type: "blockquote", children: [
+        textParagraph("first continuation"),
+        textParagraph("second"),
+        { type: "blockquote", children: [{ type: "paragraph", children: [
+          { type: "link", href: "/blog", children: [{ type: "text", text: "문서" }] },
+        ] }] },
+        textParagraph('위험 <script>alert("x")</script>'),
+      ] },
+      textParagraph("After."),
+    ]);
+  });
+
+  it("preserves fenced and indented code inside lists and quotes without parsing literal markers", () => {
+    const code = '- literal\n\n> [literal](/blog)\n\n';
+    const markdown = [
+      "- item", "", "  ```text", ...code.split("\n").map((line) => `  ${line}`),
+      "  ``` \t", "", "      indented code", "      - literal", "", "- last", "",
+      "> quoted", ">", "> ~~~text", "> first", ">", "> ## literal heading", "> ~~~ \t", "", "After.",
+    ].join("\n");
+    const store = { ...createStore(), versions: [createVersion({ contentMarkdown: markdown })] };
+
+    assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [
+      { type: "list", start: null, items: [
+        [textParagraph("item"), { type: "code", code }, { type: "code", code: "indented code\n- literal\n" }],
+        [textParagraph("last")],
+      ] },
+      { type: "blockquote", children: [textParagraph("quoted"), { type: "code", code: "first\n\n## literal heading" }] },
+      textParagraph("After."),
+    ]);
+  });
+
+  it("anchors the verified diagram to a top-level heading instead of a quoted heading", () => {
+    const store = {
+      ...createStore(),
+      assets: [createAsset()],
+      versions: [createVersion({ contentMarkdown: "> ## Quoted\n> quote body\n\n## Actual\nActual body.\n" })],
+    };
+    const detail = getPublicBlogPostBySlug("public-one", store);
+
+    assert.ok(detail);
+    assert.deepEqual(detail.contentBlocks.map((block) => block.type), ["blockquote", "heading", "diagram", "paragraph"]);
+    assert.deepEqual(detail.contentBlocks[0], { type: "blockquote", children: [
+      { type: "heading", level: 2, children: [{ type: "text", text: "Quoted" }] },
+      textParagraph("quote body"),
+    ] });
+    assert.deepEqual(detail.contentBlocks[1], { type: "heading", level: 2, children: [{ type: "text", text: "Actual" }] });
+  });
+
+  it("keeps unsupported blocks and reference-style links literal", () => {
+    const paragraphs = ["<div>literal HTML</div>", "#### Fourth heading", "---", "[label][ref]", "[ref]: javascript:alert(1)"];
+    const store = { ...createStore(), versions: [createVersion({ contentMarkdown: paragraphs.join("\n\n") })] };
+
+    assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, paragraphs.map(textParagraph));
   });
 
   it("renders inline code from published Markdown", () => {
