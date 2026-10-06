@@ -1,70 +1,51 @@
-import { forceCenter, forceCollide, forceLink, forceManyBody, forceSimulation, forceX, forceY, forceZ } from "d3-force-3d";
-import { brainTopics, searchBrainNodes, type BrainGraph, type BrainNode } from "./brain.ts";
+import { brainKindLabels, brainTopics, searchBrainNodes, type BrainGraph, type BrainNode } from "./brain.ts";
 
 export type BrainLayout = "brain" | "free" | "topics" | "hierarchy" | "timeline";
 export type PositionedBrainNode = BrainNode & { x: number; y: number; z: number; degree: number };
 export type BrainFilters = { query?: string; topic?: string; tag?: string; kinds?: string[]; relations?: string[]; basis?: string };
 
+// The local UI's deterministic constellation; only public note IDs enter the seed.
+function hash(value: string) {
+  let out = 2166136261;
+  for (let i = 0; i < value.length; i++) { out ^= value.charCodeAt(i); out = Math.imul(out, 16777619); }
+  return out >>> 0;
+}
+export function brainUnit(id: string, salt: number) { return (hash(`${id}.${salt}`) % 10000) / 10000; }
+
+function constellationPoint(id: string, index: number, total: number) {
+  const seed = hash(id);
+  const t = ((index + .5) / Math.max(1, total) + brainUnit(id, 1) * .18) % 1;
+  const band = (t - .5) * 2;
+  const taper = Math.max(.34, 1 - Math.abs(band) * .44);
+  const twist = band * Math.PI * 2.4 + brainUnit(id, 2) * Math.PI * 2;
+  return {
+    x: Math.sin(twist) * (72 + seed % 70) * taper + (brainUnit(id, 3) - .5) * 350 * taper,
+    y: band * 360 + (brainUnit(id, 4) - .5) * 58,
+    z: Math.cos(twist * .78) * (82 + seed % 55) * taper + (brainUnit(id, 5) - .5) * 340 * taper,
+  };
+}
+
 export function layoutBrainGraph(graph: BrainGraph, layout: BrainLayout, spread: number): PositionedBrainNode[] {
-  if (!graph.nodes.length) return [];
-  const nodes = graph.nodes.map((node, index) => {
-    const angle = index * Math.PI * (3 - Math.sqrt(5));
-    const depth = 1 - 2 * (index + .5) / graph.nodes.length;
-    const radius = layout === "brain" ? 80 * Math.sqrt(1 - depth * depth) : 25 * Math.sqrt(index + 1);
-    return { ...node, x: Math.cos(angle) * radius, y: Math.sin(angle) * radius,
-      z: layout === "brain" ? depth * 80 : 0,
+  const kinds = Object.keys(brainKindLabels);
+  const topics = Object.keys(brainTopics);
+  const dates = [...new Set(graph.nodes.map(node => node.recordedAt))].sort();
+  return graph.nodes.map((node, index) => {
+    let p = constellationPoint(layout === "free" ? node.id : `brain.${node.id}`, index, graph.nodes.length);
+    if (layout === "hierarchy") {
+      const order = kinds.indexOf(node.kind);
+      const group = graph.nodes.filter(item => item.kind === node.kind);
+      p = { x: (order / (kinds.length - 1) - .5) * 760, y: (group.indexOf(node) - (group.length - 1) / 2) * 54, z: (order % 3 - 1) * 80 };
+    } else if (layout === "topics") {
+      const angle = index / graph.nodes.length * Math.PI * 2;
+      p = { x: Math.cos(angle) * 230, y: (topics.indexOf(node.topic) - (topics.length - 1) / 2) * 80 + Math.sin(angle) * 44, z: Math.sin(angle) * 230 };
+    } else if (layout === "timeline") {
+      // Use actual recording dates; never turn catalog order into an invented chronology.
+      const group = graph.nodes.filter(item => item.recordedAt === node.recordedAt);
+      p = { x: (dates.indexOf(node.recordedAt) - (dates.length - 1) / 2) * 220, y: (group.indexOf(node) - (group.length - 1) / 2) * 45, z: 0 };
+    }
+    return { ...node, x: p.x * spread, y: p.y * spread, z: p.z * spread,
       degree: graph.edges.filter(edge => edge.from === node.id || edge.to === node.id).length };
   });
-  const links = graph.edges.map(edge => ({ source: edge.from, target: edge.to }));
-  const simulation = forceSimulation(nodes, layout === "brain" ? 3 : 2).stop()
-    .force("link", forceLink(links).id(node => node.id).distance(70).strength(.45))
-    .force("charge", forceManyBody().strength(-280))
-    .force("center", forceCenter())
-    .force("collision", forceCollide(22));
-
-  if (layout === "brain") {
-    simulation.force("x", forceX(() => 0).strength(.04))
-      .force("y", forceY(() => 0).strength(.04))
-      .force("z", forceZ(() => 0).strength(.04));
-  }
-
-  if (layout === "topics") {
-    const topics = Object.keys(brainTopics);
-    const targets = new Map(nodes.map(node => {
-      const angle = topics.indexOf(node.topic) / topics.length * Math.PI * 2;
-      return [node.id, { x: Math.cos(angle) * 240, y: Math.sin(angle) * 240 }];
-    }));
-    simulation.force("x", forceX(node => targets.get(node.id)!.x).strength(.7))
-      .force("y", forceY(node => targets.get(node.id)!.y).strength(.7));
-  }
-
-  if (layout === "hierarchy") {
-    // Distance from the most-connected note, not an invented causal hierarchy.
-    const root = [...nodes].sort((a,b) => b.degree - a.degree)[0];
-    const depths = new Map([[root.id, 0]]);
-    const queue = [root.id];
-    for (const id of queue) {
-      for (const edge of graph.edges.filter(edge => edge.from === id || edge.to === id)) {
-        const next = edge.from === id ? edge.to : edge.from;
-        if (!depths.has(next)) { depths.set(next, depths.get(id)! + 1); queue.push(next); }
-      }
-    }
-    simulation.force("y", forceY(node => (depths.get(node.id) ?? 5) * -110).strength(1));
-  }
-
-  simulation.tick(240);
-  if (layout === "timeline") {
-    const dates = [...new Set(nodes.map(node => node.recordedAt))].sort();
-    dates.forEach((date, dateIndex) => {
-      const group = nodes.filter(node => node.recordedAt === date).sort((a,b) => a.id.localeCompare(b.id));
-      group.forEach((node, index) => {
-        node.x = (dateIndex - (dates.length - 1) / 2) * 220;
-        node.y = ((group.length - 1) / 2 - index) * 45;
-      });
-    });
-  }
-  const center = nodes.reduce((sum,node) => ({x:sum.x + node.x/nodes.length, y:sum.y + node.y/nodes.length, z:sum.z + node.z/nodes.length}), {x:0,y:0,z:0});
-  return nodes.map(node => ({ ...node, x:(node.x-center.x)*spread, y:(node.y-center.y)*spread, z:layout === "brain" ? (node.z-center.z)*spread : 0 }));
 }
 
 export function filterBrainGraph(graph: BrainGraph, filters: BrainFilters): BrainGraph {

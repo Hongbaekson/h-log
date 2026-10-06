@@ -9,7 +9,7 @@
 
 ### 2026-10-06 Second Brain 전용 수정
 
-사용자가 Memory와 같은 UI를 명시하면서 작은 격자 화면을 거절했다. `/brain`에 한해 [분석 기준](MEMORY_UI_REFERENCE.md)과 ADR-020의 밝은 260px 사이드바·검은 전체 화면 3D 그래프·선택 시 본문 패널을 우선한다. 이것은 전역 light theme 전환이 아니다. 다른 경로의 Discord 스타일과 Home 레이더 전체를 보존한다.
+사용자는 격자 UI에 이어 Step 0의 재해석된 화면도 거절하고 지정한 로컬 UI와 같은 모양을 요청했다. `/brain`에 한해 [로컬 이식 기준](LOCAL_BRAIN_UI_REFERENCE.md)과 ADR-021의 340px 검은 sidebar·sidebar 검색·전체 화면 constellation·하단 preview/우측 하단 detail을 우선한다. 다른 경로의 Discord 스타일과 Home 레이더 전체를 보존한다.
 
 ### 2026-09-29 승인된 디자인
 

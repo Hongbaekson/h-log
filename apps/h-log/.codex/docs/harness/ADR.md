@@ -227,11 +227,23 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 ### ADR-020: Memory 전체 화면과 3D 탐색을 `/brain` 전용으로 구현한다
 
+**후속 결정**: 사용자가 이 결과도 원본과 다르다고 거절했다. UI와 renderer 결정은 ADR-021로 대체한다. 공개 DTO·기존 콘텐츠·운영 경계는 유지한다.
+
 **결정 (2026-10-06)**: 사용자가 작은 격자 UI를 거절하고 참고 Memory와 같은 UI를 명시했다. ADR-019의 SVG 전용/3D 제외 결정만 대체한다. 공개 클라이언트와 실제 화면의 [분석](MEMORY_UI_REFERENCE.md)을 기준으로 밝은 260px 사이드바, 검은 전체 화면, 선택 시 오른쪽 reader를 구현한다. Three.js와 d3-force-3d를 클라이언트에서 지연 로드한다. 카메라 제어는 OrbitControls를 재사용한다. 같은 renderer에서 2D 배치도 제공한다.
 
 **경계**: 이 route의 밝은 sidebar는 최신 사용자 요청에 따른 전용 디자인이며 전역 light theme을 추가하지 않는다. Home/레이더 및 다른 경로의 Discord 스타일은 유지한다. 승인된 28개/42개 카탈로그와 공개 DTO는 그대로이며, 원본 질문 기능은 H-Log의 실제 기록 검색으로 대체한다. 방문자 챗봇, 회사 Wiki import, 가짜 노드, 운영 배포는 포함하지 않는다.
 
 **트레이드오프**: WebGL 의존성과 그래프 전용 bundle이 추가된다. 렌더러를 동적으로 불러오고 dispose하며, reduced-motion·움직임 정지·키보드/목록 대체·WebGL 실패 fallback을 제공한다. 모바일도 그래프로 진입하되 필터와 reader는 닫을 수 있는 dialog다.
+
+### ADR-021: 지정한 로컬 UI의 최종 스타일과 native WebGL renderer를 이식한다
+
+**결정 (2026-10-06)**: 사용자의 최신 요청은 로컬 `brain/ui/index.html`과 같은 모양이다. [직접 실행한 화면과 최종 CSS/JS 분석](LOCAL_BRAIN_UI_REFERENCE.md)을 기준으로 340px 검은 sidebar, sidebar 검색, pill 필터, 상단 hover controls, 세로 constellation, 하단 preview와 우측 하단 520px detail을 이식한다. Force simulation/Three.js 대신 원본의 native WebGL point/line shader와 2D label canvas를 사용하고, 원본 script를 앱에 삽입하는 대신 React lifecycle에 맞춰 타입과 자원 해제를 연결한다.
+
+**이유**: 다른 reference의 구조를 재해석한 Step 0은 시각적 요구를 충족하지 못했다. 원본은 이미 독립된 UI 코드이므로 동일한 수치와 렌더링을 재사용하는 것이 가장 직접적이다. 이식 후 불필요한 Three.js/d3-force-3d 및 전용 타입을 제거한다.
+
+**경계**: 원본의 회사 embedded data/본문/검색 인덱스/파일 fetch/AI prompt는 포함하지 않는다. 승인된 28개/42개 공개 DTO만 연결한다. Home/레이더·다른 route·Blog DB와 운영 보류는 그대로다. 실제 기록 종류·주제·정리일만 사용한다.
+
+**보정/트레이드오프**: 원본의 고정 sidebar가 모바일 graph를 가리는 문제는 767px 이하 drawer로 보정한다. 소수 노드의 한글 라벨 겹침도 원본 collision guard로 막는다. 실제 node drag, touch pinch, 키보드/정지/reduced-motion, 목록 fallback, 안전한 본문/URL 복원은 유지한다. Renderer는 공개 데이터만 받고 unmount 시 observer/listener/RAF/GPU 자원을 해제한다.
 
 ## 공식/내부 기준
 

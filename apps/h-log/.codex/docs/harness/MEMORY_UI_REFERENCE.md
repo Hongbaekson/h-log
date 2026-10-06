@@ -1,5 +1,7 @@
 # Memory UI 재분석
 
+이 문서는 Step 0의 분석 이력이다. 사용자가 해당 구현을 거절하고 로컬 UI의 직접 이식을 요청했으므로, 현재 기준은 [로컬 UI 이식](LOCAL_BRAIN_UI_REFERENCE.md)과 ADR-021이다. 아래 밝은 sidebar/Three.js 구현은 현재 화면을 설명하지 않는다.
+
 2026-10-06 사용자 수정 요청. [Career Hacker Memory](https://www.careerhackeralex.com/memory)의 실제 1440×1000/390×844 화면, DOM/computed styles와 브라우저가 내려받는 공개 JS/CSS를 분석했다. 서버 원본 저장소를 확인했다는 뜻은 아니다.
 
 ## 확인한 구조

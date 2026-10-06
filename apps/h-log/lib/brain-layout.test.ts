@@ -6,6 +6,14 @@ import { layoutBrainGraph, filterBrainGraph } from "./brain-layout.ts";
 
 const graph = selectPublicBrain(brainCatalog);
 
+it("uses the local reference constellation coordinates instead of a force sphere", () => {
+  const [first] = layoutBrainGraph(graph, "brain", 1);
+  assert.equal(first.id, "operable-backend");
+  assert.ok(Math.abs(first.x - -124.6642992387442) < 1e-8, "reference x coordinate");
+  assert.ok(Math.abs(first.y - -283.49453714285715) < 1e-8, "reference y coordinate");
+  assert.ok(Math.abs(first.z - 47.048610912594135) < 1e-8, "reference z coordinate");
+});
+
 it("lays out the real connections in three dimensions without mutating the public catalog", () => {
   const before = JSON.stringify(graph);
   const result = layoutBrainGraph(graph, "brain", 1);
@@ -20,12 +28,12 @@ it("lays out the real connections in three dimensions without mutating the publi
   }
 });
 
-it("provides distinct planar layouts and widens spacing without fabricating nodes", () => {
+it("provides distinct reference layouts and widens spacing without fabricating nodes", () => {
   const layouts = ["free", "topics", "hierarchy", "timeline"] as const;
   const shapes = layouts.map(layout => layoutBrainGraph(graph, layout, 1));
   assert.equal(new Set(shapes.map(shape => JSON.stringify(shape))).size, layouts.length);
   for (const shape of shapes) {
-    assert.ok(shape.every(n => n.z === 0 && Number.isFinite(n.x) && Number.isFinite(n.y)));
+    assert.ok(shape.every(n => [n.x, n.y, n.z].every(Number.isFinite)));
     assert.equal(shape.length, graph.nodes.length);
   }
   const normal = layoutBrainGraph(graph, "brain", 1);

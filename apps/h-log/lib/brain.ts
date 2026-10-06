@@ -39,7 +39,7 @@ export const brainKindLabels: Record<BrainKind, string> = {
 };
 
 export const brainKindColors: Record<BrainKind, string> = {
-  experience: "#b391e8", solution: "#74aaf0", reflection: "#d4ed70", learning: "#efe4cc", question: "#efb464",
+  experience: "#d5e7d2", solution: "#7fb0f2", reflection: "#cbb8ec", learning: "#eadfc8", question: "#ff7f8f",
 };
 
 export const brainBasisLabels: Record<BrainBasis, { label: string; description: string }> = {

@@ -50,7 +50,7 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
-2026-10-06 UI 수정 요청: 사용자가 초기 Second Brain 카드/격자 화면을 거절하고 Career Hacker Memory UI를 명시했다. [`second-brain-memory-interface / Step 0`](../../../phases/second-brain-memory-interface/step0.md)을 완료했다. [공개 클라이언트/화면 분석](MEMORY_UI_REFERENCE.md)과 ADR-020에 따라 전체 화면 3D, 260px 밝은 사이드바, 선택 시 본문 패널, 모바일 그래프/dialog로 교체했다. 배치 5종·필터·검색·URL 복원·노드 이동·회전·확대·목록/WebGL fallback을 검증했다. Unit 177 pass/12 DB skip, lint/typecheck/build, 1440/1024/768/390/320px 브라우저와 RED/GREEN 통과. 아래의 초기 SVG/격자 검증은 이전 버전의 이력이며 현재 UI 기준이 아니다. 다음 Second Brain 작업은 foundation Step 3이고, Home/레이더·기존 콘텐츠·Blog DB·OCI 보류는 유지한다.
+2026-10-06 최신 UI 수정 요청: 사용자는 카드/격자에 이어 Step 0의 재해석된 Memory 화면도 거절하고 지정한 로컬 UI와 같은 모양을 요청했다. [`second-brain-memory-interface / Step 1`](../../../phases/second-brain-memory-interface/step1.md)에서 [원본 최종 CSS/JS와 실제 화면](LOCAL_BRAIN_UI_REFERENCE.md)을 기준으로 340px 검은 sidebar, 내부 검색, native WebGL constellation, 하단 preview/우측 하단 detail을 이식했다(ADR-021). 기준 좌표와 sidebar 불일치 RED→GREEN, unit 178 pass/12 DB skip, lint/typecheck/build, 1440/1024/768/390/320px와 hover/필터/5종 배치/drag/pinch/URL/dialog/WebGL fallback을 검증했다. 앞선 SVG 및 Three.js 화면은 구현 이력이며 현재 기준이 아니다. 다음 Second Brain 작업은 foundation Step 3이고, Home/레이더·승인된 28개/42개·Blog DB·OCI 보류는 유지한다.
 
 2026-10-06 Second Brain 요청: [계획](SECOND_BRAIN_PLAN.md)과 `second-brain-foundation` Steps 0-5를 등록했다. 사용자의 추가 18개 노드 공개 승인으로 Step 1의 보류를 해소하고 Steps 0-2를 완료했다. 전체 28개 노드/42개 연결을 공개 카탈로그·검색·그래프·상세에 반영했다. 커진 그래프의 겹침, 위치 초기화와 필터 밖 연결 탐색을 RED/GREEN으로 수정했다. Unit 174 pass/12 DB skip, lint/typecheck/build, 28개 상세 HTTP 200과 데스크톱/모바일 검증을 통과했다. 전체 sitemap HTTP 검증은 로컬 DB 설정 부재로 미완료이며 공개 경로 XML과 비공개 제외는 별도로 검증했다. 다음은 Step 3의 소유자 전용 비공개 작성/DB 저장이며 회고·AI 제안은 그 이후다. 기존 Blog 개선/운영 모니터링 계획과 OCI 보류를 변경하지 않는다.
 

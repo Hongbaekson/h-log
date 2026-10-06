@@ -1,5 +1,7 @@
 # Step 0: memory-workspace
 
+이 step은 구현 이력이다. 사용자가 결과를 거절하고 지정한 로컬 UI와 같은 모양을 요청했으므로, 현재 기준은 [Step 1](step1.md)과 ADR-021이다.
+
 ## 읽을 파일
 
 - `AGENTS.md`, `.codex/docs/harness/{PRD,ADR,ARCHITECTURE,WORKFLOW,AGENT_LOOP,IMPLEMENTATION_PLAN,SECOND_BRAIN_PLAN}.md`
