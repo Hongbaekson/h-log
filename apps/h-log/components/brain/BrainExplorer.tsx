@@ -1,146 +1,140 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { ArrowDown, ArrowUpRight, BookOpen, List, Minus, Network, Plus, RotateCcw, Search, X } from "lucide-react";
-
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { ArrowLeft, ArrowUpRight, Eye, EyeOff, List, Maximize, Minus, Network, Pause, Play, Plus, RotateCcw, Search, SlidersHorizontal, X } from "lucide-react";
 import { BrainNote } from "@/components/brain/BrainNote";
-import { brainBasisLabels, brainKindLabels, brainTopics, findBrainNode, searchBrainNodes, type BrainGraph, type BrainKind, type BrainTopic } from "@/lib/brain";
+import type { BrainSceneHandle } from "@/components/brain/BrainScene";
+import { brainBasisLabels, brainKindColors, brainKindLabels, brainRelationLabels, brainTopics, findBrainNode, type BrainGraph, type BrainKind, type BrainRelation, type BrainTopic } from "@/lib/brain";
+import { filterBrainGraph, type BrainLayout } from "@/lib/brain-layout";
 
-const mobileQuery = "(max-width: 767px)";
-function subscribeMobile(callback: () => void) {
-  const media = window.matchMedia(mobileQuery);
+const BrainScene = dynamic(() => import("./BrainScene"), { ssr: false, loading: () => <p className="memory-loading" role="status">기억의 연결을 펼치는 중…</p> });
+const layouts: Record<BrainLayout, string> = { brain: "브레인", free: "자유", topics: "주제별", hierarchy: "계층", timeline: "시간순" };
+const reducedMotionQuery = "(prefers-reduced-motion: reduce)";
+function subscribeMotion(callback: () => void) {
+  const media = window.matchMedia(reducedMotionQuery);
   media.addEventListener("change", callback);
   return () => media.removeEventListener("change", callback);
 }
-const getMobile = () => window.matchMedia(mobileQuery).matches;
-const getServerMobile = () => false;
+const readReducedMotion = () => window.matchMedia(reducedMotionQuery).matches;
+const serverReducedMotion = () => true;
 
-function BrainMap({ graph, visibleIds, selectedId, onSelect }: {
-  graph: BrainGraph; visibleIds: Set<string>; selectedId?: string; onSelect: (id: string) => void;
-}) {
-  const [zoom, setZoom] = useState(1);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const topics = Object.keys(brainTopics);
-  const visibleNodes = graph.nodes.filter(node => visibleIds.has(node.id))
-    .sort((a, b) => topics.indexOf(a.topic) - topics.indexOf(b.topic));
-  const canvasHeight = Math.max(580, Math.ceil(visibleNodes.length / 4) * 112 + 40);
-  const visibleNodeIds = visibleNodes.map(node => node.id).join(",");
-  const positions = new Map(visibleNodes.map((node, index) => {
-    const row = Math.floor(index / 4);
-    return [node.id, { x: 14 + (index % 4) * 22 + (row % 2) * 6, y: (48 + row * 112) / canvasHeight * 100 }];
-  }));
-  const neighbors = new Set(graph.edges.filter(edge => edge.from === selectedId || edge.to === selectedId).flatMap(edge => [edge.from, edge.to]));
-
+function MemoryDialog({ label, type, onClose, children }: { label: string; type: "reader" | "filters"; onClose: () => void; children: ReactNode }) {
+  const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
-    const scroller = scrollRef.current!;
-    const selected = scroller.querySelector<HTMLButtonElement>('button[aria-pressed="true"]');
-    scroller.scrollTo({
-      top: selected ? selected.offsetTop - scroller.clientHeight / 2 : 0,
-      left: selected ? selected.offsetLeft - scroller.clientWidth / 2 : 0,
-    });
-  }, [selectedId, visibleNodeIds]);
-
-  return <div className="brain-map">
-    <div className="brain-map-scroll" ref={scrollRef}>
-      <div className="brain-map-canvas" style={{ width: `${zoom * 100}%`, minWidth: 680 * zoom, height: canvasHeight * zoom }}>
-        <svg className="brain-map-edges" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-          {graph.edges.filter(edge => visibleIds.has(edge.from) && visibleIds.has(edge.to)).map(edge => {
-            const from = positions.get(edge.from)!;
-            const to = positions.get(edge.to)!;
-            return <line key={`${edge.from}-${edge.to}-${edge.relation}`} x1={from.x} y1={from.y} x2={to.x} y2={to.y}
-              className={edge.from === selectedId || edge.to === selectedId ? "is-connected" : ""} vectorEffect="non-scaling-stroke" />;
-          })}
-        </svg>
-        {visibleNodes.map(node => {
-          const position = positions.get(node.id)!;
-          return <button key={node.id} type="button"
-            aria-label={`${node.title} 읽기`} aria-pressed={selectedId === node.id}
-            className={`brain-map-node ${selectedId === node.id ? "is-selected" : ""} ${selectedId && !neighbors.has(node.id) && selectedId !== node.id ? "is-distant" : ""}`}
-            style={{ left: `${position.x}%`, top: `${position.y}%`, color: brainTopics[node.topic].color }}
-            onClick={() => onSelect(node.id)}>
-            <span className="brain-node-dot" aria-hidden="true" /><span className="brain-node-title">{node.title}</span>
-          </button>;
-        })}
-      </div>
-    </div>
-    <div className="brain-map-footer">
-      <p className="brain-map-hint">지도를 스크롤하고, 기록을 선택해 읽어 보세요.</p>
-      <div className="brain-map-tools" aria-label="그래프 배율">
-        <button type="button" aria-label="그래프 축소" disabled={zoom === 1} onClick={() => setZoom(value => Math.max(1, value - .25))}><Minus size={16} /></button>
-        <span>{Math.round(zoom * 100)}%</span>
-        <button type="button" aria-label="그래프 확대" disabled={zoom === 2} onClick={() => setZoom(value => Math.min(2, value + .25))}><Plus size={16} /></button>
-        <button type="button" aria-label="그래프 위치와 배율 초기화" onClick={() => { setZoom(1); scrollRef.current?.scrollTo(0, 0); }}><RotateCcw size={15} /></button>
-      </div>
-    </div>
-  </div>;
+    const dialog = ref.current!;
+    const trigger = document.activeElement as HTMLElement | null;
+    const media = window.matchMedia("(max-width: 767px)");
+    const show = () => {
+      dialog.close();
+      if (type === "filters" || media.matches) dialog.showModal(); else dialog.show();
+    };
+    show();
+    media.addEventListener("change", show);
+    return () => {
+      media.removeEventListener("change", show);
+      dialog.close();
+      const target = trigger?.isConnected && trigger !== document.body ? trigger : document.querySelector<HTMLInputElement>('.memory-search input');
+      target?.focus({preventScroll:true});
+    };
+  }, [type]);
+  return <dialog ref={ref} className={`memory-dialog memory-${type}`} aria-label={label}
+    onCancel={event => { event.preventDefault(); onClose(); }}
+    onKeyDown={event => { if (event.key === "Escape") { event.preventDefault(); onClose(); } }}
+    onClick={event => { if (event.target === event.currentTarget) { const r=event.currentTarget.getBoundingClientRect(); if (event.clientX<r.left || event.clientX>r.right || event.clientY<r.top || event.clientY>r.bottom) onClose(); } }}>
+    {children}
+  </dialog>;
 }
 
 export function BrainExplorer({ graph }: { graph: BrainGraph }) {
   const params = useSearchParams();
-  const isMobile = useSyncExternalStore(subscribeMobile, getMobile, getServerMobile);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [unavailable, setUnavailable] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [revision, setRevision] = useState(0);
+  const api = useRef<BrainSceneHandle | null>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const readerRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useSyncExternalStore(subscribeMotion, readReducedMotion, serverReducedMotion);
   const query = params.get("q") ?? "";
   const topic = params.get("topic") ?? "all";
-  const kind = params.get("kind") ?? "all";
-  const view = params.get("view") === "list" ? "list" : params.get("view") === "graph" ? "graph" : isMobile ? "list" : "graph";
+  const tag = params.get("tag") ?? "";
+  const kind = params.get("kind") ?? "";
+  const relation = params.get("relation") ?? "";
+  const basis = params.get("basis") ?? "";
+  const lens = params.get("lens") ?? "all";
+  const layout = Object.hasOwn(layouts, params.get("layout") ?? "") ? params.get("layout") as BrainLayout : "brain";
+  const color = params.get("color") === "topic" ? "topic" : "kind";
+  const spread = params.get("spacing") === "wide" ? 1.5 : params.get("spacing") === "compact" ? .7 : 1;
+  const labels = params.get("labels") !== "off";
+  const view = params.get("view") === "list" || unavailable ? "list" : "graph";
   const selected = findBrainNode(graph, params.get("note") ?? "");
-  const results = searchBrainNodes(graph, { query, topic, kind });
-  const detailRef = useRef<HTMLElement>(null);
+  useEffect(() => { if (selected) readerRef.current?.focus({preventScroll:true}); }, [selected]);
+  const results = useMemo(() => filterBrainGraph(graph, {query, topic, tag, kinds:kind && kind !== "all" ? kind.split(",") : [], relations:relation ? relation.split(",") : [], basis}), [graph, query, topic, tag, kind, relation, basis]);
+  const tags = useMemo(() => {
+    const counts = new Map<string, number>();
+    graph.nodes.forEach(node => node.tags.forEach(value => counts.set(value, (counts.get(value) ?? 0)+1)));
+    return [...counts].sort((a,b) => b[1]-a[1]).slice(0,14);
+  }, [graph]);
+  const filtered = Boolean(query || topic !== "all" || tag || kind || relation || basis);
 
   function update(values: Record<string, string | null>, replace = false) {
     const next = new URLSearchParams(window.location.search);
-    Object.entries(values).forEach(([key, value]) => value && value !== "all" ? next.set(key, value) : next.delete(key));
+    Object.entries(values).forEach(([key,value]) => value && value !== "all" ? next.set(key,value) : next.delete(key));
     const url = `${window.location.pathname}${next.size ? `?${next}` : ""}`;
-    if (replace) window.history.replaceState(null, "", url);
-    else window.history.pushState(null, "", url);
+    if (replace) window.history.replaceState(null,"",url); else window.history.pushState(null,"",url);
+  }
+  function clearFilters() { update({q:null,topic:null,tag:null,kind:null,relation:null,basis:null,lens:null,note:null}); }
+  function select(id: string | null) {
+    update({note:id, ...((id && !results.nodes.some(node => node.id === id)) ? {q:null,topic:null,tag:null,kind:null,relation:null,basis:null,lens:null} : {})});
+    setFiltersOpen(false);
+  }
+  function toggle(key: "kind" | "relation", value: string) {
+    const values = new Set((params.get(key) ?? "").split(",").filter(Boolean));
+    if (values.has(value)) values.delete(value); else values.add(value);
+    update({[key]:[...values].join(","),lens:null,note:null});
+  }
+  function chooseLens(value: string) {
+    update({lens:value,topic:null,tag:null,q:null,kind:value === "thoughts" ? "reflection,question" : null,relation:null,basis:null,
+      layout:value === "topics" ? "topics" : value === "connections" ? "hierarchy" : "brain",color:value === "topics" ? "topic" : "kind",note:null});
   }
 
-  function select(id: string) {
-    update({ note: id, ...(!results.some(node => node.id === id) ? { q: null, topic: null, kind: null } : {}) });
-    if (isMobile) {
-      detailRef.current?.scrollIntoView({ block: "start" });
-      detailRef.current?.focus({ preventScroll: true });
-    }
-  }
-
-  return <div className="brain-explorer">
-    <div className="brain-toolbar">
-      <label className="brain-search"><Search size={17} aria-hidden="true" /><input type="search" aria-label="기록 검색" placeholder="어떤 생각을 찾고 있나요?" value={query} onChange={event => update({ q: event.target.value, note: null }, true)} /></label>
-      <label className="brain-kind-filter"><span className="sr-only">기록 종류</span><select aria-label="기록 종류" value={kind} onChange={event => update({ kind: event.target.value, note: null })}>
-        <option value="all">모든 종류</option>{(Object.keys(brainKindLabels) as BrainKind[]).map(key => <option key={key} value={key}>{brainKindLabels[key]}</option>)}
-      </select></label>
-      <div className="brain-view-switch" aria-label="보기 방식">
-        <button type="button" aria-pressed={view === "graph"} onClick={() => update({ view: "graph" })}><Network size={16} aria-hidden="true" />그래프</button>
-        <button type="button" aria-pressed={view === "list"} onClick={() => update({ view: "list" })}><List size={16} aria-hidden="true" />목록</button>
-      </div>
-    </div>
-    <div className="brain-topics" aria-label="주제 필터">
-      <button type="button" aria-pressed={topic === "all"} onClick={() => update({ topic: null, note: null })}>전체 <span>{graph.nodes.length}</span></button>
-      {(Object.keys(brainTopics) as BrainTopic[]).filter(key => graph.nodes.some(node => node.topic === key)).map(key => <button key={key} type="button" aria-pressed={topic === key} onClick={() => update({ topic: key, note: null })}>
-        <i aria-hidden="true" style={{ background: brainTopics[key].color }} />{brainTopics[key].label}<span>{graph.nodes.filter(node => node.topic === key).length}</span>
-      </button>)}
-    </div>
-    <div className="brain-workspace">
-      <section className="brain-discovery" aria-label="기록 탐색">
-        <div className="brain-discovery-heading"><h2>{view === "graph" ? "생각의 연결" : "기록 모아보기"}</h2><p role="status" aria-live="polite">{results.length}개 기록</p></div>
-        {results.length === 0 ? <div className="brain-empty"><Search size={26} aria-hidden="true" /><h3>검색 결과가 없습니다.</h3><p>다른 단어를 찾거나 필터를 풀어 보세요.</p><button type="button" onClick={() => update({ q: null, topic: null, kind: null, note: null })}>필터 초기화</button></div>
-          : view === "graph" ? <BrainMap graph={graph} visibleIds={new Set(results.map(node => node.id))} selectedId={selected?.id} onSelect={select} />
-            : <ul className="brain-node-list">{results.map(node => <li key={node.id}><button type="button" aria-label={`${node.title} 읽기`} aria-pressed={selected?.id === node.id} onClick={() => select(node.id)}>
-              <span className="brain-list-meta"><span style={{ color: brainTopics[node.topic].color }}>{brainTopics[node.topic].label}</span><span>{brainKindLabels[node.kind]} · {brainBasisLabels[node.basis].label}</span></span>
-              <span className="brain-list-title">{node.title}</span><span className="brain-list-summary">{node.summary}</span>
-            </button></li>)}</ul>}
-        <div className="brain-discovery-footer"><span>작은 기록에서 시작해, 연결하며 이해하기</span>{selected && <button type="button" className="brain-read-on-mobile" onClick={() => { detailRef.current?.scrollIntoView({ block: "start" }); detailRef.current?.focus({ preventScroll: true }); }}>선택한 기록 읽기 <ArrowDown size={14} /></button>}</div>
+  function sidebar(mobile = false) {
+    return <div className="memory-sidebar-content">
+      <div className="memory-sidebar-top"><Link href="/" className="memory-circle" aria-label="H-Log 홈으로"><ArrowLeft size={16} /></Link><Link href="/" className="memory-brand">h-log<span>.</span></Link>{mobile && <button type="button" className="memory-circle" aria-label="필터 닫기" onClick={() => setFiltersOpen(false)}><X size={17} /></button>}</div>
+      <div className="memory-identity"><p>지식 그래프</p>{mobile ? <h2>Second Brain</h2> : <h1>Second Brain</h1>}<p className="memory-totals"><strong>{graph.nodes.length}</strong> 노드 <span>·</span> <strong>{graph.edges.length}</strong> 연결</p></div>
+      <section className="memory-filter-section"><h2>렌즈</h2><div className="memory-chips">{[["all","전체"],["topics","토픽별"],["connections","연결 중심"],["thoughts","생각과 질문"],["basis","구현과 회고"]].map(([value,label]) => <button key={value} type="button" aria-pressed={lens === value} onClick={() => chooseLens(value)}>{label}</button>)}</div>
+        {lens === "basis" && <div className="memory-basis-options">{Object.entries(brainBasisLabels).map(([value,description]) => <button type="button" key={value} aria-pressed={basis === value} onClick={() => update({basis:basis === value ? null : value,note:null})}>{description.label}<span>{graph.nodes.filter(node => node.basis === value).length}</span></button>)}</div>}
       </section>
-      <aside className="brain-reader" ref={detailRef} tabIndex={-1} aria-label="기록 읽기">
-        <div className="brain-reader-heading"><span><BookOpen size={15} aria-hidden="true" />기록 읽기</span>{selected && <div><Link href={`/brain/${selected.id}`} aria-label="이 기록만 보기">개별 페이지 <ArrowUpRight size={14} aria-hidden="true" /></Link><button type="button" aria-label="기록 선택 해제" onClick={() => update({ note: null })}><X size={16} /></button></div>}</div>
-        {selected ? <BrainNote node={selected} graph={graph} onSelect={select} /> : <div className="brain-reader-welcome">
-          <span className="brain-welcome-mark"><Network size={27} aria-hidden="true" /></span><h2>생각을 따라가 보세요.</h2><p>해결한 문제, 아직 남은 질문, 잊고 싶지 않은 생각을 연결해 둡니다.</p>
-          <p className="brain-start-label">여기서 시작해 볼까요?</p>
-          {graph.nodes.slice(0, 3).map(node => <button type="button" key={node.id} onClick={() => select(node.id)}>{node.title}<ArrowUpRight size={16} aria-hidden="true" /></button>)}
-          <p className="brain-welcome-footnote">기록을 고르면 본문과 연결 이유를 함께 읽을 수 있습니다.</p>
-        </div>}
-      </aside>
-    </div>
+      <section className="memory-filter-section"><h2>주제 · 태그로 보기</h2><h3>태그</h3><div className="memory-chips memory-tags">{tags.map(([value,count]) => <button type="button" key={value} aria-pressed={tag === value} onClick={() => update({tag:tag === value ? null : value,note:null})}>{value}<span>{count}</span></button>)}</div><h3>토픽</h3><div className="memory-chips memory-topics">{(Object.keys(brainTopics) as BrainTopic[]).map(value => <button key={value} type="button" aria-pressed={topic === value} onClick={() => update({topic:topic === value ? null : value,note:null})}>{brainTopics[value].label}<span>{graph.nodes.filter(node => node.topic === value).length}</span></button>)}</div></section>
+      <section className="memory-filter-section"><h2>노드 유형</h2><div className="memory-filter-rows">{(Object.keys(brainKindLabels) as BrainKind[]).map(value => <button key={value} type="button" aria-pressed={kind.split(",").includes(value)} onClick={() => toggle("kind",value)}><i style={{background:brainKindColors[value]}} /><span>{brainKindLabels[value]} <small>{value}</small></span><em>{graph.nodes.filter(node => node.kind === value).length}</em></button>)}</div></section>
+      <section className="memory-filter-section"><h2>엣지 유형</h2><div className="memory-filter-rows memory-edge-types">{(Object.keys(brainRelationLabels) as BrainRelation[]).map(value => <button key={value} type="button" aria-pressed={relation.split(",").includes(value)} onClick={() => toggle("relation",value)}><i /><span>{brainRelationLabels[value]} <small>{value}</small></span><em>{graph.edges.filter(edge => edge.relation === value).length}</em></button>)}</div></section>
+      <section className="memory-filter-section memory-settings"><h2>배치</h2><div className="memory-segments memory-layout-options">{(Object.keys(layouts) as BrainLayout[]).map(value => <button key={value} type="button" aria-pressed={layout === value} onClick={() => update({layout:value,view:"graph"})}>{layouts[value]}</button>)}</div><h2>색상 기준</h2><div className="memory-segments">{[["kind","유형"],["topic","분야"]].map(([value,label]) => <button type="button" key={value} aria-pressed={color === value} onClick={() => update({color:value})}>{label}</button>)}</div><h2>노드 간격</h2><div className="memory-segments">{[["compact","좁게",.7],["normal","보통",1],["wide","넓게",1.5]].map(([value,label,factor]) => <button type="button" key={value} aria-pressed={spread === factor} onClick={() => update({spacing:String(value)})}>{label}</button>)}</div>
+        <div className="memory-setting-actions"><button type="button" onClick={() => setRevision(value => value+1)}><RotateCcw size={14} />다시 정렬</button><button type="button" onClick={() => update({labels:labels ? "off" : null})}>{labels ? <EyeOff size={14} /> : <Eye size={14} />}{labels ? "라벨 숨기기" : "라벨 보기"}</button>{filtered && <button type="button" onClick={clearFilters}>필터 초기화</button>}</div>
+        <p>드래그로 돌리고 스크롤로 확대해 보세요.<br />노드를 선택하면 본문이 열립니다.</p><p>해결한 문제와 남겨 둔 질문.<br />작은 기록에서 생각의 연결을 찾습니다.</p>
+      </section>
+    </div>;
+  }
+
+  return <div className="memory-workspace">
+    <h1 className="memory-mobile-title sr-only">Second Brain</h1>
+    <aside className="memory-sidebar" aria-label="그래프 필터">{sidebar()}</aside>
+    <section className="memory-stage" aria-label="기억의 연결 지도">
+      {view === "graph" && <BrainScene graph={graph} matches={results} selectedId={selected?.id} layout={layout} spread={spread} color={color} labels={labels} paused={paused} revision={revision} apiRef={api} onSelect={select} onUnavailable={() => setUnavailable(true)} />}
+      <div className={`memory-topbar ${selected ? "has-reader" : ""}`}>
+        <button type="button" className="memory-mobile-filter memory-circle" aria-label="필터 열기" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(true)}><SlidersHorizontal size={17} /></button>
+        <div className="memory-search-wrap"><div className="memory-search"><Search size={17} aria-hidden="true" /><input ref={searchRef} type="search" aria-label="기록 검색" placeholder="Second Brain에서 생각 찾기" value={query} onChange={event => update({q:event.target.value,note:null},true)} onKeyDown={event => {if (event.key === "Enter" && results.nodes[0]) select(results.nodes[0].id); if (event.key === "Escape") update({q:null},true);}} />{query ? <button type="button" aria-label="검색 지우기" onClick={() => {update({q:null},true);searchRef.current?.focus();}}><X size={17} /></button> : <ArrowUpRight size={17} aria-hidden="true" />}</div>
+          {query && !selected && <div className="memory-search-results" aria-label="검색 결과"><p>{results.nodes.length}개 기록</p>{results.nodes.slice(0,6).map(node => <button key={node.id} type="button" onClick={() => select(node.id)}><i style={{background:brainKindColors[node.kind]}} /><span>{node.title}<small>{brainTopics[node.topic].label}</small></span><ArrowUpRight size={14} /></button>)}{!results.nodes.length && <p>다른 단어나 필터로 찾아보세요.</p>}{results.nodes.length > 6 && <button type="button" onClick={() => update({view:"list"})}>검색 결과 모두 보기</button>}</div>}
+        </div>
+        <button type="button" className="memory-circle memory-view-toggle" aria-label={view === "graph" ? "목록 보기" : "그래프 보기"} onClick={() => {if (unavailable) setUnavailable(false);update({view:view === "graph" ? "list" : "graph"});}}>{view === "graph" ? <List size={17} /> : <Network size={17} />}</button>
+      </div>
+      {view === "list" && <div className="memory-list" aria-label="기록 목록">{unavailable && <p className="memory-fallback" role="status">이 환경에서는 3D 그래프를 열 수 없어 기록을 목록으로 보여드립니다.</p>}<header><h2>기록 모아보기</h2><p>{results.nodes.length}개 기록 · {results.edges.length}개 연결</p></header><ul>{results.nodes.map(node => <li key={node.id}><button type="button" aria-pressed={selected?.id === node.id} aria-label={`${node.title} 읽기`} onClick={() => select(node.id)}><div><i style={{background:brainKindColors[node.kind]}} /><span>{brainKindLabels[node.kind]} · {brainTopics[node.topic].label}</span><small>{brainBasisLabels[node.basis].label}</small></div><h3>{node.title}</h3><p>{node.summary}</p></button></li>)}</ul></div>}
+      {results.nodes.length === 0 && !query && <div className="memory-empty"><p>이 조건에 맞는 기록이 없습니다.</p><button type="button" onClick={clearFilters}>필터 초기화</button></div>}
+      <div className="memory-bottom"><p role="status" aria-live="polite">{filtered ? `${results.nodes.length} / ${graph.nodes.length}개 기록 · ${results.edges.length}개 연결` : `${graph.nodes.length}개의 기억, ${graph.edges.length}개의 연결`}{layout === "timeline" && <span>정리일 기준 · {[...new Set(graph.nodes.map(node=>node.recordedAt))].sort().join(" · ")}</span>}{layout === "hierarchy" && <span>연결이 많은 기록으로부터의 거리</span>}</p>{view === "graph" && <div className="memory-camera-tools" aria-label="그래프 조작">{layout === "brain" && !reducedMotion && <button type="button" aria-label={paused ? "자동 회전 시작" : "자동 회전 정지"} aria-pressed={paused} onClick={() => setPaused(value=>!value)}>{paused ? <Play size={15} /> : <Pause size={15} />}</button>}<button type="button" aria-label="그래프 축소" onClick={() => api.current?.zoom(1.2)}><Minus size={16} /></button><button type="button" aria-label="그래프 전체 보기" onClick={() => api.current?.reset()}><Maximize size={15} /></button><button type="button" aria-label="그래프 확대" onClick={() => api.current?.zoom(1/1.2)}><Plus size={16} /></button></div>}</div>
+    </section>
+    {filtersOpen && <MemoryDialog label="그래프 필터" type="filters" onClose={() => setFiltersOpen(false)}>{sidebar(true)}</MemoryDialog>}
+    {selected && <MemoryDialog label="기록 읽기" type="reader" onClose={() => select(null)}><div className="memory-reader-toolbar"><Link href={`/brain/${selected.id}`}>개별 페이지 <ArrowUpRight size={14} /></Link><button type="button" className="memory-circle" aria-label="기록 닫기" onClick={() => select(null)}><X size={17} /></button></div><div className="memory-reader-body" ref={readerRef} tabIndex={-1} key={selected.id}><BrainNote node={selected} graph={graph} onSelect={select} /></div></MemoryDialog>}
   </div>;
 }

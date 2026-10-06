@@ -1,0 +1,7 @@
+{
+  "project": "h-log",
+  "phase": "second-brain-memory-interface",
+  "steps": [
+    { "step": 0, "name": "memory-workspace", "status": "completed", "summary": "2026-10-06: 실제 Memory desktop/mobile과 공개 JS/CSS를 재분석해 260px sidebar·전체 화면 Three.js 그래프·선택 시 reader로 교체했다. d3-force-3d 배치 5종, 회전/확대/노드 이동, 필터·검색·URL 복원·목록·모바일 dialog와 WebGL fallback을 구현했다. 전체 화면/배치·필터/모바일 축척/숨김 라벨/검색 닫기 focus RED→GREEN. Unit 177 pass/12 DB skip, lint/typecheck/build, 1440/1024/768/390/320px와 키보드·뒤로가기·연결 탐색·WebGL 실패/상실 검증 통과. 28개/42개 카탈로그·Home/레이더·Blog DB·OCI 보류는 유지한다." }
+  ]
+}

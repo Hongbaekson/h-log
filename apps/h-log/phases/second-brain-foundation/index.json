@@ -5,7 +5,7 @@
     { "step": 0, "name": "content-and-provenance", "status": "completed", "summary": "소개·경력과 지정 폴더를 읽기 전용으로 조사했다. 28개 노드/42개 연결의 비공개 검토본과 근거 대장을 private/에 작성하고 Git·Docker·앱 import에서 제외했다. 구현 관찰/회고 초안/질문을 구분했다." },
     { "step": 1, "name": "public-catalog-contract", "status": "completed", "summary": "2026-10-06 사용자가 검토본의 추가 18개 노드 공개를 명시 승인해 보류를 해소했다. 편집형 카탈로그는 28개 노드/42개 연결이며 원문·Wiki·근거 경로는 제외한다. 신규 노드 404 RED 후 28개 상세 200 GREEN, 공개 DTO/검색/출처/사이트맵 XML과 관계 무결성 검증 통과. 근거 수준과 추론 표시는 유지했다." },
     { "step": 2, "name": "graph-and-reading", "status": "completed", "summary": "28개 노드로 /brain과 /brain/[slug], 메뉴, 그래프/목록, 검색/주제/종류, 읽기 패널과 URL 복원을 검증했다. 42쌍 클릭 영역 겹침을 주제순 간격 배치로 해결하고 위치 초기화·필터 밖 연결 탐색을 RED/GREEN으로 수정했다. Unit 174 pass/12 DB skip, lint/typecheck/build, 1440/1024/768 그래프 겹침 0·390/320 읽기·키보드·뒤/앞 이동 통과. 전체 sitemap HTTP는 DB 설정 부재로 미검증이며 XML 경계는 검증했다. 인증/작성/운영 배포는 후속 범위다." },
-    { "step": 3, "name": "private-capture", "status": "pending" },
+    { "step": 3, "name": "private-capture", "status": "pending", "summary": "Step 2의 초기 격자 UI는 이후 second-brain-memory-interface Step 0에서 사용자 요청에 따라 전체 화면 3D 탐색으로 대체했다. 비공개 작성/인증/DB 저장은 이 step에서 별도로 진행한다." },
     { "step": 4, "name": "revisit-and-curation", "status": "pending" },
     { "step": 5, "name": "assisted-linking", "status": "pending" }
   ]

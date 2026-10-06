@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-06 UI 수정 요청: 사용자가 초기 Second Brain 카드/격자 화면을 거절하고 Career Hacker Memory UI를 명시했다. [`second-brain-memory-interface / Step 0`](../../../phases/second-brain-memory-interface/step0.md)을 완료했다. [공개 클라이언트/화면 분석](MEMORY_UI_REFERENCE.md)과 ADR-020에 따라 전체 화면 3D, 260px 밝은 사이드바, 선택 시 본문 패널, 모바일 그래프/dialog로 교체했다. 배치 5종·필터·검색·URL 복원·노드 이동·회전·확대·목록/WebGL fallback을 검증했다. Unit 177 pass/12 DB skip, lint/typecheck/build, 1440/1024/768/390/320px 브라우저와 RED/GREEN 통과. 아래의 초기 SVG/격자 검증은 이전 버전의 이력이며 현재 UI 기준이 아니다. 다음 Second Brain 작업은 foundation Step 3이고, Home/레이더·기존 콘텐츠·Blog DB·OCI 보류는 유지한다.
+
 2026-10-06 Second Brain 요청: [계획](SECOND_BRAIN_PLAN.md)과 `second-brain-foundation` Steps 0-5를 등록했다. 사용자의 추가 18개 노드 공개 승인으로 Step 1의 보류를 해소하고 Steps 0-2를 완료했다. 전체 28개 노드/42개 연결을 공개 카탈로그·검색·그래프·상세에 반영했다. 커진 그래프의 겹침, 위치 초기화와 필터 밖 연결 탐색을 RED/GREEN으로 수정했다. Unit 174 pass/12 DB skip, lint/typecheck/build, 28개 상세 HTTP 200과 데스크톱/모바일 검증을 통과했다. 전체 sitemap HTTP 검증은 로컬 DB 설정 부재로 미완료이며 공개 경로 XML과 비공개 제외는 별도로 검증했다. 다음은 Step 3의 소유자 전용 비공개 작성/DB 저장이며 회고·AI 제안은 그 이후다. 기존 Blog 개선/운영 모니터링 계획과 OCI 보류를 변경하지 않는다.
 
 2026-10-06 추가 등록: [운영 모니터링 계획](OBSERVABILITY_PLAN.md)과 `operations-observability`의 8개 step을 등록했다. Steps 0–6은 로컬 지표 계약/자원 예산 → private Prometheus/Grafana → host/DB/HTTP 수집 → 지속 발행/비용 신호 → 백업/복구 신호 → 대시보드/알림 → 장애/soak 검증이며 모두 pending이다. Step 7 운영 적용/외부 감시는 기존 OCI 보류로 blocked다. 모니터링을 지정하면 Step 0부터 진행하고 일반적인 다음 작업은 아래 공개 경험 개선 Step 3를 유지한다. `auto-publish-ops-hardening / Step 4`의 반복 timer 활성화 전에 운영 모니터링을 검증한다. 모니터링 phase 자체는 timer를 켜지 않으며 계획 등록을 구현 완료로 간주하지 않는다.

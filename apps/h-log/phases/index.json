@@ -168,7 +168,12 @@
     {
       "dir": "second-brain-foundation",
       "status": "pending",
-      "summary": "2026-10-06: user explicitly approved the additional 18 generalized nodes. Steps 0-2 are completed with 28 public nodes/42 edges, graph/list/detail/search and URL navigation. Crowded node targets, zoom reset and cross-filter links were fixed with RED/GREEN. Unit 174 pass/12 DB skip, lint/typecheck/build and desktop/mobile checks passed. Next is Step 3 private capture; reflection/AI steps and the OCI hold remain pending. Private source records are excluded from Git, Docker and runtime imports."
+      "summary": "2026-10-06: user approved the additional 18 generalized nodes. Steps 0-2 delivered 28 public nodes/42 edges and public DTO/detail/search/URL boundaries. The initial grid UI was subsequently replaced in second-brain-memory-interface Step 0 by the requested full-screen 3D explorer. Next is Step 3 private capture; reflection/AI and OCI hold remain pending. Private source records are excluded from Git, Docker and runtime imports."
+    },
+    {
+      "dir": "second-brain-memory-interface",
+      "status": "completed",
+      "summary": "2026-10-06 user correction: replaced the rejected card/grid explorer with Memory's full-viewport 3D graph, 260px light sidebar and selection-only reader. Public client source analysis, RED/GREEN, unit 177 pass/12 DB skip, lint/typecheck/build and five-width desktop/mobile checks passed. Approved 28 nodes/42 edges, Home/radar and OCI hold preserved. Continue private capture only as a separate foundation Step 3."
     },
     {
       "dir": "terraform-infrastructure-adoption",

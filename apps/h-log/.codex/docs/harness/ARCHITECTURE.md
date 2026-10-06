@@ -40,7 +40,11 @@ npm run build
 
 `/brain`과 `/brain/[slug]`는 ADR-019의 편집형 카탈로그를 읽는 독립 공개 화면이다. `lib/brain-catalog.ts`에는 기존 공개 자료 기반 노드와 2026-10-06 사용자가 공개 승인한 일반화된 추가 18개 노드를 합쳐 28개 노드/42개 관계를 둔다. 원문·Wiki·식별자·근거 경로는 포함하지 않는다. `private/`의 검토본과 근거 대장은 Git·Docker에서 제외하고, 카탈로그가 이 파일들을 import하거나 자동 동기화하지 않는다.
 
-`lib/brain.ts`의 `selectPublicBrain`은 명시적으로 고른 필드만 DTO로 만들고, 공개 노드끼리의 공개 관계만 반환한다. 출처는 기존 public HTTPS URL 검증과 허용한 Resume/Portfolio 경로를 사용한다. 서버 page가 이 DTO를 `BrainExplorer`에 전달하며, 클라이언트는 검색·주제/종류 필터·SVG 그래프·목록·읽기 패널을 제공한다. 지도는 필터 결과를 주제순으로 간격을 확보해 배치하고 내부 스크롤로 탐색한다. 필터와 선택은 URL search params에 남기고 모바일은 목록을 기본으로 한다. 필터 밖 연결을 선택하면 필터를 해제해 기록을 지도에도 표시한다. `BrainNote`는 패널과 개별 페이지의 본문·근거 수준·연결 이유·출처 렌더링을 공유한다.
+`lib/brain.ts`의 `selectPublicBrain`은 명시적으로 고른 필드만 DTO로 만들고, 공개 노드끼리의 공개 관계만 반환한다. 출처는 기존 public HTTPS URL 검증과 허용한 Resume/Portfolio 경로를 사용한다. 서버 page가 이 DTO를 `BrainExplorer`에 전달한다. ADR-020에 따라 `/brain`은 `memory.css`의 전체 화면과 260px 사이드바를 사용한다. `body:has(.memory-page)`에만 공통 header/footer 숨김을 적용해 다른 route와 Home은 바꾸지 않는다.
+
+`BrainScene`은 Next dynamic import(ssr:false)로 Three.js/OrbitControls를 불러온다. `lib/brain-layout.ts`는 공개 데이터의 복사본에 d3-force-3d를 적용하며 3D/자유/주제별/연결 거리 계층/정리일 배치를 제공한다. 필터는 지도의 전체 맥락을 유지하면서 일치 기록·관계를 강조한다. 노드는 발광 Sprite와 키보드 접근 가능한 투영 버튼으로 표현하고, 선·카메라·라벨을 업데이트한다. 드래그 이동, 회전/확대, 전체 보기와 다시 정렬을 제공하며 해제 시 이벤트/animation frame/geometry/material/texture를 정리한다. 움직임 줄이기에서는 자동 회전을 끄고 WebGL 실패 시 동일 카탈로그의 목록을 제공한다.
+
+검색·주제/태그·종류/관계·근거·렌즈·배치·색상·간격·라벨·보기·선택은 URL search params로 복원한다. 모바일도 그래프를 기본으로 하며 native dialog로 필터/본문 focus와 Escape 닫기를 제공한다. 본문은 선택 시에만 열고 필터 밖 연결을 선택하면 필터를 해제한다. `BrainNote`는 패널과 개별 페이지의 본문·근거 수준·연결 이유·출처 렌더링을 공유한다.
 
 상세 조회와 사이트맵도 같은 공개 선택 결과만 사용한다. 없는/비공개 slug는 404다. Brain은 Blog repository나 자동 발행 source를 대체하지 않는다. sitemap은 기존 published Blog 로딩 뒤 Brain 공개 경로를 합치므로 여전히 DB가 필요하다. 개인 인증·작성·DB 원본 저장·회고 이력은 후속 step이다.
 

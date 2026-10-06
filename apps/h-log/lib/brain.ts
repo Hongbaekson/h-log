@@ -38,6 +38,10 @@ export const brainKindLabels: Record<BrainKind, string> = {
   experience: "경험", solution: "해결", reflection: "생각", learning: "배움", question: "질문",
 };
 
+export const brainKindColors: Record<BrainKind, string> = {
+  experience: "#b391e8", solution: "#74aaf0", reflection: "#d4ed70", learning: "#efe4cc", question: "#efb464",
+};
+
 export const brainBasisLabels: Record<BrainBasis, { label: string; description: string }> = {
   profile: { label: "기존 기록", description: "소개·경력 자료 또는 직접 밝힌 목적에서 이어진 기록입니다." },
   implementation: { label: "구현 메모", description: "코드에서 확인한 동작을 일반화한 메모입니다. 당시의 동기나 개인 기여를 확정하는 기록은 아닙니다." },

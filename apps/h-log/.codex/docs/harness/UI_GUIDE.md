@@ -7,6 +7,10 @@
 
 ## 디자인 원칙
 
+### 2026-10-06 Second Brain 전용 수정
+
+사용자가 Memory와 같은 UI를 명시하면서 작은 격자 화면을 거절했다. `/brain`에 한해 [분석 기준](MEMORY_UI_REFERENCE.md)과 ADR-020의 밝은 260px 사이드바·검은 전체 화면 3D 그래프·선택 시 본문 패널을 우선한다. 이것은 전역 light theme 전환이 아니다. 다른 경로의 Discord 스타일과 Home 레이더 전체를 보존한다.
+
 ### 2026-09-29 승인된 디자인
 
 사용자 요청으로 `apps/h-log/DESIGN.md`의 Discord 디자인을 설치했다. `discord-design-preview`에서 구현한 홈과 공통 shell의 화면 검토를 마치고 사용자 승인을 받았다. 아래 기존 팔레트보다 deep indigo `#0c0f23`/`#11152f`, raised surface `#191d3a`, Blurple `#5865f2`, lavender `#a3aaff`를 우선한다. Green `#35ed7e`는 홈의 주 CTA에만 사용한다. Magenta는 작은 AI 아이콘과 제한된 배경에만 쓴다.
