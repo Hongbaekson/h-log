@@ -21,6 +21,8 @@ export const BLOG_MIGRATION_TABLES = [
   "usage_events",
   "publish_verifications",
   "admin_actions",
+  "brain_notes",
+  "brain_note_versions",
 ];
 
 export async function runBlogMigrations(connectionString = process.env.DATABASE_URL) {

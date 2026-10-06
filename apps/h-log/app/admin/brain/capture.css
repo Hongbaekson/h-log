@@ -1,0 +1,51 @@
+.brain-capture { max-width: 1120px; margin: 0 auto; padding: 48px 24px 80px; color: var(--text-primary); }
+.capture-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 40px; }
+.capture-header h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 750; margin: 8px 0; }
+.capture-eyebrow { color: #a3aaff; font-size: 12px; letter-spacing: .14em; }
+.capture-header p, .capture-help, .capture-sidebar > p { color: var(--text-muted); line-height: 1.7; }
+.brain-capture a { color: #a3aaff; text-decoration: underline; text-underline-offset: 4px; }
+.capture-layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 32px; }
+.capture-sidebar { min-width: 0; }
+.capture-sidebar h2 { margin: 28px 0 12px; font-size: 15px; }
+.capture-sidebar ul { list-style: none; padding: 0; display: grid; gap: 6px; }
+.brain-capture button { min-height: 44px; padding: 10px 16px; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; background: var(--surface); color: var(--text-primary); }
+.brain-capture button:hover { border-color: #a3aaff; }
+.brain-capture button:disabled { opacity: .5; cursor: not-allowed; }
+.brain-capture button.capture-primary { background: #5865f2; border-color: #5865f2; }
+.capture-sidebar > button, .capture-sidebar li button { width: 100%; }
+.capture-sidebar li button { text-align: left; overflow-wrap: anywhere; }
+.capture-sidebar li button[aria-current] { border-color: #a3aaff; background: var(--surface-elevated); }
+.capture-sidebar strong, .capture-sidebar small { display: block; }
+.capture-sidebar small { color: var(--text-muted); margin-top: 5px; font-size: 12px; font-weight: 400; }
+.capture-editor { min-width: 0; }
+.capture-state { display: flex; gap: 8px 16px; flex-wrap: wrap; font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
+.brain-capture fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+.brain-capture legend, .capture-preview h2 { font-size: 18px; font-weight: 650; margin-bottom: 8px; }
+.capture-help { font-size: 13px; margin: 4px 0 18px; }
+.brain-capture label { display: block; font-size: 14px; margin: 18px 0 8px; }
+.brain-capture label small { color: var(--text-muted); }
+.brain-capture input:not([type=checkbox]), .brain-capture textarea, .brain-capture select { display: block; width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; background: #11152f; color: var(--text-primary); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font: inherit; font-size: 14px; line-height: 1.7; }
+.brain-capture textarea { resize: vertical; }
+.brain-capture :is(input, textarea, select, button, a, summary):focus-visible { outline: 2px solid #a3aaff; outline-offset: 3px; }
+.brain-capture summary { cursor: pointer; padding: 14px 0; font-weight: 600; }
+.capture-public, .capture-publish, .capture-history { border-top: 1px solid var(--border) !important; margin-top: 28px !important; padding-top: 16px !important; }
+.capture-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.capture-preview { margin-top: 28px; border-left: 2px solid #5865f2; padding-left: 18px; overflow-wrap: anywhere; }
+.capture-preview h3 { font-size: 21px; margin: 14px 0; font-weight: 650; }
+.capture-preview p { color: var(--text-muted); margin-bottom: 14px; }
+.capture-preview div, .capture-history pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; line-height: 1.8; }
+.capture-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.brain-capture .capture-check { display: flex; align-items: flex-start; gap: 10px; line-height: 1.7; }
+.capture-check input { margin-top: 5px; accent-color: #5865f2; }
+.capture-message { color: #a3aaff; line-height: 1.7; margin-top: 20px; }
+.capture-error { color: #ffb5bd; line-height: 1.7; }
+.capture-history details { border-bottom: 1px solid var(--border); padding: 8px 0 16px; }
+.capture-history h3 { margin: 8px 0; font-weight: 600; }
+@media (max-width: 767px) {
+  .brain-capture { padding: 28px 18px 56px; }
+  .capture-header { align-items: flex-start; flex-direction: column; gap: 16px; margin-bottom: 28px; }
+  .capture-layout { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .capture-sidebar ul { max-height: 180px; overflow: auto; }
+  .capture-fields { grid-template-columns: minmax(0, 1fr); }
+  .capture-actions button { width: 100%; }
+}

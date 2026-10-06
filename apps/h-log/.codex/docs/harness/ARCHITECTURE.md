@@ -46,11 +46,20 @@ npm run build
 
 검색·주제/태그·종류/관계·근거·렌즈·배치·색상·간격·라벨·보기·선택은 URL search params로 복원한다. 검색은 sidebar 안에 있고 hover preview는 graph 하단 중앙, 선택 본문은 우측 하단 520px 패널이다. 모바일도 graph를 기본으로 하며 native dialog로 필터/본문 focus와 Escape 닫기를 제공한다. 필터 밖 연결을 선택하면 필터를 해제한다. `BrainExplorer`의 `MemoryNote`와 개별 페이지의 `BrainNote`는 같은 DTO의 본문·근거 수준·연결 이유·출처를 각 화면의 스타일로 렌더링한다.
 
-상세 조회와 사이트맵도 같은 공개 선택 결과만 사용한다. 없는/비공개 slug는 404다. Brain은 Blog repository나 자동 발행 source를 대체하지 않는다. sitemap은 기존 published Blog 로딩 뒤 Brain 공개 경로를 합치므로 여전히 DB가 필요하다. 개인 인증·작성·DB 원본 저장·회고 이력은 후속 step이다.
+`lib/brain-server.ts`의 `loadPublicBrain`이 그래프·상세·사이트맵의 공개 조회를 통합한다. 기본값은 위 카탈로그이며 `HLOG_BRAIN_DATABASE_ENABLED=1`일 때만 DB의 승인된 공개 사본을 더한다. 카탈로그를 DB로 복사하지 않는다. 없는/비공개 slug는 404다. Brain은 Blog repository나 자동 발행 source를 대체하지 않는다. sitemap은 기존 published Blog 로딩 뒤 Brain 공개 경로를 합치므로 여전히 DB가 필요하다. DB Brain을 켜면 sitemap은 no-store를 사용하고, 공개 page도 요청마다 현재 공개 상태를 읽는다. DB 오류를 과거 공개 데이터로 대체하지 않는다.
+
+### Second Brain 비공개 작성 경계
+
+ADR-022에 따라 `/admin/brain`의 `BrainCapture`는 비공개 원문, 따로 작성하는 공개 메모, 공개 미리보기, 수정 이력을 제공한다. `proxy.ts`와 page, `/admin/brain/records`의 HTTP handler는 각각 `brain-owner.ts`로 소유자를 확인한다. `owner` 계정과 서버의 256-bit 키, 지정한 Host를 검증하고 POST는 같은 Origin만 허용한다. 외부 환경은 HTTPS, HTTP는 개발 중 loopback만 허용한다. 응답은 private/no-store/noindex이며 설정이 없으면 접근을 닫는다. 키는 클라이언트 props·로그에 넣지 않는다.
+
+`004_brain_capture.sql`은 `brain_notes`의 현재/공개 버전 포인터와 공개 사본, `brain_note_versions`의 비공개 원문·공개 초안 이력을 만든다. `brain-postgres-repository.ts`는 transaction과 row lock, 예상 revision 검사로 동시 수정 유실을 막는다. 버전은 추가만 가능하고 DB trigger가 과거 버전의 수정/삭제를 거부한다. 저장은 공개 사본을 바꾸지 않는다. 명시적으로 공개할 때만 `brain-capture.ts`가 공개 필드를 골라 privacy scanner를 통과시켜 저장하며, 공개 SQL은 이 사본만 조회한다. 읽을 때도 공개 DTO 선택과 privacy 검사를 거친다. 공개 해제는 사본과 공개 포인터를 비우고 원문·이력은 남긴다.
+
+서버 설정과 로컬 실행은 [Second Brain 계획](SECOND_BRAIN_PLAN.md#로컬-작성-화면-실행)을 따른다. migration/DB/HTTP와 1440/390/320px 작성 흐름을 격리 환경에서 검증했다. 기존 `/brain` UI와 28개/42개 카탈로그는 유지한다. 새 메모의 관계 편집과 이후 회고는 foundation Step 4이며, 운영 DB 적용과 관리자 경로 개방은 OCI 보류에 포함한다.
 
 ```text
 apps/h-log/
 ├── app/
+│   ├── admin/brain/
 │   ├── api/
 │   ├── blog/
 │   ├── brain/

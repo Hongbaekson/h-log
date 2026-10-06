@@ -12,12 +12,17 @@
 - `../../.codex/skills/harness/SKILL.md`
 - `../../.codex/skills/tdd/SKILL.md`
 - `lib/brain.ts`
+- `lib/brain-capture.ts`
+- `lib/brain-postgres-repository.ts`
+- `lib/brain-server.ts`
+- `migrations/004_brain_capture.sql`
+- `app/admin/brain/`
 - `app/brain/`
 - `components/brain/`
 
 ## 작업
 
-원래 기록과 나중의 회고를 분리하고, 사건 시점과 기록 시점, 생각을 수정한 관계와 다시 읽기 탐색을 추가한다. 날짜를 추정해 사실처럼 채우지 않는다.
+Step 3의 비공개 원문·추가만 가능한 수정 이력·별도 공개 사본 계약 위에서 원래 기록과 나중의 회고를 분리한다. 사건 시점과 기록 시점, 생각을 수정한 관계와 다시 읽기 탐색을 추가한다. 새 DB 메모와 기존 공개 카탈로그 사이의 관계를 소유자가 편집하고 공개할 수 있게 하되 비공개 대상이나 제목이 공개 관계에 섞이지 않게 한다. 날짜를 추정해 사실처럼 채우지 않는다.
 
 ## 인수 기준
 

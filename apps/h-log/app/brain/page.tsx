@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { BrainExplorer } from "@/components/brain/BrainExplorer";
-import { selectPublicBrain } from "@/lib/brain";
-import { brainCatalog } from "@/lib/brain-catalog";
+import { loadPublicBrain } from "@/lib/brain-server";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Second Brain",
@@ -10,8 +11,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/brain" },
 };
 
-export default function BrainPage() {
-  const graph = selectPublicBrain(brainCatalog);
+export default async function BrainPage() {
+  const graph = await loadPublicBrain();
   return <div className="memory-page">
     <Suspense fallback={<p className="brain-loading">기록을 불러오는 중…</p>}><BrainExplorer graph={graph} /></Suspense>
   </div>;

@@ -245,6 +245,16 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **보정/트레이드오프**: 원본의 고정 sidebar가 모바일 graph를 가리는 문제는 767px 이하 drawer로 보정한다. 소수 노드의 한글 라벨 겹침도 원본 collision guard로 막는다. 실제 node drag, touch pinch, 키보드/정지/reduced-motion, 목록 fallback, 안전한 본문/URL 복원은 유지한다. Renderer는 공개 데이터만 받고 unmount 시 observer/listener/RAF/GPU 자원을 해제한다.
 
+### ADR-022: 개인 원문과 직접 승인한 공개 사본을 분리한다
+
+**결정 (2026-10-07, foundation Step 3)**: `/admin/brain`은 단일 소유자의 비공개 작성 화면이다. 서버에 명시한 256-bit 관리자 키로 HTTP Basic 인증을 받고, Proxy뿐 아니라 page와 각 route handler에서도 인증한다. 외부 환경은 HTTPS만 허용하고 HTTP는 개발 중 loopback에서만 허용한다. 쓰기 요청은 설정한 origin과 일치해야 한다. 응답은 no-store/noindex이며 키·DB 기능 설정이 없으면 화면을 열지 않는다. 기존 Nginx의 관리자 경로 차단과 OCI 보류는 유지한다. 별도 회원가입·세션 저장소·OAuth 제공자는 도입하지 않는다. [Next.js 인증 지침](https://nextjs.org/docs/app/guides/authentication)의 route handler별 권한 확인을 따른다.
+
+**저장/공개 계약**: 기존 PostgreSQL에 Brain 전용 원본/수정 이력을 두고 낙관적 버전 검사로 덮어쓰기를 막는다. 저장은 비공개이며 최초 원문과 이후 수정본을 남긴다. 공개용 제목·요약·본문을 별도로 작성하고 확인한 버전만 명시적으로 공개한다. 원문을 공개 필드로 자동 복사하지 않는다. 비공개 수정만으로 기존 공개 사본이 바뀌지 않으며 공개 해제는 공개 조회에서 즉시 제외한다. 공개 SQL은 사본만 읽고 기존 privacy scanner로 다시 검증한다.
+
+**카탈로그 전환**: 승인된 28개 노드/42개 연결은 기존 편집형 카탈로그에 유지한다. `HLOG_BRAIN_DATABASE_ENABLED=1`로 명시적으로 활성화한 환경에서만 새 공개 사본을 같은 그래프·검색·상세·사이트맵에 더한다. 기존 카탈로그를 자동으로 DB 원본에 넣거나 Blog 데이터와 합치지 않는다. 활성화 후 DB 오류를 옛 공개 상태로 숨기지 않는다. 새 메모의 연결 편집·회고 흐름은 Step 4에 남긴다.
+
+**검증/운영 경계**: 격리된 로컬 DB와 합성 기록으로 인증·원본 비노출·수정 이력·공개/해제·동시 수정·HTTP를 검증한다. 이 결정은 실제 개인 원문 입력, 운영 migration, 관리자 경로 개방이나 배포를 실행하는 승인이 아니다.
+
 ## 공식/내부 기준
 
 - Next.js docs

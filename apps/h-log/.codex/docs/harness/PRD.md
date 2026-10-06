@@ -65,7 +65,9 @@ H-01에서 제외한다.
 
 2026-10-06 사용자 요청으로 [Second Brain 계획](SECOND_BRAIN_PLAN.md)을 등록했다. `/brain`과 개별 기억의 `/brain/[slug]`를 독립 메뉴로 제공하고, 개인 소개·공개 경력 및 허용된 코드 조사에서 일반화한 기술 노드를 연결한다. 확인한 경험, 구현 기반 정리, 재구성한 회고와 검토 질문을 구분한다. 회사 원문·내부 식별자와 추측한 감정/성과는 공개하지 않는다.
 
-초기 목표는 검수한 카탈로그의 읽기 전용 그래프·목록·검색·상세다. 비공개 작성/DB 저장과 이후 회고는 후속 단계이며, 현재 구현 여부는 `second-brain-foundation`과 `second-brain-memory-interface` 레지스트리를 따른다. 2026-10-06 최신 수정 요청에 따라 `/brain`은 지정한 로컬 UI의 340px 검은 sidebar·sidebar 검색·전체 화면 constellation·하단 hover preview·선택 시 우측 하단 본문을 이식한다(ADR-021). 모바일도 그래프로 진입하고 필터/본문 dialog와 목록 대체 탐색을 제공한다. 방문자 챗봇·자동 기억 생성/발행은 제외한다. 다른 경로의 Discord 스타일과 Home 레이더 전체, 기존 Blog DB 계약과 운영 보류는 유지한다.
+초기 카탈로그의 그래프·목록·검색·상세에 이어 2026-10-07 foundation Step 3에서 소유자 전용 `/admin/brain` 작성 화면과 PostgreSQL 저장을 구현했다(ADR-022). 저장한 원문과 수정 이력은 비공개로 보존한다. 공개용 제목·요약·본문을 따로 작성하고 확인해야 공개되며, 수정만으로 공개 사본이 바뀌지 않는다. 이 기능은 서버 설정으로 명시적으로 켠 환경에서만 사용할 수 있고, 현재 검증 범위는 격리된 로컬 DB다. 사건 시점·이후 회고·새 메모 연결은 Step 4다. 현재 구현 여부는 `second-brain-foundation`과 `second-brain-memory-interface` 레지스트리를 따른다.
+
+2026-10-06 사용자 요청에 따라 `/brain`은 지정한 로컬 UI의 340px 검은 sidebar·sidebar 검색·전체 화면 constellation·하단 hover preview·선택 시 우측 하단 본문을 이식했다(ADR-021). 모바일도 그래프로 진입하고 필터/본문 dialog와 목록 대체 탐색을 제공한다. 방문자 챗봇·자동 기억 생성/발행은 제외한다. 다른 경로의 Discord 스타일과 Home 레이더 전체, 기존 Blog DB 계약과 운영 보류는 유지한다.
 
 ### I-01: OCI self-hosted infrastructure
 

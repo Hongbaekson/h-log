@@ -6,17 +6,17 @@
 
 당시의 상황·판단·해결 과정을 나중에 다시 찾는 개인 기록 공간이다. Alex의 [Memory](https://www.careerhackeralex.com/memory)와 [Garden](https://www.careerhackeralex.com/en/garden)의 그래프/목록/개별 읽기 구조를 참고한다. 타인의 콘텐츠나 회사 Wiki를 복제하지 않는다.
 
-첫 완결 단위는 읽기 전용 `/brain`, `/brain/[slug]`, 검색·주제 필터·연결 탐색과 검수한 초기 카탈로그다. 최신 사용자 수정 요청에 따라 `/brain`은 지정한 로컬 UI의 340px 검은 sidebar·전체 화면 constellation·하단 preview/detail을 이식한다. 다른 경로의 Discord 스타일과 Home 레이더 전체는 보존한다. 개인 원본 작성, 인증, DB 저장, 회고 이력과 AI 정리는 후속 step이다. 첫 버전을 개인 기록 작성 시스템이나 운영 배포 완료로 설명하지 않는다.
+첫 완결 단위는 읽기 전용 `/brain`, `/brain/[slug]`, 검색·주제 필터·연결 탐색과 검수한 초기 카탈로그다. 사용자 수정 요청에 따라 `/brain`에는 지정한 로컬 UI의 340px 검은 sidebar·전체 화면 constellation·하단 preview/detail을 이식했다. 다른 경로의 Discord 스타일과 Home 레이더 전체는 보존한다. 2026-10-07 foundation Step 3에서 개인 원본 작성, 인증, DB 저장과 수정 이력을 추가하고 격리 환경에서 검증했다. 이후 회고와 AI 정리, 운영 적용은 후속 범위다.
 
 ## 현재 결과와 공개 검토
 
 2026-10-06: 사용자 공개 승인 후 전체 28개 노드/42개 연결을 편집형 카탈로그에 반영했다. 기존 공개 자료 기반 10개 노드에 검토본의 일반화된 18개 노드를 추가했다. 구현 메모·회고 초안·열린 질문의 근거 수준은 유지한다. 검토본 `private/second-brain-review.md`와 동반 JSON, 근거 대장 `private/second-brain-provenance.md`는 로컬 보존용이며 Git·Docker에서 제외한다. 앱은 이 파일들을 import하지 않는다.
 
-초기의 자동 승인 검토 거절은 구체적인 검토본에 대한 사용자의 명시적 공개 승인으로 해소됐다. 승인 범위는 검토본의 일반화된 본문과 연결이며, 회사 원문·Wiki·식별자·근거 경로는 공개 범위에 포함하지 않는다. Foundation Steps 0-2와 아래 UI 교체를 완료했으며 다음 작업은 foundation Step 3의 소유자 전용 비공개 작성/저장이다.
+초기의 자동 승인 검토 거절은 구체적인 검토본에 대한 사용자의 명시적 공개 승인으로 해소됐다. 승인 범위는 검토본의 일반화된 본문과 연결이며, 회사 원문·Wiki·식별자·근거 경로는 공개 범위에 포함하지 않는다. Foundation Steps 0-3과 아래 UI 교체를 완료했다. 다음 작업은 Step 4의 사건/기록 시점, 이후 회고와 연결 편집이다.
 
 ## 참고 사이트에서 선택한 구조
 
-초기 카드/격자와 Step 0의 재해석된 Memory 화면 모두 사용자 요구와 달랐다. 최신 요청으로 로컬 reference의 최종 CSS/UI script와 실제 화면을 확인하고 `second-brain-memory-interface / Step 1`에서 직접 이식했다. 현재 디자인 기준은 [로컬 UI 이식](LOCAL_BRAIN_UI_REFERENCE.md)이다. 개인 작성 기능은 후속 foundation Step 3이다.
+초기 카드/격자와 Step 0의 재해석된 Memory 화면 모두 사용자 요구와 달랐다. 최신 요청으로 로컬 reference의 최종 CSS/UI script와 실제 화면을 확인하고 `second-brain-memory-interface / Step 1`에서 직접 이식했다. 현재 디자인 기준은 [로컬 UI 이식](LOCAL_BRAIN_UI_REFERENCE.md)이다. 개인 작성 기능은 별도 `/admin/brain`에서 제공하며 이 공개 UI를 바꾸지 않는다.
 
 | 참고한 구조 | H-Log 적용 |
 | --- | --- |
@@ -48,6 +48,8 @@
 
 ADR-021이 이전 UI/renderer 결정을 대체한다. 그래프는 로컬 UI의 native WebGL/2D canvas를 이식하며 클라이언트에서 지연 로드한다. 목록에서도 모든 내용을 탐색할 수 있게 하고, 키보드 조작과 모바일 읽기를 제공한다. 별도 그래프 DB·방문자 챗봇·외부 LLM 호출은 추가하지 않는다.
 
+ADR-022는 개인 원문과 공개 사본을 분리한다. 소유자 인증 후 저장하면 PostgreSQL에 비공개 버전이 추가된다. 공개용 제목·요약·본문은 따로 작성하며 저장만으로 공개하지 않는다. 확인한 버전만 그래프에 추가하고, 이후 수정은 다시 공개하기 전까지 비공개로 남긴다. 공개 해제 후에도 원문과 수정 이력은 보존한다. 기존 28개/42개 카탈로그는 그대로 두고, 기능을 명시적으로 켠 환경에서만 DB의 공개 메모를 더한다. DB 메모의 새 관계는 Step 4에서 편집한다.
+
 28개 기록은 원본의 constellation 좌표식으로 배치하고 실제 42개 관계만 선으로 연결한다. 필터는 원본처럼 일치 기록과 그 사이의 연결을 표시한다. 라벨은 겹침을 피해서 배치하고, hover/focus로 다른 제목을 확인한다. 필터 밖의 연결된 기록을 선택하면 검색/필터를 해제하며, 뒤로 가기는 이전 필터·기록·보기 설정을 복원한다. 움직임 줄이기에서는 자동 회전을 끄고 WebGL 실패 시 목록으로 읽기를 유지한다.
 
 ## Phase / Step
@@ -64,11 +66,39 @@ ADR-021이 이전 UI/renderer 결정을 대체한다. 그래프는 로컬 UI의 
 | D. 다시 생각하기 | 4: revisit-and-curation | 사건/기록 시점, 당시 원문/이후 회고, 생각의 변경과 다시 읽기 흐름을 추가한다. |
 | D. 다시 생각하기 | 5: assisted-linking | 실제 기록이 쌓인 뒤 태그/연결 후보 제안을 검토한다. 원문 덮어쓰기·감정 추정·자동 공개는 하지 않는다. |
 
-Step 3 이후는 별도 구현 단위다. 인증/개인 원본 저장 계약을 먼저 확정하고, 현재 카탈로그를 임의로 개인 DB나 Blog 자동 발행에 합치지 않는다. 기존 Blog 개선·모니터링 계획과 OCI 보류는 유지한다.
+Steps 0-3은 완료했고 Step 4부터 별도 구현 단위로 진행한다. 현재 카탈로그를 임의로 개인 DB나 Blog 자동 발행에 합치지 않는다. 기존 Blog 개선·모니터링 계획과 OCI 보류는 유지한다.
+
+## 로컬 작성 화면 실행
+
+설정이 없으면 `/admin/brain`은 404이며 공개 Brain은 기존 카탈로그를 읽는다. 다음 값은 서버 로컬 환경에만 둔다. 저장소나 클라이언트 코드에 넣지 않는다.
+
+| 환경값 | 용도 |
+| --- | --- |
+| `DATABASE_URL` | 별도로 준비한 로컬 PostgreSQL/pgvector DB. 기존 migration runner를 공유한다. |
+| `HLOG_BRAIN_DATABASE_ENABLED=1` | DB 메모 조회와 작성 기능 활성화. |
+| `HLOG_BRAIN_OWNER_KEY` | 암호학적 난수 32바이트를 64자리 소문자 hex로 표현한 소유자 비밀번호. |
+| `HLOG_BRAIN_OWNER_ORIGIN` | 실제 접속 origin. 예: `http://127.0.0.1:3013` (끝 `/` 제외). |
+
+1. 격리된 로컬 DB를 준비하고 해당 `DATABASE_URL`로 앱 폴더에서 `npm run db:migrate`를 실행한다. `004_brain_capture`까지 적용됐는지 확인한다. 운영 DB에는 이 로컬 절차를 실행하지 않는다.
+2. `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`로 로컬 터미널에서 키를 생성해 서버 환경에 넣는다. 키가 노출되면 새 값으로 바꾸고 서버를 재시작한다.
+3. 나머지 환경값을 설정하고 `npm run dev -- --hostname 127.0.0.1 --port 3013`을 실행한다. 같은 origin의 `/admin/brain`에서 사용자 이름 `owner`, 생성한 키를 비밀번호로 입력한다. 브라우저의 Basic 인증을 사용하므로 별도 로그인/로그아웃 페이지는 없다.
+4. 원문을 쓰고 **비공개로 저장**한다. 자동 저장은 하지 않는다. 공개하려면 공개용 메모를 따로 작성해 저장한 뒤 확인란을 체크하고 **확인한 사본 공개**를 누른다. **공개 해제**는 공개 사본만 내린다.
+
+공개 검사에는 기존 `HLOG_PRIVACY_ORGANIZATION_NAMES`, `HLOG_PRIVACY_PRIVATE_REPOSITORIES` JSON 배열 정책도 적용한다. 미설정 정책이 모든 회사 식별자를 찾아 준다고 가정하지 않는다. 원문과 공개 사본을 분리하고 작성자가 사본을 직접 확인한다.
+
+HTTP 검증은 합성 기록을 만들므로 격리된 loopback preview에서만 `HLOG_BRAIN_HTTP_TEST=1`과 위 인증 환경을 설정한 뒤 `npm run test:brain:http`를 실행한다. DB 검증은 같은 격리 DB 서버를 가리키는 `DATABASE_URL`로 `npm run test:integration`을 실행한다. 현재 제공한 preview는 임시 DB이며, 영구 보관용 volume·백업을 설정한 운영 저장소가 아니다. Nginx 관리자 경로 차단, 운영 HTTPS·migration·배포·OCI 보류는 유지한다.
 
 ## 검증 결과
 
-### 현재 Memory UI 수정
+### 2026-10-07 개인 작성 Step 3
+
+- 인증/원본 투영/HTTP 경계와 migration/DB 저장을 먼저 RED로 확인한 뒤 같은 테스트를 GREEN으로 통과했다. NextURL의 loopback 정규화로 정상 요청도 403이 되던 문제는 원래 Host를 검증하도록 수정하고 회귀 테스트를 추가했다.
+- Unit 187 pass/13 DB skip, 격리 PostgreSQL integration 14/14, 실제 preview HTTP 1/1, lint/typecheck/build 통과. 익명·다른 Origin 차단, 비공개 원문 비노출, 버전 충돌·동시 수정·transaction rollback·이력 변경 금지를 확인했다.
+- 실제 HTTP에서 공개/해제에 따라 그래프·상세·사이트맵이 바뀌고, 비공개 수정 후에는 기존 공개 사본이 유지됨을 검증했다. 초기 단계에서 미확인했던 전체 sitemap HTTP 경계도 격리 DB에서 확인했다.
+- 1440/390/320px에서 저장, 빈 공개 초안, 미리보기·명시적 공개, 저장하지 않은 내용을 닫을 때 취소, 수정 이력과 공개 해제를 확인했다. 가로 넘침과 browser pageerror는 0건이었다. 검증 데이터는 합성 기록뿐이다.
+- 실제 개인 원문 입력·운영 적용·새 관계 편집·이후 회고는 이번 완료 범위에 포함하지 않는다.
+
+### Memory UI 수정 검증 이력
 
 - 기존 전체 화면 부재, 배치/필터 부재, 모바일 축소 표시, 필터 시 숨긴 라벨이 재노출되는 문제, 검색 결과 닫기 후 focus 유실을 RED로 확인한 뒤 GREEN으로 수정했다.
 - `lib/brain-layout.test.ts` 3개는 실제 데이터로 3D 깊이/결정성/원본 비변경, 네 가지 평면 배치/간격, 복합 필터/관계 endpoint를 검증한다. 기존 공개 DTO 테스트도 유지한다.
@@ -84,4 +114,4 @@ Step 3 이후는 별도 구현 단위다. 인증/개인 원본 저장 계약을 
 - Playwright: 1440px 데스크톱, 390/320px 모바일 화면 검수. 1024/768px 추가 overflow 검사, 키보드 Enter/Space, 확대/초기화, 모바일 메뉴, HTML/RSC의 비공개 제외 통과.
 - 카탈로그 중복 ID·관계 참조 무결성과 공개 노드만 담긴 sitemap XML을 확인했다. 전체 `/sitemap.xml` HTTP 검증은 로컬 `DATABASE_URL` 부재로 500이어서 미완료다. 기존 DB 필수 경계를 변경하지 않았다.
 - 공개 승인 후 RED/GREEN: 새 기록의 404 → 28개 상세 경로 모두 200. 전체 42개 관계·새 기록 검색·회고 초안 표시·URL 복원·없는 slug 404를 확인했다. 28개 배치에서 클릭 영역 42쌍 겹침을 재현한 뒤 1440/1024/768px에서 0쌍으로 수정했다. 확대 후 초기화 위치 오류와 필터 밖 연결이 숨는 문제도 재현·수정하고 뒤/앞으로 이동을 검증했다. 390/320px 목록·상세와 모든 필수 gate를 다시 통과했다.
-- 개인 기록 저장, 인증, 실제 사용자 감정 기록, 운영 배포는 아직 구현/수행하지 않았다.
+- 초기 검증 당시에는 개인 기록 저장·인증을 구현하지 않았다. 이 부분은 위 Step 3에서 완료했으며, 실제 사용자 감정 기록과 운영 배포는 수행하지 않았다.
