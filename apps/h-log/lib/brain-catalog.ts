@@ -7,7 +7,7 @@ export const brainCatalog = {
     {
       "id": "operable-backend",
       "title": "운영하기 쉬운 백엔드를 만들고 싶다",
-      "summary": "기능이 동작한 다음에도, 누가 어떻게 고치고 운영할지 생각한다.",
+      "summary": "기능을 만든 뒤에 누가 어떻게 고치고 운영할지도 생각한다.",
       "kind": "reflection",
       "topic": "principles",
       "basis": "profile",
@@ -16,14 +16,14 @@ export const brainCatalog = {
         {
           "heading": "내가 지향하는 일",
           "paragraphs": [
-            "Java와 Spring을 중심으로 백엔드를 개발해 왔다. 반복 작업을 줄이고 장애와 변경에 대응하기 쉬운 구조를 만드는 것이 소개와 경력 기록에 반복해서 등장한다.",
-            "빠르게 만드는 일과 나중에 유지할 수 있는 일 사이의 균형을 찾고 싶다."
+            "Java와 Spring을 중심으로 백엔드를 개발해 왔다. 소개와 경력을 돌아보면 반복 작업을 줄이고, 장애와 변경에 대응하기 쉬운 구조를 만드는 이야기가 자주 나온다.",
+            "빨리 만드는 일과 나중에 유지하는 일 사이에서 균형을 찾고 싶다."
           ]
         },
         {
           "heading": "연결해서 보고 싶은 것",
           "paragraphs": [
-            "비동기 처리의 복구 경로, 관측성, 명세와 검증 자동화를 따로 떨어진 기술 목록이 아니라 운영을 쉽게 만드는 선택으로 연결해 둔다."
+            "비동기 작업이 실패했을 때 복구하는 방법, 관측성, 명세와 검증 자동화를 함께 적어 둔다. 모두 운영을 쉽게 만드는 선택이라는 점에서 이어지는 내용이다."
           ]
         }
       ],
@@ -46,7 +46,7 @@ export const brainCatalog = {
     {
       "id": "repeatable-work",
       "title": "반복되는 일은 기준으로 남긴다",
-      "summary": "같은 설명과 같은 검토를 반복하지 않도록 작업의 기준을 기록한다.",
+      "summary": "같은 설명과 검토를 되풀이하지 않도록 일할 때의 기준을 적어 둔다.",
       "kind": "reflection",
       "topic": "principles",
       "basis": "profile",
@@ -55,18 +55,18 @@ export const brainCatalog = {
         {
           "heading": "기록에 남아 있는 방향",
           "paragraphs": [
-            "소개에는 시행착오와 검증 결과를 팀의 기준으로 남긴다고 적혀 있다. 공개 사례에는 명세를 기준으로 반복 구현을 정리하고 생성 결과를 빌드·테스트·리뷰로 확인한 흐름이 있다."
+            "소개 글에 시행착오와 검증 결과를 팀의 기준으로 남긴다고 썼다. 공개한 사례에도 명세를 기준으로 반복 구현을 정리하고, 생성 결과를 빌드·테스트·리뷰로 확인한 과정을 담았다."
           ]
         },
         {
           "heading": "계속 가져갈 기준",
           "paragraphs": [
-            "반복되는 판단을 문서와 검증으로 남기고, 자동화가 처리한 결과도 사람이 확인할 수 있게 하고 싶다."
+            "자주 하는 판단을 문서와 검증으로 남기고, 자동화한 일도 사람이 결과를 확인할 수 있게 하고 싶다."
           ]
         }
       ],
       "questions": [
-        "지금의 반복은 자동화할 일인가, 먼저 기준을 합의할 일인가?"
+        "지금 반복하는 일은 자동화하면 될까, 먼저 기준부터 맞춰야 할까?"
       ],
       "tags": [
         "자동화",
@@ -88,7 +88,7 @@ export const brainCatalog = {
     {
       "id": "observe-before-optimize",
       "title": "개선의 출발점은 관찰이다",
-      "summary": "느리다는 인상을 요청·쿼리·작업 구간으로 나눠 확인한다.",
+      "summary": "느리게 느껴진다면 요청·쿼리·작업 중 어느 구간이 느린지부터 본다.",
       "kind": "reflection",
       "topic": "principles",
       "basis": "profile",
@@ -97,18 +97,18 @@ export const brainCatalog = {
         {
           "heading": "경력에서 이어진 기준",
           "paragraphs": [
-            "프로필에는 데이터와 관측 결과를 바탕으로 개선안을 제시한다고 적혀 있다. 관측성 사례도 요청 흐름의 trace·metric·log를 연결해 원인 구간을 찾는 내용이다."
+            "프로필에 데이터와 관측 결과를 보고 개선안을 제시한다고 썼다. 관측성 사례에서도 요청 흐름의 trace·metric·log를 연결해 어느 구간에서 문제가 생겼는지 찾는 과정을 정리했다."
           ]
         },
         {
           "heading": "다시 사용할 질문",
           "paragraphs": [
-            "기술을 추가하기 전에 무엇이 느리고 어디에서 실패하는지 설명할 수 있는지 확인한다. 개선 전후를 같은 조건에서 비교할 수 있어야 다음 판단도 남는다."
+            "새 기술을 붙이기 전에 무엇이 느리고 어디서 실패하는지부터 설명해 본다. 바꾸기 전과 후를 같은 조건에서 비교해야 다음에 판단할 근거도 남는다."
           ]
         }
       ],
       "questions": [
-        "이번 변경이 줄인 것은 응답 시간인가, 대기 시간인가, 운영자의 확인 시간인가?"
+        "이번에 줄어든 건 응답 시간일까, 대기 시간일까, 운영자가 확인하는 시간일까?"
       ],
       "tags": [
         "관측성",
@@ -139,19 +139,19 @@ export const brainCatalog = {
         {
           "heading": "이 공간을 만드는 이유",
           "paragraphs": [
-            "모든 일을 머릿속에 계속 보관할 수는 없다. 어떤 문제를 어떻게 해결했는지, 그때 무엇을 고민했는지 남겨 두고 싶다.",
-            "기술적으로 정리된 결론만큼, 결론에 이르기 전의 맥락도 기억할 가치가 있다."
+            "모든 일을 머릿속에 담아 둘 수는 없다. 어떤 문제를 어떻게 풀었고, 그때 무엇을 고민했는지 적어 두고 싶다.",
+            "결론을 기억하는 것만큼, 그 결론에 이르기까지 어떤 상황이었는지 기억하는 것도 중요하다."
           ]
         },
         {
           "heading": "기록을 시작하는 방법",
           "paragraphs": [
-            "완성된 글이 아니어도 남긴다. 정리되지 않은 메모와 아직 답하지 못한 질문도 연결의 출발점이 될 수 있다."
+            "완성된 글이 아니어도 일단 남긴다. 정리 덜 된 메모나 아직 답을 못 찾은 질문에서 다른 생각으로 이어질 수도 있다."
           ]
         }
       ],
       "questions": [
-        "몇 달 뒤의 내가 이 기록에서 가장 먼저 찾을 것은 무엇일까?"
+        "몇 달 뒤에 다시 읽는다면 무엇부터 찾아볼까?"
       ],
       "tags": [
         "기억",
@@ -168,7 +168,7 @@ export const brainCatalog = {
     {
       "id": "async-request-boundary",
       "title": "요청의 완료와 후속 작업을 나눴다",
-      "summary": "응답에 필요한 일과 나중에 처리할 일을 구분한 비동기 처리 경험.",
+      "summary": "응답에 꼭 필요한 일과 나중에 처리할 일을 나눴다.",
       "kind": "experience",
       "topic": "reliability",
       "basis": "profile",
@@ -177,14 +177,14 @@ export const brainCatalog = {
         {
           "heading": "기존 경험에서 확인한 것",
           "paragraphs": [
-            "공개 포트폴리오에는 요청 트랜잭션에 묶인 외부 연동과 후속 처리를 Redisson Queue와 Worker로 분리한 경험이 정리되어 있다.",
-            "요청에서 필요한 상태를 저장한 뒤 후속 작업을 전달하고, Worker에서 독립적으로 처리하는 구조다."
+            "요청 트랜잭션에 묶여 있던 외부 연동과 후속 처리를 Redisson Queue와 Worker로 분리했던 경험을 포트폴리오에 정리했다.",
+            "요청을 받을 때 필요한 상태를 저장하고 후속 작업을 넘긴다. 넘겨받은 일은 Worker가 독립적으로 처리한다."
           ]
         },
         {
           "heading": "이어서 볼 지점",
           "paragraphs": [
-            "응답이 끝났다는 사실과 업무 전체가 끝났다는 사실은 다르다. 작업 상태와 실패 복구 경로를 함께 읽어야 비동기 처리의 의미가 보인다."
+            "응답을 보냈어도 업무는 아직 진행 중일 수 있다. 비동기로 나눈 일을 이해하려면 지금 어떤 상태인지, 실패하면 어떻게 복구하는지까지 봐야 한다."
           ]
         }
       ],
@@ -208,7 +208,7 @@ export const brainCatalog = {
     {
       "id": "dlq-recovery",
       "title": "실패한 작업의 다음 경로를 만든다",
-      "summary": "재시도만 반복하지 않고 실패를 격리하고 다시 처리할 수 있게 한다.",
+      "summary": "실패한 작업은 재시도만 반복하지 않고 따로 모아 다시 처리할 수 있게 한다.",
       "kind": "solution",
       "topic": "reliability",
       "basis": "profile",
@@ -217,19 +217,19 @@ export const brainCatalog = {
         {
           "heading": "남겨 둔 해결 방식",
           "paragraphs": [
-            "공개 사례에는 실패 작업을 DLQ로 옮기고 운영자가 재처리할 수 있게 만든 내용이 있다. 확인한 구현에도 일반 큐와 실패 큐가 구분되어 있다."
+            "실패한 작업을 DLQ로 옮겨 운영자가 다시 처리할 수 있게 만든 과정을 공개 사례에 적어 뒀다. 살펴본 코드에서도 일반 큐와 실패 큐를 따로 두고 있었다."
           ]
         },
         {
           "heading": "다음에 확인할 기준",
           "paragraphs": [
-            "DLQ가 있다는 사실만으로 복구가 끝나지는 않는다. 어떤 오류를 다시 시도할지, 중복 실행이 안전한지, 누가 재처리 결과를 확인할지까지 연결해 보고 싶다."
+            "DLQ를 만들었다고 복구까지 끝난 건 아니다. 어떤 오류를 다시 시도할지, 같은 작업을 중복 실행해도 안전한지, 처리 결과는 누가 확인할지까지 살펴보고 싶다."
           ]
         }
       ],
       "questions": [
-        "같은 작업을 다시 실행해도 결과가 중복되지 않는가?",
-        "재시도를 멈추고 사람이 확인할 조건은 무엇인가?"
+        "같은 작업을 다시 실행하면 결과가 중복되지 않을까?",
+        "어떤 경우에 재시도를 멈추고 사람이 확인해야 할까?"
       ],
       "tags": [
         "DLQ",
@@ -247,7 +247,7 @@ export const brainCatalog = {
     {
       "id": "cache-warmup-cost",
       "title": "캐시를 채우는 비용도 측정한다",
-      "summary": "조회가 빨라지는 것과 캐시 준비가 가벼운 것은 별개의 문제다.",
+      "summary": "조회가 빨라져도 캐시를 채우는 데는 비용이 든다.",
       "kind": "reflection",
       "topic": "data",
       "basis": "reflection",
@@ -256,19 +256,19 @@ export const brainCatalog = {
         {
           "heading": "구현에서 출발한 생각",
           "paragraphs": [
-            "캐시 예열 구현에는 전체 대상 조회, 항목별 저장, 실행 시간 측정과 중복 실행을 제한하는 장치가 있었다. 캐시를 사용하는 경로뿐 아니라 채우는 경로에도 비용이 발생한다."
+            "살펴본 캐시 예열 코드는 전체 대상을 조회한 뒤 항목별로 저장했다. 실행 시간을 재고 중복 실행을 제한하는 장치도 있었다. 캐시를 읽을 때뿐 아니라 채울 때 드는 비용도 봐야 한다."
           ]
         },
         {
           "heading": "다시 설계한다면",
           "paragraphs": [
-            "예열이 실제 조회에 얼마나 도움이 되는지 먼저 보고 싶다. 일괄 처리나 병렬화를 검토하더라도 DB·Redis 부하와 실패 시 다시 시작할 위치를 함께 확인하겠다."
+            "미리 채워 둔 캐시가 실제 조회에 얼마나 도움이 되는지부터 보고 싶다. 일괄 처리나 병렬화를 검토할 때도 DB·Redis에 걸리는 부하와 실패했을 때 어디서 다시 시작할지를 함께 확인하겠다."
           ]
         }
       ],
       "questions": [
-        "전체를 미리 채울 필요가 있는가?",
-        "예열 도중 새 값이 생기거나 일부 저장이 실패하면 어떻게 되는가?"
+        "전체를 미리 채워 둘 필요가 있을까?",
+        "캐시를 채우는 도중 새 값이 생기거나 일부 저장에 실패하면 어떻게 될까?"
       ],
       "tags": [
         "Redis",
@@ -295,18 +295,18 @@ export const brainCatalog = {
         {
           "heading": "확인한 동작",
           "paragraphs": [
-            "검토한 Spring 구현에는 AFTER_COMMIT 이벤트와 별도 트랜잭션을 사용하는 후속 처리가 있었다. 주 작업의 저장 결과와 부수 효과를 구분하는 데서 출발한 메모다."
+            "Spring 코드를 읽다가 AFTER_COMMIT 이벤트와 별도 트랜잭션으로 후속 작업을 처리하는 부분을 봤다. 주 작업의 저장 결과와 그 뒤에 일어나는 부수 효과를 나눠 보려고 적어 둔 메모다."
           ]
         },
         {
           "heading": "기억할 경계",
           "paragraphs": [
-            "Spring의 트랜잭션 이벤트는 실행 시점을 거래의 단계에 연결한다. 실행 시점을 정하는 것과 프로세스가 멈춘 뒤에도 작업을 전달하는 것은 서로 다른 검토 사항이다."
+            "Spring의 트랜잭션 이벤트는 트랜잭션의 단계에 맞춰 실행 시점을 정한다. 언제 실행할지 정했더라도, 프로세스가 멈춘 뒤 작업을 전달할 수 있는지는 따로 봐야 한다."
           ]
         }
       ],
       "questions": [
-        "커밋 직후 프로세스가 종료되면 남겨 둔 작업을 찾을 수 있는가?"
+        "커밋 직후 프로세스가 종료돼도 남겨 둔 작업을 찾을 수 있을까?"
       ],
       "tags": [
         "Spring",
@@ -328,7 +328,7 @@ export const brainCatalog = {
     {
       "id": "cache-readiness-is-not-use",
       "title": "캐시 설정과 효과를 구별한다",
-      "summary": "설정이 준비되어 있다는 사실만으로 조회가 캐시를 이용한다고 말할 수 없다.",
+      "summary": "캐시를 설정해 뒀어도 실제 조회에서 쓰는지는 확인해야 한다.",
       "kind": "reflection",
       "topic": "data",
       "basis": "reflection",
@@ -337,19 +337,19 @@ export const brainCatalog = {
         {
           "heading": "이번에 확인한 차이",
           "paragraphs": [
-            "검토한 설정에는 TTL과 직렬화 방식이 준비되어 있었지만 서비스 적용을 후속 작업으로 설명하는 부분도 있었다. 설정 파일만 보고 캐시 도입의 효과를 확정할 수는 없다."
+            "설정에는 TTL과 직렬화 방식이 있었지만, 서비스에 적용하는 일은 후속 작업으로 적힌 부분도 있었다. 설정 파일만 읽고 캐시를 도입한 효과까지 말할 수는 없다."
           ]
         },
         {
           "heading": "내가 남겨 둘 확인 순서",
           "paragraphs": [
-            "실제 호출 경로, 키와 무효화 규칙, 적중 여부, 원본 조회 비용을 차례로 확인하고 싶다. 준비한 인프라와 검증한 동작을 구분해 적어 두는 편이 이후 판단에도 도움이 된다."
+            "실제로 어디서 호출하는지, 키와 무효화 규칙은 무엇인지, 캐시에 적중하는지, 원본 조회에는 비용이 얼마나 드는지 차례로 보고 싶다. 인프라를 준비한 데까지인지 실제 동작도 검증했는지 나눠 적어 두면 다음에 판단하기도 쉽다."
           ]
         }
       ],
       "questions": [
-        "조회가 정말 이 캐시를 읽고 있는가?",
-        "오래된 값이 남아도 되는 범위는 어디까지인가?"
+        "조회할 때 정말 이 캐시를 읽고 있을까?",
+        "어디까지는 오래된 값이 남아 있어도 괜찮을까?"
       ],
       "tags": [
         "Redis",
@@ -367,7 +367,7 @@ export const brainCatalog = {
     {
       "id": "transaction-context",
       "title": "같은 함수에서도 트랜잭션 문맥을 확인한다",
-      "summary": "코드가 가까이 있다는 것과 같은 트랜잭션에 참여한다는 것은 다르다.",
+      "summary": "가까이 있는 코드라도 같은 트랜잭션에 참여하는지는 따로 봐야 한다.",
       "kind": "learning",
       "topic": "boundaries",
       "basis": "implementation",
@@ -376,18 +376,18 @@ export const brainCatalog = {
         {
           "heading": "코드에서 확인한 것",
           "paragraphs": [
-            "검토한 Go 구현은 문맥에 SQL 트랜잭션을 연결하고 서비스의 트랜잭션 콜백에서 그 문맥을 전달한다. 실패 경계를 확인하는 테스트도 별도로 두고 있다."
+            "살펴본 Go 코드는 문맥에 SQL 트랜잭션을 연결하고, 서비스의 트랜잭션 콜백에서 그 문맥을 넘긴다. 실패했을 때 어디까지 영향을 받는지 확인하는 테스트도 따로 있었다."
           ]
         },
         {
           "heading": "다시 사용할 관점",
           "paragraphs": [
-            "트랜잭션 안에서 호출되는 함수가 어느 문맥과 연결을 쓰는지 추적한다. 바깥 문맥을 실수로 전달하는 상황과 롤백 후 상태가 남는 상황을 검증 대상으로 남긴다."
+            "트랜잭션 안에서 부르는 함수가 어떤 문맥과 연결을 쓰는지 따라가 본다. 바깥 문맥을 잘못 넘긴 경우와 롤백했는데 상태가 남는 경우도 검증할 항목으로 적어 둔다."
           ]
         }
       ],
       "questions": [
-        "중간 단계가 실패했을 때 앞선 변경이 함께 취소되는가?"
+        "중간에 실패하면 앞에서 바꾼 내용도 함께 취소될까?"
       ],
       "tags": [
         "Go",
@@ -405,7 +405,7 @@ export const brainCatalog = {
     {
       "id": "telemetry-with-less-data",
       "title": "관측에 필요한 정보만 남긴다",
-      "summary": "장애를 찾는 데 필요한 정보와 원문 데이터의 노출을 함께 생각한다.",
+      "summary": "장애를 찾을 정보는 남기되, 원문 데이터가 노출되는지도 함께 본다.",
       "kind": "learning",
       "topic": "boundaries",
       "basis": "implementation",
@@ -414,18 +414,18 @@ export const brainCatalog = {
         {
           "heading": "검토한 구성",
           "paragraphs": [
-            "Redis tracing을 연결하면서 명령문 내용과 호출자 정보의 수집을 끈 구성을 확인했다. 관측 도구를 연결할 때 수집 범위도 함께 선택한 사례로 정리한다."
+            "Redis tracing 설정에서 명령문 내용과 호출자 정보를 수집하지 않도록 한 부분을 봤다. 관측 도구를 붙이면서 어디까지 수집할지도 정한 사례라 적어 둔다."
           ]
         },
         {
           "heading": "계속 확인할 질문",
           "paragraphs": [
-            "운영 문제를 구분할 수 있는 신호는 유지하면서 사용자 입력과 민감한 키가 기록되지 않는지 확인하고 싶다. 무엇을 수집하지 않는지도 관측성 설계의 일부다."
+            "운영 문제를 구분하는 데 필요한 신호는 남기면서, 사용자 입력과 민감한 키가 기록되지는 않는지 확인하고 싶다. 무엇을 모으지 않을지도 관측성을 설계할 때 정해야 한다."
           ]
         }
       ],
       "questions": [
-        "이 필드는 문제를 구분하는 데 필요한가, 원문을 복제하고 있는가?"
+        "이 필드는 문제를 구분하는 데 필요할까, 원문을 그대로 옮기는 걸까?"
       ],
       "tags": [
         "OpenTelemetry",
@@ -447,7 +447,7 @@ export const brainCatalog = {
     {
       "id": "contract-before-generated-code",
       "title": "생성 코드보다 원본 계약을 먼저 본다",
-      "summary": "API 변경은 명세·생성 결과·호출부가 같은 의미를 가리켜야 한다.",
+      "summary": "API를 바꿀 때는 명세·생성 결과·호출부가 서로 맞는지 본다.",
       "kind": "solution",
       "topic": "boundaries",
       "basis": "profile",
@@ -456,18 +456,18 @@ export const brainCatalog = {
         {
           "heading": "기록에 남은 접근",
           "paragraphs": [
-            "공개 경력에는 OpenAPI Spec-First를 기준으로 반복 구현을 정리한 경험이 있다. 생성 코드를 기존 검증 흐름에 연결하는 것도 같은 접근의 일부다."
+            "OpenAPI Spec-First를 기준으로 반복 구현을 정리한 경험을 공개 경력에 적어 뒀다. 생성한 코드도 기존 검증 흐름에서 확인하는 것까지 같은 맥락으로 본다."
           ]
         },
         {
           "heading": "다음에도 확인할 기준",
           "paragraphs": [
-            "생성된 결과만 고치면 다음 생성 때 의도가 사라질 수 있다. 명세를 바꾼 이유와 소비하는 코드의 버전을 함께 확인하는 기준으로 남겨 둔다."
+            "생성된 코드만 고치면 다음에 생성할 때 수정한 내용이 사라질 수 있다. 명세를 왜 바꿨는지, 그 명세를 사용하는 코드가 어느 버전인지 함께 확인해 두자."
           ]
         }
       ],
       "questions": [
-        "이 변경의 정본은 명세인가, 직접 작성한 서비스 코드인가?"
+        "이번 변경에서 원본으로 삼아야 할 건 명세일까, 직접 작성한 서비스 코드일까?"
       ],
       "tags": [
         "OpenAPI",
@@ -486,7 +486,7 @@ export const brainCatalog = {
     {
       "id": "project-boundaries",
       "title": "자동 탐색에도 저장소의 경계가 필요하다",
-      "summary": "가까운 폴더 이름보다 선언된 소유 관계를 확인한다.",
+      "summary": "가까이 있는 폴더의 이름보다 어느 프로젝트에 속하는지 명시한 정보를 먼저 본다.",
       "kind": "learning",
       "topic": "tools",
       "basis": "implementation",
@@ -495,18 +495,18 @@ export const brainCatalog = {
         {
           "heading": "확인한 검증 방식",
           "paragraphs": [
-            "개발 도구의 탐색 구현과 테스트에는 멀티모듈 소유자를 찾되 독립 Git 저장소와 형제 모듈의 근거를 무분별하게 합치지 않는 검사가 있었다."
+            "개발 도구의 탐색 코드와 테스트를 보니 멀티모듈의 소유자를 찾는 검사가 있었다. 독립 Git 저장소나 형제 모듈의 근거를 함부로 섞지 않는지도 확인했다."
           ]
         },
         {
           "heading": "개인 도구로 가져갈 생각",
           "paragraphs": [
-            "자동화가 편해질수록 잘못된 프로젝트 규칙을 적용하는 실수도 줄이고 싶다. 이름이 비슷한 폴더가 있다는 이유만으로 같은 맥락이라고 판단하지 않는 기준을 남긴다."
+            "자동화가 편해지는 만큼 엉뚱한 프로젝트 규칙을 적용하는 실수도 줄이고 싶다. 폴더 이름이 비슷해도 같은 프로젝트 맥락으로 읽어도 되는지는 따로 확인한다."
           ]
         }
       ],
       "questions": [
-        "이 파일을 소유하는 저장소와 적용할 규칙을 설명할 수 있는가?"
+        "이 파일이 속한 저장소는 어디고, 어떤 규칙을 적용해야 할까?"
       ],
       "tags": [
         "개발 도구",
@@ -523,7 +523,7 @@ export const brainCatalog = {
     {
       "id": "verification-is-not-a-label",
       "title": "검사 성공과 작업 완료를 구별한다",
-      "summary": "도구가 준비되었다는 확인을 실제 구현의 성공으로 바꾸지 않는다.",
+      "summary": "도구가 준비됐다는 것과 구현이 실제로 잘 동작한다는 것은 구분한다.",
       "kind": "reflection",
       "topic": "tools",
       "basis": "reflection",
@@ -532,18 +532,18 @@ export const brainCatalog = {
         {
           "heading": "검증 코드에서 출발한 생각",
           "paragraphs": [
-            "준비 상태를 확인하는 진단과 실제 실행 결과를 구분하는 검사, 확인한 소스 상태를 결과 기록에 연결하는 검사가 있었다."
+            "검증 코드는 준비 상태를 진단한 결과와 실제로 실행한 결과를 구분하고 있었다. 결과 기록이 확인한 소스 상태와 연결되는지 검사하는 부분도 있었다."
           ]
         },
         {
           "heading": "내가 남겨 둘 기준",
           "paragraphs": [
-            "무엇을 실행했고 무엇은 아직 실행하지 않았는지 적고 싶다. 성공 표시 하나보다 실행한 명령, 확인한 범위, 남은 한계가 다음 작업에 더 도움이 된다."
+            "무엇을 실행했고 무엇은 아직 안 했는지 적어 두고 싶다. 성공했다는 표시만 남기기보다 실행한 명령, 확인한 범위, 아직 확인하지 못한 부분을 적어 두는 편이 다음 작업에 도움이 된다."
           ]
         }
       ],
       "questions": [
-        "이번 성공은 준비 검사인가, 실제 동작 검증인가?"
+        "통과한 건 준비 상태 검사일까, 실제 동작을 확인하는 검사일까?"
       ],
       "tags": [
         "TDD",
@@ -564,7 +564,7 @@ export const brainCatalog = {
     {
       "id": "pinned-dependency-context",
       "title": "최신 코드와 실제 사용하는 버전은 다르다",
-      "summary": "문서를 읽기 전에 소비하는 의존성의 버전을 확인한다.",
+      "summary": "문서부터 읽기 전에 지금 쓰는 의존성이 어느 버전인지 확인한다.",
       "kind": "learning",
       "topic": "boundaries",
       "basis": "implementation",
@@ -573,18 +573,18 @@ export const brainCatalog = {
         {
           "heading": "확인한 구조",
           "paragraphs": [
-            "여러 저장소가 공통 도구를 서로 다른 버전으로 고정하는 구조와, 실제 소비 버전을 확인하는 검증을 살펴봤다. 소스의 최신 상태를 그대로 현재 프로젝트의 동작으로 볼 수는 없다."
+            "여러 저장소에서 공통 도구의 버전을 서로 다르게 고정해 쓰고 있었다. 실제로 쓰는 버전을 확인하는 검증도 살펴봤다. 최신 소스에 있는 동작이 지금 프로젝트에도 있다고 생각하면 안 된다."
           ]
         },
         {
           "heading": "다시 확인할 순서",
           "paragraphs": [
-            "소비하는 버전, 그 버전에 해당하는 소스, 현재 호출부를 연결해서 읽는다. 자동으로 최신 버전으로 바꾸는 것은 별도의 변경으로 다룬다."
+            "사용 중인 버전을 확인하고, 그 버전의 소스와 현재 호출부를 함께 읽는다. 자동으로 최신 버전으로 바꾸는 일은 별도 변경으로 다룬다."
           ]
         }
       ],
       "questions": [
-        "이 설명은 지금 사용 중인 버전에서도 성립하는가?"
+        "이 설명이 지금 쓰는 버전에도 맞을까?"
       ],
       "tags": [
         "의존성",
@@ -601,7 +601,7 @@ export const brainCatalog = {
     {
       "id": "html-structure",
       "title": "태그를 정리해도 문서의 의미는 남아야 한다",
-      "summary": "문단과 목록, 표의 구조를 고려해 HTML을 다룬다.",
+      "summary": "HTML을 정리할 때 문단과 목록, 표의 구조도 살핀다.",
       "kind": "learning",
       "topic": "tools",
       "basis": "implementation",
@@ -610,18 +610,18 @@ export const brainCatalog = {
         {
           "heading": "문서 도구에서 확인한 것",
           "paragraphs": [
-            "HTML을 DOM으로 파싱하고 태그와 속성을 정리한 뒤 개행 규칙을 적용하는 구현을 살펴봤다. 태그를 단순히 삭제하는 작업에도 읽기 구조를 유지할 기준이 필요하다."
+            "문서 도구는 HTML을 DOM으로 파싱하고, 태그와 속성을 정리한 뒤 규칙에 맞춰 줄을 바꾸고 있었다. 태그를 지우는 일이라도 문서 구조를 어떻게 남길지 정해야 한다."
           ]
         },
         {
           "heading": "다음에 사용할 기준",
           "paragraphs": [
-            "문단 경계, 목록 순서, 표의 셀 구분이 결과에서 읽히는지 확인하고 싶다. 허용 태그를 정하는 일과 결과를 브라우저에 안전하게 표시하는 일도 따로 검증한다."
+            "변환한 뒤에도 문단이 어디서 나뉘는지, 목록 순서와 표의 셀 구분이 보이는지 확인하고 싶다. 어떤 태그를 허용할지 정했더라도 결과를 브라우저에 안전하게 표시하는지는 따로 검증한다."
           ]
         }
       ],
       "questions": [
-        "변환 결과만 읽어도 원래의 목록과 표를 이해할 수 있는가?"
+        "변환한 결과만 읽어도 원래 목록과 표를 이해할 수 있을까?"
       ],
       "tags": [
         "HTML",
@@ -639,7 +639,7 @@ export const brainCatalog = {
     {
       "id": "whitespace-is-content",
       "title": "공백을 정리하다 의미를 지우지 않을까",
-      "summary": "보기 좋은 출력과 원문 의미 보존을 함께 확인한다.",
+      "summary": "보기에 깔끔해졌어도 원문 뜻이 달라지지는 않았는지 본다.",
       "kind": "question",
       "topic": "tools",
       "basis": "question",
@@ -648,18 +648,18 @@ export const brainCatalog = {
         {
           "heading": "코드에서 생긴 질문",
           "paragraphs": [
-            "문서 처리 코드에서 공백을 넓게 정리하는 부분을 확인했다. 모든 공백을 같은 방식으로 지워도 되는지 별도 사례로 확인할 필요가 있다."
+            "문서 처리 코드를 읽다가 공백을 한꺼번에 정리하는 부분을 봤다. 모든 공백을 같은 방식으로 지워도 괜찮은지는 사례를 따로 넣어 봐야 알겠다."
           ]
         },
         {
           "heading": "확인해 보고 싶은 입력",
           "paragraphs": [
-            "단어 사이 공백, 코드 블록의 들여쓰기, 표 안의 여러 문장처럼 공백 자체가 의미를 가진 입력을 비교해 보고 싶다. 아직 이 메모를 문제 해결 완료 기록으로 보지는 않는다."
+            "단어 사이 공백이나 코드 블록의 들여쓰기, 표 안의 여러 문장을 넣고 비교해 보고 싶다. 공백 자체에 의미가 있는 경우들이다. 해결한 문제보다는 더 확인할 질문으로 남겨 둔다."
           ]
         }
       ],
       "questions": [
-        "영문 두 단어와 코드 들여쓰기가 변환 후에도 보존되는가?"
+        "변환한 뒤에도 영문 두 단어 사이의 공백과 코드 들여쓰기가 남아 있을까?"
       ],
       "tags": [
         "파싱",
@@ -676,7 +676,7 @@ export const brainCatalog = {
     {
       "id": "parser-input-boundary",
       "title": "파일을 읽는 도구의 허용 범위는 어디까지일까",
-      "summary": "파싱의 정확성과 파일 접근의 안전성은 별개의 검증 대상이다.",
+      "summary": "제대로 파싱하는지와 안전하게 파일을 읽는지는 따로 확인해야 한다.",
       "kind": "question",
       "topic": "tools",
       "basis": "question",
@@ -685,18 +685,18 @@ export const brainCatalog = {
         {
           "heading": "남겨 둔 문제",
           "paragraphs": [
-            "파일이나 폴더 경로를 입력받는 문서 도구를 검토하며, 어떤 위치와 크기까지 읽도록 허용할지 질문으로 남겼다. 실제 침해나 사고가 있었다는 뜻은 아니다."
+            "파일이나 폴더 경로를 받는 문서 도구를 보면서, 어느 위치의 파일까지 읽게 할지, 크기는 어디까지 허용할지 궁금해졌다. 실제 침해나 사고가 있었다는 뜻으로 적은 질문은 아니다."
           ]
         },
         {
           "heading": "확인할 항목",
           "paragraphs": [
-            "허용 디렉터리, 심볼릭 링크, 큰 파일, 파싱 실패와 로그의 원문 노출을 검토하고 싶다. 도구가 로컬에서 동작하는지 외부 요청을 받는지에 따라 필요한 경계도 달라진다."
+            "허용 디렉터리와 심볼릭 링크부터 큰 파일, 파싱 실패, 로그에 원문이 남는 경우까지 살펴보고 싶다. 로컬에서만 쓰는 도구인지 외부 요청을 받는 도구인지에 따라서도 제한할 범위가 달라진다."
           ]
         }
       ],
       "questions": [
-        "입력 경로가 의도한 작업 폴더 밖을 가리키면 어떻게 되는가?"
+        "입력한 경로가 작업하려던 폴더 밖을 가리키면 어떻게 될까?"
       ],
       "tags": [
         "파일 접근",
@@ -713,7 +713,7 @@ export const brainCatalog = {
     {
       "id": "time-split-validation",
       "title": "미래를 보지 않은 평가를 남긴다",
-      "summary": "결과를 고르는 데이터와 마지막에 확인하는 데이터를 분리한다.",
+      "summary": "결과를 고를 때 쓴 데이터와 마지막 평가에 쓸 데이터를 나눠 둔다.",
       "kind": "learning",
       "topic": "data",
       "basis": "implementation",
@@ -722,18 +722,18 @@ export const brainCatalog = {
         {
           "heading": "개인 분석 도구에서 확인한 것",
           "paragraphs": [
-            "시간순 이력을 사용하는 분석에서 과거 구간으로 후보를 고르고 뒤쪽 구간을 따로 평가하는 코드와 테스트를 확인했다. 미래 행이 예측 입력에 들어가지 않는지도 검사한다."
+            "시간순 이력을 분석하는 코드와 테스트를 살펴봤다. 과거 구간에서 후보를 고르고, 뒤쪽 구간은 따로 평가에 쓴다. 미래 시점의 행이 예측 입력에 섞이지 않는지도 검사하고 있었다."
           ]
         },
         {
           "heading": "다른 작업에 이어질 기준",
           "paragraphs": [
-            "성능이 좋아 보이는 결과를 발견했을 때, 그 결과를 보고 기준까지 바꾸지는 않았는지 확인하고 싶다. 평가 데이터로 방법을 조정했다면 새로운 검증이 필요하다는 질문을 남긴다."
+            "결과가 좋아 보일 때는 그 결과에 맞춰 기준까지 바꾼 건 아닌지 돌아보고 싶다. 평가 데이터에 맞춰 방법을 고쳤다면 새로 검증해야 하지 않을까?"
           ]
         }
       ],
       "questions": [
-        "평가 결과를 보고 고친 방법을 같은 데이터로 다시 증명하고 있지는 않은가?"
+        "평가 결과를 보고 방법을 고친 뒤, 같은 데이터로 다시 증명하려는 건 아닐까?"
       ],
       "tags": [
         "데이터 분석",
@@ -750,7 +750,7 @@ export const brainCatalog = {
     {
       "id": "baseline-before-complexity",
       "title": "복잡한 방법이 기준선을 이겼는지 확인한다",
-      "summary": "개선 근거가 없으면 단순한 기준을 유지하는 선택도 결과다.",
+      "summary": "더 나아졌다는 근거가 없다면 단순한 기준을 유지하는 것도 선택이다.",
       "kind": "reflection",
       "topic": "data",
       "basis": "reflection",
@@ -759,18 +759,18 @@ export const brainCatalog = {
         {
           "heading": "구현에서 출발한 생각",
           "paragraphs": [
-            "개인 분석 도구에는 여러 후보를 비교하고 개선 조건을 충족하지 못하면 단순한 기준으로 돌아가는 선택이 있었다. 결과에도 실제 선택한 방식과 이유를 남긴다."
+            "개인 분석 도구는 여러 후보를 비교하고, 개선 조건을 채우지 못하면 단순한 기준으로 돌아가게 되어 있었다. 실제로 고른 방식과 그 이유도 결과에 남긴다."
           ]
         },
         {
           "heading": "내가 계속 묻고 싶은 것",
           "paragraphs": [
-            "복잡한 구현을 만들었다는 이유만으로 더 낫다고 말하고 싶지는 않다. 비교 지표가 실제 목적을 얼마나 설명하는지부터 확인하겠다. 이 기록은 추첨 결과의 예측 성공을 주장하지 않는다."
+            "복잡하게 만들었다고 더 낫다고 말하고 싶지는 않다. 비교에 쓴 지표가 실제 목적에 얼마나 맞는지부터 확인하겠다. 여기서 추첨 결과를 잘 예측했다고 말하려는 건 아니다."
           ]
         }
       ],
       "questions": [
-        "지표가 좋아진 것과 사용자의 실제 목적이 달성된 것은 같은가?"
+        "지표가 좋아졌다면 사용자가 원하던 것도 이뤄졌을까?"
       ],
       "tags": [
         "기준선",
@@ -787,7 +787,7 @@ export const brainCatalog = {
     {
       "id": "first-write-wins",
       "title": "한 번 저장한 결과를 다시 만들지 않는다",
-      "summary": "재실행과 동시 실행에서도 최초 기록을 보존한다.",
+      "summary": "다시 실행하거나 동시에 실행해도 처음 저장한 기록을 지킨다.",
       "kind": "solution",
       "topic": "everyday",
       "basis": "implementation",
@@ -796,18 +796,18 @@ export const brainCatalog = {
         {
           "heading": "개인 도구의 저장 방식",
           "paragraphs": [
-            "회차별 기록을 완성된 임시 파일로 만든 뒤, 먼저 만들어진 결과를 덮어쓰지 않도록 저장하는 구현을 확인했다. 기존 기록은 회차와 입력 데이터의 지문을 비교해 다시 검증한다."
+            "저장 코드를 보니 회차별 기록을 임시 파일에 완성한 뒤 저장하고 있었다. 먼저 만들어진 결과는 덮어쓰지 않는다. 기존 기록도 회차와 입력 데이터의 지문을 비교해 다시 검증한다."
           ]
         },
         {
           "heading": "다음에 떠올릴 상황",
           "paragraphs": [
-            "중복 요청이나 재실행에서도 같은 결과를 유지해야 하는 작업에 연결해 두고 싶다. 최초 결과를 보존하는 정책과 오류가 있는 원본을 수정하는 정책은 별도로 정해야 한다."
+            "중복 요청이나 재실행 때도 같은 결과를 유지해야 한다면 이 방식을 떠올려 보고 싶다. 처음 결과를 지키는 규칙과 잘못된 원본을 고치는 규칙은 따로 정해야 한다."
           ]
         }
       ],
       "questions": [
-        "입력 데이터가 바뀌었을 때 기존 결과를 유지할지 다시 만들지 누가 결정하는가?"
+        "입력 데이터가 바뀌면 기존 결과를 둘지 다시 만들지 누가 정할까?"
       ],
       "tags": [
         "멱등성",
@@ -824,7 +824,7 @@ export const brainCatalog = {
     {
       "id": "data-freshness",
       "title": "오래된 정보는 오래되었다고 보여 준다",
-      "summary": "링크가 있다는 사실과 지금 사용할 수 있다는 확인을 구별한다.",
+      "summary": "링크가 남아 있어도 지금 쓸 수 있는지는 확인해야 한다.",
       "kind": "learning",
       "topic": "everyday",
       "basis": "implementation",
@@ -833,18 +833,18 @@ export const brainCatalog = {
         {
           "heading": "목록 서비스에서 확인한 것",
           "paragraphs": [
-            "개인 목록 서비스는 확인된 판매 정보와 참고 후보를 구분하고, 확인 시각이 오래되거나 검증되지 않은 링크는 검색 경로로 전환한다. 화면에도 정보의 상태를 구별해서 표시한다."
+            "개인 목록 서비스에서는 확인한 판매 정보와 참고할 후보를 나눠 둔다. 확인한 지 오래됐거나 검증하지 않은 링크는 검색으로 안내하고, 화면에서도 정보가 어떤 상태인지 구분해 보여 준다."
           ]
         },
         {
           "heading": "다른 기록에도 적용할 점",
           "paragraphs": [
-            "확인 날짜만 현재로 바꿔 정보가 새로 검증된 것처럼 보이지 않게 하고 싶다. 기술 문서와 개인 기억도 무엇을 언제 확인했는지 함께 남기면 다시 읽을 때 판단하기 쉽다."
+            "확인 날짜만 오늘로 바꿔 새로 검증한 정보처럼 보이게 하고 싶지는 않다. 기술 문서나 개인 기억도 무엇을 언제 확인했는지 적어 두면 다시 읽을 때 판단하기 쉽다."
           ]
         }
       ],
       "questions": [
-        "이 정보가 틀리거나 오래되었을 때 사용자가 안전하게 다음 행동을 할 수 있는가?"
+        "이 정보가 틀렸거나 오래됐어도 사용자가 안전하게 다음 행동을 할 수 있을까?"
       ],
       "tags": [
         "데이터 신선도",
@@ -861,7 +861,7 @@ export const brainCatalog = {
     {
       "id": "local-state-privacy",
       "title": "계정 없이 쓰는 도구에도 저장 경계가 있다",
-      "summary": "브라우저에 남는 기록의 범위와 한계를 사용자에게 설명한다.",
+      "summary": "브라우저에 어떤 기록이 남고, 어디까지 보관되는지 알려 준다.",
       "kind": "learning",
       "topic": "everyday",
       "basis": "implementation",
@@ -870,18 +870,18 @@ export const brainCatalog = {
         {
           "heading": "확인한 선택",
           "paragraphs": [
-            "개인 목록 서비스는 찜과 준비 상태를 브라우저 저장소에 보관한다. 로그인 없이 사용할 수 있지만 다른 기기와 자동으로 동기화되는 구조는 아니다."
+            "개인 목록 서비스는 찜과 준비 상태를 브라우저 저장소에 담아 둔다. 로그인 없이 쓸 수 있지만 다른 기기로 자동 동기화되지는 않는다."
           ]
         },
         {
           "heading": "남겨 둘 질문",
           "paragraphs": [
-            "사용자가 어디에 저장되는지 이해할 수 있어야 한다. 브라우저 데이터를 지우는 경우, 공용 기기를 사용하는 경우, 다른 기기로 옮기는 경우의 경험을 함께 살펴보고 싶다."
+            "쓰는 사람이 자기 기록이 어디에 저장되는지 알 수 있어야 한다. 브라우저 데이터를 지우거나 공용 기기를 쓸 때, 다른 기기로 옮길 때는 어떤지도 살펴보고 싶다."
           ]
         }
       ],
       "questions": [
-        "저장 위치를 모르는 사람도 데이터가 남는 범위를 이해할 수 있는가?"
+        "저장 위치를 모르고 쓰던 사람도 데이터가 어디까지 남는지 알 수 있을까?"
       ],
       "tags": [
         "localStorage",
@@ -898,7 +898,7 @@ export const brainCatalog = {
     {
       "id": "shared-copy-is-not-sync",
       "title": "공유한 사본과 함께 편집하는 원본은 다르다",
-      "summary": "공유 주소의 편리함과 포함된 데이터의 범위를 같이 생각한다.",
+      "summary": "주소 하나로 편하게 공유하더라도 어떤 데이터가 담기는지는 살펴야 한다.",
       "kind": "reflection",
       "topic": "everyday",
       "basis": "reflection",
@@ -907,18 +907,18 @@ export const brainCatalog = {
         {
           "heading": "구현에서 확인한 구분",
           "paragraphs": [
-            "개인 목록 서비스는 주소에 담긴 내용을 열람하고 자신의 브라우저에 사본으로 저장하는 흐름이다. 공동 편집이나 실시간 동기화와는 다른 사용 방식이다."
+            "개인 목록 서비스에서는 주소에 담긴 내용을 읽고 자기 브라우저에 사본을 저장한다. 함께 편집하거나 실시간으로 동기화하는 방식과는 다르다."
           ]
         },
         {
           "heading": "설계할 때 남겨 둘 기준",
           "paragraphs": [
-            "공유 주소를 가진 사람이 무엇을 읽을 수 있는지 명확히 하고 싶다. 메모까지 주소에 담는다면 공유 전에 포함 내용을 확인하고, 사본의 수정이 원본에 반영되는 것처럼 보이지 않게 한다."
+            "주소를 받은 사람이 어디까지 읽을 수 있는지 분명하게 알려 주고 싶다. 메모도 주소에 담는다면 공유 전에 어떤 내용이 들어가는지 확인하게 한다. 사본을 고치면 원본도 바뀌는 것처럼 보이지 않게 하는 것도 필요하다."
           ]
         }
       ],
       "questions": [
-        "공유 버튼을 누르기 전에 어떤 내용이 전달되는지 볼 수 있는가?"
+        "공유 버튼을 누르기 전에 어떤 내용이 넘어가는지 볼 수 있을까?"
       ],
       "tags": [
         "공유",
@@ -936,7 +936,7 @@ export const brainCatalog = {
     {
       "id": "pubsub-delivery",
       "title": "Redis Pub/Sub로 충분한 메시지는 무엇일까",
-      "summary": "유실을 허용할 수 있는 신호와 다시 처리해야 하는 작업을 나눈다.",
+      "summary": "놓쳐도 괜찮은 신호와 다시 처리해야 하는 작업을 나눠 본다.",
       "kind": "question",
       "topic": "reliability",
       "basis": "question",
@@ -945,19 +945,19 @@ export const brainCatalog = {
         {
           "heading": "도입 전에 확인할 사실",
           "paragraphs": [
-            "Redis 공식 문서는 Pub/Sub를 at-most-once 전달로 설명한다. 구독자가 연결을 잃거나 처리하지 못한 메시지를 다시 보내는 기능은 제공하지 않는다."
+            "Redis 공식 문서에서 Pub/Sub의 전달 방식은 at-most-once다. 구독자의 연결이 끊겼거나 메시지를 처리하지 못해도 다시 보내 주는 기능은 없다."
           ]
         },
         {
           "heading": "내가 검토하고 싶은 조건",
           "paragraphs": [
-            "일시적인 화면 갱신 신호와 완료 여부를 끝까지 추적해야 하는 작업을 같은 방식으로 보내도 되는지 묻고 싶다. 이 노트는 Pub/Sub를 실제 도입했다는 경험 기록이 아니다."
+            "잠깐 화면을 갱신하는 신호와 완료됐는지 끝까지 추적해야 하는 작업을 같은 방식으로 보내도 될까? Pub/Sub를 도입했다는 경험담은 아니다. 도입 전에 따져 볼 조건을 적어 뒀다."
           ]
         }
       ],
       "questions": [
         "구독자가 잠시 끊겨도 괜찮은 메시지인가?",
-        "재처리가 필요하다면 어떤 저장·확인 방식이 필요한가?"
+        "다시 처리해야 한다면 어떻게 저장하고 확인해야 할까?"
       ],
       "tags": [
         "Redis",
@@ -976,7 +976,7 @@ export const brainCatalog = {
     {
       "id": "msa-boundary",
       "title": "MSA로 나누기 전에 경계를 설명할 수 있을까",
-      "summary": "모듈 분리와 독립 배포, 데이터 소유권을 같은 것으로 보지 않는다.",
+      "summary": "모듈을 나눴어도 독립 배포와 데이터 소유권은 따로 생각해야 한다.",
       "kind": "question",
       "topic": "boundaries",
       "basis": "question",
@@ -985,19 +985,19 @@ export const brainCatalog = {
         {
           "heading": "아직 열어 둔 질문",
           "paragraphs": [
-            "모듈이 나뉘어 있다는 사실만으로 MSA를 도입했다고 적지는 않는다. 서비스마다 독립 배포와 데이터 소유권이 필요한 이유를 먼저 설명해 보고 싶다."
+            "모듈이 나뉘었다고 MSA를 도입했다고 적을 수는 없다. 서비스마다 따로 배포하고 데이터를 소유해야 하는 이유부터 설명해 보고 싶다."
           ]
         },
         {
           "heading": "검토할 기준",
           "paragraphs": [
-            "변경 빈도, 장애 격리, 팀의 운영 역량, 배포와 관측의 준비를 함께 본다. 경계를 나눈 뒤 늘어나는 통신과 정합성 문제도 선택의 비용으로 기록하겠다."
+            "얼마나 자주 바뀌는지, 장애를 격리할 수 있는지, 팀이 운영할 수 있는지, 배포와 관측은 준비됐는지 함께 본다. 나눈 뒤 늘어나는 통신과 정합성 문제도 감당해야 할 비용으로 적어 두겠다."
           ]
         }
       ],
       "questions": [
-        "독립 배포가 실제로 필요한가?",
-        "한 요청이 여러 저장소를 바꾸면 실패를 어떻게 다룰 것인가?"
+        "정말 따로 배포해야 할까?",
+        "한 요청이 여러 저장소를 바꾸다 실패하면 어떻게 처리할까?"
       ],
       "tags": [
         "MSA",
@@ -1016,7 +1016,7 @@ export const brainCatalog = {
     {
       "id": "outbox-gap",
       "title": "커밋과 메시지 전송 사이가 비면 어떻게 될까",
-      "summary": "DB 저장 성공 이후에도 후속 작업이 전달되지 않을 수 있는 구간을 검토한다.",
+      "summary": "DB에는 저장됐는데 후속 작업은 전달되지 않는 경우를 살펴본다.",
       "kind": "question",
       "topic": "reliability",
       "basis": "question",
@@ -1025,18 +1025,18 @@ export const brainCatalog = {
         {
           "heading": "연결해서 생긴 질문",
           "paragraphs": [
-            "DB 저장과 메시지 전송을 별도로 수행하면 한쪽만 성공하는 상황을 고려해야 한다. 커밋 후 실행 시점을 정한 다음에도 이 구간을 살펴볼 필요가 있다."
+            "DB 저장과 메시지 전송을 따로 하면 한쪽만 성공할 수도 있다. 커밋 후 언제 실행할지 정했어도, 그 사이에 무슨 일이 생길 수 있는지는 따로 살펴봐야 한다."
           ]
         },
         {
           "heading": "검토할 대안",
           "paragraphs": [
-            "업무 변경과 전송할 의도를 같은 트랜잭션에 남기는 outbox는 검토할 수 있는 방법이다. 이후 전달의 중복과 소비자의 멱등성까지 함께 확인해야 한다. 이 기록은 현재 구현에 outbox가 있다고 주장하지 않는다."
+            "업무 변경과 메시지를 보내겠다는 기록을 같은 트랜잭션에 남기는 outbox를 검토해 볼 수 있다. 이후에 중복으로 전달되는 경우와 소비자의 멱등성도 함께 확인해야 한다. 현재 구현에 outbox가 있다는 뜻으로 적은 메모는 아니다."
           ]
         }
       ],
       "questions": [
-        "저장 성공과 전송 실패를 재시작 후 구분할 기록이 있는가?"
+        "다시 시작한 뒤에도 저장은 성공했고 전송은 실패했다는 걸 기록에서 알 수 있을까?"
       ],
       "tags": [
         "Outbox",
@@ -1055,7 +1055,7 @@ export const brainCatalog = {
     {
       "id": "feelings-and-hindsight",
       "title": "그때의 감정과 지금의 해석을 나눠 남긴다",
-      "summary": "잘 정리된 결론 때문에 당시의 마음이 사라지지 않게 한다.",
+      "summary": "결론을 깔끔하게 정리하다 그때 마음까지 지우고 싶지는 않다.",
       "kind": "reflection",
       "topic": "principles",
       "basis": "profile",
@@ -1064,18 +1064,18 @@ export const brainCatalog = {
         {
           "heading": "내가 남기고 싶은 기억",
           "paragraphs": [
-            "어떤 일이 있었는지와 함께 당시 감정도 남기고 싶다고 이야기했다. 기술 문제의 정답만 보관하면 그때 왜 망설였는지, 무엇이 부담이었는지는 잊기 쉽다."
+            "무슨 일이 있었는지와 함께 그때 감정도 남기고 싶다. 기술 문제의 답만 적어 두면 왜 망설였는지, 무엇이 부담이었는지는 잊기 쉽다."
           ]
         },
         {
           "heading": "기록의 원칙",
           "paragraphs": [
-            "당시 원문을 보존하고 나중의 생각을 덧붙이는 방식이 좋겠다. 코드에서 감정을 추측해 채우거나, 모든 기록을 성공담으로 다듬지는 않는다."
+            "그때 쓴 글은 그대로 두고, 나중에 든 생각을 덧붙이는 편이 좋겠다. 코드만 보고 감정을 짐작해 채우거나 모든 기록을 성공담으로 만들고 싶지는 않다."
           ]
         }
       ],
       "questions": [
-        "당시에 적은 내용과 지금 돌아보며 덧붙인 내용을 구별할 수 있는가?"
+        "그때 쓴 내용과 지금 돌아보며 덧붙인 내용을 구별할 수 있을까?"
       ],
       "tags": [
         "감정",
@@ -1102,91 +1102,91 @@ export const brainCatalog = {
       "from": "observe-before-optimize",
       "to": "operable-backend",
       "relation": "supports",
-      "reason": "관측 가능한 동작이 문제를 찾고 고치는 데 도움이 된다.",
+      "reason": "어떻게 동작하는지 볼 수 있어야 문제를 찾고 고치기 쉽다.",
       "visibility": "public"
     },
     {
       "from": "external-memory",
       "to": "repeatable-work",
       "relation": "extends",
-      "reason": "개인의 시행착오도 다시 사용할 수 있는 기준으로 남긴다.",
+      "reason": "내가 겪은 시행착오도 다음에 참고할 기준으로 남겨 둔다.",
       "visibility": "public"
     },
     {
       "from": "feelings-and-hindsight",
       "to": "external-memory",
       "relation": "extends",
-      "reason": "기억의 내용에 당시 마음과 이후 해석을 함께 보존한다.",
+      "reason": "그때 마음과 나중에 돌아보며 든 생각도 기억과 함께 남긴다.",
       "visibility": "public"
     },
     {
       "from": "async-request-boundary",
       "to": "operable-backend",
       "relation": "applies",
-      "reason": "요청과 후속 작업의 완료 경계를 드러낸다.",
+      "reason": "요청이 끝난 시점과 후속 작업까지 끝난 시점을 구분한다.",
       "visibility": "public"
     },
     {
       "from": "dlq-recovery",
       "to": "async-request-boundary",
       "relation": "extends",
-      "reason": "분리한 작업의 실패 이후 경로를 다룬다.",
+      "reason": "따로 떼어 낸 작업이 실패하면 어떻게 처리할지 살펴본다.",
       "visibility": "public"
     },
     {
       "from": "commit-before-side-effects",
       "to": "async-request-boundary",
       "relation": "extends",
-      "reason": "작업을 전달하는 시점과 트랜잭션의 관계를 확인한다.",
+      "reason": "작업을 넘기는 시점이 트랜잭션과 어떻게 맞물리는지 본다.",
       "visibility": "public"
     },
     {
       "from": "outbox-gap",
       "to": "commit-before-side-effects",
       "relation": "questions",
-      "reason": "커밋 이후 프로세스 중단과 전달 누락을 추가로 검토한다.",
+      "reason": "커밋한 뒤 프로세스가 멈추거나 작업이 전달되지 않는 경우도 살펴본다.",
       "visibility": "public"
     },
     {
       "from": "outbox-gap",
       "to": "dlq-recovery",
       "relation": "extends",
-      "reason": "전달 이전의 누락과 전달 이후의 실패를 구별한다.",
+      "reason": "전달하기 전에 빠진 작업과 전달한 뒤 실패한 작업을 구분한다.",
       "visibility": "public"
     },
     {
       "from": "pubsub-delivery",
       "to": "async-request-boundary",
       "relation": "questions",
-      "reason": "알림 신호와 추적해야 할 작업에 같은 전달 방식을 쓸 수 있는지 묻는다.",
+      "reason": "알림 신호와 끝까지 추적할 작업을 같은 방식으로 보내도 될까?",
       "visibility": "public"
     },
     {
       "from": "pubsub-delivery",
       "to": "dlq-recovery",
       "relation": "questions",
-      "reason": "재전달이 없는 방식에서 복구 요구를 만족할 수 있는지 확인한다.",
+      "reason": "다시 보내 주지 않는 방식으로도 필요한 만큼 복구할 수 있을까?",
       "visibility": "public"
     },
     {
       "from": "cache-warmup-cost",
       "to": "observe-before-optimize",
       "relation": "applies",
-      "reason": "캐시 준비 구간의 비용도 측정 대상으로 삼는다.",
+      "reason": "캐시를 준비하는 데 드는 비용도 잰다.",
       "visibility": "public"
     },
     {
       "from": "cache-readiness-is-not-use",
       "to": "cache-warmup-cost",
       "relation": "extends",
-      "reason": "설정·예열·실제 조회 경로를 함께 추적한다.",
+      "reason": "설정부터 예열, 실제로 조회하는 코드까지 따라가 본다.",
       "visibility": "public"
     },
     {
       "from": "cache-readiness-is-not-use",
       "to": "verification-is-not-a-label",
       "relation": "supports",
-      "reason": "준비와 실제 효과를 분리해 확인한다.",
+      "reason": "준비해 둔 것과 실제로 효과를 확인한 것을 나눠 본다.",
       "visibility": "public"
     },
     {
@@ -1207,7 +1207,7 @@ export const brainCatalog = {
       "from": "telemetry-with-less-data",
       "to": "observe-before-optimize",
       "relation": "applies",
-      "reason": "관측 신호를 확보하면서 수집할 데이터 범위를 제한한다.",
+      "reason": "관측에 필요한 신호는 남기면서 어디까지 수집할지 정한다.",
       "visibility": "public"
     },
     {
@@ -1221,14 +1221,14 @@ export const brainCatalog = {
       "from": "contract-before-generated-code",
       "to": "repeatable-work",
       "relation": "applies",
-      "reason": "명세와 생성 결과의 기준을 반복 작업에 적용한다.",
+      "reason": "반복하는 작업에도 명세와 생성 결과를 확인할 기준을 적용한다.",
       "visibility": "public"
     },
     {
       "from": "pinned-dependency-context",
       "to": "contract-before-generated-code",
       "relation": "extends",
-      "reason": "명세와 소비 버전이 실제로 일치하는지 확인한다.",
+      "reason": "명세가 실제로 쓰는 버전과 맞는지 확인한다.",
       "visibility": "public"
     },
     {
@@ -1242,28 +1242,28 @@ export const brainCatalog = {
       "from": "project-boundaries",
       "to": "repeatable-work",
       "relation": "applies",
-      "reason": "자동화가 적용할 규칙의 소유 범위를 정한다.",
+      "reason": "자동화에 쓰는 규칙이 어느 프로젝트에 속하는지 정한다.",
       "visibility": "public"
     },
     {
       "from": "verification-is-not-a-label",
       "to": "repeatable-work",
       "relation": "supports",
-      "reason": "반복 실행의 결과를 실제 증거로 남긴다.",
+      "reason": "반복해서 실행한 결과도 실제로 확인한 근거와 함께 남긴다.",
       "visibility": "public"
     },
     {
       "from": "verification-is-not-a-label",
       "to": "observe-before-optimize",
       "relation": "supports",
-      "reason": "관찰한 범위와 확인하지 못한 범위를 구별한다.",
+      "reason": "어디까지 봤고 무엇은 아직 확인하지 못했는지 나눠 둔다.",
       "visibility": "public"
     },
     {
       "from": "html-structure",
       "to": "whitespace-is-content",
       "relation": "questions",
-      "reason": "태그 정리 이후에도 단어와 문서의 의미가 보존되는지 묻는다.",
+      "reason": "태그를 정리한 뒤에도 단어와 문서의 뜻이 그대로 남을까?",
       "visibility": "public"
     },
     {
@@ -1277,35 +1277,35 @@ export const brainCatalog = {
       "from": "whitespace-is-content",
       "to": "verification-is-not-a-label",
       "relation": "applies",
-      "reason": "대표 입력의 결과를 비교해 변환의 의미를 확인한다.",
+      "reason": "대표적인 입력을 변환한 결과를 비교해 뜻이 어떻게 바뀌는지 본다.",
       "visibility": "public"
     },
     {
       "from": "time-split-validation",
       "to": "observe-before-optimize",
       "relation": "applies",
-      "reason": "평가 조건과 입력 시점의 경계를 관찰한다.",
+      "reason": "어떤 조건에서 평가했는지, 입력에는 어느 시점까지의 데이터를 썼는지 본다.",
       "visibility": "public"
     },
     {
       "from": "baseline-before-complexity",
       "to": "time-split-validation",
       "relation": "extends",
-      "reason": "분리한 평가에서 단순한 기준보다 나아졌는지 확인한다.",
+      "reason": "따로 떼어 둔 데이터로 평가해 단순한 기준보다 나아졌는지 본다.",
       "visibility": "public"
     },
     {
       "from": "baseline-before-complexity",
       "to": "operable-backend",
       "relation": "supports",
-      "reason": "검증되지 않은 복잡성을 늘리지 않는 기준을 남긴다.",
+      "reason": "검증하지 않은 채 복잡하게 만들지 않도록 기준을 남긴다.",
       "visibility": "public"
     },
     {
       "from": "first-write-wins",
       "to": "dlq-recovery",
       "relation": "extends",
-      "reason": "재실행에서 같은 결과를 유지해야 하는 문제를 연결한다.",
+      "reason": "다시 실행해도 같은 결과를 유지해야 한다는 고민이 이어진다.",
       "visibility": "public"
     },
     {
@@ -1319,7 +1319,7 @@ export const brainCatalog = {
       "from": "data-freshness",
       "to": "verification-is-not-a-label",
       "relation": "applies",
-      "reason": "링크의 존재와 최근 확인 상태를 구분한다.",
+      "reason": "링크가 있는지와 최근에도 확인했는지를 구분한다.",
       "visibility": "public"
     },
     {
@@ -1333,35 +1333,35 @@ export const brainCatalog = {
       "from": "local-state-privacy",
       "to": "shared-copy-is-not-sync",
       "relation": "extends",
-      "reason": "내 브라우저 저장과 다른 사람에게 전달되는 사본을 구별한다.",
+      "reason": "내 브라우저에 저장한 내용과 다른 사람에게 넘긴 사본을 구분한다.",
       "visibility": "public"
     },
     {
       "from": "shared-copy-is-not-sync",
       "to": "external-memory",
       "relation": "questions",
-      "reason": "기억을 밖에 남길 때 누구에게 어떤 내용을 보여 줄지 묻는다.",
+      "reason": "기억을 밖에 남길 때 누구에게 어디까지 보여 줘도 될까?",
       "visibility": "public"
     },
     {
       "from": "msa-boundary",
       "to": "transaction-context",
       "relation": "questions",
-      "reason": "서비스를 나눈 뒤 트랜잭션 범위를 다시 정의할 수 있는지 묻는다.",
+      "reason": "서비스를 나눈 뒤에도 어디까지를 한 트랜잭션으로 볼지 정할 수 있을까?",
       "visibility": "public"
     },
     {
       "from": "msa-boundary",
       "to": "observe-before-optimize",
       "relation": "questions",
-      "reason": "나눈 서비스의 요청 흐름을 관측할 준비가 있는지 확인한다.",
+      "reason": "서비스를 나눈 뒤 요청이 어떻게 흐르는지 살펴볼 준비가 됐을까?",
       "visibility": "public"
     },
     {
       "from": "msa-boundary",
       "to": "baseline-before-complexity",
       "relation": "questions",
-      "reason": "분리의 이점이 늘어나는 운영 비용을 설명하는지 묻는다.",
+      "reason": "운영 비용이 늘어나는 만큼 나눴을 때 얻는 이점이 있을까?",
       "visibility": "public"
     },
     {
@@ -1375,14 +1375,14 @@ export const brainCatalog = {
       "from": "cache-warmup-cost",
       "to": "data-freshness",
       "relation": "extends",
-      "reason": "캐시의 빠른 조회와 값의 신선도를 함께 살펴본다.",
+      "reason": "캐시에서 빨리 읽는 것만큼 값이 얼마나 최신인지도 본다.",
       "visibility": "public"
     },
     {
       "from": "parser-input-boundary",
       "to": "project-boundaries",
       "relation": "extends",
-      "reason": "자동 도구가 읽고 적용할 수 있는 경계를 정한다.",
+      "reason": "자동화 도구가 어디까지 읽고 적용해도 되는지 정한다.",
       "visibility": "public"
     }
   ]
