@@ -1,5 +1,7 @@
 import { buildPublicSitemapXml } from "@/lib/blog-crawler-output";
 import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
+import { selectPublicBrain } from "@/lib/brain";
+import { brainCatalog } from "@/lib/brain-catalog";
 import { projects } from "@/lib/projects";
 import { resolvePublicSiteOrigin } from "@/lib/public-site-origin";
 
@@ -15,6 +17,8 @@ export async function GET(request: Request) {
       "/portfolio",
       ...projects.map((project) => `/portfolio/${project.slug}`),
       "/blog",
+      "/brain",
+      ...selectPublicBrain(brainCatalog).nodes.map((node) => `/brain/${node.id}`),
     ],
   });
 
