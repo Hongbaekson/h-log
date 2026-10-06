@@ -50,7 +50,7 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
-2026-10-06 Second Brain 요청: [계획](SECOND_BRAIN_PLAN.md)과 `second-brain-foundation` Steps 0-5를 등록했다. Step 0의 비공개 근거·28개 노드 검토본과 Step 2의 읽기 화면은 완료했다. Step 1은 공개 DTO·검색/필터와 기존 공개 자료 기반 10개 노드/8개 연결까지 구현했고, 추가 18개는 자동 승인 검토의 공개 거절로 blocked다. 다음 작업은 구체적인 검토본의 공개 승인 여부에 따라 Step 1을 마무리하는 것이다. UI RED/GREEN, unit 174 pass/12 DB skip, lint/typecheck/build, 데스크톱/모바일 검증을 통과했다. 전체 sitemap HTTP 검증은 로컬 DB 설정 부재로 미완료이며 공개 경로 XML과 비공개 제외는 별도로 검증했다. 개인 원본 작성/DB 저장·회고·AI 제안은 Step 3 이후다. 기존 Blog 개선/운영 모니터링 계획과 OCI 보류를 변경하지 않는다.
+2026-10-06 Second Brain 요청: [계획](SECOND_BRAIN_PLAN.md)과 `second-brain-foundation` Steps 0-5를 등록했다. 사용자의 추가 18개 노드 공개 승인으로 Step 1의 보류를 해소하고 Steps 0-2를 완료했다. 전체 28개 노드/42개 연결을 공개 카탈로그·검색·그래프·상세에 반영했다. 커진 그래프의 겹침, 위치 초기화와 필터 밖 연결 탐색을 RED/GREEN으로 수정했다. Unit 174 pass/12 DB skip, lint/typecheck/build, 28개 상세 HTTP 200과 데스크톱/모바일 검증을 통과했다. 전체 sitemap HTTP 검증은 로컬 DB 설정 부재로 미완료이며 공개 경로 XML과 비공개 제외는 별도로 검증했다. 다음은 Step 3의 소유자 전용 비공개 작성/DB 저장이며 회고·AI 제안은 그 이후다. 기존 Blog 개선/운영 모니터링 계획과 OCI 보류를 변경하지 않는다.
 
 2026-10-06 추가 등록: [운영 모니터링 계획](OBSERVABILITY_PLAN.md)과 `operations-observability`의 8개 step을 등록했다. Steps 0–6은 로컬 지표 계약/자원 예산 → private Prometheus/Grafana → host/DB/HTTP 수집 → 지속 발행/비용 신호 → 백업/복구 신호 → 대시보드/알림 → 장애/soak 검증이며 모두 pending이다. Step 7 운영 적용/외부 감시는 기존 OCI 보류로 blocked다. 모니터링을 지정하면 Step 0부터 진행하고 일반적인 다음 작업은 아래 공개 경험 개선 Step 3를 유지한다. `auto-publish-ops-hardening / Step 4`의 반복 timer 활성화 전에 운영 모니터링을 검증한다. 모니터링 phase 자체는 timer를 켜지 않으며 계획 등록을 구현 완료로 간주하지 않는다.
 

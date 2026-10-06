@@ -3,8 +3,8 @@
   "phase": "second-brain-foundation",
   "steps": [
     { "step": 0, "name": "content-and-provenance", "status": "completed", "summary": "소개·경력과 지정 폴더를 읽기 전용으로 조사했다. 28개 노드/42개 연결의 비공개 검토본과 근거 대장을 private/에 작성하고 Git·Docker·앱 import에서 제외했다. 구현 관찰/회고 초안/질문을 구분했다." },
-    { "step": 1, "name": "public-catalog-contract", "status": "blocked", "summary": "기존 공개 자료·직접 설명·공식 문서 기반 10개 노드/8개 연결과 공개 DTO, 검색/필터/상세 선택을 구현했다. 공개 경계 RED/GREEN 4/4, 카탈로그 무결성과 사이트맵 XML의 비공개 제외 통과.", "blocked_reason": "추가 18개 노드의 공개 카탈로그 반영을 자동 승인 검토가 거절했다. 회사 코드에서 파생된 구체적인 payload의 공개 승인이 부족하다는 이유다. private/second-brain-review.md에 검토본을 완성하고 사용자에게 공개 여부를 요청했다. 승인 전 공개 반영 금지." },
-    { "step": 2, "name": "graph-and-reading", "status": "completed", "summary": "공개 10개 노드로 /brain과 /brain/[slug], 메뉴, 그래프/목록, 검색/주제/종류, 읽기 패널과 URL 복원을 구현했다. /brain 404 RED 후 브라우저 GREEN. unit 174 pass/12 DB skip, lint/typecheck/build, 1440/390/320 화면·1024/768 overflow·키보드·미공개 404 통과. 전체 sitemap HTTP는 DB 설정 부재로 미검증이며 XML 공개 경계는 검증했다. Step 1의 추가 콘텐츠 공개와 인증/작성/배포는 완료 범위가 아니다." },
+    { "step": 1, "name": "public-catalog-contract", "status": "completed", "summary": "2026-10-06 사용자가 검토본의 추가 18개 노드 공개를 명시 승인해 보류를 해소했다. 편집형 카탈로그는 28개 노드/42개 연결이며 원문·Wiki·근거 경로는 제외한다. 신규 노드 404 RED 후 28개 상세 200 GREEN, 공개 DTO/검색/출처/사이트맵 XML과 관계 무결성 검증 통과. 근거 수준과 추론 표시는 유지했다." },
+    { "step": 2, "name": "graph-and-reading", "status": "completed", "summary": "28개 노드로 /brain과 /brain/[slug], 메뉴, 그래프/목록, 검색/주제/종류, 읽기 패널과 URL 복원을 검증했다. 42쌍 클릭 영역 겹침을 주제순 간격 배치로 해결하고 위치 초기화·필터 밖 연결 탐색을 RED/GREEN으로 수정했다. Unit 174 pass/12 DB skip, lint/typecheck/build, 1440/1024/768 그래프 겹침 0·390/320 읽기·키보드·뒤/앞 이동 통과. 전체 sitemap HTTP는 DB 설정 부재로 미검증이며 XML 경계는 검증했다. 인증/작성/운영 배포는 후속 범위다." },
     { "step": 3, "name": "private-capture", "status": "pending" },
     { "step": 4, "name": "revisit-and-curation", "status": "pending" },
     { "step": 5, "name": "assisted-linking", "status": "pending" }

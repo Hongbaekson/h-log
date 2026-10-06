@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ArrowDown, ArrowUpRight, BookOpen, List, Minus, Network, Plus, RotateCcw, Search, X } from "lucide-react";
 
 import { BrainNote } from "@/components/brain/BrainNote";
@@ -22,15 +22,29 @@ function BrainMap({ graph, visibleIds, selectedId, onSelect }: {
 }) {
   const [zoom, setZoom] = useState(1);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const positions = new Map(graph.nodes.map((node, index) => {
-    const angle = ((index - 1) / Math.max(graph.nodes.length - 1, 1)) * Math.PI * 2 - Math.PI / 2;
-    return [node.id, index === 0 ? { x: 50, y: 48 } : { x: 50 + 36 * Math.cos(angle), y: 48 + 35 * Math.sin(angle) }];
+  const topics = Object.keys(brainTopics);
+  const visibleNodes = graph.nodes.filter(node => visibleIds.has(node.id))
+    .sort((a, b) => topics.indexOf(a.topic) - topics.indexOf(b.topic));
+  const canvasHeight = Math.max(580, Math.ceil(visibleNodes.length / 4) * 112 + 40);
+  const visibleNodeIds = visibleNodes.map(node => node.id).join(",");
+  const positions = new Map(visibleNodes.map((node, index) => {
+    const row = Math.floor(index / 4);
+    return [node.id, { x: 14 + (index % 4) * 22 + (row % 2) * 6, y: (48 + row * 112) / canvasHeight * 100 }];
   }));
   const neighbors = new Set(graph.edges.filter(edge => edge.from === selectedId || edge.to === selectedId).flatMap(edge => [edge.from, edge.to]));
 
+  useEffect(() => {
+    const scroller = scrollRef.current!;
+    const selected = scroller.querySelector<HTMLButtonElement>('button[aria-pressed="true"]');
+    scroller.scrollTo({
+      top: selected ? selected.offsetTop - scroller.clientHeight / 2 : 0,
+      left: selected ? selected.offsetLeft - scroller.clientWidth / 2 : 0,
+    });
+  }, [selectedId, visibleNodeIds]);
+
   return <div className="brain-map">
     <div className="brain-map-scroll" ref={scrollRef}>
-      <div className="brain-map-canvas" style={{ width: `${zoom * 100}%`, height: `${zoom * 100}%` }}>
+      <div className="brain-map-canvas" style={{ width: `${zoom * 100}%`, minWidth: 680 * zoom, height: canvasHeight * zoom }}>
         <svg className="brain-map-edges" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           {graph.edges.filter(edge => visibleIds.has(edge.from) && visibleIds.has(edge.to)).map(edge => {
             const from = positions.get(edge.from)!;
@@ -39,7 +53,7 @@ function BrainMap({ graph, visibleIds, selectedId, onSelect }: {
               className={edge.from === selectedId || edge.to === selectedId ? "is-connected" : ""} vectorEffect="non-scaling-stroke" />;
           })}
         </svg>
-        {graph.nodes.filter(node => visibleIds.has(node.id)).map(node => {
+        {visibleNodes.map(node => {
           const position = positions.get(node.id)!;
           return <button key={node.id} type="button"
             aria-label={`${node.title} 읽기`} aria-pressed={selectedId === node.id}
@@ -51,13 +65,15 @@ function BrainMap({ graph, visibleIds, selectedId, onSelect }: {
         })}
       </div>
     </div>
-    <div className="brain-map-tools" aria-label="그래프 배율">
-      <button type="button" aria-label="그래프 축소" disabled={zoom === 1} onClick={() => setZoom(value => Math.max(1, value - .25))}><Minus size={16} /></button>
-      <span>{Math.round(zoom * 100)}%</span>
-      <button type="button" aria-label="그래프 확대" disabled={zoom === 2} onClick={() => setZoom(value => Math.min(2, value + .25))}><Plus size={16} /></button>
-      <button type="button" aria-label="그래프 위치와 배율 초기화" onClick={() => { setZoom(1); scrollRef.current?.scrollTo(0, 0); }}><RotateCcw size={15} /></button>
+    <div className="brain-map-footer">
+      <p className="brain-map-hint">지도를 스크롤하고, 기록을 선택해 읽어 보세요.</p>
+      <div className="brain-map-tools" aria-label="그래프 배율">
+        <button type="button" aria-label="그래프 축소" disabled={zoom === 1} onClick={() => setZoom(value => Math.max(1, value - .25))}><Minus size={16} /></button>
+        <span>{Math.round(zoom * 100)}%</span>
+        <button type="button" aria-label="그래프 확대" disabled={zoom === 2} onClick={() => setZoom(value => Math.min(2, value + .25))}><Plus size={16} /></button>
+        <button type="button" aria-label="그래프 위치와 배율 초기화" onClick={() => { setZoom(1); scrollRef.current?.scrollTo(0, 0); }}><RotateCcw size={15} /></button>
+      </div>
     </div>
-    <p className="brain-map-hint">기록을 선택하면 연결과 내용을 볼 수 있어요.</p>
   </div>;
 }
 
@@ -81,7 +97,7 @@ export function BrainExplorer({ graph }: { graph: BrainGraph }) {
   }
 
   function select(id: string) {
-    update({ note: id });
+    update({ note: id, ...(!results.some(node => node.id === id) ? { q: null, topic: null, kind: null } : {}) });
     if (isMobile) {
       detailRef.current?.scrollIntoView({ block: "start" });
       detailRef.current?.focus({ preventScroll: true });

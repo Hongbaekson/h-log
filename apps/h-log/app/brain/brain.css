@@ -30,8 +30,8 @@
 .brain-discovery-heading, .brain-reader-heading { min-height: 54px; border-bottom: 1px solid #2a2e4b; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .brain-discovery-heading h2, .brain-reader-heading { font-size: 12px; font-weight: 600; color: #c6c9df; }
 .brain-discovery-heading p { font-size: 11px; color: #a2a7c6; font-variant-numeric: tabular-nums; }
-.brain-map { position: relative; height: 580px; background: radial-gradient(#3d436633 .8px, transparent .8px) 0 0 / 20px 20px; }
-.brain-map-scroll { width: 100%; height: 100%; overflow: auto; }
+.brain-map { display: flex; flex-direction: column; height: clamp(580px, 70vh, 780px); background: radial-gradient(#3d436633 .8px, transparent .8px) 0 0 / 20px 20px; }
+.brain-map-scroll { flex: 1; width: 100%; min-height: 0; overflow: auto; }
 .brain-map-canvas { position: relative; min-width: 530px; min-height: 580px; }
 .brain-map-edges { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .brain-map-edges line { stroke: #666b9e; stroke-width: 1; opacity: .5; }
@@ -45,11 +45,12 @@
 .brain-map-node.is-distant .brain-node-title { color: #a3a9c6; }
 .brain-map-node.is-distant .brain-node-dot { opacity: .65; }
 .brain-map-node:hover { background: #3e42654d; }
-.brain-map-tools { display: flex; align-items: center; position: absolute; right: 16px; bottom: 16px; border: 1px solid #3a3f60; background: #191d3a; border-radius: 7px; }
+.brain-map-footer { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-top: 1px solid #2a2e4b; background: #11152f; }
+.brain-map-tools { display: flex; align-items: center; flex-shrink: 0; margin-left: auto; border: 1px solid #3a3f60; background: #191d3a; border-radius: 7px; }
 .brain-map-tools button { display: grid; place-items: center; width: 44px; height: 44px; color: #c0c5e8; cursor: pointer; }
 .brain-map-tools button:disabled { opacity: .4; cursor: default; }
 .brain-map-tools > span { color: #b2b7d5; font-size: 10px; width: 32px; text-align: center; font-variant-numeric: tabular-nums; }
-.brain-map-hint { position: absolute; bottom: 29px; left: 20px; font-size: 10px; color: #9a9fbf; pointer-events: none; }
+.brain-map-hint { font-size: 10px; color: #9a9fbf; }
 .brain-discovery-footer { padding: 15px 20px; border-top: 1px solid #2a2e4b; color: #9ba1c2; font-size: 11px; }
 .brain-read-on-mobile { display: none; }
 .brain-reader { max-height: 900px; overflow-y: auto; scroll-margin-top: 100px; }
