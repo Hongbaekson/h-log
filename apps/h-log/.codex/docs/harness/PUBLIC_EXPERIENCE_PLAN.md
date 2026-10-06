@@ -71,6 +71,8 @@
 
 ### 별도 후속 작업
 
+- 2026-10-06 [운영 모니터링](OBSERVABILITY_PLAN.md)을 독립 phase/8개 step으로 등록했다. 기존 공개 경험 6개 phase/19개 step의 번호·실행 순서는 유지한다. 모니터링을 지정하면 해당 Step 0부터 로컬 진행할 수 있고 운영 적용은 OCI 보류를 따른다. 자동 발행 timer 재개 전 운영 모니터링 검증이 필요하다.
+
 - 실제 source collection과 persona/humanize runtime 연결은 기존 자동화 계획의 별도 후속 범위다. 이번 공개 경험 계획이 freshness/claim/privacy gate를 대체하지 않는다.
 - 편집 운영 화면은 preview/변경 비교/발행/철회 최소 범위로 남긴다. 인증 방식과 실제 운영 요구를 먼저 정하고 제거된 미연결 admin contract를 복원하지 않는다.
 - 대표 인터넷 도메인 하나와 기존 `/`, `/resume`, `/portfolio`, `/blog` 경로를 유지한다. 시리즈/실험 경로는 기능과 콘텐츠가 준비될 때 추가하며 도메인 구매·DNS/TLS·배포는 기존 보류 phase를 따른다.

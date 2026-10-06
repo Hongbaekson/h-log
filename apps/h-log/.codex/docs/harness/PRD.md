@@ -74,6 +74,16 @@ H-01에서 제외한다.
 - 자동 발행 전에는 backup/restore, deploy smoke, rollback runbook이 있어야 한다.
 - managed DB나 managed runtime으로 바꾸려면 별도 ADR을 추가한다.
 
+### I-02: 운영 모니터링 계획
+
+2026-10-06 사용자 요청으로 [operations-observability](OBSERVABILITY_PLAN.md)를 8개 step으로 등록했다. 수집 환경, 서버·DB·HTTP 상태, 지속적인 발행/비용·백업 신호, 대시보드/알림, 장애 검증과 승인된 운영 적용을 순서대로 진행한다. 현재 구현된 모니터링으로 간주하지 않는다.
+
+- 자동 발행 미실행·실패·정체, 백업/복구 검증 지연과 수집 자체의 오류를 감지한다.
+- 지표·대시보드는 비공개 운영 표면이며 콘텐츠·검색어·credential·내부 식별자를 노출하지 않는다. 기존 published-current/privacy와 비용 guard를 유지한다.
+- Steps 0–6은 격리 로컬에서 진행하고 Step 7은 기존 OCI 보류로 blocked다. 외부 HTTP/heartbeat 감시를 포함한 운영 검증을 반복 발행 timer 활성화 전에 완료한다.
+- 모니터링 완료에 실제 반복 발행을 요구하지 않는다. 비활성 상태를 구분한 뒤 timer 재개는 기존 자동 발행 phase에서 별도 승인으로 수행한다.
+- 기본 다음 작업은 `blog-reading-foundation / Step 3`로 유지하며 모니터링을 선택하면 새 phase의 Step 0부터 진행한다.
+
 ### H-02: 파일 기반 블로그 호환 이력
 
 기존 Markdown/MDX loader는 live runtime, import command, fixture consumer 없이 전용 테스트에서만 사용돼 `runtime-contract-pruning / Step 0`에서 제거했다.
@@ -166,6 +176,7 @@ Feedback Steps 0-2의 synthetic contract 이력은 남기되, live caller와 pro
 - 실제 성과 신호 수집/학습 계약은 production HTTPS origin과 privacy/consent 설정이 준비된 뒤 runtime 요구에 맞춰 설계한다.
 - 도메인 컷오버 전 공개 콘텐츠 승인, PDF 개인정보 검수, 주요 화면 접근성·모바일 탐색성, 페이지별 metadata/canonical/JSON-LD와 전체 sitemap을 `public-site-quality-hardening` phase에서 검증한다.
 - 실제 성과 신호 수집, persona 변경, scheduled production activation은 실제 HTTPS public origin이 준비된 뒤에만 수행한다.
+- 반복 발행 timer 활성화 전 `operations-observability`의 운영 수집·알림·외부 감시 검증을 완료한다. 계획 등록이나 local smoke만으로 운영 완료를 선언하지 않는다.
 
 ## 구현 정책
 

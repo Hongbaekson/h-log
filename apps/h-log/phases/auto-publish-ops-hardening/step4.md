@@ -15,11 +15,15 @@
 - `apps/h-log/.codex/docs/deployment-ci-cd.md`
 - `apps/h-log/.codex/docs/deploy-smoke-rollback-runbook.md`
 - `apps/h-log/phases/blog-runtime-integration/index.json`
+- `apps/h-log/phases/operations-observability/index.json`
+- `apps/h-log/.codex/docs/harness/OBSERVABILITY_PLAN.md`
 - correction, unpublish, retract, crawler output, search index 관련 파일
 
 ## 작업
 
 사용자 승인 후에만 production provider와 scheduler를 canary로 활성화하고 rollback까지 검증한다.
+
+2026-10-06 추가 선행 조건: 반복 timer 활성화 전에 [operations-observability](../operations-observability/index.json)의 운영 수집·알림·외부 감시 검증을 완료한다. 기존 OCI 보류는 유지한다. 모니터링 phase는 비활성 scheduler 상태까지 검증하며 실제 timer를 켜지 않으므로 순환 의존은 없다. 아래 2026-07 기록은 당시 결과이며 현재 재개 승인으로 사용하지 않는다.
 
 - 실제 provider credential은 서버/CI secret으로만 주입하고 저장소에는 기록하지 않는다.
 - 먼저 dry-run과 단일 수동 run을 확인한 뒤 scheduled run을 활성화한다.

@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-06 추가 등록: [운영 모니터링 계획](OBSERVABILITY_PLAN.md)과 `operations-observability`의 8개 step을 등록했다. Steps 0–6은 로컬 지표 계약/자원 예산 → private Prometheus/Grafana → host/DB/HTTP 수집 → 지속 발행/비용 신호 → 백업/복구 신호 → 대시보드/알림 → 장애/soak 검증이며 모두 pending이다. Step 7 운영 적용/외부 감시는 기존 OCI 보류로 blocked다. 모니터링을 지정하면 Step 0부터 진행하고 일반적인 다음 작업은 아래 공개 경험 개선 Step 3를 유지한다. `auto-publish-ops-hardening / Step 4`의 반복 timer 활성화 전에 운영 모니터링을 검증한다. 모니터링 phase 자체는 timer를 켜지 않으며 계획 등록을 구현 완료로 간주하지 않는다.
+
 2026-10-01 공개 경험 개선 요청: [상세 계획](PUBLIC_EXPERIENCE_PLAN.md)을 6개 phase/19개 step으로 등록했다. 실행 순서는 `blog-reading-foundation` → `blog-reading-navigation` → `blog-discovery-and-home` → `portfolio-evidence-experience` → `editorial-trust-and-series` → `backend-operations-lab`다. 2026-10-06 기준 `blog-reading-foundation`의 Steps 0-2를 완료했다. Step 2 `semantic-lists-and-quotes`는 기존 Marked block lexer와 fence tokenizer를 사용해 순서/비순서 목록·중첩 인용문·문단/코드 경계를 추가했다. RED 5개 및 fence/tab·중첩 제목 회귀 보완 후 focused 21/21, unit 170 pass/12 DB skip, lint/typecheck/build와 1440/390/320px 격리 DB 개발 서버/접근성 검증을 통과했다. 다음 단계는 `blog-reading-foundation / Step 3: accessible-tables`이며 한 cycle에 한 step만 진행한다. 레이더 전체 영역과 Discord 스타일을 보존하고 OCI 보류는 유지한다. 아래 source collection 후보보다 이번 사용자 요청을 로컬 실행 우선순위로 둔다.
 
 별도 후속 조치: Step 1 설치 시 `npm audit`가 기존 의존성에서 7건(moderate 1/high 5/critical 1)을 보고했다. 추가한 Marked는 경고 대상이 아니다. Next.js 16.2.11에 대한 [Windows 서버 RCE](https://github.com/advisories/GHSA-p293-qw3h-jr36), [AVIF 이미지 최적화](https://github.com/advisories/GHSA-2xp9-vwfh-vxw4), [ImageResponse](https://github.com/advisories/GHSA-vcvr-r3jv-pc5j) 경고와 기존 하위 의존성 패치는 배포 재개 전 별도 범위로 검증한다. 이번 step에서 무관한 dependency upgrade나 운영 배포를 실행하지 않았다.
@@ -87,6 +89,7 @@ public-surface-refactor-pruning: completed, native legacy redirects and shared b
 discord-design-preview: completed Home/shared-shell design and browser screenshots; user accepted the design and requested commit/push; production deployment verification remains separate
 local-blog-design-verification: completed, populated Blog/public boundaries and desktop/mobile interaction verified; long list/search title clipping fixed with browser RED/GREEN and all required gates passed
 generation-input-freshness: completed, Step 0 rejects expired/future/invalid research before daily generation side effects; local and isolated DB gates passed
+operations-observability: pending, Steps 0-6 planned locally; Step 7 blocked by OCI hold; required before production timer activation
 terraform-infrastructure-adoption: blocked by user's OCI hold; Steps 0-1 and Step 2 preparation preserved, no cloud apply/import executed
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned

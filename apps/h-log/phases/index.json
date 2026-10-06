@@ -161,6 +161,11 @@
       "summary": "2026-10-01 public experience plan: 백엔드 운영 실험실. Steps 0-1 are planned; preserve Discord style, the entire radar area, published-current/privacy boundaries and the OCI hold."
     },
     {
+      "dir": "operations-observability",
+      "status": "pending",
+      "summary": "2026-10-06 plan registered: local Steps 0-6 cover metric contracts, private Prometheus/Grafana, host/DB/HTTP probes, durable publishing/cost and backup/restore signals, dashboards/alerts and failure rehearsal. Step 7 production rollout is blocked by the user's OCI hold. Runtime is not implemented. Verified production monitoring is a pre-timer gate; the default next local step remains blog-reading-foundation Step 3."
+    },
+    {
       "dir": "terraform-infrastructure-adoption",
       "status": "blocked",
       "summary": "Steps 0-1 and Step 2 preparation are preserved in commit 2a49357. The user subsequently deferred all OCI work on 2026-09-30. No bucket creation, production backup/restore, remote state connection or resource import was executed.",
@@ -169,7 +174,7 @@
     {
       "dir": "auto-publish-ops-hardening",
       "status": "pending",
-      "summary": "Steps 0-3 completed. Step 4 artifact 70fd31c is live with server-local credential rotation, production env/input, migrations 001-003, production audit 0, a successful Hermes canary across required/public/crawler/search/usage surfaces, and an audited eight-surface rollback. Timer activation is intentionally deferred until public-site-quality-hardening is complete and a real HTTPS public origin plus privacy organization/private-repository lists are ready for production cutover."
+      "summary": "Steps 0-3 completed. Step 4 artifact 70fd31c is live with server-local credential rotation, production env/input, migrations 001-003, production audit 0, a successful Hermes canary across required/public/crawler/search/usage surfaces, and an audited eight-surface rollback. Timer activation is intentionally deferred until public-site-quality-hardening is complete and a real HTTPS public origin plus privacy organization/private-repository lists are ready for production cutover. The 2026-10-06 operations-observability plan adds verified production monitoring as a pre-timer gate; the user-directed OCI hold remains in force."
     },
     {
       "dir": "feedback-and-persona-learning",

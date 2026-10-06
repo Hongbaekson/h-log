@@ -205,6 +205,16 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **트레이드오프**: 오래된 입력은 자료를 다시 수집/확인한 뒤 갱신해야 한다. Timestamp만 현재로 바꾸는 것은 재검증이 아니다. 이 검사는 원문 내용의 정확성·기사 발행일·topic 수집 시각·개인 맥락 최신성을 보장하지 않으며 실제 수집기 연결도 별도 작업이다. 일일 중복 확인은 기존 runner에서 먼저 수행한다.
 
+### ADR-018: 운영 모니터링은 비공개 Prometheus/Grafana와 지속적인 작업 신호로 시작한다
+
+**결정 (2026-10-06, 구현 예정)**: [operations-observability](OBSERVABILITY_PLAN.md)에서 Prometheus, Grafana/Grafana Alerting, Node/PostgreSQL/Blackbox Exporter를 선택형 Compose 구성으로 도입한다. Grafana는 localhost + SSH 터널을 기본안으로 두고 metrics/probe endpoint는 공개하지 않는다. 초기에는 별도 Alertmanager, Loki/Tempo, OTel Collector, Pushgateway, cAdvisor를 추가하지 않는다.
+
+**이유**: 단일 OCI host의 가용성·DB·자동 발행·백업 상태가 우선이다. One-shot의 메모리 counter나 홈 HTTP 200만으로 작업 성공을 판단할 수 없다. 기존 `publish_jobs`/`usage_events`의 제한된 집계와 필요한 최소 지속 결과를 재사용하며 마지막 성공·미실행·오류·수집 누락을 구분한다. [Prometheus batch 계측 지침](https://prometheus.io/docs/practices/instrumentation/)을 참고한다.
+
+**트레이드오프**: 로그 전문 검색·분산 추적·컨테이너별 자원 분석은 후속 요구로 남는다. 같은 host의 수집/알림은 host 전체 장애 때 멈추므로 독립된 외부 HTTP/heartbeat 감시가 필요하다. 자원·retention은 로컬 예산과 실측으로 검증하고 운영 host에 맞지 않으면 배치를 재검토한다.
+
+**실행 경계**: 로컬 Steps 0–6 후 승인된 Step 7에서 운영 수집과 수신처를 검증한다. 이 phase의 완료를 자동 발행 timer 활성화 선행 조건으로 추가하되 timer 자체는 활성화하지 않는다. disabled schedule을 구분해 순환 의존을 피한다. 기존 OCI 보류·Terraform·발행/비용/privacy 경계는 유지한다.
+
 ## 공식/내부 기준
 
 - Next.js docs

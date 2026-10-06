@@ -1,0 +1,19 @@
+{
+  "project": "h-log",
+  "phase": "operations-observability",
+  "steps": [
+    { "step": 0, "name": "monitoring-contract-and-budget", "status": "pending" },
+    { "step": 1, "name": "private-metrics-stack", "status": "pending" },
+    { "step": 2, "name": "host-database-http-probes", "status": "pending" },
+    { "step": 3, "name": "durable-publishing-signals", "status": "pending" },
+    { "step": 4, "name": "backup-and-restore-signals", "status": "pending" },
+    { "step": 5, "name": "dashboards-and-alert-routing", "status": "pending" },
+    { "step": 6, "name": "isolated-failure-rehearsal", "status": "pending" },
+    {
+      "step": 7,
+      "name": "approved-production-rollout",
+      "status": "blocked",
+      "blocked_reason": "User-directed OCI hold remains in force. Complete local Steps 0-6 before requesting scoped rollout approval and the public HTTPS origin, private notification destination and independent external monitoring choice. This step does not enable the publishing timer."
+    }
+  ]
+}

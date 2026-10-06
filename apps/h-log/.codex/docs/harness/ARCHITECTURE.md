@@ -179,6 +179,23 @@ The worker service is intentionally profile-gated and non-automatic. It must not
 
 Kubernetes is not required for the initial OCI deployment. If a later ADR adopts Kubernetes, the current service boundary maps directly to `Deployment`/`Service` for web and worker, `StatefulSet` or managed services for PostgreSQL, `Ingress` for Nginx edge behavior, and `Job`/`CronJob` for migration, backup, and worker tasks.
 
+## 운영 모니터링 목표 구조 (미구현)
+
+2026-10-06 [operations-observability](OBSERVABILITY_PLAN.md)를 등록했다. 현재 `compose.yaml`의 web/PostgreSQL healthcheck와 DB의 작업/비용 기록은 유지하며 아래 구성은 앞으로 구현할 목표다.
+
+```text
+Linux host / PostgreSQL / fixed HTTP-TLS targets
+  -> Node / PostgreSQL / Blackbox Exporter
+bounded job-cost DB aggregates + durable cycle/backup results
+  -> private collector
+  -> Prometheus -> Grafana dashboards + Grafana Alerting -> private receiver
+independent external monitor -> public HTTPS + monitoring heartbeat
+```
+
+수집 경로는 read-only 집계와 최소 network/secret 권한을 사용한다. One-shot 결과는 종료 후에도 수집 가능해야 하며 cycle `completed`, worker idle, duplicate skip을 검증된 발행 성공으로 대체하지 않는다. 미수집·오류·never succeeded·stale·disabled를 구분한다. 공개 Nginx 내부 경로 차단, published-current 데이터와 발행/비용 상태 전이는 유지한다.
+
+모니터링 설정과 데이터 volume은 앱과 분리하며 Grafana는 localhost/SSH 터널을 기본안으로 둔다. 후보 파일은 `compose.observability.yaml`, `deploy/observability/`이며 아직 존재하는 runtime 파일로 간주하지 않는다. 로컬 계약·수집·알림·장애 검증은 Steps 0–6, 운영 적용·외부 감시는 Step 7에서 진행한다. 운영 모니터링을 확인한 뒤 별도 자동 발행 phase에서 timer를 재개하며 현재 OCI 보류는 유지된다.
+
 ## Backup/Restore Boundary
 
 H-Log uses PostgreSQL logical dump as the first backup method for the self-hosted DB. Restore is not considered complete until a local/test rehearsal validates the restored database.

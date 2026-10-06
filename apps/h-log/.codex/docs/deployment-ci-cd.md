@@ -28,6 +28,14 @@ Local development
 
 처음부터 CI/CD까지 한 번에 구현하지 않는다.
 
+## 운영 모니터링 도입 계획
+
+2026-10-06 [operations-observability](harness/OBSERVABILITY_PLAN.md)를 등록했다. Prometheus/Grafana와 host/DB/HTTP exporter, 지속적인 발행·비용·백업 신호, 운영 알림을 8개 step으로 나눈다. 현재 Compose에 모니터링 서비스가 추가됐다는 뜻은 아니다.
+
+- Steps 0–6은 격리 로컬에서 계약·수집·화면/알림·장애·자원 예산을 검증한다. Grafana는 localhost + SSH 터널을 기본안으로 두고 metrics/probe와 DB를 public ingress에 노출하지 않는다.
+- Step 7은 기존 OCI 보류로 blocked다. 검증된 artifact·자원 측정·변경 서비스·secret·rollback을 준비한 뒤 명시적 재개/배포 범위에 따라 운영에 적용한다. 실제 알림 수신처와 독립 외부 HTTP/heartbeat 감시도 이때 검증한다.
+- 반복 발행 timer는 이 phase에서 켜지 않는다. 운영 모니터링 완료 후 `auto-publish-ops-hardening / Step 4`에서 HTTPS/privacy 등 기존 gate와 함께 활성화 여부를 판단한다. 운영 준비가 부족하면 로컬 완료 상태만 기록한다.
+
 ## Terraform 전환 계획
 
 **현재 실행 경계 (2026-09-30): 사용자가 OCI 작업을 보류했다.** 준비 구성·계획은 보존하지만 앞선 승인으로 bucket 생성, 운영 backup/restore, remote backend 연결/import를 실행하지 않는다. 명시적인 재개 지시 전에는 [독립 로컬 블로그 검증](../../phases/local-blog-design-verification/step0.md)을 진행한다. 실제 운영 작업은 아직 실행하지 않았다.
