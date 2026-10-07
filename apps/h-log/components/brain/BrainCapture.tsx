@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { brainBasisLabels, brainKindLabels, brainRelationLabels, brainTopics, type BrainBasis, type BrainGraph, type BrainKind, type BrainRelation, type BrainTopic } from "@/lib/brain";
 import type { BrainDraft, BrainNoteSummary, BrainOwnerNote } from "@/lib/brain-capture";
 import { sortBrainNodes, type BrainOrder } from "@/lib/brain-curation";
+import { suggestBrainLinks, type BrainSuggestions } from "@/lib/brain-suggestions";
 
 const emptyDraft: BrainDraft = {
   title: "", originalText: "", publicTitle: "", publicSummary: "", publicBody: "",
@@ -41,6 +42,8 @@ export function BrainCapture({ initialNotes, catalog }: { initialNotes: BrainNot
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [order, setOrder] = useState<BrainOrder>("recent");
+  const [suggestions, setSuggestions] = useState<BrainSuggestions | null>(null);
+  const currentTags = tagText.split(",").map(tag => tag.trim()).filter(Boolean);
   const targets = [...catalog.nodes, ...notes].filter(item => item.id !== note?.id);
   const visibleNotes = sortBrainNodes(notes.map(item => ({ ...item, recordedAt: item.createdAt })), order).filter(item =>
     `${item.title} ${item.tags.join(" ")}`.normalize("NFKC").toLowerCase().includes(query.normalize("NFKC").trim().toLowerCase()));
@@ -54,18 +57,21 @@ export function BrainCapture({ initialNotes, catalog }: { initialNotes: BrainNot
   }, [dirty]);
 
   function change<K extends keyof BrainDraft>(key: K, value: BrainDraft[K]) {
-    setDraft(current => ({ ...current, [key]: value })); setDirty(true); setConfirmed(false); setMessage("");
+    setDraft(current => ({ ...current, [key]: value })); setDirty(true); setConfirmed(false); setMessage(""); setSuggestions(null);
+  }
+  function changeTags(value: string) {
+    setTagText(value); setDirty(true); setConfirmed(false); setMessage(""); setSuggestions(null);
   }
   async function load(id: string) {
     const [current, list] = await Promise.all([
       request<{ note: BrainOwnerNote }>(`?id=${encodeURIComponent(id)}`), request<{ notes: BrainNoteSummary[] }>(),
     ]);
     setNote(current.note); setDraft(current.note.draft); setTagText(current.note.draft.tags.join(", "));
-    setNotes(list.notes); setDirty(false); setConfirmed(false);
+    setNotes(list.notes); setDirty(false); setConfirmed(false); setSuggestions(null);
   }
   async function open(id?: string, previous?: BrainNoteSummary) {
     if (dirty && !window.confirm("저장하지 않은 내용을 닫을까요?")) return;
-    setBusy(true); setError(""); setMessage("");
+    setBusy(true); setError(""); setMessage(""); setSuggestions(null);
     try {
       if (id) await load(id);
       else { setNote(null); setDraft({ ...emptyDraft, ...(previous ? { topic: previous.topic, links: [{ target: previous.id, relation: "revises", reason: "" }] } : {}) }); setTagText(""); setDirty(Boolean(previous)); setConfirmed(false); }
@@ -115,6 +121,20 @@ export function BrainCapture({ initialNotes, catalog }: { initialNotes: BrainNot
               </div>)}
               <button type="button" disabled={(draft.links?.length ?? 0) >= 12} onClick={() => change("links", [...(draft.links ?? []), { target: "", relation: "extends", reason: "" }])}>연결 추가</button>
             </section>
+            <section className="capture-suggestions" aria-label="연결 도우미"><h2>함께 다시 볼 기록</h2><p className="capture-help">제목·태그·주제가 비슷한 기록을 찾아봅니다. 후보를 골라도 바로 저장되거나 공개되지는 않습니다.</p>
+              <button type="button" onClick={() => setSuggestions(suggestBrainLinks({ ...draft, tags: currentTags }, targets, note?.id))}>후보 찾아보기</button>
+              {suggestions && <>
+                {!suggestions.links.length && !suggestions.tags.length && <p role="status" className="capture-help">새로 제안할 후보가 없습니다. 제목이나 태그를 더 적어 보세요.</p>}
+                {suggestions.links.map(item => <section key={item.id} className="capture-candidate" aria-label={`연결 후보 ${item.title}`}>
+                  <h3>{item.title}</h3>{item.duplicate && <strong>중복일 수 있어요</strong>}<ul>{item.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>
+                  <div className="capture-actions"><button type="button" disabled={(draft.links?.length ?? 0) >= 12} onClick={() => {
+                    change("links", [...(draft.links ?? []), { target: item.id, relation: "extends", reason: "" }]);
+                    setMessage("초안에 연결을 추가했습니다. 연결 이유를 적고 저장해 주세요.");
+                  }}>초안에 연결 추가</button><button type="button" onClick={() => setSuggestions({ ...suggestions, links: suggestions.links.filter(candidate => candidate.id !== item.id) })}>이번에는 건너뛰기</button></div>
+                </section>)}
+                {suggestions.tags.length > 0 && <div className="capture-tag-candidates"><h3>태그 후보</h3><div className="capture-actions">{suggestions.tags.map(tag => <button type="button" key={tag} aria-label={`태그 후보 ${tag} 선택`} disabled={currentTags.length >= 12} onClick={() => { changeTags([...currentTags, tag].join(", ")); setMessage("초안에 태그를 추가했습니다. 맞는지 확인한 뒤 저장해 주세요."); }}>+ {tag}</button>)}</div></div>}
+              </>}
+            </section>
             <details className="capture-public"><summary>공개용 메모 따로 쓰기</summary>
               <p className="capture-help">다른 사람에게 보여 줄 내용만 새로 적어 주세요. 원문은 여기에 자동으로 옮기지 않습니다.</p>
               <label htmlFor="capture-public-title">공개 제목</label><input id="capture-public-title" maxLength={160} value={draft.publicTitle} onChange={event => change("publicTitle", event.target.value)} />
@@ -127,7 +147,7 @@ export function BrainCapture({ initialNotes, catalog }: { initialNotes: BrainNot
                 <div><label htmlFor="capture-basis">기록의 근거</label><select id="capture-basis" value={draft.basis} onChange={event => change("basis", event.target.value as BrainBasis)}>{Object.entries(brainBasisLabels).map(([value, item]) => <option value={value} key={value}>{item.label}</option>)}</select></div>
               </div>
               <p className="capture-help">{brainBasisLabels[draft.basis].description}</p>
-              <label htmlFor="capture-tags">태그 <small>쉼표로 구분 · 최대 12개</small></label><input id="capture-tags" value={tagText} onChange={event => { setTagText(event.target.value); setDirty(true); setConfirmed(false); }} />
+              <label htmlFor="capture-tags">태그 <small>쉼표로 구분 · 최대 12개</small></label><input id="capture-tags" value={tagText} onChange={event => changeTags(event.target.value)} />
               <section className="capture-preview" aria-label="공개 미리보기"><h2>공개 미리보기</h2><h3>{draft.publicTitle || "공개 제목"}</h3><p>{draft.publicSummary || "공개 요약을 적어 주세요."}</p>{draft.shareOccurredOn && draft.occurredOn && <p>사건 날짜 {draft.occurredOn}</p>}<div>{draft.publicBody || "다른 사람에게 보여 줄 본문이 여기에 표시됩니다."}</div>{draft.links?.length ? <p>연결 {draft.links.length}개 · 양쪽 기록이 공개된 연결만 표시됩니다.</p> : null}</section>
             </details>
             <div className="capture-actions"><button className="capture-primary" type="submit">{busy ? "저장하는 중…" : "비공개로 저장"}</button></div>

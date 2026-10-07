@@ -12,7 +12,7 @@
       "step": 1,
       "name": "local-reference-ui-parity",
       "status": "completed",
-      "summary": "2026-10-06: 지정한 로컬 UI의 최종 CSS와 native WebGL/label canvas를 이식했다. 340px 검은 sidebar, 내부 검색, 원본 constellation/point/soft line, 하단 hover preview와 520px 우측 하단 reader의 원본 실측 비교 통과. Sidebar/좌표/한글 라벨 겹침 RED→GREEN, unit 178 pass/12 DB skip, lint/typecheck/build, 1440/1024/768/390/320px와 drag/pinch/URL/focus/reduced-motion/WebGL fallback 검증 통과. Three.js/d3-force-3d와 전용 타입 제거. 회사 embedded data/경로를 가져오지 않았고 승인된 28개/42개, Home/레이더·Blog DB·OCI 보류를 보존했다. 다음은 별도 foundation Step 3."
+      "summary": "2026-10-06: 지정한 로컬 UI의 최종 CSS와 native WebGL/label canvas를 이식했다. 340px 검은 sidebar, 내부 검색, 원본 constellation/point/soft line, 하단 hover preview와 520px 우측 하단 reader의 원본 실측 비교 통과. Sidebar/좌표/한글 라벨 겹침 RED→GREEN, unit 178 pass/12 DB skip, lint/typecheck/build, 1440/1024/768/390/320px와 drag/pinch/URL/focus/reduced-motion/WebGL fallback 검증 통과. Three.js/d3-force-3d와 전용 타입 제거. 회사 embedded data/경로를 가져오지 않았고 승인된 28개/42개, Home/레이더·Blog DB·OCI 보류를 보존했다. 이후 foundation Steps 0–5도 2026-10-07에 완료했다."
     }
   ]
 }

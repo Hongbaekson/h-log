@@ -56,7 +56,9 @@ ADR-022에 따라 `/admin/brain`의 `BrainCapture`는 비공개 원문, 따로 �
 
 `004_brain_capture.sql`은 `brain_notes`의 현재/공개 버전 포인터와 공개 사본, `brain_note_versions`의 비공개 원문·공개 초안 이력을 만든다. `brain-postgres-repository.ts`는 transaction과 row lock, 예상 revision 검사로 동시 수정 유실을 막는다. 버전은 추가만 가능하고 DB trigger가 과거 버전의 수정/삭제를 거부한다. 저장은 공개 사본을 바꾸지 않는다. 명시적으로 공개할 때만 `brain-capture.ts`가 공개 필드를 골라 privacy scanner를 통과시켜 저장하며, 공개 SQL은 이 사본만 조회한다. 읽을 때도 공개 DTO 선택과 privacy 검사를 거친다. 공개 해제는 사본과 공개 포인터를 비우고 원문·이력은 남긴다.
 
-서버 설정과 로컬 실행은 [Second Brain 계획](SECOND_BRAIN_PLAN.md#로컬-작성-화면-실행)을 따른다. migration/DB/HTTP와 1440/390/320px 작성 흐름을 격리 환경에서 검증했다. 기존 `/brain` UI와 28개/42개 카탈로그는 유지한다. 새 메모의 관계 편집과 이후 회고는 foundation Step 4이며, 운영 DB 적용과 관리자 경로 개방은 OCI 보류에 포함한다.
+Foundation Step 5의 `brain-suggestions.ts`는 인증된 화면에 이미 전달한 제목·태그·주제만 비교한다. 원문을 읽거나 외부 서비스를 호출하지 않는 순수 함수이며 후보와 이유만 반환한다. `BrainCapture`는 직접 고른 연결/태그를 편집 중인 초안에 넣고, 연결 이유는 작성자가 채우게 한다. 후보 조회·선택에는 HTTP write가 없으며 기존 저장/공개 확인 절차를 그대로 사용한다. 입력을 바꾸면 후보를 지워 오래된 결과의 적용을 막는다.
+
+서버 설정과 로컬 실행은 [Second Brain 계획](SECOND_BRAIN_PLAN.md#로컬-작성-화면-실행)을 따른다. Foundation Steps 0–5와 Memory Interface Steps 0–1을 완료했고 migration/DB/HTTP와 1440/390/320px 작성·회고·후보 흐름을 격리 환경에서 검증했다. 기존 `/brain` 그래프 UI와 28개/42개 카탈로그는 유지한다. 운영 DB 적용과 관리자 경로 개방은 OCI 보류에 포함한다.
 
 ```text
 apps/h-log/

@@ -167,13 +167,13 @@
     },
     {
       "dir": "second-brain-foundation",
-      "status": "pending",
-      "summary": "2026-10-07: Steps 0-4 complete. Step 4 adds optional event dates with explicit sharing, separate reflection notes and directional revises links, owner search/date ordering and public URL-backed ordering. Public edges require both endpoints to remain public. Unit 190 pass/13 DB skip, integration 14/14, typecheck/lint/build and 1440/390/320px checks passed. Next is Step 5 local, owner-reviewed suggestions. Approved 28 nodes/42 edges, original history, accepted graph UI and OCI hold remain."
+      "status": "completed",
+      "summary": "2026-10-07: all Steps 0-5 complete. Approved catalog and accepted graph UI, owner-only private capture/history, separately confirmed public snapshots, event-date sharing, separate reflections and directional links, date/search curation and owner-reviewed local related/duplicate/tag suggestions are implemented. Unit 192 pass/13 DB skip, PostgreSQL integration 14/14, HTTP 1/1, typecheck/lint/build and 1440/390/320px checks passed. Suggestions never save or publish automatically; no external AI or company Wiki import. Production deployment and durable storage activation remain outside this local completion and under the OCI hold."
     },
     {
       "dir": "second-brain-memory-interface",
       "status": "completed",
-      "summary": "2026-10-06 latest correction: Step 1 supersedes Step 0. Ported the specified local UI's 340px dark sidebar, sidebar search, native WebGL constellation, bottom hover preview and 520px bottom-right detail; measured reference parity passed. RED/GREEN, unit 178 pass/12 DB skip, lint/typecheck/build and 1440/1024/768/390/320px interaction checks passed. Removed unused Three.js/d3-force-3d. Used only approved 28 nodes/42 edges; no company payload, Home/radar changes or OCI operations. Subsequent private capture is complete in foundation Step 3; next is foundation Step 4."
+      "summary": "2026-10-06 latest correction: Step 1 supersedes Step 0. Ported the specified local UI's 340px dark sidebar, sidebar search, native WebGL constellation, bottom hover preview and 520px bottom-right detail; measured reference parity passed. RED/GREEN, unit 178 pass/12 DB skip, lint/typecheck/build and 1440/1024/768/390/320px interaction checks passed. Removed unused Three.js/d3-force-3d. Used only approved 28 nodes/42 edges; no company payload, Home/radar changes or OCI operations. Subsequent foundation Steps 0-5 are also complete as of 2026-10-07."
     },
     {
       "dir": "terraform-infrastructure-adoption",

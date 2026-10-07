@@ -45,6 +45,12 @@
 .capture-links h2, .capture-editor > section h2 { font-size: 18px; margin: 24px 0 12px; }
 .capture-link { border-left: 2px solid var(--border); padding-left: 16px; margin-bottom: 24px; }
 .capture-editor > .capture-actions { margin: 0 0 24px; }
+.capture-suggestions { border-top: 1px solid var(--border); padding-top: 24px; margin-top: 28px; }
+.capture-suggestions h2 { font-size: 18px; margin-bottom: 12px; }
+.capture-candidate { padding: 20px 0; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
+.capture-candidate h3, .capture-tag-candidates h3 { font-weight: 650; margin: 12px 0; }
+.capture-candidate strong { color: #e8c78c; font-size: 13px; }
+.capture-candidate ul { color: var(--text-muted); font-size: 13px; padding-left: 20px; line-height: 1.8; }
 @media (max-width: 767px) {
   .brain-capture { padding: 28px 18px 56px; }
   .capture-header { align-items: flex-start; flex-direction: column; gap: 16px; margin-bottom: 28px; }
