@@ -3,7 +3,7 @@ import { tryNormalizePublicSourceUrl } from "./public-source-url.ts";
 export type BrainKind = "experience" | "solution" | "reflection" | "learning" | "question";
 export type BrainBasis = "profile" | "implementation" | "reflection" | "question";
 export type BrainTopic = "principles" | "reliability" | "data" | "boundaries" | "tools" | "everyday";
-export type BrainRelation = "supports" | "extends" | "applies" | "questions";
+export type BrainRelation = "supports" | "extends" | "applies" | "questions" | "revises";
 
 export type BrainNode = {
   id: string;
@@ -13,6 +13,7 @@ export type BrainNode = {
   topic: BrainTopic;
   basis: BrainBasis;
   recordedAt: string;
+  occurredOn?: string;
   sections: { heading: string; paragraphs: string[] }[];
   questions: string[];
   tags: string[];
@@ -50,7 +51,7 @@ export const brainBasisLabels: Record<BrainBasis, { label: string; description: 
 };
 
 export const brainRelationLabels: Record<BrainRelation, string> = {
-  supports: "생각을 뒷받침", extends: "생각을 확장", applies: "방법을 적용", questions: "다시 질문",
+  supports: "생각을 뒷받침", extends: "생각을 확장", applies: "방법을 적용", questions: "다시 질문", revises: "이전 생각을 다시 봄",
 };
 
 function publicSourceHref(href: string | undefined): string | undefined {
@@ -68,6 +69,7 @@ export function selectPublicBrain(catalog: BrainCatalog): BrainGraph {
     topic: node.topic,
     basis: node.basis,
     recordedAt: node.recordedAt,
+    ...(node.occurredOn ? { occurredOn: node.occurredOn } : {}),
     sections: node.sections.map(({ heading, paragraphs }) => ({ heading, paragraphs: [...paragraphs] })),
     questions: [...node.questions],
     tags: [...node.tags],

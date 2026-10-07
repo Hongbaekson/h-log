@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 import type { Pool, PoolClient } from "pg";
-import { selectPublicBrain, type BrainNode } from "./brain.ts";
-import { assertSafeBrainPublication, parseBrainDraft, toPublicBrainNode, type BrainDraft, type BrainNoteSummary, type BrainOwnerNote } from "./brain-capture.ts";
+import type { BrainGraph } from "./brain.ts";
+import { mergePublishedBrain } from "./brain-curation.ts";
+import { parseBrainDraft, toPublicBrainNode, type BrainDraft, type BrainNoteSummary, type BrainOwnerNote, type BrainSnapshot } from "./brain-capture.ts";
 import type { BlogPrivacyScanPolicy } from "./blog-privacy-scanner.ts";
 
 type LockedNote = { id: string; current_revision: number; created_at: Date };
@@ -9,7 +10,7 @@ export function assertBrainNoteId(id: unknown): asserts id is string {
   if (typeof id !== "string" || !/^note-[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/.test(id)) throw new Error("invalid_note_id");
 }
 
-export function createBrainRepository(pool: Pool, policy: BlogPrivacyScanPolicy = {}) {
+export function createBrainRepository(pool: Pool, policy: BlogPrivacyScanPolicy = {}, catalog: BrainGraph = { nodes: [], edges: [] }) {
   async function withNote<T>(id: string | undefined, revision: number, change: (client: PoolClient, note: LockedNote) => Promise<T>): Promise<T> {
     if (id !== undefined) assertBrainNoteId(id);
     if (!Number.isSafeInteger(revision) || (id ? revision < 1 : revision !== 0)) throw new Error("invalid_revision");
@@ -34,6 +35,12 @@ export function createBrainRepository(pool: Pool, policy: BlogPrivacyScanPolicy 
     async saveDraft(input: unknown, id?: string, revision = 0) {
       const draft = parseBrainDraft(input);
       return withNote(id, revision, async (client, note) => {
+        const targets = (draft.links ?? []).map(link => link.target);
+        if (targets.length) {
+          const records = await client.query<{ id: string }>("select id from brain_notes where id = any($1::text[])", [targets]);
+          const known = new Set([...catalog.nodes.map(node => node.id), ...records.rows.map(row => row.id)]);
+          if (targets.some(target => target === note.id || !known.has(target))) throw new Error("invalid_link");
+        }
         const next = note.current_revision + 1;
         await client.query("insert into brain_note_versions (note_id, revision, draft) values ($1, $2, $3)", [note.id, next, JSON.stringify(draft)]);
         await client.query("update brain_notes set current_revision = $2, updated_at = now() where id = $1", [note.id, next]);
@@ -66,22 +73,21 @@ export function createBrainRepository(pool: Pool, policy: BlogPrivacyScanPolicy 
       return {
         id, revision: current.current_revision, publishedRevision: current.published_revision,
         title: current.draft.title, draft: current.draft,
+        createdAt: result.rows.at(-1)!.created_at.toISOString(), occurredOn: current.draft.occurredOn,
+        tags: current.draft.tags, topic: current.draft.topic, links: current.draft.links,
         history: result.rows.map(row => ({ revision: row.revision, draft: row.draft, createdAt: row.created_at.toISOString() })),
       };
     },
     async listOwnerNotes(): Promise<BrainNoteSummary[]> {
-      const result = await pool.query(`select n.id, n.current_revision as revision, n.published_revision as "publishedRevision", v.draft->>'title' as title
+      const result = await pool.query(`select n.id, n.current_revision as revision, n.published_revision as "publishedRevision", v.draft->>'title' as title,
+        n.created_at as "createdAt", v.draft->>'occurredOn' as "occurredOn", v.draft->'tags' as tags, v.draft->>'topic' as topic, v.draft->'links' as links
         from brain_notes n join brain_note_versions v on v.note_id = n.id and v.revision = n.current_revision
         order by n.updated_at desc, n.id`);
-      return result.rows;
+      return result.rows.map(row => ({ ...row, createdAt: row.createdAt.toISOString() }));
     },
-    async findPublicNodes(): Promise<BrainNode[]> {
-      const result = await pool.query<{ public_node: BrainNode }>("select public_node from brain_notes where published_revision is not null order by created_at, id");
-      const graph = selectPublicBrain({ nodes: result.rows.map(row => ({ ...row.public_node, visibility: "public" })), edges: [] });
-      return graph.nodes.filter(node => {
-        try { assertSafeBrainPublication(node, policy); return true; }
-        catch (error) { if (error instanceof Error && error.message === "public_copy_blocked") return false; throw error; }
-      });
+    async findPublicGraph(): Promise<BrainGraph> {
+      const result = await pool.query<{ public_node: BrainSnapshot }>("select public_node from brain_notes where published_revision is not null order by created_at, id");
+      return mergePublishedBrain(catalog, result.rows.map(row => row.public_node), policy);
     },
   };
 }

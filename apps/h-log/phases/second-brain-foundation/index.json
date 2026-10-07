@@ -6,7 +6,7 @@
     { "step": 1, "name": "public-catalog-contract", "status": "completed", "summary": "2026-10-06 사용자가 검토본의 추가 18개 노드 공개를 명시 승인해 보류를 해소했다. 편집형 카탈로그는 28개 노드/42개 연결이며 원문·Wiki·근거 경로는 제외한다. 신규 노드 404 RED 후 28개 상세 200 GREEN, 공개 DTO/검색/출처/사이트맵 XML과 관계 무결성 검증 통과. 근거 수준과 추론 표시는 유지했다." },
     { "step": 2, "name": "graph-and-reading", "status": "completed", "summary": "28개 노드로 /brain과 /brain/[slug], 메뉴, 그래프/목록, 검색/주제/종류, 읽기 패널과 URL 복원을 검증했다. 42쌍 클릭 영역 겹침을 주제순 간격 배치로 해결하고 위치 초기화·필터 밖 연결 탐색을 RED/GREEN으로 수정했다. Unit 174 pass/12 DB skip, lint/typecheck/build, 1440/1024/768 그래프 겹침 0·390/320 읽기·키보드·뒤/앞 이동 통과. 전체 sitemap HTTP는 DB 설정 부재로 미검증이며 XML 경계는 검증했다. 인증/작성/운영 배포는 후속 범위다." },
     { "step": 3, "name": "private-capture", "status": "completed", "summary": "2026-10-07: /admin/brain 소유자 인증, PostgreSQL 비공개 원문·수정 이력과 별도 공개 사본을 구현했다(ADR-022). 저장은 공개 상태를 바꾸지 않으며 명시적 공개/해제만 그래프·상세·사이트맵에 반영한다. 기존 28개/42개 카탈로그는 유지하고 기능은 기본 비활성이다. 인증·투영·DB·HTTP RED→GREEN, unit 187 pass/13 DB skip, PostgreSQL integration 14/14, HTTP 1/1, lint/typecheck/build, 1440/390/320px 저장·미리보기·공개·이력·해제 검증 통과. 검증은 격리 로컬 DB/합성 기록이며 운영 적용은 보류한다. 다음 Step 4는 사건 시점·이후 회고·새 메모 연결이다." },
-    { "step": 4, "name": "revisit-and-curation", "status": "pending" },
+    { "step": 4, "name": "revisit-and-curation", "status": "completed", "summary": "2026-10-07: 사건 날짜와 공개 동의, 별도 메모로 회고 이어 쓰기, 방향이 있는 revises 관계와 연결 편집, 소유자 검색·날짜 정렬 및 공개 목록 URL 정렬을 구현했다. 기존 JSONB에 선택 필드만 더해 옛 이력을 보존한다. 양쪽이 현재 공개된 연결만 공개 DTO에 남긴다. focused RED/GREEN, unit 190 pass/13 DB skip, 격리 DB integration 14/14, typecheck/lint/build, 1440/390/320px 원문 보존·회고·날짜 비노출·연결 제거·검색·모바일 읽기 통과. 다음 Step 5는 소유자가 고르는 로컬 후보 제안이다." },
     { "step": 5, "name": "assisted-linking", "status": "pending" }
   ]
 }

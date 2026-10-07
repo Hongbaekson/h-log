@@ -41,6 +41,10 @@
 .capture-error { color: #ffb5bd; line-height: 1.7; }
 .capture-history details { border-bottom: 1px solid var(--border); padding: 8px 0 16px; }
 .capture-history h3 { margin: 8px 0; font-weight: 600; }
+.capture-links { margin: 28px 0; }
+.capture-links h2, .capture-editor > section h2 { font-size: 18px; margin: 24px 0 12px; }
+.capture-link { border-left: 2px solid var(--border); padding-left: 16px; margin-bottom: 24px; }
+.capture-editor > .capture-actions { margin: 0 0 24px; }
 @media (max-width: 767px) {
   .brain-capture { padding: 28px 18px 56px; }
   .capture-header { align-items: flex-start; flex-direction: column; gap: 16px; margin-bottom: 28px; }

@@ -21,6 +21,7 @@ export function BrainNote({ node, graph, asPage = false, onSelect }: {
       </div>
       <Heading className="brain-note-title">{node.title}</Heading>
       <p className="brain-note-summary">{node.summary}</p>
+      {node.occurredOn && <p className="brain-recorded-date">사건 날짜 <time dateTime={node.occurredOn}>{node.occurredOn}</time></p>}
       <div className="brain-note-provenance">
         <strong>{basis.label}</strong>
         <p>{basis.description}</p>
@@ -43,7 +44,7 @@ export function BrainNote({ node, graph, asPage = false, onSelect }: {
           <h3><Link2 size={15} aria-hidden="true" /> 이어지는 생각 <span>{related.length}</span></h3>
           <ul>{related.map(edge => {
             const other = graph.nodes.find(item => item.id === (edge.from === node.id ? edge.to : edge.from))!;
-            const content = <><span className="brain-related-title">{other.title}</span><span className="brain-related-reason">{brainRelationLabels[edge.relation]} · {edge.reason}</span></>;
+            const content = <><span className="brain-related-title">{other.title}</span><span className="brain-related-reason">{edge.relation === "revises" && edge.to === node.id ? "이후 회고" : brainRelationLabels[edge.relation]} · {edge.reason}</span></>;
             return <li key={`${edge.from}-${edge.to}-${edge.relation}`}>
               {onSelect
                 ? <button type="button" onClick={() => onSelect(other.id)}>{content}</button>

@@ -50,6 +50,8 @@ npm run build
 
 ### Second Brain 비공개 작성 경계
 
+Foundation Step 4는 `brain-curation.ts`의 날짜 정렬과 공개 graph 병합을 사용한다. `occurredOn`은 명시적으로 공개한 사건 날짜만 DTO에 넣고, snapshot 내부의 `links`는 양쪽이 공개된 `BrainEdge`로만 변환한다. `revises` 관계는 이전 생각과 이후 회고를 구분한다. 소유자 요약은 인증 뒤 제목·태그·날짜·연결만 읽어 검색/정렬/연결 탐색을 지원한다. 공개 목록의 정렬은 `order` URL 값으로 복원한다. JSONB의 선택 필드이므로 기존 원문 이력의 migration은 없다.
+
 ADR-022에 따라 `/admin/brain`의 `BrainCapture`는 비공개 원문, 따로 작성하는 공개 메모, 공개 미리보기, 수정 이력을 제공한다. `proxy.ts`와 page, `/admin/brain/records`의 HTTP handler는 각각 `brain-owner.ts`로 소유자를 확인한다. `owner` 계정과 서버의 256-bit 키, 지정한 Host를 검증하고 POST는 같은 Origin만 허용한다. 외부 환경은 HTTPS, HTTP는 개발 중 loopback만 허용한다. 응답은 private/no-store/noindex이며 설정이 없으면 접근을 닫는다. 키는 클라이언트 props·로그에 넣지 않는다.
 
 `004_brain_capture.sql`은 `brain_notes`의 현재/공개 버전 포인터와 공개 사본, `brain_note_versions`의 비공개 원문·공개 초안 이력을 만든다. `brain-postgres-repository.ts`는 transaction과 row lock, 예상 revision 검사로 동시 수정 유실을 막는다. 버전은 추가만 가능하고 DB trigger가 과거 버전의 수정/삭제를 거부한다. 저장은 공개 사본을 바꾸지 않는다. 명시적으로 공개할 때만 `brain-capture.ts`가 공개 필드를 골라 privacy scanner를 통과시켜 저장하며, 공개 SQL은 이 사본만 조회한다. 읽을 때도 공개 DTO 선택과 privacy 검사를 거친다. 공개 해제는 사본과 공개 포인터를 비우고 원문·이력은 남긴다.

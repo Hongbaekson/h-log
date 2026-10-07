@@ -22,6 +22,25 @@ test("private-only drafts may be saved but cannot be published without a complet
   assert.throws(() => toPublicBrainNode(saved, "note-example", "2026-10-07"), /public_copy_required/);
 });
 
+test("event dates and reflection links need explicit public consent and valid values", () => {
+  const input = { ...draft, occurredOn: "2025-04-03", shareOccurredOn: false,
+    links: [{ target: "prior-thought", relation: "revises", reason: "다시 읽고 생각이 달라졌다." }] };
+  const saved = parseBrainDraft(input);
+  assert.equal(saved.occurredOn, "2025-04-03");
+  assert.equal(toPublicBrainNode(saved, "new-thought", "2026-10-07").occurredOn, undefined);
+  const publicCopy = toPublicBrainNode(parseBrainDraft({ ...input, shareOccurredOn: true }), "new-thought", "2026-10-07");
+  assert.equal(publicCopy.occurredOn, "2025-04-03");
+  assert.equal(publicCopy.recordedAt, "2026-10-07");
+  assert.deepEqual(publicCopy.links, input.links);
+  for (const patch of [{ occurredOn: "2025-02-30" }, { occurredOn: "unknown" }, { shareOccurredOn: "yes" },
+    { links: [{ target: "../private", relation: "revises", reason: "이유" }] },
+    { links: [{ target: "prior-thought", relation: "wrong", reason: "이유" }] },
+    { links: [...input.links, ...input.links] }, { links: [{ ...input.links[0], reason: "" }] }]) {
+    assert.throws(() => parseBrainDraft({ ...input, ...patch }), /invalid_draft/);
+  }
+  assert.throws(() => toPublicBrainNode(saved, "prior-thought", "2026-10-07"), /invalid_link/);
+});
+
 test("untrusted drafts reject malformed fields and unsafe public copies without echoing their contents", () => {
   for (const invalid of [null, { ...draft, title: "" }, { ...draft, kind: "unknown" }, { ...draft, originalText: "a".repeat(50001) }, { ...draft, tags: [true] }, { ...draft, visibility: "public" }]) {
     assert.throws(() => parseBrainDraft(invalid), /invalid_draft/);

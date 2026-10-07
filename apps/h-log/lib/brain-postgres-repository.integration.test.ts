@@ -28,16 +28,16 @@ test("Brain capture preserves history, explicitly publishes snapshots and reject
     assert.equal(first.revision, 1);
     assert.equal((await repository.getOwnerNote(first.id))?.draft.originalText, draft.originalText);
     assert.equal((await repository.listOwnerNotes())[0].title, draft.title);
-    assert.deepEqual(await repository.findPublicNodes(), []);
+    assert.deepEqual((await repository.findPublicGraph()).nodes, []);
     await assert.rejects(repository.publish(first.id, 1, false), /publication_confirmation_required/);
     await repository.publish(first.id, 1, true);
-    const publicBefore = await repository.findPublicNodes();
+    const publicBefore = (await repository.findPublicGraph()).nodes;
     assert.equal(publicBefore[0].title, draft.publicTitle);
     assert.doesNotMatch(JSON.stringify(publicBefore), /PRIVATE_|originalText|history/);
 
     const changed = { ...draft, originalText: "PRIVATE_EDIT_SENTINEL", publicBody: "아직 공개하지 않은 수정" };
     await repository.saveDraft(changed, first.id, 1);
-    assert.deepEqual(await repository.findPublicNodes(), publicBefore);
+    assert.deepEqual((await repository.findPublicGraph()).nodes, publicBefore);
     await assert.rejects(repository.saveDraft(draft, first.id, 1), /revision_conflict/);
     await assert.rejects(repository.publish(first.id, 1, true), /revision_conflict/);
     const history = (await repository.getOwnerNote(first.id))!.history;
@@ -59,15 +59,28 @@ test("Brain capture preserves history, explicitly publishes snapshots and reject
     assert.equal(attempts.filter(result => result.status === "rejected").length, 1);
     assert.equal((await repository.getOwnerNote(first.id))?.revision, 3);
     const restricted = createBrainRepository(pool, { restrictedTerms: [{ category: "organization_name", value: draft.publicTitle }] });
-    assert.deepEqual(await restricted.findPublicNodes(), []);
+    assert.deepEqual((await restricted.findPublicGraph()).nodes, []);
     await repository.unpublish(first.id, 3);
-    assert.deepEqual(await repository.findPublicNodes(), []);
+    assert.deepEqual((await repository.findPublicGraph()).nodes, []);
     assert.equal((await repository.getOwnerNote(first.id))?.history.length, 3);
     assert.equal((await repository.getOwnerNote(first.id))?.publishedRevision, null);
 
     const risky = await repository.saveDraft({ ...draft, publicBody: "http://service.internal/private" });
     await assert.rejects(repository.publish(risky.id, 1, true), /public_copy_blocked/);
-    assert.deepEqual(await repository.findPublicNodes(), []);
+    assert.deepEqual((await repository.findPublicGraph()).nodes, []);
+
+    const reflection = await repository.saveDraft({ ...draft, originalText: "새로 적은 회고", occurredOn: "2025-04-03", shareOccurredOn: true,
+      links: [{ target: first.id, relation: "revises", reason: "당시 판단을 다시 살펴봤다." }] });
+    await repository.publish(reflection.id, 1, true);
+    assert.equal((await repository.findPublicGraph()).edges.length, 0);
+    await repository.publish(first.id, 3, true);
+    assert.deepEqual((await repository.findPublicGraph()).edges, [{ from: reflection.id, to: first.id, relation: "revises", reason: "당시 판단을 다시 살펴봤다." }]);
+    assert.equal((await repository.getOwnerNote(first.id))?.history[2].draft.originalText, draft.originalText);
+    assert.equal((await repository.listOwnerNotes()).find(n => n.id === reflection.id)?.occurredOn, "2025-04-03");
+    await assert.rejects(repository.saveDraft({ ...draft, links: [{ target: "missing-record", relation: "extends", reason: "이유" }] }), /invalid_link/);
+    await assert.rejects(repository.saveDraft({ ...draft, links: [{ target: reflection.id, relation: "revises", reason: "이유" }] }, reflection.id, 1), /invalid_link/);
+    await repository.unpublish(first.id, 3);
+    assert.equal((await repository.findPublicGraph()).edges.length, 0);
   } finally {
     await pool.end();
     await admin.query(`drop database ${name}`);

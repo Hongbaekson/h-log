@@ -10,12 +10,11 @@ export function getBrainRepository() {
   if (process.env.HLOG_BRAIN_DATABASE_ENABLED !== "1" || !process.env.DATABASE_URL) throw new Error("storage_unavailable");
   const shared = globalThis as typeof globalThis & { hlogBrainPool?: pg.Pool };
   shared.hlogBrainPool ??= new pg.Pool({ connectionString: process.env.DATABASE_URL, max: 2 });
-  return createBrainRepository(shared.hlogBrainPool, createBlogPrivacyScanPolicyFromEnvironment(process.env));
+  return createBrainRepository(shared.hlogBrainPool, createBlogPrivacyScanPolicyFromEnvironment(process.env), selectPublicBrain(brainCatalog));
 }
 
 export const loadPublicBrain = cache(async () => {
   const graph = selectPublicBrain(brainCatalog);
   if (process.env.HLOG_BRAIN_DATABASE_ENABLED !== "1") return graph;
-  const nodes = await getBrainRepository().findPublicNodes();
-  return { nodes: [...graph.nodes, ...nodes], edges: graph.edges };
+  return getBrainRepository().findPublicGraph();
 });

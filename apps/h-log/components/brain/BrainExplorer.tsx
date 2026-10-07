@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactN
 import type { BrainSceneHandle } from "./BrainScene";
 import { brainBasisLabels, brainKindLabels, brainRelationLabels, brainTopics, findBrainNode, type BrainGraph, type BrainKind, type BrainNode, type BrainRelation, type BrainTopic } from "@/lib/brain";
 import { filterBrainGraph, type BrainLayout } from "@/lib/brain-layout";
+import { sortBrainNodes, type BrainOrder } from "@/lib/brain-curation";
 
 const BrainScene = dynamic(() => import("./BrainScene"), { ssr: false, loading: () => <p className="mem-loading" role="status">기억의 연결을 펼치는 중…</p> });
 const layouts: Record<BrainLayout, string> = { brain: "브레인", free: "자유", topics: "주제별", hierarchy: "계층", timeline: "시간순" };
@@ -55,13 +56,14 @@ function MemoryNote({ node, graph, select }: { node: BrainNode; graph: BrainGrap
     <h2>{node.title}</h2>
     <div className="mem-meta"><span className="mem-badge">{brainTopics[node.topic].label}</span><span className="mem-badge">{brainKindLabels[node.kind]}</span><span className="mem-badge">{related.length}개 연결</span><span className="mem-badge">{brainBasisLabels[node.basis].label}</span></div>
     <p className="mem-summary">{node.summary}</p>
+    {node.occurredOn && <p className="mem-status">사건 날짜 <time dateTime={node.occurredOn}>{node.occurredOn}</time></p>}
     <section className="mem-detail-section"><h3 className="mem-detail-title">태그</h3><div className="mem-meta">{node.tags.map(tag => <span className="mem-badge" key={tag}>{tag}</span>)}</div></section>
     {node.sections.map(section => <section className="mem-detail-section" key={section.heading}><h3 className="mem-detail-title">{section.heading}</h3><div className="mem-body">{section.paragraphs.map(paragraph => <p key={paragraph}>{paragraph}</p>)}</div></section>)}
     <section className="mem-detail-section"><h3 className="mem-detail-title">기록의 근거 · {brainBasisLabels[node.basis].label}</h3><div className="mem-body"><p>{brainBasisLabels[node.basis].description}</p></div></section>
     {node.questions.length > 0 && <section className="mem-detail-section"><h3 className="mem-detail-title">남겨 둔 질문</h3><div className="mem-body">{node.questions.map(question => <p key={question}>{question}</p>)}</div></section>}
     {related.length > 0 && <section className="mem-detail-section" aria-label="연결된 기록"><h3 className="mem-detail-title">연결 노드</h3><div className="mem-list">{related.map(edge => {
       const other = graph.nodes.find(item => item.id === (edge.from === node.id ? edge.to : edge.from))!;
-      return <button className="mem-row" type="button" key={`${edge.from}-${edge.to}-${edge.relation}`} onClick={() => select(other.id)}><strong>{other.title}</strong><small>{brainRelationLabels[edge.relation]} · {edge.reason}</small></button>;
+      return <button className="mem-row" type="button" key={`${edge.from}-${edge.to}-${edge.relation}`} onClick={() => select(other.id)}><strong>{other.title}</strong><small>{edge.relation === "revises" && edge.to === node.id ? "이후 회고" : brainRelationLabels[edge.relation]} · {edge.reason}</small></button>;
     })}</div></section>}
     <section className="mem-detail-section" aria-label="기록의 출처"><h3 className="mem-detail-title">참고한 기록</h3><div className="mem-body">{node.sources.map(source => <p key={source.label}>{source.href ? <a href={source.href} {...(source.href.startsWith("https:") ? {target:"_blank",rel:"noreferrer","aria-label":`${source.label} (새 창)`} : {})}>{source.label}</a> : source.label}</p>)}<p>정리일 <time dateTime={node.recordedAt}>{node.recordedAt}</time></p></div></section>
   </article>;
@@ -92,6 +94,7 @@ export function BrainExplorer({ graph }: { graph: BrainGraph }) {
   const spread = params.get("spacing") === "wide" ? 1.34 : params.get("spacing") === "compact" ? .72 : 1;
   const labels = params.get("labels") !== "off";
   const view = params.get("view") === "list" || unavailable ? "list" : "graph";
+  const order: BrainOrder = params.get("order") === "event" ? "event" : params.get("order") === "recorded" ? "recorded" : "recent";
   const selected = findBrainNode(graph, params.get("note") ?? "");
   const preview = view === "graph" && !filtersOpen && hovered !== selected?.id ? findBrainNode(graph, hovered ?? "") : undefined;
   const results = useMemo(() => filterBrainGraph(graph, {query, topic, tag, kinds:kind && kind !== "all" ? kind.split(",") : [], relations:relation ? relation.split(",") : [], basis}), [graph, query, topic, tag, kind, relation, basis]);
@@ -164,7 +167,7 @@ export function BrainExplorer({ graph }: { graph: BrainGraph }) {
         <div className="mem-control" aria-label="노드 간격"><span>노드 간격</span>{[["compact","좁게",.72],["normal","보통",1],["wide","넓게",1.34]].map(([value,label,factor]) => <button key={value} type="button" className={spread === factor ? "active" : ""} aria-pressed={spread === factor} onClick={() => update({spacing:String(value)})}>{label}</button>)}</div>
         <div className="mem-control"><button type="button" onClick={() => api.current?.reset()}>다시 정렬</button><button type="button" aria-pressed={labels} onClick={() => update({labels:labels ? "off" : null})}>{labels ? "라벨 숨기기" : "라벨 보이기"}</button></div>
       </div></div>
-      {view === "list" && <section className="mem-catalog" aria-label="기록 목록"><h2>기록 모아보기</h2>{unavailable && <p className="mem-status" role="status">이 환경에서는 그래프를 열 수 없어 기록을 목록으로 보여드립니다.</p>}<div className="mem-list">{results.nodes.map(node => <button type="button" className="mem-row" key={node.id} onClick={() => select(node.id)}><strong>{node.title}</strong><small>{brainKindLabels[node.kind]} · {brainTopics[node.topic].label}</small><small>{node.summary}</small></button>)}</div></section>}
+      {view === "list" && <section className="mem-catalog" aria-label="기록 목록"><h2>기록 모아보기</h2><label htmlFor="memory-order">기록 정렬</label><select id="memory-order" className="mem-search" value={order} onChange={event => update({order:event.target.value})}><option value="recent">최근에 쓴 기록부터</option><option value="recorded">처음 쓴 기록부터</option><option value="event">사건 날짜순 · 모르면 맨 뒤</option></select>{unavailable && <p className="mem-status" role="status">이 환경에서는 그래프를 열 수 없어 기록을 목록으로 보여드립니다.</p>}<div className="mem-list">{sortBrainNodes(results.nodes, order).map(node => <button type="button" className="mem-row" key={node.id} onClick={() => select(node.id)}><strong>{node.title}</strong><small>{brainKindLabels[node.kind]} · {brainTopics[node.topic].label}</small><small>정리일 {node.recordedAt}{node.occurredOn ? ` · 사건 ${node.occurredOn}` : ""}</small><small>{node.summary}</small></button>)}</div></section>}
       {!results.nodes.length && <div className="mem-empty"><p>이 조건에 맞는 기록이 없습니다.</p><Chip active={false} onClick={clearFilters}>필터 초기화</Chip></div>}
       {preview && <section className="mem-preview" aria-live="polite"><div className="mem-preview-kicker">{brainKindLabels[preview.kind]}</div><h3>{preview.title}</h3><p>{preview.summary.length > 128 ? `${preview.summary.slice(0,125)}…` : preview.summary}</p><small>클릭하시면 본문이 열립니다.</small></section>}
       {selected && <MemoryDialog type="reader" onClose={() => select(null)}><div className="mem-detail-toolbar"><Link href={`/brain/${selected.id}`}>개별 페이지 ↗</Link><button type="button" className="mem-round" aria-label="기록 닫기" onClick={() => select(null)}>×</button></div><div ref={readerRef} className="mem-detail-content" tabIndex={-1}><MemoryNote node={selected} graph={graph} select={select} /></div></MemoryDialog>}

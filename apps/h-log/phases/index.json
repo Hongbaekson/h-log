@@ -168,7 +168,7 @@
     {
       "dir": "second-brain-foundation",
       "status": "pending",
-      "summary": "2026-10-07: Steps 0-3 complete. The approved 28-node/42-edge catalog and accepted native WebGL UI remain. Step 3 adds opt-in owner-only /admin/brain, PostgreSQL private originals and immutable revisions, and separately confirmed public snapshots. Unit 187 pass/13 DB skip, integration 14/14, HTTP 1/1, lint/typecheck/build and 1440/390/320px capture checks passed on isolated local data. Next is Step 4 revisit-and-curation: event dates, later reflections and new-note links. Company source records remain excluded; production migration, deployment and OCI hold remain pending."
+      "summary": "2026-10-07: Steps 0-4 complete. Step 4 adds optional event dates with explicit sharing, separate reflection notes and directional revises links, owner search/date ordering and public URL-backed ordering. Public edges require both endpoints to remain public. Unit 190 pass/13 DB skip, integration 14/14, typecheck/lint/build and 1440/390/320px checks passed. Next is Step 5 local, owner-reviewed suggestions. Approved 28 nodes/42 edges, original history, accepted graph UI and OCI hold remain."
     },
     {
       "dir": "second-brain-memory-interface",

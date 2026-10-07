@@ -59,7 +59,7 @@ export async function handleBrainCaptureRequest(
     return json({ id });
   } catch (error) {
     const statuses: Record<string, number> = {
-      invalid_request: 400, invalid_draft: 400, invalid_note_id: 400, invalid_revision: 400,
+      invalid_request: 400, invalid_draft: 400, invalid_note_id: 400, invalid_revision: 400, invalid_link: 400,
       public_copy_required: 400, public_copy_blocked: 422, publication_confirmation_required: 400,
       revision_conflict: 409, note_not_found: 404, request_too_large: 413, unsupported_media_type: 415,
     };
