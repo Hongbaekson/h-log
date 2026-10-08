@@ -402,6 +402,90 @@ describe("DB-backed public blog routes", () => {
     assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, paragraphs.map(textParagraph));
   });
 
+  it("reads aligned tables, empty cells and escaped pipes without changing saved content", () => {
+    const version = createVersion({ contentMarkdown: [
+      "Before.", "",
+      "| 기술 | **설명** | 수량 | 비고 |",
+      "| :--- | :---: | ---: | --- |",
+      "| Redis | `a\\|b` | 2 | |",
+      "| 왼쪽\\|오른쪽 | | 3 | 마지막 | 초과 셀 |",
+      "| 짧은 행 |", "", "After.",
+    ].join("\n") });
+    const originalVersion = { ...version };
+    const store = { ...createStore(), versions: [version] };
+    const cell = (text: string) => text ? [{ type: "text", text }] : [];
+
+    assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [
+      textParagraph("Before."),
+      {
+        type: "table", align: ["left", "center", "right", null],
+        header: [cell("기술"), [{ type: "strong", children: cell("설명") }], cell("수량"), cell("비고")],
+        rows: [
+          [cell("Redis"), [{ type: "code", text: "a|b" }], cell("2"), []],
+          [cell("왼쪽|오른쪽"), [], cell("3"), cell("마지막")],
+          [cell("짧은 행"), [], [], []],
+        ],
+      },
+      textParagraph("After."),
+    ]);
+    assert.equal(getPublicBlogPostMarkdown("public-one", store), version.contentMarkdown);
+    assert.equal(getPublicBlogPostBySlug("public-one", store)?.contentHtml, version.contentHtml);
+    assert.deepEqual(version, originalVersion);
+  });
+
+  it("uses the same safe inline allowlist in table headers and cells", () => {
+    const store = { ...createStore(), versions: [createVersion({ contentMarkdown: [
+      "[문서](/blog) | 코드", "--- | ---",
+      "[공식](https://example.com/docs) | `[literal](/blog)`",
+      '[위험](javascript:alert(1)) | <img src=x onerror="alert(1)">',
+      "https://example.com | ~~literal~~",
+    ].join("\n") })] };
+
+    assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [{
+      type: "table", align: [null, null],
+      header: [[{ type: "link", href: "/blog", children: [{ type: "text", text: "문서" }] }], [{ type: "text", text: "코드" }]],
+      rows: [
+        [[{ type: "link", href: "https://example.com/docs", children: [{ type: "text", text: "공식" }] }], [{ type: "code", text: "[literal](/blog)" }]],
+        [[{ type: "text", text: "위험" }], [{ type: "text", text: '<img src=x onerror="alert(1)">' }]],
+        [[{ type: "text", text: "https://example.com" }], [{ type: "text", text: "~~literal~~" }]],
+      ],
+    }]);
+  });
+
+  it("recognizes header-only and nested tables while preserving unsupported task markers", () => {
+    const table = {
+      type: "table", align: [null, null],
+      header: [[{ type: "text", text: "A" }], [{ type: "text", text: "B" }]], rows: [],
+    };
+    const store = { ...createStore(), versions: [createVersion({ contentMarkdown: [
+      "Before.\nA | B\n--- | ---", "",
+      "> A | B\n> --- | ---", "",
+      "- item\n\n  A | B\n  --- | ---", "",
+      "Between.", "",
+      "- [x] done\n- [ ] todo\n\n  continuation",
+    ].join("\n") })] };
+
+    assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [
+      textParagraph("Before."), table,
+      { type: "blockquote", children: [table] },
+      { type: "list", start: null, items: [[textParagraph("item"), table]] },
+      textParagraph("Between."),
+      { type: "list", start: null, items: [[textParagraph("[x] done")], [textParagraph("[ ] todo"), textParagraph("continuation")]] },
+    ]);
+  });
+
+  it("keeps malformed tables and fenced table syntax literal", () => {
+    const invalid = "| A | B |\n| --- |\n| body |";
+    const valid = "| A | B |\n| --- | --- |\n| body | |";
+    const store = { ...createStore(), versions: [createVersion({
+      contentMarkdown: `${invalid}\n\n\`\`\`text\n${valid}\n\`\`\``,
+    })] };
+
+    assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [
+      textParagraph(invalid.replaceAll("\n", " ")), { type: "code", code: valid },
+    ]);
+  });
+
   it("renders inline code from published Markdown", () => {
     const store = createStore();
     store.versions = [

@@ -51,10 +51,10 @@
 
 ## 이번 실행 단위
 
-[Phase 1 / Step 2](../../../phases/blog-reading-foundation/step2.md): 목록과 인용문을 의미 있는 React 요소로 출력하고 중첩·여러 문단·코드 경계와 모바일/접근성을 검증했다.
+[Phase 1 / Step 3](../../../phases/blog-reading-foundation/step3.md): 비교 표의 열 제목·정렬·빈 셀·escaped pipe와 안전한 inline 셀을 구현하고 모바일 내부 스크롤과 키보드/접근성을 검증했다.
 
 - 변경 파일: `apps/h-log/lib/blog-public.ts`, `apps/h-log/lib/blog-public.test.ts`, `apps/h-log/app/blog/[slug]/page.tsx`.
-- 기존 Marked block lexer와 fence scanner를 재사용했다. Discord 인용 구분선과 목록 들여쓰기를 적용하고 저장 content 생성/hash 알고리즘, migration, 레이더는 그대로 유지했다.
+- 기존 Marked의 table-aware block 규칙과 fence scanner를 재사용했다. GFM task/inline 해석을 켜지 않고 Discord 색상의 표와 키보드 스크롤을 추가했다. 저장 content 생성/hash 알고리즘, migration, 레이더는 그대로 유지했다.
 - 문서: 이 계획, 새 phase/step registry, PRD/ADR/ARCHITECTURE/IMPLEMENTATION_PLAN 중 관련 설명만 동기화한다.
 - 성공 기준: focused RED/GREEN, 기존 unit 회귀, lint/typecheck/build, 격리 local DB를 사용한 개발 서버 desktop/mobile 렌더링, JSON/path parser, `git diff --check`.
 - 커밋/푸시는 검증한 변경만 포함하고 일반 push를 사용한다.
@@ -87,4 +87,6 @@
 
 2026-10-06 Phase 1 / Step 2 완료: 번호 시작값, 여러 문단과 혼합 중첩 목록, 인용문과 코드 경계를 보존한다. Native 목록/인용 요소와 모바일 줄바꿈, 인용 제목 표시를 검증했다. Focused 21/21, unit 170 pass/12 DB skip, lint/typecheck/build와 1440/390/320px 격리 DB 개발 서버 검증을 통과했다. 원문/hash·공개 경계·레이더·OCI 보류는 유지했다.
 
-다음 단계는 [Phase 1 / Step 3: 표와 모바일 스크롤](../../../phases/blog-reading-foundation/step3.md)이다. 나머지 16개 step은 pending이며 계획 등록을 구현 완료로 간주하지 않는다. 기존 의존성의 보안 경고는 [구현 계획의 별도 후속 조치](IMPLEMENTATION_PLAN.md)에 기록돼 있다.
+2026-10-08 Phase 1 / Step 3 완료: 비교 표의 header/body·정렬·빈 셀·escaped pipe와 안전한 링크/코드 셀을 지원한다. 헤더만 있는 표와 중첩 표, 잘못된 표의 텍스트 fallback, 기존 task marker를 검증했다. Focused RED 3개와 브라우저 table 누락/모바일 넘침 RED 이후 focused 25/25, unit 196 pass/13 DB skip, lint/typecheck/build를 통과했다. 격리 DB의 1440/390/320px에서 native table/열 헤더, Tab/방향키 스크롤, 페이지 넘침 없음, raw Markdown 일치, private/missing 404와 빈 목록을 확인했다.
+
+Phase 1의 4개 step을 모두 완료했다. 다음 단계는 [Phase 2 / Step 0: 제목 링크와 목차](../../../phases/blog-reading-navigation/step0.md)다. 나머지 15개 step은 pending이며 계획 등록을 구현 완료로 간주하지 않는다. 기존 의존성의 보안 경고는 [구현 계획의 별도 후속 조치](IMPLEMENTATION_PLAN.md)에 기록돼 있다.

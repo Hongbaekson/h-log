@@ -270,7 +270,9 @@ Source content / lib data
 
 Step 1은 Marked inline lexer로 문단/제목을 토큰화한 뒤 text/code/strong/link 허용 노드만 만든다. Strong과 link label의 children은 같은 규칙으로 처리하며 raw HTML·미지원 문법은 text로 출력한다. `lib/public-source-url.ts`의 검증을 거친 공개 HTTPS와 안전한 root-relative/fragment만 anchor가 된다. `app/blog/[slug]/page.tsx`는 외부 링크의 새 창 안내·opener 차단·키보드 focus와 긴 label 줄바꿈을 제공한다. Marked HTML 출력, 저장 content 재작성, DB/schema/worker 변경은 없다.
 
-Step 2는 `publicBlockLexer`의 Marked block 토큰을 `buildBlockNodes`에서 heading/paragraph/code/list/blockquote 허용 모델로 변환한다. 기존 fence scanner는 trailing-tab 종료 조건을 보존하는 tokenizer override로 이동했다. 목록의 숫자/null 시작값과 항목별 block 배열, 인용문의 block children을 같은 렌더러로 재귀 출력한다. Native 목록/인용 요소와 Blurple 경계, 긴 텍스트 줄바꿈을 제공하며 중복 제목 숨김은 최상위 H1에만 적용한다. Inline URL/privacy 및 최상위 diagram 삽입 규칙을 유지한다. 표는 Step 3의 후속 범위다.
+Step 2는 Marked block 토큰을 `buildBlockNodes`에서 heading/paragraph/code/list/blockquote 허용 모델로 변환한다. 기존 fence scanner는 trailing-tab 종료 조건을 보존하는 tokenizer override로 이동했다. 목록의 숫자/null 시작값과 항목별 block 배열, 인용문의 block children을 같은 렌더러로 재귀 출력한다. Native 목록/인용 요소와 Blurple 경계, 긴 텍스트 줄바꿈을 제공하며 중복 제목 숨김은 최상위 H1에만 적용한다. Inline URL/privacy 및 최상위 diagram 삽입 규칙을 유지한다.
+
+Step 3은 요청별 `Lexer`/`Tokenizer`에 table-aware block 규칙만 적용하고 GFM task/inline 해석은 켜지 않는다(ADR-024). Table 모델은 align 배열과 안전한 inline header/rows를 갖는다. Native table/thead/tbody와 열 scope, 셀 정렬, 긴 내용 줄바꿈을 제공한다. 상대 위치의 focus 가능한 region 안에서 가로 스크롤하므로 모바일에서 표와 외부 링크의 숨김 안내가 페이지 폭을 늘리지 않는다. 저장 content와 crawler 원문은 재작성하지 않는다.
 
 ```text
 Manual admin or internal API

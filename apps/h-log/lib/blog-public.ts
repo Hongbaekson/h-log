@@ -1,4 +1,4 @@
-import { Lexer, Marked, type Token, type Tokens } from "marked";
+import { Lexer, Tokenizer, type Token, type Tokens } from "marked";
 
 import {
   assertPostVersionContentHashMatches,
@@ -14,11 +14,6 @@ import {
 } from "./blog-content-model.ts";
 import { isRenderableDiagramAsset } from "./blog-diagram-assets.ts";
 import { tryNormalizePublicSourceUrl } from "./public-source-url.ts";
-
-const publicBlockLexer = new Marked({
-  gfm: false,
-  tokenizer: { fences: tokenizePublicCodeFence },
-});
 
 export type BlogContentStore = {
   assets?: readonly PostAssetRecord[];
@@ -82,6 +77,12 @@ export type PublicBlogContentBlock =
   | {
       children: PublicBlogContentBlock[];
       type: "blockquote";
+    }
+  | {
+      align: ("left" | "center" | "right" | null)[];
+      header: PublicBlogInlineContent[][];
+      rows: PublicBlogInlineContent[][][];
+      type: "table";
     };
 
 export type PublicBlogPost = {
@@ -208,7 +209,12 @@ function buildPublicBlogContentBlocks(
   diagram: PublicBlogContentBlock | undefined,
 ): PublicBlogContentBlock[] {
   const normalized = markdown.replace(/\r\n?/g, "\n").trimEnd();
-  const blocks = buildBlockNodes(publicBlockLexer.lexer(normalized));
+  const tokenizer = new Tokenizer();
+  tokenizer.fences = tokenizePublicCodeFence;
+  const lexer = new Lexer({ gfm: false, tokenizer });
+  // Use table-aware block boundaries without enabling GFM task lists or inline syntax.
+  tokenizer.rules.block = Lexer.rules.block.gfm;
+  const blocks = buildBlockNodes(lexer.lex(normalized));
 
   if (!diagram || diagram.type !== "diagram") {
     return blocks;
@@ -255,11 +261,11 @@ function selectRenderableDiagram(
 }
 
 // Preserve the existing fence boundary: Marked 18 omits trailing tabs on closers.
-function tokenizePublicCodeFence(source: string): Tokens.Code | false {
+function tokenizePublicCodeFence(source: string): Tokens.Code | undefined {
   const fence = /^( {0,3})(`{3,}|~{3,})([^\n]*)/.exec(source);
 
   if (!fence || fence[2][0] === "`" && fence[3].includes("`")) {
-    return false;
+    return undefined;
   }
 
   const lines = source.split("\n");
@@ -297,6 +303,13 @@ function buildBlockNodes(tokens: readonly Token[]): PublicBlogContentBlock[] {
       });
     } else if (token.type === "blockquote") {
       blocks.push({ type: "blockquote", children: buildBlockNodes(token.tokens!) });
+    } else if (token.type === "table") {
+      blocks.push({
+        type: "table",
+        align: token.align,
+        header: token.header.map((cell: Tokens.TableCell) => buildInlineContent(cell.text)),
+        rows: token.rows.map((row: Tokens.TableCell[]) => row.map((cell) => buildInlineContent(cell.text))),
+      });
     } else if (token.type === "heading" && (token.depth === 1 || token.depth === 2 || token.depth === 3)) {
       blocks.push({ type: "heading", level: token.depth, children: buildInlineContent(token.text) });
     } else {

@@ -265,6 +265,14 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **경계**: 비공개 제목·사건 날짜·관계와 후보 결과는 인증된 화면에만 둔다. 회사 Wiki import, 원문 자동 수정, 감정 추정, 자동 관계 확정·공개, OCI 변경은 포함하지 않는다.
 
+### ADR-024: 기존 Marked의 표 구분 규칙과 안전한 셀 모델을 사용한다
+
+**결정 (2026-10-08)**: 공개 Blog reader는 요청마다 `Lexer`와 `Tokenizer`를 만들고 `Lexer.rules.block.gfm`의 블록 구분 규칙을 사용한다. `gfm: false`와 기존 fence tokenizer는 유지한다. 표를 header/rows/align 모델로 변환하고 각 셀은 기존 text/code/strong/link 허용 목록으로 읽는다. React의 native table과 `scope="col"` 헤더를 사용하며, 이름과 키보드 focus가 있는 컨테이너 안에서만 가로 스크롤한다.
+
+**이유**: 고정된 Marked 18의 표 규칙은 escaped pipe, 코드 셀, 누락 셀과 중첩 블록을 처리한다. GFM 전체 옵션을 켜면 기존 체크박스 목록의 텍스트 해석도 달라지므로 표를 구분하는 블록 규칙만 재사용한다. HTML parser 출력이나 새 의존성 없이 기존 React escaping과 URL 검증을 유지한다.
+
+**트레이드오프**: Marked를 올릴 때 표 인접 문단·setext 제목·목록·fence 경계의 회귀 검증이 필요하다. 표의 헤더와 구분 행 열 수가 다르면 일반 텍스트로 남고, 짧은 본문 행은 빈 셀로 채우며 초과 셀은 Marked 규칙에 따라 제외한다. 저장 Markdown/HTML/hash, crawler 원문과 published-current 경계는 변경하지 않는다.
+
 ## 공식/내부 기준
 
 - Next.js docs

@@ -239,6 +239,50 @@ function renderContentBlock(block: PublicBlogContentBlock, index: number): React
     );
   }
 
+  if (block.type === "table") {
+    return (
+      <div
+        aria-label="표 (가로 스크롤)"
+        className="relative mt-6 max-w-full overflow-x-auto rounded-xl border border-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff]"
+        key={index}
+        role="region"
+        tabIndex={0}
+      >
+        <table className="w-full min-w-[36rem] table-fixed border-collapse text-sm leading-7 wrap-anywhere">
+          <thead className="bg-[#5865f2]/10 text-slate-100">
+            <tr>
+              {block.header.map((cell, column) => (
+                <th
+                  className="border-b border-slate-700 px-4 py-3 align-top font-semibold"
+                  key={column}
+                  scope="col"
+                  style={{ textAlign: block.align[column] ?? "left" }}
+                >
+                  {renderInlineContent(cell)}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-700/70">
+            {block.rows.map((row, rowIndex) => (
+              <tr className="even:bg-slate-800/30" key={rowIndex}>
+                {row.map((cell, column) => (
+                  <td
+                    className="px-4 py-3 align-top"
+                    key={column}
+                    style={{ textAlign: block.align[column] ?? "left" }}
+                  >
+                    {renderInlineContent(cell)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
   if (block.type === "heading") {
     if (block.level === 1) {
       return <h1 className="mt-10 text-2xl font-bold text-white" key={index}>{renderInlineContent(block.children)}</h1>;

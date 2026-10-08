@@ -23,7 +23,8 @@
     {
       "step": 3,
       "name": "accessible-tables",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added typed table headers/rows/alignment with safe inline cells using the pinned Marked block rules without enabling GFM task/inline syntax. Native table semantics and a positioned keyboard-scrollable region preserve mobile page width. RED 3 parser cases plus missing-table and overflow browser failures; focused 25/25, unit 196 pass/13 DB skip, lint/typecheck/build and isolated DB browser checks at 1440/390/320px passed. Stored Markdown/HTML/hash, private 404, radar and OCI hold unchanged. Foundation complete; next: blog-reading-navigation Step 0 heading-anchors-and-toc."
     }
   ]
 }

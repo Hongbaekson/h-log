@@ -132,8 +132,8 @@
     },
     {
       "dir": "blog-reading-foundation",
-      "status": "pending",
-      "summary": "Steps 0-2 completed: preserved fenced code, validated inline links, and semantic nested lists/quotes. Step 2 focused 21/21, unit 170 pass/12 DB skip, lint/typecheck/build and 1440/390/320px isolated DB browser/accessibility checks passed. Step 3 accessible-tables is next. Discord style, the entire radar area, stored version/hash and OCI hold remain unchanged."
+      "status": "completed",
+      "summary": "Steps 0-3 completed: preserved fenced code, validated inline links, semantic nested lists/quotes and accessible tables with mobile/keyboard scrolling. Step 3 focused 25/25, unit 196 pass/13 DB skip, lint/typecheck/build and 1440/390/320px isolated DB browser/accessibility checks passed. Next: blog-reading-navigation Step 0 heading-anchors-and-toc. Discord style, the entire radar area, stored version/hash and OCI hold remain unchanged."
     },
     {
       "dir": "blog-reading-navigation",
@@ -163,7 +163,7 @@
     {
       "dir": "operations-observability",
       "status": "pending",
-      "summary": "2026-10-06 plan registered: local Steps 0-6 cover metric contracts, private Prometheus/Grafana, host/DB/HTTP probes, durable publishing/cost and backup/restore signals, dashboards/alerts and failure rehearsal. Step 7 production rollout is blocked by the user's OCI hold. Runtime is not implemented. Verified production monitoring is a pre-timer gate; the default next local step remains blog-reading-foundation Step 3."
+      "summary": "2026-10-06 plan registered: local Steps 0-6 cover metric contracts, private Prometheus/Grafana, host/DB/HTTP probes, durable publishing/cost and backup/restore signals, dashboards/alerts and failure rehearsal. Step 7 production rollout is blocked by the user's OCI hold. Runtime is not implemented. Verified production monitoring is a pre-timer gate; the default next local step is blog-reading-navigation Step 0."
     },
     {
       "dir": "second-brain-foundation",
