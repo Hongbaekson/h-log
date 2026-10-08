@@ -489,6 +489,11 @@ a {
   }
 }
 
+/* Keep the Blog TOC sticky to the viewport, rather than an overflow scroll box. */
+#main-content:has(.blog-reading-layout) {
+  overflow-x: clip;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;

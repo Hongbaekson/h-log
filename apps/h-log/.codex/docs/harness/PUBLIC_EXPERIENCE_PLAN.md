@@ -51,10 +51,10 @@
 
 ## 이번 실행 단위
 
-[Phase 1 / Step 3](../../../phases/blog-reading-foundation/step3.md): 비교 표의 열 제목·정렬·빈 셀·escaped pipe와 안전한 inline 셀을 구현하고 모바일 내부 스크롤과 키보드/접근성을 검증했다.
+[Phase 2 / Step 0](../../../phases/blog-reading-navigation/step0.md): 제목 주소와 데스크톱 고정/모바일 접이식 목차를 구현하고 키보드·직접 hash 접근·새로고침을 검증했다. 참고 출처는 본문 하단으로 이동했다.
 
-- 변경 파일: `apps/h-log/lib/blog-public.ts`, `apps/h-log/lib/blog-public.test.ts`, `apps/h-log/app/blog/[slug]/page.tsx`.
-- 기존 Marked의 table-aware block 규칙과 fence scanner를 재사용했다. GFM task/inline 해석을 켜지 않고 Discord 색상의 표와 키보드 스크롤을 추가했다. 저장 content 생성/hash 알고리즘, migration, 레이더는 그대로 유지했다.
+- 변경 파일: `apps/h-log/lib/blog-public.ts`, `apps/h-log/lib/blog-public.test.ts`, `apps/h-log/app/blog/[slug]/page.tsx`, `apps/h-log/app/globals.css`.
+- 기존 block 모델에서 고유 heading ID와 최상위 H2/H3 목차를 만들고 native anchor/details를 사용한다. CSS overflow 보정은 Blog detail에만 적용했다. 저장 content 생성/hash 알고리즘, migration, 레이더는 그대로 유지했다.
 - 문서: 이 계획, 새 phase/step registry, PRD/ADR/ARCHITECTURE/IMPLEMENTATION_PLAN 중 관련 설명만 동기화한다.
 - 성공 기준: focused RED/GREEN, 기존 unit 회귀, lint/typecheck/build, 격리 local DB를 사용한 개발 서버 desktop/mobile 렌더링, JSON/path parser, `git diff --check`.
 - 커밋/푸시는 검증한 변경만 포함하고 일반 push를 사용한다.
@@ -89,4 +89,6 @@
 
 2026-10-08 Phase 1 / Step 3 완료: 비교 표의 header/body·정렬·빈 셀·escaped pipe와 안전한 링크/코드 셀을 지원한다. 헤더만 있는 표와 중첩 표, 잘못된 표의 텍스트 fallback, 기존 task marker를 검증했다. Focused RED 3개와 브라우저 table 누락/모바일 넘침 RED 이후 focused 25/25, unit 196 pass/13 DB skip, lint/typecheck/build를 통과했다. 격리 DB의 1440/390/320px에서 native table/열 헤더, Tab/방향키 스크롤, 페이지 넘침 없음, raw Markdown 일치, private/missing 404와 빈 목록을 확인했다.
 
-Phase 1의 4개 step을 모두 완료했다. 다음 단계는 [Phase 2 / Step 0: 제목 링크와 목차](../../../phases/blog-reading-navigation/step0.md)다. 나머지 15개 step은 pending이며 계획 등록을 구현 완료로 간주하지 않는다. 기존 의존성의 보안 경고는 [구현 계획의 별도 후속 조치](IMPLEMENTATION_PLAN.md)에 기록돼 있다.
+2026-10-08 Phase 2 / Step 0 완료: 한글/NFC·중복·숫자 suffix 제목에 고유 ID를 부여하고 최상위 H2/H3 목차와 제목별 링크를 추가했다. 출처/원문 링크를 본문 아래로 이동했다. RED 3개와 브라우저 목차 누락/sticky 실패 이후 focused 28/28, unit 199 pass/13 DB skip, lint/typecheck/build를 통과했다. 격리 DB의 1440/390/320px에서 목차 19개, 모바일 접기/펼치기, 제목 초점과 Tab 이동, 직접 hash/새로고침/헤더 여백, 긴 목차 내부 스크롤과 페이지 넘침 없음, 짧은 글 목차 생략, 원문 일치와 private/missing 404를 확인했다. Home의 스크롤 설정도 유지했다.
+
+Phase 1의 4개 step과 Phase 2 Step 0까지 총 5개 step을 완료했다. 다음 단계는 [Phase 2 / Step 1: 코드 언어와 복사](../../../phases/blog-reading-navigation/step1.md)다. 나머지 14개 step은 pending이며 계획 등록을 구현 완료로 간주하지 않는다. 기존 의존성의 보안 경고는 [구현 계획의 별도 후속 조치](IMPLEMENTATION_PLAN.md)에 기록돼 있다.

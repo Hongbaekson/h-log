@@ -50,7 +50,9 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
-2026-10-08 다음 단계 요청 완료: **`blog-reading-foundation / Step 3: accessible-tables`를 완료해 foundation 전체 Steps 0–3이 completed**다. 표의 열 제목·정렬·빈 셀·escaped pipe와 안전한 inline 셀, 모바일 내부 스크롤과 키보드 접근을 추가했다(ADR-024). Focused 25/25, unit 196 pass/13 DB skip, lint/typecheck/build와 격리 DB의 1440/390/320px 화면·접근성·비공개 경계를 검증했다. 다음은 **`blog-reading-navigation / Step 0: heading-anchors-and-toc`**다. Second Brain 완료 상태와 Home/레이더, OCI 보류는 유지한다.
+2026-10-08 다음 단계 요청 완료: **`blog-reading-navigation / Step 0: heading-anchors-and-toc`를 완료**했다. 한글·중복 제목의 고유 ID, 데스크톱 고정/모바일 접이식 목차, native hash와 키보드 초점 이동을 추가하고 출처/Markdown 링크를 본문 하단으로 옮겼다(ADR-025). Focused 28/28, unit 199 pass/13 DB skip, lint/typecheck/build와 격리 DB의 1440/390/320px 목차·직접 hash/새로고침·짧은 글·공개 경계를 검증했다. 다음은 **`blog-reading-navigation / Step 1: code-copy-and-language`**다. Second Brain 완료 상태와 Home/레이더, OCI 보류는 유지한다.
+
+2026-10-08 foundation 완료 이력: `blog-reading-foundation / Step 3: accessible-tables`까지 전체 Steps 0–3이 completed다. 표의 열 제목·정렬·빈 셀·escaped pipe와 안전한 inline 셀, 모바일 내부 스크롤과 키보드 접근을 추가했다(ADR-024). Focused 25/25, unit 196 pass/13 DB skip, lint/typecheck/build와 격리 DB의 1440/390/320px 화면·접근성·비공개 경계를 검증했다.
 
 2026-10-07 Second Brain 전체 마무리 요청 완료: **`second-brain-foundation` Steps 0–5와 `second-brain-memory-interface` Steps 0–1 모두 completed**다. Step 4에서 사건 날짜/공개 동의, 원문과 분리된 회고, `revises` 관계, 소유자 검색과 날짜 정렬 및 공개 목록의 URL 정렬을 완료했다. Step 5는 로컬 관련/중복/태그 후보와 이유를 보여 주고 소유자가 고른 후보만 초안에 반영한다(ADR-023). 최종 unit 192 pass/13 DB skip, DB 변경 시 격리 integration 14/14, HTTP 1/1, typecheck/lint/build와 1440/390/320px 검증을 통과했다. 이번 요청 범위의 남은 Second Brain step은 없다. 운영 적용·영구 DB 구성은 기존 보류이며 다른 phase를 자동으로 시작하지 않는다.
 
@@ -62,7 +64,7 @@ apps/h-log/AGENTS.md
 
 2026-10-06 추가 등록: [운영 모니터링 계획](OBSERVABILITY_PLAN.md)과 `operations-observability`의 8개 step을 등록했다. Steps 0–6은 로컬 지표 계약/자원 예산 → private Prometheus/Grafana → host/DB/HTTP 수집 → 지속 발행/비용 신호 → 백업/복구 신호 → 대시보드/알림 → 장애/soak 검증이며 모두 pending이다. Step 7 운영 적용/외부 감시는 기존 OCI 보류로 blocked다. 모니터링을 지정하면 Step 0부터 진행하고 일반적인 다음 작업은 위 최신 공개 경험 개선 기록을 따른다. `auto-publish-ops-hardening / Step 4`의 반복 timer 활성화 전에 운영 모니터링을 검증한다. 모니터링 phase 자체는 timer를 켜지 않으며 계획 등록을 구현 완료로 간주하지 않는다.
 
-2026-10-01 공개 경험 개선 요청: [상세 계획](PUBLIC_EXPERIENCE_PLAN.md)을 6개 phase/19개 step으로 등록했다. 실행 순서는 `blog-reading-foundation` → `blog-reading-navigation` → `blog-discovery-and-home` → `portfolio-evidence-experience` → `editorial-trust-and-series` → `backend-operations-lab`다. 2026-10-08 기준 `blog-reading-foundation`의 Steps 0–3을 모두 완료했다. 코드·링크·목록·인용문에 이어 비교 표까지 지원하며 검증 내역은 상세 계획과 각 step에 남겼다. 다음 단계는 `blog-reading-navigation / Step 0: heading-anchors-and-toc`이며 한 cycle에 한 step만 진행한다. 레이더 전체 영역과 Discord 스타일을 보존하고 OCI 보류는 유지한다. 아래 source collection 후보보다 이번 사용자 요청을 로컬 실행 우선순위로 둔다.
+2026-10-01 공개 경험 개선 요청: [상세 계획](PUBLIC_EXPERIENCE_PLAN.md)을 6개 phase/19개 step으로 등록했다. 실행 순서는 `blog-reading-foundation` → `blog-reading-navigation` → `blog-discovery-and-home` → `portfolio-evidence-experience` → `editorial-trust-and-series` → `backend-operations-lab`다. 2026-10-08 기준 foundation Steps 0–3과 navigation Step 0까지 완료했다. 코드·링크·목록·인용문·표에 이어 제목 링크와 목차를 지원하며 검증 내역은 상세 계획과 각 step에 남겼다. 다음 단계는 `blog-reading-navigation / Step 1: code-copy-and-language`이며 한 cycle에 한 step만 진행한다. 레이더 전체 영역과 Discord 스타일을 보존하고 OCI 보류는 유지한다. 아래 source collection 후보보다 이번 사용자 요청을 로컬 실행 우선순위로 둔다.
 
 별도 후속 조치: Step 1 설치 시 `npm audit`가 기존 의존성에서 7건(moderate 1/high 5/critical 1)을 보고했다. 추가한 Marked는 경고 대상이 아니다. Next.js 16.2.11에 대한 [Windows 서버 RCE](https://github.com/advisories/GHSA-p293-qw3h-jr36), [AVIF 이미지 최적화](https://github.com/advisories/GHSA-2xp9-vwfh-vxw4), [ImageResponse](https://github.com/advisories/GHSA-vcvr-r3jv-pc5j) 경고와 기존 하위 의존성 패치는 배포 재개 전 별도 범위로 검증한다. 이번 step에서 무관한 dependency upgrade나 운영 배포를 실행하지 않았다.
 

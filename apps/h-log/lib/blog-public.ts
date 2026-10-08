@@ -58,6 +58,7 @@ export type PublicBlogContentBlock =
     }
   | {
       children: PublicBlogInlineContent[];
+      id: string;
       level: 1 | 2 | 3;
       type: "heading";
     }
@@ -96,6 +97,7 @@ export type PublicBlogPost = {
   publishedAt: string;
   slug: string;
   sourceLinks: PublicBlogSourceLink[];
+  tableOfContents: { id: string; level: 2 | 3; text: string }[];
   tags: string[];
   title: string;
   updatedAt: string;
@@ -183,13 +185,14 @@ function toPublicBlogPost(
   store: BlogContentStore,
 ): PublicBlogPost {
   assertPostVersionContentHashMatches(entry.version);
+  const contentBlocks = buildPublicBlogContentBlocks(
+    entry.version.contentMarkdown,
+    selectRenderableDiagram(entry, store.assets ?? []),
+  );
 
   return {
     articleMode: entry.post.articleMode,
-    contentBlocks: buildPublicBlogContentBlocks(
-      entry.version.contentMarkdown,
-      selectRenderableDiagram(entry, store.assets ?? []),
-    ),
+    contentBlocks,
     contentHtml: entry.version.contentHtml,
     description: entry.version.description,
     href: `/blog/${entry.post.slug}`,
@@ -198,6 +201,11 @@ function toPublicBlogPost(
     publishedAt: entry.post.publishedAt ?? entry.post.updatedAt,
     slug: entry.post.slug,
     sourceLinks: getSourceLinksForPost(entry.post.id, store.sources),
+    tableOfContents: contentBlocks.flatMap((block) =>
+      block.type === "heading" && (block.level === 2 || block.level === 3)
+        ? [{ id: block.id, level: block.level, text: inlineText(block.children) }]
+        : [],
+    ),
     tags: getTagsForPost(entry.post.id, store.tags),
     title: entry.version.title,
     updatedAt: entry.post.updatedAt,
@@ -286,7 +294,7 @@ function tokenizePublicCodeFence(source: string): Tokens.Code | undefined {
   };
 }
 
-function buildBlockNodes(tokens: readonly Token[]): PublicBlogContentBlock[] {
+function buildBlockNodes(tokens: readonly Token[], headingIds = new Set<string>()): PublicBlogContentBlock[] {
   const blocks: PublicBlogContentBlock[] = [];
 
   for (const token of tokens) {
@@ -299,10 +307,10 @@ function buildBlockNodes(tokens: readonly Token[]): PublicBlogContentBlock[] {
       blocks.push({
         type: "list",
         start: token.ordered ? token.start : null,
-        items: token.items.map((item: Tokens.ListItem) => buildBlockNodes(item.tokens)),
+        items: token.items.map((item: Tokens.ListItem) => buildBlockNodes(item.tokens, headingIds)),
       });
     } else if (token.type === "blockquote") {
-      blocks.push({ type: "blockquote", children: buildBlockNodes(token.tokens!) });
+      blocks.push({ type: "blockquote", children: buildBlockNodes(token.tokens!, headingIds) });
     } else if (token.type === "table") {
       blocks.push({
         type: "table",
@@ -311,7 +319,16 @@ function buildBlockNodes(tokens: readonly Token[]): PublicBlogContentBlock[] {
         rows: token.rows.map((row: Tokens.TableCell[]) => row.map((cell) => buildInlineContent(cell.text))),
       });
     } else if (token.type === "heading" && (token.depth === 1 || token.depth === 2 || token.depth === 3)) {
-      blocks.push({ type: "heading", level: token.depth, children: buildInlineContent(token.text) });
+      const children = buildInlineContent(token.text);
+      const slug = inlineText(children).normalize("NFC").toLowerCase()
+        .replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, "");
+      const base = `section-${slug || "untitled"}`;
+      let id = base;
+      for (let suffix = 2; headingIds.has(id); suffix += 1) {
+        id = `${base}-${suffix}`;
+      }
+      headingIds.add(id);
+      blocks.push({ type: "heading", id, level: token.depth, children });
     } else {
       const text = token.type === "paragraph" || token.type === "text" ? token.text : token.raw;
 
@@ -321,6 +338,10 @@ function buildBlockNodes(tokens: readonly Token[]): PublicBlogContentBlock[] {
   }
 
   return blocks;
+}
+
+function inlineText(children: readonly PublicBlogInlineContent[]): string {
+  return children.map((child) => "children" in child ? inlineText(child.children) : child.text).join("");
 }
 
 function buildInlineContent(value: string): PublicBlogInlineContent[] {

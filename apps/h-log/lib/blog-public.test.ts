@@ -222,6 +222,7 @@ describe("DB-backed public blog routes", () => {
     assert.deepEqual(detail.contentBlocks, [
       {
         children: [{ text: "Public One", type: "text" }],
+        id: "section-public-one",
         level: 1,
         type: "heading",
       },
@@ -252,7 +253,7 @@ describe("DB-backed public blog routes", () => {
 
     assert.ok(detail);
     assert.deepEqual(detail.contentBlocks, [
-      { type: "heading", level: 1, children: [{ type: "text", text: "Public One" }] },
+      { type: "heading", id: "section-public-one", level: 1, children: [{ type: "text", text: "Public One" }] },
       { type: "paragraph", children: [{ type: "text", text: "Before." }] },
       { type: "code", code },
       { type: "paragraph", children: [{ type: "text", text: "After." }] },
@@ -389,10 +390,10 @@ describe("DB-backed public blog routes", () => {
     assert.ok(detail);
     assert.deepEqual(detail.contentBlocks.map((block) => block.type), ["blockquote", "heading", "diagram", "paragraph"]);
     assert.deepEqual(detail.contentBlocks[0], { type: "blockquote", children: [
-      { type: "heading", level: 2, children: [{ type: "text", text: "Quoted" }] },
+      { type: "heading", id: "section-quoted", level: 2, children: [{ type: "text", text: "Quoted" }] },
       textParagraph("quote body"),
     ] });
-    assert.deepEqual(detail.contentBlocks[1], { type: "heading", level: 2, children: [{ type: "text", text: "Actual" }] });
+    assert.deepEqual(detail.contentBlocks[1], { type: "heading", id: "section-actual", level: 2, children: [{ type: "text", text: "Actual" }] });
   });
 
   it("keeps unsupported blocks and reference-style links literal", () => {
@@ -484,6 +485,54 @@ describe("DB-backed public blog routes", () => {
     assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [
       textParagraph(invalid.replaceAll("\n", " ")), { type: "code", code: valid },
     ]);
+  });
+
+  it("builds a readable outline and stable Korean heading links without rewriting the source", () => {
+    const version = createVersion({ contentMarkdown: [
+      "# Public One", "## 한글 **제목** `Redis` [문서](/blog)", "본문",
+      "### 하위 항목", "본문", "## 끝", "본문",
+    ].join("\n\n") });
+    const original = { ...version };
+    const store = { ...createStore(), versions: [version] };
+    const post = getPublicBlogPostBySlug("public-one", store);
+
+    assert.deepEqual(post?.tableOfContents, [
+      { id: "section-한글-제목-redis-문서", level: 2, text: "한글 제목 Redis 문서" },
+      { id: "section-하위-항목", level: 3, text: "하위 항목" },
+      { id: "section-끝", level: 2, text: "끝" },
+    ]);
+    assert.deepEqual(post?.contentBlocks.filter(b => b.type === "heading").map(b => b.id), [
+      "section-public-one", "section-한글-제목-redis-문서", "section-하위-항목", "section-끝",
+    ]);
+    const inserted = { ...store, versions: [createVersion({ contentMarkdown: "## 앞에 추가한 제목\n\n" + version.contentMarkdown })] };
+    assert.deepEqual(getPublicBlogPostBySlug("public-one", inserted)?.tableOfContents.slice(1), post?.tableOfContents);
+    assert.equal(getPublicBlogPostMarkdown("public-one", store), version.contentMarkdown);
+    assert.equal(post?.contentHtml, version.contentHtml);
+    assert.deepEqual(version, original);
+  });
+
+  it("makes duplicate, numeric-suffix and normalized headings unique across nested blocks", () => {
+    const store = { ...createStore(), versions: [createVersion({ contentMarkdown: [
+      "## 소개", "## 소개", "## 소개-2", "> ## 소개", "- ### 소개",
+      "## !!!", "## ???", "## Café", "## Cafe\u0301",
+    ].join("\n\n") })] };
+    const post = getPublicBlogPostBySlug("public-one", store);
+
+    assert.deepEqual(post?.tableOfContents?.map(h => h.id), [
+      "section-소개", "section-소개-2", "section-소개-2-2", "section-untitled", "section-untitled-2", "section-café", "section-café-2",
+    ]);
+    const quote = post?.contentBlocks[3];
+    const list = post?.contentBlocks[4];
+    assert.equal(quote?.type === "blockquote" && quote.children[0].type === "heading" && quote.children[0].id, "section-소개-3");
+    assert.equal(list?.type === "list" && list.items[0][0].type === "heading" && list.items[0][0].id, "section-소개-4");
+  });
+
+  it("omits the document title, code and quoted headings from a short article outline", () => {
+    const store = { ...createStore(), versions: [createVersion({ contentMarkdown: [
+      "# Public One", "Short body.", "```markdown\n## Literal heading\n```", "> ## Quoted", "- ### Nested",
+    ].join("\n\n") })] };
+    assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.tableOfContents, []);
+    assert.equal(getPublicBlogPostBySlug("preview-one", store), undefined);
   });
 
   it("renders inline code from published Markdown", () => {

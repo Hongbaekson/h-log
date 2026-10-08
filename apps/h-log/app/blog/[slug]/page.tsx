@@ -11,6 +11,7 @@ import {
   getPublicBlogPostBySlug,
   type PublicBlogContentBlock,
   type PublicBlogInlineContent,
+  type PublicBlogPost,
   type PublicBlogSourceLink,
 } from "@/lib/blog-public";
 import {
@@ -124,15 +125,25 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
 
       <section className="pb-24">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,72ch)_16rem] lg:justify-between">
-            <article
-              className="min-w-0 max-w-[72ch] border-y border-slate-700/80 py-8 text-slate-300 [&_code]:rounded-md [&_code]:bg-slate-950/70 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-cyan-100 [&>h1]:sr-only [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-normal [&_h2]:text-white [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-white [&_p]:mt-5 [&_p]:leading-8 [&_pre]:mt-6 [&_pre]:overflow-x-auto [&_pre]:rounded-xl [&_pre]:border [&_pre]:border-slate-700 [&_pre]:bg-slate-950/70 [&_pre]:p-4 [&_pre]:focus-visible:outline [&_pre]:focus-visible:outline-2 [&_pre]:focus-visible:outline-offset-4 [&_pre]:focus-visible:outline-cyan-300"
-            >
-              {post.contentBlocks.map(renderContentBlock)}
-            </article>
+          <div className="blog-reading-layout grid gap-10 lg:grid-cols-[minmax(0,72ch)_16rem] lg:justify-between">
+            <div className="min-w-0 max-w-[72ch]">
+              {post.tableOfContents.length > 0 && (
+                <details className="mb-8 rounded-xl border border-slate-700 bg-[#191d3a]/50 lg:hidden">
+                  <summary className="cursor-pointer rounded-xl px-4 py-4 font-semibold text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff]">
+                    목차
+                  </summary>
+                  <div className="max-h-[60vh] overflow-y-auto px-2 pb-3">
+                    {renderTableOfContents(post.tableOfContents)}
+                  </div>
+                </details>
+              )}
+              <article
+                className="min-w-0 border-y border-slate-700/80 py-8 text-slate-300 [&_code]:rounded-md [&_code]:bg-slate-950/70 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-cyan-100 [&>h1]:sr-only [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-normal [&_h2]:text-white [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-white [&_p]:mt-5 [&_p]:leading-8 [&_pre]:mt-6 [&_pre]:overflow-x-auto [&_pre]:rounded-xl [&_pre]:border [&_pre]:border-slate-700 [&_pre]:bg-slate-950/70 [&_pre]:p-4 [&_pre]:focus-visible:outline [&_pre]:focus-visible:outline-2 [&_pre]:focus-visible:outline-offset-4 [&_pre]:focus-visible:outline-cyan-300"
+              >
+                {post.contentBlocks.map(renderContentBlock)}
+              </article>
 
-            <aside className="lg:sticky lg:top-24 lg:self-start">
-              <div className="border-y border-slate-700/80 py-5">
+              <section aria-label="참고 출처" className="mt-10 border-b border-slate-700/80 pb-6">
                 <h2 className="text-sm font-semibold text-white">참고 출처</h2>
                 <p className="mt-2 text-xs leading-5 text-slate-400">
                   글 작성에 참고한 공개 자료입니다. 외부 링크는 새 창에서 열립니다.
@@ -140,7 +151,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                 <div className="mt-4 grid gap-3">
                   {post.sourceLinks.map((source) => (
                     <a
-                      className="group rounded-xl border border-slate-700 p-4 text-sm text-slate-300 transition-colors hover:border-cyan-300/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
+                      className="group min-w-0 rounded-xl border border-slate-700 p-4 text-sm text-slate-300 wrap-anywhere transition-colors hover:border-cyan-300/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
                       href={source.url}
                       key={source.url}
                       rel="noreferrer"
@@ -171,12 +182,37 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                     Markdown 원문 보기
                   </a>
                 </div>
-              </div>
-            </aside>
+              </section>
+            </div>
+            {post.tableOfContents.length > 0 && (
+              <aside className="sticky top-28 hidden max-h-[calc(100dvh-8rem)] self-start overflow-y-auto border-l border-slate-700/80 pl-3 lg:block">
+                <h2 className="px-3 pb-3 text-sm font-semibold text-slate-100">목차</h2>
+                {renderTableOfContents(post.tableOfContents)}
+              </aside>
+            )}
           </div>
         </Container>
       </section>
     </>
+  );
+}
+
+function renderTableOfContents(headings: PublicBlogPost["tableOfContents"]): ReactNode {
+  return (
+    <nav aria-label="목차">
+      <ol className="space-y-1 p-1 text-sm leading-6">
+        {headings.map((heading) => (
+          <li className={heading.level === 3 ? "pl-3" : undefined} key={heading.id}>
+            <a
+              className="block min-h-10 rounded-md px-3 py-2 text-slate-300 wrap-anywhere hover:bg-[#5865f2]/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b6bdff]"
+              href={`#${encodeURIComponent(heading.id)}`}
+            >
+              {heading.text || "제목 없는 구역"}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
   );
 }
 
@@ -285,14 +321,28 @@ function renderContentBlock(block: PublicBlogContentBlock, index: number): React
 
   if (block.type === "heading") {
     if (block.level === 1) {
-      return <h1 className="mt-10 text-2xl font-bold text-white" key={index}>{renderInlineContent(block.children)}</h1>;
+      return <h1 className="mt-10 scroll-mt-28 text-2xl font-bold text-white wrap-anywhere" id={block.id} key={index} tabIndex={-1}>{renderInlineContent(block.children)}</h1>;
     }
 
-    if (block.level === 2) {
-      return <h2 key={index}>{renderInlineContent(block.children)}</h2>;
-    }
+    const Heading = block.level === 2 ? "h2" : "h3";
 
-    return <h3 key={index}>{renderInlineContent(block.children)}</h3>;
+    return (
+      <Heading
+        className="scroll-mt-28 rounded-sm wrap-anywhere focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff]"
+        id={block.id}
+        key={index}
+        tabIndex={-1}
+      >
+        {renderInlineContent(block.children)}
+        <a
+          aria-label="이 제목으로 이동"
+          className="ml-2 inline-block rounded-sm font-normal text-slate-400 hover:text-[#b6bdff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff]"
+          href={`#${encodeURIComponent(block.id)}`}
+        >
+          <span aria-hidden="true">#</span>
+        </a>
+      </Heading>
+    );
   }
 
   return <p key={index}>{renderInlineContent(block.children)}</p>;

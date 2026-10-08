@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "heading-anchors-and-toc",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added document-wide unique Korean/NFC heading IDs and a top-level H2/H3 outline, native fragment links/focus, desktop sticky and mobile details TOCs; moved sources/Markdown below the body. Scoped Blog overflow clipping restores sticky without changing Home. RED 3 model cases plus missing-TOC/sticky browser failures; focused 28/28, unit 199 pass/13 DB skip, lint/typecheck/build and isolated DB browser checks at 1440/390/320px passed. Direct hash/reload, keyboard focus, long/short articles and private 404 verified. Next: Step 1 code-copy-and-language."
     },
     {
       "step": 1,

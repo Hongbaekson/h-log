@@ -274,6 +274,8 @@ Step 2는 Marked block 토큰을 `buildBlockNodes`에서 heading/paragraph/code/
 
 Step 3은 요청별 `Lexer`/`Tokenizer`에 table-aware block 규칙만 적용하고 GFM task/inline 해석은 켜지 않는다(ADR-024). Table 모델은 align 배열과 안전한 inline header/rows를 갖는다. Native table/thead/tbody와 열 scope, 셀 정렬, 긴 내용 줄바꿈을 제공한다. 상대 위치의 focus 가능한 region 안에서 가로 스크롤하므로 모바일에서 표와 외부 링크의 숨김 안내가 페이지 폭을 늘리지 않는다. 저장 content와 crawler 원문은 재작성하지 않는다.
 
+`blog-reading-navigation / Step 0`은 같은 block 모델의 모든 heading에 문서 전체에서 고유한 `id`를 부여한다(ADR-025). `PublicBlogPost.tableOfContents`는 최상위 H2/H3의 id/level/plain text만 담는다. 상세 page의 native anchor와 `tabIndex=-1` heading은 키보드 이동과 직접 hash 접근을 지원한다. 목차는 데스크톱 sticky aside와 모바일 details로 렌더링하고 참고 출처/Markdown 링크는 본문 아래 section으로 이동했다. `globals.css`의 `#main-content:has(.blog-reading-layout)` 규칙은 Blog detail의 overflow만 clip으로 바꿔 sticky가 viewport를 기준으로 동작하게 한다. 코드 안의 제목, 중첩 anchor, 새 client 상태는 추가하지 않는다.
+
 ```text
 Manual admin or internal API
   -> posts / post_versions

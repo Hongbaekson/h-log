@@ -24,7 +24,7 @@
 | [6](../../../phases/operations-observability/step6.md) | isolated-failure-rehearsal | 장애·누락·수집 중단·복구를 로컬에서 종합 검증 |
 | [7](../../../phases/operations-observability/step7.md) | approved-production-rollout | 승인된 운영 설치와 서버 외부 감시 검증 |
 
-Steps 0–6은 OCI 보류 중에도 로컬에서 순서대로 진행할 수 있다. Step 7은 기존 OCI 보류로 `blocked`다. 사용자 지시로 모니터링 작업을 선택하면 Step 0부터 한 번에 한 step을 실행한다. 이번 등록은 공개 경험 개선 순서를 바꾸지 않는다. 2026-10-08 foundation 완료에 따라 일반적인 다음 작업은 `blog-reading-navigation / Step 0: heading-anchors-and-toc`다.
+Steps 0–6은 OCI 보류 중에도 로컬에서 순서대로 진행할 수 있다. Step 7은 기존 OCI 보류로 `blocked`다. 사용자 지시로 모니터링 작업을 선택하면 Step 0부터 한 번에 한 step을 실행한다. 이번 등록은 공개 경험 개선 순서를 바꾸지 않는다. 2026-10-08 navigation Step 0 완료에 따라 일반적인 다음 작업은 `blog-reading-navigation / Step 1: code-copy-and-language`다.
 
 `auto-publish-ops-hardening / Step 4`의 반복 timer 활성화 전에 이 phase의 운영 검증을 완료한다. **모니터링 완료에 실제 반복 발행을 요구하지 않는다.** Step 7에서는 scheduler 비활성 상태와 로컬 누락 재현 결과를 검증하고, 이후 별도 승인된 timer 활성화 때 감시 기준 시각을 설정한다. 이 순서로 순환 의존을 피한다.
 

@@ -273,6 +273,14 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **트레이드오프**: Marked를 올릴 때 표 인접 문단·setext 제목·목록·fence 경계의 회귀 검증이 필요하다. 표의 헤더와 구분 행 열 수가 다르면 일반 텍스트로 남고, 짧은 본문 행은 빈 셀로 채우며 초과 셀은 Marked 규칙에 따라 제외한다. 저장 Markdown/HTML/hash, crawler 원문과 published-current 경계는 변경하지 않는다.
 
+### ADR-025: 제목 주소와 목차는 서버 모델과 브라우저 기본 탐색으로 만든다
+
+**결정 (2026-10-08)**: 허용된 heading의 inline 표시 문자열을 NFC 정규화·소문자·문자/숫자 기반 slug로 바꾸고 `section-` 접두어를 붙인다. 문서 전체의 Set으로 중첩 제목까지 중복을 확인해 숫자 suffix를 붙인다. 목차에는 최상위 H2/H3만 포함하며 code와 인용문/목록 제목, 문서 H1은 제외한다.
+
+**탐색**: React server markup의 native hash anchor, focus 가능한 heading, `scroll-margin-top`과 모바일 `details/summary`를 사용한다. 제목에 이미 링크가 있어도 중첩 anchor가 되지 않도록 permalink를 형제로 둔다. 데스크톱 목차는 sticky와 내부 스크롤을 사용하며 Blog detail을 포함한 main에만 `overflow-x: clip`을 적용해 상위 scroll container가 sticky를 막지 않게 한다. 별도 client 상태·스크롤 listener·의존성은 추가하지 않는다.
+
+**트레이드오프**: 같은 본문에서는 새로고침과 비관련 제목 삽입에도 주소가 유지된다. 제목 문구를 바꾸거나 같은 제목을 앞에 추가하면 해당 slug/suffix가 바뀔 수 있으며 DB에 anchor 이력을 저장하지 않는다. 현재 위치 자동 강조와 hash 별칭은 이번 범위가 아니다. 저장 원문/해시·공개 경계와 다른 페이지의 스크롤 설정은 유지한다.
+
 ## 공식/내부 기준
 
 - Next.js docs

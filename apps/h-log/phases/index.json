@@ -138,7 +138,7 @@
     {
       "dir": "blog-reading-navigation",
       "status": "pending",
-      "summary": "2026-10-01 public experience plan: 글 읽기 탐색. Steps 0-2 are planned; preserve Discord style, the entire radar area, published-current/privacy boundaries and the OCI hold."
+      "summary": "Step 0 completed: stable unique heading IDs, desktop sticky/mobile collapsible TOCs, native hash/focus navigation and sources below the article. Focused 28/28, unit 199 pass/13 DB skip, lint/typecheck/build and 1440/390/320px isolated DB browser checks passed. Next: Step 1 code-copy-and-language; Step 2 remains pending. Discord style, radar, published-current/privacy and OCI hold unchanged."
     },
     {
       "dir": "blog-discovery-and-home",
@@ -163,7 +163,7 @@
     {
       "dir": "operations-observability",
       "status": "pending",
-      "summary": "2026-10-06 plan registered: local Steps 0-6 cover metric contracts, private Prometheus/Grafana, host/DB/HTTP probes, durable publishing/cost and backup/restore signals, dashboards/alerts and failure rehearsal. Step 7 production rollout is blocked by the user's OCI hold. Runtime is not implemented. Verified production monitoring is a pre-timer gate; the default next local step is blog-reading-navigation Step 0."
+      "summary": "2026-10-06 plan registered: local Steps 0-6 cover metric contracts, private Prometheus/Grafana, host/DB/HTTP probes, durable publishing/cost and backup/restore signals, dashboards/alerts and failure rehearsal. Step 7 production rollout is blocked by the user's OCI hold. Runtime is not implemented. Verified production monitoring is a pre-timer gate; the default next local step is blog-reading-navigation Step 1."
     },
     {
       "dir": "second-brain-foundation",
