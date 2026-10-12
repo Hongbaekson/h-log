@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, FileText } from "lucide-react";
 
 import { JsonLd } from "@/components/seo/JsonLd";
+import { CodeBlock } from "@/components/blog/CodeBlock";
 import { Badge, Container } from "@/components/ui";
 import {
   getPublicBlogPostBySlug,
@@ -138,7 +139,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                 </details>
               )}
               <article
-                className="min-w-0 border-y border-slate-700/80 py-8 text-slate-300 [&_code]:rounded-md [&_code]:bg-slate-950/70 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-cyan-100 [&>h1]:sr-only [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-normal [&_h2]:text-white [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-white [&_p]:mt-5 [&_p]:leading-8 [&_pre]:mt-6 [&_pre]:overflow-x-auto [&_pre]:rounded-xl [&_pre]:border [&_pre]:border-slate-700 [&_pre]:bg-slate-950/70 [&_pre]:p-4 [&_pre]:focus-visible:outline [&_pre]:focus-visible:outline-2 [&_pre]:focus-visible:outline-offset-4 [&_pre]:focus-visible:outline-cyan-300"
+                className="min-w-0 border-y border-slate-700/80 py-8 text-slate-300 [&_code]:rounded-md [&_code]:bg-slate-950/70 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-cyan-100 [&>h1]:sr-only [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-normal [&_h2]:text-white [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-white [&_p]:mt-5 [&_p]:leading-8"
               >
                 {post.contentBlocks.map(renderContentBlock)}
               </article>
@@ -239,11 +240,7 @@ function renderContentBlock(block: PublicBlogContentBlock, index: number): React
   }
 
   if (block.type === "code") {
-    return (
-      <pre key={index} tabIndex={0}>
-        <code>{block.code}</code>
-      </pre>
-    );
+    return <CodeBlock code={block.code} key={index} language={block.language} />;
   }
 
   if (block.type === "list") {

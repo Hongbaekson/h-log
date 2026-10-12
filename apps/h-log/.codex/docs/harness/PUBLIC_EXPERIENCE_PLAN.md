@@ -51,10 +51,10 @@
 
 ## 이번 실행 단위
 
-[Phase 2 / Step 0](../../../phases/blog-reading-navigation/step0.md): 제목 주소와 데스크톱 고정/모바일 접이식 목차를 구현하고 키보드·직접 hash 접근·새로고침을 검증했다. 참고 출처는 본문 하단으로 이동했다.
+[Phase 2 / Step 1](../../../phases/blog-reading-navigation/step1.md): 코드 언어 표시와 복사 버튼을 구현하고 공백 보존, 복사 진행/성공/실패, 키보드 초점과 모바일 내부 스크롤을 검증했다.
 
-- 변경 파일: `apps/h-log/lib/blog-public.ts`, `apps/h-log/lib/blog-public.test.ts`, `apps/h-log/app/blog/[slug]/page.tsx`, `apps/h-log/app/globals.css`.
-- 기존 block 모델에서 고유 heading ID와 최상위 H2/H3 목차를 만들고 native anchor/details를 사용한다. CSS overflow 보정은 Blog detail에만 적용했다. 저장 content 생성/hash 알고리즘, migration, 레이더는 그대로 유지했다.
+- 변경 파일: `apps/h-log/lib/blog-public.ts`, `apps/h-log/lib/blog-public.test.ts`, `apps/h-log/lib/blog-detail-ui.test.ts`, `apps/h-log/app/blog/[slug]/page.tsx`, `apps/h-log/components/blog/CodeBlock.tsx`.
+- 기존 code 모델에 검증한 언어 label을 추가하고 작은 client component에서 Clipboard API를 호출한다. 화면 표시와 복사에 같은 문자열을 사용한다. 저장 content 생성/hash 알고리즘, migration, 레이더는 그대로 유지했다.
 - 문서: 이 계획, 새 phase/step registry, PRD/ADR/ARCHITECTURE/IMPLEMENTATION_PLAN 중 관련 설명만 동기화한다.
 - 성공 기준: focused RED/GREEN, 기존 unit 회귀, lint/typecheck/build, 격리 local DB를 사용한 개발 서버 desktop/mobile 렌더링, JSON/path parser, `git diff --check`.
 - 커밋/푸시는 검증한 변경만 포함하고 일반 push를 사용한다.
@@ -91,4 +91,6 @@
 
 2026-10-08 Phase 2 / Step 0 완료: 한글/NFC·중복·숫자 suffix 제목에 고유 ID를 부여하고 최상위 H2/H3 목차와 제목별 링크를 추가했다. 출처/원문 링크를 본문 아래로 이동했다. RED 3개와 브라우저 목차 누락/sticky 실패 이후 focused 28/28, unit 199 pass/13 DB skip, lint/typecheck/build를 통과했다. 격리 DB의 1440/390/320px에서 목차 19개, 모바일 접기/펼치기, 제목 초점과 Tab 이동, 직접 hash/새로고침/헤더 여백, 긴 목차 내부 스크롤과 페이지 넘침 없음, 짧은 글 목차 생략, 원문 일치와 private/missing 404를 확인했다. Home의 스크롤 설정도 유지했다.
 
-Phase 1의 4개 step과 Phase 2 Step 0까지 총 5개 step을 완료했다. 다음 단계는 [Phase 2 / Step 1: 코드 언어와 복사](../../../phases/blog-reading-navigation/step1.md)다. 나머지 14개 step은 pending이며 계획 등록을 구현 완료로 간주하지 않는다. 기존 의존성의 보안 경고는 [구현 계획의 별도 후속 조치](IMPLEMENTATION_PLAN.md)에 기록돼 있다.
+2026-10-12 Phase 2 / Step 1 완료: 코드 언어의 안전한 label과 Clipboard 복사, 진행/성공/실패 안내를 추가했다. RED 3개와 복사 버튼 누락/초점 유실 이후 parser 31/31, UI contract 4/4, unit 202 pass/13 DB skip, lint/typecheck/build를 통과했다. 1440/390/320px 격리 DB 화면에서 Clipboard stub으로 6개 코드의 입력 문자열 일치, 실패/미지원/대기 중 중복 방지/재시도를 검증했다. 키보드 초점·가로 스크롤·페이지 넘침 없음, JavaScript 없이 본문 읽기, 원문 일치와 private/missing 404도 확인했다.
+
+Phase 1의 4개 step과 Phase 2 Steps 0–1까지 총 6개 step을 완료했다. 다음 단계는 [Phase 2 / Step 2: 관련 글과 이전·다음](../../../phases/blog-reading-navigation/step2.md)이다. 나머지 13개 step은 pending이며 계획 등록을 구현 완료로 간주하지 않는다. 기존 의존성의 보안 경고는 [구현 계획의 별도 후속 조치](IMPLEMENTATION_PLAN.md)에 기록돼 있다.

@@ -68,6 +68,7 @@ export type PublicBlogContentBlock =
     }
   | {
       code: string;
+      language: string | null;
       type: "code";
     }
   | {
@@ -289,6 +290,7 @@ function tokenizePublicCodeFence(source: string): Tokens.Code | undefined {
 
   return {
     type: "code",
+    lang: fence[3].trim(),
     raw: source.slice(0, raw.length + 1),
     text: lines.slice(1, end).map((line) => line.replace(indentation, "")).join("\n"),
   };
@@ -302,7 +304,12 @@ function buildBlockNodes(tokens: readonly Token[], headingIds = new Set<string>(
       continue;
     }
     if (token.type === "code") {
-      blocks.push({ type: "code", code: token.text });
+      const language = token.lang?.trim().split(/\s+/, 1)[0].toLowerCase() ?? "";
+      blocks.push({
+        type: "code",
+        code: token.text,
+        language: /^[a-z][a-z0-9_+.#-]{0,31}$/.test(language) ? language : null,
+      });
     } else if (token.type === "list") {
       blocks.push({
         type: "list",

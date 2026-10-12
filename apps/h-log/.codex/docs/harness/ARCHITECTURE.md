@@ -276,6 +276,8 @@ Step 3은 요청별 `Lexer`/`Tokenizer`에 table-aware block 규칙만 적용하
 
 `blog-reading-navigation / Step 0`은 같은 block 모델의 모든 heading에 문서 전체에서 고유한 `id`를 부여한다(ADR-025). `PublicBlogPost.tableOfContents`는 최상위 H2/H3의 id/level/plain text만 담는다. 상세 page의 native anchor와 `tabIndex=-1` heading은 키보드 이동과 직접 hash 접근을 지원한다. 목차는 데스크톱 sticky aside와 모바일 details로 렌더링하고 참고 출처/Markdown 링크는 본문 아래 section으로 이동했다. `globals.css`의 `#main-content:has(.blog-reading-layout)` 규칙은 Blog detail의 overflow만 clip으로 바꿔 sticky가 viewport를 기준으로 동작하게 한다. 코드 안의 제목, 중첩 anchor, 새 client 상태는 추가하지 않는다.
 
+Step 1은 code block 모델에 `language: string | null`을 추가한다. Fence info의 첫 토큰을 검증한 언어 label만 전달하고 코드 문자열은 수정하지 않는다. `components/blog/CodeBlock.tsx`가 코드 패널·복사 버튼·polite status·키보드 스크롤을 소유하며 상세 page는 같은 컴포넌트를 목록/인용문 안에서도 사용한다(ADR-026). 대기/성공/실패 상태는 코드 블록별로 분리하고 Clipboard API가 없거나 거부하면 안내 후 재시도할 수 있다. 이전 상세 page의 공통 pre 스타일은 컴포넌트로 옮겼고 inline code 스타일은 유지한다.
+
 ```text
 Manual admin or internal API
   -> posts / post_versions

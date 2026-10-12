@@ -281,6 +281,14 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **트레이드오프**: 같은 본문에서는 새로고침과 비관련 제목 삽입에도 주소가 유지된다. 제목 문구를 바꾸거나 같은 제목을 앞에 추가하면 해당 slug/suffix가 바뀔 수 있으며 DB에 anchor 이력을 저장하지 않는다. 현재 위치 자동 강조와 hash 별칭은 이번 범위가 아니다. 저장 원문/해시·공개 경계와 다른 페이지의 스크롤 설정은 유지한다.
 
+### ADR-026: 코드 복사는 작은 client component와 Clipboard API로 처리한다
+
+**결정 (2026-10-12)**: 기존 fence tokenizer가 언어 info를 전달하고 공개 모델은 첫 토큰 중 최대 32자의 ASCII 언어 식별자만 소문자로 표시한다. 파일명 등 나머지 info는 제외하며 언어가 없거나 유효하지 않으면 `코드`로 표시한다. `components/blog/CodeBlock.tsx`는 같은 `code` 문자열을 React text로 출력하고 버튼을 누를 때만 `navigator.clipboard.writeText`에 전달한다.
+
+**접근성/실패**: 항상 존재하는 polite status 영역에 진행/성공/실패를 안내한다. 대기 중에는 `aria-disabled`와 handler guard로 중복 요청을 막고 키보드 초점은 유지한다. API가 없거나 거부하면 코드를 직접 선택해 복사하도록 안내하고 다시 시도할 수 있다. 코드 본문은 client hydration 전에도 서버 HTML에서 읽을 수 있고 `pre`의 focus/가로 스크롤을 유지한다.
+
+**트레이드오프**: Clipboard 권한·지원 여부에 따라 버튼 복사가 실패할 수 있다. 별도 복사 라이브러리, 자동 clipboard 읽기, 구문 강조와 성공 안내를 지우는 timer는 추가하지 않는다. 저장 Markdown/HTML/hash와 공개 경계는 변경하지 않는다.
+
 ## 공식/내부 기준
 
 - Next.js docs

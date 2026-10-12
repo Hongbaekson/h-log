@@ -19,8 +19,12 @@ describe("blog detail UI", () => {
     );
 
     assert.match(source, /max-w-\[72ch\]/);
-    assert.match(source, /<pre[\s\S]*?tabIndex=\{0\}[\s\S]*?>/);
-    assert.match(source, /\[&_pre\]:focus-visible:outline/);
+    assert.match(source, /<CodeBlock code=\{block\.code\}/);
+    const codeSource = await readFile(
+      new URL("../components/blog/CodeBlock.tsx", import.meta.url), "utf8",
+    );
+    assert.match(codeSource, /<pre[\s\S]*?tabIndex=\{0\}[\s\S]*?>/);
+    assert.match(codeSource, /overflow-x-auto[^"\n]*focus-visible:outline/);
   });
 
   it("allows long blog titles to wrap on narrow screens", async () => {

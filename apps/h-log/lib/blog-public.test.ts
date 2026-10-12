@@ -236,6 +236,7 @@ describe("DB-backed public blog routes", () => {
       },
       {
         code: 'console.log("ok")',
+        language: null,
         type: "code",
       },
     ]);
@@ -255,7 +256,7 @@ describe("DB-backed public blog routes", () => {
     assert.deepEqual(detail.contentBlocks, [
       { type: "heading", id: "section-public-one", level: 1, children: [{ type: "text", text: "Public One" }] },
       { type: "paragraph", children: [{ type: "text", text: "Before." }] },
-      { type: "code", code },
+      { type: "code", code, language: "typescript" },
       { type: "paragraph", children: [{ type: "text", text: "After." }] },
     ]);
     assert.equal(getPublicBlogPostMarkdown("public-one", store), version.contentMarkdown);
@@ -275,7 +276,7 @@ describe("DB-backed public blog routes", () => {
 
       assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [
         { type: "paragraph", children: [{ type: "text", text: "Before." }] },
-        { type: "code", code },
+        { type: "code", code, language: "text" },
         { type: "paragraph", children: [{ type: "text", text: "After." }] },
       ]);
     }
@@ -291,7 +292,56 @@ describe("DB-backed public blog routes", () => {
 
     assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [
       { type: "paragraph", children: [{ type: "text", text: "Before." }] },
-      { type: "code", code: "first\n\n## Literal heading\n**literal emphasis**" },
+      { type: "code", code: "first\n\n## Literal heading\n**literal emphasis**", language: "text" },
+    ]);
+  });
+
+  it("carries fence languages without changing code whitespace or stored content", () => {
+    const code = '\n  const text = "<span>literal</span>";  \n\n\treturn text;\n';
+    const version = createVersion({ contentMarkdown: [
+      "```TypeScript title=example.ts", code, "```", "",
+      "~~~C++", "int count = 0;", "~~~", "",
+      "```", "plain", "```",
+    ].join("\n") });
+    const original = { ...version };
+    const store = { ...createStore(), versions: [version] };
+
+    assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [
+      { type: "code", code, language: "typescript" },
+      { type: "code", code: "int count = 0;", language: "c++" },
+      { type: "code", code: "plain", language: null },
+    ]);
+    assert.deepEqual(version, original);
+    assert.equal(getPublicBlogPostMarkdown("public-one", store), version.contentMarkdown);
+  });
+
+  it("limits code language labels to a short identifier and omits fence metadata", () => {
+    for (const [info, language] of [
+      ['js title="example.ts"', "js"], ["C#", "c#"], ["shell-session", "shell-session"],
+      ["x".repeat(32), "x".repeat(32)], ["x".repeat(33), null],
+      ['<img src=x onerror=alert(1)>', null], ['js"onclick=alert(1)', null],
+      ["{.js}", null], ["", null],
+    ]) {
+      const store = { ...createStore(), versions: [createVersion({
+        contentMarkdown: `~~~${info}\nliteral\n~~~`,
+      })] };
+      assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [
+        { type: "code", code: "literal", language },
+      ], `language info: ${info}`);
+    }
+  });
+
+  it("keeps language labels in nested and unfinished fences with a plain indented fallback", () => {
+    const store = { ...createStore(), versions: [createVersion({ contentMarkdown: [
+      "- item\n\n  ```JSON\n  {}\n  ```", "",
+      "> ~~~SQL\n> select 1;\n> ~~~", "",
+      "    indented", "", "```sh\nprintf ok",
+    ].join("\n") })] };
+    assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [
+      { type: "list", start: null, items: [[textParagraph("item"), { type: "code", code: "{}", language: "json" }]] },
+      { type: "blockquote", children: [{ type: "code", code: "select 1;", language: "sql" }] },
+      { type: "code", code: "indented", language: null },
+      { type: "code", code: "printf ok", language: "sh" },
     ]);
   });
 
@@ -371,10 +421,10 @@ describe("DB-backed public blog routes", () => {
 
     assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [
       { type: "list", start: null, items: [
-        [textParagraph("item"), { type: "code", code }, { type: "code", code: "indented code\n- literal\n" }],
+        [textParagraph("item"), { type: "code", code, language: "text" }, { type: "code", code: "indented code\n- literal\n", language: null }],
         [textParagraph("last")],
       ] },
-      { type: "blockquote", children: [textParagraph("quoted"), { type: "code", code: "first\n\n## literal heading" }] },
+      { type: "blockquote", children: [textParagraph("quoted"), { type: "code", code: "first\n\n## literal heading", language: "text" }] },
       textParagraph("After."),
     ]);
   });
@@ -483,7 +533,7 @@ describe("DB-backed public blog routes", () => {
     })] };
 
     assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.contentBlocks, [
-      textParagraph(invalid.replaceAll("\n", " ")), { type: "code", code: valid },
+      textParagraph(invalid.replaceAll("\n", " ")), { type: "code", code: valid, language: "text" },
     ]);
   });
 

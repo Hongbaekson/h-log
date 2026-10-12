@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "code-copy-and-language",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added validated language labels and a small CodeBlock client component that copies the displayed string unchanged through Clipboard API. Polite progress/success/error messages and aria-disabled preserve focus while blocking duplicate pending requests. RED 3 parser cases plus missing-button/focus-loss browser failures; parser 31/31, UI contract 4/4, unit 202 pass/13 DB skip, lint/typecheck/build and isolated DB browser checks at 1440/390/320px passed. Clipboard stubs verified exact input, rejection, missing API and retry; raw Markdown/private 404 and no-JS reading preserved. Next: Step 2 related-post-navigation."
     },
     {
       "step": 2,

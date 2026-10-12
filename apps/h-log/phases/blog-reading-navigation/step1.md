@@ -58,3 +58,12 @@ git diff --check
 - 저장 Markdown/HTML/hash나 기존 URL을 무단 재작성하지 말 것. 발행 무결성과 기존 링크를 유지해야 한다.
 - raw HTML 주입, private 글/내부 evidence/근거 없는 실적 노출을 허용하지 말 것. 공개 콘텐츠 경계를 유지해야 한다.
 - OCI·DNS/TLS·운영 timer·실제 provider 호출·공개 발행을 실행하지 말 것. 로컬 개선 계획이며 기존 OCI 보류는 유지된다.
+
+## 완료 기록 (2026-10-12)
+
+- `lib/blog-public.ts`의 code 모델에 `language: string | null`을 추가했다. Fence info의 첫 토큰 중 짧은 ASCII 식별자만 표시하고 파일명 등 부가 정보는 넘기지 않는다. 저장 Markdown/HTML/hash와 기존 code 문자열은 유지한다.
+- `components/blog/CodeBlock.tsx`에서 같은 문자열을 화면과 `navigator.clipboard.writeText`에 사용한다. 한국어 polite status로 진행/성공/실패를 안내하고 API 미지원/거부 시 직접 복사 안내와 재시도를 제공한다. Pending 동안 `aria-disabled`와 handler guard로 중복 요청을 막고 초점은 유지한다.
+- RED: 언어 정보/식별자 경계/중첩·미종료 fence 3개 실패, 브라우저 복사 버튼 0개를 확인했다. 첫 UI 구현의 native disabled가 복사 후 키보드 초점을 잃는 실패를 확인하고 수정했다. 기존 UI contract의 pre 검사 경로도 새 컴포넌트로 옮겼다.
+- GREEN: `node --no-warnings --test --experimental-strip-types lib/blog-public.test.ts` 31/31, `lib/blog-detail-ui.test.ts` 4/4, `npm.cmd run test` 202 pass/13 DB skip, `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd run build`, phase JSON/path 검사와 `git diff --check`를 통과했다.
+- 격리 local PostgreSQL의 synthetic 글과 Clipboard stub으로 1440/390/320px에서 일반/빈/중첩 코드 6개의 표시 문자열과 API 입력이 공백·빈 줄·탭·HTML 문자열까지 일치함을 확인했다. 성공·실패·API 미지원·대기 중 중복 방지·재시도, 키보드 focus/방향키 스크롤, 페이지 가로 넘침 없음과 화면을 검증했다. 실제 사용자 clipboard는 읽거나 쓰지 않았다. JavaScript 없이 코드 본문 읽기, 원문 일치, private/missing 404와 브라우저 오류 없음도 확인했다.
+- 새 의존성·구문 강조·DB/repository/worker/migration 변경은 없다. Home/레이더·Second Brain·OCI 보류를 유지한다. 다음은 [Step 2: 관련 글과 이전·다음](step2.md)이다.
