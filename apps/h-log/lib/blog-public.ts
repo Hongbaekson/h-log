@@ -13,6 +13,7 @@ import {
   type PublicBlogRouteEntry,
 } from "./blog-content-model.ts";
 import { isRenderableDiagramAsset } from "./blog-diagram-assets.ts";
+import { selectPublishedRelatedPostsBySimilarity } from "./blog-search.ts";
 import { tryNormalizePublicSourceUrl } from "./public-source-url.ts";
 
 export type BlogContentStore = {
@@ -108,6 +109,43 @@ export type PublicBlogTagCount = {
   count: number;
   tag: string;
 };
+
+type PublicBlogNavigationLink = Pick<PublicBlogPost, "href" | "title" | "publishedAt">;
+
+export type PublicBlogPostNavigation = {
+  previous: PublicBlogNavigationLink | null;
+  next: PublicBlogNavigationLink | null;
+  related: { href: string; title: string; sharedTags: string[] }[];
+};
+
+export function getPublicBlogPostNavigation(
+  slug: string,
+  store: BlogContentStore,
+): PublicBlogPostNavigation | undefined {
+  const entries = selectPublicBlogRouteEntries(store.posts, store.versions)
+    .sort((a, b) =>
+      Date.parse(a.post.publishedAt ?? a.post.updatedAt) - Date.parse(b.post.publishedAt ?? b.post.updatedAt) ||
+      a.post.slug.localeCompare(b.post.slug, "ko"),
+    );
+  const index = entries.findIndex(({ post }) => post.slug === slug);
+  if (index < 0) return undefined;
+
+  const toLink = (entry: PublicBlogRouteEntry | undefined): PublicBlogNavigationLink | null => entry ? {
+    href: `/blog/${entry.post.slug}`,
+    title: entry.version.title,
+    publishedAt: entry.post.publishedAt ?? entry.post.updatedAt,
+  } : null;
+
+  return {
+    previous: toLink(entries[index - 1]),
+    next: toLink(entries[index + 1]),
+    related: selectPublishedRelatedPostsBySimilarity(store, {
+      sourcePostId: entries[index].post.id,
+      chunks: [],
+      limit: 3,
+    }).map(({ href, title, sharedTags }) => ({ href, title, sharedTags: sharedTags.sort() })),
+  };
+}
 
 export type PublicBlogPagination = {
   currentPage: number;

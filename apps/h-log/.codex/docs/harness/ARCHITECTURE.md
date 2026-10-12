@@ -278,6 +278,8 @@ Step 3은 요청별 `Lexer`/`Tokenizer`에 table-aware block 규칙만 적용하
 
 Step 1은 code block 모델에 `language: string | null`을 추가한다. Fence info의 첫 토큰을 검증한 언어 label만 전달하고 코드 문자열은 수정하지 않는다. `components/blog/CodeBlock.tsx`가 코드 패널·복사 버튼·polite status·키보드 스크롤을 소유하며 상세 page는 같은 컴포넌트를 목록/인용문 안에서도 사용한다(ADR-026). 대기/성공/실패 상태는 코드 블록별로 분리하고 Clipboard API가 없거나 거부하면 안내 후 재시도할 수 있다. 이전 상세 page의 공통 pre 스타일은 컴포넌트로 옮겼고 inline code 스타일은 유지한다.
 
+Step 2의 `lib/blog-public.ts#getPublicBlogPostNavigation`은 published-current 항목에서 이전·다음의 제목/URL/발행일과 관련 글의 제목/URL/공통 태그만 반환한다(ADR-027). 기존 `blog-search.ts`의 태그 fallback과 limit 3을 재사용하며 chunks 조회·embedding 호출은 없다. 상세 page와 metadata는 기존 request-cached 전체 공개 store loader를 공유하고 현재 글 본문만 파싱한다. 참고 출처 아래에 관련 글 목록과 이전·다음 navigation을 Server Component로 렌더링한다. 빈 관련 영역/없는 방향은 생략하며 조회 오류는 `app/blog/error.tsx`로 전달된다. Repository SQL·privacy scan·Markdown endpoint는 변경하지 않는다.
+
 ```text
 Manual admin or internal API
   -> posts / post_versions

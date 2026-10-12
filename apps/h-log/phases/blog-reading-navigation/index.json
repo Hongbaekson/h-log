@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "related-post-navigation",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Reused published-current selectors and tag fallback for up to three related links with shared-tag reasons, plus deterministic chronological previous/next links. Detail and metadata share the existing request-cached public store; no new SQL or embedding calls. RED 3 navigation tests and missing browser section; focused public/search 49/49, unit 205 pass/13 DB skip, lint/typecheck/build and isolated public-read integration 1/1 passed. Browser checks at 1440/390/320px covered keyboard/navigation, long titles, empty related, private 404, no-JS, retraction/current-version removal and production DB failure. Phase complete; next: blog-discovery-and-home Step 0."
     }
   ]
 }

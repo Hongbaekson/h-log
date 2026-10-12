@@ -289,6 +289,14 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **트레이드오프**: Clipboard 권한·지원 여부에 따라 버튼 복사가 실패할 수 있다. 별도 복사 라이브러리, 자동 clipboard 읽기, 구문 강조와 성공 안내를 지우는 timer는 추가하지 않는다. 저장 Markdown/HTML/hash와 공개 경계는 변경하지 않는다.
 
+### ADR-027: 상세 글 탐색은 기존 공개 store와 태그 선택 로직을 재사용한다
+
+**결정 (2026-10-12)**: 상세 page와 metadata는 request-cached `loadPublicBlogContentStore()`를 공유한다. 같은 published-current/privacy 필터를 통과한 store에서 본문과 탐색 대상을 선택한다. `getPublicBlogPostNavigation`은 기존 `selectPublishedRelatedPostsBySimilarity`에 빈 chunks와 limit 3을 전달해 태그 겹침 순위를 사용한다. 독자에게는 현재 버전 제목과 공통 태그만 표시하며 similarity 점수를 노출하지 않는다.
+
+**순서/빈 상태**: 이전 글은 발행 순서상 바로 앞, 다음 글은 바로 뒤다. `publishedAt`(없으면 기존 `updatedAt` fallback)의 오름차순과 동률일 때 slug 순서로 결정한다. 관련 글 순위는 기존 태그 비율·공통 태그 수·slug 순서이며 공통 태그 표시 순서도 고정한다. 관련 글이 없거나 한 편뿐이어도 채우기용 글을 만들지 않으며 존재하는 링크만 출력한다.
+
+**트레이드오프**: 이미 있는 공개 전체 조회를 사용하므로 새 SQL, 저장 필드나 외부 embedding 호출 없이 연결한다. 현재 글 외의 본문을 Markdown block으로 파싱하지는 않는다. 공개 글 수가 커져 전체 조회가 병목으로 확인되면 요약 전용 조회를 검토한다. DB 실패는 기존 Blog 오류 경계로 전달한다. 저장 원문/hash, Markdown 경로, Home/레이더와 Second Brain은 유지한다.
+
 ## 공식/내부 기준
 
 - Next.js docs

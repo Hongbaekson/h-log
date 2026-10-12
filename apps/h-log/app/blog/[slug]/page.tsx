@@ -3,13 +3,14 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink, FileText } from "lucide-react";
+import { ArrowLeft, ArrowRight, ExternalLink, FileText } from "lucide-react";
 
 import { JsonLd } from "@/components/seo/JsonLd";
 import { CodeBlock } from "@/components/blog/CodeBlock";
 import { Badge, Container } from "@/components/ui";
 import {
   getPublicBlogPostBySlug,
+  getPublicBlogPostNavigation,
   type PublicBlogContentBlock,
   type PublicBlogInlineContent,
   type PublicBlogPost,
@@ -19,7 +20,7 @@ import {
   formatPublicBlogArticleMode,
   formatPublicBlogDate,
 } from "@/lib/blog-public-presentation";
-import { loadPublicBlogContentStoreBySlug } from "@/lib/blog-public-source";
+import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
 import { resolvePublicSiteOrigin } from "@/lib/public-site-origin";
 import { siteConfig } from "@/lib/site";
 
@@ -35,7 +36,7 @@ export async function generateMetadata({
   params,
 }: BlogDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const store = await loadPublicBlogContentStoreBySlug(slug);
+  const store = await loadPublicBlogContentStore();
   const post = getPublicBlogPostBySlug(slug, store);
 
   if (!post) {
@@ -62,13 +63,14 @@ export async function generateMetadata({
 
 export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const { slug } = await params;
-  const store = await loadPublicBlogContentStoreBySlug(slug);
+  const store = await loadPublicBlogContentStore();
   const post = getPublicBlogPostBySlug(slug, store);
 
   if (!post) {
     notFound();
   }
 
+  const navigation = getPublicBlogPostNavigation(slug, store)!;
   const origin = resolvePublicSiteOrigin("http://localhost:3000");
   const postUrl = new URL(post.href, `${origin}/`).toString();
   const blogPostingJsonLd = {
@@ -184,6 +186,50 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                   </a>
                 </div>
               </section>
+              {navigation.related.length > 0 && (
+                <section aria-labelledby="related-posts-heading" className="mt-10">
+                  <h2 className="text-lg font-semibold text-white" id="related-posts-heading">관련 글</h2>
+                  <ul className="mt-4 divide-y divide-slate-700/80 border-y border-slate-700/80">
+                    {navigation.related.map((related) => (
+                      <li key={related.href}>
+                        <Link
+                          className="group flex min-w-0 items-start justify-between gap-4 rounded-md px-3 py-5 hover:bg-[#5865f2]/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b6bdff]"
+                          href={related.href}
+                        >
+                          <span className="min-w-0 wrap-anywhere">
+                            <span className="block font-semibold leading-7 text-slate-100 group-hover:text-white">{related.title}</span>
+                            <span className="mt-2 block text-xs leading-6 text-slate-400">함께 다루는 태그: {related.sharedTags.join(" · ")}</span>
+                          </span>
+                          <ArrowRight aria-hidden="true" className="mt-1 shrink-0 text-[#b6bdff]" size={18} />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+              {(navigation.previous || navigation.next) && (
+                <nav aria-label="이전·다음 글" className="mt-10 grid gap-4 sm:grid-cols-2">
+                  {([
+                    { label: "이전 글", entry: navigation.previous, rel: "prev" },
+                    { label: "다음 글", entry: navigation.next, rel: "next" },
+                  ] as const).map(({ label, entry, rel }) => entry && (
+                    <Link
+                      className={`min-w-0 rounded-xl border border-slate-700 bg-[#191d3a]/50 p-5 wrap-anywhere hover:border-[#5865f2] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff] ${rel === "next" ? "sm:col-start-2" : ""}`}
+                      href={entry.href}
+                      key={rel}
+                      rel={rel}
+                    >
+                      <span className="flex items-center gap-2 text-xs font-semibold text-[#b6bdff]">
+                        {rel === "prev" && <ArrowLeft aria-hidden="true" size={15} />}
+                        {label}
+                        {rel === "next" && <ArrowRight aria-hidden="true" size={15} />}
+                      </span>
+                      <span className="mt-3 block text-sm font-semibold leading-7 text-slate-100">{entry.title}</span>
+                      <time className="mt-2 block text-xs text-slate-400" dateTime={entry.publishedAt}>{formatPublicBlogDate(entry.publishedAt)}</time>
+                    </Link>
+                  ))}
+                </nav>
+              )}
             </div>
             {post.tableOfContents.length > 0 && (
               <aside className="sticky top-28 hidden max-h-[calc(100dvh-8rem)] self-start overflow-y-auto border-l border-slate-700/80 pl-3 lg:block">

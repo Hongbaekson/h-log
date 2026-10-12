@@ -12,6 +12,7 @@ import {
 } from "./blog-content-model.ts";
 import {
   getPublicBlogIndex,
+  getPublicBlogPostNavigation,
   getPublicBlogPostBySlug,
   getPublicBlogPostMarkdown,
   type BlogContentStore,
@@ -164,6 +165,72 @@ function textParagraph(text: string) {
 }
 
 describe("DB-backed public blog routes", () => {
+  it("connects the nearest chronological posts and up to three tag-related current titles deterministically", () => {
+    const slugs = ["older", "same-z", "source", "same-a", "newer", "unrelated"];
+    const store: BlogContentStore = {
+      posts: slugs.map((slug, index) => createPost({
+        id: slug, slug, currentVersionId: `v-${slug}`,
+        publishedAt: index === 0 ? "2026-06-24T00:00:00Z" : index >= 4 ? "2026-06-26T00:00:00Z" : baseTimestamp,
+      })),
+      versions: slugs.map((slug) => createVersion({ id: `v-${slug}`, postId: slug, title: `Current ${slug}` })),
+      tags: slugs.flatMap((slug) => slug === "unrelated" ? [] : [
+        createTag(slug, "DB"), ...(slug === "older" ? [] : [createTag(slug, "운영")]),
+      ]),
+      sources: [],
+    };
+    const navigation = getPublicBlogPostNavigation("source", store);
+    assert.deepEqual(navigation, {
+      previous: { href: "/blog/same-z", title: "Current same-z", publishedAt: baseTimestamp },
+      next: { href: "/blog/newer", title: "Current newer", publishedAt: "2026-06-26T00:00:00Z" },
+      related: ["newer", "same-a", "same-z"].map((slug) => ({
+        href: `/blog/${slug}`, title: `Current ${slug}`, sharedTags: ["DB", "운영"],
+      })),
+    });
+    assert.deepEqual(getPublicBlogPostNavigation("source", {
+      ...store, posts: [...store.posts].reverse(), versions: [...store.versions].reverse(), tags: [...store.tags].reverse(),
+    }), navigation);
+    assert.equal(getPublicBlogPostNavigation("older", store)?.previous, null);
+    assert.equal(getPublicBlogPostNavigation("unrelated", store)?.next, null);
+  });
+
+  it("excludes private, retracted, missing or foreign current versions and privacy-blocked posts from navigation", () => {
+    const store = createStore();
+    const hidden = [
+      createPost({ id: "draft", slug: "draft", status: "ready_to_publish", currentVersionId: "v-draft" }),
+      createPost({ id: "retracted", slug: "retracted", status: "retracted", currentVersionId: "v-retracted" }),
+      createPost({ id: "unpublished", slug: "unpublished", status: "unpublished", currentVersionId: "v-unpublished" }),
+      createPost({ id: "stale", slug: "stale", currentVersionId: "missing" }),
+      createPost({ id: "foreign", slug: "foreign" }),
+      createPost({ id: "privacy", slug: "privacy", currentVersionId: "v-privacy" }),
+    ];
+    const candidates: BlogContentStore = {
+      ...store,
+      posts: [...hidden, ...store.posts],
+      versions: [...store.versions,
+        ...["draft", "retracted", "unpublished"].map((id) => createVersion({ id: `v-${id}`, postId: id })),
+        createVersion({ id: "v-privacy", postId: "privacy", contentMarkdown: "Contact secret@example.com" }),
+        createVersion({ id: "old", postId: "post-public-two", title: "Obsolete title" })],
+      tags: [...store.tags, ...hidden.map(({ id }) => createTag(id, "DB"))],
+    };
+    assert.deepEqual(getPublicBlogPostNavigation("public-one", candidates), {
+      previous: null,
+      next: { href: "/blog/public-two", title: "Public Two", publishedAt: "2026-06-26T09:00:00.000Z" },
+      related: [{ href: "/blog/public-two", title: "Public Two", sharedTags: ["DB"] }],
+    });
+    for (const slug of [...hidden.map(({ slug }) => slug), "preview-one", "missing"]) {
+      assert.equal(getPublicBlogPostNavigation(slug, candidates), undefined, slug);
+    }
+  });
+
+  it("leaves unrelated and single-post navigation empty without inventing recommendations", () => {
+    const store = createStore();
+    assert.deepEqual(getPublicBlogPostNavigation("public-one", { ...store, tags: [] })?.related, []);
+    assert.deepEqual(getPublicBlogPostNavigation("public-one", { ...store, posts: [store.posts[0]] }), {
+      previous: null, next: null, related: [],
+    });
+    assert.equal(getPublicBlogPostNavigation("public-one", { posts: [], versions: [], tags: [], sources: [] }), undefined);
+  });
+
   it("builds public detail and markdown output without exposing preview posts", () => {
     const store = createStore();
     const detail = getPublicBlogPostBySlug("public-one", store);
