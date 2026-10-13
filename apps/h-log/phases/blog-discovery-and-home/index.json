@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "url-backed-search",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Unified search and the regular list under q/tag/page URL state with shared pagination, reset, history and direct-link restoration. API filters before six-item paging and recalculates cached queries from current public content; wire reason mapping, readable match context and stale-request cancellation are verified. RED API/UI/browser cases; focused search/UI 20/20, discovery 6/6, unit 207 pass/13 DB skip, public-read integration 1/1, lint/typecheck/build and 1440/390/320px browser checks passed. Next: Step 1 compact-topic-filters. No new DB/schema/worker/provider or Home/radar changes."
     },
     {
       "step": 1,

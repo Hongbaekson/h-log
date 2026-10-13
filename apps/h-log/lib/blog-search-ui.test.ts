@@ -3,6 +3,8 @@ import { describe, it } from "node:test";
 
 import {
   createBlogSearchUiSnapshot,
+  parseBlogBrowseParams,
+  buildBlogBrowseHref,
   type BlogSearchUiSnapshotInput,
 } from "./blog-search-ui.ts";
 
@@ -25,23 +27,38 @@ const baseResult = {
 } as const;
 
 describe("blog search UI snapshot", () => {
+  it("normalizes URL state and preserves query/tag when changing pages", () => {
+    const state = parseBlogBrowseParams({ q: ["  Redis   Pub/Sub ", "ignored"], tag: " DB ", page: "2" });
+    assert.deepEqual(state, { query: "Redis Pub/Sub", tag: "DB", page: 2 });
+    const url = new URL(buildBlogBrowseHref(state), "https://example.com");
+    assert.equal(url.pathname, "/blog");
+    assert.equal(url.searchParams.get("q"), "Redis Pub/Sub");
+    assert.equal(url.searchParams.get("tag"), "DB");
+    assert.equal(url.searchParams.get("page"), "2");
+    assert.equal(buildBlogBrowseHref({ query: "", tag: null, page: 1 }), "/blog");
+    for (const page of ["-1", "0", "1.5", "NaN", "1e2", "9007199254740992"]) {
+      assert.equal(parseBlogBrowseParams({ page }).page, 1, page);
+    }
+  });
+
   it("maps cached search results into published result view items", () => {
     const snapshot = createBlogSearchUiSnapshot({
       query: "pgvector",
       response: {
         cached: true,
-        guardReason: "cache_hit",
+        reason: "cache_hit",
+        pagination: { currentPage: 1, pageSize: 6, totalItems: 1, totalPages: 1 },
         results: [baseResult],
         status: "ok",
       },
     });
 
     assert.equal(snapshot.status, "results");
-    assert.equal(snapshot.cached, true);
     assert.equal(snapshot.items[0]?.href, "/blog/postgres-restore");
-    assert.equal(snapshot.items[0]?.matchReasonLabel, "키워드 + 유사도");
+    assert.equal(snapshot.items[0]?.matchReasonLabel, "요약에서 일치: pgvector");
     assert.equal(snapshot.items[0]?.publishedDateLabel, "2026. 06. 27.");
-    assert.equal(snapshot.items[0]?.scoreLabel, "90%");
+    assert.equal("scoreLabel" in snapshot.items[0], false);
+    assert.equal(snapshot.pagination?.totalItems, 1);
     assert.deepEqual(snapshot.items[0]?.tags, ["DB", "운영"]);
   });
 
@@ -50,7 +67,8 @@ describe("blog search UI snapshot", () => {
       query: "pgvector",
       response: {
         cached: false,
-        guardReason: "search_ready",
+        reason: "search_ready",
+        pagination: { currentPage: 1, pageSize: 6, totalItems: 1, totalPages: 1 },
         results: [{ ...baseResult, publishedAt: "invalid-date" }],
         status: "ok",
       },
@@ -74,7 +92,8 @@ describe("blog search UI snapshot", () => {
         query: "없는글",
         response: {
           cached: false,
-          guardReason: "search_ready",
+          reason: "search_ready",
+          pagination: { currentPage: 1, pageSize: 6, totalItems: 0, totalPages: 1 },
           results: [],
           status: "ok",
         },
@@ -86,7 +105,8 @@ describe("blog search UI snapshot", () => {
       query: "pgvector",
       response: {
         cached: false,
-        guardReason: "rate_limited",
+        reason: "rate_limited",
+        pagination: { currentPage: 1, pageSize: 6, totalItems: 0, totalPages: 1 },
         results: [],
         status: "blocked",
       },

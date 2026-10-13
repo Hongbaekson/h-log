@@ -297,6 +297,16 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **트레이드오프**: 이미 있는 공개 전체 조회를 사용하므로 새 SQL, 저장 필드나 외부 embedding 호출 없이 연결한다. 현재 글 외의 본문을 Markdown block으로 파싱하지는 않는다. 공개 글 수가 커져 전체 조회가 병목으로 확인되면 요약 전용 조회를 검토한다. DB 실패는 기존 Blog 오류 경계로 전달한다. 저장 원문/hash, Markdown 경로, Home/레이더와 Second Brain은 유지한다.
 
+### ADR-028: Blog 탐색 상태는 URL로 공유하고 검색 API에서 필터·페이지를 계산한다
+
+**결정 (2026-10-13)**: `blog-search-ui.ts`의 `parseBlogBrowseParams`/`buildBlogBrowseHref`를 page, API와 페이지 링크가 공유한다. 같은 query parameter가 반복되면 첫 값을 사용하고 검색어 공백·빈 태그·잘못된 페이지를 정규화한다. 검색어/태그를 바꾸면 첫 페이지로 이동하며 페이지 링크는 나머지 조건을 유지한다. 범위를 넘은 페이지는 실제 마지막 페이지로 제한한다.
+
+**화면/요청**: URL 상태를 key로 갖는 `BlogSearchPanel`이 제출 전 draft와 제출된 snapshot을 분리한다. URL 변경이나 재시도 시 이전 effect의 AbortController를 취소하고, 취소된 성공/실패는 반영하지 않는다. 검색 중에는 일반 목록을 렌더링하지 않는다. 기존 검색 API의 HTTP `reason` 필드를 정확히 읽고, 오류 응답을 빈 검색 결과로 취급하지 않는다. 일반/검색 페이지 이동은 `BlogPagination`을 공유한다.
+
+**캐시/공개 경계**: 태그 필터를 전체 검색 결과에 적용한 뒤 페이지를 자른다. 기존 TTL/100개 제한 query cache는 표시용 글을 보관하지 않고 재사용 가능한 vectorScores만 보관한다. 캐시 hit에도 최신 public store에서 검색/태그/개수/페이지를 계산해 수정·철회 글의 과거 제목이나 순위를 재사용하지 않는다. 현재 route는 여전히 keyword-only이며 새 embedding 호출이나 사용량 기록은 없다. 비용·반복·rate-limit guard와 DB 실패 전파를 유지한다.
+
+**트레이드오프**: 목록/필터는 기존 서버 조회, 검색 결과는 브라우저의 `/api/search` 요청을 사용한다. 검색 결과를 보려면 JavaScript가 필요하다. 새 DB 조회 계층 없이 현재 공개 store를 평가하며 대규모 글 수에서 검색 비용이 확인되면 SQL 기반 검색/페이지 조회를 별도로 검토한다. UI의 cache/score 표시는 결과 수와 읽을 수 있는 일치 설명으로 대체한다.
+
 ## 공식/내부 기준
 
 - Next.js docs

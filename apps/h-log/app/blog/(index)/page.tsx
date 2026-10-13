@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, CalendarDays, Tag } from "lucide-react";
+import { CalendarDays, Tag } from "lucide-react";
 
 import { BlogSearchPanel } from "@/components/blog/BlogSearchPanel";
+import { BlogPagination } from "@/components/blog/BlogPagination";
+import { buildBlogBrowseHref, parseBlogBrowseParams, type BlogBrowseParams } from "@/lib/blog-search-ui";
 import { Badge, Container } from "@/components/ui";
 import { getPublicBlogIndex } from "@/lib/blog-public";
 import {
@@ -23,20 +25,17 @@ export const metadata: Metadata = {
 };
 
 type BlogPageProps = {
-  searchParams?: Promise<{
-    page?: string;
-    tag?: string;
-  }>;
+  searchParams?: Promise<BlogBrowseParams>;
 };
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
   const params = (await searchParams) ?? {};
-  const selectedTag = params.tag;
+  const state = parseBlogBrowseParams(params);
   const store = await loadPublicBlogContentStore();
   const index = getPublicBlogIndex(store, {
-    page: Number(params.page),
+    page: state.page,
     pageSize: 6,
-    tag: selectedTag,
+    tag: state.tag ?? undefined,
   });
 
   return (
@@ -71,10 +70,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
       <section className="pb-24">
         <Container>
-          <div className="mb-8">
-            <BlogSearchPanel />
-          </div>
-
           <div className="grid gap-8 lg:grid-cols-[15rem_1fr]">
             <aside className="lg:sticky lg:top-24 lg:self-start">
               <div className="border-y border-slate-700/80 py-5">
@@ -90,7 +85,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                         ? "border-cyan-300/60 bg-cyan-300/10 text-cyan-100"
                         : "border-slate-700 text-slate-300"
                     }`}
-                    href="/blog"
+                    href={buildBlogBrowseHref({ ...state, tag: null, page: 1 })}
                   >
                     전체
                   </Link>
@@ -104,7 +99,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                           ? "border-cyan-300/60 bg-cyan-300/10 text-cyan-100"
                           : "border-slate-700 text-slate-300"
                       }`}
-                      href={`/blog?tag=${encodeURIComponent(tagCount.tag)}`}
+                      href={buildBlogBrowseHref({ ...state, tag: tagCount.tag, page: 1 })}
                       key={tagCount.tag}
                     >
                       {tagCount.tag} {tagCount.count}
@@ -114,17 +109,8 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               </div>
             </aside>
 
-            <div className="grid gap-5">
-              {index.selectedTag ? (
-                <Link
-                  className="inline-flex w-fit items-center gap-2 rounded-xl text-sm font-semibold text-slate-300 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
-                  href="/blog"
-                >
-                  <ArrowLeft aria-hidden="true" size={16} strokeWidth={2} />
-                  {index.selectedTag} 필터 해제
-                </Link>
-              ) : null}
-
+            <BlogSearchPanel key={buildBlogBrowseHref(state)} state={state}>
+            {!state.query && <div className="grid gap-5">
               {index.posts.length === 0 ? (
                 <div className="border-y border-slate-700/80 py-10">
                   <h2 className="card-heading text-xl text-white">
@@ -175,63 +161,12 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                 ))
               )}
 
-              {index.pagination.totalItems > 0 ? (
-                <div className="flex flex-col gap-3 border-t border-slate-700/80 pt-6 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-sm text-slate-400">
-                    {index.pagination.currentPage} / {index.pagination.totalPages} page
-                  </p>
-                  <div className="flex gap-2">
-                    {index.pagination.currentPage > 1 ? (
-                      <PaginationLink
-                        label="이전"
-                        page={index.pagination.currentPage - 1}
-                        tag={selectedTag}
-                      />
-                    ) : null}
-                    {index.pagination.currentPage < index.pagination.totalPages ? (
-                      <PaginationLink
-                        icon="next"
-                        label="다음"
-                        page={index.pagination.currentPage + 1}
-                        tag={selectedTag}
-                      />
-                    ) : null}
-                  </div>
-                </div>
-              ) : null}
-            </div>
+              <BlogPagination pagination={index.pagination} state={state} />
+            </div>}
+            </BlogSearchPanel>
           </div>
         </Container>
       </section>
     </>
-  );
-}
-
-function PaginationLink({
-  icon = "previous",
-  label,
-  page,
-  tag,
-}: {
-  icon?: "next" | "previous";
-  label: string;
-  page: number;
-  tag?: string;
-}) {
-  const query = new URLSearchParams({ page: String(page) });
-
-  if (tag) {
-    query.set("tag", tag);
-  }
-
-  return (
-    <Link
-      className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-700 px-4 text-sm font-semibold text-slate-200 transition-colors hover:border-cyan-300/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
-      href={`/blog?${query.toString()}`}
-    >
-      {icon === "previous" ? <ArrowLeft aria-hidden="true" size={15} strokeWidth={2} /> : null}
-      {label}
-      {icon === "next" ? <ArrowRight aria-hidden="true" size={15} strokeWidth={2} /> : null}
-    </Link>
   );
 }

@@ -60,3 +60,13 @@ git diff --check
 - 저장 Markdown/HTML/hash나 기존 URL을 무단 재작성하지 말 것. 발행 무결성과 기존 링크를 유지해야 한다.
 - raw HTML 주입, private 글/내부 evidence/근거 없는 실적 노출을 허용하지 말 것. 공개 콘텐츠 경계를 유지해야 한다.
 - OCI·DNS/TLS·운영 timer·실제 provider 호출·공개 발행을 실행하지 말 것. 로컬 개선 계획이며 기존 OCI 보류는 유지된다.
+
+## 완료 기록 (2026-10-13)
+
+- 검색/일반 목록을 한 영역으로 합치고 `q/tag/page` URL parser/builder와 공통 `BlogPagination`을 연결했다. 직접 URL·새로고침·뒤로/앞으로 이동, 조건 변경 시 첫 페이지, 검색·필터 초기화와 빈 검색 제출을 지원한다. 서버 목록과 검색 결과는 동시에 표시하지 않는다.
+- API는 기존 공개 selector/guard 뒤에서 태그를 먼저 필터링하고 6개씩 나눈다. 범위 초과 페이지를 마지막 페이지로 제한한다. query cache hit에도 최신 public store로 검색 결과·개수를 계산하고 현재 버전 수정/철회를 반영한다. wire의 `reason`/UI 불일치를 수정했고 cache/score 대신 전체 결과 수와 제목·요약·태그 일치 정보를 출력한다.
+- URL key별 draft/snapshot과 AbortController로 입력 중 변경·늦은 성공/실패·재시도를 처리한다. 새 DB/schema/worker/의존성·외부 호출은 없다.
+- RED: API의 필터 전 pagination, URL 복원, 일치 설명, rate-limit wire 안내 실패와 브라우저의 직접 URL 입력값 누락을 확인했다. 기존 UI source 검사 3개는 이동한 구조에 맞게 갱신했으며 실제 취소/경합은 브라우저로 확인했다.
+- GREEN: focused search/UI 20/20, discovery UI 6/6, `npm.cmd run test` 207 pass/13 DB skip, lint/typecheck/build, 격리 public-read-path integration 1/1, phase JSON/path와 `git diff --check`를 통과했다.
+- 15개 공개/1개 비공개 synthetic 글의 격리 DB로 1440/390/320px에서 단일 결과 영역, 긴 제목·초점·페이지 넘침 없음, URL 직접 열기/새로고침/뒤로·앞으로, q/tag 유지·초기화·0건·짧은 query·페이지 범위와 실제 API count/비공개 제외를 검증했다. 제어한 HTTP 응답으로 느린 성공 취소·draft 유지·429 안내·503 오류·같은 URL 재시도를 확인했다. 브라우저 오류는 없었다.
+- 다음은 [Step 1: 목록 정보 위계와 필터](step1.md)다. 큰 소개/운영 문구·태그 펼치기는 그 step에 남긴다. Home/레이더·Second Brain·OCI 보류를 유지한다.

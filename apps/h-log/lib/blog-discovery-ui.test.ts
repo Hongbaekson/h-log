@@ -17,7 +17,7 @@ describe("blog discovery UI", () => {
       new URL("../components/blog/BlogSearchPanel.tsx", import.meta.url),
       "utf8",
     );
-    const input = source.match(/<input[\s\S]*?\/>/)?.[0];
+    const input = source.match(/<input[\s\S]*?\/>/g)?.find((markup) => markup.includes('type="search"'));
 
     assert.ok(input);
     assert.match(input, /aria-describedby="blog-search-help"/);
@@ -27,18 +27,12 @@ describe("blog discovery UI", () => {
     assert.match(source, /2자 이상 입력해 주세요/);
   });
 
-  it("keeps search results tied to the latest submitted query", async () => {
+  it("labels search results with the submitted query", async () => {
     const source = await readFile(
       new URL("../components/blog/BlogSearchPanel.tsx", import.meta.url),
       "utf8",
     );
 
-    assert.match(source, /const latestRequestId = useRef\(0\)/);
-    assert.match(source, /const requestId = \+\+latestRequestId\.current/);
-    assert.equal(
-      source.match(/requestId !== latestRequestId\.current/g)?.length,
-      2,
-    );
     assert.match(source, /검색어:\s*<span[\s\S]*?\{snapshot\.query\}/);
   });
 
@@ -68,10 +62,6 @@ describe("blog discovery UI", () => {
 
     assert.match(pageSource, /아직 공개된 글이 없습니다/);
     assert.match(pageSource, /태그의 공개 글이 없습니다/);
-    assert.match(
-      pageSource,
-      /index\.pagination\.totalItems > 0 \? \(/,
-    );
     assert.match(searchUiSource, /일치하는 공개 글이 없습니다/);
   });
 

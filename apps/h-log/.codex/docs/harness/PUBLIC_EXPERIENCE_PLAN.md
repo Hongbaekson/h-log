@@ -51,10 +51,10 @@
 
 ## 이번 실행 단위
 
-[Phase 2 / Step 2](../../../phases/blog-reading-navigation/step2.md): 공통 태그 기반 관련 글 최대 3개와 발행 순서의 이전·다음 링크를 구현하고 공개 경계, 키보드 탐색, 모바일 줄바꿈과 오류 화면을 검증했다.
+[Phase 3 / Step 0](../../../phases/blog-discovery-and-home/step0.md): 검색/일반 목록을 통합하고 q/tag/page URL 복원, 필터 후 pagination, 초기화와 늦은 응답 취소를 검증했다.
 
-- 변경 파일: `apps/h-log/lib/blog-public.ts`, `apps/h-log/lib/blog-public.test.ts`, `apps/h-log/app/blog/[slug]/page.tsx`.
-- 기존 public selector·related 태그 fallback·request-cached 전체 공개 store를 재사용한다. 새 SQL·embedding 호출·client 상태는 없다. 저장 content 생성/hash 알고리즘, migration, 레이더는 그대로 유지했다.
+- 변경 파일: `apps/h-log/lib/blog-search.ts`, `blog-search-ui.ts`와 관련 테스트, `app/api/search/route.ts`, `app/blog/(index)/page.tsx`, `components/blog/BlogSearchPanel.tsx`, `BlogPagination.tsx`.
+- 기존 public selector·검색 guard·공개 store를 재사용하고 UI의 제출 snapshot을 URL에 연결한다. 캐시 hit에도 최신 공개 결과를 계산한다. 저장 content/hash, DB/schema/worker, 외부 호출과 레이더는 그대로 유지했다.
 - 문서: 이 계획, 새 phase/step registry, PRD/ADR/ARCHITECTURE/IMPLEMENTATION_PLAN 중 관련 설명만 동기화한다.
 - 성공 기준: focused RED/GREEN, 기존 unit 회귀, lint/typecheck/build, 격리 local DB를 사용한 개발 서버 desktop/mobile 렌더링, JSON/path parser, `git diff --check`.
 - 커밋/푸시는 검증한 변경만 포함하고 일반 push를 사용한다.
@@ -95,4 +95,6 @@
 
 2026-10-12 Phase 2 / Step 2 완료: 공통 태그를 표시하는 관련 글 최대 3개와 발행일/slug 기준 이전·다음 링크를 추가했다. RED 3개와 브라우저 영역 누락 이후 focused public/search 49/49, unit 205 pass/13 DB skip, lint/typecheck/build, 격리 public-read integration 1/1을 통과했다. 1440/390/320px의 긴 제목·키보드·이동/뒤로 가기, 관련 글 0개와 한 방향만 있는 상태, private/retracted/privacy/missing 404, JavaScript 없는 링크, 원문 일치를 확인했다. 로컬 후보 철회/current-version 제거 후 링크가 사라졌으며 별도 production 서버의 DB 실패는 기존 오류·재시도로 처리했다.
 
-Phase 1의 4개 step과 Phase 2의 3개 step, 총 7개 step을 완료했다. 다음 단계는 [Phase 3 / Step 0: URL에 남는 통합 검색](../../../phases/blog-discovery-and-home/step0.md)이다. 나머지 12개 step은 pending이며 계획 등록을 구현 완료로 간주하지 않는다. 기존 의존성의 보안 경고는 [구현 계획의 별도 후속 조치](IMPLEMENTATION_PLAN.md)에 기록돼 있다.
+2026-10-13 Phase 3 / Step 0 완료: URL 기반 q/tag/page 탐색, 검색/일반 목록 통합, 태그 필터 후 6개 pagination, 읽을 수 있는 일치 설명과 초기화를 추가했다. RED API/UI/브라우저 실패 이후 focused search/UI 20/20, discovery UI 6/6, unit 207 pass/13 DB skip, lint/typecheck/build와 public-read integration 1/1을 통과했다. 1440/390/320px에서 직접 URL/새로고침/뒤로·앞으로, 조건 유지·초기화·빈/제한/오류·긴 제목·초점을 검증하고 제어한 지연 응답으로 draft 분리와 취소·재시도를 확인했다.
+
+Phase 1의 4개 step, Phase 2의 3개 step과 Phase 3 Step 0, 총 8개 step을 완료했다. 다음 단계는 [Phase 3 / Step 1: 목록 정보 위계와 필터](../../../phases/blog-discovery-and-home/step1.md)다. 나머지 11개 step은 pending이며 계획 등록을 구현 완료로 간주하지 않는다. 기존 의존성의 보안 경고는 [구현 계획의 별도 후속 조치](IMPLEMENTATION_PLAN.md)에 기록돼 있다.

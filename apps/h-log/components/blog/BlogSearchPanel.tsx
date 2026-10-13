@@ -1,79 +1,73 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
   CalendarDays,
   LoaderCircle,
   Search,
 } from "lucide-react";
-import { type FormEvent, useRef, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useState, useTransition } from "react";
 
 import { Badge } from "@/components/ui";
-import type { BlogSearchApiResponse } from "@/lib/blog-search";
+import { BlogPagination } from "./BlogPagination";
+import type { BlogSearchHttpResponse } from "@/lib/blog-search";
 import {
   createBlogSearchUiSnapshot,
+  buildBlogBrowseHref,
+  parseBlogBrowseParams,
+  type BlogBrowseState,
   type BlogSearchUiSnapshot,
 } from "@/lib/blog-search-ui";
 
-const initialSnapshot = createBlogSearchUiSnapshot({
-  query: "",
-});
+export function BlogSearchPanel({ state, children }: { state: BlogBrowseState; children: ReactNode }) {
+  const router = useRouter();
+  const [query, setQuery] = useState(state.query);
+  const [snapshot, setSnapshot] = useState<BlogSearchUiSnapshot>(() => createBlogSearchUiSnapshot({
+    query: state.query, loading: Boolean(state.query),
+  }));
+  const [attempt, setAttempt] = useState(0);
+  const [isPending, startTransition] = useTransition();
+  const href = buildBlogBrowseHref(state);
 
-export function BlogSearchPanel() {
-  const [query, setQuery] = useState("");
-  const [snapshot, setSnapshot] = useState<BlogSearchUiSnapshot>(initialSnapshot);
-  const latestRequestId = useRef(0);
+  useEffect(() => {
+    if (!state.query) return;
+    const controller = new AbortController();
+    async function search() {
+      try {
+        const response = await fetch(href.replace("/blog?", "/api/search?"), {
+          cache: "no-store", signal: controller.signal,
+        });
+        if (!response.ok && response.status !== 400 && response.status !== 429) throw new Error("search failed");
+        const body = await response.json() as BlogSearchHttpResponse;
+        if (body.status !== "ok" && body.status !== "blocked") throw new Error("invalid search response");
+        if (!controller.signal.aborted) setSnapshot(createBlogSearchUiSnapshot({ query: state.query, response: body }));
+      } catch {
+        if (!controller.signal.aborted) setSnapshot(createBlogSearchUiSnapshot({ query: state.query, errorMessage: "search failed" }));
+      }
+    }
+    void search();
+    return () => controller.abort();
+  }, [href, state.query, attempt]);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    const nextQuery = query.trim();
-    const requestId = ++latestRequestId.current;
-
-    setSnapshot(
-      createBlogSearchUiSnapshot({
-        loading: true,
-        query: nextQuery,
-      }),
-    );
-
-    try {
-      const response = await fetch(
-        `/api/search?q=${encodeURIComponent(nextQuery)}`,
-        {
-          cache: "no-store",
-        },
-      );
-      const body = (await response.json()) as BlogSearchApiResponse;
-
-      if (requestId !== latestRequestId.current) {
-        return;
-      }
-
-      setSnapshot(
-        createBlogSearchUiSnapshot({
-          query: nextQuery,
-          response: body,
-        }),
-      );
-    } catch (error) {
-      if (requestId !== latestRequestId.current) {
-        return;
-      }
-
-      setSnapshot(
-        createBlogSearchUiSnapshot({
-          errorMessage: error instanceof Error ? error.message : "unknown error",
-          query: nextQuery,
-        }),
-      );
+    if (isPending) return;
+    const next = { ...state, query: parseBlogBrowseParams({ q: query }).query, page: 1 };
+    const nextHref = buildBlogBrowseHref(next);
+    if (nextHref === href && next.query) {
+      setSnapshot(createBlogSearchUiSnapshot({ query: next.query, loading: true }));
+      setAttempt((value) => value + 1);
+    } else {
+      startTransition(() => router.push(nextHref, { scroll: false }));
     }
   }
 
   return (
-    <div className="border-y border-slate-700/80 py-6">
-      <form className="grid gap-3 sm:grid-cols-[1fr_auto]" onSubmit={handleSubmit}>
+    <div className="min-w-0">
+      <form action="/blog" method="get" className="grid gap-3 sm:grid-cols-[1fr_auto]" onSubmit={handleSubmit}>
+        {state.tag && <input name="tag" type="hidden" value={state.tag} />}
         <label className="sr-only" htmlFor="blog-search-query">
           블로그 검색
         </label>
@@ -90,19 +84,19 @@ export function BlogSearchPanel() {
             id="blog-search-query"
             maxLength={120}
             minLength={2}
+            name="q"
             onChange={(event) => setQuery(event.target.value)}
             placeholder="pgvector, OCI, Nginx"
-            required
             type="search"
             value={query}
           />
         </div>
         <button
           className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-blue-300/30 bg-blue-500 px-5 text-sm font-semibold text-white transition-colors hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 disabled:cursor-not-allowed disabled:border-slate-700 disabled:bg-slate-800 disabled:text-slate-500"
-          disabled={snapshot.status === "loading"}
+          aria-disabled={isPending}
           type="submit"
         >
-          {snapshot.status === "loading" ? (
+          {isPending || snapshot.status === "loading" ? (
             <LoaderCircle
               aria-hidden="true"
               className="animate-spin"
@@ -119,13 +113,20 @@ export function BlogSearchPanel() {
         검색어를 2자 이상 입력해 주세요.
       </p>
 
-      <div aria-live="polite" className="mt-5 min-h-8">
-        {snapshot.status === "idle" ? null : (
+      {(state.query || state.tag) && (
+        <Link className="mt-4 inline-block rounded-md text-sm text-[#b6bdff] underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff]" href="/blog">
+          검색·필터 초기화
+        </Link>
+      )}
+
+      <div aria-live="polite" aria-busy={isPending || snapshot.status === "loading"} className="mt-5 min-h-8">
+        {!state.query ? children : (
           <div className="grid gap-3">
             <p className="text-xs text-slate-400">
               검색어: <span className="break-words font-mono text-cyan-200">{snapshot.query}</span>
             </p>
             <SearchSnapshotView snapshot={snapshot} />
+            {snapshot.status === "results" && snapshot.pagination && <BlogPagination pagination={snapshot.pagination} state={state} />}
           </div>
         )}
       </div>
@@ -170,9 +171,8 @@ function SearchSnapshotView({ snapshot }: { snapshot: BlogSearchUiSnapshot }) {
     <div className="grid gap-4">
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-sm font-semibold text-slate-300">
-          {snapshot.items.length}개 결과
+          {snapshot.pagination?.totalItems}개 결과
         </p>
-        {snapshot.cached ? <Badge tone="mint">캐시됨</Badge> : null}
       </div>
       <div className="grid gap-3">
         {snapshot.items.map((item) => (
@@ -185,10 +185,9 @@ function SearchSnapshotView({ snapshot }: { snapshot: BlogSearchUiSnapshot }) {
                 <CalendarDays aria-hidden="true" size={14} strokeWidth={2} />
                 <time dateTime={item.publishedAt}>{item.publishedDateLabel}</time>
               </span>
-              <span className="font-mono uppercase tracking-[0.14em] text-cyan-200">
+              <span className="text-xs leading-5 text-[#b6bdff] wrap-anywhere">
                 {item.matchReasonLabel}
               </span>
-              <span className="font-mono text-emerald-300">{item.scoreLabel}</span>
             </div>
             <h2 className="card-heading mt-2 text-xl leading-tight wrap-anywhere text-white">
               <Link
@@ -198,12 +197,12 @@ function SearchSnapshotView({ snapshot }: { snapshot: BlogSearchUiSnapshot }) {
                 {item.title}
               </Link>
             </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300 wrap-anywhere">
               {item.description}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               {item.tags.map((tag) => (
-                <Badge key={tag} tone="slate">
+                <Badge className="max-w-full wrap-anywhere" key={tag} tone="slate">
                   {tag}
                 </Badge>
               ))}

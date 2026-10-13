@@ -3,7 +3,7 @@ import {
   type PostChunkRecord,
   type PublicBlogRouteEntry,
 } from "./blog-content-model.ts";
-import type { BlogContentStore } from "./blog-public.ts";
+import type { BlogContentStore, PublicBlogPagination } from "./blog-public.ts";
 import {
   createBlogUsageEvent,
   isUsageBudgetExceeded,
@@ -175,8 +175,13 @@ export type BlogSearchUsageEvent = BlogUsageEventRecord & {
 export type BlogSearchApiResponse = {
   cached: boolean;
   guardReason: BlogSearchRequestAssessment["reason"];
+  pagination: PublicBlogPagination;
   results: BlogSearchResult[];
   status: "blocked" | "ok";
+};
+
+export type BlogSearchHttpResponse = Omit<BlogSearchApiResponse, "guardReason"> & {
+  reason: BlogSearchApiResponse["guardReason"];
 };
 
 export type BlogSearchRuntimeState = {
@@ -190,6 +195,8 @@ export type HandleBlogSearchApiRequestInput = {
   loadStore: () => BlogContentStore | Promise<BlogContentStore>;
   policy?: Partial<BlogSearchApiPolicy>;
   query: string;
+  tag?: string | null;
+  page?: number;
   requestedAt?: number;
   state?: BlogSearchRuntimeState;
   usageLedger?: BlogUsageLedger;
@@ -197,7 +204,7 @@ export type HandleBlogSearchApiRequestInput = {
 
 type BlogSearchQueryCacheEntry = {
   expiresAt: number;
-  response: BlogSearchApiResponse;
+  vectorScores: readonly BlogSearchVectorScore[];
 };
 
 const DEFAULT_BLOG_SEARCH_API_POLICY: BlogSearchApiPolicy = {
@@ -411,19 +418,11 @@ export async function handleBlogSearchApiRequest(
 
   if (cached && assessment.reason === "cache_hit") {
     const store = await input.loadStore();
-    const publicPostIds = new Set(
-      selectPublicBlogRouteEntries(store.posts, store.versions).map(
-        ({ post }) => post.id,
-      ),
-    );
-
     return {
-      ...cached.response,
       cached: true,
       guardReason: "cache_hit",
-      results: cached.response.results.filter(({ postId }) =>
-        publicPostIds.has(postId),
-      ),
+      status: "ok",
+      ...buildSearchPage(store, input, policy.resultLimit, cached.vectorScores),
     };
   }
 
@@ -431,6 +430,7 @@ export async function handleBlogSearchApiRequest(
     return {
       cached: false,
       guardReason: assessment.reason,
+      pagination: emptySearchPagination(policy.resultLimit),
       results: [],
       status: "blocked",
     };
@@ -451,6 +451,7 @@ export async function handleBlogSearchApiRequest(
       return {
         cached: false,
         guardReason: "budget_exceeded",
+        pagination: emptySearchPagination(policy.resultLimit),
         results: [],
         status: "blocked",
       };
@@ -475,11 +476,7 @@ export async function handleBlogSearchApiRequest(
   const response: BlogSearchApiResponse = {
     cached: false,
     guardReason: assessment.reason,
-    results: searchPublishedBlogPosts(store, {
-      limit: policy.resultLimit,
-      query: assessment.normalizedQuery,
-      vectorScores,
-    }),
+    ...buildSearchPage(store, input, policy.resultLimit, vectorScores),
     status: "ok",
   };
 
@@ -495,11 +492,36 @@ export async function handleBlogSearchApiRequest(
   );
   state.queryCache.set(assessment.cacheKey, {
     expiresAt: requestedAt + policy.queryCacheTtlMs,
-    response,
+    vectorScores,
   });
   pruneBlogSearchCacheEntries(state.queryCache, requestedAt);
 
   return response;
+}
+
+function emptySearchPagination(pageSize: number): PublicBlogPagination {
+  return { currentPage: 1, pageSize: normalizeLimit(pageSize), totalItems: 0, totalPages: 1 };
+}
+
+function buildSearchPage(
+  store: BlogContentStore,
+  input: HandleBlogSearchApiRequestInput,
+  limit: number,
+  vectorScores: readonly BlogSearchVectorScore[],
+): Pick<BlogSearchApiResponse, "results" | "pagination"> {
+  const matches = searchPublishedBlogPosts(store, {
+    query: input.query, vectorScores, limit: store.posts.length,
+  }).filter((result) => !input.tag || result.tags.includes(input.tag));
+  const pageSize = normalizeLimit(limit);
+  const totalPages = Math.max(1, Math.ceil(matches.length / pageSize));
+  const currentPage = Math.min(
+    typeof input.page === "number" && Number.isSafeInteger(input.page) && input.page > 0 ? input.page : 1,
+    totalPages,
+  );
+  return {
+    results: matches.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+    pagination: { currentPage, pageSize, totalItems: matches.length, totalPages },
+  };
 }
 
 export function assessBlogSearchRequest(

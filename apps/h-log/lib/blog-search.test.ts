@@ -176,6 +176,35 @@ function createChunk(
 }
 
 describe("blog search contract", () => {
+  it("filters before paging and rebuilds cached pages from the current public versions", async () => {
+    const slugs = Array.from({ length: 15 }, (_, i) => `entry-${String(i).padStart(2, "0")}`);
+    let store: BlogContentStore = {
+      posts: slugs.map((slug) => createPost(slug)),
+      versions: slugs.map((slug) => createVersion(slug, { title: `PostgreSQL ${slug}` })),
+      tags: slugs.map((slug, i) => createTag(slug, i < 3 ? "Other" : "DB")), sources: [],
+    };
+    const state = createBlogSearchRuntimeState();
+    const request = { clientId: "reader", query: "PostgreSQL", state, loadStore: () => store, policy: { resultLimit: 6 } };
+    const first = await handleBlogSearchApiRequest({ ...request, tag: "DB", page: 2 });
+    assert.deepEqual(first.results.map(({ slug }) => slug), slugs.slice(9));
+    assert.deepEqual(first.pagination, { currentPage: 2, pageSize: 6, totalItems: 12, totalPages: 2 });
+    const all = await handleBlogSearchApiRequest({ ...request, page: 3 });
+    assert.deepEqual(all.results.map(({ slug }) => slug), slugs.slice(12));
+    assert.equal(all.pagination.totalItems, 15);
+    store = { ...store,
+      posts: store.posts.map((post) => post.slug === "entry-14" ? { ...post, status: "retracted" } : post),
+      versions: store.versions.map((version) => version.postId === "post-entry-13" ? createVersion("entry-13", { title: "Corrected unrelated title", contentMarkdown: "Updated unrelated text" }) : version),
+    };
+    const current = await handleBlogSearchApiRequest({ ...request, tag: "DB", page: 99 });
+    assert.equal(current.cached, true);
+    assert.equal(current.pagination.currentPage, 2);
+    assert.equal(current.pagination.totalItems, 10);
+    assert.deepEqual(current.results.map(({ slug }) => slug), slugs.slice(9, 13));
+    const empty = await handleBlogSearchApiRequest({ ...request, tag: "missing", page: 2 });
+    assert.deepEqual(empty.results, []);
+    assert.deepEqual(empty.pagination, { currentPage: 1, pageSize: 6, totalItems: 0, totalPages: 1 });
+  });
+
   it("does not fabricate embedding usage for the keyword-only route", () => {
     assert.doesNotMatch(
       searchRouteSource,

@@ -143,7 +143,7 @@
     {
       "dir": "blog-discovery-and-home",
       "status": "pending",
-      "summary": "2026-10-01 public experience plan: 검색과 홈 연결. Steps 0-3 are planned; preserve Discord style, the entire radar area, published-current/privacy boundaries and the OCI hold."
+      "summary": "Step 0 completed: q/tag/page URL-backed unified search/list with filtered pagination, current public results on cache hits, readable match context, reset/history and canceled stale responses. Focused search/UI 20/20, discovery 6/6, unit 207 pass/13 DB skip, public-read integration 1/1, lint/typecheck/build and 1440/390/320px browser checks passed. Next: Step 1 compact-topic-filters; Steps 1-3 remain pending. Discord style, radar, published-current/privacy and OCI hold preserved."
     },
     {
       "dir": "portfolio-evidence-experience",
@@ -163,7 +163,7 @@
     {
       "dir": "operations-observability",
       "status": "pending",
-      "summary": "2026-10-06 plan registered: local Steps 0-6 cover metric contracts, private Prometheus/Grafana, host/DB/HTTP probes, durable publishing/cost and backup/restore signals, dashboards/alerts and failure rehearsal. Step 7 production rollout is blocked by the user's OCI hold. Runtime is not implemented. Verified production monitoring is a pre-timer gate; the default next local step is blog-discovery-and-home Step 0."
+      "summary": "2026-10-06 plan registered: local Steps 0-6 cover metric contracts, private Prometheus/Grafana, host/DB/HTTP probes, durable publishing/cost and backup/restore signals, dashboards/alerts and failure rehearsal. Step 7 production rollout is blocked by the user's OCI hold. Runtime is not implemented. Verified production monitoring is a pre-timer gate; the default next local step is blog-discovery-and-home Step 1."
     },
     {
       "dir": "second-brain-foundation",

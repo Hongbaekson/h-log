@@ -1,10 +1,32 @@
 import type {
-  BlogSearchApiResponse,
-  BlogSearchMatchReason,
+  BlogSearchHttpResponse,
   BlogSearchRequestAssessment,
   BlogSearchResult,
 } from "./blog-search.ts";
 import { formatPublicBlogDate } from "./blog-public-presentation.ts";
+import type { PublicBlogPagination } from "./blog-public.ts";
+
+export type BlogBrowseState = { query: string; tag: string | null; page: number };
+export type BlogBrowseParams = { q?: string | string[]; tag?: string | string[]; page?: string | string[] };
+
+export function parseBlogBrowseParams(params: BlogBrowseParams): BlogBrowseState {
+  const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value) ?? "";
+  const rawPage = first(params.page);
+  const page = /^\d+$/.test(rawPage) ? Number(rawPage) : 1;
+  return {
+    query: first(params.q).trim().replace(/\s+/g, " "),
+    tag: first(params.tag).trim() || null,
+    page: Number.isSafeInteger(page) && page > 0 ? page : 1,
+  };
+}
+
+export function buildBlogBrowseHref(state: BlogBrowseState): string {
+  const params = new URLSearchParams();
+  if (state.query) params.set("q", state.query);
+  if (state.tag) params.set("tag", state.tag);
+  if (state.page > 1) params.set("page", String(state.page));
+  return params.size ? `/blog?${params}` : "/blog";
+}
 
 export type BlogSearchUiStatus =
   | "blocked"
@@ -20,18 +42,16 @@ export type BlogSearchUiResultItem = {
   matchReasonLabel: string;
   publishedAt: string;
   publishedDateLabel: string;
-  scoreLabel: string;
   slug: string;
   tags: string[];
   title: string;
 };
 
 export type BlogSearchUiSnapshot = {
-  cached: boolean;
   items: BlogSearchUiResultItem[];
   message: string | null;
   query: string;
-  reason: BlogSearchRequestAssessment["reason"] | null;
+  pagination: PublicBlogPagination | null;
   status: BlogSearchUiStatus;
 };
 
@@ -39,7 +59,7 @@ export type BlogSearchUiSnapshotInput = {
   errorMessage?: string;
   loading?: boolean;
   query: string;
-  response?: BlogSearchApiResponse;
+  response?: BlogSearchHttpResponse;
 };
 
 export function createBlogSearchUiSnapshot(
@@ -72,61 +92,55 @@ export function createBlogSearchUiSnapshot(
 
   if (input.response.status === "blocked") {
     return createSnapshot({
-      cached: input.response.cached,
-      message: getBlockedSearchMessage(input.response.guardReason),
+      message: getBlockedSearchMessage(input.response.reason),
       query,
-      reason: input.response.guardReason,
       status: "blocked",
     });
   }
 
   if (input.response.results.length === 0) {
     return createSnapshot({
-      cached: input.response.cached,
       message: "일치하는 공개 글이 없습니다.",
       query,
-      reason: input.response.guardReason,
+      pagination: input.response.pagination,
       status: "empty",
     });
   }
 
   return createSnapshot({
-    cached: input.response.cached,
-    items: input.response.results.map(toBlogSearchUiResultItem),
+    items: input.response.results.map((result) => toBlogSearchUiResultItem(result, query)),
     query,
-    reason: input.response.guardReason,
+    pagination: input.response.pagination,
     status: "results",
   });
 }
 
 function createSnapshot(input: {
-  cached?: boolean;
   items?: BlogSearchUiResultItem[];
   message?: string | null;
   query: string;
-  reason?: BlogSearchRequestAssessment["reason"] | null;
+  pagination?: PublicBlogPagination;
   status: BlogSearchUiStatus;
 }): BlogSearchUiSnapshot {
   return {
-    cached: input.cached ?? false,
     items: input.items ?? [],
     message: input.message ?? null,
     query: input.query,
-    reason: input.reason ?? null,
+    pagination: input.pagination ?? null,
     status: input.status,
   };
 }
 
 function toBlogSearchUiResultItem(
   result: BlogSearchResult,
+  query: string,
 ): BlogSearchUiResultItem {
   return {
     description: result.description,
     href: result.href,
-    matchReasonLabel: getBlogSearchMatchReasonLabel(result.matchReason),
+    matchReasonLabel: getBlogSearchMatchReasonLabel(result, query),
     publishedAt: result.publishedAt,
     publishedDateLabel: formatPublicBlogDate(result.publishedAt),
-    scoreLabel: `${Math.round(clampScore(result.score) * 100)}%`,
     slug: result.slug,
     tags: [...result.tags],
     title: result.title,
@@ -156,27 +170,13 @@ function getBlockedSearchMessage(
 }
 
 function getBlogSearchMatchReasonLabel(
-  reason: BlogSearchMatchReason,
+  result: BlogSearchResult,
+  query: string,
 ): string {
-  if (reason === "keyword_and_vector") {
-    return "키워드 + 유사도";
+  const tokens = [...new Set(query.toLocaleLowerCase("ko-KR").split(/\s+/).filter(Boolean))];
+  for (const [label, text] of [["제목", result.title], ["요약", result.description], ["태그", result.tags.join(" ")]]) {
+    const matches = tokens.filter((token) => text.toLocaleLowerCase("ko-KR").includes(token));
+    if (matches.length) return `${label}에서 일치: ${matches.join(" · ")}`;
   }
-
-  if (reason === "vector") {
-    return "유사도";
-  }
-
-  return "키워드";
-}
-
-function clampScore(score: number): number {
-  if (!Number.isFinite(score) || score < 0) {
-    return 0;
-  }
-
-  if (score > 1) {
-    return 1;
-  }
-
-  return score;
+  return "검색어와 관련된 내용이 있는 글입니다.";
 }

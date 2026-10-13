@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 
 import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
+import { parseBlogBrowseParams } from "@/lib/blog-search-ui";
 import {
   createBlogSearchRuntimeState,
   handleBlogSearchApiRequest,
@@ -12,10 +13,16 @@ export const runtime = "nodejs";
 const searchRuntimeState = createBlogSearchRuntimeState();
 
 export async function GET(request: NextRequest) {
+  const { query, tag, page } = parseBlogBrowseParams({
+    q: request.nextUrl.searchParams.get("q") ?? undefined,
+    tag: request.nextUrl.searchParams.get("tag") ?? undefined,
+    page: request.nextUrl.searchParams.get("page") ?? undefined,
+  });
   const response = await handleBlogSearchApiRequest({
     clientId: getSearchClientId(request),
     loadStore: loadPublicBlogContentStore,
-    query: request.nextUrl.searchParams.get("q") ?? "",
+    query, tag, page,
+    policy: { resultLimit: 6 },
     state: searchRuntimeState,
   });
 
@@ -23,6 +30,7 @@ export async function GET(request: NextRequest) {
     {
       cached: response.cached,
       reason: response.guardReason,
+      pagination: response.pagination,
       results: response.results,
       status: response.status,
     },
