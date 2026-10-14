@@ -40,7 +40,7 @@ npm run build
 
 `/brain`과 `/brain/[slug]`는 ADR-019의 편집형 카탈로그를 읽는 독립 공개 화면이다. `lib/brain-catalog.ts`에는 기존 공개 자료 기반 노드와 2026-10-06 사용자가 공개 승인한 일반화된 추가 18개 노드를 합쳐 28개 노드/42개 관계를 둔다. 원문·Wiki·식별자·근거 경로는 포함하지 않는다. `private/`의 검토본과 근거 대장은 Git·Docker에서 제외하고, 카탈로그가 이 파일들을 import하거나 자동 동기화하지 않는다.
 
-`lib/brain.ts`의 `selectPublicBrain`은 명시적으로 고른 필드만 DTO로 만들고, 공개 노드끼리의 공개 관계만 반환한다. 출처는 기존 public HTTPS URL 검증과 허용한 Resume/Portfolio 경로를 사용한다. 서버 page가 이 DTO를 `BrainExplorer`에 전달한다. ADR-021에 따라 `/brain`은 로컬 reference와 같은 `memory.css`의 전체 화면과 340px 검은 sidebar를 사용한다. `body:has(.memory-page)`에만 공통 header/footer 숨김을 적용해 다른 route와 Home은 바꾸지 않는다.
+`lib/brain.ts`의 `selectPublicBrain`은 명시적으로 고른 필드만 DTO로 만들고, 공개 노드끼리의 공개 관계만 반환한다. 출처는 기존 public HTTPS URL 검증과 허용한 Resume/Portfolio 경로를 사용한다. 서버 page가 이 DTO를 `BrainExplorer`에 전달한다. ADR-030에 따라 `/brain`은 REA로 확인한 현재 로컬 reference의 260px 크림색 sidebar, 그래프 상단 검색과 440px 우측 세로 본문을 사용한다. 그래프는 화면 크기에 맞춘 투영 배율을 사용하며 서버 DTO와 저장 계약은 바꾸지 않는다. `memory.css`와 `body:has(.memory-page)`에만 테마와 공통 header/footer 숨김을 적용해 다른 route와 Home은 바꾸지 않는다.
 
 `BrainScene`은 Next dynamic import(ssr:false)로 native WebGL renderer를 불러온다. `lib/brain-layout.ts`는 로컬 UI의 deterministic constellation 좌표식을 공개 데이터 복사본에 적용하며 브레인/자유/주제별/유형별 계층/실제 정리일 배치를 제공한다. 필터는 원본처럼 일치하는 기록과 그 사이의 관계를 표시한다. WebGL canvas의 additive point/soft line과 별도 2D label canvas, 키보드용 투영 버튼을 사용한다. 라벨 수/겹침을 제한하고 hover preview와 선택된 노드의 직접 연결 강조를 제공한다. 노드 drag, 회전/확대/pinch, 전체 보기와 다시 정렬을 지원한다. 해제 시 listener/observer/RAF/shader/program/buffer를 정리하며, 숨긴 tab에서는 animation을 중지한다. 움직임 줄이기/정지를 제공하고 WebGL 생성 실패나 context loss 시 동일 카탈로그의 목록으로 전환한다. 외부 graph runtime/library와 원본 데이터 fetch는 없다.
 

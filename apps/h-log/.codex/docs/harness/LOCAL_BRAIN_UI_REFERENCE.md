@@ -1,8 +1,37 @@
 # 로컬 Second Brain UI 이식 기준
 
-2026-10-06 사용자가 Step 0의 재해석된 화면을 거절하고 지정한 로컬 `brain/ui/index.html`과 같은 UI를 요청했다. 이 문서와 ADR-021이 `/brain`의 최신 기준이다. [이전 Memory 분석](MEMORY_UI_REFERENCE.md)은 이력으로 남긴다.
+2026-10-14 사용자가 REA로 지정한 로컬 `brain/ui/index.html`을 다시 확인해 UI를 맞추도록 요청했다. 현재 기준은 아래 Step 2와 ADR-030이다. 이전 이식 당시와 원본 파일이 달라졌으며, [Memory 분석](MEMORY_UI_REFERENCE.md)과 아래 Step 1 결과는 이력으로 남긴다.
 
-## 확인한 원본
+## 현재 기준: Step 2 REA 재분석
+
+REA directory 분석에서 HTML 한 개를 식별했지만 inline JavaScript는 파싱하지 못했다. 해당 파일만 제공하는 loopback 서버와 전용 브라우저를 열고 REA runtime 분석으로 두 script를 파싱했다. 원본 데이터가 든 첫 script와 UI를 구성하는 두 번째 script를 구분하고, UI와 화면 치수만 반영했다.
+
+- REA directory digest: `c51c00f31e1b05d28ae916f22534be3f980ba7214263deac8ff90ffe23e83304`
+- 원본 HTML SHA-256: `9c297b9c86019f84298a058c088ed826dda0b3e09826e4a6e652670d04bdd818`
+- UI script SHA-256: `323c0d9c21dd9bc4c7aede2d8e520dbed36f91ec3d59439af5babfd525bb01cb`
+- Directory evidence: `ev_80d67afc858b0fd02dc1dc6eadd78f5d0afad0ab48ae55bfc5de090149ac63df`
+- Runtime evidence: `ev_08f6b4df5912bb3abd59d42e899e7ea9ef826aa52bad8737ab042053573ce652` — 2 script, 14,441 AST node, parse failure 0.
+- 화면 evidence: `ev_28d6f0f1fd5f2bea792ccf36704fe92251b6382ccb7180f8e78a05dbd2175307` — 1440×1000 캡처. 이 관측만으로 전체 동작을 입증하지 않으며 아래 브라우저 검증을 함께 사용했다.
+
+| 항목 | 현재 원본 및 H-Log 기준 (1440×1000) |
+| --- | --- |
+| Sidebar | 260px, padding 24px 20px, `#ecebe3`, 제목 18px/27px |
+| 그래프 | x=260px, 1180×1000px, `#0a0a0a` |
+| 검색 | 그래프 상단 중앙 x=530px/y=20px, 640×49px, `/`로 포커스 |
+| 도구 | Sidebar 아래의 배치·색상·간격·다시 정렬 |
+| Hover preview | Stage 하단 중앙, 너비 460px, bottom 28px |
+| 선택 본문 | x=976px/y=88px, 440×888px, right/bottom 24px, 내부 스크롤 |
+| 모바일 | 전체 폭 그래프, 상단 검색, 최대 280px 필터 drawer, 하단 본문 dialog |
+
+밝은 sidebar는 `/brain` 전용 예외다. 공개 기록과 URL 상태, 근거 표시, 목록 대체, 모션 정지와 dialog 접근성은 유지한다. 원본의 회사 문서·태그·검색 데이터·경로·AI prompt는 가져오지 않는다. H-Log의 28개 노드/42개 관계와 원본의 데이터가 달라 연결 모양과 텍스트 줄바꿈은 달라진다.
+
+그래프 투영은 `max(.1, min((width-64)/900, (height-180)/1100))`를 배율에 곱하고 화면 높이의 50%를 중심으로 삼는다. 이전 모바일 전용 초기 축소는 제거했다. 실제 정리일과 긴 한글 라벨의 충돌 방지는 H-Log 의미에 맞게 유지한다.
+
+검증에서 sidebar 폭 `340 !== 260`, 그래프 좌표 오차(1440/390/320px)를 먼저 재현했다. 변경 뒤 sidebar·제목·검색·필터의 실측이 일치하고 투영 오차가 0.001px 미만임을 확인했다. 긴 본문이 패널 높이를 넘던 문제와 모바일 필터 버튼 표시도 재현 후 수정했다. 1440/1024/768/390/320px에서 검색·5종 배치·URL·키보드·drag/pinch·모션·WebGL fallback을 통과했다. 비교 script와 캡처는 ignored `.codex/tmp/brain-rea/` 및 `.codex/tmp/brain-ui-parity/`에만 둔다.
+
+## 이전 이식 이력: 2026-10-06 Step 1
+
+아래 치수와 검증은 당시 원본 기준이며 현재 UI 기준이 아니다.
 
 로컬 HTML의 첫 번째 script에는 embedded 문서 데이터가 있고, 두 번째 script가 UI를 만든다. UI script가 추가하는 세 번의 CSS 선언을 모두 읽고 최종 override를 기준으로 확인했다. 첫 번째 light CSS만 보면 실제 검은 화면과 다른 결론이 나온다. 원본을 file URL로 직접 열어 1440×1000/390×844에서 확인했다.
 

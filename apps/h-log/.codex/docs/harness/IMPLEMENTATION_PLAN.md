@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-14 별도 UI 수정 요청 완료: **`second-brain-memory-interface / Step 2: rea-reference-refresh`**에서 지정한 로컬 HTML을 REA로 재분석하고 260px 크림색 sidebar, 상단 검색, 우측 세로 본문과 화면 크기별 그래프 투영을 반영했다(ADR-030). Geometry/투영 RED→GREEN과 1440/1024/768/390/320px 상호작용 검증을 통과했다. 기존 공개 기록·개인 작성·Home/레이더·OCI 보류는 유지한다. 일반적인 다음 단계는 아래 **`blog-discovery-and-home / Step 2: home-recent-posts`**이며 이번 요청에서 시작하지 않았다.
+
 2026-10-14 다음 단계 요청 완료: **`blog-discovery-and-home / Step 1: compact-topic-filters`를 완료**했다. 짧은 소개 뒤에 검색·주요 태그·글을 배치하고 공개 태그 4개와 선택 태그 외의 항목은 기본 HTML로 접었다(ADR-029). 320px 검색 위치 RED/GREEN, focused 44/44, unit 207 pass/13 DB skip, lint/typecheck/build와 1440/390/320px 키보드·태그 개수·긴 글·빈 상태·URL 검색 회귀 검증을 통과했다. Phase 3 Steps 0–1이 완료됐으며 다음은 **`blog-discovery-and-home / Step 2: home-recent-posts`**이다. Second Brain 완료 상태와 Home/레이더, OCI 보류는 유지한다.
 
 2026-10-08 foundation 완료 이력: `blog-reading-foundation / Step 3: accessible-tables`까지 전체 Steps 0–3이 completed다. 표의 열 제목·정렬·빈 셀·escaped pipe와 안전한 inline 셀, 모바일 내부 스크롤과 키보드 접근을 추가했다(ADR-024). Focused 25/25, unit 196 pass/13 DB skip, lint/typecheck/build와 격리 DB의 1440/390/320px 화면·접근성·비공개 경계를 검증했다.

@@ -173,7 +173,7 @@
     {
       "dir": "second-brain-memory-interface",
       "status": "completed",
-      "summary": "2026-10-06 latest correction: Step 1 supersedes Step 0. Ported the specified local UI's 340px dark sidebar, sidebar search, native WebGL constellation, bottom hover preview and 520px bottom-right detail; measured reference parity passed. RED/GREEN, unit 178 pass/12 DB skip, lint/typecheck/build and 1440/1024/768/390/320px interaction checks passed. Removed unused Three.js/d3-force-3d. Used only approved 28 nodes/42 edges; no company payload, Home/radar changes or OCI operations. Subsequent foundation Steps 0-5 are also complete as of 2026-10-07."
+      "summary": "2026-10-14: Steps 0-2 completed. Step 2 refreshes the changed local reference using REA directory/runtime and screenshot evidence: 260px cream sidebar, top search, sidebar tools, 460px preview, 440px right reader and viewport-fit projection. Geometry/projection RED/GREEN, focused 10/10, unit 207 pass/13 DB skip, lint/typecheck/build and 1440/1024/768/390/320px interactions passed. Approved 28 nodes/42 edges and foundation Steps 0-5 remain intact; no company payload, Home/radar changes or OCI operations. Default next: blog-discovery-and-home Step 2."
     },
     {
       "dir": "terraform-infrastructure-adoption",

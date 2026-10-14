@@ -3,9 +3,10 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
+import { Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import type { BrainSceneHandle } from "./BrainScene";
-import { brainBasisLabels, brainKindLabels, brainRelationLabels, brainTopics, findBrainNode, type BrainGraph, type BrainKind, type BrainNode, type BrainRelation, type BrainTopic } from "@/lib/brain";
+import { brainBasisLabels, brainKindColors, brainKindLabels, brainRelationLabels, brainTopics, findBrainNode, type BrainGraph, type BrainKind, type BrainNode, type BrainRelation, type BrainTopic } from "@/lib/brain";
 import { filterBrainGraph, type BrainLayout } from "@/lib/brain-layout";
 import { sortBrainNodes, type BrainOrder } from "@/lib/brain-curation";
 
@@ -81,6 +82,7 @@ export function BrainExplorer({ graph }: { graph: BrainGraph }) {
   const [hovered, setHovered] = useState<string | null>(null);
   const api = useRef<BrainSceneHandle | null>(null);
   const readerRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
   const reducedMotion = useSyncExternalStore(subscribeMotion, readMotion, serverMotion);
   const query = params.get("q") ?? "";
   const topic = params.get("topic") ?? "all";
@@ -105,6 +107,17 @@ export function BrainExplorer({ graph }: { graph: BrainGraph }) {
   }, [graph]);
   const filtered = Boolean(query || topic !== "all" || tag || kind || relation || basis);
   useEffect(() => { if (selected) { readerRef.current?.focus({preventScroll:true}); readerRef.current?.parentElement?.scrollTo(0,0); } }, [selected]);
+  useEffect(() => {
+    const focusSearch = (event: KeyboardEvent) => {
+      if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey || document.querySelector("dialog[open]")) return;
+      const target = event.target as HTMLElement;
+      if (target.isContentEditable || target.closest("input, textarea, select")) return;
+      event.preventDefault();
+      searchRef.current?.focus();
+    };
+    window.addEventListener("keydown", focusSearch);
+    return () => window.removeEventListener("keydown", focusSearch);
+  }, []);
 
   function update(values: Record<string, string | null>, replace = false) {
     const next = new URLSearchParams(window.location.search);
@@ -131,29 +144,32 @@ export function BrainExplorer({ graph }: { graph: BrainGraph }) {
   function sidebar(mobile = false) {
     const Title = mobile ? "h2" : "h1";
     return <aside className="mem-side" aria-label="Second Brain 필터">
-      <div className="mem-side-top"><Link href="/" className="mem-round" aria-label="H-Log 홈으로">←</Link>{mobile ? <button type="button" className="mem-round" aria-label="필터 닫기" onClick={() => setFiltersOpen(false)}>×</button> : <div className="mem-lang" aria-label="한국어 개인 기록"><span>ko</span><span>log</span></div>}</div>
-      <div><div className="mem-eyebrow">지식 그래프</div><Title className="mem-title">H-Log Second Brain</Title><div className="mem-counts"><span><strong>{graph.nodes.length}</strong> 노드</span><span>·</span><span><strong>{graph.edges.length}</strong> 엣지</span></div></div>
+      <div className="mem-side-top"><Link href="/" className="mem-round" aria-label="H-Log 홈으로">←</Link><span className="mem-brand">H-LOG</span>{mobile && <button type="button" className="mem-round" aria-label="필터 닫기" onClick={() => setFiltersOpen(false)}>×</button>}</div>
+      <div><div className="mem-eyebrow">지식 그래프</div><Title className="mem-title">Second Brain</Title><div className="mem-counts"><span><strong>{graph.nodes.length}</strong> 노드</span><span>·</span><span><strong>{graph.edges.length}</strong> 엣지</span></div></div>
       <div className="mem-rule" />
-      <section className="mem-section"><div className="mem-section-title">렌즈</div><div className="mem-chipset">{[["all","전체"],["topics","토픽별"],["connections","연결별"],["thoughts","생각별"],["basis","기록 vs 내 생각"]].map(([value,label]) => <Chip key={value} active={lens === value} onClick={() => chooseLens(value)}>{label}</Chip>)}</div>
+      <section className="mem-section"><div className="mem-section-title">렌즈</div><div className="mem-chipset mem-lenses">{[["all","전체"],["topics","토픽별"],["connections","연결별"],["thoughts","생각별"],["basis","기록 vs 내 생각"]].map(([value,label]) => <Chip key={value} active={lens === value} onClick={() => chooseLens(value)}>{label}</Chip>)}</div>
         {lens === "basis" && <div className="mem-chipset mem-status">{Object.entries(brainBasisLabels).map(([value,description]) => <Chip key={value} active={basis === value} count={graph.nodes.filter(node => node.basis === value).length} onClick={() => update({basis:basis === value ? null : value,note:null})}>{description.label}</Chip>)}</div>}
       </section>
       <div className="mem-rule" />
       <section className="mem-section"><div className="mem-section-title">주제 · 태그로 보기</div>
-        <input className="mem-search" type="search" value={query} aria-label="기록 검색" placeholder="노드, 생각, 해결 방법 검색" onChange={event => update({q:event.target.value,note:null},true)} onKeyDown={event => { if (event.key === "Enter" && results.nodes[0]) select(results.nodes[0].id); }} />
-        <div className="mem-search-results" aria-label="검색 결과">{query && <>{results.nodes.slice(0,8).map(node => <button className="mem-search-hit" type="button" key={node.id} onClick={() => select(node.id)}><strong>{node.title}</strong><small>{brainTopics[node.topic].label} · {brainBasisLabels[node.basis].label}</small><small>{node.summary}</small></button>)}{!results.nodes.length && <div className="mem-status">검색 결과 없음</div>}</>}</div>
         <div className="mem-mini">태그</div><div className="mem-chipset"><Chip active={!tag} count={graph.nodes.length} onClick={() => update({tag:null,note:null})}>전체</Chip>{tags.map(([value,count]) => <Chip key={value} active={tag === value} count={count} onClick={() => update({tag:tag === value ? null : value,note:null})}>{value}</Chip>)}</div>
         <div className="mem-mini">토픽</div><div className="mem-chipset"><Chip active={topic === "all"} count={graph.nodes.length} onClick={() => update({topic:null,note:null})}>전체</Chip>{(Object.keys(brainTopics) as BrainTopic[]).map(value => <Chip key={value} active={topic === value} count={graph.nodes.filter(node => node.topic === value).length} onClick={() => update({topic:topic === value ? null : value,note:null})}>{brainTopics[value].label}</Chip>)}</div>
       </section>
       <div className="mem-rule" />
-      <section className="mem-section"><div className="mem-section-title">노드 유형</div><div className="mem-chipset">{(Object.keys(brainKindLabels) as BrainKind[]).map(value => <Chip key={value} active={kind.split(",").includes(value)} count={graph.nodes.filter(node => node.kind === value).length} onClick={() => toggle("kind",value)}>{brainKindLabels[value]}</Chip>)}</div></section>
+      <section className="mem-section"><div className="mem-section-title">노드 유형</div><div className="mem-type-list">{(Object.keys(brainKindLabels) as BrainKind[]).map(value => <Chip key={value} active={kind.split(",").includes(value)} count={graph.nodes.filter(node => node.kind === value).length} onClick={() => toggle("kind",value)}><i aria-hidden="true" className="mem-type-dot" style={{background:brainKindColors[value]}} />{brainKindLabels[value]}</Chip>)}</div></section>
       <section className="mem-section"><div className="mem-section-title">엣지 유형</div><div className="mem-chipset"><Chip active={!relation} count={graph.edges.length} onClick={() => update({relation:null,note:null})}>전체</Chip>{(Object.keys(brainRelationLabels) as BrainRelation[]).map(value => <Chip key={value} active={relation.split(",").includes(value)} count={graph.edges.filter(edge => edge.relation === value).length} onClick={() => toggle("relation",value)}>{brainRelationLabels[value]}</Chip>)}</div></section>
-      <div className="mem-status" role="status" aria-live="polite">{results.nodes.length}/{graph.nodes.length}개 노드 표시{"\n"}{results.edges.length}/{graph.edges.length}개 연결 표시{layout === "timeline" && "\n정리일 기준"}{layout === "hierarchy" && "\n유형별 계층"}</div>
-      <div className="mem-chipset mem-section">
+      <div className="mem-rule" />
+      <section className="mem-section"><div className="mem-section-title">브레인</div><div className="mem-control mem-layouts" aria-label="배치">{(Object.keys(layouts) as BrainLayout[]).map(value => <button key={value} type="button" className={layout === value ? "active" : ""} aria-pressed={layout === value} data-layout={value} onClick={() => update({layout:value,view:null})}>{layouts[value]}</button>)}</div></section>
+      <section className="mem-section"><div className="mem-section-title">색상 기준</div><div className="mem-control" aria-label="색상 기준">{[["kind","유형"],["topic","분야"]].map(([value,label]) => <button key={value} type="button" className={color === value ? "active" : ""} aria-pressed={color === value} onClick={() => update({color:value})}>{label}</button>)}</div></section>
+      <section className="mem-section"><div className="mem-section-title">노드 간격</div><div className="mem-control" aria-label="노드 간격">{[["compact","좁게",.72],["normal","보통",1],["wide","넓게",1.34]].map(([value,label,factor]) => <button key={value} type="button" className={spread === factor ? "active" : ""} aria-pressed={spread === factor} onClick={() => update({spacing:String(value)})}>{label}</button>)}</div></section>
+      <div className="mem-actions">
+        <button type="button" onClick={() => api.current?.reset()}>↻ 다시 정렬</button><button type="button" aria-pressed={labels} onClick={() => update({labels:labels ? "off" : null})}>{labels ? "라벨 숨기기" : "라벨 보이기"}</button>
         <Chip active={view === "list"} onClick={() => { setUnavailable(false); update({view:view === "graph" ? "list" : null}); }}>{view === "graph" ? "목록 보기" : "그래프 보기"}</Chip>
         {!reducedMotion && <Chip active={paused} onClick={() => setPaused(value => !value)}>{paused ? "움직임 시작" : "움직임 멈추기"}</Chip>}
         <Chip active={false} onClick={() => api.current?.fit()}>전체 보기</Chip>
         {filtered && <Chip active={false} onClick={clearFilters}>필터 초기화</Chip>}
       </div>
+      <div className="mem-status" role="status" aria-live="polite">{results.nodes.length}/{graph.nodes.length}개 노드 표시{"\n"}{results.edges.length}/{graph.edges.length}개 연결 표시{layout === "timeline" && "\n정리일 기준"}{layout === "hierarchy" && "\n유형별 계층"}</div>
     </aside>;
   }
 
@@ -161,12 +177,12 @@ export function BrainExplorer({ graph }: { graph: BrainGraph }) {
     {sidebar()}
     <section className="mem-stage" aria-label="Second Brain 그래프">
       {view === "graph" && <BrainScene graph={graph} matches={results} selectedId={selected?.id ?? null} layout={layout} spread={spread} color={color} labels={labels} paused={paused} apiRef={api} onSelect={select} onHover={setHovered} onUnavailable={() => setUnavailable(true)} />}
-      <div className="mem-topbar"><button className="mem-round mem-menu" type="button" aria-label="필터 열기" onClick={() => setFiltersOpen(true)}>☰</button><div className="mem-tools">
-        <div className="mem-control" aria-label="배치"><span>브레인</span>{(Object.keys(layouts) as BrainLayout[]).map(value => <button key={value} type="button" className={layout === value ? "active" : ""} aria-pressed={layout === value} data-layout={value} onClick={() => update({layout:value,view:null})}>{layouts[value]}</button>)}</div>
-        <div className="mem-control" aria-label="색상 기준"><span>색상 기준</span>{[["kind","유형"],["topic","분야"]].map(([value,label]) => <button key={value} type="button" className={color === value ? "active" : ""} aria-pressed={color === value} onClick={() => update({color:value})}>{label}</button>)}</div>
-        <div className="mem-control" aria-label="노드 간격"><span>노드 간격</span>{[["compact","좁게",.72],["normal","보통",1],["wide","넓게",1.34]].map(([value,label,factor]) => <button key={value} type="button" className={spread === factor ? "active" : ""} aria-pressed={spread === factor} onClick={() => update({spacing:String(value)})}>{label}</button>)}</div>
-        <div className="mem-control"><button type="button" onClick={() => api.current?.reset()}>다시 정렬</button><button type="button" aria-pressed={labels} onClick={() => update({labels:labels ? "off" : null})}>{labels ? "라벨 숨기기" : "라벨 보이기"}</button></div>
-      </div></div>
+      <button className="mem-round mem-menu" type="button" aria-label="필터 열기" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(true)}>☰</button>
+      <div className="mem-search-area" role="search" aria-label="Second Brain 검색">
+        <label className="mem-search-shell"><Search size={16} strokeWidth={1.5} aria-hidden="true" /><input ref={searchRef} className="mem-search" type="search" value={query} aria-label="기록 검색" aria-keyshortcuts="/" placeholder="Second Brain에서 생각, 해결 방법 검색" onChange={event => update({q:event.target.value,note:null},true)} onKeyDown={event => { if (event.key === "Enter" && results.nodes[0]) select(results.nodes[0].id); }} /><span className="mem-key" aria-hidden="true">/</span></label>
+        <div className="mem-search-results" aria-label="검색 결과" aria-live="polite">{query && !selected && <>{results.nodes.slice(0,8).map(node => <button className="mem-search-hit" type="button" key={node.id} onClick={() => select(node.id)}><strong>{node.title}</strong><small>{brainTopics[node.topic].label} · {brainBasisLabels[node.basis].label}</small><small>{node.summary}</small></button>)}{!results.nodes.length && <div className="mem-status">검색 결과 없음</div>}</>}</div>
+      </div>
+      {view === "graph" && <><div className="mem-hint"><strong>기억과 생각이 연결된 별자리를 둘러보세요.</strong>드래그로 회전 · 스크롤로 확대 · Ctrl+드래그로 이동 · 클릭하여 본문 열기</div><div className="mem-legend" aria-hidden="true">{(Object.keys(brainKindLabels) as BrainKind[]).map(value => <span className="mem-legend-item" key={value} style={{color:brainKindColors[value]}}><i className="mem-dot" />{brainKindLabels[value]}</span>)}</div></>}
       {view === "list" && <section className="mem-catalog" aria-label="기록 목록"><h2>기록 모아보기</h2><label htmlFor="memory-order">기록 정렬</label><select id="memory-order" className="mem-search" value={order} onChange={event => update({order:event.target.value})}><option value="recent">최근에 쓴 기록부터</option><option value="recorded">처음 쓴 기록부터</option><option value="event">사건 날짜순 · 모르면 맨 뒤</option></select>{unavailable && <p className="mem-status" role="status">이 환경에서는 그래프를 열 수 없어 기록을 목록으로 보여드립니다.</p>}<div className="mem-list">{sortBrainNodes(results.nodes, order).map(node => <button type="button" className="mem-row" key={node.id} onClick={() => select(node.id)}><strong>{node.title}</strong><small>{brainKindLabels[node.kind]} · {brainTopics[node.topic].label}</small><small>정리일 {node.recordedAt}{node.occurredOn ? ` · 사건 ${node.occurredOn}` : ""}</small><small>{node.summary}</small></button>)}</div></section>}
       {!results.nodes.length && <div className="mem-empty"><p>이 조건에 맞는 기록이 없습니다.</p><Chip active={false} onClick={clearFilters}>필터 초기화</Chip></div>}
       {preview && <section className="mem-preview" aria-live="polite"><div className="mem-preview-kicker">{brainKindLabels[preview.kind]}</div><h3>{preview.title}</h3><p>{preview.summary.length > 128 ? `${preview.summary.slice(0,125)}…` : preview.summary}</p><small>클릭하시면 본문이 열립니다.</small></section>}

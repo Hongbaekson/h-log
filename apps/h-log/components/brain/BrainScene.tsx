@@ -133,19 +133,18 @@ export default function BrainScene(props: Props) {
     let previousGraph: BrainGraph | null = null, previousLayout = "", previousSpread = 0;
     let hovered: string | null = null, frame = 0, disposed = false, lastFrame = 0;
     const state = {width:1,height:1,dpr:1,zoom:1.28,targetZoom:1.28,rotX:-.18,rotY:.35,rotZ:.02,panX:0,panY:0,driftX:0,driftY:0,now:0};
-    let defaultZoom=1.28, hasSize=false;
     const pointers = new Map<number,{x:number;y:number}>();
     let dragging = false, dragged: string | null = null, panning = false, moved = false, downX = 0, downY = 0;
     const moving = () => !reducedMotion.matches && !live.current.paused;
-    const initialZoom = () => 1.28 * (window.innerWidth < 768 ? Math.min(1,state.width/640) : 1);
     const color = (node: SceneNode) => live.current.color === "topic" ? brainTopics[node.topic].color : brainKindColors[node.kind];
     const viewMatrix = () => ({cy:Math.cos(state.rotY),sy:Math.sin(state.rotY),cx:Math.cos(state.rotX),sx:Math.sin(state.rotX),cz:Math.cos(state.rotZ),sz:Math.sin(state.rotZ)});
     function project(node: SceneNode, view = viewMatrix()): Point {
       const amp = moving() ? node.floatAmp * .84 : 0, phase = node.floatPhase, t = state.now * .00046 * node.floatSpeed;
       const x = node.x + Math.sin(t*1.08+phase)*amp, y = node.y + Math.cos(t*.86+phase*1.17)*amp, z = node.z + Math.sin(t*.62+phase*1.71)*amp;
       const x1=x*view.cy-z*view.sy, z1=x*view.sy+z*view.cy, y1=y*view.cx-z1*view.sx, z2=y*view.sx+z1*view.cx;
-      const x2=x1*view.cz-y1*view.sz, y2=x1*view.sz+y1*view.cz, scale=780/(780+z2)*state.zoom;
-      return {x:state.width*.5+state.panX+state.driftX+x2*scale,y:state.height*.55+state.panY+state.driftY+y2*scale,z:z2,scale};
+      const fit=Math.max(.1,Math.min((state.width-64)/900,(state.height-180)/1100));
+      const x2=x1*view.cz-y1*view.sz, y2=x1*view.sz+y1*view.cz, scale=780/(780+z2)*state.zoom*fit;
+      return {x:state.width*.5+state.panX+state.driftX+x2*scale,y:state.height*.5+state.panY+state.driftY+y2*scale,z:z2,scale};
     }
     function setHover(id: string | null) {
       if (id === hovered) return;
@@ -246,9 +245,6 @@ export default function BrainScene(props: Props) {
     function resize() {
       const rect=canvas.getBoundingClientRect();
       state.width=Math.max(1,rect.width); state.height=Math.max(1,rect.height); state.dpr=Math.min(1.75,window.devicePixelRatio || 1);
-      const nextZoom=initialZoom();
-      state.zoom=state.targetZoom=hasSize ? state.targetZoom*nextZoom/defaultZoom : nextZoom;
-      defaultZoom=nextZoom; hasSize=true;
       canvas.width=Math.floor(state.width*state.dpr); canvas.height=Math.floor(state.height*state.dpr);
       const labelDpr=Math.min(1.5,window.devicePixelRatio || 1);
       labelCanvas.width=Math.floor(state.width*labelDpr); labelCanvas.height=Math.floor(state.height*labelDpr);
@@ -257,7 +253,7 @@ export default function BrainScene(props: Props) {
     function zoom(factor: number) { state.targetZoom=Math.max(.18,Math.min(2.8,state.targetZoom*factor)); requestDraw(); }
     function reset() {
       syncLayout(true);
-      Object.assign(state,{zoom:initialZoom(),targetZoom:initialZoom(),rotX:-.18,rotY:.35,rotZ:.02,panX:0,panY:0,driftX:0,driftY:0});
+      Object.assign(state,{zoom:1.28,targetZoom:1.28,rotX:-.18,rotY:.35,rotZ:.02,panX:0,panY:0,driftX:0,driftY:0});
       requestDraw();
     }
     function fit() {
@@ -268,7 +264,7 @@ export default function BrainScene(props: Props) {
       const scale=Math.max(.18,Math.min(1.8,(state.width-100)/Math.max(1,maxX-minX),(state.height-240)/Math.max(1,maxY-minY)));
       state.zoom=state.targetZoom=scale;
       state.panX=-( (minX+maxX)/2-state.width*.5)*scale;
-      state.panY=-( (minY+maxY)/2-state.height*.55)*scale;
+      state.panY=-( (minY+maxY)/2-state.height*.5)*scale;
       requestDraw();
     }
     function nearest(x: number,y: number) {

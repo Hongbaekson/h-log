@@ -7,9 +7,9 @@
 
 ## 디자인 원칙
 
-### 2026-10-06 Second Brain 전용 수정
+### 2026-10-14 Second Brain 전용 수정
 
-사용자는 격자 UI에 이어 Step 0의 재해석된 화면도 거절하고 지정한 로컬 UI와 같은 모양을 요청했다. `/brain`에 한해 [로컬 이식 기준](LOCAL_BRAIN_UI_REFERENCE.md)과 ADR-021의 340px 검은 sidebar·sidebar 검색·전체 화면 constellation·하단 preview/우측 하단 detail을 우선한다. 다른 경로의 Discord 스타일과 Home 레이더 전체를 보존한다.
+사용자가 지정한 로컬 HTML을 REA로 재분석했다. `/brain`에 한해 [로컬 이식 기준](LOCAL_BRAIN_UI_REFERENCE.md)과 ADR-030의 260px 크림색 sidebar·그래프 상단 검색·전체 화면 constellation·하단 preview·440px 우측 세로 본문을 우선한다. 밝은 sidebar는 이 경로의 사용자 요청에 따른 예외이며 전역 Light theme을 추가하지 않는다. 다른 경로의 Discord 스타일과 Home 레이더 전체를 보존한다.
 
 ### 2026-09-29 승인된 디자인
 

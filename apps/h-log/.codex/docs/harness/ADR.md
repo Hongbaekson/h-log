@@ -315,6 +315,14 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **트레이드오프**: 모바일 첫 화면의 높이를 줄이기 위해 데스크톱도 같은 가로 필터를 사용한다. 공개 목록/개수 계산과 검색 API는 바꾸지 않는다. 대표 글은 명시적인 편집 선택이 없으므로 자동으로 선정하거나 별도 설정을 만들지 않는다. 태그 펼치기는 페이지가 표시된 뒤 브라우저 기본 동작으로 처리된다. 기존 비동기 route의 초기 스트리밍/JavaScript 의존성을 이 변경으로 해소했다고 주장하지 않는다.
 
+### ADR-030: 현재 로컬 Brain UI를 REA로 확인하고 화면 구성을 갱신한다
+
+**결정 (2026-10-14)**: 사용자가 지정한 로컬 HTML을 REA directory/runtime 분석과 화면 캡처로 확인했다. 이전 ADR-021의 340px 검은 sidebar 기준을 현재 원본의 260px 크림색 sidebar, 그래프 상단 검색, 하단 460px preview와 우측 440px 세로 본문으로 대체한다. 배치·색상·간격 도구는 sidebar에 둔다. 밝은 패널은 `/brain` 전용이며 다른 경로의 Discord 테마에 영향을 주지 않는다.
+
+**구현**: 기존 React 컴포넌트와 native WebGL/2D canvas를 유지한다. 원본의 viewport fit 배율과 중앙 투영을 사용하고 이전 모바일 전용 초기 축소를 제거한다. `/`로 검색에 포커스하되 입력 중이거나 modal dialog가 열린 경우 가로채지 않는다. 모바일 필터와 본문은 기존 native dialog로 접근성과 내부 스크롤을 보존한다.
+
+**경계/검증**: 회사 embedded data·경로·AI prompt와 원본 HTML/캡처는 공개 저장소에 넣지 않는다. 개인 공개 DTO·URL 복원·목록·근거 수준·실제 날짜·한글 라벨 충돌 방지를 보존한다. 데이터가 다르므로 노드 연결 모양까지 같다고 주장하지 않는다. 기준 파일 hash와 REA evidence, geometry/투영 RED→GREEN 및 화면별 검증은 [이식 기준](LOCAL_BRAIN_UI_REFERENCE.md)과 `second-brain-memory-interface/step2.md`에 남긴다. DB·Home/레이더·OCI 운영 상태는 변경하지 않는다.
+
 ## 공식/내부 기준
 
 - Next.js docs
