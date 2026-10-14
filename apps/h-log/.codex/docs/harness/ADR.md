@@ -323,6 +323,14 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **경계/검증**: 회사 embedded data·경로·AI prompt와 원본 HTML/캡처는 공개 저장소에 넣지 않는다. 개인 공개 DTO·URL 복원·목록·근거 수준·실제 날짜·한글 라벨 충돌 방지를 보존한다. 데이터가 다르므로 노드 연결 모양까지 같다고 주장하지 않는다. 기준 파일 hash와 REA evidence, geometry/투영 RED→GREEN 및 화면별 검증은 [이식 기준](LOCAL_BRAIN_UI_REFERENCE.md)과 `second-brain-memory-interface/step2.md`에 남긴다. DB·Home/레이더·OCI 운영 상태는 변경하지 않는다.
 
+### ADR-031: Second Brain의 최종 UI 기준은 공개 Memory 페이지다
+
+**결정 (2026-10-15)**: 사용자의 비동기 답변으로 기준이 `careerhackeralex.com/memory`로 확정됐다. ADR-030의 로컬 HTML 기준을 대체한다. 공개 번들을 REA로 분석하고 실제 화면에서 sidebar·필터·검색·미리보기·전체 높이 reader와 모바일 구성을 측정했다. 화면 치수와 evidence는 [Memory 기준](MEMORY_UI_REFERENCE.md)에 남긴다.
+
+**그래프**: 고정 나선 좌표 대신 실제 공개 노드/연결의 force 배치를 사용한다. `d3-force-3d` 3.0.6으로 3D 또는 2D simulation을 고정 tick만 계산하고 입력은 복사해 원본을 보존한다. 렌더링은 기존 native WebGL/2D label canvas를 재사용한다. 브레인은 데이터 크기에 맞춘 원근/회전/발광점, 다른 배치는 밝은 평면/화면 이동/노드 drag다. 원본 Three.js bloom/SVG까지 복제하지 않는다. 실제 기록 날짜와 관계만 사용하며 화면 밀도를 위해 데이터를 추가하지 않는다.
+
+**읽기/접근성**: 560px 전체 높이 본문은 제목·요약과 스크롤 영역으로 나누고 모바일에서는 전체 화면 native dialog로 연다. 본문이 열리면 상단 검색은 남은 공간을 사용한다. 원본의 질문/로그인·번역은 도입하지 않고 기존 기록 검색과 H-Log 표기를 유지한다. URL 복원, 근거 수준, 목록 fallback, 키보드·focus·모션 정지와 공개 DTO 경계를 보존한다. 다른 화면과 Home/레이더, DB/운영 상태는 변경하지 않는다.
+
 ## 공식/내부 기준
 
 - Next.js docs

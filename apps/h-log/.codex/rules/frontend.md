@@ -14,7 +14,7 @@
 
 현재 디자인은 `UI_GUIDE.md`의 2026-09-29 Discord 승인 팔레트를 우선한다. 2026-10-01 사용자 결정에 따라 레이더와 현재 주변 영역은 그대로 보존하며, 아래 초기 Automation Status Card 지침으로 대체하지 않는다.
 
-2026-10-14 최신 사용자 수정 요청의 `/brain`은 ADR-030/`LOCAL_BRAIN_UI_REFERENCE.md`를 우선한다. REA로 확인한 현재 로컬 UI의 260px 크림색 sidebar, 상단 검색, 전체 화면 WebGL graph와 440px 우측 세로 본문을 사용한다. 이 route의 밝은 sidebar와 전체 화면 구성은 아래 일반적인 dark-only/장식/최대 폭 지침의 예외이며 다른 화면에는 적용하지 않는다.
+2026-10-15 사용자가 확정한 `/brain` 기준은 ADR-031/`MEMORY_UI_REFERENCE.md`다. REA로 확인한 공개 Memory 페이지의 260px 밝은 sidebar, 상단 검색, 어두운 3D/밝은 2D graph와 560px 전체 높이 본문을 사용한다. 이 route의 밝은 sidebar·평면 모드·전체 화면 구성은 아래 일반적인 dark-only/장식/최대 폭 지침의 예외이며 다른 화면에는 적용하지 않는다.
 
 - Clean Dark Engineer Portfolio
 - Subtle AI Workflow Console

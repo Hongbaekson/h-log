@@ -1,8 +1,8 @@
 # 로컬 Second Brain UI 이식 기준
 
-2026-10-14 사용자가 REA로 지정한 로컬 `brain/ui/index.html`을 다시 확인해 UI를 맞추도록 요청했다. 현재 기준은 아래 Step 2와 ADR-030이다. 이전 이식 당시와 원본 파일이 달라졌으며, [Memory 분석](MEMORY_UI_REFERENCE.md)과 아래 Step 1 결과는 이력으로 남긴다.
+이 문서는 로컬 `brain/ui/index.html` 기준으로 작업한 Steps 1–2의 이력이다. 2026-10-15 사용자가 비동기 질문에 답해 최종 기준을 공개 `careerhackeralex.com/memory` 화면으로 확정했다. 현재 기준은 [Memory 분석의 Step 3](MEMORY_UI_REFERENCE.md)와 ADR-031이다. 아래 원본 식별과 검증 결과는 당시 상태를 설명한다.
 
-## 현재 기준: Step 2 REA 재분석
+## 2026-10-14 Step 2 REA 재분석 이력
 
 REA directory 분석에서 HTML 한 개를 식별했지만 inline JavaScript는 파싱하지 못했다. 해당 파일만 제공하는 loopback 서버와 전용 브라우저를 열고 REA runtime 분석으로 두 script를 파싱했다. 원본 데이터가 든 첫 script와 UI를 구성하는 두 번째 script를 구분하고, UI와 화면 치수만 반영했다.
 

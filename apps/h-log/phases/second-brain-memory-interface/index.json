@@ -19,6 +19,12 @@
       "name": "rea-reference-refresh",
       "status": "completed",
       "summary": "2026-10-14: REA directory/runtime 분석과 화면 캡처로 변경된 로컬 원본을 확인했다. 260px 크림색 sidebar, 그래프 상단 검색, sidebar 도구, 460px preview/440px 우측 세로 본문과 viewport fit 투영을 반영했다. Geometry/투영 RED→GREEN, focused 10/10, unit 207 pass/13 DB skip, lint/typecheck/build, 1440/1024/768/390/320px 검색·URL·dialog·drag/pinch·모션·WebGL fallback 검증 통과. 회사 데이터 없이 기존 28개/42개와 개인 작성 기능을 유지한다. Home/레이더·Blog DB·OCI 보류는 그대로이며 기본 다음 작업은 blog-discovery-and-home Step 2다."
+    },
+    {
+      "step": 3,
+      "name": "career-memory-ui-parity",
+      "status": "completed",
+      "summary": "2026-10-15: 사용자가 확정한 공개 Memory 페이지를 REA로 분석(28 scripts, parse failure 0)하고 실측했다. 260px sidebar/유형·관계 행/상단 검색/480px preview/560px 전체 높이 reader/모바일 전체 화면 본문을 반영했다. 실제 연결 기반 d3-force-3d 배치와 데이터 범위 카메라, 어두운 3D·밝은 평면 조작을 나눴다. UI/연결 배치/평면 pan/간격/색상 RED→GREEN, layout 5/5, unit 208 pass/13 DB skip, lint/typecheck/build와 1440/1024/768/390/320px 회귀 검증 통과. Native renderer 재사용에 따른 glow/drag/검색 이동 차이는 문서화했다. 28개/42개와 개인 작성·Home/레이더·DB·OCI 보류 유지. 기본 다음은 blog-discovery-and-home Step 2."
     }
   ]
 }

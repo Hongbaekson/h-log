@@ -26,14 +26,15 @@ function createPainter(gl: WebGLRenderingContext) {
     const sources = [
       `attribute vec2 a_position; attribute vec4 a_color; attribute float a_size; varying vec4 v_color;
        void main() { gl_Position = vec4(a_position, 0.0, 1.0); gl_PointSize = a_size; v_color = a_color; }`,
-      `precision mediump float; uniform bool u_points; varying vec4 v_color;
+      `precision mediump float; uniform bool u_points; uniform bool u_soft; varying vec4 v_color;
        void main() {
          if (u_points) {
            vec2 delta = gl_PointCoord - vec2(0.5, 0.5);
            float dist = length(delta) * 2.0;
            float core = smoothstep(0.55, 0.0, dist);
            float halo = smoothstep(1.0, 0.25, dist) * 0.35;
-           gl_FragColor = vec4(v_color.rgb, v_color.a * (core + halo));
+           float alpha = u_soft ? core + halo : 1.0 - smoothstep(0.88, 1.0, dist);
+           gl_FragColor = vec4(v_color.rgb, v_color.a * alpha);
          } else { gl_FragColor = v_color; }
        }`,
     ];
@@ -48,6 +49,7 @@ function createPainter(gl: WebGLRenderingContext) {
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error("Graph program linking failed");
     const attributes = ["a_position", "a_color", "a_size"].map(name => gl.getAttribLocation(program, name));
     const pointsUniform = gl.getUniformLocation(program, "u_points");
+    const softUniform = gl.getUniformLocation(program, "u_soft");
     const buffers = attributes.map(() => { const handle = gl.createBuffer()!; handles.push(handle); return {handle, byteLength:0}; });
     const maxPointSize = Math.min(96, gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1] || 64);
     const colorCache = new Map<string, number[]>();
@@ -98,11 +100,13 @@ function createPainter(gl: WebGLRenderingContext) {
     return {
       dispose, line,
       point: (p: Point, color: string, alpha: number, size: number) => vertex(points,p.x,p.y,color,alpha,Math.min(maxPointSize,size)),
-      begin: (w: number, h: number, ratio: number) => {
+      begin: (w: number, h: number, ratio: number, flat: boolean) => {
         width = w; height = h; dpr = ratio; lines.count = points.count = 0;
         gl.viewport(0,0,gl.drawingBufferWidth,gl.drawingBufferHeight);
-        gl.clearColor(.043,.043,.043,1); gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.useProgram(program); gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA,gl.ONE); gl.disable(gl.DEPTH_TEST);
+        if (flat) gl.clearColor(244/255,243/255,237/255,1); else gl.clearColor(10/255,10/255,10/255,1);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.useProgram(program); gl.uniform1i(softUniform,flat ? 0 : 1);
+        gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA,flat ? gl.ONE_MINUS_SRC_ALPHA : gl.ONE); gl.disable(gl.DEPTH_TEST);
       },
       finish: () => { drawBatch(lines,false); drawBatch(points,true); },
     };
@@ -132,19 +136,21 @@ export default function BrainScene(props: Props) {
     let projected = new Map<string,Point>();
     let previousGraph: BrainGraph | null = null, previousLayout = "", previousSpread = 0;
     let hovered: string | null = null, frame = 0, disposed = false, lastFrame = 0;
-    const state = {width:1,height:1,dpr:1,zoom:1.28,targetZoom:1.28,rotX:-.18,rotY:.35,rotZ:.02,panX:0,panY:0,driftX:0,driftY:0,now:0};
+    const state = {width:1,height:1,dpr:1,zoom:1,targetZoom:1,rotX:Math.atan2(.2,1.5),rotY:0,panX:0,panY:0,now:0};
+    let graphRadius=1, cameraDistance=1;
     const pointers = new Map<number,{x:number;y:number}>();
     let dragging = false, dragged: string | null = null, panning = false, moved = false, downX = 0, downY = 0;
     const moving = () => !reducedMotion.matches && !live.current.paused;
+    const flat = () => live.current.layout !== "brain";
     const color = (node: SceneNode) => live.current.color === "topic" ? brainTopics[node.topic].color : brainKindColors[node.kind];
-    const viewMatrix = () => ({cy:Math.cos(state.rotY),sy:Math.sin(state.rotY),cx:Math.cos(state.rotX),sx:Math.sin(state.rotX),cz:Math.cos(state.rotZ),sz:Math.sin(state.rotZ)});
+    const viewMatrix = () => ({cy:Math.cos(state.rotY),sy:Math.sin(state.rotY),cx:Math.cos(state.rotX),sx:Math.sin(state.rotX)});
     function project(node: SceneNode, view = viewMatrix()): Point {
-      const amp = moving() ? node.floatAmp * .84 : 0, phase = node.floatPhase, t = state.now * .00046 * node.floatSpeed;
+      if (flat()) return {x:state.width*.5+state.panX+node.x*state.zoom,y:state.height*.5+state.panY+node.y*state.zoom,z:0,scale:state.zoom};
+      const amp = moving() ? node.floatAmp : 0, phase = node.floatPhase, t = state.now * .00046 * node.floatSpeed;
       const x = node.x + Math.sin(t*1.08+phase)*amp, y = node.y + Math.cos(t*.86+phase*1.17)*amp, z = node.z + Math.sin(t*.62+phase*1.71)*amp;
       const x1=x*view.cy-z*view.sy, z1=x*view.sy+z*view.cy, y1=y*view.cx-z1*view.sx, z2=y*view.sx+z1*view.cx;
-      const fit=Math.max(.1,Math.min((state.width-64)/900,(state.height-180)/1100));
-      const x2=x1*view.cz-y1*view.sz, y2=x1*view.sz+y1*view.cz, scale=780/(780+z2)*state.zoom*fit;
-      return {x:state.width*.5+state.panX+state.driftX+x2*scale,y:state.height*.5+state.panY+state.driftY+y2*scale,z:z2,scale};
+      const depth=cameraDistance-z2, scale=depth>1 ? state.height/(2*Math.tan(25*Math.PI/180))/depth*state.zoom : 0;
+      return {x:state.width*.5+state.panX+x1*scale,y:state.height*.5+state.panY-y1*scale,z:depth,scale};
     }
     function setHover(id: string | null) {
       if (id === hovered) return;
@@ -154,17 +160,22 @@ export default function BrainScene(props: Props) {
       const options = live.current;
       if (!force && previousGraph === options.matches && previousLayout === options.layout && previousSpread === options.spread) return;
       nodes = layoutBrainGraph(options.matches,options.layout,options.spread).map(node => ({...node,
-        radius:node.kind === "solution" ? 4.2 : node.kind === "learning" || node.kind === "experience" ? 3.6 : 3.2,
-        floatPhase:brainUnit(node.id,8)*Math.PI*2,floatAmp:5+brainUnit(node.id,9)*12,floatSpeed:.78+brainUnit(node.id,10)*.44,
+        radius:node.kind === "reflection" ? 12 : node.kind === "solution" ? 9 : 7.5,
+        floatPhase:brainUnit(node.id,8)*Math.PI*2,floatAmp:0,floatSpeed:.78+brainUnit(node.id,10)*.44,
       }));
+      const radii=nodes.map(node=>Math.hypot(node.x,node.y,node.z)).sort((a,b)=>a-b);
+      graphRadius=Math.max(1,radii.at(-1) ?? 1);
+      cameraDistance=Math.max(30,radii[Math.floor(radii.length*.85)] ?? 1)*Math.hypot(.2,1.5);
+      nodes.forEach(node=>{node.floatAmp=.013*graphRadius*(node.kind === "reflection" ? .5 : 1);});
+      if (previousLayout !== options.layout) Object.assign(state,{zoom:1,targetZoom:1,rotX:Math.atan2(.2,1.5),rotY:0,panX:0,panY:0});
       byId = new Map(nodes.map(node => [node.id,node]));
       previousGraph = options.matches; previousLayout = options.layout; previousSpread = options.spread;
       buttons.forEach(button => { button.hidden = true; });
       setHover(null);
     }
     function draw() {
-      const options = live.current, selected = options.selectedId;
-      painter.begin(state.width,state.height,state.dpr); ctx!.clearRect(0,0,state.width,state.height);
+      const options = live.current, selected = options.selectedId, isFlat=flat();
+      painter.begin(state.width,state.height,state.dpr,isFlat); ctx!.clearRect(0,0,state.width,state.height);
       const focus = new Set<string>();
       if (selected) {
         focus.add(selected);
@@ -173,58 +184,63 @@ export default function BrainScene(props: Props) {
       const view = viewMatrix();
       projected = new Map(nodes.map(node => [node.id,project(node,view)]));
       options.matches.edges.forEach(edge => {
-        const source=byId.get(edge.from)!, target=byId.get(edge.to)!;
         const a=projected.get(edge.from)!, b=projected.get(edge.to)!;
+        if (!a.scale || !b.scale) return;
         const active=[edge.from,edge.to].includes(selected ?? "") || [edge.from,edge.to].includes(hovered ?? "");
-        const depth=Math.min(1.28,Math.max(.72,(a.scale+b.scale)*.5));
         const pulseSeed=`${edge.from}|${edge.to}|${edge.relation}`;
-        const pulse=options.layout === "brain" && !selected && moving() ? 1+.22*Math.sin(state.now*(.0003+brainUnit(pulseSeed,11)*.0005)+brainUnit(pulseSeed,12)*Math.PI*2) : 1;
-        const alpha=(active ? .62 : selected ? .038 : .20)*depth*pulse, width=active ? 1.3 : .8;
-        painter.line(a,b,color(source),color(target),alpha,width);
-        if (active) painter.line(a,b,color(source),color(target),alpha*.14,width+2.2);
+        const pulse=!isFlat && !selected && moving() ? 1+.22*Math.sin(state.now*(.0003+brainUnit(pulseSeed,11)*.0005)+brainUnit(pulseSeed,12)*Math.PI*2) : 1;
+        const lineColor=isFlat ? active ? "#33332c" : "#b8b4a4" : "#c4c2b5";
+        const alpha=(active ? isFlat ? .9 : .65 : selected ? .025 : isFlat ? .55 : .22)*pulse;
+        painter.line(a,b,lineColor,lineColor,alpha,isFlat && active ? 1.6 : 1);
       });
       const weight = nodes.reduce((sum,node) => sum+Math.max(1,node.degree),0);
       let target = brainUnit(`sparkle.${Math.floor(state.now/900)}`,13)*weight;
-      const sparkle = moving() && !selected ? nodes.find(node => (target-=Math.max(1,node.degree)) <= 0)?.id : null;
+      const sparkle = !isFlat && moving() && !selected ? nodes.find(node => (target-=Math.max(1,node.degree)) <= 0)?.id : null;
       const age=(state.now%900)/1000, gain=.8*(1-Math.exp(-6*age))*Math.exp(-1.4*age);
-      const labelCandidates: {node:SceneNode;p:Point;r:number;priority:number;dimmed:boolean}[] = [];
-      [...nodes].sort((a,b) => projected.get(a.id)!.z-projected.get(b.id)!.z).forEach(node => {
+      const labelCandidates: {node:SceneNode;p:Point;diameter:number;priority:number;dimmed:boolean}[] = [];
+      [...nodes].sort((a,b) => projected.get(b.id)!.z-projected.get(a.id)!.z).forEach(node => {
         const p=projected.get(node.id)!, active=node.id === selected, hover=node.id === hovered;
-        const focused=selected ? focus.has(node.id) || hover : hover, idle=!selected && !hover;
-        const breathe=moving() ? 1+.09*Math.sin(state.now*.0009+node.floatPhase) : 1, boost=node.id === sparkle ? 1+gain : 1;
-        const r=Math.max(2.5,node.radius*p.scale*1.08*breathe*Math.min(boost,1.6));
-        painter.point(p,color(node),active ? .4 : hover ? .24 : focused ? .27 : idle ? .11*boost : .035,r+(active ? 24 : hover ? 18 : 13));
-        painter.point(p,color(node),active ? 1 : hover ? .98 : focused ? .94 : idle ? .94*boost : .2,r+(active ? 5 : hover ? 3 : 1.2));
-        if (active) painter.point(p,"#ffffff",.95,3.2);
         const button=buttons.get(node.id)!;
-        button.hidden=p.x<12 || p.x>state.width-12 || p.y<12 || p.y>state.height-12;
+        button.hidden=!p.scale || p.x<12 || p.x>state.width-12 || p.y<12 || p.y>state.height-12;
         button.style.transform=`translate(${p.x-12}px, ${p.y-12}px)`;
-        const important=node.kind === "reflection" || node.kind === "question";
-        if (options.labels && (nodes.length<=32 || active || hover || focused || important || node.degree>=8)) {
-          const dimmed=Boolean(selected && !focus.has(node.id) && !hover);
-          labelCandidates.push({node,p,r,dimmed,priority:(active ? 1000 : hover ? 980 : important ? 180 : 125)+node.degree*9+p.scale*28+(dimmed ? 0 : 1000)});
+        if (!p.scale) return;
+        const dimmed=Boolean(selected && !focus.has(node.id) && !hover);
+        const boost=dimmed ? .1 : selected ? 1.7 : node.id === sparkle ? 1+gain : 1;
+        const breathe=!isFlat && moving() ? 1+.10*Math.sin(state.now*.0009+node.floatPhase) : 1;
+        const diameter=isFlat ? node.radius*1.4*p.scale : Math.max(2,node.radius*240/p.z*state.zoom*breathe*Math.min(boost,1.6));
+        if (isFlat) {
+          const nodeColor=options.color === "topic" ? color(node) : {experience:"#9a978b",solution:"#77776b",reflection:"#626544",learning:"#b0ac9e",question:"#8f8d80"}[node.kind];
+          painter.point(p,hover ? "#33332c" : "#f4f3ed",dimmed ? .1 : 1,diameter+3);
+          painter.point(p,nodeColor,dimmed ? .1 : 1,diameter);
+          if (active) {
+            ctx!.strokeStyle="#727d2d"; ctx!.lineWidth=1.5; ctx!.beginPath();
+            ctx!.arc(p.x,p.y,diameter/2+8,0,Math.PI*2); ctx!.stroke();
+          }
+        } else {
+          const fade=Math.max(0,Math.min(1,(p.z-.8*graphRadius)/(2.8*graphRadius)));
+          const opacity=(1-fade*fade*(3-2*fade))*boost;
+          painter.point(p,color(node),opacity*.14,diameter*2.4);
+          painter.point(p,color(node),opacity,diameter);
+        }
+        const important=node.kind === "reflection";
+        if (options.labels && (isFlat || active || hover || important || node.degree>=8)) {
+          labelCandidates.push({node,p,diameter,dimmed,priority:(active ? 1000 : hover ? 980 : important ? 180 : 125)+node.degree*9+(dimmed ? 0 : 1000)});
         }
       });
       painter.finish();
       const occupied: {x:number;y:number;width:number}[] = [];
-      const limit=Math.max(7,Math.min(selected ? 34 : 12,Math.floor(state.width*state.height/(selected ? 42000 : 85000))));
-      labelCandidates.sort((a,b) => b.priority-a.priority).forEach(({node,p,r,dimmed}) => {
+      const limit=isFlat ? nodes.length : selected ? 12 : 7;
+      labelCandidates.sort((a,b) => b.priority-a.priority).forEach(({node,p,diameter,dimmed}) => {
         const active=node.id === selected || node.id === hovered;
         const text=node.title.length>38 ? `${node.title.slice(0,35)}...` : node.title;
-        ctx!.font=`14px ${font}`;
-        const box={x:p.x+r+2,y:p.y-9,width:ctx!.measureText(text).width+20};
-        // Keep the source collision guard for small catalogs too; Korean titles are longer.
-        if (!active && (box.x<0 || box.x+box.width>state.width || box.y<0 || box.y+25>state.height || occupied.length>=limit || occupied.some(other => box.x<other.x+other.width && box.x+box.width>other.x && box.y<other.y+25 && box.y+25>other.y))) return;
+        ctx!.font=`${isFlat ? "" : "500 "}11px ${font}`;
+        const box={x:p.x+(isFlat ? diameter/2+6 : 10),y:p.y-6,width:ctx!.measureText(text).width+8};
+        if (!active && (box.x<0 || box.x+box.width>state.width || box.y<0 || box.y+18>state.height || occupied.length>=limit || occupied.some(other => box.x<other.x+other.width && box.x+box.width>other.x && box.y<other.y+18 && box.y+18>other.y))) return;
         occupied.push(box);
-        const hot=node.kind === "reflection" || node.kind === "question" || node.kind === "experience" || node.id === hovered;
-        ctx!.save(); ctx!.font=`13px ${font}`;
-        ctx!.globalAlpha=(active ? .98 : hot ? .76 : .58)*(dimmed ? .12 : 1);
-        ctx!.shadowColor=hot ? "rgba(255,127,143,.28)" : "rgba(244,239,255,.22)";
-        ctx!.shadowBlur=active ? 12 : hot ? 6 : 0;
-        ctx!.fillStyle=hot ? "rgba(255,120,140,.92)" : "rgba(220,216,206,.72)";
-        ctx!.beginPath(); ctx!.arc(p.x+r+4,p.y+1,2.25,0,Math.PI*2); ctx!.fill();
-        ctx!.shadowBlur=0; ctx!.fillStyle=hot ? "rgba(226,226,230,.74)" : "rgba(214,214,218,.62)";
-        ctx!.fillText(text,p.x+r+12,p.y+5); ctx!.restore();
+        ctx!.save(); ctx!.globalAlpha=dimmed ? .12 : .9;
+        ctx!.shadowColor=isFlat ? "#f4f3ed" : "#0a0a0a"; ctx!.shadowBlur=isFlat ? 3 : 6;
+        ctx!.fillStyle=isFlat ? active ? "#14140f" : "#616157" : "#b3b3a8";
+        ctx!.fillText(text,box.x,p.y+3); ctx!.restore();
       });
     }
     function requestDraw() { if (!disposed && !frame && !document.hidden) frame=requestAnimationFrame(animate); }
@@ -233,14 +249,8 @@ export default function BrainScene(props: Props) {
       const dt=(lastFrame ? Math.min(34,Math.max(8,now-lastFrame)) : 16.67)/16.67;
       lastFrame=now; state.now=now;
       state.zoom+=(state.targetZoom-state.zoom)*(moving() ? Math.min(1,.16*dt) : 1);
-      if (!dragging && moving()) {
-        state.rotY+=(.00082+Math.sin(now*.00037)*.0002)*dt;
-        state.rotX=Math.max(-1.08,Math.min(.96,state.rotX+Math.sin(now*.00051)*.00013*dt));
-        state.rotZ=Math.sin(now*.00027)*.075+Math.sin(now*.00011)*.035;
-        state.driftX=Math.sin(now*.00018)*34+Math.sin(now*.00031)*12;
-        state.driftY=Math.cos(now*.00021)*28+Math.sin(now*.00013)*18;
-      }
-      draw(); if (moving()) requestDraw();
+      if (!flat() && !dragging && moving()) state.rotY+=Math.PI*2/3600*.35*dt;
+      draw(); if (!flat() && moving() || Math.abs(state.targetZoom-state.zoom)>.0001) requestDraw();
     }
     function resize() {
       const rect=canvas.getBoundingClientRect();
@@ -253,12 +263,12 @@ export default function BrainScene(props: Props) {
     function zoom(factor: number) { state.targetZoom=Math.max(.18,Math.min(2.8,state.targetZoom*factor)); requestDraw(); }
     function reset() {
       syncLayout(true);
-      Object.assign(state,{zoom:1.28,targetZoom:1.28,rotX:-.18,rotY:.35,rotZ:.02,panX:0,panY:0,driftX:0,driftY:0});
+      Object.assign(state,{zoom:1,targetZoom:1,rotX:Math.atan2(.2,1.5),rotY:0,panX:0,panY:0});
       requestDraw();
     }
     function fit() {
       if (!nodes.length) return;
-      state.zoom=1; state.panX=state.panY=state.driftX=state.driftY=0;
+      state.zoom=1; state.panX=state.panY=0;
       const points=nodes.map(node => project(node));
       const minX=Math.min(...points.map(p=>p.x)),maxX=Math.max(...points.map(p=>p.x)),minY=Math.min(...points.map(p=>p.y)),maxY=Math.max(...points.map(p=>p.y));
       const scale=Math.max(.18,Math.min(1.8,(state.width-100)/Math.max(1,maxX-minX),(state.height-240)/Math.max(1,maxY-minY)));
@@ -270,9 +280,10 @@ export default function BrainScene(props: Props) {
     function nearest(x: number,y: number) {
       let best: SceneNode | null=null, distance=Infinity;
       for (const node of nodes) {
-        const p=projected.get(node.id); if (!p) continue;
+        const p=projected.get(node.id); if (!p?.scale) continue;
         const d=Math.hypot(p.x-x,p.y-y);
-        if (d<Math.max(live.current.selectedId ? 24 : 18,node.radius*p.scale*2.4) && d<distance) { best=node; distance=d; }
+        const hitRadius=flat() ? Math.max(12,node.radius*p.scale) : 14;
+        if (d<hitRadius && d<distance) { best=node; distance=d; }
       }
       return best;
     }
@@ -283,7 +294,8 @@ export default function BrainScene(props: Props) {
       dragging=true; moved=pointers.size>1; downX=event.clientX; downY=event.clientY;
       panning=event.ctrlKey || pointers.size>1;
       const rect=canvas.getBoundingClientRect();
-      dragged=panning ? null : nearest(event.clientX-rect.left,event.clientY-rect.top)?.id ?? null;
+      dragged=flat() && !panning ? nearest(event.clientX-rect.left,event.clientY-rect.top)?.id ?? null : null;
+      panning ||= flat() && !dragged;
       setHover(null); canvas.focus({preventScroll:true});
     }
     function pointerMove(event: PointerEvent) {
@@ -304,21 +316,20 @@ export default function BrainScene(props: Props) {
           else if (dragged) {
             const node=byId.get(dragged), p=projected.get(dragged);
             if (node && p) {
-              const v=viewMatrix(), vx=(dx*v.cz+dy*v.sz)/p.scale, vy=(-dx*v.sz+dy*v.cz)/p.scale, vz=-vy*v.sx;
-              node.x+=vx*v.cy+vz*v.sy; node.y+=vy*v.cx; node.z+=-vx*v.sy+vz*v.cy;
+              node.x+=dx/p.scale; node.y+=dy/p.scale;
             }
           } else { state.rotY+=dx*.006; state.rotX=Math.max(-1.2,Math.min(1.2,state.rotX+dy*.004)); }
         }
         canvas.style.cursor="grabbing"; requestDraw(); return;
       }
       const rect=canvas.getBoundingClientRect(), hit=nearest(event.clientX-rect.left,event.clientY-rect.top);
-      setHover(hit?.id ?? null); canvas.style.cursor=event.ctrlKey ? "move" : hit ? "grab" : "default";
+      setHover(hit?.id ?? null); canvas.style.cursor=event.ctrlKey ? "move" : hit ? flat() ? "grab" : "pointer" : "grab";
     }
     function pointerEnd(event: PointerEvent) {
       if (!pointers.has(event.pointerId)) return;
       pointers.delete(event.pointerId);
       if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
-      if (event.type === "pointerup" && !panning && !moved) {
+      if (event.type === "pointerup" && !event.ctrlKey && !moved) {
         const rect=canvas.getBoundingClientRect();
         live.current.onSelect(nearest(event.clientX-rect.left,event.clientY-rect.top)?.id ?? null);
       }
@@ -334,7 +345,7 @@ export default function BrainScene(props: Props) {
       else if (event.key === "+" || event.key === "=") zoom(1.2);
       else if (event.key === "-") zoom(1/1.2);
       else if (event.key === "Escape") live.current.onSelect(null);
-      else if (event.ctrlKey) { state.panX+=event.key === "ArrowLeft" ? -25 : event.key === "ArrowRight" ? 25 : 0; state.panY+=event.key === "ArrowUp" ? -25 : event.key === "ArrowDown" ? 25 : 0; }
+      else if (flat() || event.ctrlKey) { state.panX+=event.key === "ArrowLeft" ? -25 : event.key === "ArrowRight" ? 25 : 0; state.panY+=event.key === "ArrowUp" ? -25 : event.key === "ArrowDown" ? 25 : 0; }
       else { state.rotY+=event.key === "ArrowLeft" ? -.08 : event.key === "ArrowRight" ? .08 : 0; state.rotX+=event.key === "ArrowUp" ? -.08 : event.key === "ArrowDown" ? .08 : 0; }
       requestDraw();
     }
@@ -361,7 +372,9 @@ export default function BrainScene(props: Props) {
   }, [graph,apiRef]);
 
   return <>
-    <canvas id="mem-canvas" ref={canvasRef} tabIndex={0} aria-label="Second Brain 그래프. 드래그로 회전, Ctrl과 드래그로 이동, 스크롤과 두 손가락으로 확대. 방향키로 회전, 더하기와 빼기로 확대·축소, Home으로 전체 보기" />
+    <canvas id="mem-canvas" ref={canvasRef} tabIndex={0} aria-label={props.layout === "brain"
+      ? "Second Brain 그래프. 드래그와 방향키로 회전, Ctrl과 드래그로 이동, 스크롤과 두 손가락으로 확대. 더하기와 빼기로 확대·축소, Home으로 전체 보기"
+      : "Second Brain 평면 그래프. 드래그와 방향키로 이동, 노드를 끌어 위치 조정, 스크롤과 두 손가락으로 확대. 더하기와 빼기로 확대·축소, Home으로 전체 보기"} />
     <canvas id="mem-label-canvas" ref={labelsRef} aria-hidden="true" />
     <div className="mem-node-targets" ref={targetsRef} aria-label="그래프 노드">{graph.nodes.map(node => <button type="button" className="mem-node-target" data-node={node.id} key={node.id} aria-label={`${node.title} 읽기`} aria-pressed={props.selectedId === node.id} onClick={() => props.onSelect(node.id)} />)}</div>
   </>;

@@ -1,6 +1,37 @@
 # Memory UI 재분석
 
-이 문서는 Step 0의 분석 이력이다. 사용자가 해당 구현을 거절하고 로컬 UI의 직접 이식을 요청했으므로, 현재 기준은 [로컬 UI 이식](LOCAL_BRAIN_UI_REFERENCE.md)과 ADR-021이다. 아래 밝은 sidebar/Three.js 구현은 현재 화면을 설명하지 않는다.
+2026-10-15 사용자가 기준 화면을 `careerhackeralex.com/memory`로 확정했다. 현재 기준은 이 문서의 Step 3와 ADR-031이다. Step 2까지 사용한 [로컬 UI](LOCAL_BRAIN_UI_REFERENCE.md)는 이력으로 남긴다.
+
+## 현재 기준: Step 3 실제 사이트와 비교
+
+REA로 전용 브라우저의 공개 페이지와 28개 script를 분석했다. 28개 모두 파싱됐고 parse failure는 0이다. 이것은 배포된 클라이언트 코드의 관측이며 서버 소스나 인증 후 질문 기능을 확인했다는 의미는 아니다. Playwright로 화면 선택·크기 변경·computed style을 확인했다. REA는 수동 조작을 수행하지 않았다.
+
+- 페이지: [Career Hacker Memory](https://www.careerhackeralex.com/memory)
+- Runtime evidence: `ev_8676ed8dc657b6b1beabb9c793362d0b3d64c32f5d2cb819ba303890ec8201f6`
+- 1440×1000 screenshot evidence: `ev_b346a88690f713324f175c2b457036bc398a87d495963c0b460d915f8551b198`
+- 화면/배치 bundle: `2l0bizyods8dq.js`, SHA-256 `866ce431a768855c22722ce5cc2943fdb6a9d2d2e639d36359fa09278291c6b4`
+- 3D bundle: `0yiaimu4mp0it.js`, SHA-256 `ba0f85869bac42f56e1adcd238f63792e50b724d3841140e6e5e4f9f6a987dd5`
+
+| 항목 | 실제 사이트 관측 / H-Log 기준 |
+| --- | --- |
+| Sidebar | 260px, padding 24px 20px, `#ecebe3`, 제목 18px/27px, 그래프 앞 1px 구분선 |
+| 필터 | 렌즈 capsule, 유형·관계는 12.5px 행과 오른쪽 개수, 관계 선 모양, 아래 배치·색상·간격 도구 |
+| 상단 | 중앙 최대 640px/높이 48.5px. 본문이 열리면 가리지 않는 왼쪽 영역으로 축소 |
+| 미리보기 | 하단 중앙 480px, bottom 24px, padding 16px 20px |
+| 본문 | 데스크톱 오른쪽 560px 전체 높이, 둥근 모서리 없음. 제목·요약 header와 별도 scroll body |
+| 모바일 | 전체 폭 그래프, 36px 필터 버튼, 280px drawer, 선택하면 전체 화면 본문 |
+| 브레인 | 어두운 3D 별자리. 관계 기반 force 배치, 데이터 범위 기반 원근 카메라, 작은 발광점·가는 중성 선·11px 라벨 |
+| 다른 배치 | 밝은 배경의 평면 그래프. 노드 이동과 화면 pan/zoom, 회전 없음 |
+
+원본의 3D는 Three.js/d3-force-3d와 bloom, 2D는 SVG다. H-Log는 이미 있는 native WebGL/label canvas를 재사용하고 배치에 `d3-force-3d`를 사용한다. 발광은 native halo로 표현하며 2D drag는 주변 노드 재시뮬레이션 없이 선택 노드의 위치를 바꾼다. 검색 선택 시 원본의 0.9초 카메라 비행은 추가하지 않는다. 원본 렌더러와 모든 동작이 동일하다고 주장하지 않으며 주요 화면 치수와 색상·배치별 조작은 관측 기준으로 맞춘다.
+
+원본의 인증된 질문 버튼은 H-Log의 기록 검색으로 연결한다. 검색·URL 복원·목록 fallback·모션 정지·dialog 접근성은 유지한다. H-Log의 제목·태그·종류·실제 날짜·근거 수준을 사용하고 원본의 번역/로그인/회사 자료/개인 메모를 복제하지 않는다. 관측 시 원본은 506개 노드/2163개 연결, H-Log는 승인된 28개/42개이므로 밀도와 연결 모양은 다르다.
+
+분석용 번들/HTML/캡처/검사 script는 ignored `.codex/tmp/brain-career/`에 둔다. 공개 앱에는 분석 자료나 원문 데이터를 포함하지 않는다. 완료 검증은 [Step 3](../../../phases/second-brain-memory-interface/step3.md)에 기록한다.
+
+## 이전 분석 이력: 2026-10-06 Step 0
+
+아래는 당시 분석 및 구현 이력이며 최신 구현은 위 Step 3를 따른다.
 
 2026-10-06 사용자 수정 요청. [Career Hacker Memory](https://www.careerhackeralex.com/memory)의 실제 1440×1000/390×844 화면, DOM/computed styles와 브라우저가 내려받는 공개 JS/CSS를 분석했다. 서버 원본 저장소를 확인했다는 뜻은 아니다.
 

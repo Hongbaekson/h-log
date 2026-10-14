@@ -6,12 +6,15 @@ import { layoutBrainGraph, filterBrainGraph } from "./brain-layout.ts";
 
 const graph = selectPublicBrain(brainCatalog);
 
-it("uses the local reference constellation coordinates instead of a force sphere", () => {
-  const [first] = layoutBrainGraph(graph, "brain", 1);
-  assert.equal(first.id, "operable-backend");
-  assert.ok(Math.abs(first.x - -124.6642992387442) < 1e-8, "reference x coordinate");
-  assert.ok(Math.abs(first.y - -283.49453714285715) < 1e-8, "reference y coordinate");
-  assert.ok(Math.abs(first.z - 47.048610912594135) < 1e-8, "reference z coordinate");
+it("uses real connections to bring related records closer in the brain layout", () => {
+  const connected = layoutBrainGraph(graph, "brain", 1);
+  const disconnected = layoutBrainGraph({ ...graph, edges: [] }, "brain", 1);
+  const linkDistance = (nodes: typeof connected) => graph.edges.reduce((sum, edge) => {
+    const a = nodes.find(node => node.id === edge.from)!;
+    const b = nodes.find(node => node.id === edge.to)!;
+    return sum + Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+  }, 0);
+  assert.ok(linkDistance(connected) < linkDistance(disconnected), "actual connections must influence spatial proximity");
 });
 
 it("lays out the real connections in three dimensions without mutating the public catalog", () => {
@@ -41,6 +44,21 @@ it("provides distinct reference layouts and widens spacing without fabricating n
   assert.ok(wide.reduce((sum,n) => sum + Math.hypot(n.x,n.y,n.z),0) > normal.reduce((sum,n) => sum + Math.hypot(n.x,n.y,n.z),0));
   assert.deepEqual(layoutBrainGraph({nodes:[],edges:[]}, "brain", 1), []);
   assert.equal(layoutBrainGraph({nodes:graph.nodes.slice(0,1),edges:[]}, "hierarchy", 1).length, 1);
+});
+
+it("keeps every non-brain layout on a flat plane and preserves recording order", () => {
+  for (const layout of ["free", "topics", "hierarchy", "timeline"] as const) {
+    const before = JSON.stringify(graph);
+    const nodes = layoutBrainGraph(graph, layout, 1);
+    assert.ok(nodes.every(node => node.z === 0), `${layout} is a 2D layout`);
+    assert.deepEqual(nodes.map(node => node.id), graph.nodes.map(node => node.id));
+    assert.equal(JSON.stringify(graph), before);
+    assert.deepEqual(nodes, layoutBrainGraph(graph, layout, 1));
+  }
+  const nodes = layoutBrainGraph(graph, "timeline", 1);
+  for (const a of nodes) for (const b of nodes) {
+    if (a.recordedAt < b.recordedAt) assert.ok(a.x < b.x, "earlier records appear before later records");
+  }
 });
 
 it("combines search, tag, kind and relation filters while keeping only matching edge endpoints", () => {

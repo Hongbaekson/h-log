@@ -7,9 +7,9 @@
 
 ## 디자인 원칙
 
-### 2026-10-14 Second Brain 전용 수정
+### 2026-10-15 Second Brain 전용 수정
 
-사용자가 지정한 로컬 HTML을 REA로 재분석했다. `/brain`에 한해 [로컬 이식 기준](LOCAL_BRAIN_UI_REFERENCE.md)과 ADR-030의 260px 크림색 sidebar·그래프 상단 검색·전체 화면 constellation·하단 preview·440px 우측 세로 본문을 우선한다. 밝은 sidebar는 이 경로의 사용자 요청에 따른 예외이며 전역 Light theme을 추가하지 않는다. 다른 경로의 Discord 스타일과 Home 레이더 전체를 보존한다.
+사용자가 최종 기준을 공개 `careerhackeralex.com/memory` 화면으로 확정했다. `/brain`에 한해 [실제 사이트 기준](MEMORY_UI_REFERENCE.md)과 ADR-031의 260px 밝은 sidebar·상단 검색·관계 기반 3D 별자리·밝은 평면 배치·480px preview·560px 전체 높이 본문을 우선한다. 모바일은 전체 화면 본문과 필터 drawer를 사용한다. 밝은 sidebar/평면 모드는 이 경로의 사용자 요청에 따른 예외이며 전역 Light theme을 추가하지 않는다. 다른 경로의 Discord 스타일과 Home 레이더 전체를 보존한다.
 
 ### 2026-09-29 승인된 디자인
 
