@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarDays, Tag } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 
 import { BlogSearchPanel } from "@/components/blog/BlogSearchPanel";
 import { BlogPagination } from "@/components/blog/BlogPagination";
+import { BlogTopicFilters } from "@/components/blog/BlogTopicFilters";
 import { buildBlogBrowseHref, parseBlogBrowseParams, type BlogBrowseParams } from "@/lib/blog-search-ui";
 import { Badge, Container } from "@/components/ui";
 import { getPublicBlogIndex } from "@/lib/blog-public";
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
     canonical: "/blog",
   },
   description:
-    "백엔드 개발, 운영, 자동화 워크플로우를 DB 기반 블로그로 정리합니다.",
+    "개발하며 풀었던 문제와 운영하면서 배운 점을 정리합니다.",
   title: "블로그",
 };
 
@@ -40,80 +41,31 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
   return (
     <>
-      <section className="pt-12 pb-10 md:pt-16">
+      <section className="pt-8 pb-6 md:pt-12">
         <Container>
-          <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">
-            Blog
-          </p>
-          <div className="mt-5 grid gap-6 lg:grid-cols-[1fr_18rem] lg:items-end">
-            <div>
-              <h1 className="hero-heading max-w-3xl text-4xl leading-[1.08] tracking-normal text-white md:text-6xl">
-                개발하며 남기는 운영 기록
-              </h1>
-              <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300 md:text-lg">
-                DB 기반 수동 발행부터 자동화까지, 백엔드와 운영 관점에서 검증 가능한 글만 공개합니다.
-              </p>
-            </div>
-            <div className="border-y border-slate-700/80 py-4">
-              <div className="flex items-center justify-between py-3 text-sm font-semibold text-slate-300">
-                Published
-                <span className="font-mono text-cyan-200">{index.pagination.totalItems}</span>
-              </div>
-              <div className="flex items-center justify-between border-t border-slate-800 py-3 text-sm font-semibold text-slate-300">
-                Public policy
-                <span className="font-mono text-emerald-300">published only</span>
-              </div>
-            </div>
+          <div className="mx-auto max-w-4xl">
+            <h1 className="hero-heading text-3xl leading-tight tracking-normal text-white md:text-4xl">
+              개발 기록
+            </h1>
+            <p className="mt-3 text-sm leading-7 text-slate-300 md:text-base">
+              개발하며 풀었던 문제와 운영하면서 배운 점을 정리합니다.
+            </p>
           </div>
         </Container>
       </section>
 
       <section className="pb-24">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[15rem_1fr]">
-            <aside className="lg:sticky lg:top-24 lg:self-start">
-              <div className="border-y border-slate-700/80 py-5">
-                <div className="flex items-center gap-2 text-sm font-semibold text-white">
-                  <Tag aria-hidden="true" size={16} strokeWidth={2} />
-                  Tags
-                </div>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Link
-                    aria-current={!index.selectedTag ? "page" : undefined}
-                    className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors hover:border-cyan-300/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 ${
-                      !index.selectedTag
-                        ? "border-cyan-300/60 bg-cyan-300/10 text-cyan-100"
-                        : "border-slate-700 text-slate-300"
-                    }`}
-                    href={buildBlogBrowseHref({ ...state, tag: null, page: 1 })}
-                  >
-                    전체
-                  </Link>
-                  {index.tagCounts.map((tagCount) => (
-                    <Link
-                      aria-current={
-                        index.selectedTag === tagCount.tag ? "page" : undefined
-                      }
-                      className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors hover:border-cyan-300/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 ${
-                        index.selectedTag === tagCount.tag
-                          ? "border-cyan-300/60 bg-cyan-300/10 text-cyan-100"
-                          : "border-slate-700 text-slate-300"
-                      }`}
-                      href={buildBlogBrowseHref({ ...state, tag: tagCount.tag, page: 1 })}
-                      key={tagCount.tag}
-                    >
-                      {tagCount.tag} {tagCount.count}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </aside>
-
-            <BlogSearchPanel key={buildBlogBrowseHref(state)} state={state}>
+          <div className="mx-auto max-w-4xl">
+            <BlogSearchPanel
+              key={buildBlogBrowseHref(state)}
+              state={state}
+              filters={<BlogTopicFilters tags={index.tagCounts} state={state} />}
+            >
             {!state.query && <div className="grid gap-5">
               {index.posts.length === 0 ? (
                 <div className="border-y border-slate-700/80 py-10">
-                  <h2 className="card-heading text-xl text-white">
+                  <h2 className="card-heading text-xl text-white wrap-anywhere">
                     {index.selectedTag
                       ? `${index.selectedTag} 태그의 공개 글이 없습니다.`
                       : "아직 공개된 글이 없습니다."}
@@ -121,7 +73,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                   <p className="mt-3 text-sm leading-7 text-slate-400">
                     {index.selectedTag
                       ? "다른 태그를 선택하거나 전체 글을 확인해 주세요."
-                      : "검증을 마친 글이 발행되면 이곳에서 확인할 수 있습니다."}
+                      : "새 글을 올리면 이곳에서 확인할 수 있습니다."}
                   </p>
                 </div>
               ) : (
@@ -147,12 +99,12 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                         {post.title}
                       </Link>
                     </h2>
-                    <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 md:text-base">
+                    <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 wrap-anywhere md:text-base">
                       {post.description}
                     </p>
                     <div className="mt-5 flex flex-wrap gap-2">
                       {post.tags.map((tag) => (
-                        <Badge key={tag} tone="slate">
+                        <Badge className="max-w-full wrap-anywhere" key={tag} tone="slate">
                           {tag}
                         </Badge>
                       ))}

@@ -266,6 +266,8 @@ Source content / lib data
 
 `blog-discovery-and-home / Step 0`에서 `blog-search-ui.ts`의 URL parser/builder를 목록 page·API·공통 `components/blog/BlogPagination.tsx`가 사용한다. `BlogSearchPanel`은 URL key가 바뀌면 draft/snapshot을 새 조건으로 시작하고 검색 중에는 Server Component의 일반 목록 slot을 표시하지 않는다. `/api/search`는 `q/tag/page`를 받아 기존 guard 뒤에서 최신 공개 결과에 태그 필터와 6개 단위 pagination을 적용한다. `blog-search.ts`의 query cache에는 본문/제목 대신 vectorScores와 만료 시각을 두며 hit에도 최신 공개 store로 결과와 개수를 다시 계산한다. 현재 route는 keyword-only다. HTTP 응답의 기존 `reason` 필드와 추가된 `pagination`을 UI가 읽고, 점수와 캐시 여부는 표시하지 않는다.
 
+`blog-discovery-and-home / Step 1`은 `components/blog/BlogTopicFilters.tsx`를 Server Component로 렌더링해 `BlogSearchPanel`의 filters slot에 전달한다(ADR-029). 검색 form 아래에 앞의 4개/선택 태그와 native details의 나머지 태그를 배치하며 URL key가 바뀌면 기본 접힘 상태로 돌아간다. 접힌 영역에 선택 태그를 중복 출력하지 않는다. 목록은 짧은 소개와 최대 896px 한 열로 정리하고 긴 제목·설명·본문의 태그 badge가 모바일 폭 안에서 줄바꿈하도록 한다. 공개 store/query와 검색 상태 로직에는 변경이 없다.
+
 ## DB 기반 수동 발행 데이터 흐름
 
 `blog-reading-foundation / Step 0`에서 공개 `lib/blog-public.ts`의 block reader는 line/fence 경계를 먼저 구분한다. Top-level backtick/tilde fence 안의 빈 줄·공백·heading/HTML 문자열은 하나의 code block으로 보존하고, 같은 문자/충분한 길이의 종료 조건 또는 문서 끝에서 닫는다. 기존 React text escaping, verified diagram 삽입, published-current selector와 저장 Markdown/HTML/hash 생성은 그대로다.

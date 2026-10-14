@@ -38,20 +38,16 @@ describe("blog discovery UI", () => {
 
   it("exposes the selected tag links as current navigation", async () => {
     const source = await readFile(
-      new URL("../app/blog/(index)/page.tsx", import.meta.url),
+      new URL("../components/blog/BlogTopicFilters.tsx", import.meta.url),
       "utf8",
     );
 
     assert.match(
       source,
-      /aria-current=\{!index\.selectedTag \? "page" : undefined\}/,
-    );
-    assert.match(
-      source,
-      /aria-current=\{\s*index\.selectedTag === tagCount\.tag\s*\? "page"\s*: undefined\s*\}/,
+      /aria-current=\{selected \? "page" : undefined\}/,
     );
     assert.doesNotMatch(source, /aria-pressed/);
-    assert.match(source, /border-cyan-300\/60/);
+    assert.match(source, /const selected = tag === state\.tag/);
   });
 
   it("keeps the empty blog index distinct from an empty search result", async () => {

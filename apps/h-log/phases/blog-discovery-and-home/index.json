@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "compact-topic-filters",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Shortened the introduction and placed search before server-rendered topic filters and posts. Top four public tags plus the selected tag stay visible; remaining tags use native details with accurate global public counts. No editorial feature selection was invented. Mobile position RED/GREEN, focused 44/44, unit 207 pass/13 DB skip, lint/typecheck/build and 1440/390/320px browser checks passed, including long/unknown/no tags, no posts, keyboard, URL/history and search errors/cancellation. Next: Step 2 home-recent-posts. Home/radar, Second Brain, DB/schema/worker and OCI hold unchanged."
     },
     {
       "step": 2,

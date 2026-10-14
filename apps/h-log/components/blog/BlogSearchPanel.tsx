@@ -21,7 +21,7 @@ import {
   type BlogSearchUiSnapshot,
 } from "@/lib/blog-search-ui";
 
-export function BlogSearchPanel({ state, children }: { state: BlogBrowseState; children: ReactNode }) {
+export function BlogSearchPanel({ state, filters, children }: { state: BlogBrowseState; filters: ReactNode; children: ReactNode }) {
   const router = useRouter();
   const [query, setQuery] = useState(state.query);
   const [snapshot, setSnapshot] = useState<BlogSearchUiSnapshot>(() => createBlogSearchUiSnapshot({
@@ -66,7 +66,7 @@ export function BlogSearchPanel({ state, children }: { state: BlogBrowseState; c
 
   return (
     <div className="min-w-0">
-      <form action="/blog" method="get" className="grid gap-3 sm:grid-cols-[1fr_auto]" onSubmit={handleSubmit}>
+      <form action="/blog" method="get" className="grid grid-cols-[minmax(0,1fr)_auto] gap-2" onSubmit={handleSubmit}>
         {state.tag && <input name="tag" type="hidden" value={state.tag} />}
         <label className="sr-only" htmlFor="blog-search-query">
           블로그 검색
@@ -86,13 +86,13 @@ export function BlogSearchPanel({ state, children }: { state: BlogBrowseState; c
             minLength={2}
             name="q"
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="pgvector, OCI, Nginx"
+            placeholder="궁금한 기술이나 주제"
             type="search"
             value={query}
           />
         </div>
         <button
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-blue-300/30 bg-blue-500 px-5 text-sm font-semibold text-white transition-colors hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 disabled:cursor-not-allowed disabled:border-slate-700 disabled:bg-slate-800 disabled:text-slate-500"
+          className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-[#a3aaff]/30 bg-[#5865f2] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#4752c4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a3aaff] sm:px-5"
           aria-disabled={isPending}
           type="submit"
         >
@@ -118,6 +118,8 @@ export function BlogSearchPanel({ state, children }: { state: BlogBrowseState; c
           검색·필터 초기화
         </Link>
       )}
+
+      {filters}
 
       <div aria-live="polite" aria-busy={isPending || snapshot.status === "loading"} className="mt-5 min-h-8">
         {!state.query ? children : (
