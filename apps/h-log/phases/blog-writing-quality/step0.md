@@ -50,3 +50,16 @@ Markdown 파싱과 문서 링크·참조 경로를 검사한다. private/ 초안
 - 회사 원문·내부 식별자·private 버전·토스 원문/이미지를 공개 콘텐츠로 복사하지 말 것. 이유: 승인된 근거와 자산만 사용한다.
 - Home/레이더·Second Brain·무관한 schema나 기능을 변경하지 말 것. 이유: 이번 단위는 Blog의 문체와 읽기 개선이다.
 - 저장 글을 일괄 수정/삭제하거나 OCI·실제 provider·자동 공개 발행·timer를 실행하지 말 것. 이유: 이 로컬 개선 계획은 기존 운영 보류와 발행 경계를 변경하지 않는다.
+
+## 완료 기록 — 2026-10-15
+
+- `BLOG_WRITING_GUIDE.md`에 제목·요약·도입부, 다섯 article mode의 전개, 자연스러운 한국어, 근거/추론 구분과 사실을 보존하는 교정 기준을 정리했다. 원본 사실 수정과 문체 교정을 별도 작업으로 구분한다.
+- 초안 2개를 준비했다. **최근 글 조회가 늦어져도 홈은 먼저 보여주기**는 H-Log 코드와 기존 검증 기록에 근거한 `project_record`, **Redis Pub/Sub을 쓰기 전에 정할 메시지 유실 기준**은 공식 Pub/Sub·XREADGROUP·XACK 문서에 근거한 `document_analysis`다.
+- 앱의 기존 `private/` 아래 `blog-writing-baseline-2026-10-15` 묶음에 원본·교정본, README, 11개 claim의 근거/미확인 조건, 검증 스크립트와 결과를 보관한다. README가 다음 세션의 시작점이다. 이 자료를 앱에서 import하거나 공개 DB에 저장하지 않았다.
+- 설치된 `espada:humanize-korean`과 quick rules로 산문 10곳을 교정했다. 원본/교정본의 코드·inline code·URL·숫자·식별자·제목·표는 동일하며 의미·조건·불확실성·계획/완료 구분도 수동 비교했다.
+- `node --no-warnings --test --experimental-strip-types lib/blog-public.test.ts`: **35/35 통과**. 초안이 인용한 기존 선택 로직을 재확인한 것이며 UI나 DB 통합 검증을 이번에 다시 실행한 것은 아니다.
+- 비공개 묶음의 `verify.mjs`: Markdown 6개 파싱, claim 11개 참조, 상대 링크 7개, 파일 8개의 Git 제외 및 Docker `private` 제외, 보호 항목 비교를 통과했다. source 확인 날짜를 자동 생성의 freshness 검증 결과로 사용하지 않는다.
+- 공개 가이드·계획의 Markdown/JSON·링크/읽기 경로 검사와 `git diff --check`를 완료했다. 문서/콘텐츠만 변경했으므로 앱 build와 UI 검증은 실행하지 않았다.
+- writer runtime 지침·실제 provider·발행·운영 환경은 변경하지 않았다. 초안은 소유자가 읽을 수 있는 비공개 검토본이며 실제 모델 생성 문체를 검증한 결과로 보고하지 않는다.
+
+다음은 **Step 1: evidence-preserving-writer-style**이다. 이 cycle에서 구현하지 않았다.

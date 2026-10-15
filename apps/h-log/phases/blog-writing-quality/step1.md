@@ -18,6 +18,7 @@
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/BLOG_EDITORIAL_READING_PLAN.md`
+- `apps/h-log/.codex/docs/harness/BLOG_WRITING_GUIDE.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/phases/blog-writing-quality/index.json`

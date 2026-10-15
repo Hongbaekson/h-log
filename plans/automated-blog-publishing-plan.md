@@ -62,7 +62,7 @@
 
 ### 2026-10-15 기술 글 문체·목록·본문 개선 계획
 
-[상세 계획](../apps/h-log/.codex/docs/harness/BLOG_EDITORIAL_READING_PLAN.md)의 3개 phase / 7개 step을 모두 pending으로 등록했다. `blog-writing-quality`에서 근거 있는 초안 2~3개와 한국어 작성 가이드를 준비하고 기존 writer prompt에 정적 문체·유형별 전개·근거 보존 규칙을 연결한다. `blog-list-presentation`과 `blog-reading-polish`는 이 초안을 사용해 목록과 본문을 검토한다.
+[상세 계획](../apps/h-log/.codex/docs/harness/BLOG_EDITORIAL_READING_PLAN.md)의 3개 phase / 7개 step을 등록했다. `blog-writing-quality / Step 0`에서 [한국어 작성 가이드](../apps/h-log/.codex/docs/harness/BLOG_WRITING_GUIDE.md)와 비공개 초안 2개, 근거 대장·원본/교정본 비교를 준비했다. Step 1에서 기존 writer prompt에 정적 문체·유형별 전개·근거 보존 규칙을 연결한다. `blog-list-presentation`과 `blog-reading-polish`는 이 초안을 사용해 목록과 본문을 검토한다. 나머지 6개 step은 pending이며 실제 글 발행은 하지 않았다.
 
 현재 prompt에는 persona/humanize 규칙이 연결되지 않은 상태이며 이 문서 추가가 구현 완료를 뜻하지 않는다. Korean 교정은 사실·코드·수치·출처를 보존하고 실제 경험과 자료 분석을 구분한다. 기존 no-tool 단일 writer 호출과 claim/privacy/quality gate를 유지하며 별도 LLM 교정 호출·문체 점수 서비스·persona feedback learning은 추가하지 않는다. fake-provider 계약 검증과 사람이 읽는 문체 검토 결과를 구분한다. 실제 수집기, 배포·발행·timer와 OCI 보류는 기존 계획을 따른다.
 

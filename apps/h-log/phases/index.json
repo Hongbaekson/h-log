@@ -163,7 +163,7 @@
     {
       "dir": "blog-writing-quality",
       "status": "pending",
-      "summary": "2026-10-15 Toss analysis plan registered; Steps 0-2 pending: 2-3 evidence-backed private drafts and Korean writing guide, existing no-tool writer prompt integration, then manual prose/fact review with local contract checks. Entry point when Toss/editorial work is requested: Step 0. No runtime implementation, external generation or publication performed. Default next general step remains blog-discovery-and-home Step 3."
+      "summary": "2026-10-15 Step 0 completed in the user-selected Toss track: Korean writing guide, two private evidence-backed drafts, protected-span/meaning review and 35/35 public tests. Steps 1-2 remain pending; next in this track is Step 1 evidence-preserving-writer-style. Existing blog-discovery-and-home Step 3 remains pending separately. No runtime prompt, UI, DB, external generation or publication changes."
     },
     {
       "dir": "blog-list-presentation",

@@ -71,7 +71,7 @@
 
 ### 별도 후속 작업
 
-- 2026-10-15 [기술 글 문체와 읽기 화면 개선](BLOG_EDITORIAL_READING_PLAN.md)을 별도 T1~T3 / 7개 step으로 등록했다. 실제 초안·writer 문체 → 목록 위계/선택적 썸네일 → 본문 간격/실제 글 검토 순서이며 모두 pending이다. 기존 Phase 1~6의 번호·완료 이력과 일반적인 다음 작업인 Phase 3 Step 3은 유지한다. 토스 개선을 지정하면 `blog-writing-quality / Step 0`부터 시작한다. 기존 목차·검색·필터를 재구현하지 않고 Phase 5 Step 2의 사례 초안은 적합한 검토본을 재사용한다.
+- 2026-10-15 [기술 글 문체와 읽기 화면 개선](BLOG_EDITORIAL_READING_PLAN.md)을 별도 T1~T3 / 7개 step으로 등록했다. 이어가기 요청으로 T1 Step 0의 작성 가이드·비공개 초안 2개를 준비했으며 이 트랙의 다음은 `blog-writing-quality / Step 1`이다. 실제 초안·writer 문체 → 목록 위계/선택적 썸네일 → 본문 간격/실제 글 검토 순서를 따른다. 기존 Phase 1~6의 번호·완료 이력과 pending인 Phase 3 Step 3은 유지한다. 기존 목차·검색·필터를 재구현하지 않고 Phase 5 Step 2의 사례 초안은 적합한 검토본을 재사용한다.
 
 - 2026-10-06 [운영 모니터링](OBSERVABILITY_PLAN.md)을 독립 phase/8개 step으로 등록했다. 기존 공개 경험 6개 phase/19개 step의 번호·실행 순서는 유지한다. 모니터링을 지정하면 해당 Step 0부터 로컬 진행할 수 있고 운영 적용은 OCI 보류를 따른다. 자동 발행 timer 재개 전 운영 모니터링 검증이 필요하다.
 

@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "verified-writing-baseline",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-15: Korean writing guide and two private original/revised drafts prepared: H-Log recent-post loading/error boundaries (project_record) and Redis Pub/Sub delivery criteria (document_analysis). 11 claims mapped to repository/official-document evidence; 10 prose edits preserve protected spans and meaning. Public tests 35/35, Markdown/JSON/path and Git/Docker exclusion checks passed. No runtime prompt, DB, UI, provider or publication changes. Next: Step 1 evidence-preserving-writer-style."
     },
     {
       "step": 1,
