@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-15 토스 분석 후속 **계획 등록**: [기술 글 문체와 읽기 화면 개선 계획](BLOG_EDITORIAL_READING_PLAN.md)을 3개 phase / 7개 step으로 추가했다. `blog-writing-quality` Steps 0–2는 근거 있는 기술 초안 2~3개·한국어 기준 → 기존 writer 지침 연결 → 로컬 교정/검증, `blog-list-presentation` Steps 0–1은 목록·검색 결과 위계 → 선택적 검증 썸네일, `blog-reading-polish` Steps 0–1은 본문 간격 → 실제 초안의 데스크톱/모바일 검토다. 모두 pending이며 코드나 실제 글을 생성·발행한 상태가 아니다. 토스 개선을 지정하면 `blog-writing-quality / Step 0: verified-writing-baseline`부터 진행한다. 일반적인 다음 작업은 기존 `blog-discovery-and-home / Step 3`를 유지하고, 기존 공개 경험 Phase 1~6 및 수정 이력·시리즈 계획은 중복 구현하지 않는다. Discord 스타일·Home/레이더·Second Brain·OCI 보류를 유지한다.
+
 2026-10-15 다음 단계 요청 완료: **`blog-discovery-and-home / Step 2: home-recent-posts`**에서 기존 홈 section 뒤에 최근 공개 글 최대 3개를 추가했다(ADR-032). 공통 공개 조회/정렬·날짜 표시를 재사용하고 0건 생략, DB 지연 시 기존 홈 선표시, 실패 안내와 native 재시도를 분리했다. UI 누락 RED→GREEN, focused 35/35, unit 209 pass/13 DB skip, public-read integration 1/1, lint/typecheck/build와 1440/390/320px·철회·빈/오류·긴 제목·키보드·레이더 전후 일치를 확인했다. 다음은 **`blog-discovery-and-home / Step 3: rss-and-work-evidence-links`**다. 아래 완료 이력의 당시 다음 단계 안내보다 이 기록과 live phase registry를 우선한다. Second Brain 완료 상태와 OCI 보류는 유지한다.
 
 2026-10-15 기준 확정에 따른 UI 수정: **`second-brain-memory-interface / Step 3: career-memory-ui-parity`**에서 실제 공개 Memory 페이지를 REA로 확인하고 화면 구성을 맞췄다(ADR-031). 이전 로컬 HTML 기준을 대체하며 560px 전체 높이 본문, 480px preview, 행 필터, 실제 연결 기반 3D와 밝은 평면 배치로 변경했다. 검증 내역은 해당 step에 남긴다. 개인 기록·작성 기능·Home/레이더·OCI 보류를 유지하며 기본 다음 작업은 **`blog-discovery-and-home / Step 2: home-recent-posts`**이다.

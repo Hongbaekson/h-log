@@ -1,0 +1,21 @@
+{
+  "project": "h-log",
+  "phase": "blog-writing-quality",
+  "steps": [
+    {
+      "step": 0,
+      "name": "verified-writing-baseline",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "evidence-preserving-writer-style",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "local-editorial-pilot",
+      "status": "pending"
+    }
+  ]
+}

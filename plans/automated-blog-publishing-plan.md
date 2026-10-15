@@ -60,6 +60,12 @@
 - 기존 수집 시각을 재사용하며 새 JSON 필드·DB schema·환경 설정은 추가하지 않았다. 기사 발행일, topic 수집 시각, 개인 맥락의 최신성이나 실제 원문 수집을 보장하는 검사는 아니다.
 - 다음 후보는 수집/원문 확인 결과를 기존 JSON 입력에 연결하는 로컬 단계다. 실제 수집기와 persona/한국어 humanize runtime 연결은 남아 있으며 OCI와 운영 timer 보류는 유지한다. 현재 실행 순서는 live phase registry가 우선한다.
 
+### 2026-10-15 기술 글 문체·목록·본문 개선 계획
+
+[상세 계획](../apps/h-log/.codex/docs/harness/BLOG_EDITORIAL_READING_PLAN.md)의 3개 phase / 7개 step을 모두 pending으로 등록했다. `blog-writing-quality`에서 근거 있는 초안 2~3개와 한국어 작성 가이드를 준비하고 기존 writer prompt에 정적 문체·유형별 전개·근거 보존 규칙을 연결한다. `blog-list-presentation`과 `blog-reading-polish`는 이 초안을 사용해 목록과 본문을 검토한다.
+
+현재 prompt에는 persona/humanize 규칙이 연결되지 않은 상태이며 이 문서 추가가 구현 완료를 뜻하지 않는다. Korean 교정은 사실·코드·수치·출처를 보존하고 실제 경험과 자료 분석을 구분한다. 기존 no-tool 단일 writer 호출과 claim/privacy/quality gate를 유지하며 별도 LLM 교정 호출·문체 점수 서비스·persona feedback learning은 추가하지 않는다. fake-provider 계약 검증과 사람이 읽는 문체 검토 결과를 구분한다. 실제 수집기, 배포·발행·timer와 OCI 보류는 기존 계획을 따른다.
+
 ## OCI 인프라/클라우드 기준
 
 운영 클라우드는 OCI를 기본값으로 둔다. Vercel, Neon, Supabase 같은 managed runtime이나 managed DB는 기본안이 아니라 운영 단순화가 필요할 때 별도 ADR로 결정할 대안이다.
@@ -781,6 +787,8 @@ AI 시대에 필수입니다.
 ```
 
 ## persona.md 초안
+
+아래는 초기 회고형 예시다. 2026-10-15 추가한 `blog-writing-quality`에서는 경험/실험 기록과 자료 분석의 전개를 구분하며 이 목차를 모든 글에 강제하지 않는다. 설치된 Korean 교정 스킬을 검토해 저장소 작성 가이드와 필요한 runtime 규칙으로 정리한다. 실제 운영에서 겪지 않은 문제를 문체에 맞추려고 경험담으로 바꾸지 않는다.
 
 ```markdown
 # persona.md

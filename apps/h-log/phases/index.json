@@ -161,6 +161,21 @@
       "summary": "2026-10-01 public experience plan: 백엔드 운영 실험실. Steps 0-1 are planned; preserve Discord style, the entire radar area, published-current/privacy boundaries and the OCI hold."
     },
     {
+      "dir": "blog-writing-quality",
+      "status": "pending",
+      "summary": "2026-10-15 Toss analysis plan registered; Steps 0-2 pending: 2-3 evidence-backed private drafts and Korean writing guide, existing no-tool writer prompt integration, then manual prose/fact review with local contract checks. Entry point when Toss/editorial work is requested: Step 0. No runtime implementation, external generation or publication performed. Default next general step remains blog-discovery-and-home Step 3."
+    },
+    {
+      "dir": "blog-list-presentation",
+      "status": "pending",
+      "summary": "2026-10-15 plan registered; Steps 0-1 pending after blog-writing-quality: readable ordinary/search rows, then optional verified thumbnails. Preserve Discord palette, visible search/mobile filters, q/tag/page and published-current/privacy; no Home/radar or Second Brain changes."
+    },
+    {
+      "dir": "blog-reading-polish",
+      "status": "pending",
+      "summary": "2026-10-15 plan registered; Steps 0-1 pending after blog-list-presentation: article typography/spacing, then 2-3 real-draft desktop/mobile reading reviews. Reuse TOC, anchors, code copy, tables, sources and related posts. Local completion will not imply deployment or publication; OCI hold remains."
+    },
+    {
       "dir": "operations-observability",
       "status": "pending",
       "summary": "2026-10-06 plan registered: local Steps 0-6 cover metric contracts, private Prometheus/Grafana, host/DB/HTTP probes, durable publishing/cost and backup/restore signals, dashboards/alerts and failure rehearsal. Step 7 production rollout is blocked by the user's OCI hold. Runtime is not implemented. Verified production monitoring is a pre-timer gate; the default next local step is blog-discovery-and-home Step 2."

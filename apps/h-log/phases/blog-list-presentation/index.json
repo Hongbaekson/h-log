@@ -1,0 +1,16 @@
+{
+  "project": "h-log",
+  "phase": "blog-list-presentation",
+  "steps": [
+    {
+      "step": 0,
+      "name": "readable-post-rows",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "optional-verified-thumbnails",
+      "status": "pending"
+    }
+  ]
+}

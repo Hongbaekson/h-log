@@ -1,0 +1,16 @@
+{
+  "project": "h-log",
+  "phase": "blog-reading-polish",
+  "steps": [
+    {
+      "step": 0,
+      "name": "article-reading-rhythm",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "real-content-reading-review",
+      "status": "pending"
+    }
+  ]
+}
