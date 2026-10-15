@@ -62,7 +62,7 @@
 
 ### 2026-10-15 기술 글 문체·목록·본문 개선 계획
 
-[상세 계획](../apps/h-log/.codex/docs/harness/BLOG_EDITORIAL_READING_PLAN.md)의 3개 phase / 7개 step을 등록했다. `blog-writing-quality / Step 0`에서 [한국어 작성 가이드](../apps/h-log/.codex/docs/harness/BLOG_WRITING_GUIDE.md)와 비공개 초안 2개, 근거 대장·원본/교정본 비교를 준비했다. Step 1에서 기존 writer prompt에 정적 문체·유형별 전개·근거 보존 규칙을 연결했다. 다음은 Step 2의 초안 교정과 로컬 작성 흐름 검토다. `blog-list-presentation`과 `blog-reading-polish`는 이 초안을 사용해 목록과 본문을 검토한다. 나머지 5개 step은 pending이며 실제 글 발행은 하지 않았다.
+[상세 계획](../apps/h-log/.codex/docs/harness/BLOG_EDITORIAL_READING_PLAN.md)의 3개 phase / 7개 step 중 `blog-writing-quality` Steps 0–2를 완료했다. [한국어 작성 가이드](../apps/h-log/.codex/docs/harness/BLOG_WRITING_GUIDE.md)·비공개 초안 2개와 근거 대장을 준비하고 기존 prompt에 정적 작성 규칙을 연결했다. Step 2에서 11개 claim, 산문 3곳의 교정과 별도 사실 조건 1곳의 수정을 검토했으며 기존 테스트 39/39·모의 writer 시나리오 5/5를 통과했다. 다음은 `blog-list-presentation / Step 0: readable-post-rows`다. T2~T3의 4개 step은 이 초안을 사용해 목록과 본문을 검토한다. 실제 글 발행은 하지 않았다.
 
 현재 prompt는 작성 가이드의 한국어 규칙을 정적 문자열로 전달하며 runtime에서 persona.md나 설치된 스킬 파일을 읽지 않는다. Korean 교정은 사실·코드·수치·출처를 보존하고 실제 경험과 자료 분석을 구분한다. 기존 no-tool 단일 writer 호출과 claim/privacy/quality gate를 유지하며 별도 LLM 교정 호출·문체 점수 서비스·persona feedback learning은 추가하지 않는다. provider test double로 입력·규칙 전달과 출력 처리를 확인했으며 실제 모델 문체 품질은 아직 평가하지 않았다. 실제 수집기, 배포·발행·timer와 OCI 보류는 기존 계획을 따른다.
 

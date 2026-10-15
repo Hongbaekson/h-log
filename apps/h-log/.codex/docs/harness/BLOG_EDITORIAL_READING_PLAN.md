@@ -1,6 +1,6 @@
 # H-Log 기술 글 문체와 읽기 화면 개선 계획
 
-기준일: 2026-10-15. 토스 기술 블로그 분석을 바탕으로 3개 phase / 7개 step을 등록했다. **T1 Steps 0–1을 완료했고 나머지 5개 step은 pending**이다. 실행 상태는 [전체 registry](../../../phases/index.json)와 각 phase index를 따른다.
+기준일: 2026-10-15. 토스 기술 블로그 분석을 바탕으로 3개 phase / 7개 step을 등록했다. **T1 Steps 0–2를 완료했고 T2~T3의 4개 step은 pending**이다. 실행 상태는 [전체 registry](../../../phases/index.json)와 각 phase index를 따른다.
 
 ## 목표와 범위
 
@@ -47,7 +47,7 @@ REA 근거:
 | --- | --- | --- | --- |
 | T1. [blog-writing-quality](../../../phases/blog-writing-quality/index.json) | [0](../../../phases/blog-writing-quality/step0.md) | 공개 가능한 근거로 기술 초안 2~3개와 한국어 문체 기준 준비 | 완료: 비공개 초안 2개·근거 대장·[작성 가이드](BLOG_WRITING_GUIDE.md) |
 | T1 | [1](../../../phases/blog-writing-quality/step1.md) | 기존 writer에 문체·유형별 전개·근거 보존 기준 반영 | 완료: 기존 단일 호출에 정적 규칙 반영·provider 전달 및 gate 회귀 검증 |
-| T1 | [2](../../../phases/blog-writing-quality/step2.md) | 초안 교정과 로컬 작성 흐름 검증 | 사실 보존 비교와 문체 수동 검수 기록 |
+| T1 | [2](../../../phases/blog-writing-quality/step2.md) | 초안 교정과 로컬 작성 흐름 검증 | 완료: 초안 2개·11개 claim 검토, 산문 3곳 교정, 사실 조건 1곳 보완, 로컬 5개 시나리오 검증 |
 | T2. [blog-list-presentation](../../../phases/blog-list-presentation/index.json) | [0](../../../phases/blog-list-presentation/step0.md) | 일반 목록·검색 결과의 제목·요약·메타정보 위계 정리 | 긴 제목·두 줄 요약·필터 동작이 검증된 목록 |
 | T2 | [1](../../../phases/blog-list-presentation/step1.md) | 검증된 자산이 있을 때만 선택적 썸네일 표시 | 이미지 유무가 섞여도 읽히는 반응형 목록 |
 | T3. [blog-reading-polish](../../../phases/blog-reading-polish/index.json) | [0](../../../phases/blog-reading-polish/step0.md) | 본문 폭·글자·줄 간격·제목과 그림 여백 조정 | 기존 읽기 도구와 조화되는 상세 화면 |
@@ -56,7 +56,7 @@ REA 근거:
 ## 실행 순서와 기존 계획 연결
 
 - 기존 공개 경험 트랙의 `blog-discovery-and-home / Step 3: rss-and-work-evidence-links`는 별도로 pending을 유지한다.
-- 계획 등록 직후 이어가기 요청을 토스 트랙으로 진행해 **T1 Steps 0–1을 완료**했다. 이 트랙의 다음은 **T1 Step 2: local-editorial-pilot**이다. T1 → T2 → T3 순서로 한 cycle에 한 step을 진행한다.
+- 계획 등록 직후 이어가기 요청을 토스 트랙으로 진행해 **T1 Steps 0–2를 완료**했다. 이 트랙의 다음은 **T2 Step 0: readable-post-rows**다. T1 → T2 → T3 순서로 한 cycle에 한 step을 진행한다.
 - T1 Step 0의 근거 검토를 통과한 초안을 뒤의 문체·UI 확인에 재사용한다. 초안을 준비하지 못하면 원인을 기록하고 실제 경험을 만들어 채우지 않는다.
 - `editorial-trust-and-series`의 수정 이력·시리즈 기능은 기존 phase에서만 구현한다. 그 Step 2는 이번 초안 중 적합한 사례를 재사용하되 당시 인수 기준을 다시 확인한다. 이번 초안 작성이 시리즈나 공개 발행 완료를 뜻하지 않는다.
 - 완료된 `blog-reading-foundation/navigation`과 `blog-discovery-and-home`의 검색·필터를 재구현하지 않는다.
@@ -82,6 +82,8 @@ REA 근거:
 - 각 step에 수정 파일, 실행 명령과 결과, 수동 문체/화면 검수 범위, 다음 step을 기록한다. 실제 완료된 step만 completed로 바꾼다.
 
 ## 완료 기록
+
+2026-10-15 T1 Step 2: 비공개 초안 2개와 11개 claim을 다시 검토했다. Redis `NOACK`의 새 메시지 조건을 사실 검토에서 보완한 뒤 Korean 스킬로 산문 3곳을 다듬고 보호 항목과 의미를 비교했다. 기존 테스트 39/39와 두 초안·실패 경로를 사용한 모의 writer 시나리오 5/5를 통과했다. 실제 provider·DB·공개 발행은 호출하지 않았다. [작성 가이드](BLOG_WRITING_GUIDE.md)에 검수 요약·남은 질문을 남기고 H-Log 글을 기존 사례 단계의 후보로 연결했다. T1은 완료했으며 다음은 T2 Step 0이다.
 
 2026-10-15 T1 Step 1: 기존 writer prompt에 한국어 문체·글 유형별 전개·근거 보존·자체 점검을 연결했다. 지침 누락 RED→GREEN, verified INPUT·source/block·단일 호출 계약과 관련 39/39 테스트, 전체 210 pass/13 DB skip, lint/typecheck/build가 통과했다. sandbox 빌드의 자식 프로세스 연결 오류는 같은 명령을 sandbox 밖에서 재실행해 해소했다. 외부 LLM 호출이나 실제 생성 문체 평가는 수행하지 않았다. 다음은 Step 2의 초안 교정과 로컬 작성 흐름 검토다.
 

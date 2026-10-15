@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "local-editorial-pilot",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-15: Reviewed two private drafts and 11 claims; separately narrowed Redis NOACK behavior to newly read messages, then polished three prose spans with Korean rules. Protected spans and meaning preserved against the fact-checked drafts; baseline retained. Existing tests 39/39 and five fake-writer pipeline scenarios passed, with in-memory handoffs only and zero public entries. H-Log draft linked as a candidate for editorial-trust-and-series Step 2 (still pending). No production code/UI, real provider, DB or publication changes. T1 complete; next T2 Step 0 readable-post-rows."
     }
   ]
 }

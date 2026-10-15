@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-15 토스 개선 이어가기 완료: **`blog-writing-quality / Step 2: local-editorial-pilot`**에서 초안 2개·11개 claim의 수동 검토와 Korean 교정을 마쳤다. Redis `NOACK` 조건 1곳을 사실 검토로 보완하고 산문 3곳을 교정해 보호 항목·의미 보존을 비교했다. 기존 테스트 39/39, 실제 초안을 반환하는 모의 writer의 정상 2건·차단 3건을 확인했다. 전체 초안과 검증 스크립트는 로컬 private에 보관하고 공개 가이드·기존 사례 후보·phase 상태를 동기화했다. **T1은 완료, 다음은 `blog-list-presentation / Step 0: readable-post-rows`**다. 실제 모델 문체 평가는 수행하지 않았으며 runtime·UI·DB·공개 발행·OCI 변경은 없다. 아래 기록의 당시 다음 단계보다 이 기록과 live registry를 우선한다.
+
 2026-10-15 토스 개선 이어가기 완료: **`blog-writing-quality / Step 1: evidence-preserving-writer-style`**에서 기존 단일 writer prompt에 한국어 문체·다섯 글 유형의 전개·근거 보존·자체 점검 규칙을 연결했다. 지침 누락 RED→GREEN과 verified INPUT 보존, focused 39/39, unit 210 pass/13 DB skip, lint/typecheck/build를 확인했다. 빌드는 sandbox의 Node 자식 프로세스 연결 실패 후 같은 명령을 sandbox 밖에서 실행해 통과했다. 정적 지침과 호출 계약을 검증했으며 실제 모델 문체 평가는 수행하지 않았다. 다음은 **`blog-writing-quality / Step 2: local-editorial-pilot`**이다. 아래 기록의 당시 다음 단계보다 이 기록과 live registry를 우선하며 UI·DB·발행·OCI는 변경하지 않았다.
 
 2026-10-15 토스 개선 이어가기 완료: **`blog-writing-quality / Step 0: verified-writing-baseline`**에서 [한국어 작성 가이드](BLOG_WRITING_GUIDE.md)와 구현 기록/공식 문서 분석 초안 2개를 준비했다. 비공개 원본·교정본과 11개 claim 근거를 보관하고 Korean 교정의 사실·보호 항목 보존, 공개 글 테스트 35/35, 문서·경로·제외 규칙 검증을 통과했다. 이번에 선택한 트랙의 다음은 **`blog-writing-quality / Step 1: evidence-preserving-writer-style`**다. 기존 공개 경험 트랙의 `blog-discovery-and-home / Step 3`는 별도로 pending이며, 아래 계획 등록 당시의 일반 다음 단계 안내와 구분한다. 실제 writer prompt·UI·DB·발행과 OCI는 변경하지 않았다.

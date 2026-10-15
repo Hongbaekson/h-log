@@ -79,7 +79,7 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 
 ### H-05: 기술 글 문체와 읽기 화면 개선 계획
 
-2026-10-15 토스 기술 블로그 분석을 [3개 phase / 7개 step](BLOG_EDITORIAL_READING_PLAN.md)으로 등록했다. T1 Step 0에서 [한국어 작성 가이드](BLOG_WRITING_GUIDE.md)와 근거를 구분한 비공개 기술 초안 2개를 준비했고, Step 1에서 기존 writer prompt에 한국어 문체·글 유형별 전개·근거 보존 규칙을 연결했다. 나머지 5개 step은 pending이며 다음은 초안 교정과 로컬 작성 흐름을 검토하는 T1 Step 2다. provider 계약 검증을 마쳤으며 실제 모델의 생성 문체 평가는 아직 수행하지 않았다.
+2026-10-15 토스 기술 블로그 분석을 [3개 phase / 7개 step](BLOG_EDITORIAL_READING_PLAN.md)으로 등록했다. T1에서 [한국어 작성 가이드](BLOG_WRITING_GUIDE.md)·비공개 기술 초안 2개, 기존 writer의 정적 문체 규칙, 초안 교정과 로컬 작성 계약 검증을 완료했다. 산문 3곳의 교정과 Redis 조건 1곳의 사실 수정을 분리했고 기존 테스트 39/39·모의 writer 시나리오 5/5를 확인했다. T2~T3의 4개 step은 pending이며 다음은 목록·검색 결과를 정리하는 T2 Step 0이다. 실제 모델의 생성 문체 평가는 아직 수행하지 않았다.
 
 - 목록·검색 결과는 제목·요약·날짜를 중심으로 맞추고 검증된 자산이 있을 때만 썸네일을 표시한다. 검색/모바일 태그 필터와 URL 상태를 유지한다.
 - 본문은 기존 목차·코드 복사·표·출처·관련 글을 유지하면서 폭·글자·여백을 실제 초안으로 확인한다. Discord 팔레트와 Home/레이더, Second Brain을 변경하지 않는다.
