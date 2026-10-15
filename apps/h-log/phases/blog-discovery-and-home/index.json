@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "home-recent-posts",
-      "status": "pending"
+      "status": "completed",
+      "summary": "Added up to three newest published-current posts below existing Home sections using the shared public loader/index and date/mode formatters. Empty success omits the section; Suspense streams the existing Home independently, while read failures show a local message and native GET retry without error details. Browser missing-section RED/GREEN, selector characterization/public 35/35, unit 209 pass/13 DB skip, public-read integration 1/1, lint/typecheck/build and 1440/390/320px checks passed: long titles, keyboard/links, fresh retraction, zero posts, delayed DB, production read failure/retry and unchanged hero/radar geometry/SVG. Next: Step 3 rss-and-work-evidence-links. No DB/schema/worker, Second Brain or OCI changes."
     },
     {
       "step": 3,

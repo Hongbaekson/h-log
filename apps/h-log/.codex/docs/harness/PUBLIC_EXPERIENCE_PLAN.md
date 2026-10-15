@@ -51,10 +51,10 @@
 
 ## 이번 실행 단위
 
-[Phase 3 / Step 1](../../../phases/blog-discovery-and-home/step1.md): 목록 소개를 줄이고 검색을 먼저 배치했다. 주요 태그 4개와 선택 태그를 표시하고 나머지는 펼치며 전체 공개 글 기준의 개수를 안내한다.
+[Phase 3 / Step 2](../../../phases/blog-discovery-and-home/step2.md): 홈의 기존 영역 아래에 최신 공개 글 최대 3개를 추가했다. 0건은 섹션을 생략하며 DB 조회 지연/실패가 소개와 레이더 표시를 막지 않도록 분리했다.
 
-- 변경 파일: `apps/h-log/app/blog/(index)/page.tsx`, `components/blog/BlogSearchPanel.tsx`, `BlogTopicFilters.tsx`, `lib/blog-discovery-ui.test.ts`.
-- 기존 public selector와 URL builder를 재사용하고 태그 펼치기는 기본 HTML로 처리한다. 명시적 편집 선택이 없으므로 대표 글을 임의로 선정하지 않았다. 저장 content/hash, DB/schema/worker, 검색 로직, 외부 호출과 레이더는 그대로 유지했다.
+- 변경 파일: `apps/h-log/app/page.tsx`, `components/blog/HomeRecentPosts.tsx`, `lib/blog-public.test.ts`.
+- 기존 public loader/index와 날짜·글 유형 formatter를 재사용한다. 새 section의 조회만 Suspense로 분리하고 실패 시 원문 없는 안내와 native GET 재시도를 제공한다. 저장 content/hash, DB/schema/worker, 검색 로직, 외부 호출과 레이더는 그대로 유지했다.
 - 문서: 이 계획, 새 phase/step registry, PRD/ADR/ARCHITECTURE/IMPLEMENTATION_PLAN 중 관련 설명만 동기화한다.
 - 성공 기준: focused RED/GREEN, 기존 unit 회귀, lint/typecheck/build, 격리 local DB를 사용한 개발 서버 desktop/mobile 렌더링, JSON/path parser, `git diff --check`.
 - 커밋/푸시는 검증한 변경만 포함하고 일반 push를 사용한다.
@@ -99,4 +99,6 @@
 
 2026-10-14 Phase 3 / Step 1 완료: 큰 소개와 개발 상태 패널을 짧은 소개로 바꾸고 검색·주요/선택 태그·글을 한 열로 배치했다. 나머지 태그는 native details로 펼친다. 320px 검색 위치 RED 708px → GREEN 235px, 많은 태그 fixture의 첫 글 제목 577px을 확인했다. Focused 44/44, unit 207 pass/13 DB skip, lint/typecheck/build와 1440/390/320px 키보드·공개 개수·선택/긴/없는 태그·태그/글 없음·가로 넘침·URL/history·검색 빈/제한/오류·경합 회귀 검증을 통과했다.
 
-Phase 1의 4개 step, Phase 2의 3개 step과 Phase 3 Steps 0–1, 총 9개 step을 완료했다. 다음 단계는 [Phase 3 / Step 2: 홈의 최근 공개 글](../../../phases/blog-discovery-and-home/step2.md)이다. 나머지 10개 step은 pending이며 계획 등록을 구현 완료로 간주하지 않는다. 기존 의존성의 보안 경고는 [구현 계획의 별도 후속 조치](IMPLEMENTATION_PLAN.md)에 기록돼 있다.
+2026-10-15 Phase 3 / Step 2 완료: 홈의 기존 section 뒤에 최신 published-current 글 최대 3개의 제목·요약·발행일·글 유형과 이동 링크를 추가했다. 영역 누락 RED→GREEN, 기존 selector characterization 포함 focused 35/35, unit 209 pass/13 DB skip, public-read integration 1/1, lint/typecheck/build를 통과했다. 격리 DB 개발 서버 1440/390/320px에서 긴 제목·키보드·링크·철회 반영·0건 생략·비공개404와 변경 전후 소개/레이더 geometry·SVG 일치를 확인했다. DB lock 지연 중 홈 선전송, 별도 local production 서버의 연결 실패 안내·재시도·홈 HTTP 200도 검증했다.
+
+Phase 1의 4개 step, Phase 2의 3개 step과 Phase 3 Steps 0–2, 총 10개 step을 완료했다. 다음 단계는 [Phase 3 / Step 3: RSS와 사례 연결](../../../phases/blog-discovery-and-home/step3.md)이다. 나머지 9개 step은 pending이며 계획 등록을 구현 완료로 간주하지 않는다. 기존 의존성의 보안 경고는 [구현 계획의 별도 후속 조치](IMPLEMENTATION_PLAN.md)에 기록돼 있다.

@@ -890,6 +890,27 @@ describe("DB-backed public blog routes", () => {
     assert.equal(version.contentHash, originalContentHash);
   });
 
+  it("selects the newest three current public versions for the home preview", () => {
+    const slugs = ["oldest", "newest", "third", "second", "draft", "retracted", "missing"];
+    const dates = ["2026-06-20", "2026-06-26", "2026-06-24", "2026-06-25", "2026-06-30", "2026-06-30", "2026-06-30"];
+    const store: BlogContentStore = {
+      posts: slugs.map((slug, index) => createPost({
+        id: slug, slug, currentVersionId: `v-${slug}`, publishedAt: `${dates[index]}T00:00:00Z`,
+        status: slug === "draft" ? "ready_to_publish" : slug === "retracted" ? "retracted" : "published",
+      })),
+      versions: slugs.filter((slug) => slug !== "missing").map((slug) =>
+        createVersion({ id: `v-${slug}`, postId: slug, title: `Current ${slug}` }),
+      ),
+      sources: [], tags: [],
+    };
+    assert.deepEqual(getPublicBlogIndex(store, { pageSize: 3 }).posts.map(({ title, href }) => ({ title, href })), [
+      { title: "Current newest", href: "/blog/newest" },
+      { title: "Current second", href: "/blog/second" },
+      { title: "Current third", href: "/blog/third" },
+    ]);
+    assert.deepEqual(getPublicBlogIndex({ ...store, posts: [] }, { pageSize: 3 }).posts, []);
+  });
+
   it("builds tag counts and pagination from published posts only", () => {
     const store = createStore();
     const index = getPublicBlogIndex(store, { page: 1, pageSize: 1 });

@@ -143,7 +143,7 @@
     {
       "dir": "blog-discovery-and-home",
       "status": "pending",
-      "summary": "Steps 0-1 completed: URL-backed unified search/list and compact search-first layout with top four/selected public tags and native disclosure. Step 1 mobile position RED/GREEN, focused 44/44, unit 207 pass/13 DB skip, lint/typecheck/build and 1440/390/320px keyboard/counts/empty/long-tag/search regression checks passed. Next: Step 2 home-recent-posts; Steps 2-3 remain pending. Discord style, radar, published-current/privacy, Second Brain and OCI hold preserved."
+      "summary": "Steps 0-2 completed: URL-backed unified search/list, compact topic filters and Home's latest three published-current posts. Step 2 missing-section RED/GREEN, focused 35/35, unit 209 pass/13 DB skip, public-read integration 1/1, lint/typecheck/build and 1440/390/320px checks passed, including long titles, keyboard/links, retraction, empty/read-failure/retry, delayed DB streaming and unchanged hero/radar geometry/SVG. Next: Step 3 rss-and-work-evidence-links remains pending. Discord style, published-current/privacy, Second Brain and OCI hold preserved."
     },
     {
       "dir": "portfolio-evidence-experience",
@@ -173,7 +173,7 @@
     {
       "dir": "second-brain-memory-interface",
       "status": "completed",
-      "summary": "2026-10-15: Steps 0-3 completed. The user's final reference is careerhackeralex.com/memory; Step 3 supersedes the local HTML UI. REA observed 28 scripts and the live page. Implemented measured sidebar/row filters/search/480px preview/560px full-height reader, mobile full-screen reading, connected force layout, dark 3D and light 2D modes. UI/layout/pan/spacing/color RED/GREEN, layout 5/5, unit 208 pass/13 DB skip, lint/typecheck/build and 1440/1024/768/390/320px checks passed. Native-renderer differences documented. Approved 28 nodes/42 edges, foundation Steps 0-5, Home/radar and OCI hold unchanged. Default next: blog-discovery-and-home Step 2."
+      "summary": "2026-10-15: Steps 0-3 completed. The user's final reference is careerhackeralex.com/memory; Step 3 supersedes the local HTML UI. REA observed 28 scripts and the live page. Implemented measured sidebar/row filters/search/480px preview/560px full-height reader, mobile full-screen reading, connected force layout, dark 3D and light 2D modes. UI/layout/pan/spacing/color RED/GREEN, layout 5/5, unit 208 pass/13 DB skip, lint/typecheck/build and 1440/1024/768/390/320px checks passed. Native-renderer differences documented. Approved 28 nodes/42 edges, foundation Steps 0-5, Home/radar and OCI hold unchanged. General work has since completed blog-discovery-and-home Step 2; default next: that phase's Step 3."
     },
     {
       "dir": "terraform-infrastructure-adoption",

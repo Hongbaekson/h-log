@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-15 다음 단계 요청 완료: **`blog-discovery-and-home / Step 2: home-recent-posts`**에서 기존 홈 section 뒤에 최근 공개 글 최대 3개를 추가했다(ADR-032). 공통 공개 조회/정렬·날짜 표시를 재사용하고 0건 생략, DB 지연 시 기존 홈 선표시, 실패 안내와 native 재시도를 분리했다. UI 누락 RED→GREEN, focused 35/35, unit 209 pass/13 DB skip, public-read integration 1/1, lint/typecheck/build와 1440/390/320px·철회·빈/오류·긴 제목·키보드·레이더 전후 일치를 확인했다. 다음은 **`blog-discovery-and-home / Step 3: rss-and-work-evidence-links`**다. 아래 완료 이력의 당시 다음 단계 안내보다 이 기록과 live phase registry를 우선한다. Second Brain 완료 상태와 OCI 보류는 유지한다.
+
 2026-10-15 기준 확정에 따른 UI 수정: **`second-brain-memory-interface / Step 3: career-memory-ui-parity`**에서 실제 공개 Memory 페이지를 REA로 확인하고 화면 구성을 맞췄다(ADR-031). 이전 로컬 HTML 기준을 대체하며 560px 전체 높이 본문, 480px preview, 행 필터, 실제 연결 기반 3D와 밝은 평면 배치로 변경했다. 검증 내역은 해당 step에 남긴다. 개인 기록·작성 기능·Home/레이더·OCI 보류를 유지하며 기본 다음 작업은 **`blog-discovery-and-home / Step 2: home-recent-posts`**이다.
 
 2026-10-14 별도 UI 수정 요청 완료: **`second-brain-memory-interface / Step 2: rea-reference-refresh`**에서 지정한 로컬 HTML을 REA로 재분석하고 260px 크림색 sidebar, 상단 검색, 우측 세로 본문과 화면 크기별 그래프 투영을 반영했다(ADR-030). Geometry/투영 RED→GREEN과 1440/1024/768/390/320px 상호작용 검증을 통과했다. 기존 공개 기록·개인 작성·Home/레이더·OCI 보류는 유지한다. 일반적인 다음 단계는 아래 **`blog-discovery-and-home / Step 2: home-recent-posts`**이며 이번 요청에서 시작하지 않았다.

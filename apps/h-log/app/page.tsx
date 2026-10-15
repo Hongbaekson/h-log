@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import {
   ArrowRight,
   BookOpen,
@@ -17,8 +18,11 @@ import {
 } from "lucide-react";
 
 import { ButtonLink, Container } from "@/components/ui";
+import { HomeRecentPosts } from "@/components/blog/HomeRecentPosts";
 import { projects } from "@/lib/projects";
 import { siteConfig } from "@/lib/site";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   alternates: {
@@ -284,6 +288,9 @@ export default function HomePage() {
           </div>
         </Container>
       </section>
+      <Suspense fallback={null}>
+        <HomeRecentPosts />
+      </Suspense>
     </div>
   );
 }
