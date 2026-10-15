@@ -163,7 +163,7 @@
     {
       "dir": "blog-writing-quality",
       "status": "pending",
-      "summary": "2026-10-15 Step 0 completed in the user-selected Toss track: Korean writing guide, two private evidence-backed drafts, protected-span/meaning review and 35/35 public tests. Steps 1-2 remain pending; next in this track is Step 1 evidence-preserving-writer-style. Existing blog-discovery-and-home Step 3 remains pending separately. No runtime prompt, UI, DB, external generation or publication changes."
+      "summary": "2026-10-15 Steps 0-1 completed in the user-selected Toss track: Korean writing guide and two private drafts, then static writing/evidence rules connected to the existing one-shot prompt. RED/GREEN, focused 39/39, unit 210 pass/13 DB skip, lint/typecheck/build passed. Step 2 local-editorial-pilot is next; actual model prose quality remains untested. Existing blog-discovery-and-home Step 3 stays pending separately. No UI, DB, external generation or publication changes."
     },
     {
       "dir": "blog-list-presentation",

@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-15 토스 개선 이어가기 완료: **`blog-writing-quality / Step 1: evidence-preserving-writer-style`**에서 기존 단일 writer prompt에 한국어 문체·다섯 글 유형의 전개·근거 보존·자체 점검 규칙을 연결했다. 지침 누락 RED→GREEN과 verified INPUT 보존, focused 39/39, unit 210 pass/13 DB skip, lint/typecheck/build를 확인했다. 빌드는 sandbox의 Node 자식 프로세스 연결 실패 후 같은 명령을 sandbox 밖에서 실행해 통과했다. 정적 지침과 호출 계약을 검증했으며 실제 모델 문체 평가는 수행하지 않았다. 다음은 **`blog-writing-quality / Step 2: local-editorial-pilot`**이다. 아래 기록의 당시 다음 단계보다 이 기록과 live registry를 우선하며 UI·DB·발행·OCI는 변경하지 않았다.
+
 2026-10-15 토스 개선 이어가기 완료: **`blog-writing-quality / Step 0: verified-writing-baseline`**에서 [한국어 작성 가이드](BLOG_WRITING_GUIDE.md)와 구현 기록/공식 문서 분석 초안 2개를 준비했다. 비공개 원본·교정본과 11개 claim 근거를 보관하고 Korean 교정의 사실·보호 항목 보존, 공개 글 테스트 35/35, 문서·경로·제외 규칙 검증을 통과했다. 이번에 선택한 트랙의 다음은 **`blog-writing-quality / Step 1: evidence-preserving-writer-style`**다. 기존 공개 경험 트랙의 `blog-discovery-and-home / Step 3`는 별도로 pending이며, 아래 계획 등록 당시의 일반 다음 단계 안내와 구분한다. 실제 writer prompt·UI·DB·발행과 OCI는 변경하지 않았다.
 
 2026-10-15 토스 분석 후속 **계획 등록**: [기술 글 문체와 읽기 화면 개선 계획](BLOG_EDITORIAL_READING_PLAN.md)을 3개 phase / 7개 step으로 추가했다. `blog-writing-quality` Steps 0–2는 근거 있는 기술 초안 2~3개·한국어 기준 → 기존 writer 지침 연결 → 로컬 교정/검증, `blog-list-presentation` Steps 0–1은 목록·검색 결과 위계 → 선택적 검증 썸네일, `blog-reading-polish` Steps 0–1은 본문 간격 → 실제 초안의 데스크톱/모바일 검토다. 모두 pending이며 코드나 실제 글을 생성·발행한 상태가 아니다. 토스 개선을 지정하면 `blog-writing-quality / Step 0: verified-writing-baseline`부터 진행한다. 일반적인 다음 작업은 기존 `blog-discovery-and-home / Step 3`를 유지하고, 기존 공개 경험 Phase 1~6 및 수정 이력·시리즈 계획은 중복 구현하지 않는다. Discord 스타일·Home/레이더·Second Brain·OCI 보류를 유지한다.

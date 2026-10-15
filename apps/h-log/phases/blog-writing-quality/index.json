@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "evidence-preserving-writer-style",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-15: Embedded condensed Korean tone, five article-mode flows, evidence preservation and self-review instructions in the existing one-shot writer prompt. Provider transport test proved RED then GREEN, unchanged verified input and existing no-tool/source/block contracts; focused 39/39 and unit 210 pass/13 DB skip, lint/typecheck/build passed (build rerun outside the sandbox after a child-process connection failure). No external LLM, DB, UI or publication changes. Actual model prose quality remains untested. Next: Step 2 local-editorial-pilot."
     },
     {
       "step": 2,

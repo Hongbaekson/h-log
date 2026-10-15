@@ -104,6 +104,76 @@ describe("Hermes article provider", () => {
     });
   });
 
+  it("sends Korean editorial guidance with unchanged verified input in one writer call", async () => {
+    const input: GenerateArticleInput = {
+      ...generationInput,
+      generationInput: {
+        articleMode: "document_analysis",
+        commandsOrChecks: ["재연결 동작은 아직 실행하지 않음"],
+        evidencePaths: [],
+        personalContextIds: ["context-hlog"],
+        personalContextSummaries: [{
+          allowedUsage: "reference_only",
+          category: "backend",
+          id: "context-hlog",
+          summary: "코드 예시 `COUNT 3`과 24시간 조건은 문서 분석 범위다.",
+          title: "메시지 전달 기준",
+          version: 1,
+        }],
+        researchPackId: "research-pack-runtime",
+        selectedAngle: "공식 문서의 조건을 비교한다.",
+        summary: "운영 경험이나 측정 결과가 없는 자료 분석",
+        topicCandidateId: "topic-runtime",
+      },
+    };
+    const expectedOutput = { ...writerOutput, articleMode: "document_analysis" };
+    const invocations: HermesOneShotInvocation[] = [];
+    const generateArticle = createHermesArticleGenerator({
+      runOneShot: async (invocation) => {
+        invocations.push(invocation);
+        return {
+          response: JSON.stringify(expectedOutput),
+          usageReport: {
+            api_calls: 1,
+            completed: true,
+            cost_status: "included",
+            estimated_cost_usd: 0,
+            failed: false,
+            input_tokens: 123,
+            model: invocation.model,
+            output_tokens: 456,
+            provider: invocation.provider,
+          },
+        };
+      },
+    });
+
+    const result = await generateArticle(input);
+    assert.equal(invocations.length, 1);
+    const invocation = invocations[0];
+    const inputStart = invocation.prompt.lastIndexOf("\nINPUT=");
+    assert.ok(inputStart > 0);
+    const instructions = invocation.prompt.slice(0, inputStart);
+    assert.deepEqual(JSON.parse(invocation.prompt.slice(inputStart + 7)), input);
+    assert.match(instructions, /한국어.*해요체/);
+    assert.match(instructions, /제목.*요약.*도입부/);
+    assert.match(instructions, /articleMode.*INPUT\.generationInput\.articleMode/);
+    assert.match(instructions, /project_record.*구현/);
+    assert.match(instructions, /ops_incident.*증상/);
+    assert.match(instructions, /experiment.*조건.*결과/);
+    assert.match(instructions, /document_analysis.*문서.*미확인/);
+    assert.match(instructions, /applied_analysis.*조건.*계획/);
+    assert.match(instructions, /direct_experience.*근거/);
+    assert.match(instructions, /코드.*URL.*수치/);
+    assert.match(instructions, /예문.*사실 근거로 사용하지/);
+    assert.match(instructions, /Do not call tools/);
+    assert.match(instructions, /sourceId must exactly match INPUT\.sources/);
+    assert.match(instructions, /publishDecision=block/);
+    assert.deepEqual(invocation.toolsets, ["context_engine"]);
+    assert.equal(invocation.safeMode, true);
+    assert.deepEqual(result.output, expectedOutput);
+  });
+
   it("does not allow environment or caller model overrides", async () => {
     const invocations: HermesOneShotInvocation[] = [];
     const previousModel = process.env.HLOG_HERMES_MODEL;

@@ -79,7 +79,7 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 
 ### H-05: 기술 글 문체와 읽기 화면 개선 계획
 
-2026-10-15 토스 기술 블로그 분석을 [3개 phase / 7개 step](BLOG_EDITORIAL_READING_PLAN.md)으로 등록했다. Step 0에서 [한국어 작성 가이드](BLOG_WRITING_GUIDE.md)와 근거를 구분한 비공개 기술 초안 2개를 준비했다. 나머지 6개 step은 pending이며 다음은 기존 writer 지침에 문체·글 유형별 전개·근거 보존을 연결하는 Step 1이다. 현재 runtime prompt는 그대로다.
+2026-10-15 토스 기술 블로그 분석을 [3개 phase / 7개 step](BLOG_EDITORIAL_READING_PLAN.md)으로 등록했다. T1 Step 0에서 [한국어 작성 가이드](BLOG_WRITING_GUIDE.md)와 근거를 구분한 비공개 기술 초안 2개를 준비했고, Step 1에서 기존 writer prompt에 한국어 문체·글 유형별 전개·근거 보존 규칙을 연결했다. 나머지 5개 step은 pending이며 다음은 초안 교정과 로컬 작성 흐름을 검토하는 T1 Step 2다. provider 계약 검증을 마쳤으며 실제 모델의 생성 문체 평가는 아직 수행하지 않았다.
 
 - 목록·검색 결과는 제목·요약·날짜를 중심으로 맞추고 검증된 자산이 있을 때만 썸네일을 표시한다. 검색/모바일 태그 필터와 URL 상태를 유지한다.
 - 본문은 기존 목차·코드 복사·표·출처·관련 글을 유지하면서 폭·글자·여백을 실제 초안으로 확인한다. Discord 팔레트와 Home/레이더, Second Brain을 변경하지 않는다.
@@ -163,7 +163,7 @@ local runtime에서 완료된 항목:
 - 자동 발행 품질 게이트
 - 검증 실패 시 비공개 실패 상태 유지
 
-Daily pipeline은 모든 research source의 `fetchedAt`이 `runAt` 이전 24시간 이내인지 먼저 검사한다(양 끝 포함). 만료·미래·잘못된 시각은 사용량 조회/기록, LLM, slug 조회와 저장 전에 오류로 종료하며 원래 입력값을 오류에 넣지 않는다. 이는 자료를 다시 수집/확인한 시각의 검증이며 기사 발행일, topic 수집 시각이나 개인 맥락의 최신성을 보장하지 않는다. 실제 수집기와 persona/humanize runtime 연결은 후속 작업이다.
+Daily pipeline은 모든 research source의 `fetchedAt`이 `runAt` 이전 24시간 이내인지 먼저 검사한다(양 끝 포함). 만료·미래·잘못된 시각은 사용량 조회/기록, LLM, slug 조회와 저장 전에 오류로 종료하며 원래 입력값을 오류에 넣지 않는다. 이는 자료를 다시 수집/확인한 시각의 검증이며 기사 발행일, topic 수집 시각이나 개인 맥락의 최신성을 보장하지 않는다. 실제 수집기는 후속 작업이다. 정적 한국어 작성 규칙은 T1 Step 1에서 writer에 연결했으며 별도 교정 호출이나 persona feedback learning을 활성화하지 않는다.
 
 현재 daily pipeline은 adapter 기반 contract다. Writer schema와 privacy/article quality gate를 통과한 normalized claim은 pipeline이 구성한 verified `postSources`를 기준으로 기존 `verifyArticleClaims`를 통과해야 하며, 실패하면 persistence 전에 비공개 `generation_failed`로 종료한다. 검증된 생성 결과만 선택적 persistence callback을 통해 `publishing` post와 queued required jobs로 넘기고 public worker 실행 전에 비공개 상태로 멈출 수 있다. PostgreSQL one-shot runner는 서울 날짜별 advisory lock과 기존 post 확인 후에만 Hermes `openai-codex`/`gpt-5.6-sol`을 호출하고 이 private aggregate를 저장한다. Required adapter는 `render`/`privacy_scan`을 공개 전에 처리하고 제한된 canary 전환 뒤 public URL/Markdown/sitemap/content hash를 검증하며 실패 canary를 `correction_pending`으로 숨긴다. Bounded cycle은 해당 daily post의 required job만 유한 횟수로 drain하고, 공식 Hermes image를 사용한 Compose service와 09:00 KST systemd timer를 packaging했다. OCI server-local credential/env/input, live migration, bounded Hermes canary와 audited rollback smoke까지 완료했다. 실제 HTTPS public origin과 privacy 목록이 없으므로 반복 timer와 실제 성과 신호 수집은 활성화하지 않는다.
 

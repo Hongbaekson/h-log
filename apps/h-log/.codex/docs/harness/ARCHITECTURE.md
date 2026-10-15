@@ -36,6 +36,12 @@ npm run build
 
 ## Runtime 구성
 
+### 기술 글 작성 지침
+
+`lib/blog-hermes-article-provider.ts#createHermesArticlePrompt`는 [한국어 작성 가이드](BLOG_WRITING_GUIDE.md)에서 추린 문체·다섯 article mode의 전개·사실 보존 규칙을 정적 문자열로 전달한다. 마지막 `INPUT`에는 기존 verified generation input과 sources를 그대로 직렬화한다. 일반화 예문은 문체 참고용이며 사실 근거로 쓰지 않도록 지시한다. runtime 파일/스킬 로딩, 별도 교정 호출이나 persona learning은 추가하지 않는다.
+
+기존 no-tool 단일 writer 호출, JSON 출력과 usage 검증을 유지한다. 생성 뒤에는 기존 schema/privacy/claim gate를 통과해야 한다. provider test double은 지침·입력 전달과 출력 처리를 확인하며 실제 모델 문체 품질을 증명하지 않는다.
+
 ### 홈의 최근 공개 글
 
 `blog-discovery-and-home / Step 2`의 `components/blog/HomeRecentPosts.tsx`는 기존 `loadPublicBlogContentStore`와 `getPublicBlogIndex({ pageSize: 3 })`, 날짜/글 유형 formatter를 재사용하는 async Server Component다. 요청마다 published-current/privacy 경계를 통과한 글을 읽고 최대 3개의 현재 제목·요약·발행일과 상세 링크를 렌더링한다. 새 SQL이나 별도 요약 cache는 없다.
@@ -319,7 +325,7 @@ SQL migration - completed
 
 ## 자동 블로그 데이터 흐름
 
-`lib/blog-daily-auto-article.ts`는 usage나 provider에 접근하기 전에 모든 research source의 `fetchedAt`을 `runAt` 기준 24시간 범위(양 끝 포함)로 검사한다. 만료·미래·잘못된 시각은 값이 노출되지 않는 오류로 전파돼 one-shot runner의 lock 해제 후 cycle을 중단한다. 일일 중복 확인은 기존 runner 순서를 유지한다. 이 검사는 수집 시각의 유효기간만 다루며 JSON을 갱신하는 실제 수집기나 persona/humanize 연결은 아직 없다.
+`lib/blog-daily-auto-article.ts`는 usage나 provider에 접근하기 전에 모든 research source의 `fetchedAt`을 `runAt` 기준 24시간 범위(양 끝 포함)로 검사한다. 만료·미래·잘못된 시각은 값이 노출되지 않는 오류로 전파돼 one-shot runner의 lock 해제 후 cycle을 중단한다. 일일 중복 확인은 기존 runner 순서를 유지한다. 이 검사는 수집 시각의 유효기간만 다루며 JSON을 갱신하는 실제 수집기는 아직 없다. writer의 정적 한국어 규칙은 별도이며 freshness와 근거 검증을 대체하지 않는다.
 
 ```text
 Daily topic collector

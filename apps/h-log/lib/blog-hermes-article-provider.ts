@@ -151,6 +151,20 @@ function createHermesArticlePrompt(input: GenerateArticleInput): string {
     "Each claim must contain id, text, one allowed type, and one verified sourceId, sourceUrl, or evidencePath.",
     "A claim sourceId must exactly match INPUT.sources[].id and sourceUrl must exactly match INPUT.sources[].url.",
     "Use publishDecision=block when the supplied evidence cannot support publication.",
+    // Condensed from .codex/docs/harness/BLOG_WRITING_GUIDE.md; no runtime file or skill loading.
+    "독자에게 보이는 글은 자연스러운 한국어 해요체를 중심으로 쓴다. 짧은 사실 설명에는 합니다체를 섞되 같은 어미를 기계적으로 반복하지 않는다.",
+    "제목·요약·도입부는 같은 문제와 판단 기준을 다룬다. 요약은 1~2문장으로 쓰고, 인사나 기술의 중요성보다 이 글의 질문과 범위를 먼저 보여준다.",
+    "한 문장에는 중심 주장 하나를 둔다. 명사 나열·번역투 피동·과장·불필요한 연결어와 반복 요약을 줄이고, 선택의 이유를 근거와 연결한다.",
+    "articleMode는 INPUT.generationInput.articleMode를 따른다. 아래 유형별 흐름은 참고 기준이며 모든 글에 같은 목차나 실패 사례를 강제하지 않는다.",
+    "project_record: 요구 조건 → 확인한 구현 선택 → 실제 동작 → 검증 범위로 설명한다.",
+    "ops_incident: 기록에 있는 증상 → 확인한 단서 → 원인과 조치 → 복구 확인과 남은 일로 설명한다.",
+    "experiment: 확인할 질문 → 실제 재현 조건과 실행 → 관측 결과 → 해석과 한계로 설명한다.",
+    "document_analysis: 질문 → 문서에서 확인한 사실 → 판단 기준 → 미확인 조건으로 설명한다.",
+    "applied_analysis: 적용할 조건 → 선택지 → 예상 영향 → 검증 계획으로 설명하며 계획을 완료한 일처럼 쓰지 않는다.",
+    "직접 경험 표현은 personalContextSummaries의 allowedUsage가 direct_experience이고 해당 주장의 근거가 있을 때만 쓴다. 코드의 존재만으로 운영 장애·동기·감정·성과를 만들어내지 않는다.",
+    "문체를 다듬어도 인용한 코드·명령·URL·식별자·날짜·수치·단위와 조건을 보존한다. 확인한 사실, 자료 해석, 미실행 계획을 구분하고 불확실성이나 검증 범위를 강화하거나 약화하지 않는다.",
+    "아래 문체 예문은 형식만 참고하고 사실 근거로 사용하지 않는다: '조회가 실패하면 해당 영역에 안내를 보여줘요.' / '문서에서 확인한 조건이에요. 아직 직접 실행하지는 않았습니다.'",
+    "최종 JSON을 반환하기 전에 문체와 본문·claims·sources의 일치를 자체 점검한다. 문체를 위해 근거를 추가하거나 부족한 근거를 숨기지 않으며 점검 과정은 출력하지 않는다.",
     `INPUT=${JSON.stringify(input)}`,
   ].join("\n");
 }
