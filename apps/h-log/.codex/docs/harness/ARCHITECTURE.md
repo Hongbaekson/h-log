@@ -280,6 +280,8 @@ Source content / lib data
 
 `blog-discovery-and-home / Step 1`은 `components/blog/BlogTopicFilters.tsx`를 Server Component로 렌더링해 `BlogSearchPanel`의 filters slot에 전달한다(ADR-029). 검색 form 아래에 앞의 4개/선택 태그와 native details의 나머지 태그를 배치하며 URL key가 바뀌면 기본 접힘 상태로 돌아간다. 접힌 영역에 선택 태그를 중복 출력하지 않는다. 목록은 짧은 소개와 최대 896px 한 열로 정리하고 긴 제목·설명·본문의 태그 badge가 모바일 폭 안에서 줄바꿈하도록 한다. 공개 store/query와 검색 상태 로직에는 변경이 없다.
 
+`blog-list-presentation / Step 0`의 `components/blog/BlogPostRow.tsx`는 일반 목록 page와 `BlogSearchPanel`의 검색 결과가 공유하는 표시 컴포넌트다. 제목·요약·날짜·메타정보·태그만 받아 렌더링하고 자체 상태나 데이터 조회는 없다. 일반 목록 caller는 현재 글 유형 label, 검색 caller는 기존 match reason label을 전달한다. 요약만 두 줄로 제한하고 제목·메타정보·태그는 줄바꿈한다. 날짜의 원본 `dateTime`, URL·검색 응답·published-current/privacy 계약은 유지한다.
+
 ## DB 기반 수동 발행 데이터 흐름
 
 `blog-reading-foundation / Step 0`에서 공개 `lib/blog-public.ts`의 block reader는 line/fence 경계를 먼저 구분한다. Top-level backtick/tilde fence 안의 빈 줄·공백·heading/HTML 문자열은 하나의 code block으로 보존하고, 같은 문자/충분한 길이의 종료 조건 또는 문서 끝에서 닫는다. 기존 React text escaping, verified diagram 삽입, published-current selector와 저장 Markdown/HTML/hash 생성은 그대로다.

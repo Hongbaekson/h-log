@@ -71,7 +71,7 @@
 
 ### 별도 후속 작업
 
-- 2026-10-15 [기술 글 문체와 읽기 화면 개선](BLOG_EDITORIAL_READING_PLAN.md)을 별도 T1~T3 / 7개 step으로 등록했다. T1 Steps 0–2의 작성 가이드·비공개 초안·writer 규칙 연결·로컬 문체 검토를 완료했으며 이 트랙의 다음은 `blog-list-presentation / Step 0: readable-post-rows`다. 목록 위계/선택적 썸네일 → 본문 간격/실제 글 검토 순서를 따른다. 기존 Phase 1~6의 번호·완료 이력과 pending인 Phase 3 Step 3은 유지한다. 기존 목차·검색·필터를 재구현하지 않고 Phase 5 Step 2는 H-Log 최근 글 조회 경계 초안을 사례 후보로 재사용한다. 해당 사례 단계의 상태는 pending이다.
+- 2026-10-15 [기술 글 문체와 읽기 화면 개선](BLOG_EDITORIAL_READING_PLAN.md)을 별도 T1~T3 / 7개 step으로 등록했다. T1 Steps 0–2의 작성 가이드·비공개 초안·writer 규칙 연결·로컬 문체 검토와 T2 Step 0의 목록/검색 결과 공통 행을 완료했다. 이 트랙의 다음은 `blog-list-presentation / Step 1: optional-verified-thumbnails`다. 선택적 썸네일 → 본문 간격/실제 글 검토 순서를 따른다. 기존 Phase 1~6의 번호·완료 이력과 pending인 Phase 3 Step 3은 유지한다. 기존 목차·검색·필터를 재구현하지 않고 Phase 5 Step 2는 H-Log 최근 글 조회 경계 초안을 사례 후보로 재사용한다. 해당 사례 단계의 상태는 pending이다.
 
 - 2026-10-06 [운영 모니터링](OBSERVABILITY_PLAN.md)을 독립 phase/8개 step으로 등록했다. 기존 공개 경험 6개 phase/19개 step의 번호·실행 순서는 유지한다. 모니터링을 지정하면 해당 Step 0부터 로컬 진행할 수 있고 운영 적용은 OCI 보류를 따른다. 자동 발행 timer 재개 전 운영 모니터링 검증이 필요하다.
 

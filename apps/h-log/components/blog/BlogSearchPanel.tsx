@@ -4,14 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
-  CalendarDays,
   LoaderCircle,
   Search,
 } from "lucide-react";
 import { type FormEvent, type ReactNode, useEffect, useState, useTransition } from "react";
 
-import { Badge } from "@/components/ui";
 import { BlogPagination } from "./BlogPagination";
+import { BlogPostRow } from "./BlogPostRow";
 import type { BlogSearchHttpResponse } from "@/lib/blog-search";
 import {
   createBlogSearchUiSnapshot,
@@ -176,40 +175,18 @@ function SearchSnapshotView({ snapshot }: { snapshot: BlogSearchUiSnapshot }) {
           {snapshot.pagination?.totalItems}개 결과
         </p>
       </div>
-      <div className="grid gap-3">
+      <div className="grid">
         {snapshot.items.map((item) => (
-          <article
-            className="border-t border-slate-800 pt-4 transition-colors hover:border-cyan-300/50"
+          <BlogPostRow
             key={item.slug}
-          >
-            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
-              <span className="inline-flex items-center gap-1.5">
-                <CalendarDays aria-hidden="true" size={14} strokeWidth={2} />
-                <time dateTime={item.publishedAt}>{item.publishedDateLabel}</time>
-              </span>
-              <span className="text-xs leading-5 text-[#b6bdff] wrap-anywhere">
-                {item.matchReasonLabel}
-              </span>
-            </div>
-            <h2 className="card-heading mt-2 text-xl leading-tight wrap-anywhere text-white">
-              <Link
-                className="transition-colors hover:text-cyan-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
-                href={item.href}
-              >
-                {item.title}
-              </Link>
-            </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300 wrap-anywhere">
-              {item.description}
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {item.tags.map((tag) => (
-                <Badge className="max-w-full wrap-anywhere" key={tag} tone="slate">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </article>
+            title={item.title}
+            href={item.href}
+            description={item.description}
+            publishedAt={item.publishedAt}
+            publishedDateLabel={item.publishedDateLabel}
+            metadataLabel={item.matchReasonLabel}
+            tags={item.tags}
+          />
         ))}
       </div>
     </div>

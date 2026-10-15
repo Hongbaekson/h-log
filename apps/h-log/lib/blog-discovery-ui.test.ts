@@ -4,12 +4,15 @@ import { describe, it } from "node:test";
 
 describe("blog discovery UI", () => {
   it("keeps the raw publication date in list time markup", async () => {
-    const source = await readFile(
-      new URL("../app/blog/(index)/page.tsx", import.meta.url),
-      "utf8",
-    );
+    const [row, page, search] = await Promise.all([
+      readFile(new URL("../components/blog/BlogPostRow.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../app/blog/(index)/page.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../components/blog/BlogSearchPanel.tsx", import.meta.url), "utf8"),
+    ]);
 
-    assert.match(source, /<time dateTime=\{post\.publishedAt\}>/);
+    assert.match(row, /<time dateTime=\{publishedAt\}>/);
+    assert.match(page, /publishedAt=\{post\.publishedAt\}/);
+    assert.match(search, /publishedAt=\{item\.publishedAt\}/);
   });
 
   it("keeps the search input guidance aligned with the two-character API minimum", async () => {

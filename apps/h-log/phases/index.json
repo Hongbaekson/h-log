@@ -168,7 +168,7 @@
     {
       "dir": "blog-list-presentation",
       "status": "pending",
-      "summary": "2026-10-15 plan registered; Steps 0-1 pending after blog-writing-quality: readable ordinary/search rows, then optional verified thumbnails. Preserve Discord palette, visible search/mobile filters, q/tag/page and published-current/privacy; no Home/radar or Second Brain changes."
+      "summary": "2026-10-15 Step 0 completed: shared ordinary/search rows with 24px desktop/20px mobile titles, 16px two-line summaries and separate date/metadata/tags. Browser RED to GREEN and 1440/390/320 keyboard/overflow/URL-history/search-state checks passed; focused 45/45, full 210 pass/13 DB skip, lint/typecheck/build passed. Step 1 optional-verified-thumbnails remains pending and is next in the Toss track. Discord palette, public boundaries, Home/radar, Second Brain and OCI hold preserved."
     },
     {
       "dir": "blog-reading-polish",

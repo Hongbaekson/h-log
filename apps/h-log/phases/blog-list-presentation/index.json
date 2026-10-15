@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "readable-post-rows",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-15: Shared BlogPostRow now presents ordinary/search titles at 24px desktop and 20px mobile, 16px two-line summaries, separate dates/mode or match reason, and wrapping tags. Browser RED (30px title) to GREEN at 1440/390/320; keyboard, overflow, URL/history/pagination and search states passed. Focused 45/45, full 210 pass/13 DB skip, lint/typecheck/build passed. Next: Step 1 optional-verified-thumbnails. No Home/radar, Second Brain, API/DB contract or deployment changes."
     },
     {
       "step": 1,

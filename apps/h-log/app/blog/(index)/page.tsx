@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { CalendarDays } from "lucide-react";
 
 import { BlogSearchPanel } from "@/components/blog/BlogSearchPanel";
 import { BlogPagination } from "@/components/blog/BlogPagination";
+import { BlogPostRow } from "@/components/blog/BlogPostRow";
 import { BlogTopicFilters } from "@/components/blog/BlogTopicFilters";
 import { buildBlogBrowseHref, parseBlogBrowseParams, type BlogBrowseParams } from "@/lib/blog-search-ui";
-import { Badge, Container } from "@/components/ui";
+import { Container } from "@/components/ui";
 import { getPublicBlogIndex } from "@/lib/blog-public";
 import {
   formatPublicBlogArticleMode,
@@ -62,7 +61,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               state={state}
               filters={<BlogTopicFilters tags={index.tagCounts} state={state} />}
             >
-            {!state.query && <div className="grid gap-5">
+            {!state.query && <div className="grid">
               {index.posts.length === 0 ? (
                 <div className="border-y border-slate-700/80 py-10">
                   <h2 className="card-heading text-xl text-white wrap-anywhere">
@@ -78,38 +77,16 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                 </div>
               ) : (
                 index.posts.map((post) => (
-                  <article
-                    className="group border-t border-slate-700/80 py-7 transition-colors hover:border-cyan-300/50"
+                  <BlogPostRow
                     key={post.slug}
-                  >
-                    <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400">
-                      <span className="inline-flex items-center gap-2">
-                        <CalendarDays aria-hidden="true" size={15} strokeWidth={2} />
-                        <time dateTime={post.publishedAt}>{formatPublicBlogDate(post.publishedAt)}</time>
-                      </span>
-                      <span className="font-mono text-xs uppercase tracking-[0.16em] text-cyan-200">
-                        {formatPublicBlogArticleMode(post.articleMode)}
-                      </span>
-                    </div>
-                    <h2 className="card-heading mt-4 text-2xl leading-tight wrap-anywhere text-white md:text-3xl">
-                      <Link
-                        className="transition-colors group-hover:text-cyan-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
-                        href={post.href}
-                      >
-                        {post.title}
-                      </Link>
-                    </h2>
-                    <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 wrap-anywhere md:text-base">
-                      {post.description}
-                    </p>
-                    <div className="mt-5 flex flex-wrap gap-2">
-                      {post.tags.map((tag) => (
-                        <Badge className="max-w-full wrap-anywhere" key={tag} tone="slate">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </article>
+                    title={post.title}
+                    href={post.href}
+                    description={post.description}
+                    publishedAt={post.publishedAt}
+                    publishedDateLabel={formatPublicBlogDate(post.publishedAt)}
+                    metadataLabel={formatPublicBlogArticleMode(post.articleMode)}
+                    tags={post.tags}
+                  />
                 ))
               )}
 

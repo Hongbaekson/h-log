@@ -1,6 +1,6 @@
 # H-Log 기술 글 문체와 읽기 화면 개선 계획
 
-기준일: 2026-10-15. 토스 기술 블로그 분석을 바탕으로 3개 phase / 7개 step을 등록했다. **T1 Steps 0–2를 완료했고 T2~T3의 4개 step은 pending**이다. 실행 상태는 [전체 registry](../../../phases/index.json)와 각 phase index를 따른다.
+기준일: 2026-10-15. 토스 기술 블로그 분석을 바탕으로 3개 phase / 7개 step을 등록했다. **T1 Steps 0–2와 T2 Step 0을 완료했고 나머지 3개 step은 pending**이다. 실행 상태는 [전체 registry](../../../phases/index.json)와 각 phase index를 따른다.
 
 ## 목표와 범위
 
@@ -35,7 +35,7 @@ REA 근거:
 
 - `lib/blog-hermes-article-provider.ts`의 writer prompt에 T1 Step 1에서 한국어 문체·다섯 글 유형의 전개·근거 보존 기준을 추가했다. 기존 검증 입력·출처·출력 형식 규칙과 단일 호출을 유지하며 실제 생성 문체 평가는 별도로 남아 있다.
 - `hlog-persona-v1` 기록이나 `style_drift` 분류만으로 자연스러운 문체가 자동 검증된다고 보지 않는다.
-- 일반 목록과 검색 결과는 제목·요약 크기 및 간격이 다르다. URL 기반 탐색은 이미 구현되어 있으므로 표현만 맞춘다.
+- T2 Step 0에서 일반 목록과 검색 결과가 `BlogPostRow`를 공유하도록 맞췄다. 제목 24px/모바일 20px, 16px 두 줄 요약을 사용하며 날짜·글 유형/검색 일치 정보·태그를 분리한다. 기존 URL 기반 탐색은 유지한다.
 - 본문은 안전한 Markdown, 목차·코드 복사·표·관련 글을 지원한다. 새 renderer를 만들지 않는다.
 - 목록에 쓸 썸네일의 현재 공개 조회 계약은 구현 시 확인한다. 본문용 asset을 검증 없이 대표 이미지로 간주하지 않는다.
 
@@ -48,7 +48,7 @@ REA 근거:
 | T1. [blog-writing-quality](../../../phases/blog-writing-quality/index.json) | [0](../../../phases/blog-writing-quality/step0.md) | 공개 가능한 근거로 기술 초안 2~3개와 한국어 문체 기준 준비 | 완료: 비공개 초안 2개·근거 대장·[작성 가이드](BLOG_WRITING_GUIDE.md) |
 | T1 | [1](../../../phases/blog-writing-quality/step1.md) | 기존 writer에 문체·유형별 전개·근거 보존 기준 반영 | 완료: 기존 단일 호출에 정적 규칙 반영·provider 전달 및 gate 회귀 검증 |
 | T1 | [2](../../../phases/blog-writing-quality/step2.md) | 초안 교정과 로컬 작성 흐름 검증 | 완료: 초안 2개·11개 claim 검토, 산문 3곳 교정, 사실 조건 1곳 보완, 로컬 5개 시나리오 검증 |
-| T2. [blog-list-presentation](../../../phases/blog-list-presentation/index.json) | [0](../../../phases/blog-list-presentation/step0.md) | 일반 목록·검색 결과의 제목·요약·메타정보 위계 정리 | 긴 제목·두 줄 요약·필터 동작이 검증된 목록 |
+| T2. [blog-list-presentation](../../../phases/blog-list-presentation/index.json) | [0](../../../phases/blog-list-presentation/step0.md) | 일반 목록·검색 결과의 제목·요약·메타정보 위계 정리 | 완료: 공통 행·24/20px 제목·16px 두 줄 요약, 3개 폭과 검색/탐색 회귀 검증 |
 | T2 | [1](../../../phases/blog-list-presentation/step1.md) | 검증된 자산이 있을 때만 선택적 썸네일 표시 | 이미지 유무가 섞여도 읽히는 반응형 목록 |
 | T3. [blog-reading-polish](../../../phases/blog-reading-polish/index.json) | [0](../../../phases/blog-reading-polish/step0.md) | 본문 폭·글자·줄 간격·제목과 그림 여백 조정 | 기존 읽기 도구와 조화되는 상세 화면 |
 | T3 | [1](../../../phases/blog-reading-polish/step1.md) | 준비한 실제 기술 초안으로 목록→본문 통합 검토 | 데스크톱·모바일 검수와 남은 발행 준비 항목 |
@@ -56,7 +56,7 @@ REA 근거:
 ## 실행 순서와 기존 계획 연결
 
 - 기존 공개 경험 트랙의 `blog-discovery-and-home / Step 3: rss-and-work-evidence-links`는 별도로 pending을 유지한다.
-- 계획 등록 직후 이어가기 요청을 토스 트랙으로 진행해 **T1 Steps 0–2를 완료**했다. 이 트랙의 다음은 **T2 Step 0: readable-post-rows**다. T1 → T2 → T3 순서로 한 cycle에 한 step을 진행한다.
+- 계획 등록 직후 이어가기 요청을 토스 트랙으로 진행해 **T1 Steps 0–2와 T2 Step 0을 완료**했다. 이 트랙의 다음은 **T2 Step 1: optional-verified-thumbnails**다. T1 → T2 → T3 순서로 한 cycle에 한 step을 진행한다.
 - T1 Step 0의 근거 검토를 통과한 초안을 뒤의 문체·UI 확인에 재사용한다. 초안을 준비하지 못하면 원인을 기록하고 실제 경험을 만들어 채우지 않는다.
 - `editorial-trust-and-series`의 수정 이력·시리즈 기능은 기존 phase에서만 구현한다. 그 Step 2는 이번 초안 중 적합한 사례를 재사용하되 당시 인수 기준을 다시 확인한다. 이번 초안 작성이 시리즈나 공개 발행 완료를 뜻하지 않는다.
 - 완료된 `blog-reading-foundation/navigation`과 `blog-discovery-and-home`의 검색·필터를 재구현하지 않는다.
@@ -82,6 +82,8 @@ REA 근거:
 - 각 step에 수정 파일, 실행 명령과 결과, 수동 문체/화면 검수 범위, 다음 step을 기록한다. 실제 완료된 step만 completed로 바꾼다.
 
 ## 완료 기록
+
+2026-10-15 T2 Step 0: 일반 목록과 검색 결과의 제목·두 줄 요약·날짜·글 유형/검색 일치 정보·태그를 공통 행으로 맞췄다. 초안 2개의 제목·요약과 긴 텍스트용 가상 글을 격리 로컬 DB에서 확인했다. 브라우저 RED→GREEN, 1440/390/320px·키보드·검색 URL/history/pagination·빈/제한/오류/재시도 회귀, focused 45/45, 전체 210 pass/13 DB skip, lint/typecheck/build를 통과했다. Home/레이더·Second Brain·DB/API 계약과 운영 발행은 변경하지 않았다. 다음은 T2 Step 1의 검증된 선택적 썸네일이다.
 
 2026-10-15 T1 Step 2: 비공개 초안 2개와 11개 claim을 다시 검토했다. Redis `NOACK`의 새 메시지 조건을 사실 검토에서 보완한 뒤 Korean 스킬로 산문 3곳을 다듬고 보호 항목과 의미를 비교했다. 기존 테스트 39/39와 두 초안·실패 경로를 사용한 모의 writer 시나리오 5/5를 통과했다. 실제 provider·DB·공개 발행은 호출하지 않았다. [작성 가이드](BLOG_WRITING_GUIDE.md)에 검수 요약·남은 질문을 남기고 H-Log 글을 기존 사례 단계의 후보로 연결했다. T1은 완료했으며 다음은 T2 Step 0이다.
 

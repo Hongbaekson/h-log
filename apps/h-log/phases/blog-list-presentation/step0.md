@@ -66,3 +66,14 @@ git diff --check
 - 회사 원문·내부 식별자·private 버전·토스 원문/이미지를 공개 콘텐츠로 복사하지 말 것. 이유: 승인된 근거와 자산만 사용한다.
 - Home/레이더·Second Brain·무관한 schema나 기능을 변경하지 말 것. 이유: 이번 단위는 Blog의 문체와 읽기 개선이다.
 - 저장 글을 일괄 수정/삭제하거나 OCI·실제 provider·자동 공개 발행·timer를 실행하지 말 것. 이유: 이 로컬 개선 계획은 기존 운영 보류와 발행 경계를 변경하지 않는다.
+
+## 완료 기록 — 2026-10-15
+
+- `components/blog/BlogPostRow.tsx`를 추가하고 일반 목록 page와 `BlogSearchPanel`의 중복 행을 연결했다. 제목 → 두 줄 요약 → 날짜와 글 유형/검색 일치 정보 → 태그 순서로 통일했다. 제목은 데스크톱 24px·모바일 20px, 요약은 16px/줄 간격 28px이며 긴 제목과 태그는 전체를 줄바꿈한다. 검색 일치 정보는 요약의 잘림 영역 밖에 둔다.
+- `lib/blog-discovery-ui.test.ts`의 날짜 원본 계약 검증을 공통 행과 두 caller에 맞췄다. API·검색 상태·공개 데이터 선택·필터·pagination 로직은 유지했다.
+- RED: 개발 서버에 연결한 로컬 브라우저 검증에서 `list 1440: title 30px must fit reading range` 실패를 확인했다. 같은 검사에서 GREEN: 일반 목록/검색 결과 각각 1440/390/320px의 제목 크기, 요약 두 줄, 원본 날짜, 전체 제목·검색 이유, 키보드 focus와 가로 넘침을 통과했다.
+- T1 검수 초안 2개의 제목·요약과 긴 제목/요약/태그용 가상 글 1개를 격리 로컬 DB에서 확인했다. 390/320px 일반 목록과 1440/390px 검색 캡처를 직접 검토했다. 운영 DB나 공개 발행에는 반영하지 않았다.
+- 기존 검색 회귀 스크립트의 옛 `aside` 선택자는 현재 `블로그 태그` navigation으로 수정한 뒤 재실행했다. URL 직접 접근/reload, q/tag/page 유지, 뒤로/앞으로 이동, 페이지 이동, 태그 변경/초기화, 빈 결과/짧은 검색어/요청 제한/오류/재시도, 늦은 응답 무시를 통과했고 page error는 0건이었다. 검증 스크립트·캡처·결과는 Git/Docker 제외된 `private/blog-list-check/`에만 보관한다.
+- focused 명령: 위 3개 파일 45/45 통과. `npm run test`: 210 pass, 13 DB integration skip. `npm run lint`, `npm run typecheck`, `npm run build` 통과. DB/repository/worker/migration 변경이 없어 별도 전체 integration은 실행하지 않았다.
+- Markdown/JSON·상대 링크·phase 상태 검사와 `git diff --check`를 통과했다. Home/레이더·Second Brain 파일 변경은 없다.
+- 다음: **T2 Step 1 `optional-verified-thumbnails`**. 검증된 자산의 공개 조회 계약을 먼저 확인하며, 현재 Step 0에는 썸네일을 추가하지 않았다.
