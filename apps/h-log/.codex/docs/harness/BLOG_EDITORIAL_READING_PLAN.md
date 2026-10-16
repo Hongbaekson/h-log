@@ -1,6 +1,6 @@
 # H-Log 기술 글 문체와 읽기 화면 개선 계획
 
-기준일: 2026-10-15, 상태 갱신: 2026-10-16. 토스 기술 블로그 분석을 바탕으로 3개 phase / 7개 step을 등록했다. **T1 Steps 0–2, T2 Steps 0–1과 T3 Step 0을 완료했고 T3 Step 1은 pending**이다. 실행 상태는 [전체 registry](../../../phases/index.json)와 각 phase index를 따른다.
+기준일: 2026-10-15, 상태 갱신: 2026-10-16. 토스 기술 블로그 분석을 바탕으로 등록한 **3개 phase / 7개 step의 로컬 구현·검수를 모두 완료**했다. [최종 검수 결과와 남은 발행 준비](BLOG_READING_REVIEW.md)를 구분해 기록했다. 실행 상태는 [전체 registry](../../../phases/index.json)와 각 phase index를 따른다.
 
 ## 목표와 범위
 
@@ -51,12 +51,12 @@ REA 근거:
 | T2. [blog-list-presentation](../../../phases/blog-list-presentation/index.json) | [0](../../../phases/blog-list-presentation/step0.md) | 일반 목록·검색 결과의 제목·요약·메타정보 위계 정리 | 완료: 공통 행·24/20px 제목·16px 두 줄 요약, 3개 폭과 검색/탐색 회귀 검증 |
 | T2 | [1](../../../phases/blog-list-presentation/step1.md) | 검증된 자산이 있을 때만 선택적 썸네일 표시 | 완료: 명시적 선택·파일 검증·목록/검색 공통 반응형 표시와 실패 fallback, 합성 이미지로 로컬 검증 |
 | T3. [blog-reading-polish](../../../phases/blog-reading-polish/index.json) | [0](../../../phases/blog-reading-polish/step0.md) | 본문 폭·글자·줄 간격·제목과 그림 여백 조정 | 완료: 최대 736px·17px/32px 본문, 제목·코드·표·그림 여백과 기존 읽기 도구를 3개 폭에서 검증 |
-| T3 | [1](../../../phases/blog-reading-polish/step1.md) | 준비한 실제 기술 초안으로 목록→본문 통합 검토 | 데스크톱·모바일 검수와 남은 발행 준비 항목 |
+| T3 | [1](../../../phases/blog-reading-polish/step1.md) | 준비한 실제 기술 초안으로 목록→본문 통합 검토 | 완료: 최종 교정본 2개의 세 폭 탐색·읽기 검수, 오류 재시도 수정과 원문 보존, 남은 발행 준비 기록 |
 
 ## 실행 순서와 기존 계획 연결
 
 - 기존 공개 경험 트랙의 `blog-discovery-and-home / Step 3: rss-and-work-evidence-links`는 별도로 pending을 유지한다.
-- 계획 등록 직후 이어가기 요청을 토스 트랙으로 진행해 **T1 Steps 0–2, T2 Steps 0–1과 T3 Step 0을 완료**했다. 이 트랙의 다음은 **T3 Step 1: real-content-reading-review**다. T1 → T2 → T3 순서로 한 cycle에 한 step을 진행한다.
+- 계획 등록 직후 이어가기 요청을 토스 트랙으로 진행해 **T1 Steps 0–2, T2 Steps 0–1과 T3 Steps 0–1을 완료**했다. 다음 기본 작업은 기존 공개 경험 트랙의 **`blog-discovery-and-home / Step 3: rss-and-work-evidence-links`**다. 한 cycle에 한 step을 진행하며 실제 발행·배포는 별도다.
 - T1 Step 0의 근거 검토를 통과한 초안을 뒤의 문체·UI 확인에 재사용한다. 초안을 준비하지 못하면 원인을 기록하고 실제 경험을 만들어 채우지 않는다.
 - `editorial-trust-and-series`의 수정 이력·시리즈 기능은 기존 phase에서만 구현한다. 그 Step 2는 이번 초안 중 적합한 사례를 재사용하되 당시 인수 기준을 다시 확인한다. 이번 초안 작성이 시리즈나 공개 발행 완료를 뜻하지 않는다.
 - 완료된 `blog-reading-foundation/navigation`과 `blog-discovery-and-home`의 검색·필터를 재구현하지 않는다.
@@ -82,6 +82,8 @@ REA 근거:
 - 각 step에 수정 파일, 실행 명령과 결과, 수동 문체/화면 검수 범위, 다음 step을 기록한다. 실제 완료된 step만 completed로 바꾼다.
 
 ## 완료 기록
+
+2026-10-16 T3 Step 1: 최종 문체 교정본 2개의 제목·요약·도입부와 사실 보존을 검토하고 1440/390/320px에서 목록→검색/태그→본문→관련 글/뒤로, 키보드·목차·복사·표·별도 합성 이미지·빈/오류 상태를 확인했다. DB 복구 뒤 재조회하지 않던 공통 오류 버튼을 현재 URL 새로고침으로 수정해 RED→GREEN과 개발/로컬 production mode의 목록·상세 주소 보존을 검증했다. Focused 52/52, unit 213 pass/13 DB skip, public-read integration 1/1, lint/typecheck/build와 원문/HTML/hash 보존이 통과했다. [공개 검수 기록](BLOG_READING_REVIEW.md)에 실제 초안과 합성 자료, 실제 모델·발행 전 근거 갱신·운영 측정의 미실행 범위를 구분했다. 트랙 전체 완료이며 다음은 기존 discovery Step 3이다.
 
 2026-10-16 T3 Step 0: 상세 제목·도입부·본문 최대 폭을 736px로 맞추고 본문 17px/32px, 모바일/데스크톱 제목 36/48px와 H2/H3·코드·표·그림 여백을 적용했다. 검수 초안 2개와 합성 글 1개로 브라우저 RED→GREEN, 1440/390/320px 읽기·목차/직접 anchor·키보드·코드 복사/스크롤·표·그림·출처/관련 글을 확인했다. raw Markdown·private/missing 404와 저장 Markdown/HTML/hash 보존, focused 42/42, unit 213 pass/13 DB skip, lint/typecheck/build가 통과했다. 다음은 Step 1의 실제 초안 목록→본문 통합 검토이며 운영 발행·배포는 수행하지 않았다.
 

@@ -74,7 +74,7 @@ describe("blog discovery UI", () => {
     assert.match(loadingSource, /블로그 글을 불러오는 중입니다/);
     assert.match(errorSource, /"use client"/);
     assert.match(errorSource, /블로그를 불러오지 못했습니다/);
-    assert.match(errorSource, /onClick=\{reset\}/);
+    assert.match(errorSource, /onClick=\{\(\) => window\.location\.reload\(\)\}/);
     assert.doesNotMatch(errorSource, /error\.message/);
   });
 });

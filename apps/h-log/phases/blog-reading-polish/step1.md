@@ -60,3 +60,12 @@ node --no-warnings --test --experimental-strip-types lib/blog-discovery-ui.test.
 - 회사 원문·내부 식별자·private 버전·토스 원문/이미지를 공개 콘텐츠로 복사하지 말 것. 이유: 승인된 근거와 자산만 사용한다.
 - Home/레이더·Second Brain·무관한 schema나 기능을 변경하지 말 것. 이유: 이번 단위는 Blog의 문체와 읽기 개선이다.
 - 저장 글을 일괄 수정/삭제하거나 OCI·실제 provider·자동 공개 발행·timer를 실행하지 말 것. 이유: 이 로컬 개선 계획은 기존 운영 보류와 발행 경계를 변경하지 않는다.
+
+## 완료 기록 — 2026-10-16
+
+- [공개 가능한 검수 기록](../../.codex/docs/harness/BLOG_READING_REVIEW.md)에 초안별 제목·요약·도입부/문체·사실 보존, 화면 검수와 남은 발행 준비 항목을 정리했다. T1 Step 2 최종 교정본 2개와 메타정보를 원문 그대로 재사용했고 추가 교정은 없다. 가상 글·이미지는 실제 초안과 구분했다.
+- 개발 서버 1440/390/320px에서 목록→검색/태그→본문→관련 글/뒤로, 키보드, 목차/직접 anchor, 코드 복사/실패/재시도, 표·그림, 긴 제목과 이미지 없는 글, 빈 목록/태그/검색 및 오류 복구를 통과했다. 정상 탐색·본문의 브라우저 오류는 0건이다.
+- 발견/수정: DB 복구 뒤 `reset()`만 호출한 버튼이 서버를 다시 조회하지 않는 RED를 재현했다. `app/blog/error.tsx`에서 현재 URL을 새로 요청하도록 바꾸고 `lib/blog-discovery-ui.test.ts`의 기존 계약을 갱신했다. 같은 브라우저 검사의 GREEN과 개발/로컬 production mode의 세 폭 목록·상세 재시도, query/tag/page/hash 보존을 확인했다.
+- 검증: 위 focused 52/52, `npm run test:public-read-path` 1/1, `npm run test` 213 pass/13 DB skip, lint/typecheck/build, Markdown/JSON/링크 및 `git diff --check` 통과. 비공개/없는 글 404, raw Markdown, 11개 기존 claim과 저장된 4개 version의 원문/HTML/hash 보존, source 확인 시각 유지, 발행 작업 0건도 확인했다.
+- 동기화: 검수 기록, 작성 가이드, PRD/ARCHITECTURE/IMPLEMENTATION_PLAN, 문체·읽기 계획과 phase index/전체 registry. 검증 자료는 Git/Docker 제외된 `private/blog-reading-review/`에 보관하며 합성 public 자산은 제거했다. Home/레이더·Second Brain·운영 DB/OCI/실제 발행은 변경하지 않았다.
+- T1/T2/T3의 7개 step을 완료했다. 다음은 기존 `blog-discovery-and-home / Step 3: rss-and-work-evidence-links`이며 이번에 시작하지 않았다. 실제 모델 문체 평가·발행 전 근거 갱신·실물 자산·운영 측정·시리즈/수정 이력은 검수 기록의 별도 후속 범위다.

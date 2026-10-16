@@ -172,8 +172,8 @@
     },
     {
       "dir": "blog-reading-polish",
-      "status": "pending",
-      "summary": "2026-10-16 Step 0 completed: 736px reading width, 17px/32px prose and title/heading/code/table/figure spacing. Two reviewed drafts and one synthetic stress article passed 1440/390/320px typography, TOC/anchor/focus, copy/scroll, table/diagram and public-boundary checks. Focused 42/42, unit 213 pass/13 DB skip and lint/typecheck/build passed; stored Markdown/HTML/hash unchanged. Step 1 real-content-reading-review remains pending for list-to-detail editorial review. Home/radar, Second Brain and OCI hold preserved; no production publication or deployment."
+      "status": "completed",
+      "summary": "2026-10-16 Steps 0-1 completed: article typography and integrated reading review of two unchanged final drafts plus separate synthetic assets at 1440/390/320px. Fixed server-error retry with current-URL reload; browser/test RED-GREEN and dev/production-mode list/detail recovery preserve query/tag/page/hash. Focused 52/52, unit 213 pass/13 DB skip, public-read integration 1/1 and lint/typecheck/build passed; source dates and Markdown/HTML/hash preserved. All seven T1/T2/T3 steps complete. Next: blog-discovery-and-home Step 3 rss-and-work-evidence-links. Real-model prose, publication preparation and OCI activation remain separate; Home/radar and Second Brain unchanged."
     },
     {
       "dir": "operations-observability",

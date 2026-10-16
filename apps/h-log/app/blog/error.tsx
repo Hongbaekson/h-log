@@ -4,12 +4,7 @@ import { RotateCcw } from "lucide-react";
 
 import { Container } from "@/components/ui";
 
-export default function BlogError({
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+export default function BlogError() {
   return (
     <section className="py-20">
       <Container>
@@ -25,7 +20,7 @@ export default function BlogError({
           </p>
           <button
             className="mt-6 inline-flex h-11 items-center gap-2 rounded-xl border border-amber-300/40 px-4 text-sm font-semibold text-amber-100 transition-colors hover:border-amber-200 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
-            onClick={reset}
+            onClick={() => window.location.reload()}
             type="button"
           >
             <RotateCcw aria-hidden="true" size={16} strokeWidth={2} />

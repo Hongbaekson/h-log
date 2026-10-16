@@ -308,6 +308,8 @@ Step 2의 `lib/blog-public.ts#getPublicBlogPostNavigation`은 published-current 
 
 `blog-reading-polish / Step 0`은 상세 page의 표현만 조정한다. 제목·도입부·본문을 최대 46rem(736px)에 맞추고 본문 17px/32px, 14rem desktop TOC와 일관된 heading/figure/table 여백을 적용한다. 기존 block renderer·CodeBlock·목차와 자산 삽입 위치, 저장 Markdown/HTML/hash·공개 조회 계약은 유지한다. 격리 DB의 검수 초안 2개와 합성 글로 1440/390/320px 읽기·키보드·공개 경계를 확인했다.
 
+같은 phase Step 1에서 최종 교정본의 목록→본문 통합 검수와 DB 오류 복구를 확인했다. `app/blog/error.tsx`의 재시도는 `window.location.reload()`로 현재 URL을 다시 요청한다. Client error state만 초기화하던 `reset()`과 달리 복구된 서버 데이터를 다시 읽으며 검색 query/tag/page와 hash를 보존한다. 목록·상세가 같은 오류 경계를 사용하고 원래 DB 오류는 화면에 노출하지 않는다. [검수 기록](BLOG_READING_REVIEW.md)에 개발/로컬 production mode 결과와 발행 준비 범위를 남겼다.
+
 ```text
 Manual admin or internal API
   -> posts / post_versions
