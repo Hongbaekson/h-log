@@ -1,6 +1,6 @@
 # H-Log 기술 글 문체와 읽기 화면 개선 계획
 
-기준일: 2026-10-15. 토스 기술 블로그 분석을 바탕으로 3개 phase / 7개 step을 등록했다. **T1 Steps 0–2와 T2 Step 0을 완료했고 나머지 3개 step은 pending**이다. 실행 상태는 [전체 registry](../../../phases/index.json)와 각 phase index를 따른다.
+기준일: 2026-10-15, 상태 갱신: 2026-10-16. 토스 기술 블로그 분석을 바탕으로 3개 phase / 7개 step을 등록했다. **T1 Steps 0–2와 T2 Steps 0–1을 완료했고 T3의 2개 step은 pending**이다. 실행 상태는 [전체 registry](../../../phases/index.json)와 각 phase index를 따른다.
 
 ## 목표와 범위
 
@@ -37,7 +37,7 @@ REA 근거:
 - `hlog-persona-v1` 기록이나 `style_drift` 분류만으로 자연스러운 문체가 자동 검증된다고 보지 않는다.
 - T2 Step 0에서 일반 목록과 검색 결과가 `BlogPostRow`를 공유하도록 맞췄다. 제목 24px/모바일 20px, 16px 두 줄 요약을 사용하며 날짜·글 유형/검색 일치 정보·태그를 분리한다. 기존 URL 기반 탐색은 유지한다.
 - 본문은 안전한 Markdown, 목차·코드 복사·표·관련 글을 지원한다. 새 renderer를 만들지 않는다.
-- 목록에 쓸 썸네일의 현재 공개 조회 계약은 구현 시 확인한다. 본문용 asset을 검증 없이 대표 이미지로 간주하지 않는다.
+- T2 Step 1은 기존 image asset의 전용 hash 경로를 명시적 썸네일 선택으로 사용한다. 현재 공개 버전/content hash와 실제 파일 SHA-256을 검증하고 목록·검색에 같은 규칙을 적용한다. 본문용 asset을 자동 대표 이미지로 간주하지 않으며 실물 이미지 적용은 아직 없다.
 
 ## Phase / Step
 
@@ -49,14 +49,14 @@ REA 근거:
 | T1 | [1](../../../phases/blog-writing-quality/step1.md) | 기존 writer에 문체·유형별 전개·근거 보존 기준 반영 | 완료: 기존 단일 호출에 정적 규칙 반영·provider 전달 및 gate 회귀 검증 |
 | T1 | [2](../../../phases/blog-writing-quality/step2.md) | 초안 교정과 로컬 작성 흐름 검증 | 완료: 초안 2개·11개 claim 검토, 산문 3곳 교정, 사실 조건 1곳 보완, 로컬 5개 시나리오 검증 |
 | T2. [blog-list-presentation](../../../phases/blog-list-presentation/index.json) | [0](../../../phases/blog-list-presentation/step0.md) | 일반 목록·검색 결과의 제목·요약·메타정보 위계 정리 | 완료: 공통 행·24/20px 제목·16px 두 줄 요약, 3개 폭과 검색/탐색 회귀 검증 |
-| T2 | [1](../../../phases/blog-list-presentation/step1.md) | 검증된 자산이 있을 때만 선택적 썸네일 표시 | 이미지 유무가 섞여도 읽히는 반응형 목록 |
+| T2 | [1](../../../phases/blog-list-presentation/step1.md) | 검증된 자산이 있을 때만 선택적 썸네일 표시 | 완료: 명시적 선택·파일 검증·목록/검색 공통 반응형 표시와 실패 fallback, 합성 이미지로 로컬 검증 |
 | T3. [blog-reading-polish](../../../phases/blog-reading-polish/index.json) | [0](../../../phases/blog-reading-polish/step0.md) | 본문 폭·글자·줄 간격·제목과 그림 여백 조정 | 기존 읽기 도구와 조화되는 상세 화면 |
 | T3 | [1](../../../phases/blog-reading-polish/step1.md) | 준비한 실제 기술 초안으로 목록→본문 통합 검토 | 데스크톱·모바일 검수와 남은 발행 준비 항목 |
 
 ## 실행 순서와 기존 계획 연결
 
 - 기존 공개 경험 트랙의 `blog-discovery-and-home / Step 3: rss-and-work-evidence-links`는 별도로 pending을 유지한다.
-- 계획 등록 직후 이어가기 요청을 토스 트랙으로 진행해 **T1 Steps 0–2와 T2 Step 0을 완료**했다. 이 트랙의 다음은 **T2 Step 1: optional-verified-thumbnails**다. T1 → T2 → T3 순서로 한 cycle에 한 step을 진행한다.
+- 계획 등록 직후 이어가기 요청을 토스 트랙으로 진행해 **T1 Steps 0–2와 T2 Steps 0–1을 완료**했다. 이 트랙의 다음은 **T3 Step 0: article-reading-rhythm**이다. T1 → T2 → T3 순서로 한 cycle에 한 step을 진행한다.
 - T1 Step 0의 근거 검토를 통과한 초안을 뒤의 문체·UI 확인에 재사용한다. 초안을 준비하지 못하면 원인을 기록하고 실제 경험을 만들어 채우지 않는다.
 - `editorial-trust-and-series`의 수정 이력·시리즈 기능은 기존 phase에서만 구현한다. 그 Step 2는 이번 초안 중 적합한 사례를 재사용하되 당시 인수 기준을 다시 확인한다. 이번 초안 작성이 시리즈나 공개 발행 완료를 뜻하지 않는다.
 - 완료된 `blog-reading-foundation/navigation`과 `blog-discovery-and-home`의 검색·필터를 재구현하지 않는다.
@@ -82,6 +82,8 @@ REA 근거:
 - 각 step에 수정 파일, 실행 명령과 결과, 수동 문체/화면 검수 범위, 다음 step을 기록한다. 실제 완료된 step만 completed로 바꾼다.
 
 ## 완료 기록
+
+2026-10-16 T2 Step 1: 기존 자산의 전용 hash 경로로 썸네일을 지정하고 실제 파일·현재 버전/content hash 검증을 통과한 경우에만 일반 목록과 검색 결과에 표시한다. 이미지 없는 글과 실패한 이미지는 빈 공간 없이 텍스트로 남는다. 합성 이미지 1개와 격리 DB에서 1440/390/320px·긴 제목·키보드·실패 후 상세 이동, cache hit의 파일 변조·현재 버전 교체·철회 제외를 검증했다. RED→GREEN, focused 64/64, unit 213 pass/13 DB skip, 공개 조회 integration 1/1, lint/typecheck/build가 통과했다. 실물 자산 적용·운영 배포는 수행하지 않았다. 다음은 T3 Step 0이다.
 
 2026-10-15 T2 Step 0: 일반 목록과 검색 결과의 제목·두 줄 요약·날짜·글 유형/검색 일치 정보·태그를 공통 행으로 맞췄다. 초안 2개의 제목·요약과 긴 텍스트용 가상 글을 격리 로컬 DB에서 확인했다. 브라우저 RED→GREEN, 1440/390/320px·키보드·검색 URL/history/pagination·빈/제한/오류/재시도 회귀, focused 45/45, 전체 210 pass/13 DB skip, lint/typecheck/build를 통과했다. Home/레이더·Second Brain·DB/API 계약과 운영 발행은 변경하지 않았다. 다음은 T2 Step 1의 검증된 선택적 썸네일이다.
 

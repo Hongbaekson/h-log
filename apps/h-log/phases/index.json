@@ -167,8 +167,8 @@
     },
     {
       "dir": "blog-list-presentation",
-      "status": "pending",
-      "summary": "2026-10-15 Step 0 completed: shared ordinary/search rows with 24px desktop/20px mobile titles, 16px two-line summaries and separate date/metadata/tags. Browser RED to GREEN and 1440/390/320 keyboard/overflow/URL-history/search-state checks passed; focused 45/45, full 210 pass/13 DB skip, lint/typecheck/build passed. Step 1 optional-verified-thumbnails remains pending and is next in the Toss track. Discord palette, public boundaries, Home/radar, Second Brain and OCI hold preserved."
+      "status": "completed",
+      "summary": "2026-10-16 Steps 0-1 completed: readable shared list/search rows and explicitly designated optional thumbnails with current-version/content-hash/file SHA-256 checks and text-only failure fallback. Step 1 focused 64/64, unit 213 pass/13 DB skip, public-read integration 1/1, HTTP version/retraction/hash boundaries, lint/typecheck/build and 1440/390/320px browser checks passed. Only local synthetic images were used; no real asset deployment. Next in the Toss track: blog-reading-polish Step 0 article-reading-rhythm. Discord palette, Home/radar, Second Brain and OCI hold preserved."
     },
     {
       "dir": "blog-reading-polish",

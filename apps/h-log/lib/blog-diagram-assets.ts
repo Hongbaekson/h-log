@@ -10,9 +10,16 @@ export function isRenderableDiagramAsset(
   post: PostRecord,
   version: PostVersionRecord,
 ): boolean {
+  return asset.type === "diagram" && isVerifiedPublicAsset(asset, post, version);
+}
+
+export function isVerifiedPublicAsset(
+  asset: PostAssetRecord,
+  post: PostRecord,
+  version: PostVersionRecord,
+): boolean {
   return (
     isCurrentPublishedVersion(post, version) &&
-    asset.type === "diagram" &&
     asset.postId === post.id &&
     asset.postVersionId === version.id &&
     asset.status === "ready" &&

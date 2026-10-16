@@ -36,6 +36,14 @@ npm run build
 
 ## Runtime 구성
 
+### Blog 목록의 선택적 썸네일
+
+`blog-list-presentation / Step 1`은 기존 `post_assets`의 `type=image`와 `/blog-assets/thumbnails/<SHA-256>.png|webp` 경로를 목록용 명시적 지정으로 사용한다(ADR-033). `lib/blog-thumbnails.ts`는 기존 verified asset predicate를 공유하고 published-current/version/content hash, ready/verifiedAt/alt, 허용 경로와 파일명의 hash를 검사한다. 여러 후보는 생성일 내림차순·ID 순으로 1개를 고른다. 본문 첫 이미지와 원격 URL을 추론하지 않는다.
+
+`blog-public-source.ts`는 repository의 privacy 검사 뒤 선택된 파일을 `public/`에서 읽어 실제 SHA-256을 확인한다. 누락·읽기 실패·불일치 자산은 제외하고 글은 유지한다. 목록과 검색은 같은 selector의 `{ src, alt }`만 전달한다. 검색 cache hit도 기존 loader를 다시 호출하므로 현재 버전 교체·철회와 파일 불일치를 반영한다. SQL/schema/worker와 저장 Markdown/HTML/hash는 변경하지 않는다.
+
+`BlogPostRow`와 작은 client component `BlogPostThumbnail`이 일반 목록·검색 결과를 함께 렌더링한다. `next/image`의 `unoptimized`로 이미 검증한 로컬 원본을 사용하고 width/height와 8:5 비율로 공간을 예약한다. 로딩 오류는 이미지 요소만 제거한다. 디스크 검증은 요청 시 수행하며 별도 cache/업로드/생성 파이프라인은 없다. 공개 정적 파일의 직접 URL 폐기 기능을 제공하는 것은 아니므로 `public/`에는 독립적으로 공개 가능한 자산만 둔다. 현재 확인한 이미지는 격리된 synthetic UI fixture뿐이며 실물 자산 배포는 수행하지 않았다.
+
 ### 기술 글 작성 지침
 
 `lib/blog-hermes-article-provider.ts#createHermesArticlePrompt`는 [한국어 작성 가이드](BLOG_WRITING_GUIDE.md)에서 추린 문체·다섯 article mode의 전개·사실 보존 규칙을 정적 문자열로 전달한다. 마지막 `INPUT`에는 기존 verified generation input과 sources를 그대로 직렬화한다. 일반화 예문은 문체 참고용이며 사실 근거로 쓰지 않도록 지시한다. runtime 파일/스킬 로딩, 별도 교정 호출이나 persona learning은 추가하지 않는다.

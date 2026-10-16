@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-16 토스 개선 이어가기 완료: **`blog-list-presentation / Step 1: optional-verified-thumbnails`**에서 기존 자산의 명시적 썸네일 경로와 현재 버전/content hash·파일 SHA-256 검증을 목록·검색에 연결했다. 1440/390/320px의 이미지 혼합·긴 제목·키보드·로딩 실패 fallback, HTTP의 cache hit·버전 교체·철회 경계와 focused 64/64, unit 213 pass/13 DB skip, 공개 조회 integration 1/1, lint/typecheck/build를 통과했다. 검증에는 격리된 합성 이미지만 사용했고 실물 자산·DB/schema·Home/레이더·Second Brain·OCI는 변경하지 않았다. **다음은 `blog-reading-polish / Step 0: article-reading-rhythm`**이다. 아래 이력의 당시 다음 단계보다 이 기록과 live registry를 우선한다.
+
 2026-10-15 토스 개선 이어가기 완료: **`blog-list-presentation / Step 0: readable-post-rows`**에서 일반 목록과 검색 결과를 공통 행으로 맞췄다. 제목 24px/모바일 20px, 16px 두 줄 요약, 별도 날짜·글 유형/검색 일치 정보와 태그를 적용했다. 브라우저 RED→GREEN, 1440/390/320px·키보드·긴 텍스트·검색 URL/history/pagination/오류 회귀, focused 45/45, unit 210 pass/13 DB skip, lint/typecheck/build를 통과했다. **다음은 `blog-list-presentation / Step 1: optional-verified-thumbnails`**다. Home/레이더·Second Brain·DB/API 계약·운영 발행·OCI에는 변경이 없다. 아래 이력의 당시 다음 단계보다 이 기록과 live registry를 우선한다.
 
 2026-10-15 토스 개선 이어가기 완료: **`blog-writing-quality / Step 2: local-editorial-pilot`**에서 초안 2개·11개 claim의 수동 검토와 Korean 교정을 마쳤다. Redis `NOACK` 조건 1곳을 사실 검토로 보완하고 산문 3곳을 교정해 보호 항목·의미 보존을 비교했다. 기존 테스트 39/39, 실제 초안을 반환하는 모의 writer의 정상 2건·차단 3건을 확인했다. 전체 초안과 검증 스크립트는 로컬 private에 보관하고 공개 가이드·기존 사례 후보·phase 상태를 동기화했다. **T1은 완료, 다음은 `blog-list-presentation / Step 0: readable-post-rows`**다. 실제 모델 문체 평가는 수행하지 않았으며 runtime·UI·DB·공개 발행·OCI 변경은 없다. 아래 기록의 당시 다음 단계보다 이 기록과 live registry를 우선한다.

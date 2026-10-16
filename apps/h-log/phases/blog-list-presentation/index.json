@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "optional-verified-thumbnails",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-16: Explicit image assets under hash-named thumbnails paths now share current-version/content-hash and file SHA-256 verification across list/search. Reserved-size desktop/right and mobile/below images disappear on load failure without blocking links. RED/GREEN for content-hash rejection, search DTO and browser image rendering; focused 64/64, unit 213 pass/13 DB skip, public-read integration 1/1, HTTP version/retraction/hash boundaries, lint/typecheck/build and 1440/390/320px checks passed. Only isolated synthetic imagery was used; no DB schema, Home/radar, Brain or OCI changes. Next: blog-reading-polish Step 0."
     }
   ]
 }

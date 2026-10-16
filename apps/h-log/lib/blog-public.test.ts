@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { createHash } from "node:crypto";
+import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import * as thumbnails from "./blog-thumbnails.ts";
 
 import {
   createPostVersionContentHash,
@@ -17,6 +22,7 @@ import {
   getPublicBlogPostMarkdown,
   type BlogContentStore,
 } from "./blog-public.ts";
+import { searchPublishedBlogPosts } from "./blog-search.ts";
 
 const baseTimestamp = "2026-06-25T00:00:00.000Z";
 const diagramAssetHash = "a".repeat(64);
@@ -165,6 +171,72 @@ function textParagraph(text: string) {
 }
 
 describe("DB-backed public blog routes", () => {
+  it("withholds thumbnails when the current version content hash is invalid", () => {
+    const store = createStore();
+    store.assets = [createAsset({ type: "image", path: `/blog-assets/thumbnails/${diagramAssetHash}.png` })];
+    const version = { ...store.versions[0], contentHash: "b".repeat(64) };
+    assert.equal(thumbnails.selectPublicBlogThumbnail({ post: store.posts[0], version }, store.assets), undefined);
+    assert.equal(searchPublishedBlogPosts({ ...store, versions: [version] }, { query: "Public One" })[0]?.thumbnail, undefined);
+  });
+
+  it("omits missing or hash-mismatched thumbnail files without losing readable posts", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "hlog-thumbnails-"));
+    try {
+      const store = createStore();
+      const bytes = Buffer.from("local synthetic thumbnail bytes");
+      const hash = createHash("sha256").update(bytes).digest("hex");
+      const path = `/blog-assets/thumbnails/${hash}.png`;
+      store.assets = [createAsset({ type: "image", assetHash: hash, path }), createAsset()];
+      await mkdir(join(directory, "blog-assets/thumbnails"), { recursive: true });
+      await writeFile(join(directory, path), bytes);
+      assert.equal(typeof thumbnails.verifyBlogThumbnailFiles, "function", "Public reads must verify actual thumbnail bytes");
+      const verified = await thumbnails.verifyBlogThumbnailFiles(store, directory);
+      assert.equal(getPublicBlogIndex(verified).posts.find((p) => p.slug === "public-one")?.thumbnail?.src, path);
+
+      await writeFile(join(directory, path), "changed bytes");
+      for (const remove of [false, true]) {
+        if (remove) await rm(join(directory, path));
+        const filtered = await thumbnails.verifyBlogThumbnailFiles(store, directory);
+        assert.equal(filtered.assets?.length, 1, "Unrelated diagrams are preserved");
+        assert.equal(getPublicBlogIndex(filtered).posts.length, 2);
+        assert.ok(getPublicBlogIndex(filtered).posts.every((p) => !p.thumbnail));
+        assert.ok(searchPublishedBlogPosts(filtered, { query: "Public" }).every((p) => !p.thumbnail));
+      }
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("uses only explicitly designated verified current thumbnails in both list and search", () => {
+    const store = createStore();
+    const asset = createAsset({ type: "image", path: `/blog-assets/thumbnails/${diagramAssetHash}.png` });
+    store.assets = [asset];
+    const thumbnail = { src: asset.path, alt: asset.alt };
+    const read = () => [
+      getPublicBlogIndex(store).posts.find((post) => post.slug === "public-one")?.thumbnail,
+      searchPublishedBlogPosts(store, { query: "Public One" }).find((post) => post.slug === "public-one")?.thumbnail,
+    ];
+    assert.deepEqual(read(), [thumbnail, thumbnail]);
+    assert.equal(getPublicBlogIndex(store).posts.find((post) => post.slug === "public-two")?.thumbnail, undefined);
+
+    for (const override of [
+      { type: "diagram" }, { type: "og" }, { status: "failed" }, { verifiedAt: null }, { alt: " " },
+      { postId: "other" }, { postVersionId: "previous-version" }, { assetHash: "b".repeat(64) },
+      { path: "/blog-assets/body.png" }, { path: "https://example.com/image.png" },
+      { path: `/blog-assets/thumbnails/../${diagramAssetHash}.png` },
+      { path: `/blog-assets/thumbnails/%2e%2e/${diagramAssetHash}.png` },
+      { path: `/blog-assets/thumbnails/${diagramAssetHash}.svg` },
+    ] satisfies Partial<PostAssetRecord>[]) {
+      store.assets = [{ ...asset, ...override }];
+      assert.deepEqual(read(), [undefined, undefined], JSON.stringify(override));
+    }
+    store.assets = [asset];
+    for (const status of ["ready_to_publish", "retracted"] as const) {
+      store.posts = store.posts.map((post) => post.id === asset.postId ? { ...post, status } : post);
+      assert.deepEqual(read(), [undefined, undefined]);
+    }
+  });
+
   it("connects the nearest chronological posts and up to three tag-related current titles deterministically", () => {
     const slugs = ["older", "same-z", "source", "same-a", "newer", "unrelated"];
     const store: BlogContentStore = {

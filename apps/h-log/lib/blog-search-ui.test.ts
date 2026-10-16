@@ -42,13 +42,14 @@ describe("blog search UI snapshot", () => {
   });
 
   it("maps cached search results into published result view items", () => {
+    const thumbnail = { src: `/blog-assets/thumbnails/${"a".repeat(64)}.png`, alt: "공개 복구 절차 도표" };
     const snapshot = createBlogSearchUiSnapshot({
       query: "pgvector",
       response: {
         cached: true,
         reason: "cache_hit",
         pagination: { currentPage: 1, pageSize: 6, totalItems: 1, totalPages: 1 },
-        results: [baseResult],
+        results: [{ ...baseResult, thumbnail }],
         status: "ok",
       },
     });
@@ -60,6 +61,7 @@ describe("blog search UI snapshot", () => {
     assert.equal("scoreLabel" in snapshot.items[0], false);
     assert.equal(snapshot.pagination?.totalItems, 1);
     assert.deepEqual(snapshot.items[0]?.tags, ["DB", "운영"]);
+    assert.deepEqual(snapshot.items[0]?.thumbnail, thumbnail);
   });
 
   it("keeps an invalid published date as the original label", () => {

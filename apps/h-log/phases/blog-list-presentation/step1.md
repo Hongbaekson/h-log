@@ -69,3 +69,14 @@ DB/repository/migration을 변경하면 격리 DB에서 npm run test:integration
 - 회사 원문·내부 식별자·private 버전·토스 원문/이미지를 공개 콘텐츠로 복사하지 말 것. 이유: 승인된 근거와 자산만 사용한다.
 - Home/레이더·Second Brain·무관한 schema나 기능을 변경하지 말 것. 이유: 이번 단위는 Blog의 문체와 읽기 개선이다.
 - 저장 글을 일괄 수정/삭제하거나 OCI·실제 provider·자동 공개 발행·timer를 실행하지 말 것. 이유: 이 로컬 개선 계획은 기존 운영 보류와 발행 경계를 변경하지 않는다.
+
+## 완료 기록 — 2026-10-16
+
+- `lib/blog-thumbnails.ts`에서 기존 `type=image`와 `/blog-assets/thumbnails/<SHA-256>.png|webp`를 명시적 선택으로 정했다(ADR-033). `blog-diagram-assets.ts`의 verified predicate를 공유하고 현재 공개 버전·본문 hash·ready/verifiedAt/alt·자산 hash/경로를 확인한다. 공통 `blog-public-source.ts`는 선택 파일의 실제 SHA-256을 검사하며 누락·불일치는 글을 유지한 채 제외한다. DB/repository/migration 변경은 없다.
+- `blog-public.ts`, `blog-search.ts`, `blog-search-ui.ts`가 같은 썸네일 DTO를 전달한다. 공통 `BlogPostRow`와 새 `BlogPostThumbnail`, 일반 목록 page와 `BlogSearchPanel`에서 데스크톱 오른쪽·모바일 텍스트 아래에 표시한다. 크기를 예약하고 원본 비율과 alt를 보존한다. 이미지 실패 시 빈 박스 없이 텍스트와 상세 링크를 유지한다.
+- 기존 초안의 선택·파일 검증 테스트는 characterization으로 확인했다. 추가 RED는 본문 hash가 잘못된 경우 썸네일이 남는 실패와 검색 view item의 thumbnail 누락, 브라우저의 `two verified thumbnails must render: 0 !== 2`였다. 최소 수정 뒤 같은 검증이 GREEN이다.
+- 집중 명령: `node --no-warnings --test --experimental-strip-types lib/blog-public.test.ts lib/blog-search.test.ts lib/blog-discovery-ui.test.ts lib/blog-search-ui.test.ts` **64/64**. 전체 `npm run test` **213 pass/13 DB skip**, `npm run lint`, `npm run typecheck`, `npm run build` 통과. 격리 로컬 DB의 `npm run test:public-read-path` **1/1** 통과.
+- 개발 서버 1440/390/320px에서 목록/검색 각각 이미지 유무 혼합, 크기 예약·alt, 긴 제목·가로 넘침, 키보드 초점, 실패 후 이미지 생략과 상세 링크 접근을 확인했다. HTTP로 private/retracted 제외, cache hit의 실제 파일 hash 변조, 다른 버전 자산·현재 버전 교체·철회 후 제외를 확인했다. 스크립트·캡처·결과는 Git/Docker 제외된 `private/blog-thumbnail-check/`에 둔다.
+- 실제 공개 적용 대상으로 확인된 이미지는 없어 합성 PNG 1개와 별도 로컬 DB의 가상 글만 사용했다. 실물 이미지 선정·배포는 별도다. `public/` 정적 파일의 직접 URL을 철회하는 기능은 포함하지 않으므로 자산은 독립적으로 공개 가능해야 한다.
+- Home/레이더·Second Brain 파일과 저장 Markdown/HTML/hash, 운영 OCI·provider·발행·timer는 변경하지 않았다. 문서/JSON·상대 링크·phase 상태와 `git diff --check`를 확인한 뒤 커밋한다.
+- 다음: **T3 `blog-reading-polish / Step 0: article-reading-rhythm`**. 기존 `blog-discovery-and-home / Step 3`는 별도 pending이다.

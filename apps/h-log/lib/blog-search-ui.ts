@@ -37,6 +37,7 @@ export type BlogSearchUiStatus =
   | "results";
 
 export type BlogSearchUiResultItem = {
+  thumbnail?: BlogSearchResult["thumbnail"];
   description: string;
   href: string;
   matchReasonLabel: string;
@@ -144,6 +145,7 @@ function toBlogSearchUiResultItem(
     slug: result.slug,
     tags: [...result.tags],
     title: result.title,
+    thumbnail: result.thumbnail,
   };
 }
 

@@ -4,6 +4,7 @@ import {
   type PublicBlogRouteEntry,
 } from "./blog-content-model.ts";
 import type { BlogContentStore, PublicBlogPagination } from "./blog-public.ts";
+import { selectPublicBlogThumbnail, type PublicBlogThumbnail } from "./blog-thumbnails.ts";
 import {
   createBlogUsageEvent,
   isUsageBudgetExceeded,
@@ -38,6 +39,7 @@ export type BlogSearchInput = {
 };
 
 export type BlogSearchResult = {
+  thumbnail?: PublicBlogThumbnail;
   description: string;
   href: string;
   keywordScore: number;
@@ -251,6 +253,7 @@ export function searchPublishedBlogPosts(
           slug: entry.post.slug,
           tags: getPostTags(entry.post.id, store),
           title: entry.version.title,
+          thumbnail: selectPublicBlogThumbnail(entry, store.assets ?? []),
           vectorScore,
         },
       ];

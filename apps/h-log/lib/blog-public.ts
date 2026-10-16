@@ -13,6 +13,7 @@ import {
   type PublicBlogRouteEntry,
 } from "./blog-content-model.ts";
 import { isRenderableDiagramAsset } from "./blog-diagram-assets.ts";
+import { selectPublicBlogThumbnail, type PublicBlogThumbnail } from "./blog-thumbnails.ts";
 import { selectPublishedRelatedPostsBySimilarity } from "./blog-search.ts";
 import { tryNormalizePublicSourceUrl } from "./public-source-url.ts";
 
@@ -89,6 +90,7 @@ export type PublicBlogContentBlock =
     };
 
 export type PublicBlogPost = {
+  thumbnail?: PublicBlogThumbnail;
   articleMode: PostRecord["articleMode"];
   contentBlocks: PublicBlogContentBlock[];
   contentHtml: string;
@@ -247,6 +249,7 @@ function toPublicBlogPost(
     ),
     tags: getTagsForPost(entry.post.id, store.tags),
     title: entry.version.title,
+    thumbnail: selectPublicBlogThumbnail(entry, store.assets ?? []),
     updatedAt: entry.post.updatedAt,
   };
 }

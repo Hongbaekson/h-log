@@ -10,6 +10,7 @@ import {
   type BlogUsageLedger,
 } from "./blog-usage-ledger.ts";
 import { createBlogPrivacyScanPolicyFromEnvironment } from "./blog-privacy-scanner.ts";
+import { verifyBlogThumbnailFiles } from "./blog-thumbnails.ts";
 
 const { Pool } = pg;
 
@@ -20,13 +21,13 @@ type BlogPoolGlobal = typeof globalThis & {
 export const loadPublicBlogContentStore = cache(async () => {
   const repository = createPublicBlogRepository();
 
-  return repository.findPublicBlogContent();
+  return verifyBlogThumbnailFiles(await repository.findPublicBlogContent());
 });
 
 export const loadPublicBlogContentStoreBySlug = cache(async (slug: string) => {
   const repository = createPublicBlogRepository();
 
-  return repository.findPublicBlogContentBySlug(slug);
+  return verifyBlogThumbnailFiles(await repository.findPublicBlogContentBySlug(slug));
 });
 
 export function getBlogUsageLedger(): BlogUsageLedger {

@@ -86,6 +86,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                     publishedDateLabel={formatPublicBlogDate(post.publishedAt)}
                     metadataLabel={formatPublicBlogArticleMode(post.articleMode)}
                     tags={post.tags}
+                    thumbnail={post.thumbnail}
                   />
                 ))
               )}
