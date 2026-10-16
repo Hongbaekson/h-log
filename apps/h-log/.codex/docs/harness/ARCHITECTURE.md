@@ -306,6 +306,8 @@ Step 1은 code block 모델에 `language: string | null`을 추가한다. Fence 
 
 Step 2의 `lib/blog-public.ts#getPublicBlogPostNavigation`은 published-current 항목에서 이전·다음의 제목/URL/발행일과 관련 글의 제목/URL/공통 태그만 반환한다(ADR-027). 기존 `blog-search.ts`의 태그 fallback과 limit 3을 재사용하며 chunks 조회·embedding 호출은 없다. 상세 page와 metadata는 기존 request-cached 전체 공개 store loader를 공유하고 현재 글 본문만 파싱한다. 참고 출처 아래에 관련 글 목록과 이전·다음 navigation을 Server Component로 렌더링한다. 빈 관련 영역/없는 방향은 생략하며 조회 오류는 `app/blog/error.tsx`로 전달된다. Repository SQL·privacy scan·Markdown endpoint는 변경하지 않는다.
 
+`blog-reading-polish / Step 0`은 상세 page의 표현만 조정한다. 제목·도입부·본문을 최대 46rem(736px)에 맞추고 본문 17px/32px, 14rem desktop TOC와 일관된 heading/figure/table 여백을 적용한다. 기존 block renderer·CodeBlock·목차와 자산 삽입 위치, 저장 Markdown/HTML/hash·공개 조회 계약은 유지한다. 격리 DB의 검수 초안 2개와 합성 글로 1440/390/320px 읽기·키보드·공개 경계를 확인했다.
+
 ```text
 Manual admin or internal API
   -> posts / post_versions

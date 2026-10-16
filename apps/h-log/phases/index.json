@@ -173,7 +173,7 @@
     {
       "dir": "blog-reading-polish",
       "status": "pending",
-      "summary": "2026-10-15 plan registered; Steps 0-1 pending after blog-list-presentation: article typography/spacing, then 2-3 real-draft desktop/mobile reading reviews. Reuse TOC, anchors, code copy, tables, sources and related posts. Local completion will not imply deployment or publication; OCI hold remains."
+      "summary": "2026-10-16 Step 0 completed: 736px reading width, 17px/32px prose and title/heading/code/table/figure spacing. Two reviewed drafts and one synthetic stress article passed 1440/390/320px typography, TOC/anchor/focus, copy/scroll, table/diagram and public-boundary checks. Focused 42/42, unit 213 pass/13 DB skip and lint/typecheck/build passed; stored Markdown/HTML/hash unchanged. Step 1 real-content-reading-review remains pending for list-to-detail editorial review. Home/radar, Second Brain and OCI hold preserved; no production publication or deployment."
     },
     {
       "dir": "operations-observability",

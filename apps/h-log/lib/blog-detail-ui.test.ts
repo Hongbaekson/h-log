@@ -18,7 +18,7 @@ describe("blog detail UI", () => {
       "utf8",
     );
 
-    assert.match(source, /max-w-\[72ch\]/);
+    assert.match(source, /max-w-\[46rem\]/);
     assert.match(source, /<CodeBlock code=\{block\.code\}/);
     const codeSource = await readFile(
       new URL("../components/blog/CodeBlock.tsx", import.meta.url), "utf8",

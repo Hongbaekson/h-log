@@ -65,3 +65,13 @@ git diff --check
 - 회사 원문·내부 식별자·private 버전·토스 원문/이미지를 공개 콘텐츠로 복사하지 말 것. 이유: 승인된 근거와 자산만 사용한다.
 - Home/레이더·Second Brain·무관한 schema나 기능을 변경하지 말 것. 이유: 이번 단위는 Blog의 문체와 읽기 개선이다.
 - 저장 글을 일괄 수정/삭제하거나 OCI·실제 provider·자동 공개 발행·timer를 실행하지 말 것. 이유: 이 로컬 개선 계획은 기존 운영 보류와 발행 경계를 변경하지 않는다.
+
+## 완료 기록 — 2026-10-16
+
+- 변경: `app/blog/[slug]/page.tsx`의 제목·도입부·본문 최대 폭을 46rem(736px)로 맞췄다. 본문은 17px/32px, 제목은 모바일 36px·데스크톱 48px, H2는 24/28px·위 여백 48px, H3는 20px·위 여백 32px다. 첫 문단의 중복 위 여백을 제거하고 코드/그림/표 전후는 32px, 표/그림 설명은 15px로 조정했다. 코드 내부의 14px/24px와 기존 읽기 도구를 유지했다.
+- 테스트: `lib/blog-detail-ui.test.ts`의 기존 읽기 폭 기대값을 갱신했다. 브라우저에서 16px 본문이 17px 기준에 실패하는 RED를 확인하고 같은 검증의 GREEN을 확인했다.
+- 명령: 위 focused test 42/42, `npm run test` 213 pass/13 DB skip, `npm run lint`, `npm run typecheck`, `npm run build`, `git diff --check` 통과. DB/repository/migration 변경은 없다.
+- 화면: 격리 로컬 DB의 기존 검수 초안 2개와 합성 스트레스 글 1개를 1440/390/320px에서 확인했다. 본문 폭·글자·여백, 긴 제목, 페이지 가로 넘침 없음, sticky/접이식 목차, 키보드 anchor/focus와 별도 직접 링크 접근·새로고침, 코드 복사/내부 스크롤, semantic table/키보드 스크롤, 첫 H2 뒤 검증 diagram, 출처·관련 글을 검증했다. 실제 초안의 목록→본문 통합 편집 검토는 Step 1에 남긴다.
+- 보존: raw Markdown HTTP 응답, 비공개/없는 글 404, 초안 원본 2개와 저장된 4개 version의 Markdown/HTML/content hash 일치를 확인했다. Home/레이더·Second Brain·공개 조회/자산 삽입 계약은 변경하지 않았다.
+- 로컬 검증 스크립트·캡처·manifest는 Git 제외된 `private/blog-reading-check/`에 보관했다. 화면용 합성 그림은 검증 후 public에서 제거했다. 실제 공개 발행·운영 배포·외부 provider·OCI·timer는 실행하지 않았다.
+- 다음: `blog-reading-polish / Step 1: real-content-reading-review`는 pending이다.

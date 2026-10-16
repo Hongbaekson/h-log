@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-16 토스 개선 이어가기 완료: **`blog-reading-polish / Step 0: article-reading-rhythm`**에서 상세 제목·도입부·본문을 최대 736px로 맞추고 17px/32px 본문과 제목·코드·표·그림 여백을 조정했다. 검수 초안 2개와 합성 스트레스 글을 격리 DB에서 1440/390/320px로 확인했다. 브라우저 RED→GREEN, 목차/anchor·복사/스크롤·raw Markdown·404·저장 hash 보존, focused 42/42, unit 213 pass/13 DB skip, lint/typecheck/build가 통과했다. **다음은 `blog-reading-polish / Step 1: real-content-reading-review`**의 목록→본문 통합 검토다. Home/레이더·Second Brain·공개/DB 계약과 OCI 보류는 유지한다. 아래 이력의 당시 다음 단계보다 이 기록과 live registry를 우선한다.
+
 2026-10-16 토스 개선 이어가기 완료: **`blog-list-presentation / Step 1: optional-verified-thumbnails`**에서 기존 자산의 명시적 썸네일 경로와 현재 버전/content hash·파일 SHA-256 검증을 목록·검색에 연결했다. 1440/390/320px의 이미지 혼합·긴 제목·키보드·로딩 실패 fallback, HTTP의 cache hit·버전 교체·철회 경계와 focused 64/64, unit 213 pass/13 DB skip, 공개 조회 integration 1/1, lint/typecheck/build를 통과했다. 검증에는 격리된 합성 이미지만 사용했고 실물 자산·DB/schema·Home/레이더·Second Brain·OCI는 변경하지 않았다. **다음은 `blog-reading-polish / Step 0: article-reading-rhythm`**이다. 아래 이력의 당시 다음 단계보다 이 기록과 live registry를 우선한다.
 
 2026-10-15 토스 개선 이어가기 완료: **`blog-list-presentation / Step 0: readable-post-rows`**에서 일반 목록과 검색 결과를 공통 행으로 맞췄다. 제목 24px/모바일 20px, 16px 두 줄 요약, 별도 날짜·글 유형/검색 일치 정보와 태그를 적용했다. 브라우저 RED→GREEN, 1440/390/320px·키보드·긴 텍스트·검색 URL/history/pagination/오류 회귀, focused 45/45, unit 210 pass/13 DB skip, lint/typecheck/build를 통과했다. **다음은 `blog-list-presentation / Step 1: optional-verified-thumbnails`**다. Home/레이더·Second Brain·DB/API 계약·운영 발행·OCI에는 변경이 없다. 아래 이력의 당시 다음 단계보다 이 기록과 live registry를 우선한다.

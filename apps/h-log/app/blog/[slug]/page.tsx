@@ -104,7 +104,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
             블로그 목록
           </Link>
 
-          <div className="mt-8 max-w-4xl">
+          <div className="mt-8 max-w-[46rem]">
             <div className="flex flex-wrap gap-2">
               {post.tags.map((tag) => (
                 <Badge key={tag} tone={tag === "DB" || tag === "OCI" ? "cyan" : "slate"}>
@@ -112,10 +112,10 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                 </Badge>
               ))}
             </div>
-            <h1 className="hero-heading mt-6 break-words text-4xl leading-[1.08] tracking-normal text-white md:text-6xl">
+            <h1 className="hero-heading mt-6 break-words text-4xl leading-tight tracking-normal text-white md:text-5xl">
               {post.title}
             </h1>
-            <p className="mt-5 max-w-3xl text-base leading-8 text-slate-300 md:text-lg">
+            <p className="mt-5 text-[17px] leading-8 text-slate-300 wrap-anywhere">
               {post.description}
             </p>
             <p className="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-cyan-200">
@@ -128,8 +128,8 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
 
       <section className="pb-24">
         <Container>
-          <div className="blog-reading-layout grid gap-10 lg:grid-cols-[minmax(0,72ch)_16rem] lg:justify-between">
-            <div className="min-w-0 max-w-[72ch]">
+          <div className="blog-reading-layout grid gap-10 lg:grid-cols-[minmax(0,46rem)_14rem] lg:justify-between">
+            <div className="min-w-0 max-w-[46rem]">
               {post.tableOfContents.length > 0 && (
                 <details className="mb-8 rounded-xl border border-slate-700 bg-[#191d3a]/50 lg:hidden">
                   <summary className="cursor-pointer rounded-xl px-4 py-4 font-semibold text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff]">
@@ -141,7 +141,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                 </details>
               )}
               <article
-                className="min-w-0 border-y border-slate-700/80 py-8 text-slate-300 [&_code]:rounded-md [&_code]:bg-slate-950/70 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-cyan-100 [&>h1]:sr-only [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-normal [&_h2]:text-white [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-white [&_p]:mt-5 [&_p]:leading-8"
+                className="min-w-0 border-y border-slate-700/80 py-8 text-[17px] leading-8 text-slate-300 wrap-anywhere [&_code]:rounded-md [&_code]:bg-slate-950/70 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-cyan-100 [&_figure]:my-8 [&>h1]:sr-only [&_h2]:mt-12 [&_h2]:text-2xl [&_h2]:leading-snug [&_h2]:font-bold [&_h2]:tracking-normal [&_h2]:text-white md:[&_h2]:text-[28px] [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:leading-snug [&_h3]:font-bold [&_h3]:text-white [&_p]:mt-5 [&>:first-child]:mt-0 [&>h1:first-child+*]:mt-0"
               >
                 {post.contentBlocks.map(renderContentBlock)}
               </article>
@@ -278,7 +278,7 @@ function renderContentBlock(block: PublicBlogContentBlock, index: number): React
           unoptimized
           width={1200}
         />
-        <figcaption className="border-t border-slate-700 px-4 py-3 text-sm text-slate-400">
+        <figcaption className="border-t border-slate-700 px-4 py-3 text-[15px] leading-7 text-slate-400">
           {block.alt}
         </figcaption>
       </figure>
@@ -322,12 +322,12 @@ function renderContentBlock(block: PublicBlogContentBlock, index: number): React
     return (
       <div
         aria-label="표 (가로 스크롤)"
-        className="relative mt-6 max-w-full overflow-x-auto rounded-xl border border-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff]"
+        className="relative my-8 max-w-full overflow-x-auto rounded-xl border border-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff]"
         key={index}
         role="region"
         tabIndex={0}
       >
-        <table className="w-full min-w-[36rem] table-fixed border-collapse text-sm leading-7 wrap-anywhere">
+        <table className="w-full min-w-[36rem] table-fixed border-collapse text-[15px] leading-7 wrap-anywhere">
           <thead className="bg-[#5865f2]/10 text-slate-100">
             <tr>
               {block.header.map((cell, column) => (
