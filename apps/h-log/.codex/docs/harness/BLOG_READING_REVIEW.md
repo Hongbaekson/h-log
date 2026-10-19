@@ -56,4 +56,4 @@ DB 조회 실패 뒤 데이터가 복구돼도 `app/blog/error.tsx`의 `reset()`
 - 실제 이미지 적용, 수정 이력과 시리즈, [선택과 재검증 사례](../../../phases/editorial-trust-and-series/step2.md)는 별도다. H-Log 초안을 사례 후보로 재사용할 수 있지만 해당 phase는 pending이다.
 - OCI·실제 provider·운영 DB·공개 발행·timer를 실행하지 않았다. Home/레이더와 Second Brain의 구현은 유지했다.
 
-검수 당시 다음 작업이던 [`blog-discovery-and-home / Step 3: rss-and-work-evidence-links`](../../../phases/blog-discovery-and-home/step3.md)와 포트폴리오 목록 정리는 2026-10-19 완료했다. 현재 다음은 [`portfolio-evidence-experience / Step 1: decision-and-evidence-detail`](../../../phases/portfolio-evidence-experience/step1.md)다.
+검수 당시 다음 작업이던 [`blog-discovery-and-home / Step 3: rss-and-work-evidence-links`](../../../phases/blog-discovery-and-home/step3.md)와 포트폴리오 목록 정리는 2026-10-19 완료했다. 2026-10-20 포트폴리오 상세 근거 보강도 마쳐 현재 다음은 [`portfolio-evidence-experience / Step 2: project-post-connections`](../../../phases/portfolio-evidence-experience/step2.md)다.

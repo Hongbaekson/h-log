@@ -118,6 +118,21 @@ describe("portfolio project content", () => {
     );
   });
 
+  it("qualifies the workflow metrics without adding unrecorded measurements or evidence to other cases", () => {
+    const project = getProjectBySlug("ai-backend-workflow-standardization");
+    assert.ok(project);
+    assert.ok(project.detail.evidence, "The workflow needs a public evidence and measurement-scope note");
+    const evidence = project.detail.evidence;
+    assert.match(evidence.basis, /경력기술서/);
+    assert.match(evidence.scope, /단순 기능/);
+    assert.match(evidence.scope, /컨벤션/);
+    assert.match(evidence.limitations, /측정 기간.*표본 수/);
+    assert.doesNotMatch(JSON.stringify(evidence), /https?:|[A-Z]:\\|\d+\s*(%|ms|초|시간|건)/i);
+    for (const other of projects.filter((item) => item.slug !== project.slug)) {
+      assert.ok(!("evidence" in other.detail));
+    }
+  });
+
   it("keeps list facts to the existing title, role and one approved result", () => {
     for (const project of projects) {
       const before = JSON.stringify(project);
@@ -166,6 +181,15 @@ describe("portfolio project content", () => {
       assert.ok(project.approach.length > 0);
       assert.ok(project.impact.length > 0);
       assert.ok(!("decisions" in project.detail));
+    }
+  });
+
+  it("renders the pilot flow and evidence note only when their public context is available", () => {
+    assert.match(portfolioDetailSource, /<figure[\s\S]*aria-labelledby="ai-workflow-caption"/);
+    assert.match(portfolioDetailSource, /project\.detail\.evidence &&/);
+    assert.match(portfolioDetailSource, /성과의 근거와 범위/);
+    for (const field of ["basis", "scope", "limitations"]) {
+      assert.ok(portfolioDetailSource.includes(`project.detail.evidence.${field}`));
     }
   });
 

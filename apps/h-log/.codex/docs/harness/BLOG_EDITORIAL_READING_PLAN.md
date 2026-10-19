@@ -56,7 +56,7 @@ REA 근거:
 ## 실행 순서와 기존 계획 연결
 
 - 기존 공개 경험 트랙의 `blog-discovery-and-home / Step 3: rss-and-work-evidence-links`도 2026-10-19 완료했다.
-- 계획 등록 직후 이어가기 요청을 토스 트랙으로 진행해 **T1 Steps 0–2, T2 Steps 0–1과 T3 Steps 0–1을 완료**했다. RSS·사례 연결과 포트폴리오 목록 정리까지 마친 현재 다음 기본 작업은 **`portfolio-evidence-experience / Step 1: decision-and-evidence-detail`**다. 한 cycle에 한 step을 진행하며 실제 발행·배포는 별도다.
+- 계획 등록 직후 이어가기 요청을 토스 트랙으로 진행해 **T1 Steps 0–2, T2 Steps 0–1과 T3 Steps 0–1을 완료**했다. RSS·사례 연결과 포트폴리오 목록·상세 개선까지 마친 현재 다음 기본 작업은 **`portfolio-evidence-experience / Step 2: project-post-connections`**다. 한 cycle에 한 step을 진행하며 실제 발행·배포는 별도다.
 - T1 Step 0의 근거 검토를 통과한 초안을 뒤의 문체·UI 확인에 재사용한다. 초안을 준비하지 못하면 원인을 기록하고 실제 경험을 만들어 채우지 않는다.
 - `editorial-trust-and-series`의 수정 이력·시리즈 기능은 기존 phase에서만 구현한다. 그 Step 2는 이번 초안 중 적합한 사례를 재사용하되 당시 인수 기준을 다시 확인한다. 이번 초안 작성이 시리즈나 공개 발행 완료를 뜻하지 않는다.
 - 완료된 `blog-reading-foundation/navigation`과 `blog-discovery-and-home`의 검색·필터를 재구현하지 않는다.

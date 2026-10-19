@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Terminal } from "lucide-react";
+import { ArrowLeft, ArrowRight, Terminal } from "lucide-react";
 
 import { GithubWebhookArchitectureDiagram } from "@/components/portfolio/GithubWebhookArchitectureDiagram";
 import { Badge, Container } from "@/components/ui";
@@ -58,7 +58,7 @@ function SectionHeading({
 }) {
   return (
     <div className="mb-6">
-      <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">
+      <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-[#b6bdff]">
         {eyebrow}
       </p>
       <h2 className="card-heading mt-3 text-2xl tracking-tight text-white md:text-3xl">{title}</h2>
@@ -84,6 +84,39 @@ function SystemMap({ project }: { project: Project }) {
   );
 }
 
+function AiWorkflowDiagram({ project }: { project: Project }) {
+  return (
+    <section className="min-w-0 border-t border-[var(--border)] pt-10">
+      <SectionHeading eyebrow="Workflow" title="구현과 검증 흐름" />
+      <figure aria-labelledby="ai-workflow-caption">
+        <figcaption className="mb-4 text-sm text-[var(--text-muted)]" id="ai-workflow-caption">
+          AI 개발 워크플로우
+        </figcaption>
+        <div className="grid min-w-0 items-center gap-4 md:grid-cols-[minmax(0,1.2fr)_auto_minmax(0,1fr)_auto_minmax(0,1.2fr)]">
+          <div className="min-w-0 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5">
+            <h3 className="font-semibold text-white">구현 기준</h3>
+            <ul className="mt-3 grid gap-3 text-sm leading-7 text-[var(--text-secondary)]">
+              {project.detail.architecture.slice(0, 2).map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+          <ArrowRight aria-hidden="true" className="justify-self-center rotate-90 text-[#b6bdff] md:rotate-0" size={20} />
+          <div className="min-w-0 rounded-2xl border border-[#5865f2]/60 bg-[var(--surface-elevated)] p-5">
+            <h3 className="font-semibold text-white">Controller·DTO 구현</h3>
+            <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">Claude Code · Codex</p>
+          </div>
+          <ArrowRight aria-hidden="true" className="justify-self-center rotate-90 text-[#b6bdff] md:rotate-0" size={20} />
+          <div className="min-w-0 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5">
+            <h3 className="font-semibold text-white">생성 결과 검증</h3>
+            <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">{project.detail.architecture[2]}</p>
+          </div>
+        </div>
+      </figure>
+    </section>
+  );
+}
+
 function ProjectStory({ project }: { project: Project }) {
   return (
     <section className="grid gap-10 border-t border-slate-700/80 pt-10">
@@ -94,10 +127,10 @@ function ProjectStory({ project }: { project: Project }) {
 
       <div className="border-t border-slate-800 pt-10">
         <SectionHeading eyebrow="Decision" title="선택한 접근" />
-        <ul className="grid gap-4 md:grid-cols-2">
+        <ul className="grid max-w-3xl gap-4">
           {project.approach.map((item) => (
             <li
-              className="border-l border-cyan-300/40 pl-5 text-sm leading-7 text-slate-300"
+              className="border-l border-[#5865f2]/60 pl-5 text-base leading-8 text-slate-300"
               key={item}
             >
               {item}
@@ -106,12 +139,16 @@ function ProjectStory({ project }: { project: Project }) {
         </ul>
       </div>
 
+      {project.slug === "ai-backend-workflow-standardization" && (
+        <AiWorkflowDiagram project={project} />
+      )}
+
       <div className="border-t border-slate-800 pt-10">
-        <SectionHeading eyebrow="Result" title="확인된 결과" />
-        <ul className="grid gap-4 md:grid-cols-2">
+        <SectionHeading eyebrow="Result" title={project.detail.evidence ? "기록된 결과" : "확인된 결과"} />
+        <ul className="grid max-w-3xl gap-4">
           {project.impact.map((item) => (
             <li
-              className="border-l border-emerald-300/40 pl-5 text-sm leading-7 text-slate-300"
+              className="border-l border-[#a3aaff]/60 pl-5 text-base leading-8 text-slate-300"
               key={item}
             >
               {item}
@@ -119,6 +156,26 @@ function ProjectStory({ project }: { project: Project }) {
           ))}
         </ul>
       </div>
+
+      {project.detail.evidence && (
+        <section className="border-t border-[var(--border)] pt-10">
+          <SectionHeading eyebrow="Evidence" title="성과의 근거와 범위" />
+          <dl className="grid max-w-3xl gap-6 text-base leading-8">
+            <div>
+              <dt className="font-semibold text-white">근거</dt>
+              <dd className="mt-2 text-[var(--text-secondary)]">{project.detail.evidence.basis}</dd>
+            </div>
+            <div>
+              <dt className="font-semibold text-white">적용 범위</dt>
+              <dd className="mt-2 text-[var(--text-secondary)]">{project.detail.evidence.scope}</dd>
+            </div>
+            <div>
+              <dt className="font-semibold text-white">공개 기록의 한계</dt>
+              <dd className="mt-2 text-[var(--text-secondary)]">{project.detail.evidence.limitations}</dd>
+            </div>
+          </dl>
+        </section>
+      )}
     </section>
   );
 }
@@ -148,18 +205,18 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
 
   return (
     <>
-      <section className="pt-12 pb-10 md:pt-16 md:pb-12">
+      <section className="pt-12 pb-10 break-keep wrap-anywhere md:pt-16 md:pb-12">
         <Container>
           <Link
-            className="hero-reveal hero-reveal-1 inline-flex items-center gap-2 rounded-xl text-sm font-semibold text-slate-300 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
+            className="hero-reveal hero-reveal-1 inline-flex items-center gap-2 rounded-xl text-sm font-semibold text-slate-300 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff]"
             href="/portfolio"
           >
             <ArrowLeft aria-hidden="true" size={17} strokeWidth={2} />
-            Portfolio
+            포트폴리오 목록
           </Link>
 
-          <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_18rem] lg:items-end">
-            <div>
+          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
+            <div className="min-w-0">
               <Badge className="hero-reveal hero-reveal-2" tone={project.tone}>
                 <Terminal aria-hidden="true" size={14} strokeWidth={2} />
                 <span className="font-mono uppercase tracking-[0.18em]">{project.type}</span>
@@ -167,7 +224,7 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
               <h1 className="hero-heading hero-reveal hero-reveal-3 mt-6 max-w-4xl text-4xl leading-[1.08] tracking-normal text-white md:text-6xl">
                 {project.context}
               </h1>
-              <p className="hero-reveal hero-reveal-4 mt-5 text-sm font-semibold text-cyan-200 md:text-base">
+              <p className="hero-reveal hero-reveal-4 mt-5 text-sm font-semibold text-[#b6bdff] md:text-base">
                 {project.period}
               </p>
               <p className="hero-reveal hero-reveal-5 mt-6 max-w-2xl text-base leading-8 text-slate-300 md:text-lg">
@@ -180,7 +237,7 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
               className="border-y border-slate-700/80 py-5"
             >
               <h2
-                className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200"
+                className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-[#b6bdff]"
                 id="project-role-heading"
               >
                 담당 역할
@@ -197,13 +254,13 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
         </Container>
       </section>
 
-      <section className="pb-24">
+      <section className="pb-24 break-keep wrap-anywhere">
         <Container>
           <div className="grid gap-10">
             <ProjectStory project={project} />
             {project.slug === "github-issues-workflow-automation" ? (
               <GithubWebhookArchitectureDiagram />
-            ) : (
+            ) : project.slug !== "ai-backend-workflow-standardization" && (
               <SystemMap project={project} />
             )}
             <TechStack project={project} />

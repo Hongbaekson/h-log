@@ -54,6 +54,10 @@ npm run build
 
 `portfolio-evidence-experience / Step 0`의 `app/portfolio/page.tsx`는 기존 `lib/projects.ts`의 공개 프로젝트 9개를 Server Component에서 렌더링한다. 대표 목록의 첫 사례를 크게 배치하고 보조 2개, 경력 5개, 개인 프로젝트 1개를 기존 분류와 순서대로 표시한다. `createPortfolioCardModel`은 제목·첫 역할·첫 성과만 선택하며 원본 프로젝트와 상세 데이터는 수정하지 않는다. 별도 조회 계층이나 의존성은 추가하지 않았다.
 
+### 포트폴리오 상세
+
+`app/portfolio/[slug]/page.tsx`는 기존 Server Component와 정적 프로젝트 데이터로 상세를 구성한다. AI 워크플로우 사례에만 기존 명세·작업 맥락·구현·검증 관계를 HTML figure로 표시하며, 선택적인 `detail.evidence`의 근거·적용 범위·한계를 결과 뒤에서 읽는다. 기록이 없는 사례에는 근거 영역을 만들지 않는다. 기존 개인 프로젝트 SVG와 나머지 시스템 설명, URL·metadata를 유지하고 새 의존성·조회·클라이언트 상태는 추가하지 않았다. 2026-10-20 Step 1의 PC·모바일·JavaScript 없는 읽기와 기본 gate 검증을 완료했다.
+
 ### 홈의 최근 공개 글
 
 `blog-discovery-and-home / Step 2`의 `components/blog/HomeRecentPosts.tsx`는 기존 `loadPublicBlogContentStore`와 `getPublicBlogIndex({ pageSize: 3 })`, 날짜/글 유형 formatter를 재사용하는 async Server Component다. 요청마다 published-current/privacy 경계를 통과한 글을 읽고 최대 3개의 현재 제목·요약·발행일과 상세 링크를 렌더링한다. 새 SQL이나 별도 요약 cache는 없다.

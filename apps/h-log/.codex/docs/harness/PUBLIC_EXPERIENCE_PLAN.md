@@ -51,10 +51,10 @@
 
 ## 이번 실행 단위
 
-[Phase 4 / Step 0](../../../phases/portfolio-evidence-experience/step0.md) 완료 (2026-10-19): 포트폴리오를 대표 1개·보조 2개와 간결한 경력 목록으로 정리했다. 다음은 [Phase 4 / Step 1](../../../phases/portfolio-evidence-experience/step1.md)이며 Step 1–2는 pending이다.
+[Phase 4 / Step 1](../../../phases/portfolio-evidence-experience/step1.md) 완료 (2026-10-20): AI 워크플로우 상세에 HTML 흐름도와 근거·적용 범위·한계를 추가했다. 기록이 없는 대안 비교는 생략하고 기존 성과를 유지했다. 다음은 [Phase 4 / Step 2](../../../phases/portfolio-evidence-experience/step2.md)이며 phase 전체는 pending이다.
 
-- 변경 파일: `apps/h-log/app/portfolio/page.tsx`, `lib/portfolio-card.ts`, `lib/projects.ts`, `lib/projects.test.ts`.
-- 기존 제목·역할·첫 핵심 결과를 목록에 표시하며 원본 데이터·성과 수치·9개 상세 링크를 유지한다. 1440/390/320px·목적지·키보드·긴 텍스트·가로 넘침 없음과 Home 소개/레이더 전후 일치, focused RED/GREEN 14/14, unit 213 pass/13 DB skip, lint/typecheck/build를 확인했다. 고정 목록으로 새 조회·빈/DB 오류 상태는 추가하지 않았다.
+- 변경 파일: `apps/h-log/app/portfolio/[slug]/page.tsx`, `lib/projects.ts`, `lib/projects.test.ts`.
+- 1440/390/320px·목적지·키보드·긴 텍스트·나머지 8개 상세·없는 slug 404·legacy 308·JavaScript 없는 읽기와 Home 소개/레이더 전후 일치, focused RED/GREEN 16/16, unit 215 pass/13 DB skip, lint/typecheck/build를 확인했다. 고정 상세로 새 DB 조회·오류 분기는 추가하지 않았다.
 - 문서: 이 계획, 새 phase/step registry, PRD/ADR/ARCHITECTURE/IMPLEMENTATION_PLAN 중 관련 설명만 동기화한다.
 - 성공 기준: focused RED/GREEN, 기존 unit 회귀, lint/typecheck/build, 격리 local DB를 사용한 개발 서버 desktop/mobile 렌더링, JSON/path parser, `git diff --check`.
 - 커밋/푸시는 검증한 변경만 포함하고 일반 push를 사용한다.
@@ -71,7 +71,7 @@
 
 ### 별도 후속 작업
 
-- 2026-10-15 등록한 [기술 글 문체와 읽기 화면 개선](BLOG_EDITORIAL_READING_PLAN.md)의 T1~T3 / 7개 step은 2026-10-16 로컬 구현·검수를 완료했다. 이후 Phase 3 Step 3의 RSS·사례 연결과 Phase 4 Step 0의 포트폴리오 목록 정리도 완료해 다음은 Phase 4 Step 1이다. 기존 Phase 1~6의 번호·완료 이력은 유지한다. Phase 5 Step 2는 H-Log 최근 글 조회 경계 초안을 사례 후보로 재사용하며 해당 사례 단계는 pending이다.
+- 2026-10-15 등록한 [기술 글 문체와 읽기 화면 개선](BLOG_EDITORIAL_READING_PLAN.md)의 T1~T3 / 7개 step은 2026-10-16 로컬 구현·검수를 완료했다. 이후 Phase 3 Step 3의 RSS·사례 연결과 Phase 4 Steps 0–1의 포트폴리오 목록·상세 개선도 완료해 다음은 Phase 4 Step 2다. 기존 Phase 1~6의 번호·완료 이력은 유지한다. Phase 5 Step 2는 H-Log 최근 글 조회 경계 초안을 사례 후보로 재사용하며 해당 사례 단계는 pending이다.
 
 - 2026-10-06 [운영 모니터링](OBSERVABILITY_PLAN.md)을 독립 phase/8개 step으로 등록했다. 기존 공개 경험 6개 phase/19개 step의 번호·실행 순서는 유지한다. 모니터링을 지정하면 해당 Step 0부터 로컬 진행할 수 있고 운영 적용은 OCI 보류를 따른다. 자동 발행 timer 재개 전 운영 모니터링 검증이 필요하다.
 

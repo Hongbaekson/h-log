@@ -15,6 +15,11 @@ export type Project = {
   context: string;
   detail: {
     architecture: string[];
+    evidence?: {
+      basis: string;
+      scope: string;
+      limitations: string;
+    };
     role: string[];
   };
   icon: LucideIcon;
@@ -44,6 +49,11 @@ export const projects = [
         "프로젝트 규칙과 도메인 문서를 AI 도구의 작업 컨텍스트로 연결",
         "생성 결과는 기존 빌드·테스트·코드 리뷰 흐름에서 검증",
       ],
+      evidence: {
+        basis: "경력기술서에서 확인해 공개한 성과를 정리했습니다.",
+        scope: "구현 시간은 OpenAPI 기반 Controller·DTO 등 단순 기능의 평균 구현 시간입니다. 리뷰 지적 감소는 코드 리뷰에서 팀 컨벤션을 확인하던 작업에 관한 결과입니다.",
+        limitations: "공개된 기록에는 측정 기간, 표본 수, 작업 난도를 맞춘 비교 조건이 없습니다. 이 수치만으로 전체 개발 생산성이나 다른 팀에서의 효과까지 판단하기는 어렵습니다.",
+      },
       role: [
         "AI 개발 워크플로우 설계와 팀 적용 기준 정리",
         "프로젝트·도메인 문서 구조화",

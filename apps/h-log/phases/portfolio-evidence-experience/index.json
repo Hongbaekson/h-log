@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "decision-and-evidence-detail",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-20: AI workflow pilot now separates problem, chosen approach, responsive implementation/verification figure, reported results and public evidence/scope/limitations. Unrecorded alternative comparisons are omitted. All nine original project records and Home/radar are preserved. Focused RED 2 -> GREEN 16/16, unit 215 pass/13 DB skip, lint/typecheck/build, 1440/390/320 browser/keyboard/long-text checks, other eight details, missing 404, legacy 308 and no-JS reading passed. Previous approval-review capacity blocker is resolved. Next: Step 2 project-post-connections."
     },
     {
       "step": 2,
