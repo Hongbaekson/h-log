@@ -62,7 +62,7 @@
 
 ### 2026-10-15 기술 글 문체·목록·본문 개선 계획
 
-[상세 계획](../apps/h-log/.codex/docs/harness/BLOG_EDITORIAL_READING_PLAN.md)의 3개 phase / 7개 step 중 `blog-writing-quality` Steps 0–2와 `blog-list-presentation` Step 0을 완료했다. [한국어 작성 가이드](../apps/h-log/.codex/docs/harness/BLOG_WRITING_GUIDE.md)·비공개 초안 2개와 근거 대장을 준비하고 기존 prompt에 정적 작성 규칙을 연결했다. T1 Step 2에서 11개 claim, 산문 3곳의 교정과 별도 사실 조건 1곳의 수정을 검토했으며 기존 테스트 39/39·모의 writer 시나리오 5/5를 통과했다. T2 Step 0은 일반 목록과 검색 결과의 제목·두 줄 요약·메타정보를 공통 행으로 정리하고 3개 화면 폭과 검색 회귀를 확인했다. 다음은 `blog-list-presentation / Step 1: optional-verified-thumbnails`이며 나머지 3개 step이 pending이다. 실제 글 발행은 하지 않았다.
+[상세 계획](../apps/h-log/.codex/docs/harness/BLOG_EDITORIAL_READING_PLAN.md)의 3개 phase / 7개 step은 2026-10-16 로컬 구현·검수를 완료했다. [한국어 작성 가이드](../apps/h-log/.codex/docs/harness/BLOG_WRITING_GUIDE.md)·비공개 초안 2개·기존 writer의 정적 문체 규칙, 목록/검색 공통 행·검증된 선택적 썸네일, 본문 가독성과 오류 재시도를 검토했다. 검수 범위와 실제 모델·이미지 적용·발행 전 준비는 [검수 기록](../apps/h-log/.codex/docs/harness/BLOG_READING_REVIEW.md)에서 구분한다. 2026-10-19에는 기존 공개 경험 트랙의 `blog-discovery-and-home / Step 3`에서 푸터·블로그 RSS와 홈의 공개 프로젝트 사례 링크를 추가했다. 이 phase도 완료했으며 다음은 `portfolio-evidence-experience / Step 0: featured-hierarchy-and-discord`다. 실제 글 발행은 하지 않았다.
 
 현재 prompt는 작성 가이드의 한국어 규칙을 정적 문자열로 전달하며 runtime에서 persona.md나 설치된 스킬 파일을 읽지 않는다. Korean 교정은 사실·코드·수치·출처를 보존하고 실제 경험과 자료 분석을 구분한다. 기존 no-tool 단일 writer 호출과 claim/privacy/quality gate를 유지하며 별도 LLM 교정 호출·문체 점수 서비스·persona feedback learning은 추가하지 않는다. provider test double로 입력·규칙 전달과 출력 처리를 확인했으며 실제 모델 문체 품질은 아직 평가하지 않았다. 실제 수집기, 배포·발행·timer와 OCI 보류는 기존 계획을 따른다.
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Rss } from "lucide-react";
 
 import { BlogSearchPanel } from "@/components/blog/BlogSearchPanel";
 import { BlogPagination } from "@/components/blog/BlogPagination";
@@ -43,9 +44,19 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
       <section className="pt-8 pb-6 md:pt-12">
         <Container>
           <div className="mx-auto max-w-4xl">
-            <h1 className="hero-heading text-3xl leading-tight tracking-normal text-white md:text-4xl">
-              개발 기록
-            </h1>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <h1 className="hero-heading text-3xl leading-tight tracking-normal text-white md:text-4xl">
+                개발 기록
+              </h1>
+              <a
+                className="inline-flex min-h-10 items-center gap-2 rounded-sm text-sm text-[#b6bdff] underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff]"
+                href="/feed.xml"
+                type="application/rss+xml"
+              >
+                <Rss aria-hidden="true" size={15} />
+                RSS 구독
+              </a>
+            </div>
             <p className="mt-3 text-sm leading-7 text-slate-300 md:text-base">
               개발하며 풀었던 문제와 운영하면서 배운 점을 정리합니다.
             </p>

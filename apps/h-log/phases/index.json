@@ -142,8 +142,8 @@
     },
     {
       "dir": "blog-discovery-and-home",
-      "status": "pending",
-      "summary": "Steps 0-2 completed: URL-backed unified search/list, compact topic filters and Home's latest three published-current posts. Step 2 missing-section RED/GREEN, focused 35/35, unit 209 pass/13 DB skip, public-read integration 1/1, lint/typecheck/build and 1440/390/320px checks passed, including long titles, keyboard/links, retraction, empty/read-failure/retry, delayed DB streaming and unchanged hero/radar geometry/SVG. Next: Step 3 rss-and-work-evidence-links remains pending. Discord style, published-current/privacy, Second Brain and OCI hold preserved."
+      "status": "completed",
+      "summary": "2026-10-19 Steps 0-3 completed: URL-backed search/list, compact topic filters, Home recent posts, footer/Blog RSS entry points and Home working-style links to public portfolio cases. Step 3 browser RED/GREEN, 1440/390/320 keyboard/destination/empty/DB-failure checks, valid published-only RSS and unchanged hero/radar geometry/SVG passed. Crawler 2/2, unit 213 pass/13 DB skip, lint/typecheck/build passed. Next: portfolio-evidence-experience Step 0. Discord style, published-current/privacy, Second Brain and OCI hold preserved."
     },
     {
       "dir": "portfolio-evidence-experience",

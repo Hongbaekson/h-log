@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-19 다음 단계 완료: **`blog-discovery-and-home / Step 3: rss-and-work-evidence-links`**에서 푸터·블로그의 RSS 진입점과 홈의 일하는 방식→공개 프로젝트 3개 연결을 추가했다. 브라우저 RED→GREEN, 1440/390/320px 키보드·목적지·빈/DB 오류 상태, 정상 RSS와 홈 소개/레이더 전후 일치, crawler 2/2, unit 213 pass/13 DB skip, lint/typecheck/build를 확인했다. Phase 3 Steps 0–3은 완료했으며 **다음은 `portfolio-evidence-experience / Step 0: featured-hierarchy-and-discord`**다. 기존 `.tmp/`는 보존하고 RSS 생성·DB·Second Brain·운영 발행·OCI는 변경하지 않았다. 아래 이력의 당시 다음 단계보다 이 기록과 live registry를 우선한다.
+
 2026-10-16 토스 개선 마지막 단계 완료: **`blog-reading-polish / Step 1: real-content-reading-review`**에서 최종 교정본 2개와 별도 합성 글의 1440/390/320px 목록→검색/태그→본문→관련 글/뒤로, 읽기 도구·빈/오류 상태를 검토했다. DB 복구 후 서버를 재조회하지 않던 공통 오류 버튼을 현재 URL 새로고침으로 수정하고 RED→GREEN 및 개발/로컬 production mode의 조건·주소 보존을 확인했다. Focused 52/52, unit 213 pass/13 DB skip, public-read integration 1/1, lint/typecheck/build와 원문/hash 보존이 통과했다. [검수 결과와 남은 발행 준비](BLOG_READING_REVIEW.md)를 기록했으며 **T1/T2/T3의 7개 step은 완료**다. 다음 기본 작업은 **`blog-discovery-and-home / Step 3: rss-and-work-evidence-links`**다. 실제 발행·배포·provider·OCI와 Home/레이더·Second Brain 변경은 없으며 아래 이력의 당시 다음 단계보다 이 기록과 live registry를 우선한다.
 
 2026-10-16 토스 개선 이어가기 완료: **`blog-reading-polish / Step 0: article-reading-rhythm`**에서 상세 제목·도입부·본문을 최대 736px로 맞추고 17px/32px 본문과 제목·코드·표·그림 여백을 조정했다. 검수 초안 2개와 합성 스트레스 글을 격리 DB에서 1440/390/320px로 확인했다. 브라우저 RED→GREEN, 목차/anchor·복사/스크롤·raw Markdown·404·저장 hash 보존, focused 42/42, unit 213 pass/13 DB skip, lint/typecheck/build가 통과했다. **다음은 `blog-reading-polish / Step 1: real-content-reading-review`**의 목록→본문 통합 검토다. Home/레이더·Second Brain·공개/DB 계약과 OCI 보류는 유지한다. 아래 이력의 당시 다음 단계보다 이 기록과 live registry를 우선한다.

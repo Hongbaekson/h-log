@@ -23,7 +23,8 @@
     {
       "step": 3,
       "name": "rss-and-work-evidence-links",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-19: Added same-tab native RSS links to the shared footer and Blog introduction, and connected the three Home working-style descriptions to existing public portfolio cases. Browser missing-link RED/GREEN, 1440/390/320 keyboard navigation, destination pages, empty-tag and DB-failure states, valid published-only RSS, and unchanged hero/radar geometry/SVG passed. Crawler 2/2, unit 213 pass/13 DB skip, lint/typecheck/build passed. No new subscription storage, content, DB/API, radar, Brain or deployment changes. Next: portfolio-evidence-experience Step 0."
     }
   ]
 }

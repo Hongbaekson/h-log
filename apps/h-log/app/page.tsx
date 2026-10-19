@@ -55,6 +55,8 @@ const strengthItems = [
     description: "도메인 규칙과 운영 흐름을 분리해 변경에 견디는 백엔드를 만듭니다.",
     icon: Code2,
     title: "변화에 유연한 설계",
+    evidenceSlug: "redisson-async-processing-recovery",
+    evidenceLabel: "비동기 처리와 복구 사례",
     label: "BACKEND ARCHITECTURE",
     tone: "blurple",
   },
@@ -62,6 +64,8 @@ const strengthItems = [
     description: "반복 작업을 자동화하고 알림, 요약, 검증 흐름으로 연결합니다.",
     icon: Workflow,
     title: "반복을 줄이는 AI",
+    evidenceSlug: "ai-backend-workflow-standardization",
+    evidenceLabel: "AI 개발 워크플로우 사례",
     label: "AI WORKFLOW",
     tone: "pink",
   },
@@ -69,6 +73,8 @@ const strengthItems = [
     description: "배포, 관측성, 장애 대응까지 고려해 운영 가능한 구조를 선호합니다.",
     icon: Database,
     title: "운영까지 이어지는 책임",
+    evidenceSlug: "opentelemetry-observability",
+    evidenceLabel: "관측성 구축 사례",
     label: "RELIABLE SYSTEMS",
     tone: "blue",
   },
@@ -282,6 +288,13 @@ export default function HomePage() {
                   <p className="strength-label font-mono">{item.label}</p>
                   <h3>{item.title}</h3>
                   <p className="strength-description">{item.description}</p>
+                  <Link
+                    className="col-start-2 mt-4 inline-flex min-h-10 w-fit max-w-full items-center gap-2 rounded-sm text-sm text-[#b6bdff] underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff]"
+                    href={`/portfolio/${item.evidenceSlug}`}
+                  >
+                    <span className="wrap-anywhere">{item.evidenceLabel}</span>
+                    <ArrowRight aria-hidden="true" className="shrink-0" size={15} />
+                  </Link>
                 </article>
               );
             })}

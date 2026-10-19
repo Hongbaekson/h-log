@@ -56,6 +56,10 @@ npm run build
 
 `app/page.tsx`는 `force-dynamic`을 명시하고 기존 마지막 section 뒤에 `Suspense`로 이 컴포넌트를 둔다. 홈의 소개·CTA·레이더·대표 사례·일하는 방식은 DB 조회를 기다리지 않고 먼저 전송된다. 성공한 0건은 `null`, 조회/모델 처리 실패는 해당 section에만 일반 안내와 native GET 재시도 form으로 처리하고 서버에는 원문 없는 `home_recent_posts_unavailable`만 기록한다(ADR-032). 오래된 글이나 fixture로 오류를 덮지 않는다.
 
+### RSS와 공개 사례 진입점
+
+`blog-discovery-and-home / Step 3`에서 공통 `Footer`와 Blog 목록 소개에 기존 `/feed.xml`의 native 링크를 추가했다. feed route와 published-current/privacy·content hash 검증은 그대로다. 홈의 `strengthItems`는 설명별 공개 프로젝트 slug와 링크 문구를 갖고 기존 `/portfolio/[slug]`로 연결한다. 별도 조회·구독 저장·외부 서비스는 없으며 DB 오류 시에도 공통 푸터와 정적 홈 사례 링크를 사용할 수 있다.
+
 ### Second Brain 읽기 경계
 
 `/brain`과 `/brain/[slug]`는 ADR-019의 편집형 카탈로그를 읽는 독립 공개 화면이다. `lib/brain-catalog.ts`에는 기존 공개 자료 기반 노드와 2026-10-06 사용자가 공개 승인한 일반화된 추가 18개 노드를 합쳐 28개 노드/42개 관계를 둔다. 원문·Wiki·식별자·근거 경로는 포함하지 않는다. `private/`의 검토본과 근거 대장은 Git·Docker에서 제외하고, 카탈로그가 이 파일들을 import하거나 자동 동기화하지 않는다.

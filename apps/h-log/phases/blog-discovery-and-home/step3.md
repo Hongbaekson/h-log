@@ -60,3 +60,13 @@ git diff --check
 - 저장 Markdown/HTML/hash나 기존 URL을 무단 재작성하지 말 것. 발행 무결성과 기존 링크를 유지해야 한다.
 - raw HTML 주입, private 글/내부 evidence/근거 없는 실적 노출을 허용하지 말 것. 공개 콘텐츠 경계를 유지해야 한다.
 - OCI·DNS/TLS·운영 timer·실제 provider 호출·공개 발행을 실행하지 말 것. 로컬 개선 계획이며 기존 OCI 보류는 유지된다.
+
+## 완료 기록 — 2026-10-19
+
+- `components/layout/Footer.tsx`와 `app/blog/(index)/page.tsx`에 기존 `/feed.xml`을 여는 `RSS 구독` 링크를 추가했다. XML 경로는 native anchor와 `application/rss+xml` 타입으로 연결하며 새 창을 열지 않는다. 키보드 초점과 모바일 터치 영역을 제공한다.
+- `app/page.tsx`의 일하는 방식 3개 설명을 기존 공개 프로젝트에 연결했다. 변화에 유연한 설계 → Redisson 비동기 처리/DLQ, 반복을 줄이는 AI → AI 개발 워크플로우, 운영까지 이어지는 책임 → OpenTelemetry 관측성 사례다. 기존 프로젝트 본문·성과나 새로운 경험을 추가하지 않았다.
+- RED: 구현 전 실제 브라우저에서 `Footer must offer the existing RSS feed: 0 !== 1` 실패를 확인했다. 같은 검사로 GREEN: 1440/390/320px에서 푸터/블로그 RSS, 사례 3개의 상세 목적지, Enter 이동, 초점 표시, 같은 창 열기, 빈 태그 목록과 가로 넘침을 확인했다. 홈 소개·레이더의 bounding box와 SVG가 변경 전과 동일했다.
+- 격리 로컬 DB의 기존 검수 자료로 RSS HTTP 200·content type·XML 파싱·공개 항목 3개와 private/retracted 제외를 확인했다. DB 오류를 주입한 별도 로컬 production mode에서도 3개 화면 폭의 푸터 링크와 홈 사례 링크가 유지됐다. 오류 화면의 RSS 링크가 feed 가용성을 보장한다는 의미는 아니다.
+- `node --no-warnings --test --experimental-strip-types lib/blog-crawler-output.test.ts`: 2/2 통과. `npm run test`: 213 pass/13 DB integration skip. `npm run lint`, `npm run typecheck`, `npm run build`, 문서/JSON·상대 링크·phase 검사와 `git diff --check` 통과. DB/repository/worker/migration 변경이 없어 추가 integration은 실행하지 않았다.
+- 개발 서버의 PC·모바일 캡처와 오류 화면을 직접 검토했다. 스크립트·캡처·결과는 Git/Docker 제외된 `private/rss-evidence-check/`에 보관했다. 기존 `.tmp/` 작업물은 변경하거나 커밋하지 않았다.
+- 완료 범위는 링크 추가다. 구독 DB·이메일 수집·RSS 생성 로직·공개 데이터·Second Brain·운영 배포는 변경하지 않았다. 이 phase의 Steps 0–3은 완료했으며 다음은 **`portfolio-evidence-experience / Step 0: featured-hierarchy-and-discord`**다.
