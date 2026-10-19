@@ -51,10 +51,10 @@
 
 ## 이번 실행 단위
 
-[Phase 4 / Step 1](../../../phases/portfolio-evidence-experience/step1.md) 완료 (2026-10-20): AI 워크플로우 상세에 HTML 흐름도와 근거·적용 범위·한계를 추가했다. 기록이 없는 대안 비교는 생략하고 기존 성과를 유지했다. 다음은 [Phase 4 / Step 2](../../../phases/portfolio-evidence-experience/step2.md)이며 phase 전체는 pending이다.
+[Phase 4 / Step 2](../../../phases/portfolio-evidence-experience/step2.md) 완료 (2026-10-20): 프로젝트↔글의 명시적 연결, 공유 공개 판정과 H-Log 자체 사례를 추가했다. Phase 4 전체가 completed이며 다음은 [Phase 5 / Step 0](../../../phases/editorial-trust-and-series/step0.md)다.
 
-- 변경 파일: `apps/h-log/app/portfolio/[slug]/page.tsx`, `lib/projects.ts`, `lib/projects.test.ts`.
-- 1440/390/320px·목적지·키보드·긴 텍스트·나머지 8개 상세·없는 slug 404·legacy 308·JavaScript 없는 읽기와 Home 소개/레이더 전후 일치, focused RED/GREEN 16/16, unit 215 pass/13 DB skip, lint/typecheck/build를 확인했다. 고정 상세로 새 DB 조회·오류 분기는 추가하지 않았다.
+- 변경 파일: 두 상세 page, `components/portfolio/ProjectPostLinks.tsx`, `ProjectRelatedPosts.tsx`, `lib/portfolio-posts.ts`, `lib/projects.ts`와 관련 테스트.
+- Focused RED 4개→GREEN 55/55와 브라우저 RED/GREEN, unit 219 pass/13 DB skip, public-read integration 1/1, lint/typecheck/build를 확인했다. 1440/390/320px 왕복 이동·초점·긴 문자열·현재 제목·철회/누락/privacy 제외·DB 지연/실패·재시도와 기존 9개 사례·Home/레이더·저장 원문/hash 보존을 검증했다. 실제 글 발행은 하지 않았다.
 - 문서: 이 계획, 새 phase/step registry, PRD/ADR/ARCHITECTURE/IMPLEMENTATION_PLAN 중 관련 설명만 동기화한다.
 - 성공 기준: focused RED/GREEN, 기존 unit 회귀, lint/typecheck/build, 격리 local DB를 사용한 개발 서버 desktop/mobile 렌더링, JSON/path parser, `git diff --check`.
 - 커밋/푸시는 검증한 변경만 포함하고 일반 push를 사용한다.
@@ -67,11 +67,11 @@
 
 ### 도메인과 콘텐츠
 
-글 유형은 현재 다섯 article mode를 재사용하고, tag는 기술 분류, series는 읽기 순서, project relation은 실제 적용 사례를 연결한다. 개별 서비스를 추가하지 않는다. 수집 시각, 원문 발행일, 글 수정일, 직접 검증일을 같은 의미로 표시하지 않는다. 기존 `updatedAt`만으로 검증 완료 badge를 만들지 않는다.
+글 유형은 현재 다섯 article mode를 재사용하고, tag는 기술 분류, series는 읽기 순서, project relation은 구현 사례 또는 별도 문서 분석과의 관계를 명시한다. 문서 분석을 실제 프로젝트 적용 경험으로 표시하지 않는다. 개별 서비스를 추가하지 않는다. 수집 시각, 원문 발행일, 글 수정일, 직접 검증일을 같은 의미로 표시하지 않는다. 기존 `updatedAt`만으로 검증 완료 badge를 만들지 않는다.
 
 ### 별도 후속 작업
 
-- 2026-10-15 등록한 [기술 글 문체와 읽기 화면 개선](BLOG_EDITORIAL_READING_PLAN.md)의 T1~T3 / 7개 step은 2026-10-16 로컬 구현·검수를 완료했다. 이후 Phase 3 Step 3의 RSS·사례 연결과 Phase 4 Steps 0–1의 포트폴리오 목록·상세 개선도 완료해 다음은 Phase 4 Step 2다. 기존 Phase 1~6의 번호·완료 이력은 유지한다. Phase 5 Step 2는 H-Log 최근 글 조회 경계 초안을 사례 후보로 재사용하며 해당 사례 단계는 pending이다.
+- 2026-10-15 등록한 [기술 글 문체와 읽기 화면 개선](BLOG_EDITORIAL_READING_PLAN.md)의 T1~T3 / 7개 step은 2026-10-16 로컬 구현·검수를 완료했다. 이후 Phase 3 Step 3의 RSS·사례 연결과 Phase 4 Steps 0–2의 포트폴리오 목록·상세·글 연결 개선도 완료해 다음은 Phase 5 Step 0다. 기존 Phase 1~6의 번호·완료 이력은 유지한다. Phase 5 Step 2는 H-Log 최근 글 조회 경계 초안을 사례 후보로 재사용하며 해당 사례 단계는 pending이다.
 
 - 2026-10-06 [운영 모니터링](OBSERVABILITY_PLAN.md)을 독립 phase/8개 step으로 등록했다. 기존 공개 경험 6개 phase/19개 step의 번호·실행 순서는 유지한다. 모니터링을 지정하면 해당 Step 0부터 로컬 진행할 수 있고 운영 적용은 OCI 보류를 따른다. 자동 발행 timer 재개 전 운영 모니터링 검증이 필요하다.
 
@@ -103,4 +103,4 @@
 
 2026-10-15 Phase 3 / Step 2 완료: 홈의 기존 section 뒤에 최신 published-current 글 최대 3개의 제목·요약·발행일·글 유형과 이동 링크를 추가했다. 영역 누락 RED→GREEN, 기존 selector characterization 포함 focused 35/35, unit 209 pass/13 DB skip, public-read integration 1/1, lint/typecheck/build를 통과했다. 격리 DB 개발 서버 1440/390/320px에서 긴 제목·키보드·링크·철회 반영·0건 생략·비공개404와 변경 전후 소개/레이더 geometry·SVG 일치를 확인했다. DB lock 지연 중 홈 선전송, 별도 local production 서버의 연결 실패 안내·재시도·홈 HTTP 200도 검증했다.
 
-Phase 1의 4개 step, Phase 2의 3개 step과 Phase 3 Steps 0–2, 총 10개 step을 완료했다. 다음 단계는 [Phase 3 / Step 3: RSS와 사례 연결](../../../phases/blog-discovery-and-home/step3.md)이다. 나머지 9개 step은 pending이며 계획 등록을 구현 완료로 간주하지 않는다. 기존 의존성의 보안 경고는 [구현 계획의 별도 후속 조치](IMPLEMENTATION_PLAN.md)에 기록돼 있다.
+Phase 1~4의 총 14개 step을 완료했다. 다음 단계는 [Phase 5 / Step 0: 검증 범위와 수정 이력](../../../phases/editorial-trust-and-series/step0.md)이다. Phase 5~6의 나머지 5개 step은 pending이며 실제 발행과 운영 활성화는 별도다.

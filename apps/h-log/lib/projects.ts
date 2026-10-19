@@ -416,6 +416,42 @@ export const projects = [
     type: "Backoffice Operation",
     year: "2022",
   },
+  {
+    approach: [
+      "목록과 상세, 검색에서 같은 공개 판정을 사용해 발행된 현재 버전만 조회",
+      "최근 글 조회를 별도 서버 컴포넌트와 Suspense로 분리해 홈 소개가 먼저 표시되도록 구성",
+      "Markdown을 구조화해서 렌더링하고 좁은 화면과 키보드 탐색을 함께 확인",
+    ],
+    context: "개인 프로젝트: H-Log 공개 글 조회와 읽기 화면",
+    detail: {
+      architecture: [
+        "PostgreSQL에 글과 버전을 저장하고 공개 repository에서 발행 상태와 개인정보를 확인",
+        "공개 조회 함수를 재사용해 목록·상세·검색의 노출 기준을 맞춤",
+        "서버 컴포넌트에서 본문을 렌더링하고 홈 최근 글의 조회 지연·오류를 별도 영역에서 처리",
+      ],
+      evidence: {
+        basis: "H-Log 구현 코드와 격리한 로컬 DB 테스트, 브라우저 검수 기록을 기준으로 정리했습니다.",
+        scope: "공개 글의 현재 버전 조회, 최근 글의 빈 상태와 오류 처리, 모바일 읽기와 키보드 이동을 확인했습니다.",
+        limitations: "운영 트래픽에서의 응답 시간과 장애율은 검증하지 않았습니다. 정기 자동 발행의 운영 성과도 이 기록에 포함하지 않습니다.",
+      },
+      role: ["공개 글 조회 경계 설계와 구현", "블로그 읽기 화면과 프로젝트 연결 구현", "로컬 DB·브라우저 검증"],
+    },
+    icon: ServerCog,
+    impact: [
+      "공개 조회에서 미발행 글과 현재 버전이 없는 글이 제외되는 것을 로컬 테스트로 확인",
+      "최근 글 조회가 지연되거나 실패해도 홈 소개를 읽을 수 있도록 분리",
+      "모바일에서 본문·표·코드를 읽고 키보드로 제목과 링크를 이동할 수 있는지 확인",
+    ],
+    period: "2026.10 기준",
+    problem: "글 목록과 상세, 검색이 서로 다른 공개 기준을 쓰면 미발행 글이 노출될 수 있습니다. 최근 글 조회가 느려졌을 때 홈 소개까지 기다리게 되는 구조도 피하고 싶었습니다.",
+    section: "side",
+    slug: "h-log-public-reading",
+    stack: ["TypeScript", "Next.js", "React", "PostgreSQL", "Tailwind CSS"],
+    summary: "공개 글의 조회 기준을 한곳에 두고, 최근 글 조회와 홈 소개를 분리했습니다. 읽기 화면은 로컬 DB와 브라우저에서 확인했습니다.",
+    tone: "blue",
+    type: "Personal Blog Platform",
+    year: "2026",
+  },
 ] satisfies Project[];
 
 export function getProjectBySlug(slug: string): Project | undefined {

@@ -52,11 +52,17 @@ npm run build
 
 ### 포트폴리오 목록
 
-`portfolio-evidence-experience / Step 0`의 `app/portfolio/page.tsx`는 기존 `lib/projects.ts`의 공개 프로젝트 9개를 Server Component에서 렌더링한다. 대표 목록의 첫 사례를 크게 배치하고 보조 2개, 경력 5개, 개인 프로젝트 1개를 기존 분류와 순서대로 표시한다. `createPortfolioCardModel`은 제목·첫 역할·첫 성과만 선택하며 원본 프로젝트와 상세 데이터는 수정하지 않는다. 별도 조회 계층이나 의존성은 추가하지 않았다.
+`portfolio-evidence-experience / Step 0`의 `app/portfolio/page.tsx`는 기존 `lib/projects.ts`의 공개 프로젝트를 Server Component에서 렌더링한다. Step 2에서 H-Log 자체 사례를 추가해 현재 10개다. 대표 목록의 첫 사례를 크게 배치하고 보조 2개, 경력 5개, 개인 프로젝트 2개를 기존 분류와 순서대로 표시한다. `createPortfolioCardModel`은 제목·첫 역할·첫 성과만 선택하며 원본 프로젝트와 상세 데이터는 수정하지 않는다. 별도 조회 계층이나 의존성은 추가하지 않았다.
 
 ### 포트폴리오 상세
 
-`app/portfolio/[slug]/page.tsx`는 기존 Server Component와 정적 프로젝트 데이터로 상세를 구성한다. AI 워크플로우 사례에만 기존 명세·작업 맥락·구현·검증 관계를 HTML figure로 표시하며, 선택적인 `detail.evidence`의 근거·적용 범위·한계를 결과 뒤에서 읽는다. 기록이 없는 사례에는 근거 영역을 만들지 않는다. 기존 개인 프로젝트 SVG와 나머지 시스템 설명, URL·metadata를 유지하고 새 의존성·조회·클라이언트 상태는 추가하지 않았다. 2026-10-20 Step 1의 PC·모바일·JavaScript 없는 읽기와 기본 gate 검증을 완료했다.
+`app/portfolio/[slug]/page.tsx`는 기존 Server Component와 정적 프로젝트 데이터로 상세를 구성한다. AI 워크플로우 사례에만 기존 명세·작업 맥락·구현·검증 관계를 HTML figure로 표시하며, 선택적인 `detail.evidence`의 근거·적용 범위·한계를 결과 뒤에서 읽는다. 기록이 없는 사례에는 근거 영역을 만들지 않는다. 기존 개인 프로젝트 SVG와 나머지 시스템 설명, URL·metadata를 유지했다. Step 1에서는 새 조회를 추가하지 않았으며 Step 2의 관련 글 조회는 아래처럼 분리한다. 2026-10-20 Step 1의 PC·모바일·JavaScript 없는 읽기와 기본 gate 검증을 완료했다.
+
+### 프로젝트와 공개 글 연결
+
+`lib/portfolio-posts.ts`의 명시적 slug 쌍과 이유를 기존 `selectPublicBlogRouteEntries` 및 프로젝트 조회로 걸러 양쪽에 동일한 연결을 제공한다(ADR-034). 글 상세는 기존 store를 재사용하고 `ProjectPostLinks`에서 현재 제목·이유·canonical 링크를 렌더링한다. 태그 추론이나 DB schema 변경은 없다.
+
+프로젝트 상세는 `force-dynamic`이며 `ProjectRelatedPosts`를 Suspense로 분리한다. mapping 후보가 없으면 loader를 호출하지 않는다. 성공한 0건은 생략하고 실패는 해당 영역의 안내·GET 재시도와 고정 로그 식별자로 처리한다. JavaScript 비활성 시에는 본문과 블로그 목록 대체 링크를 제공한다. H-Log 자체 사례의 evidence는 로컬 구현·검증 범위와 미측정 운영 성과를 구분한다. mapping은 발행을 수행하지 않는다.
 
 ### 홈의 최근 공개 글
 

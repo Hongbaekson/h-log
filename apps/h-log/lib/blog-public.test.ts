@@ -23,9 +23,77 @@ import {
   type BlogContentStore,
 } from "./blog-public.ts";
 import { searchPublishedBlogPosts } from "./blog-search.ts";
+import { getPublicProjectPostConnections, projectPostConnections } from "./portfolio-posts.ts";
+import { getProjectBySlug } from "./projects.ts";
 
 const baseTimestamp = "2026-06-25T00:00:00.000Z";
 const diagramAssetHash = "a".repeat(64);
+
+describe("public project and post connections", () => {
+  const postSlug = "home-recent-posts";
+  const makeStore = (): BlogContentStore => ({
+    posts: [createPost({ slug: postSlug, title: "Old title" })],
+    versions: [createVersion({ title: "Current public title" })],
+    tags: [],
+    sources: [],
+  });
+
+  it("uses one explicit relation and current public title for both directions without rewriting content", () => {
+    const store = makeStore();
+    const before = JSON.stringify(store);
+    const connections = getPublicProjectPostConnections(store);
+    assert.equal(connections.length, 1);
+    const [connection] = connections;
+    assert.equal(connection.projectSlug, "h-log-public-reading");
+    assert.equal(connection.projectHref, "/portfolio/h-log-public-reading");
+    assert.equal(connection.projectTitle, getProjectBySlug(connection.projectSlug)?.context);
+    assert.equal(connection.postSlug, postSlug);
+    assert.equal(connection.postHref, "/blog/home-recent-posts");
+    assert.equal(connection.postTitle, "Current public title");
+    assert.deepEqual(
+      connections.filter((item) => item.projectSlug === connection.projectSlug),
+      connections.filter((item) => item.postSlug === postSlug),
+    );
+    assert.equal(JSON.stringify(store), before);
+  });
+
+  it("omits unpublished, retracted, missing-current and privacy-blocked posts", () => {
+    for (const status of ["ready_to_publish", "retracted", "corrected", "correction_pending", "failed_verification"] as const) {
+      const store = makeStore();
+      store.posts = [createPost({ slug: postSlug, status })];
+      assert.deepEqual(getPublicProjectPostConnections(store), [], status);
+    }
+    for (const currentVersionId of [null, "missing-version"]) {
+      const store = makeStore();
+      store.posts = [createPost({ slug: postSlug, currentVersionId })];
+      assert.deepEqual(getPublicProjectPostConnections(store), []);
+    }
+    for (const version of [
+      createVersion({ postId: "wrong-owner" }),
+      createVersion({ contentMarkdown: "Contact private.person@example.com" }),
+    ]) {
+      const store = makeStore();
+      store.versions = [version];
+      assert.deepEqual(getPublicProjectPostConnections(store), []);
+    }
+  });
+
+  it("does not infer connections from tags or absent slugs and keeps mapping targets real", () => {
+    const store = makeStore();
+    store.posts = [createPost()];
+    store.tags = [createTag("post-public-one", "H-Log")];
+    assert.deepEqual(getPublicProjectPostConnections(store), []);
+    store.posts = [];
+    assert.deepEqual(getPublicProjectPostConnections(store), []);
+    for (const relation of projectPostConnections) {
+      assert.ok(getProjectBySlug(relation.projectSlug));
+    }
+    assert.equal(
+      new Set(projectPostConnections.map((relation) => `${relation.projectSlug}/${relation.postSlug}`)).size,
+      projectPostConnections.length,
+    );
+  });
+});
 
 function createPost(overrides: Partial<PostRecord> = {}): PostRecord {
   return {

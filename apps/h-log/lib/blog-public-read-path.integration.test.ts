@@ -10,6 +10,7 @@ import {
 } from "./blog-content-model.ts";
 import { buildBlogCrawlerOutputs } from "./blog-crawler-output.ts";
 import { createPostgresBlogRepository } from "./blog-postgres-repository.ts";
+import { getPublicProjectPostConnections } from "./portfolio-posts.ts";
 import {
   getPublicBlogIndex,
   getPublicBlogPostBySlug,
@@ -69,6 +70,22 @@ test(
           assert.equal(getPublicBlogPostBySlug(hiddenSlug, store), undefined);
           assert.doesNotMatch(crawler.llmsFullTxt, new RegExp(hiddenSlug));
         }
+
+        const connected = createAggregate("home-recent-posts", "published");
+        connected.version.title = "Current project article";
+        await repository.savePost(connected);
+        const [connection] = getPublicProjectPostConnections(await repository.findPublicBlogContent());
+        assert.equal(connection.projectHref, "/portfolio/h-log-public-reading");
+        assert.equal(connection.postHref, "/blog/home-recent-posts");
+        assert.equal(connection.postTitle, "Current project article");
+
+        await pool.query("update posts set status = 'retracted' where id = $1", [connected.post.id]);
+        assert.deepEqual(getPublicProjectPostConnections(await repository.findPublicBlogContent()), []);
+        await pool.query("update posts set status = 'published', current_version_id = null where id = $1", [connected.post.id]);
+        assert.deepEqual(getPublicProjectPostConnections(await repository.findPublicBlogContent()), []);
+        await pool.query("update posts set current_version_id = $1 where id = $2", [connected.version.id, connected.post.id]);
+        await pool.query("update post_versions set description = $1 where id = $2", ["Contact private.person@example.com", connected.version.id]);
+        assert.deepEqual(getPublicProjectPostConnections(await repository.findPublicBlogContent()), []);
       } finally {
         await pool.end();
       }

@@ -147,8 +147,8 @@
     },
     {
       "dir": "portfolio-evidence-experience",
-      "status": "pending",
-      "summary": "2026-10-20 Steps 0-1 completed: featured hierarchy and compact career list, then an AI workflow detail with responsive figure and separate evidence/scope/limitations. Original project facts, URLs and Home/radar are preserved; no invented alternative comparisons. Focused RED/GREEN 16/16, unit 215 pass/13 DB skip, lint/typecheck/build, 1440/390/320 keyboard/long-text/other-detail checks, 404/308 and no-JS reading passed. Approval-review capacity blocker resolved. Next: Step 2 project-post-connections. Published-current/privacy boundaries and OCI hold remain unchanged."
+      "status": "completed",
+      "summary": "Steps 0-2 completed: hierarchy, evidence-scoped detail and bidirectional project/post links. 2026-10-20: Explicit project/post slug pairs share published-current/privacy selection and current titles in both directions. Added an evidence-scoped H-Log personal case, preserving the original nine records. Async project links isolate DB delay/failure; empty links are omitted. Focused RED 4 -> GREEN 55/55 plus browser RED/GREEN, unit 219 pass/13 DB skip, public-read integration 1/1, lint/typecheck/build and 1440/390/320 keyboard/long-text/withdrawal/error checks passed. Home/radar and stored content/hash unchanged. Private drafts remain unpublished. Phase complete; next: editorial-trust-and-series Step 0 visible-verification-and-revisions."
     },
     {
       "dir": "editorial-trust-and-series",

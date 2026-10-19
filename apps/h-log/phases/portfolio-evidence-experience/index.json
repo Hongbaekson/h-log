@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "project-post-connections",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-20: Explicit project/post slug pairs share published-current/privacy selection and current titles in both directions. Added an evidence-scoped H-Log personal case, preserving the original nine records. Async project links isolate DB delay/failure; empty links are omitted. Focused RED 4 -> GREEN 55/55 plus browser RED/GREEN, unit 219 pass/13 DB skip, public-read integration 1/1, lint/typecheck/build and 1440/390/320 keyboard/long-text/withdrawal/error checks passed. Home/radar and stored content/hash unchanged. Private drafts remain unpublished. Phase complete; next: editorial-trust-and-series Step 0 visible-verification-and-revisions."
     }
   ]
 }

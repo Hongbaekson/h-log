@@ -31,6 +31,7 @@ const expectedPortfolioSlugs = [
   "crm-customer-notification",
   "database-platform-migration",
   "backoffice-reliability-improvement",
+  "h-log-public-reading",
 ];
 
 describe("portfolio project content", () => {
@@ -102,7 +103,7 @@ describe("portfolio project content", () => {
     }
   });
 
-  it("separates three featured career cases, five career projects, and one side project", () => {
+  it("separates three featured cases, five career projects and two personal projects", () => {
     const slugs = projects.map((project) => project.slug);
 
     assert.deepEqual(slugs, expectedPortfolioSlugs);
@@ -114,7 +115,7 @@ describe("portfolio project content", () => {
     assert.equal(projects.filter((project) => project.section === "career").length, 5);
     assert.deepEqual(
       projects.filter((project) => project.section === "side").map((project) => project.slug),
-      ["github-issues-workflow-automation"],
+      ["github-issues-workflow-automation", "h-log-public-reading"],
     );
   });
 
@@ -128,9 +129,18 @@ describe("portfolio project content", () => {
     assert.match(evidence.scope, /컨벤션/);
     assert.match(evidence.limitations, /측정 기간.*표본 수/);
     assert.doesNotMatch(JSON.stringify(evidence), /https?:|[A-Z]:\\|\d+\s*(%|ms|초|시간|건)/i);
-    for (const other of projects.filter((item) => item.slug !== project.slug)) {
+    for (const other of projects.filter((item) => item.slug !== project.slug && item.slug !== "h-log-public-reading")) {
       assert.ok(!("evidence" in other.detail));
     }
+  });
+
+  it("separates the H-Log local implementation evidence from unmeasured production effects", () => {
+    const project = getProjectBySlug("h-log-public-reading");
+    assert.ok(project);
+    assert.equal(project.section, "side");
+    assert.match(project.detail.evidence?.basis ?? "", /코드.*로컬/);
+    assert.match(project.detail.evidence?.scope ?? "", /공개.*현재 버전/);
+    assert.match(project.detail.evidence?.limitations ?? "", /운영 트래픽.*검증하지 않았/);
   });
 
   it("keeps list facts to the existing title, role and one approved result", () => {

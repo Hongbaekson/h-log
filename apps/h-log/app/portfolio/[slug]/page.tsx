@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, Terminal } from "lucide-react";
 
 import { GithubWebhookArchitectureDiagram } from "@/components/portfolio/GithubWebhookArchitectureDiagram";
+import { ProjectRelatedPosts } from "@/components/portfolio/ProjectRelatedPosts";
 import { Badge, Container } from "@/components/ui";
 import { getProjectBySlug, projects } from "@/lib/projects";
 
 type Project = NonNullable<ReturnType<typeof getProjectBySlug>>;
+
+export const dynamic = "force-dynamic";
 
 type PortfolioDetailPageProps = {
   params: Promise<{
@@ -264,6 +268,13 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
               <SystemMap project={project} />
             )}
             <TechStack project={project} />
+            <Suspense fallback={
+              <noscript>
+                <Link className="rounded-md text-[#b6bdff] underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4" href="/blog">블로그 글 보기</Link>
+              </noscript>
+            }>
+              <ProjectRelatedPosts projectSlug={project.slug} />
+            </Suspense>
           </div>
         </Container>
       </section>

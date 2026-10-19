@@ -7,6 +7,8 @@ import { ArrowLeft, ArrowRight, ExternalLink, FileText } from "lucide-react";
 
 import { JsonLd } from "@/components/seo/JsonLd";
 import { CodeBlock } from "@/components/blog/CodeBlock";
+import { ProjectPostLinks } from "@/components/portfolio/ProjectPostLinks";
+import { getPublicProjectPostConnections } from "@/lib/portfolio-posts";
 import { Badge, Container } from "@/components/ui";
 import {
   getPublicBlogPostBySlug,
@@ -71,6 +73,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   }
 
   const navigation = getPublicBlogPostNavigation(slug, store)!;
+  const projectConnections = getPublicProjectPostConnections(store).filter((connection) => connection.postSlug === post.slug);
   const origin = resolvePublicSiteOrigin("http://localhost:3000");
   const postUrl = new URL(post.href, `${origin}/`).toString();
   const blogPostingJsonLd = {
@@ -186,6 +189,11 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                   </a>
                 </div>
               </section>
+              {projectConnections.length > 0 && (
+                <div className="mt-10">
+                  <ProjectPostLinks connections={projectConnections} direction="projects" />
+                </div>
+              )}
               {navigation.related.length > 0 && (
                 <section aria-labelledby="related-posts-heading" className="mt-10">
                   <h2 className="text-lg font-semibold text-white" id="related-posts-heading">관련 글</h2>
