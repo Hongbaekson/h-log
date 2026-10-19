@@ -50,6 +50,10 @@ npm run build
 
 기존 no-tool 단일 writer 호출, JSON 출력과 usage 검증을 유지한다. 생성 뒤에는 기존 schema/privacy/claim gate를 통과해야 한다. provider test double은 지침·입력 전달과 출력 처리를 확인하며 실제 모델 문체 품질을 증명하지 않는다.
 
+### 포트폴리오 목록
+
+`portfolio-evidence-experience / Step 0`의 `app/portfolio/page.tsx`는 기존 `lib/projects.ts`의 공개 프로젝트 9개를 Server Component에서 렌더링한다. 대표 목록의 첫 사례를 크게 배치하고 보조 2개, 경력 5개, 개인 프로젝트 1개를 기존 분류와 순서대로 표시한다. `createPortfolioCardModel`은 제목·첫 역할·첫 성과만 선택하며 원본 프로젝트와 상세 데이터는 수정하지 않는다. 별도 조회 계층이나 의존성은 추가하지 않았다.
+
 ### 홈의 최근 공개 글
 
 `blog-discovery-and-home / Step 2`의 `components/blog/HomeRecentPosts.tsx`는 기존 `loadPublicBlogContentStore`와 `getPublicBlogIndex({ pageSize: 3 })`, 날짜/글 유형 formatter를 재사용하는 async Server Component다. 요청마다 published-current/privacy 경계를 통과한 글을 읽고 최대 3개의 현재 제목·요약·발행일과 상세 링크를 렌더링한다. 새 SQL이나 별도 요약 cache는 없다.

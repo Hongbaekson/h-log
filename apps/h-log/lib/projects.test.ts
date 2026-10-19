@@ -118,28 +118,19 @@ describe("portfolio project content", () => {
     );
   });
 
-  it("builds public-safe portfolio card facts in one consistent order", () => {
-    const project = getProjectBySlug("ai-backend-workflow-standardization");
+  it("keeps list facts to the existing title, role and one approved result", () => {
+    for (const project of projects) {
+      const before = JSON.stringify(project);
+      const card = createPortfolioCardModel(project);
 
-    assert.ok(project);
-
-    const card = createPortfolioCardModel(project);
-
-    assert.equal(card.title, "AI 기반 백엔드 개발 워크플로우 표준화");
-    assert.equal(card.periodLabel, "2025.03 ~");
-    assert.equal(card.role, "AI 개발 워크플로우 설계와 팀 적용 기준 정리");
-    assert.equal(card.decision, "OpenAPI Spec-First 반복 구현을 Claude Code·Codex 워크플로우로 표준화");
-    assert.equal(
-      card.result,
-      "OpenAPI Spec-First와 AI 도구 활용 기준을 문서화해 단순 기능 평균 구현 시간을 1일에서 2시간으로 줄이고 컨벤션 리뷰 지적을 약 80% 낮췄습니다.",
-    );
-    assert.deepEqual(card.stack, [
-      "Java",
-      "Spring Boot",
-      "OpenAPI",
-      "Claude Code",
-    ]);
-    assert.ok(!("metrics" in card));
+      assert.equal(card.result, project.impact[0]);
+      assert.deepEqual(card, {
+        title: project.context,
+        role: project.detail.role[0],
+        result: project.impact[0],
+      });
+      assert.equal(JSON.stringify(project), before, "List projection must preserve the full project");
+    }
   });
 
   it("renders featured, career, and side projects from the same collection", () => {

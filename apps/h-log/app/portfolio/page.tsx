@@ -1,15 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  Activity,
-  ArrowRight,
-  FolderKanban,
-  Terminal,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
-import { Badge, Container } from "@/components/ui";
+import { Container } from "@/components/ui";
 import { createPortfolioCardModel } from "@/lib/portfolio-card";
-import { projects, projectToneClasses } from "@/lib/projects";
+import { projects } from "@/lib/projects";
 
 export const metadata: Metadata = {
   alternates: {
@@ -23,7 +18,6 @@ export const metadata: Metadata = {
 const featuredProjects = projects.filter((project) => project.section === "featured");
 const careerProjects = projects.filter((project) => project.section === "career");
 const sideProjects = projects.filter((project) => project.section === "side");
-const activeProjectCount = featuredProjects.length;
 
 function ProjectCard({
   featured = false,
@@ -34,78 +28,54 @@ function ProjectCard({
 }) {
   const card = createPortfolioCardModel(project);
   const Icon = project.icon;
+  const isCareer = project.section === "career";
 
   return (
     <Link
       aria-label={`${card.title} 프로젝트 상세 보기`}
-      className={`group flex h-full min-w-0 flex-col rounded-lg border border-slate-700/80 bg-slate-950/72 shadow-[0_22px_56px_rgb(2_6_23/0.18)] transition-colors duration-200 hover:border-cyan-300/55 hover:bg-slate-900/78 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 ${
-        featured ? "p-6 md:p-7" : "p-5 md:p-6"
+      className={`group h-full min-w-0 transition-colors hover:border-[#a3aaff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff] ${
+        isCareer
+          ? "grid gap-4 border-b border-[var(--border)] py-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] md:gap-10"
+          : `flex flex-col rounded-3xl border p-6 ${featured ? "border-[#5865f2]/60 bg-[var(--surface-elevated)] md:p-9" : "border-[var(--border)] bg-[var(--surface)]"}`
       }`}
       href={`/portfolio/${project.slug}`}
     >
-      <div className="flex items-start justify-between gap-4">
-        <Badge tone={card.isCurrent ? "cyan" : "slate"}>{card.statusLabel}</Badge>
-        <span
-          className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg border ${projectToneClasses[project.tone]}`}
-          aria-hidden="true"
-        >
-          <Icon size={18} strokeWidth={2} />
-        </span>
+      <div className="min-w-0">
+        {featured && (
+          <p className="mb-6 text-sm font-semibold text-[#b6bdff]">대표 사례</p>
+        )}
+        <div className="flex items-start gap-3">
+          {!isCareer && (
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#5865f2]/15 text-[#b6bdff]">
+              <Icon aria-hidden="true" size={20} strokeWidth={1.7} />
+            </span>
+          )}
+          <h3 className={`card-heading min-w-0 leading-snug break-keep text-white wrap-anywhere ${featured ? "text-2xl md:text-4xl" : "text-xl"}`}>
+            {card.title}
+          </h3>
+          {isCareer && <ArrowRight aria-hidden="true" className="mt-1 ml-auto shrink-0 text-[#b6bdff]" size={17} />}
+        </div>
       </div>
 
-      <h2
-        className={`card-heading mt-5 break-words tracking-tight text-white ${
-          featured ? "text-2xl md:text-3xl" : "text-xl md:text-2xl"
-        }`}
-      >
-        {card.title}
-      </h2>
-
-      <dl className="mt-6 grid gap-5 border-t border-slate-800 pt-5">
-        <div className="grid min-w-0 gap-1 sm:grid-cols-[6rem_minmax(0,1fr)] sm:gap-4">
-          <dt className="font-mono text-[0.68rem] font-bold uppercase tracking-[0.14em] text-slate-500">
-            기간
-          </dt>
-          <dd className="break-words text-sm font-semibold leading-6 text-slate-300">
-            {card.periodLabel}
-          </dd>
+      <dl className={`grid gap-4 ${isCareer ? "" : "mt-6"}`}>
+        <div className="min-w-0">
+          <dt className="text-xs text-[var(--text-muted)]">역할</dt>
+          <dd className="mt-1 text-sm leading-6 break-keep text-[var(--text-secondary)] wrap-anywhere">{card.role}</dd>
         </div>
-        <div className="grid min-w-0 gap-1 sm:grid-cols-[6rem_minmax(0,1fr)] sm:gap-4">
-          <dt className="font-mono text-[0.68rem] font-bold uppercase tracking-[0.14em] text-slate-500">
-            역할
-          </dt>
-          <dd className="break-words text-sm leading-6 text-slate-300">{card.role}</dd>
-        </div>
-        <div className="grid min-w-0 gap-1 sm:grid-cols-[6rem_minmax(0,1fr)] sm:gap-4">
-          <dt className="font-mono text-[0.68rem] font-bold uppercase tracking-[0.14em] text-slate-500">
-            핵심 판단
-          </dt>
-          <dd className="break-words text-sm leading-6 text-slate-300">
-            {card.decision}
-          </dd>
-        </div>
-        <div className="grid min-w-0 gap-1 sm:grid-cols-[6rem_minmax(0,1fr)] sm:gap-4">
-          <dt className="font-mono text-[0.68rem] font-bold uppercase tracking-[0.14em] text-slate-500">
-            검증된 결과
-          </dt>
-          <dd className="break-words text-sm leading-6 text-slate-300">
+        <div className="min-w-0">
+          <dt className="text-xs text-[var(--text-muted)]">핵심 결과</dt>
+          <dd className={`mt-1 break-keep wrap-anywhere ${featured ? "text-2xl leading-relaxed font-semibold text-[#dce0ff] md:text-3xl" : "text-sm leading-6 text-[var(--text-secondary)]"}`}>
             {card.result}
           </dd>
         </div>
       </dl>
 
-      <div className="mt-6 flex flex-wrap gap-2">
-        {card.stack.map((item) => (
-          <Badge key={item} tone="slate">
-            {item}
-          </Badge>
-        ))}
-      </div>
-
-      <div className="mt-auto flex items-center gap-2 pt-7 text-sm font-semibold text-cyan-100 transition-colors group-hover:text-white">
-        상세 보기
-        <ArrowRight aria-hidden="true" size={17} strokeWidth={2} />
-      </div>
+      {!isCareer && (
+        <span className="mt-auto flex items-center gap-2 pt-6 text-sm font-semibold text-[#b6bdff] group-hover:text-white">
+          상세 보기
+          <ArrowRight aria-hidden="true" size={17} />
+        </span>
+      )}
     </Link>
   );
 }
@@ -113,100 +83,39 @@ function ProjectCard({
 export default function PortfolioPage() {
   return (
     <>
-      <section className="pt-12 pb-10 md:pt-16 md:pb-12">
+      <section className="pt-10 pb-10 md:pt-16 md:pb-12">
         <Container>
-          <div className="mx-auto max-w-4xl text-center">
-            <Badge className="hero-reveal hero-reveal-1" tone="cyan">
-              <Terminal aria-hidden="true" size={14} strokeWidth={2} />
-              <span className="font-mono uppercase tracking-[0.18em]">portfolio.online</span>
-              <span className="hero-signal-cursor" aria-hidden="true" />
-            </Badge>
-
-            <h1 className="hero-heading hero-reveal hero-reveal-2 mt-7 text-4xl leading-[1.08] tracking-normal text-white md:text-6xl">
-              Building
-              <br />
-              <span className="hero-name-gradient">Reliable Systems</span>
-            </h1>
-
-            <div
-              className="hero-reveal hero-reveal-3 mx-auto mt-7 max-w-2xl overflow-hidden rounded-lg border border-slate-700/80 bg-slate-950/78 text-left shadow-[0_24px_70px_rgb(8_47_73/0.22)]"
-              aria-label="포트폴리오 상태 요약"
-            >
-              <div className="h-px bg-gradient-to-r from-transparent via-cyan-300/80 to-transparent" />
-              <div className="grid bg-slate-800/70 sm:grid-cols-2 sm:gap-px">
-                <div className="flex min-h-16 items-center gap-3 bg-slate-950/88 px-4 py-3">
-                  <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-emerald-300/25 bg-emerald-300/10 text-emerald-100">
-                    <span
-                      className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_14px_rgb(110_231_183/0.9)]"
-                      aria-hidden="true"
-                    />
-                    <Activity aria-hidden="true" size={17} strokeWidth={2.2} />
-                  </span>
-                  <div>
-                    <div className="font-mono text-[0.64rem] font-bold uppercase tracking-[0.16em] text-emerald-200/85">
-                      now
-                    </div>
-                    <div className="mt-0.5 text-sm font-semibold text-white">
-                      {activeProjectCount}건 진행 중
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex min-h-16 items-center gap-3 border-t border-slate-800/90 bg-slate-950/88 px-4 py-3 sm:border-t-0">
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-cyan-300/25 bg-cyan-300/10 text-cyan-100">
-                    <FolderKanban aria-hidden="true" size={17} strokeWidth={2.2} />
-                  </span>
-                  <div>
-                    <div className="font-mono text-[0.64rem] font-bold uppercase tracking-[0.16em] text-slate-500">
-                      projects
-                    </div>
-                    <div className="mt-0.5 text-sm font-semibold text-white">
-                      {projects.length}개 프로젝트
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <p className="text-sm text-[#b6bdff]">공개 프로젝트 {projects.length}개</p>
+          <h1 className="hero-heading mt-3 text-4xl leading-tight text-white md:text-5xl">
+            포트폴리오
+          </h1>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--text-secondary)]">
+            백엔드 개발과 운영에서 맡은 역할과 결과를 정리했습니다.
+          </p>
         </Container>
       </section>
 
-      <section aria-labelledby="featured-projects" className="pb-12">
+      <section aria-labelledby="featured-projects" className="pb-14 md:pb-20">
         <Container>
-          <div className="max-w-2xl">
-            <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-cyan-200">
-              Featured
-            </p>
-            <h2 id="featured-projects" className="mt-2 text-2xl font-extrabold text-white md:text-3xl">
-              대표 프로젝트
-            </h2>
-            <p className="mt-3 text-sm leading-6 text-slate-400">
-              현재의 문제 해결 방식과 시스템 설계 역량을 가장 잘 보여주는 작업입니다.
-            </p>
-          </div>
-
-          <ol className="mt-6 grid gap-5 lg:grid-cols-3">
-            {featuredProjects.map((project) => (
-              <li className="min-w-0" key={project.slug}>
-                <ProjectCard featured project={project} />
+          <h2 id="featured-projects" className="text-2xl font-bold text-white">
+            대표 프로젝트
+          </h2>
+          <ol className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+            {featuredProjects.map((project, index) => (
+              <li className={`min-w-0 ${index === 0 ? "lg:row-span-2" : ""}`} key={project.slug}>
+                <ProjectCard featured={index === 0} project={project} />
               </li>
             ))}
           </ol>
         </Container>
       </section>
 
-      <section aria-labelledby="career-projects" className="pb-12">
+      <section aria-labelledby="career-projects" className="pb-14 md:pb-20">
         <Container>
-          <div className="max-w-2xl">
-            <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-blue-200">
-              Career Archive
-            </p>
-            <h2 id="career-projects" className="mt-2 text-2xl font-extrabold text-white md:text-3xl">
-              경력 프로젝트
-            </h2>
-          </div>
-
-          <ol className="mt-6 grid gap-4 lg:grid-cols-2">
+          <h2 id="career-projects" className="text-2xl font-bold text-white">
+            경력 프로젝트
+          </h2>
+          <ol className="mt-6 border-t border-[var(--border)]">
             {careerProjects.map((project) => (
               <li className="min-w-0" key={project.slug}>
                 <ProjectCard project={project} />
@@ -218,19 +127,13 @@ export default function PortfolioPage() {
 
       <section aria-labelledby="side-projects" className="pb-24">
         <Container>
-          <div className="max-w-2xl">
-            <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-violet-200">
-              Side Project
-            </p>
-            <h2 id="side-projects" className="mt-2 text-2xl font-extrabold text-white md:text-3xl">
-              개인 프로젝트
-            </h2>
-            <p className="mt-3 text-sm leading-6 text-slate-400">
-              실무 경력과 구분해 직접 설계하고 운영하는 자동화 프로젝트입니다.
-            </p>
-          </div>
-
-          <ol className="mt-6 grid gap-4 lg:grid-cols-2">
+          <h2 id="side-projects" className="text-2xl font-bold text-white">
+            개인 프로젝트
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">
+            실무 경력과 구분해 직접 설계하고 운영하는 자동화 프로젝트입니다.
+          </p>
+          <ol className="mt-6 grid gap-5">
             {sideProjects.map((project) => (
               <li className="min-w-0" key={project.slug}>
                 <ProjectCard project={project} />

@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "featured-hierarchy-and-discord",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-19: Lead case + two supporting cases, compact career rows and Korean headings use existing Discord tokens. List projection contains title, role and first existing impact; all nine projects, detail URLs and source facts are preserved. Focused RED/GREEN 14/14, 1440/390/320 browser checks including keyboard/long text and unchanged Home hero/radar, unit 213 pass/13 DB skip, lint/typecheck/build passed. Next: Step 1 decision-and-evidence-detail."
     },
     {
       "step": 1,

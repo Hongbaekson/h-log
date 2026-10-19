@@ -30,13 +30,6 @@ export type Project = {
   year: string;
 };
 
-export const projectToneClasses: Record<ProjectTone, string> = {
-  blue: "border-blue-300/25 bg-blue-400/10 text-blue-100",
-  cyan: "border-cyan-300/25 bg-cyan-300/10 text-cyan-100",
-  mint: "border-emerald-300/25 bg-emerald-300/10 text-emerald-100",
-  violet: "border-violet-300/25 bg-violet-400/10 text-violet-100",
-};
-
 export const projects = [
   {
     approach: [
