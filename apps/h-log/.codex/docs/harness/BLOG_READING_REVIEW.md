@@ -56,4 +56,4 @@ DB 조회 실패 뒤 데이터가 복구돼도 `app/blog/error.tsx`의 `reset()`
 - 실제 이미지 적용, 수정 이력과 시리즈, [선택과 재검증 사례](../../../phases/editorial-trust-and-series/step2.md)는 별도다. H-Log 초안을 사례 후보로 재사용할 수 있지만 해당 phase는 pending이다.
 - OCI·실제 provider·운영 DB·공개 발행·timer를 실행하지 않았다. Home/레이더와 Second Brain의 구현은 유지했다.
 
-검수 당시 다음 작업이던 RSS·사례 연결과 포트폴리오 목록·상세·글 연결은 2026-10-20까지 완료했다. 현재 다음은 [`editorial-trust-and-series / Step 0: visible-verification-and-revisions`](../../../phases/editorial-trust-and-series/step0.md)다. 이번 연결 검수도 격리 로컬 DB만 사용했으며 초안의 실제 발행은 하지 않았다.
+검수 당시 다음 작업이던 RSS·사례 연결과 포트폴리오 목록·상세·글 연결은 2026-10-20까지 완료했다. 공개 검증·수정 기록 표시도 완료한 현재 다음은 [`editorial-trust-and-series / Step 1: ordered-series`](../../../phases/editorial-trust-and-series/step1.md)다. 이번 연결 검수도 격리 로컬 DB만 사용했으며 초안의 실제 발행은 하지 않았다.

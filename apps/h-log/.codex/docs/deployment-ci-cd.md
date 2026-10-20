@@ -309,3 +309,7 @@ systemctl --user list-timers hlog-auto-publish.timer
 - 운영 DB 백업/복구는 `.codex/docs/backup-restore-runbook.md` 기준으로 진행하고, restore rehearsal 없이 백업 성공만으로 완료 처리하지 않는다.
 - 배포 smoke와 rollback은 `.codex/docs/deploy-smoke-rollback-runbook.md` 기준으로 public route, `/blog`, `/blog/:slug`, `/blog/:slug.md`, phase-gated sitemap/feed/llms, Nginx status, container health를 확인한다.
 - rollback은 이전 image tag와 migration rollback 가능 여부를 함께 확인한 뒤 실행한다.
+
+## 공개 편집 기록 migration — 2026-10-20
+
+`editorial-trust-and-series / Step 0`은 `005_blog_public_editorial`을 추가했다. nullable JSONB 컬럼이며 기존 본문·HTML·hash나 운영 데이터를 backfill하지 않는다. 향후 명시적으로 승인된 배포에서 기존 migration runner로 005를 적용한 다음 새 web/worker 쓰기를 시작한다. 이전 앱은 추가 컬럼을 사용하지 않으므로 앱 rollback 시 컬럼을 즉시 삭제할 필요가 없다. 이번 작업은 격리 로컬 DB의 migration/repository/worker 전체 통합 검증만 수행했으며 운영 migration·배포·timer 활성화는 기존 OCI 보류 상태다.

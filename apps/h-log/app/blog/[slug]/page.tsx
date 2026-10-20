@@ -73,6 +73,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   }
 
   const navigation = getPublicBlogPostNavigation(slug, store)!;
+  const publicationDate = store.posts.find((record) => record.slug === slug)!.publishedAt;
   const projectConnections = getPublicProjectPostConnections(store).filter((connection) => connection.postSlug === post.slug);
   const origin = resolvePublicSiteOrigin("http://localhost:3000");
   const postUrl = new URL(post.href, `${origin}/`).toString();
@@ -84,8 +85,8 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
       name: siteConfig.name,
       url: origin,
     },
-    dateModified: post.updatedAt,
-    datePublished: post.publishedAt,
+    dateModified: post.editorial?.revisions[0]?.revisedOn,
+    datePublished: publicationDate ?? undefined,
     description: post.description,
     headline: post.title,
     inLanguage: "ko-KR",
@@ -122,7 +123,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
               {post.description}
             </p>
             <p className="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-cyan-200">
-              <time dateTime={post.publishedAt}>{formatPublicBlogDate(post.publishedAt)}</time> ·{" "}
+              {publicationDate ? <>발행 <time dateTime={publicationDate}>{formatPublicBlogDate(publicationDate)}</time></> : "발행일 미기록"} ·{" "}
               {formatPublicBlogArticleMode(post.articleMode)}
             </p>
           </div>
@@ -148,6 +149,8 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
               >
                 {post.contentBlocks.map(renderContentBlock)}
               </article>
+
+              {post.editorial && <EditorialNotes note={post.editorial} />}
 
               <section aria-label="참고 출처" className="mt-10 border-b border-slate-700/80 pb-6">
                 <h2 className="text-sm font-semibold text-white">참고 출처</h2>
@@ -433,6 +436,57 @@ function renderInlineContent(children: readonly PublicBlogInlineContent[]): Reac
 
     return <span key={index}>{child.text}</span>;
   });
+}
+
+function EditorialNotes({ note }: { note: NonNullable<PublicBlogPost["editorial"]> }) {
+  const labels = {
+    source_review: { method: "문서 검토", date: "자료 확인일" },
+    local_test: { method: "로컬 재현", date: "재현 확인일" },
+    production_observation: { method: "운영 관찰", date: "관찰일" },
+  };
+  const verification = note.verification;
+
+  return (
+    <section aria-label="검증 범위와 수정 기록" className="mt-10 min-w-0 border-b border-slate-700/80 pb-8 wrap-anywhere">
+      <h2 className="text-lg font-semibold text-white">검증 범위와 수정 기록</h2>
+      <p className="mt-2 text-sm leading-7 text-slate-400">이 글에 작성자가 남긴 공개 기록입니다.</p>
+      {verification && (
+        <dl className="mt-5 grid gap-4 text-sm leading-7">
+          <div>
+            <dt className="font-semibold text-slate-100">확인 방법</dt>
+            <dd className="mt-1 text-slate-300">{labels[verification.method].method}</dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-slate-100">{labels[verification.method].date}</dt>
+            <dd className="mt-1 text-slate-300"><time dateTime={verification.checkedOn}>{verification.checkedOn}</time></dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-slate-100">확인한 범위</dt>
+            <dd className="mt-1 text-slate-300">{verification.scope}</dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-slate-100">확인하지 못한 부분</dt>
+            <dd className="mt-1 text-slate-300">{verification.limitations}</dd>
+          </div>
+        </dl>
+      )}
+      {note.revisions.length > 0 && (
+        <details className="mt-6 border-t border-slate-700/80 pt-4">
+          <summary className="cursor-pointer rounded-md py-2 font-semibold text-[#b6bdff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff]">
+            공개 수정 기록 ({note.revisions.length})
+          </summary>
+          <ol className="mt-3 divide-y divide-slate-700/80">
+            {note.revisions.map((revision, index) => (
+              <li className="py-4 text-sm leading-7" key={index}>
+                <time className="text-slate-400" dateTime={revision.revisedOn}>{revision.revisedOn}</time>
+                <p className="mt-1 text-slate-300">{revision.summary}</p>
+              </li>
+            ))}
+          </ol>
+        </details>
+      )}
+    </section>
+  );
 }
 
 function formatSourceRole(value: PublicBlogSourceLink["role"]): string {

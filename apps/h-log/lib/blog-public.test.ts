@@ -25,9 +25,68 @@ import {
 import { searchPublishedBlogPosts } from "./blog-search.ts";
 import { getPublicProjectPostConnections, projectPostConnections } from "./portfolio-posts.ts";
 import { getProjectBySlug } from "./projects.ts";
+import { parseBlogEditorialNote, type BlogEditorialNote } from "./blog-editorial.ts";
 
 const baseTimestamp = "2026-06-25T00:00:00.000Z";
 const diagramAssetHash = "a".repeat(64);
+
+describe("public editorial notes", () => {
+  const note: BlogEditorialNote = {
+    verification: {
+      method: "source_review",
+      checkedOn: "2026-10-15",
+      scope: "공식 문서에서 메시지 전달 조건을 확인했습니다.",
+      limitations: "실제 장애 재현이나 운영 성능 측정은 하지 않았습니다.",
+    },
+    revisions: [
+      { revisedOn: "2026-10-16", summary: "전달 조건 설명을 바로잡았습니다." },
+      { revisedOn: "2026-10-17", summary: "오해할 수 있는 표현을 정리했습니다." },
+    ],
+  };
+
+  it("returns only the current version's curated public snapshot without changing stored content", () => {
+    const version = createVersion({ publicEditorial: note });
+    const store: BlogContentStore = {
+      posts: [createPost({ updatedAt: "2026-10-20T00:00:00Z" })],
+      versions: [version, createVersion({ id: "private-old-version", publicEditorial: { verification: null, revisions: [{ revisedOn: "2026-10-01", summary: "PRIVATE_REVISION_SENTINEL" }] } })],
+      sources: [createSource({ fetchedAt: "2026-10-19T00:00:00Z" })],
+      tags: [],
+    };
+    const before = JSON.stringify(store);
+    const detail = getPublicBlogPostBySlug("public-one", store)!;
+    assert.deepEqual(detail.editorial, { ...note, revisions: [...note.revisions].reverse() });
+    assert.doesNotMatch(JSON.stringify(detail), /PRIVATE_REVISION_SENTINEL/);
+    assert.equal(detail.markdown, version.contentMarkdown);
+    assert.equal(JSON.stringify(store), before);
+  });
+
+  it("does not infer verification or revisions from modes, counters, collection or update dates", () => {
+    const detail = getPublicBlogPostBySlug("public-one", {
+      posts: [createPost({ articleMode: "experiment", updatedAt: "2026-10-20T00:00:00Z" })],
+      versions: [createVersion({ versionNo: 5 })],
+      sources: [createSource()], tags: [],
+    })!;
+    assert.equal(detail.editorial, undefined);
+    assert.equal(parseBlogEditorialNote({ verification: null, revisions: [] }), undefined);
+  });
+
+  it("validates plain public notes and rejects malformed dates, incomplete evidence and private paths", () => {
+    assert.ok(parseBlogEditorialNote(note));
+    for (const method of ["source_review", "local_test", "production_observation"]) {
+      assert.ok(parseBlogEditorialNote({ ...note, verification: { ...note.verification, method } }));
+    }
+    for (const value of [
+      { ...note, evidencePath: "private/record.md" },
+      { ...note, verification: { ...note.verification, checkedOn: "2026-02-30" } },
+      { ...note, verification: { ...note.verification, method: "verified" } },
+      { ...note, verification: { ...note.verification, method: ["source_review"] } },
+      { ...note, verification: { ...note.verification, limitations: "" } },
+      { ...note, revisions: [{ revisedOn: "yesterday", summary: "수정" }] },
+      ...["D:\\private\\evidence.md", "/srv/private/evidence.log", "(/srv/private/evidence.log)", "private/evidence.json", "private.person@example.com", "http://service.internal/check"].map((scope) => ({ ...note, verification: { ...note.verification, scope } })),
+    ]) assert.equal(parseBlogEditorialNote(value), undefined);
+    assert.equal(parseBlogEditorialNote(note, { restrictedTerms: [{ category: "organization_name", value: "공식 문서" }] }), undefined);
+  });
+});
 
 describe("public project and post connections", () => {
   const postSlug = "home-recent-posts";

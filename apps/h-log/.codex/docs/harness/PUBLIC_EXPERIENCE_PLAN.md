@@ -51,10 +51,10 @@
 
 ## 이번 실행 단위
 
-[Phase 4 / Step 2](../../../phases/portfolio-evidence-experience/step2.md) 완료 (2026-10-20): 프로젝트↔글의 명시적 연결, 공유 공개 판정과 H-Log 자체 사례를 추가했다. Phase 4 전체가 completed이며 다음은 [Phase 5 / Step 0](../../../phases/editorial-trust-and-series/step0.md)다.
+[Phase 5 / Step 0](../../../phases/editorial-trust-and-series/step0.md) 완료 (2026-10-20): 현재 공개 버전의 명시적인 검증 범위와 수정 기록을 저장·표시한다. 해당 phase의 Steps 1–2는 pending이며 다음은 [Phase 5 / Step 1](../../../phases/editorial-trust-and-series/step1.md)이다.
 
-- 변경 파일: 두 상세 page, `components/portfolio/ProjectPostLinks.tsx`, `ProjectRelatedPosts.tsx`, `lib/portfolio-posts.ts`, `lib/projects.ts`와 관련 테스트.
-- Focused RED 4개→GREEN 55/55와 브라우저 RED/GREEN, unit 219 pass/13 DB skip, public-read integration 1/1, lint/typecheck/build를 확인했다. 1440/390/320px 왕복 이동·초점·긴 문자열·현재 제목·철회/누락/privacy 제외·DB 지연/실패·재시도와 기존 9개 사례·Home/레이더·저장 원문/hash 보존을 검증했다. 실제 글 발행은 하지 않았다.
+- 변경 파일: 글 상세, public/content model, editorial parser, 기존 repository와 관련 테스트, migration 005 및 migration test.
+- Focused 61/61, unit 222 pass/14 DB skip, 전체 격리 DB integration 15/15, lint/typecheck/build와 1440/390/320px 검수를 통과했다. 비공개 과거 버전·날짜 추정·근거 없는 배지를 제외하고 저장 원문/hash·Home/레이더를 보존했다. 실제 발행·운영 migration은 하지 않았다.
 - 문서: 이 계획, 새 phase/step registry, PRD/ADR/ARCHITECTURE/IMPLEMENTATION_PLAN 중 관련 설명만 동기화한다.
 - 성공 기준: focused RED/GREEN, 기존 unit 회귀, lint/typecheck/build, 격리 local DB를 사용한 개발 서버 desktop/mobile 렌더링, JSON/path parser, `git diff --check`.
 - 커밋/푸시는 검증한 변경만 포함하고 일반 push를 사용한다.
@@ -71,7 +71,7 @@
 
 ### 별도 후속 작업
 
-- 2026-10-15 등록한 [기술 글 문체와 읽기 화면 개선](BLOG_EDITORIAL_READING_PLAN.md)의 T1~T3 / 7개 step은 2026-10-16 로컬 구현·검수를 완료했다. 이후 Phase 3 Step 3의 RSS·사례 연결과 Phase 4 Steps 0–2의 포트폴리오 목록·상세·글 연결 개선도 완료해 다음은 Phase 5 Step 0다. 기존 Phase 1~6의 번호·완료 이력은 유지한다. Phase 5 Step 2는 H-Log 최근 글 조회 경계 초안을 사례 후보로 재사용하며 해당 사례 단계는 pending이다.
+- 2026-10-15 등록한 [기술 글 문체와 읽기 화면 개선](BLOG_EDITORIAL_READING_PLAN.md)의 T1~T3 / 7개 step은 2026-10-16 로컬 구현·검수를 완료했다. 이후 Phase 3 Step 3의 RSS·사례 연결과 Phase 4 Steps 0–2와 Phase 5 Step 0의 공개 검증·수정 기록까지 완료해 다음은 Phase 5 Step 1이다. 기존 Phase 1~6의 번호·완료 이력은 유지한다. Phase 5 Step 2는 H-Log 최근 글 조회 경계 초안을 사례 후보로 재사용하며 해당 사례 단계는 pending이다.
 
 - 2026-10-06 [운영 모니터링](OBSERVABILITY_PLAN.md)을 독립 phase/8개 step으로 등록했다. 기존 공개 경험 6개 phase/19개 step의 번호·실행 순서는 유지한다. 모니터링을 지정하면 해당 Step 0부터 로컬 진행할 수 있고 운영 적용은 OCI 보류를 따른다. 자동 발행 timer 재개 전 운영 모니터링 검증이 필요하다.
 
@@ -103,4 +103,4 @@
 
 2026-10-15 Phase 3 / Step 2 완료: 홈의 기존 section 뒤에 최신 published-current 글 최대 3개의 제목·요약·발행일·글 유형과 이동 링크를 추가했다. 영역 누락 RED→GREEN, 기존 selector characterization 포함 focused 35/35, unit 209 pass/13 DB skip, public-read integration 1/1, lint/typecheck/build를 통과했다. 격리 DB 개발 서버 1440/390/320px에서 긴 제목·키보드·링크·철회 반영·0건 생략·비공개404와 변경 전후 소개/레이더 geometry·SVG 일치를 확인했다. DB lock 지연 중 홈 선전송, 별도 local production 서버의 연결 실패 안내·재시도·홈 HTTP 200도 검증했다.
 
-Phase 1~4의 총 14개 step을 완료했다. 다음 단계는 [Phase 5 / Step 0: 검증 범위와 수정 이력](../../../phases/editorial-trust-and-series/step0.md)이다. Phase 5~6의 나머지 5개 step은 pending이며 실제 발행과 운영 활성화는 별도다.
+Phase 1~4와 Phase 5 Step 0, 총 15개 step을 완료했다. 다음은 [Phase 5 / Step 1: 순서가 있는 시리즈](../../../phases/editorial-trust-and-series/step1.md)다. 나머지 4개 step과 실제 발행·운영 활성화는 아직 남아 있다.

@@ -9,7 +9,9 @@ describe("blog detail UI", () => {
       "utf8",
     );
 
-    assert.match(source, /<time dateTime=\{post\.publishedAt\}>/);
+    assert.match(source, /<time dateTime=\{publicationDate\}>/);
+    assert.match(source, /발행일 미기록/);
+    assert.doesNotMatch(source, /dateModified:\s*post\.updatedAt/);
   });
 
   it("keeps the article readable and long code keyboard-scrollable", async () => {

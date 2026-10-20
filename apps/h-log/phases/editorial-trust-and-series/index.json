@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "visible-verification-and-revisions",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-20 Step 0 completed: migration 005 stores an optional curated public editorial snapshot on the current version. Explicit document review/local reproduction/production observation dates, scope, limitations and revision summaries are shown without inferring evidence from update/collection/version dates. Past private versions remain unread. Missing publication dates and unspecified revision dates are omitted from structured data. Unit 222 pass/14 DB skip, full isolated integration 15/15, focused 61/61, lint/typecheck/build and 1440/390/320 keyboard/long-text/empty/invalid/private/DB-failure checks passed. Home/radar and stored content/hash preserved. No public publication or production migration. Next: Step 1 ordered-series."
     },
     {
       "step": 1,

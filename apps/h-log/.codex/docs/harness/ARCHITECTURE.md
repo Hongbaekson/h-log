@@ -36,6 +36,16 @@ npm run build
 
 ## Runtime 구성
 
+### 공개 검증 범위와 수정 기록
+
+`005_blog_public_editorial.sql`은 현재 버전에 선택적인 `public_editorial` JSONB를 저장한다. `BlogPostAggregate.version.publicEditorial`은 작성자가 선별한 공개 스냅샷이며, 기존 `savePost`가 트랜잭션 전에 `parseBlogEditorialNote`로 검증한다. 수정 기록 최대 20개, 텍스트 항목 최대 2,000자, 실제 달력 날짜와 세 가지 확인 방법을 허용한다. 모르는 필드·불완전한 범위/한계·privacy 위반·내부 경로는 거부한다.
+
+공개 repository의 두 조회 경로는 현재 published 버전만 읽는 기존 SQL을 유지한다. DB에서 읽은 note에도 환경별 privacy 정책을 적용하며 부적합한 note는 생략하고 원래 글은 유지한다. `lib/blog-public.ts`가 안전한 note만 public model에 넣고 상세 page는 본문 다음에 확인 범위와 native details 수정 기록을 렌더링한다. 과거 버전, 내부 검증 로그와 evidence path를 읽거나 공개하지 않는다.
+
+작성 시 검증 기록이 없으면 필드 자체를 생략한다. 기록이 있으면 `verification`에 `{ method: "source_review" | "local_test" | "production_observation", checkedOn: "YYYY-MM-DD", scope, limitations }` 또는 null, `revisions`에 `{ revisedOn: "YYYY-MM-DD", summary }` 목록을 명시한다. 새 버전의 기록을 과거 비공개 버전에서 자동 생성하지 않는다. 원문/HTML/content hash 계약과 writer·worker는 유지한다.
+
+상세의 발행 표시는 DB의 실제 `published_at`만 사용하며 없으면 날짜를 추정하지 않는다. JSON-LD의 수정일은 명시적 최신 공개 수정 기록만 사용한다. 수집일·버전 생성일·운영 updatedAt은 검증일이 아니다. 기존 목록/탐색 정렬 fallback은 이번 단계에서 변경하지 않았다. 운영 적용에는 migration 005가 선행돼야 하며 현재 검증은 격리 로컬 범위다(ADR-035).
+
 ### Blog 목록의 선택적 썸네일
 
 `blog-list-presentation / Step 1`은 기존 `post_assets`의 `type=image`와 `/blog-assets/thumbnails/<SHA-256>.png|webp` 경로를 목록용 명시적 지정으로 사용한다(ADR-033). `lib/blog-thumbnails.ts`는 기존 verified asset predicate를 공유하고 published-current/version/content hash, ready/verifiedAt/alt, 허용 경로와 파일명의 hash를 검사한다. 여러 후보는 생성일 내림차순·ID 순으로 1개를 고른다. 본문 첫 이미지와 원격 URL을 추론하지 않는다.

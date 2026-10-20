@@ -42,6 +42,7 @@ test(
         "002_publish_job_leases",
         "003_publish_rollback_audit",
         "004_brain_capture",
+        "005_blog_public_editorial",
       ]);
 
       const extension = await database.query(
@@ -72,7 +73,7 @@ test(
 
       const secondRun = await runBlogMigrations(testUrl.toString());
       assert.deepEqual(secondRun.appliedVersions, []);
-      assert.equal(secondRun.currentVersion, "004_brain_capture");
+      assert.equal(secondRun.currentVersion, "005_blog_public_editorial");
 
       const versions = await database.query(
         "select version from schema_migrations order by version",
@@ -82,6 +83,7 @@ test(
         { version: "002_publish_job_leases" },
         { version: "003_publish_rollback_audit" },
         { version: "004_brain_capture" },
+        { version: "005_blog_public_editorial" },
       ]);
     } finally {
       await database.end();

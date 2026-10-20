@@ -19,6 +19,7 @@ import {
   type AdminPostVisibilityInput,
 } from "./blog-admin.ts";
 import type { BlogContentStore } from "./blog-public.ts";
+import { parseBlogEditorialNote } from "./blog-editorial.ts";
 import {
   scanBlogPrivacyText,
   type BlogPrivacyScanPolicy,
@@ -69,7 +70,7 @@ export function createPostgresBlogRepository(
         ),
       ]);
       const posts = postResult.rows.map(mapPost);
-      const versions = versionResult.rows.map(mapPostVersion);
+      const versions = versionResult.rows.map((row) => mapPostVersion(row, options.privacyScanPolicy));
       return findPrivacySafePublicBlogContent(
         pool,
         posts,
@@ -101,7 +102,7 @@ export function createPostgresBlogRepository(
       return findPrivacySafePublicBlogContent(
         pool,
         posts,
-        versionResult.rows.map(mapPostVersion),
+        versionResult.rows.map((row) => mapPostVersion(row, options.privacyScanPolicy)),
         options.privacyScanPolicy,
       );
     },
@@ -152,6 +153,10 @@ export function createPostgresBlogRepository(
 
     async savePost(aggregate) {
       assertAggregateReferences(aggregate);
+      if (aggregate.version.publicEditorial !== undefined &&
+          !parseBlogEditorialNote(aggregate.version.publicEditorial, options.privacyScanPolicy)) {
+        throw new Error("Invalid public editorial note");
+      }
       const client = await pool.connect();
 
       try {
@@ -333,8 +338,8 @@ async function insertPostVersion(
     `insert into post_versions (
        id, post_id, version_no, title, description, content_markdown,
        content_html, content_hash, persona_version_id, research_pack_id,
-       created_by, created_at
-     ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+       created_by, created_at, public_editorial
+     ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
     [
       version.id,
       version.postId,
@@ -348,6 +353,7 @@ async function insertPostVersion(
       version.researchPackId,
       version.createdBy,
       version.createdAt,
+      version.publicEditorial ?? null,
     ],
   );
 }
@@ -519,8 +525,9 @@ function mapPost(row: QueryResultRow): PostRecord {
   };
 }
 
-function mapPostVersion(row: QueryResultRow): PostVersionRecord {
+function mapPostVersion(row: QueryResultRow, privacyScanPolicy?: BlogPrivacyScanPolicy): PostVersionRecord {
   return {
+    publicEditorial: parseBlogEditorialNote(row.public_editorial, privacyScanPolicy),
     contentHash: row.content_hash,
     contentHtml: row.content_html,
     contentMarkdown: row.content_markdown,

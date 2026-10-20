@@ -21,6 +21,47 @@ const databaseUrl = process.env.DATABASE_URL;
 const timestamp = "2026-07-12T00:00:00.000Z";
 
 test(
+  "stores curated editorial notes per version and never returns private revision history",
+  { skip: databaseUrl ? false : "DATABASE_URL is required" },
+  async () => {
+    await withTestDatabase("hlog_repository_editorial_test", async (testUrl) => {
+      const pool = new Pool({ connectionString: testUrl });
+      const repository = createPostgresBlogRepository(pool, {
+        privacyScanPolicy: { restrictedTerms: [{ category: "organization_name", value: "Restricted Customer" }] },
+      });
+      try {
+        const draft = createAggregate("editorial", "ready_to_publish");
+        draft.version.publicEditorial = { verification: null, revisions: [{ revisedOn: "2026-07-10", summary: "PRIVATE_REVISION_SENTINEL" }] };
+        await repository.savePost(draft);
+        assert.equal((await repository.findPublicBlogContent()).posts.length, 0);
+
+        const current = createAggregate("editorial", "published", 2);
+        current.version.publicEditorial = {
+          verification: { method: "local_test", checkedOn: "2026-07-11", scope: "격리 DB에서 재시도 동작을 확인했습니다.", limitations: "운영 부하는 측정하지 않았습니다." },
+          revisions: [{ revisedOn: "2026-07-12", summary: "재시도 조건을 명확히 적었습니다." }],
+        };
+        await repository.savePost(current);
+        for (const store of [await repository.findPublicBlogContent(), await repository.findPublicBlogContentBySlug("editorial")]) {
+          assert.equal(store.versions.length, 1);
+          assert.deepEqual(store.versions[0].publicEditorial, current.version.publicEditorial);
+          assert.doesNotMatch(JSON.stringify(store), /PRIVATE_REVISION_SENTINEL/);
+          assert.equal(store.versions[0].contentHash, current.version.contentHash);
+        }
+        const rejected = createAggregate("editorial", "published", 3);
+        rejected.version.publicEditorial = { verification: null, revisions: [{ revisedOn: "2026-07-13", summary: "Restricted Customer" }] };
+        await assert.rejects(repository.savePost(rejected), /Invalid public editorial note/);
+        assert.equal((await repository.findPublicBlogContent()).versions[0].id, current.version.id);
+
+        await pool.query("update post_versions set public_editorial = $1 where id = $2", [{ evidencePath: "private/secret.md" }, current.version.id]);
+        assert.equal((await repository.findPublicBlogContent()).versions[0].publicEditorial, undefined);
+        await pool.query("update posts set status = 'retracted' where id = $1", [current.post.id]);
+        assert.deepEqual((await repository.findPublicBlogContentBySlug("editorial")).versions, []);
+      } finally { await pool.end(); }
+    });
+  },
+);
+
+test(
   "returns only published current versions with their public relations",
   { skip: databaseUrl ? false : "DATABASE_URL is required" },
   async () => {

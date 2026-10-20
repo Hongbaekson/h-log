@@ -16,6 +16,7 @@ import { isRenderableDiagramAsset } from "./blog-diagram-assets.ts";
 import { selectPublicBlogThumbnail, type PublicBlogThumbnail } from "./blog-thumbnails.ts";
 import { selectPublishedRelatedPostsBySimilarity } from "./blog-search.ts";
 import { tryNormalizePublicSourceUrl } from "./public-source-url.ts";
+import { parseBlogEditorialNote, type BlogEditorialNote } from "./blog-editorial.ts";
 
 export type BlogContentStore = {
   assets?: readonly PostAssetRecord[];
@@ -90,6 +91,7 @@ export type PublicBlogContentBlock =
     };
 
 export type PublicBlogPost = {
+  editorial?: BlogEditorialNote;
   thumbnail?: PublicBlogThumbnail;
   articleMode: PostRecord["articleMode"];
   contentBlocks: PublicBlogContentBlock[];
@@ -233,6 +235,7 @@ function toPublicBlogPost(
 
   return {
     articleMode: entry.post.articleMode,
+    editorial: parseBlogEditorialNote(entry.version.publicEditorial),
     contentBlocks,
     contentHtml: entry.version.contentHtml,
     description: entry.version.description,

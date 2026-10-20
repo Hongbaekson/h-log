@@ -231,6 +231,7 @@ export type PostRecord = {
 };
 
 export type PostVersionRecord = {
+  publicEditorial?: import("./blog-editorial.ts").BlogEditorialNote;
   contentHash: string;
   contentHtml: string;
   contentMarkdown: string;
