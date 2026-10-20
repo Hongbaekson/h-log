@@ -42,7 +42,7 @@
 | 4 | 1 | 문제·대안·결정·결과와 공개 가능한 근거 |
 | 4 | 2 | 프로젝트와 공개 글의 양방향 연결 |
 | 5. [editorial-trust-and-series](../../../phases/editorial-trust-and-series/index.json) | 0 | 수정 이유·날짜·검증 범위의 정확한 공개 |
-| 5 | 1 | 관련 공개 글 3편 이상일 때 순서가 있는 시리즈 |
+| 5 | 1 | 공개 가능한 관련 글 3편 준비 후 시리즈 구현 — 콘텐츠 부족으로 blocked |
 | 5 | 2 | 실제 근거를 갖춘 선택/AI 협업/재검증 기록 초안 하나 |
 | 6. [backend-operations-lab](../../../phases/backend-operations-lab/index.json) | 0 | deterministic Queue→실패→DLQ→재처리 재생 |
 | 6 | 1 | 가상 실험과 실제 프로젝트/글 연결 및 한계 설명 |
@@ -51,12 +51,12 @@
 
 ## 이번 실행 단위
 
-[Phase 5 / Step 0](../../../phases/editorial-trust-and-series/step0.md) 완료 (2026-10-20): 현재 공개 버전의 명시적인 검증 범위와 수정 기록을 저장·표시한다. 해당 phase의 Steps 1–2는 pending이며 다음은 [Phase 5 / Step 1](../../../phases/editorial-trust-and-series/step1.md)이다.
+[Phase 5 / Step 1](../../../phases/editorial-trust-and-series/step1.md) 준비 확인 (2026-10-21): 같은 주제로 공개 가능한 글 3편이 준비되지 않아 시리즈 구현은 `blocked`다. 다음 실행은 시리즈 UI와 독립적인 [Phase 5 / Step 2](../../../phases/editorial-trust-and-series/step2.md)의 기존 H-Log 사례 초안 검토다. Step 0은 완료 상태를 유지한다.
 
-- 변경 파일: 글 상세, public/content model, editorial parser, 기존 repository와 관련 테스트, migration 005 및 migration test.
-- Focused 61/61, unit 222 pass/14 DB skip, 전체 격리 DB integration 15/15, lint/typecheck/build와 1440/390/320px 검수를 통과했다. 비공개 과거 버전·날짜 추정·근거 없는 배지를 제외하고 저장 원문/hash·Home/레이더를 보존했다. 실제 발행·운영 migration은 하지 않았다.
-- 문서: 이 계획, 새 phase/step registry, PRD/ADR/ARCHITECTURE/IMPLEMENTATION_PLAN 중 관련 설명만 동기화한다.
-- 성공 기준: focused RED/GREEN, 기존 unit 회귀, lint/typecheck/build, 격리 local DB를 사용한 개발 서버 desktop/mobile 렌더링, JSON/path parser, `git diff --check`.
+- [첫 시리즈 준비 기록](BLOG_SERIES_READINESS.md): 서로 다른 주제의 비공개 초안 2편, UI 검수용 복사본·합성 자료의 제외, H-Log 시리즈 구성안과 미작성 2편, 구현 재개 조건을 구분했다. 운영 DB는 조회하지 않았다.
+- Step 2에서 첫 글을 검토한 뒤 Step 1로 돌아와 나머지 원고와 구현을 준비한다. 관련 원고 3편의 준비와 실제 공개 발행을 구분하며, 구현을 위해 운영 선발행을 요구하지 않는다.
+- 변경 범위는 준비 기록·phase 상태/의존성·관련 계획 문서다. 앱 코드·DB·UI는 변경하지 않았다.
+- 성공 기준: 로컬 초안 manifest와 원고/제외 설정, Markdown·상대 링크, phase JSON/상태·완료 개수·다음 단계 정합성, `git diff --check`. 앱 테스트·빌드·브라우저 검증은 이번 실행 결과에 포함하지 않는다.
 - 커밋/푸시는 검증한 변경만 포함하고 일반 push를 사용한다.
 
 ## 이후 설계 원칙
@@ -71,7 +71,7 @@
 
 ### 별도 후속 작업
 
-- 2026-10-15 등록한 [기술 글 문체와 읽기 화면 개선](BLOG_EDITORIAL_READING_PLAN.md)의 T1~T3 / 7개 step은 2026-10-16 로컬 구현·검수를 완료했다. 이후 Phase 3 Step 3의 RSS·사례 연결과 Phase 4 Steps 0–2와 Phase 5 Step 0의 공개 검증·수정 기록까지 완료해 다음은 Phase 5 Step 1이다. 기존 Phase 1~6의 번호·완료 이력은 유지한다. Phase 5 Step 2는 H-Log 최근 글 조회 경계 초안을 사례 후보로 재사용하며 해당 사례 단계는 pending이다.
+- 2026-10-15 등록한 [기술 글 문체와 읽기 화면 개선](BLOG_EDITORIAL_READING_PLAN.md)의 T1~T3 / 7개 step은 2026-10-16 로컬 구현·검수를 완료했다. 이후 Phase 3 Step 3의 RSS·사례 연결과 Phase 4 Steps 0–2, Phase 5 Step 0까지 완료했다. 2026-10-21 Phase 5 Step 1의 콘텐츠 부족을 기록했고, 다음은 Step 2의 H-Log 최근 글 조회 경계 초안 검토다. 기존 Phase 1~6의 번호·완료 이력은 유지한다.
 
 - 2026-10-06 [운영 모니터링](OBSERVABILITY_PLAN.md)을 독립 phase/8개 step으로 등록했다. 기존 공개 경험 6개 phase/19개 step의 번호·실행 순서는 유지한다. 모니터링을 지정하면 해당 Step 0부터 로컬 진행할 수 있고 운영 적용은 OCI 보류를 따른다. 자동 발행 timer 재개 전 운영 모니터링 검증이 필요하다.
 
@@ -103,4 +103,6 @@
 
 2026-10-15 Phase 3 / Step 2 완료: 홈의 기존 section 뒤에 최신 published-current 글 최대 3개의 제목·요약·발행일·글 유형과 이동 링크를 추가했다. 영역 누락 RED→GREEN, 기존 selector characterization 포함 focused 35/35, unit 209 pass/13 DB skip, public-read integration 1/1, lint/typecheck/build를 통과했다. 격리 DB 개발 서버 1440/390/320px에서 긴 제목·키보드·링크·철회 반영·0건 생략·비공개404와 변경 전후 소개/레이더 geometry·SVG 일치를 확인했다. DB lock 지연 중 홈 선전송, 별도 local production 서버의 연결 실패 안내·재시도·홈 HTTP 200도 검증했다.
 
-Phase 1~4와 Phase 5 Step 0, 총 15개 step을 완료했다. 다음은 [Phase 5 / Step 1: 순서가 있는 시리즈](../../../phases/editorial-trust-and-series/step1.md)다. 나머지 4개 step과 실제 발행·운영 활성화는 아직 남아 있다.
+2026-10-21 Phase 5 / Step 1 준비 확인: 관련 원고 3편 미충족으로 구현은 blocked이며 [준비 조건과 구성안](BLOG_SERIES_READINESS.md)을 기록했다. 다음 실행은 Step 2의 기존 사례 초안 검토이며 이후 Step 1로 돌아간다.
+
+Phase 1~4와 Phase 5 Step 0, 총 **15/19개 step 완료, 1개 blocked, 3개 pending**이다. 다음은 [Phase 5 / Step 2: 선택과 재검증 기록](../../../phases/editorial-trust-and-series/step2.md)이다. 실제 발행·운영 활성화는 별도로 남아 있다.

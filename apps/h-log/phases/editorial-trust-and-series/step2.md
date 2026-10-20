@@ -2,7 +2,7 @@
 
 ## 개선 사항
 
-선택과 재검증 기록 하나. 같은 phase의 Step 1 완료 후 실행한다.
+선택과 재검증 기록 하나. 같은 phase의 Step 0 완료 후 실행한다. Step 1이 콘텐츠 부족으로 blocked이고 준비 조건을 기록했다면, 시리즈 UI와 독립적인 이 초안 검토를 먼저 진행한다. Step 1을 완료 처리하거나 인수 기준을 생략하는 예외는 아니다.
 
 ## 읽을 파일
 
@@ -22,6 +22,7 @@
 - `apps/h-log/.codex/rules/frontend.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `apps/h-log/.codex/docs/harness/PUBLIC_EXPERIENCE_PLAN.md`
+- `apps/h-log/.codex/docs/harness/BLOG_SERIES_READINESS.md`
 - `apps/h-log/phases/editorial-trust-and-series/index.json`
 - `apps/h-log/lib/projects.ts`
 - `apps/h-log/lib/blog-article-generation.ts`

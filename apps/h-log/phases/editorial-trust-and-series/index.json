@@ -11,12 +11,15 @@
     {
       "step": 1,
       "name": "ordered-series",
-      "status": "pending"
+      "status": "blocked",
+      "blocked_reason": "2026-10-21: Only two reviewed private drafts on different topics are available locally; the proposed H-Log series has one existing draft and two unwritten articles. Three related publication-ready manuscripts are required. Local published fixtures and draft copies do not count. Live production content was not inspected.",
+      "summary": "Readiness inventory, three-article proposal, evidence pointers, candidate slug mismatch and resume criteria recorded in BLOG_SERIES_READINESS.md. No series runtime or publication added. Next executable work: Step 2 reviews the existing H-Log case independently, then return here for remaining manuscripts and implementation. Documentation/JSON/link checks passed; 15/19 public-experience steps remain complete."
     },
     {
       "step": 2,
       "name": "decision-record-case-study",
-      "status": "pending"
+      "status": "pending",
+      "summary": "Next executable step: reuse the H-Log recent-post draft and recheck decisions, evidence and verification dates. Step 0 is complete and Step 1 readiness was assessed; this content task does not depend on series UI. Return to Step 1 afterwards."
     }
   ]
 }

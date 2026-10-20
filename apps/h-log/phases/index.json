@@ -153,7 +153,7 @@
     {
       "dir": "editorial-trust-and-series",
       "status": "pending",
-      "summary": "2026-10-20 Step 0 completed: migration 005 stores an optional curated public editorial snapshot on the current version. Explicit document review/local reproduction/production observation dates, scope, limitations and revision summaries are shown without inferring evidence from update/collection/version dates. Past private versions remain unread. Missing publication dates and unspecified revision dates are omitted from structured data. Unit 222 pass/14 DB skip, full isolated integration 15/15, focused 61/61, lint/typecheck/build and 1440/390/320 keyboard/long-text/empty/invalid/private/DB-failure checks passed. Home/radar and stored content/hash preserved. No public publication or production migration. Next: Step 1 ordered-series."
+      "summary": "2026-10-21: Step 0 remains completed. Step 1 ordered-series is blocked: two private drafts cover different topics, and the proposed H-Log series has only one existing draft plus two unwritten articles. Readiness, evidence, slug alignment and resume criteria are recorded in BLOG_SERIES_READINESS.md; fixtures do not count. Next executable step: Step 2 decision-record-case-study, independent of series UI, then return to Step 1. Documentation/JSON/link validation passed. No runtime, production DB or public publication changes; 15/19 public-experience steps remain complete."
     },
     {
       "dir": "backend-operations-lab",
