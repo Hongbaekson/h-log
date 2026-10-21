@@ -42,7 +42,7 @@
 | 4 | 1 | 문제·대안·결정·결과와 공개 가능한 근거 |
 | 4 | 2 | 프로젝트와 공개 글의 양방향 연결 |
 | 5. [editorial-trust-and-series](../../../phases/editorial-trust-and-series/index.json) | 0 | 수정 이유·날짜·검증 범위의 정확한 공개 |
-| 5 | 1 | 관련 원고 3편 준비 완료 — 시리즈 기능 구현 pending |
+| 5 | 1 | 시리즈 순서·현재 편·공개 글 이전/다음 구현 완료 |
 | 5 | 2 | 실제 근거를 갖춘 선택/AI 협업/재검증 기록 초안 하나 — H-Log 사례 검수 완료 |
 | 6. [backend-operations-lab](../../../phases/backend-operations-lab/index.json) | 0 | deterministic Queue→실패→DLQ→재처리 재생 |
 | 6 | 1 | 가상 실험과 실제 프로젝트/글 연결 및 한계 설명 |
@@ -51,13 +51,9 @@
 
 ## 이번 실행 단위
 
-[Phase 5 / Step 1](../../../phases/editorial-trust-and-series/step1.md) 원고 준비 완료 (2026-10-21): 남은 원고 2편을 검수해 기존 Step 2 원고와 합쳐 관련 글 3편이 준비됐다. 콘텐츠 부족 사유를 해제해 Step 1을 `pending`으로 바꿨다. 다음 실행은 **Step 1 시리즈 기능 구현**이다.
+2026-10-22 Phase 5 Step 1 완료: 명시적인 시리즈 순서를 기존 공개 글에 연결했다. 기본 목록 첫 페이지와 상세의 접이식 목록·현재 편·시리즈 이전/다음을 제공한다. 비공개/철회 글을 제외하고 원래 편 번호·canonical·원문/hash를 유지한다. Focused 47/47, unit 225 pass/14 DB skip, public-read integration 1/1, lint/typecheck/build와 1440/390/320px·키보드·긴 글·빈 시리즈·JavaScript 없는 이동·DB 오류 검증을 통과했다. 실제 원고는 비공개로 유지했다. **Phase 5 전체 완료, 다음은 `backend-operations-lab / Step 0: deterministic-queue-replay`**다. 공개 경험은 **17/19개 step 완료, 0개 blocked, 2개 pending**이다.
 
-- [원고 준비 결과](BLOG_SERIES_MANUSCRIPT_REVIEW.md): 공개 현재 버전 조회와 검증·수정 날짜를 다룬 두 글의 주장 18개를 코드·변경 기록·로컬 테스트로 확인했다. 시리즈명·소개·읽기 순서·구현 대상 slug를 정했다.
-- 사실 검토 후 Korean 스킬로 산문 4곳을 교정했다. 원고와 검수 대장은 Git/Docker 제외 경로에 보관하고 첫 글의 본문/hash·기존 원본·자료 시각을 유지했다. 실제 발행은 하지 않았다.
-- 단위 테스트 61/61, 격리 DB 통합 7/7, 원고 파싱/hash·기본 privacy·보호 항목·비공개 selector 0건을 확인했다. 변경 문서/JSON 11개·상대 링크 39개·phase JSON 42개와 다음 단계 정합성, `git diff --check`를 통과했다. 앱 코드·UI 변경이 없어 lint·typecheck·build·브라우저 검수는 이번 결과에 포함하지 않는다.
-- [시리즈 준비 기록](BLOG_SERIES_READINESS.md)의 원고 준비 조건은 충족했다. 공개 글 연결·철회·빈 시리즈·canonical·화면 검수는 남아 있으며 구현을 위해 운영 선발행을 요구하지 않는다.
-- 커밋/푸시는 검증한 변경만 포함하고 일반 push를 사용한다.
+[Step 1 검증 기록](../../../phases/editorial-trust-and-series/step1.md)에 실행 명령과 한계를 남겼다. 별도 DB 테이블·API·시리즈 URL을 추가하지 않았고, 로컬 합성 글로 화면을 확인했다. 실제 원고 발행·OCI·레이더는 변경하지 않았다.
 
 ## 이후 설계 원칙
 
@@ -109,4 +105,4 @@
 
 2026-10-21 Phase 5 / Step 1 원고 준비 완료: 나머지 2편의 주장 18개와 문체를 검수해 관련 원고 3편·시리즈명·소개·순서·구현 대상 slug를 준비했다. 단위 61/61, 격리 통합 7/7과 원고 파싱/hash·privacy·보호 항목을 확인했다. 콘텐츠 부족 사유를 해제했으며 시리즈 기능은 아직 구현하지 않았다.
 
-Phase 1~4와 Phase 5 Steps 0·2, 총 **16/19개 step 완료, 0개 blocked, 3개 pending**이다. 다음은 [Phase 5 / Step 1](../../../phases/editorial-trust-and-series/step1.md)의 **시리즈 기능 구현**이다. 실제 발행·운영 활성화는 별도로 남아 있다.
+2026-10-22 Phase 5 Step 1 완료: 명시적인 시리즈 순서를 기존 공개 글에 연결했다. 기본 목록 첫 페이지와 상세의 접이식 목록·현재 편·시리즈 이전/다음을 제공한다. 비공개/철회 글을 제외하고 원래 편 번호·canonical·원문/hash를 유지한다. Focused 47/47, unit 225 pass/14 DB skip, public-read integration 1/1, lint/typecheck/build와 1440/390/320px·키보드·긴 글·빈 시리즈·JavaScript 없는 이동·DB 오류 검증을 통과했다. 실제 원고는 비공개로 유지했다. **Phase 5 전체 완료, 다음은 `backend-operations-lab / Step 0: deterministic-queue-replay`**다. 공개 경험은 **17/19개 step 완료, 0개 blocked, 2개 pending**이다. 실제 발행·운영 활성화는 별도로 남아 있다.

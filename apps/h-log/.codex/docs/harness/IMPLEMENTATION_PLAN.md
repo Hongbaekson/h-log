@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-22 Phase 5 Step 1 완료: 명시적인 시리즈 순서를 기존 공개 글에 연결했다. 기본 목록 첫 페이지와 상세의 접이식 목록·현재 편·시리즈 이전/다음을 제공한다. 비공개/철회 글을 제외하고 원래 편 번호·canonical·원문/hash를 유지한다. Focused 47/47, unit 225 pass/14 DB skip, public-read integration 1/1, lint/typecheck/build와 1440/390/320px·키보드·긴 글·빈 시리즈·JavaScript 없는 이동·DB 오류 검증을 통과했다. 실제 원고는 비공개로 유지했다. **Phase 5 전체 완료, 다음은 `backend-operations-lab / Step 0: deterministic-queue-replay`**다. 공개 경험은 **17/19개 step 완료, 0개 blocked, 2개 pending**이다. 아래 이력의 다음 단계는 당시 상태다.
+
 2026-10-21 Phase 5 Step 1 원고 준비 완료: 공개 현재 버전 조회와 검증·수정 날짜를 다룬 원고 2편을 검수해 관련 글 3편이 준비됐다. [원고 준비 결과](BLOG_SERIES_MANUSCRIPT_REVIEW.md)에 주장 18개·Korean 교정 4곳·단위 61/61·격리 통합 7/7과 시리즈명·소개·순서·구현 대상 slug를 남겼다. 첫 글의 본문/hash와 기존 자료 시각을 보존했고 실제 발행은 하지 않았다. 콘텐츠 부족 사유를 해제해 Step 1을 pending으로 바꿨으며 **다음은 `editorial-trust-and-series / Step 1`의 시리즈 기능 구현**이다. 공개 경험은 16/19개 step 완료, 0개 blocked, 3개 pending이다. 아래 기록의 다음 단계 안내는 당시 상태다.
 
 2026-10-21 Phase 5 Step 2 완료: 기존 H-Log 최근 글 초안을 재사용해 대안·선택 이유·검증 시점을 검토했다. [사례 검수 기록](BLOG_CASE_STUDY_REVIEW.md)에 claim 11개, 사실 보완과 산문 교정, 현재 공개 글 테스트 44/44와 과거 검증의 차이를 남겼다. 원고/자료 원본과 시각을 보존했고 운영 발행·DB·UI는 변경하지 않았다. 다음은 **`editorial-trust-and-series / Step 1`의 나머지 원고 2편 준비**다. 기능 구현은 원고 3편 준비 전까지 blocked이며 공개 경험은 16/19개 step 완료다.

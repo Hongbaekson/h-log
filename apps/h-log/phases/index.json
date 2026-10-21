@@ -152,8 +152,8 @@
     },
     {
       "dir": "editorial-trust-and-series",
-      "status": "pending",
-      "summary": "Steps 0 and 2 completed; Step 1 pending implementation with content readiness met. 2026-10-21: prepared the remaining two H-Log manuscripts, reviewed 18 claims and preserved the existing Step 2 manuscript. Three related private drafts, series title, introduction, order and target slugs are ready. Unit 61/61, isolated integration 7/7 and manuscript parser/hash/privacy/protected-span checks passed. No series runtime, browser rerun, production mutation or publication. Next: Step 1 ordered-series implementation and public-only navigation, withdrawal, canonical and UI verification."
+      "status": "completed",
+      "summary": "Steps 0-2 completed: curated verification/revisions, evidence-backed case study and ordered series. 2026-10-22 Step 1 completed: explicit series order reuses published-current/privacy selection and current titles. The default Blog index shows nonempty series; detail uses native disclosure, current marker and series-only previous/next, skipping withdrawn posts without renumbering. Non-series chronological navigation, canonical URLs and stored content/hash remain unchanged. Focused 47/47, unit 225 pass/14 DB skip, public-read integration 1/1, lint/typecheck/build, 1440/390/320 keyboard/long-text/private/withdrawal/empty/no-JS and production-mode DB-failure checks passed. No new persistence, runtime dependency or public publication. Next: backend-operations-lab Step 0 deterministic-queue-replay."
     },
     {
       "dir": "backend-operations-lab",

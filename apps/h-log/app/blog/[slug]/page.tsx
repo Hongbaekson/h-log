@@ -7,6 +7,8 @@ import { ArrowLeft, ArrowRight, ExternalLink, FileText } from "lucide-react";
 
 import { JsonLd } from "@/components/seo/JsonLd";
 import { CodeBlock } from "@/components/blog/CodeBlock";
+import { BlogSeries } from "@/components/blog/BlogSeries";
+import { getPublicBlogPostSeries } from "@/lib/blog-series";
 import { ProjectPostLinks } from "@/components/portfolio/ProjectPostLinks";
 import { getPublicProjectPostConnections } from "@/lib/portfolio-posts";
 import { Badge, Container } from "@/components/ui";
@@ -73,6 +75,8 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   }
 
   const navigation = getPublicBlogPostNavigation(slug, store)!;
+  const series = getPublicBlogPostSeries(slug, store);
+  const adjacent = series ?? navigation;
   const publicationDate = store.posts.find((record) => record.slug === slug)!.publishedAt;
   const projectConnections = getPublicProjectPostConnections(store).filter((connection) => connection.postSlug === post.slug);
   const origin = resolvePublicSiteOrigin("http://localhost:3000");
@@ -134,6 +138,11 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
         <Container>
           <div className="blog-reading-layout grid gap-10 lg:grid-cols-[minmax(0,46rem)_14rem] lg:justify-between">
             <div className="min-w-0 max-w-[46rem]">
+              {series && (
+                <section aria-label="이 글의 시리즈" className="mb-8">
+                  <BlogSeries series={series} currentSlug={slug} />
+                </section>
+              )}
               {post.tableOfContents.length > 0 && (
                 <details className="mb-8 rounded-xl border border-slate-700 bg-[#191d3a]/50 lg:hidden">
                   <summary className="cursor-pointer rounded-xl px-4 py-4 font-semibold text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff]">
@@ -218,11 +227,11 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                   </ul>
                 </section>
               )}
-              {(navigation.previous || navigation.next) && (
-                <nav aria-label="이전·다음 글" className="mt-10 grid gap-4 sm:grid-cols-2">
+              {(adjacent.previous || adjacent.next) && (
+                <nav aria-label={series ? "시리즈 이전·다음 글" : "이전·다음 글"} className="mt-10 grid gap-4 sm:grid-cols-2">
                   {([
-                    { label: "이전 글", entry: navigation.previous, rel: "prev" },
-                    { label: "다음 글", entry: navigation.next, rel: "next" },
+                    { label: series ? "시리즈 이전 글" : "이전 글", entry: adjacent.previous, rel: "prev" },
+                    { label: series ? "시리즈 다음 글" : "다음 글", entry: adjacent.next, rel: "next" },
                   ] as const).map(({ label, entry, rel }) => entry && (
                     <Link
                       className={`min-w-0 rounded-xl border border-slate-700 bg-[#191d3a]/50 p-5 wrap-anywhere hover:border-[#5865f2] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff] ${rel === "next" ? "sm:col-start-2" : ""}`}
@@ -236,7 +245,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                         {rel === "next" && <ArrowRight aria-hidden="true" size={15} />}
                       </span>
                       <span className="mt-3 block text-sm font-semibold leading-7 text-slate-100">{entry.title}</span>
-                      <time className="mt-2 block text-xs text-slate-400" dateTime={entry.publishedAt}>{formatPublicBlogDate(entry.publishedAt)}</time>
+                      {"publishedAt" in entry && <time className="mt-2 block text-xs text-slate-400" dateTime={entry.publishedAt}>{formatPublicBlogDate(entry.publishedAt)}</time>}
                     </Link>
                   ))}
                 </nav>

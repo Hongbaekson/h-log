@@ -5,6 +5,8 @@ import { BlogSearchPanel } from "@/components/blog/BlogSearchPanel";
 import { BlogPagination } from "@/components/blog/BlogPagination";
 import { BlogPostRow } from "@/components/blog/BlogPostRow";
 import { BlogTopicFilters } from "@/components/blog/BlogTopicFilters";
+import { BlogSeries } from "@/components/blog/BlogSeries";
+import { getPublicBlogSeries } from "@/lib/blog-series";
 import { buildBlogBrowseHref, parseBlogBrowseParams, type BlogBrowseParams } from "@/lib/blog-search-ui";
 import { Container } from "@/components/ui";
 import { getPublicBlogIndex } from "@/lib/blog-public";
@@ -38,6 +40,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     pageSize: 6,
     tag: state.tag ?? undefined,
   });
+  const series = !state.query && !state.tag && index.pagination.currentPage === 1 ? getPublicBlogSeries(store) : [];
 
   return (
     <>
@@ -105,6 +108,12 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               <BlogPagination pagination={index.pagination} state={state} />
             </div>}
             </BlogSearchPanel>
+            {series.length > 0 && (
+              <section aria-label="시리즈" className="mt-12 space-y-4">
+                <h2 className="text-lg font-semibold text-white">순서대로 읽기</h2>
+                {series.map((item) => <BlogSeries key={item.id} series={item} />)}
+              </section>
+            )}
           </div>
         </Container>
       </section>

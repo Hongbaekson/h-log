@@ -36,6 +36,12 @@ npm run build
 
 ## Runtime 구성
 
+### 순서가 있는 시리즈
+
+`lib/blog-series.ts`는 검수된 시리즈의 소개와 slug 순서를 서버에서 관리한다(ADR-036). 기존 public loader의 repository/privacy 결과에 `selectPublicBlogRouteEntries`를 적용한 뒤 현재 공개 제목·기존 URL·원래 편 번호만 반환한다. 비공개 후보 slug 목록이나 과거 버전은 UI 모델에 포함하지 않는다. `getPublicBlogPostSeries`는 남은 공개 글 사이의 이전/다음을 계산하며 대상 글이 없으면 결과를 반환하지 않는다.
+
+`components/blog/BlogSeries.tsx`를 기본 목록 첫 페이지와 글 상세에서 재사용한다. 목록은 펼친 상태, 상세는 접힌 상태의 native details이며 상세의 현재 글은 `aria-current=page`로 표시한다. 검색·태그 목록에는 시리즈를 추가하지 않는다. 상세의 기존 관련 글은 유지하고, 하단 이동만 시리즈 소속이면 편집 순서로, 그 외에는 기존 날짜순으로 처리한다. 공개 글이 하나면 이웃 링크를, 0개면 시리즈 영역을 생략한다. 기존 DB 조회·원문/hash·canonical을 재사용하며 persistence와 client 상태는 추가하지 않는다.
+
 ### 공개 검증 범위와 수정 기록
 
 `005_blog_public_editorial.sql`은 현재 버전에 선택적인 `public_editorial` JSONB를 저장한다. `BlogPostAggregate.version.publicEditorial`은 작성자가 선별한 공개 스냅샷이며, 기존 `savePost`가 트랜잭션 전에 `parseBlogEditorialNote`로 검증한다. 수정 기록 최대 20개, 텍스트 항목 최대 2,000자, 실제 달력 날짜와 세 가지 확인 방법을 허용한다. 모르는 필드·불완전한 범위/한계·privacy 위반·내부 경로는 거부한다.

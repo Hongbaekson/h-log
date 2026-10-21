@@ -11,14 +11,14 @@
     {
       "step": 1,
       "name": "ordered-series",
-      "status": "pending",
-      "summary": "2026-10-21 content readiness met: prepared the remaining two H-Log manuscripts and reviewed 18 claims against current code, history and local tests. Together with the unchanged Step 2 manuscript, three related drafts are ready; series title, introduction, order and target slugs are recorded in BLOG_SERIES_MANUSCRIPT_REVIEW.md. Unit 61/61, isolated integration 7/7 and manuscript parser/hash/privacy/protected-span checks passed. All manuscripts remain local and unpublished. No series runtime added. Next: implement ordered-series and verify public-only navigation, withdrawal, canonical and UI. 16/19 public-experience steps completed, 0 blocked, 3 pending."
+      "status": "completed",
+      "summary": "2026-10-22 Step 1 completed: explicit series order reuses published-current/privacy selection and current titles. The default Blog index shows nonempty series; detail uses native disclosure, current marker and series-only previous/next, skipping withdrawn posts without renumbering. Non-series chronological navigation, canonical URLs and stored content/hash remain unchanged. Focused 47/47, unit 225 pass/14 DB skip, public-read integration 1/1, lint/typecheck/build, 1440/390/320 keyboard/long-text/private/withdrawal/empty/no-JS and production-mode DB-failure checks passed. No new persistence, runtime dependency or public publication. Next: backend-operations-lab Step 0 deterministic-queue-replay."
     },
     {
       "step": 2,
       "name": "decision-record-case-study",
       "status": "completed",
-      "summary": "2026-10-21 Step 2 completed: reused the H-Log recent-post draft, checked 11 claims against current code, ADR-032 and historical records, and separated current alternative analysis from past experience. Clarified publication-date fallback, full-read/model cost, whole-page GET retry and log scope. Public tests 44/44; manuscript parser/hash/privacy/private-selector and Korean protected-span checks passed. Old source dates and drafts preserved; no DB/browser rerun or publication in Step 2. Follow-up: Step 1 now has three reviewed manuscripts and is pending series implementation."
+      "summary": "2026-10-21 Step 2 completed: reused the H-Log recent-post draft, checked 11 claims against current code, ADR-032 and historical records, and separated current alternative analysis from past experience. Clarified publication-date fallback, full-read/model cost, whole-page GET retry and log scope. Public tests 44/44; manuscript parser/hash/privacy/private-selector and Korean protected-span checks passed. Old source dates and drafts preserved; no DB/browser rerun or publication in Step 2. Follow-up: Step 1 series implementation completed on 2026-10-22."
     }
   ]
 }
