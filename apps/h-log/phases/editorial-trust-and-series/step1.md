@@ -71,3 +71,7 @@ git diff --check
 다음은 [Step 2: decision-record-case-study](step2.md)의 기존 첫 글 검토다. Step 0 완료와 이 준비 확인을 전제로 Step 2를 먼저 실행하며, 그 뒤 이 Step 1에서 나머지 원고 준비와 시리즈 구현을 이어간다. 실제 운영 발행을 구현의 선행 조건으로 요구하지 않는다.
 
 문서 전용 검증: 앱 디렉터리에서 `node private/series-readiness-check/verify.mjs`로 초안 manifest·원고 존재/제외, Markdown·추가/변경된 상대 링크 28개, phase JSON 42개·상태·15/19 완료 개수·다음 단계 연결을 확인했고 `git diff --check`도 통과했다. 앱 코드·DB·UI는 변경하지 않아 해당 실행 검증은 이번 결과에 포함하지 않는다.
+
+### Step 2 완료 후 이어갈 일 — 2026-10-21
+
+Step 2에서 첫 H-Log 원고의 선택 이유·대안·검증 시점 검토를 마쳤다. [검수 기록](../../.codex/docs/harness/BLOG_CASE_STUDY_REVIEW.md)을 읽고 [시리즈 구성안](../../.codex/docs/harness/BLOG_SERIES_READINESS.md)의 나머지 원고 2편을 준비한다. 이 콘텐츠 준비는 다음에 실행할 수 있는 작업이다. 이 step의 시리즈 구현은 여전히 blocked이며 원고 3편 준비와 기능 검증을 마쳐야 완료할 수 있다. 과거 자료를 재확인하지 않고 시각만 갱신하거나 새 글을 실제 장애/운영 성과로 꾸미지 않는다.

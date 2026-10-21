@@ -13,13 +13,13 @@
       "name": "ordered-series",
       "status": "blocked",
       "blocked_reason": "2026-10-21: Only two reviewed private drafts on different topics are available locally; the proposed H-Log series has one existing draft and two unwritten articles. Three related publication-ready manuscripts are required. Local published fixtures and draft copies do not count. Live production content was not inspected.",
-      "summary": "Readiness inventory, three-article proposal, evidence pointers, candidate slug mismatch and resume criteria recorded in BLOG_SERIES_READINESS.md. No series runtime or publication added. Next executable work: Step 2 reviews the existing H-Log case independently, then return here for remaining manuscripts and implementation. Documentation/JSON/link checks passed; 15/19 public-experience steps remain complete."
+      "summary": "2026-10-21 readiness recorded; Step 2 has now completed review of the existing H-Log draft. Next executable work is preparing the remaining two manuscripts listed in BLOG_SERIES_READINESS.md. No series runtime or publication added. Content readiness remains unmet; 16/19 public-experience steps are complete."
     },
     {
       "step": 2,
       "name": "decision-record-case-study",
-      "status": "pending",
-      "summary": "Next executable step: reuse the H-Log recent-post draft and recheck decisions, evidence and verification dates. Step 0 is complete and Step 1 readiness was assessed; this content task does not depend on series UI. Return to Step 1 afterwards."
+      "status": "completed",
+      "summary": "2026-10-21 Step 2 completed: reused the H-Log recent-post draft, checked 11 claims against current code, ADR-032 and historical records, and separated current alternative analysis from past experience. Clarified publication-date fallback, full-read/model cost, whole-page GET retry and log scope. Public tests 44/44; manuscript parser/hash/privacy/private-selector and Korean protected-span checks passed. Old source dates and drafts preserved; no DB/browser rerun or publication. Next: Step 1 remaining two series manuscripts; series implementation stays blocked until three related manuscripts are ready."
     }
   ]
 }

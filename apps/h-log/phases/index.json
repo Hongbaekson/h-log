@@ -153,7 +153,7 @@
     {
       "dir": "editorial-trust-and-series",
       "status": "pending",
-      "summary": "2026-10-21: Step 0 remains completed. Step 1 ordered-series is blocked: two private drafts cover different topics, and the proposed H-Log series has only one existing draft plus two unwritten articles. Readiness, evidence, slug alignment and resume criteria are recorded in BLOG_SERIES_READINESS.md; fixtures do not count. Next executable step: Step 2 decision-record-case-study, independent of series UI, then return to Step 1. Documentation/JSON/link validation passed. No runtime, production DB or public publication changes; 15/19 public-experience steps remain complete."
+      "summary": "Steps 0 and 2 completed; Step 1 series implementation remains blocked by content readiness. 2026-10-21 Step 2 completed: reused the H-Log recent-post draft, checked 11 claims against current code, ADR-032 and historical records, and separated current alternative analysis from past experience. Clarified publication-date fallback, full-read/model cost, whole-page GET retry and log scope. Public tests 44/44; manuscript parser/hash/privacy/private-selector and Korean protected-span checks passed. Old source dates and drafts preserved; no DB/browser rerun or publication. Next: Step 1 remaining two series manuscripts; series implementation stays blocked until three related manuscripts are ready."
     },
     {
       "dir": "backend-operations-lab",

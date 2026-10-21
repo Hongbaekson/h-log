@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-21 Phase 5 Step 2 완료: 기존 H-Log 최근 글 초안을 재사용해 대안·선택 이유·검증 시점을 검토했다. [사례 검수 기록](BLOG_CASE_STUDY_REVIEW.md)에 claim 11개, 사실 보완과 산문 교정, 현재 공개 글 테스트 44/44와 과거 검증의 차이를 남겼다. 원고/자료 원본과 시각을 보존했고 운영 발행·DB·UI는 변경하지 않았다. 다음은 **`editorial-trust-and-series / Step 1`의 나머지 원고 2편 준비**다. 기능 구현은 원고 3편 준비 전까지 blocked이며 공개 경험은 16/19개 step 완료다.
+
 2026-10-21 Phase 5 Step 1 준비 확인: 같은 주제로 공개 가능한 원고 3편이 없어 `ordered-series`는 blocked다. [준비 기록](BLOG_SERIES_READINESS.md)에 초안 2편의 상태, H-Log 시리즈 후보 1편과 미작성 2편, 재개 조건을 남겼다. 다음 실행은 **`editorial-trust-and-series / Step 2: decision-record-case-study`**이며 시리즈 UI와 독립적으로 첫 사례를 검토한 뒤 Step 1로 돌아간다. Step 0 완료와 Step 1 준비 확인을 Step 2의 선행 조건으로 명시했으며 기존 19개 step의 번호·완료 기준은 유지한다. 문서/JSON·링크 검증만 수행하고 운영 DB·공개 발행·앱 코드는 변경하지 않았다.
 
 2026-10-20 Phase 5 Step 0 완료: 현재 공개 버전에 작성자가 선별한 검증 방법·날짜·범위·한계와 수정 기록을 선택적으로 저장·표시한다. 수집일·운영 갱신일·비공개 버전에서 근거를 추정하지 않는다. Migration 005와 전체 격리 통합 테스트 15/15, focused 61/61, unit 222 pass/14 DB skip, lint/typecheck/build와 PC·모바일 검수를 통과했다. **다음은 `editorial-trust-and-series / Step 1: ordered-series`**다. 운영 migration과 실제 발행은 수행하지 않았다.
