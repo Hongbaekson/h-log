@@ -42,7 +42,7 @@
 | 4 | 1 | 문제·대안·결정·결과와 공개 가능한 근거 |
 | 4 | 2 | 프로젝트와 공개 글의 양방향 연결 |
 | 5. [editorial-trust-and-series](../../../phases/editorial-trust-and-series/index.json) | 0 | 수정 이유·날짜·검증 범위의 정확한 공개 |
-| 5 | 1 | 공개 가능한 관련 글 3편 준비 후 시리즈 구현 — 콘텐츠 부족으로 blocked |
+| 5 | 1 | 관련 원고 3편 준비 완료 — 시리즈 기능 구현 pending |
 | 5 | 2 | 실제 근거를 갖춘 선택/AI 협업/재검증 기록 초안 하나 — H-Log 사례 검수 완료 |
 | 6. [backend-operations-lab](../../../phases/backend-operations-lab/index.json) | 0 | deterministic Queue→실패→DLQ→재처리 재생 |
 | 6 | 1 | 가상 실험과 실제 프로젝트/글 연결 및 한계 설명 |
@@ -51,12 +51,12 @@
 
 ## 이번 실행 단위
 
-[Phase 5 / Step 2](../../../phases/editorial-trust-and-series/step2.md) 완료 (2026-10-21): 기존 H-Log 사례 초안의 대안·선택 이유·검증 시점과 한계를 검토했다. 다음 실행은 [Phase 5 / Step 1](../../../phases/editorial-trust-and-series/step1.md)의 나머지 원고 2편 준비다. 시리즈 기능은 관련 원고 3편이 모이기 전까지 `blocked`다.
+[Phase 5 / Step 1](../../../phases/editorial-trust-and-series/step1.md) 원고 준비 완료 (2026-10-21): 남은 원고 2편을 검수해 기존 Step 2 원고와 합쳐 관련 글 3편이 준비됐다. 콘텐츠 부족 사유를 해제해 Step 1을 `pending`으로 바꿨다. 다음 실행은 **Step 1 시리즈 기능 구현**이다.
 
-- [사례 검수 기록](BLOG_CASE_STUDY_REVIEW.md): ADR-032와 현재 코드에 근거한 claim 11개, 대안 분석과 실제 경험의 구분, 날짜 fallback·전체 조회 비용·재시도/로그 범위를 검토했다.
-- 사실 보완 후 Korean 스킬로 산문 3곳을 교정했다. 원고와 검수 대장은 Git/Docker 제외 경로에 보관하고 기존 원본·자료 시각을 유지했다. 실제 발행은 하지 않았다.
-- 공개 글 테스트 44/44, 원고 파싱/hash·기본 privacy·보호 항목·비공개 selector 0건, Markdown·상대 링크 37개·phase JSON 42개/상태·다음 단계 정합성과 `git diff --check`를 통과했다. 앱 코드 변경이 없어 lint·typecheck·build·DB·브라우저 검증은 이번 결과에 포함하지 않는다.
-- [시리즈 준비 기록](BLOG_SERIES_READINESS.md)의 첫 글만 사례 검수를 마쳤으며 미작성 2편이 남았다. 관련 원고 준비와 운영 발행을 구분하며 구현을 위해 운영 선발행을 요구하지 않는다.
+- [원고 준비 결과](BLOG_SERIES_MANUSCRIPT_REVIEW.md): 공개 현재 버전 조회와 검증·수정 날짜를 다룬 두 글의 주장 18개를 코드·변경 기록·로컬 테스트로 확인했다. 시리즈명·소개·읽기 순서·구현 대상 slug를 정했다.
+- 사실 검토 후 Korean 스킬로 산문 4곳을 교정했다. 원고와 검수 대장은 Git/Docker 제외 경로에 보관하고 첫 글의 본문/hash·기존 원본·자료 시각을 유지했다. 실제 발행은 하지 않았다.
+- 단위 테스트 61/61, 격리 DB 통합 7/7, 원고 파싱/hash·기본 privacy·보호 항목·비공개 selector 0건을 확인했다. 변경 문서/JSON 11개·상대 링크 39개·phase JSON 42개와 다음 단계 정합성, `git diff --check`를 통과했다. 앱 코드·UI 변경이 없어 lint·typecheck·build·브라우저 검수는 이번 결과에 포함하지 않는다.
+- [시리즈 준비 기록](BLOG_SERIES_READINESS.md)의 원고 준비 조건은 충족했다. 공개 글 연결·철회·빈 시리즈·canonical·화면 검수는 남아 있으며 구현을 위해 운영 선발행을 요구하지 않는다.
 - 커밋/푸시는 검증한 변경만 포함하고 일반 push를 사용한다.
 
 ## 이후 설계 원칙
@@ -107,4 +107,6 @@
 
 2026-10-21 Phase 5 / Step 2 완료: 기존 H-Log 초안의 문제·대안·선택 이유·검증 시점·한계를 검토했다. claim 11개, 공개 글 테스트 44/44, 사실 보완 뒤 Korean 교정과 보호 항목·원고 파싱/privacy/비공개 경계를 확인했다. 새 원고는 로컬 비공개로 보관했다.
 
-Phase 1~4와 Phase 5 Steps 0·2, 총 **16/19개 step 완료, 1개 blocked, 2개 pending**이다. 다음은 [Phase 5 / Step 1](../../../phases/editorial-trust-and-series/step1.md)의 나머지 원고 2편 준비다. 시리즈 기능 구현과 실제 발행·운영 활성화는 별도로 남아 있다.
+2026-10-21 Phase 5 / Step 1 원고 준비 완료: 나머지 2편의 주장 18개와 문체를 검수해 관련 원고 3편·시리즈명·소개·순서·구현 대상 slug를 준비했다. 단위 61/61, 격리 통합 7/7과 원고 파싱/hash·privacy·보호 항목을 확인했다. 콘텐츠 부족 사유를 해제했으며 시리즈 기능은 아직 구현하지 않았다.
+
+Phase 1~4와 Phase 5 Steps 0·2, 총 **16/19개 step 완료, 0개 blocked, 3개 pending**이다. 다음은 [Phase 5 / Step 1](../../../phases/editorial-trust-and-series/step1.md)의 **시리즈 기능 구현**이다. 실제 발행·운영 활성화는 별도로 남아 있다.

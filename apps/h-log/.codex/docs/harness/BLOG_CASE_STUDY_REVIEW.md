@@ -59,8 +59,12 @@ git diff --check
 
 React 자료는 실제 재확인한 시각을 새 검수 대장에 기록했다. 2026-10-15 대장의 `sourceReviewedAt`은 바꾸지 않았다. 자동 발행 입력을 만들지 않았으며, 향후 수집·발행할 때도 기존 freshness/claim/privacy 검사를 다시 통과해야 한다.
 
-## 다음 단계
+## 사례 검수 당시 다음 단계
 
 공개 경험 개선은 **16/19개 step 완료, 1개 blocked, 2개 pending**이다. Step 2 완료 후 [Step 1](../../../phases/editorial-trust-and-series/step1.md)로 돌아가 [시리즈 구성안](BLOG_SERIES_READINESS.md)의 나머지 두 원고를 준비한다. 시리즈 UI는 관련 원고 3편이 준비된 뒤 구현하며, 다음 작업을 시작하기 위해 이 첫 글을 운영에 미리 발행할 필요는 없다.
 
 발행 전에는 최종 slug와 프로젝트 연결을 함께 맞춰야 한다. 기존 후보 `home-recent-posts-reading-boundary`와 로컬 연결용 `home-recent-posts`의 차이는 유지해 기록했고 공개 URL을 확정하거나 바꾸지 않았다. 새 원고의 실제 화면 검수·운영 발행·배포도 별도로 남아 있다.
+
+## 후속 원고 준비 완료 — 2026-10-21
+
+[시리즈 원고 검수](BLOG_SERIES_MANUSCRIPT_REVIEW.md)에서 나머지 두 글을 준비했다. 이 첫 글의 본문/hash는 그대로 재사용했으며 구현 대상 slug는 기존 프로젝트 연결에 맞춰 `home-recent-posts`로 정했다. 이전 manifest는 수정하지 않았다. 관련 원고 3편이 준비돼 Step 1의 콘텐츠 부족 사유를 해제했으며, 현재 다음 작업은 시리즈 기능 구현이다. 원고의 실제 발행은 하지 않았다.

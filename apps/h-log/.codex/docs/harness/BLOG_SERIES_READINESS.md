@@ -4,7 +4,7 @@
 
 ## 현재 판정
 
-같은 주제로 공개 가능한 글 3편이 준비되지 않았다. 로컬 편집 묶음에는 서로 다른 주제의 초안 2편이 있으며, 아래 H-Log 시리즈에 해당하는 글은 1편이다. Step 2에서 첫 글의 사례 검토를 완료했다. Step 1은 `blocked`, Step 2는 `completed`다. 전체 공개 경험 개선은 **16/19개 step 완료, 1개 blocked, 2개 pending**이다.
+같은 주제로 공개 가능한 원고 3편을 준비했다. Step 2에서 검토한 첫 글에 공개 현재 버전 조회와 검증·수정 날짜를 다룬 원고 2편을 더했다. [신규 원고 검수 결과](BLOG_SERIES_MANUSCRIPT_REVIEW.md)에 내용 근거와 읽기 순서를 기록했다. 콘텐츠 부족 사유를 해제해 Step 1은 `pending`, Step 2는 `completed`다. 전체 공개 경험 개선은 **16/19개 step 완료, 0개 blocked, 3개 pending**이다. 시리즈 기능은 아직 구현하지 않았다.
 
 이 판정은 로컬 초안·검수 manifest·현재 코드와 저장소 기록을 확인한 결과다. 운영 DB나 배포 사이트의 글 수를 조사한 결과가 아니다. 기존 자료의 `sourceReviewedAt`이나 초안 본문은 변경하지 않았다.
 
@@ -13,34 +13,36 @@
 | 자료 | 확인한 상태 | 시리즈에 사용할 수 있는 범위 |
 | --- | --- | --- |
 | 최근 글 조회가 늦어져도 홈은 먼저 보여주기 | H-Log 구현 기록. 2026-10-15 교정본과 claim 기록 존재, 실제 발행 기록 없음 | Step 2 사례 검수 완료. [검수 기록](BLOG_CASE_STUDY_REVIEW.md)에 대안·선택 이유·검증 시점 구분 |
+| 공개 글을 읽을 때 비공개 버전까지 읽어야 할까 | 2026-10-21 신규 원고, 주장 8개 검수 완료 | SQL 후보 제한과 후속 privacy 검사, 코드/실행 검증의 범위를 구분 |
+| 글을 고친 날짜와 내용을 확인한 날짜를 나누기 | 2026-10-21 신규 원고, 주장 10개 검수 완료 | 명시적 공개 기록과 날짜·현재 버전·저장/읽기 계약을 설명 |
 | Redis Pub/Sub을 쓰기 전에 정할 메시지 유실 기준 | Redis 공식 문서 분석 초안. 실행·장애 대응·Streams 전환 경험이 아님 | 별도 메시징 주제로 유지. H-Log 시리즈의 편수를 채우는 데 사용하지 않음 |
 | 읽기·프로젝트 연결 검수 DB의 두 글 | 위 초안을 복사해 로컬 `published` 상태로 만든 UI 검수 자료 | 별도의 글이나 실제 공개 발행으로 계산하지 않음 |
 | 검증 범위·수정 기록 검수 글 | 문서 검토/로컬 재현/운영 관찰 등 표시 상태를 확인하는 합성 자료 | 실제 기술 글·운영 경험으로 사용하지 않음 |
 | Second Brain 노드·포트폴리오 사례 | 별도 콘텐츠와 공개 경계 | 블로그 글 3편이 준비됐다는 근거로 계산하지 않음 |
 
-초안의 성격과 기존 검수 범위는 [작성 가이드](BLOG_WRITING_GUIDE.md)와 [읽기 검수 기록](BLOG_READING_REVIEW.md)에 정리돼 있다. 로컬 원본은 Git/Docker 제외 경로 `private/blog-editorial-pilot-2026-10-15/`에 있다. 이번 확인에서 원본과 사실 검토본이 존재하고, manifest의 `publication: false`와 초안 2개를 확인했다.
+초안의 성격과 기존 검수 범위는 [작성 가이드](BLOG_WRITING_GUIDE.md)와 [읽기 검수 기록](BLOG_READING_REVIEW.md)에 정리돼 있다. 최초 원본은 Git/Docker 제외 경로 `private/blog-editorial-pilot-2026-10-15/`에 있다. 첫 준비 확인 당시 원본과 사실 검토본, manifest의 `publication: false`와 초안 2개를 확인했다. 이후 첫 글의 사례 검수본은 `private/case-study-review-2026-10-21/`, 신규 두 원고와 세 편의 구성 manifest는 `private/series-manuscripts-2026-10-21/`에 보관했다. 모두 비공개 원고이며 실제 발행은 하지 않았다.
 
-초안 manifest의 후보 slug는 `home-recent-posts-reading-boundary`, `redis-pubsub-delivery-criteria`다. 프로젝트 연결 코드와 로컬 UI 검수에서는 `home-recent-posts`, `redis-pubsub-delivery`를 사용했다. 실제 발행 전 최종 slug와 프로젝트 연결을 함께 확인해야 한다. 지금 후보 주소를 공개 URL로 확정하거나 기존 URL을 바꾸지 않는다.
+최초 manifest의 후보 slug는 `home-recent-posts-reading-boundary`, `redis-pubsub-delivery-criteria`다. 프로젝트 연결 코드와 로컬 UI 검수에서는 `home-recent-posts`, `redis-pubsub-delivery`를 사용했다. 이번 시리즈 구현 대상은 첫 글의 기존 프로젝트 연결에 맞춰 `home-recent-posts`로 정했다. 이전 manifest와 Redis 초안은 그대로 보존했다. 신규 글의 구현 대상 slug는 `published-current-read-boundary`, `verification-and-revision-dates`다. 실제 공개 URL을 바꾸거나 운영 DB에 해당 글이 있다고 가정하지 않는다.
 
-## 제안하는 첫 시리즈
+## 준비한 첫 시리즈
 
-**가제: H-Log에서 공개 글을 읽는 경계 만들기**
+**시리즈명: H-Log에서 공개 글을 읽는 경계 만들기** (`h-log-public-reading`)
 
-소개 초안: H-Log에서 글을 읽어 오는 과정과 공개할 정보를 나눈 기록입니다. 홈의 조회 대기, 현재 공개 버전 선택, 검증 범위와 수정 이유의 표시를 차례로 살펴봅니다.
+소개: H-Log에서 글을 읽어 오는 과정과 공개할 정보를 나눈 기록입니다. 홈의 조회 대기, 현재 공개 버전 선택, 검증 범위와 수정 이유의 표시를 차례로 살펴봅니다.
 
-| 순서 | 글의 질문과 가제 | 확인할 구현 근거 | 준비 상태 |
+| 순서 | 제목 | 확인한 구현 근거 | 준비 상태 |
 | --- | --- | --- | --- |
 | 1 | 최근 글 조회가 늦어져도 홈은 먼저 보여주기 | [홈 최근 글 단계](../../../phases/blog-discovery-and-home/step2.md), [홈](../../../app/page.tsx), 기존 공개 글 selector | 기존 초안을 재사용해 Step 2 검수 완료. 실제 발행·새 원고 화면 검수는 별도 |
-| 2 | 공개 글을 읽을 때 비공개 버전까지 읽어야 할까 | [공개 조회 경계 단계](../../../phases/public-read-boundary-hardening/step0.md), [repository](../../../lib/blog-postgres-repository.ts), [공개 판정](../../../lib/blog-content-model.ts) | 미작성. SQL 후보 제한과 후속 privacy 검사를 구분하고 통합 검증 근거 확인 필요 |
-| 3 | 글을 고친 날짜와 내용을 확인한 날짜를 나누기 | [검증 범위·수정 기록 단계](../../../phases/editorial-trust-and-series/step0.md), [editorial parser](../../../lib/blog-editorial.ts), [글 상세](../../../app/blog/[slug]/page.tsx) | 미작성. 명시적 공개 기록·현재 버전·날짜 누락 처리와 migration 005의 로컬 검증 범위 확인 필요 |
+| 2 | 공개 글을 읽을 때 비공개 버전까지 읽어야 할까 | [공개 조회 경계 단계](../../../phases/public-read-boundary-hardening/step0.md), [repository](../../../lib/blog-postgres-repository.ts), [공개 판정](../../../lib/blog-content-model.ts) | 원고·주장 8개 검수 완료. 운영 부하나 유출 사고를 주장하지 않음 |
+| 3 | 글을 고친 날짜와 내용을 확인한 날짜를 나누기 | [검증 범위·수정 기록 단계](../../../phases/editorial-trust-and-series/step0.md), [editorial parser](../../../lib/blog-editorial.ts), [글 상세](../../../app/blog/[slug]/page.tsx) | 원고·주장 10개 검수 완료. 현재 로컬 테스트와 과거 화면 기록을 구분 |
 
-세 글은 조회 대기 → 공개 대상 → 공개 설명이라는 서로 다른 질문을 다룬다. 기존 글을 세 조각으로 나누거나 기록에 없는 장애·대안 검토·운영 성과를 만들어 채우지 않는다. 제목과 소개는 구성안이며 초안 작성이나 발행 완료를 뜻하지 않는다.
+세 글은 조회 대기 → 공개 대상 → 공개 설명이라는 서로 다른 질문을 다룬다. 기존 글을 세 조각으로 나누거나 기록에 없는 장애·대안 검토·운영 성과를 만들어 채우지 않았다. 원고 준비와 시리즈 기능·실제 발행 완료는 구분한다.
 
-## 구현 재개 조건과 순서
+## 준비 결과와 구현 순서
 
 1. **Step 2의 첫 글 검토를 완료했다.** [사례 검수 기록](BLOG_CASE_STUDY_REVIEW.md)을 다음 작업의 기준으로 사용한다. 기존 원고를 이어서 검토한 결과이므로 새 글 한 편으로 추가 계산하지 않는다. Step 1의 완료 기준과 기존 번호는 유지한다.
-2. **다음 실행은 Step 1의 나머지 두 원고 준비**다. 각 글의 완성 원고·제목/요약·출처·claim 근거·확인 시점·한계·공개 가능 여부를 확인한다. 외부 문서는 실제로 다시 읽었을 때만 확인 시각을 갱신한다.
-3. 관련 글 3편의 내용 검토가 끝나면 시리즈명·소개·읽기 순서·최종 slug를 확정하고 Step 1 구현을 재개한다. **구현을 시작하기 위해 운영에 먼저 발행할 필요는 없다.** 공개 가능한 완성 원고 3편의 준비와, 실제 공개 화면에서 `published` 현재 버전만 노출하는 조건은 별개다.
+2. **Step 1의 나머지 두 원고 준비를 완료했다.** 제목/요약·출처·claim 근거·확인 시점·한계·공개 가능 여부를 검토했다. 신규 주장 18개·Korean 교정 4곳을 확인했고 이전 자료 확인 시각은 갱신하지 않았다.
+3. 관련 글 3편과 시리즈명·소개·읽기 순서·구현 대상 slug가 준비돼 **다음 실행은 Step 1 시리즈 기능 구현**이다. **구현을 시작하기 위해 운영에 먼저 발행할 필요는 없다.** 공개 가능한 완성 원고 3편의 준비와, 실제 공개 화면에서 `published` 현재 버전만 노출하는 조건은 별개다.
 4. 시리즈 기능은 기존 공개 selector와 `/blog/[slug]`를 재사용하는 최소 구현부터 검토한다. 태그는 기술 분류, 글 유형은 서술 방식, 시리즈는 편집한 읽기 순서로 구분한다. 저장 계층 변경이 실제로 필요할 때만 결정한다.
 5. 순서·시리즈 안의 이전/다음·중간 글 비공개/철회·모든 글 철회 후 빈 영역 생략·기존 canonical 유지부터 RED→GREEN으로 확인한다. 준비 완료 후 일부 글이 철회되면 남은 공개 글의 순서를 유지하고 비공개 제목이나 링크를 노출하지 않는다. UI 세 폭 검수와 기본 gate, persistence 변경 시 integration을 통과해야 Step 1을 completed로 바꾼다.
 
@@ -49,3 +51,7 @@
 ## Step 1 준비 확인 당시 검증
 
 앱 디렉터리에서 `node private/series-readiness-check/verify.mjs`를 실행했다. 초안 manifest 2개 항목과 최종 교정본/사실 검토본 존재, 검수용 복사본 2개·합성 글 5개의 출처, Git/Docker 제외 설정을 확인했다. 변경한 Markdown 파싱·추가/변경된 상대 링크 28개, 전체 phase JSON 42개·상태, 15/19 완료 개수와 다음 단계 정합성 및 `git diff --check`를 통과했다. 최초 검사에서 PowerShell이 출력한 시각과 원본 ISO 문자열의 소수점 표기 차이로 검증 스크립트가 실패해 원본 표기에 맞춘 뒤 재실행했다. 자료 확인 시각은 바꾸지 않았다. 문서/JSON만 바꿨으며 앱 테스트·빌드·DB·브라우저 검증은 이번에 실행하지 않았다.
+
+## 원고 준비 후 검증
+
+2026-10-21 후속 작업에서 단위 테스트 **61/61**, 격리 DB 통합 **7/7**을 통과했다. 원고 3편의 파싱/hash·privacy·비공개 selector 제외와 신규 두 원고의 보호 항목·근거 파일 보존을 확인했다. 실행 명령과 검증 범위는 [원고 준비 결과](BLOG_SERIES_MANUSCRIPT_REVIEW.md)에 기록했다. 브라우저 재검수와 운영 발행은 하지 않았다.
