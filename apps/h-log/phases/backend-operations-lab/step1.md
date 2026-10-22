@@ -23,6 +23,11 @@
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `apps/h-log/.codex/docs/harness/PUBLIC_EXPERIENCE_PLAN.md`
 - `apps/h-log/phases/backend-operations-lab/index.json`
+- `apps/h-log/app/lab/queue/page.tsx`
+- `apps/h-log/components/lab/QueueReplay.tsx`
+- `apps/h-log/lib/queue-lab.ts`
+- `apps/h-log/lib/queue-lab.test.ts`
+- `apps/h-log/phases/backend-operations-lab/step0.md`
 - `apps/h-log/lib/projects.ts`
 - `apps/h-log/lib/site.ts`
 - `apps/h-log/app/portfolio/[slug]/page.tsx`
@@ -58,3 +63,7 @@ git diff --check
 - 저장 Markdown/HTML/hash나 기존 URL을 무단 재작성하지 말 것. 발행 무결성과 기존 링크를 유지해야 한다.
 - raw HTML 주입, private 글/내부 evidence/근거 없는 실적 노출을 허용하지 말 것. 공개 콘텐츠 경계를 유지해야 한다.
 - OCI·DNS/TLS·운영 timer·실제 provider 호출·공개 발행을 실행하지 말 것. 로컬 개선 계획이며 기존 OCI 보류는 유지된다.
+
+## 시작 상태 — 2026-10-22
+
+Step 0을 완료했다. `/lab/queue`의 고정 가상 모델과 로컬 검증을 재사용한다. 실제 사례·공개 글과의 연결 및 기존 화면에서의 진입점/검색 노출 정리는 이 Step 1의 남은 범위다. 실험 수치를 프로젝트 실적으로 사용하지 않고, 링크는 기존 published-current/privacy 판정을 따른다.

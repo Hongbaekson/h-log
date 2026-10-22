@@ -158,7 +158,7 @@
     {
       "dir": "backend-operations-lab",
       "status": "pending",
-      "summary": "2026-10-01 public experience plan: 백엔드 운영 실험실. Steps 0-1 are planned; preserve Discord style, the entire radar area, published-current/privacy boundaries and the OCI hold."
+      "summary": "2026-10-22 Step 0 completed: /lab/queue replays six synthetic jobs with 1-3 workers, three fixed failure conditions, FIFO retry, two-attempt DLQ and explicit resolved-cause redrive. Pure deterministic frames preserve job identity/count and cumulative attempts. Native controls provide play/pause/step/reset, configuration reset and a processing log. Focused 2/2, unit 227 pass/14 DB skip, lint/typecheck/build and 1440/390/320px keyboard, pause/reset, nine combinations, reduced motion, no-JS and database-unavailable production-mode checks passed; no API/external requests. No DB/worker/provider changes. Step 1 lab-case-study-connection remains pending."
     },
     {
       "dir": "blog-writing-quality",

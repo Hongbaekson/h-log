@@ -4,7 +4,7 @@
 
 ## 현재 판정
 
-같은 주제로 공개 가능한 원고 3편을 준비했다. Step 2에서 검토한 첫 글에 공개 현재 버전 조회와 검증·수정 날짜를 다룬 원고 2편을 더했다. [신규 원고 검수 결과](BLOG_SERIES_MANUSCRIPT_REVIEW.md)에 내용 근거와 읽기 순서를 기록했다. 원고 준비 후 2026-10-22 시리즈 기능·검증을 완료해 Step 1과 Phase 5 전체가 `completed`다. 전체 공개 경험 개선은 **17/19개 step 완료, 0개 blocked, 2개 pending**이다. 다음은 `backend-operations-lab / Step 0`이다.
+같은 주제로 공개 가능한 원고 3편을 준비했다. Step 2에서 검토한 첫 글에 공개 현재 버전 조회와 검증·수정 날짜를 다룬 원고 2편을 더했다. [신규 원고 검수 결과](BLOG_SERIES_MANUSCRIPT_REVIEW.md)에 내용 근거와 읽기 순서를 기록했다. 원고 준비 후 2026-10-22 시리즈 기능·검증을 완료해 Step 1과 Phase 5 전체가 `completed`다. 이후 Queue 실험 Step 0도 완료해 전체 공개 경험 개선은 **18/19개 step 완료, 0개 blocked, 1개 pending**이다. 다음은 `backend-operations-lab / Step 1`이다.
 
 이 판정은 로컬 초안·검수 manifest·현재 코드와 저장소 기록을 확인한 결과다. 운영 DB나 배포 사이트의 글 수를 조사한 결과가 아니다. 기존 자료의 `sourceReviewedAt`이나 초안 본문은 변경하지 않았다.
 

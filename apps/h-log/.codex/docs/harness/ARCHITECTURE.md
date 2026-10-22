@@ -36,6 +36,12 @@ npm run build
 
 ## Runtime 구성
 
+### Queue 재생 실험
+
+`app/lab/queue/page.tsx`는 가상 실험 안내·canonical·초기 화면을 제공한다(ADR-037). `lib/queue-lab.ts`의 순수 함수는 6개 작업의 Queue/처리 중/완료/DLQ 배열과 단계별 설명을 생성한다. 기존 frame을 변경하지 않고, 최대 2회 시도 후 DLQ에 보관하며 원인 해결을 가정한 재처리에서 해당 작업만 Queue로 이동한다.
+
+`components/lab/QueueReplay.tsx`는 현재 frame 위치·재생·설정·재처리 상태만 보관한다. 1초 간격은 읽기 속도이며 실제 처리 시간을 뜻하지 않는다. 일시정지·초기화·설정 변경·화면 이탈 시 타이머를 정리하고 마지막 단계에서 멈춘다. 시작은 수동이며 이동 애니메이션을 사용하지 않는다. DB/repository/API/실제 worker와 연결하지 않아 DB가 없어도 동작한다. 실제 사례 및 공개 글 연결은 다음 Step 1 범위다.
+
 ### 순서가 있는 시리즈
 
 `lib/blog-series.ts`는 검수된 시리즈의 소개와 slug 순서를 서버에서 관리한다(ADR-036). 기존 public loader의 repository/privacy 결과에 `selectPublicBlogRouteEntries`를 적용한 뒤 현재 공개 제목·기존 URL·원래 편 번호만 반환한다. 비공개 후보 slug 목록이나 과거 버전은 UI 모델에 포함하지 않는다. `getPublicBlogPostSeries`는 남은 공개 글 사이의 이전/다음을 계산하며 대상 글이 없으면 결과를 반환하지 않는다.
