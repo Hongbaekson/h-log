@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-계획 등록 상태: pending — 미구현. A1 Step 0 완료.
+상태: pending — 미구현. A1 Step 0의 접근·명령 계약은 2026-10-23 완료했다.
 
 ## 읽을 파일
 
@@ -19,6 +19,7 @@
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/ADMIN_CONSOLE_PLAN.md`
+- `apps/h-log/.codex/docs/harness/ADMIN_ACCESS_CONTRACT.md`
 - `plans/automated-blog-publishing-plan.md`
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/phases/admin-console-foundation/index.json`
@@ -28,6 +29,10 @@
 - `apps/h-log/lib/brain-owner.test.ts`
 - `apps/h-log/app/admin/brain/page.tsx`
 - `apps/h-log/app/admin/brain/records/route.ts`
+- `apps/h-log/lib/brain-capture-http.ts`
+- `apps/h-log/lib/brain-capture-http.test.ts`
+- `apps/h-log/lib/brain-server.ts`
+- `apps/h-log/scripts/brain-capture.http.test.mjs`
 - `apps/h-log/app/layout.tsx`
 - `apps/h-log/deploy/nginx/conf.d/hlog.conf`
 - `apps/h-log/.codex/rules/frontend.md`
@@ -38,6 +43,8 @@
 1. 확정된 단일 소유자 인증을 공통 /admin 경계로 추출하고 page·HTTP handler·데이터 접근에서 확인한다. Brain DB flag와 인증 설정을 분리하되 기존 Brain endpoint의 보호 수준을 유지한다.
 2. 관리자 전용 Discord dark 탐색과 비공개 개요를 구현한다. 미구현 메뉴는 명확한 준비 상태로 표시하며 운영 통계나 성공 이력을 꾸며 넣지 않는다. 공개 Header/Footer와 관리자 탐색이 섞이지 않도록 필요한 최소 layout 변경만 한다.
 3. 공개 host의 관리자 거부, 관리자 origin 허용·비공개 헤더·인증 전 데이터 차단을 로컬 검증한다. 운영 Nginx를 개방하지 않고 격리 proxy 구성에서 Host 전달·위조 forwarded header·직접 앱 요청을 확인한다.
+
+Step 0 확정 사항: `lib/admin-owner.ts`로 기존 비교/검사를 추출하고 `HLOG_ADMIN_ENABLED/OWNER_KEY/ORIGIN`을 사용한다. 구 Brain owner 환경값으로 fallback하지 않으며 HTTP fixture/문서도 함께 이전한다. 공통 shell은 Brain DB 없이 열리고 records는 기능 OFF 시 404다. `/admin`과 모든 하위 경로를 보호하고 page·handler에서 데이터 조회 전 재검사한다. 새 세션/명령 DB는 이 step에서 만들지 않으며 Brain 명령 revision/감사는 Step 3의 범위다.
 
 ## 인수 기준
 
@@ -58,6 +65,8 @@ git diff --check
 1. 기존 brain-owner/brain-capture-http 테스트와 새 인증 경계 테스트의 RED/GREEN, 인증된 정상 이동·누락 설정·잘못된 origin·host·재시작을 확인한다.
 2. 1440/390/320px·키보드·오류 화면을 확인하고 기존 public layout/레이더를 보존한다.
 3. 이 step과 phase index에 실제 command·결과·남은 한계·다음 작업을 기록한다. 완료한 구현만 completed로 변경한다. UI 변경은 개발 서버의 데스크톱/모바일 검수를 포함한다.
+
+Focused 시작 명령은 `node --no-warnings --test --experimental-strip-types lib/admin-owner.test.ts lib/brain-owner.test.ts lib/brain-capture-http.test.ts`다. 새 파일은 RED부터 작성하고 wrapper 제거 시 실제 테스트 경로를 기록한다. 계약의 `127.0.0.1:3030`/`localhost:3031` 격리 ingress에서 공개 host+올바른 키·익명 RSC·누락 Host·위조 forwarded header·same-site/null/누락 Origin을 확인한다. 운영 HTTP 설정은 거부하고 실제 TLS/SSH 개방은 A3 Step 4에 남긴다.
 
 ## 하지 말 것
 

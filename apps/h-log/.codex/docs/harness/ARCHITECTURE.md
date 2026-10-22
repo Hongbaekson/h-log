@@ -36,9 +36,11 @@ npm run build
 
 ## 관리자 통합 목표 — 아직 미구현
 
-2026-10-22 사용자 요청과 ADR-038에 따라 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 등록했다. 현재 `/admin/brain`과 공개 `/lab/queue`는 그대로이며, 다음은 공통 관리자 접근 계약을 정하는 A1 Step 0이다. 목표는 같은 앱의 `/admin` 아래 전용 shell·Blog/automation/jobs/Brain/monitoring/audit/lab을 두고 별도 관리자 host로 진입하는 구조다. 공개 host의 관리자 거부와 서버별 권한 검사를 함께 적용한다.
+2026-10-22 사용자 요청과 ADR-038에 따라 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 등록했다. 2026-10-23 A1 Step 0에서 [접근·명령 계약](ADMIN_ACCESS_CONTRACT.md)을 확정했으며 다음은 공통 인증/shell을 구현하는 A1 Step 1이다. 현재 `/admin/brain`과 공개 `/lab/queue`는 그대로다. 목표는 같은 앱의 `/admin` 아래 전용 shell·Blog/automation/jobs/Brain/monitoring/audit/lab을 두고 별도 관리자 host로 진입하는 구조다. 공개 host의 관리자 거부와 서버별 권한 검사를 함께 적용한다.
 
 기존 `brain-owner.ts`는 Brain DB flag에 결합돼 있고 Nginx는 모든 관리자 경로를 막으며 Host를 `hlog-web`로 재작성한다. 따라서 서브도메인 이름만 추가해 운영을 여는 방식으로 구현하지 않는다. A1에서 공통 인증·기능별 활성화·설정 이전과 host 전달을 로컬 검증하고 A3의 승인된 rollout에서 실제 ingress에 적용한다. 가상 Queue는 A1 Step 2에서 인증 경로로 이동하며 공개 링크/사이트맵도 그때 제거한다.
+
+확정한 목표는 서버 전용 `admin-owner.ts`로 기존 Basic 검사를 추출하고 `/admin` Proxy와 page/handler의 데이터 조회 전 검사를 공유하는 방식이다. `HLOG_ADMIN_*`와 Brain DB flag를 분리하고 관리자 host는 고정 canonical Host를 전달한다. 새 파일/환경값은 아직 없으며 A1 Step 1이 구현한다. Brain은 내용 revision과 별도의 명령 revision을 A1 Step 3에서 추가해 공개/해제 경합을 구분하고 기존 `admin_actions`를 필요한 대상·중복 receipt로 확장한다. 원문 버전과 public snapshot은 유지한다.
 
 Blog 관리 조회/명령·draft-only persistence·지속 정책과 요청은 아직 없다. 기존 generation은 `publishing` aggregate/required jobs를 만들므로 A2에서 비공개 초안 저장과 명시적 공개를 나눈다. 웹 요청은 기존 실행자에게 지속 요청을 전달하며 shell/worker 프로세스를 직접 띄우지 않는다. 기존 `publish_jobs`/lease·usage·audit를 재사용하고 모든 새 실행/공개 전이에 정책을 적용한다. 수집 신호는 observability phase가 생산하고 A3 관리자 화면이 읽는다. 세부 schema/새 파일은 실제 step에서 필요한 만큼 정한다.
 

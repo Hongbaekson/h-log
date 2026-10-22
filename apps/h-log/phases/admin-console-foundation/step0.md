@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-계획 등록 상태: pending — 미구현. 없음. 이 단계가 새 관리자 트랙의 기본 시작점이다.
+상태: completed — 2026-10-23 접근·명령 계약 확정. 선행 조건 없음. 문서 단계이며 인증/화면/DB/배포 구현은 아직 변경하지 않았다.
 
 ## 읽을 파일
 
@@ -19,6 +19,7 @@
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/ADMIN_CONSOLE_PLAN.md`
+- `apps/h-log/.codex/docs/harness/ADMIN_ACCESS_CONTRACT.md`
 - `plans/automated-blog-publishing-plan.md`
 - `apps/h-log/phases/admin-console-foundation/index.json`
 - `apps/h-log/proxy.ts`
@@ -26,7 +27,13 @@
 - `apps/h-log/lib/brain-owner.test.ts`
 - `apps/h-log/app/admin/brain/page.tsx`
 - `apps/h-log/app/admin/brain/records/route.ts`
+- `apps/h-log/lib/brain-capture-http.ts`
+- `apps/h-log/lib/brain-capture-http.test.ts`
+- `apps/h-log/lib/brain-postgres-repository.ts`
 - `apps/h-log/lib/blog-admin.ts`
+- `apps/h-log/lib/blog-postgres-repository.ts`
+- `apps/h-log/lib/blog-content-model.ts`
+- `apps/h-log/migrations/003_publish_rollback_audit.sql`
 - `apps/h-log/lib/blog-persistent-worker.ts`
 - `apps/h-log/deploy/nginx/conf.d/hlog.conf`
 - `apps/h-log/compose.yaml`
@@ -61,3 +68,21 @@ Markdown/JSON 파싱·읽을 파일/상대 링크 검사와 `git diff --check`�
 ## 다음 단계
 
 A1 Step 1 shared-owner-auth-and-shell. 전체 순서는 [통합 관리자 계획](../../.codex/docs/harness/ADMIN_CONSOLE_PLAN.md)을 따른다.
+
+## 완료 기록 — 2026-10-23
+
+[관리자 접근·명령 계약](../../.codex/docs/harness/ADMIN_ACCESS_CONTRACT.md)에 실제 caller와 목표 동작을 구분해 기록했다. 공통 Basic 설정 세 값, Brain DB flag 분리, 구 환경값의 명시적 이전·키 폐기/복구, SSH 터널 안의 운영 HTTPS 기본안을 확정했다. Host/Origin·HTML/API/RSC·직접 upstream 행렬, 명령별 원본/전이/중복/감사와 중지 admission 기준 및 후속 구현 파일/검증 명령을 포함한다.
+
+Brain 공개/해제는 현재 내용 revision을 증가시키지 않으므로 같은 내용의 동시 공개 상태 변경을 따로 검증해야 함을 확인했다. A1 Step 3에 명령 revision·중복 receipt·transaction 감사를 인계했다. A1 Step 1은 인증 추출과 shell에 한정한다.
+
+앱 디렉터리에서 실행:
+
+```bash
+node --no-warnings --test --experimental-strip-types lib/brain-owner.test.ts lib/brain-capture-http.test.ts
+node private/admin-access-check/verify-docs.mjs
+git diff --check
+```
+
+기존 인증/HTTP 기준선 6/6을 통과했다. 변경 13개(Markdown 11개/JSON 2개), 전체 phase JSON 46개·162개 step, 새 상대 링크 13개와 읽을 파일 84개를 검증했다. 관리자 상태는 completed 1개·pending 15개·blocked 1개이며 다른 phase/step 상태는 보존했다. Markdown/JSON 파싱과 `git diff --check`를 통과했다. 문서 검사 도구/결과는 Git에서 제외한 `private/admin-access-check/`에 보관했다.
+
+기준선 테스트는 새 공통 인증이 구현됐다는 증거가 아니다. production code/UI/schema/env 변경이 없어 RED/GREEN·build·브라우저 검수는 다음 구현 단계에서 실행한다. `/lab/queue`는 여전히 공개이고 이력서 PDF 다운로드도 아직 없다. 실제 키/도메인/DB·OCI·provider·timer는 변경하지 않았다.

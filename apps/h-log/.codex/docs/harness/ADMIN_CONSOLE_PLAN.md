@@ -1,6 +1,6 @@
 # H-Log 통합 관리자 계획
 
-등록일: 2026-10-22. 이력서 PDF 관리 요청을 추가해 **4개 phase / 17개 step의 계획 등록이며 관리자 통합·Queue 비공개 전환·PDF 다운로드 복원은 아직 구현하지 않았다.** 다음 실행은 [A1 Step 0](../../../phases/admin-console-foundation/step0.md)이다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
+등록일: 2026-10-22. 2026-10-23 **A1 Step 0의 접근·명령 계약을 확정했다. 4개 phase / 17개 step 중 completed 1개·pending 15개·blocked 1개**다. 관리자 통합·Queue 비공개 전환·PDF 다운로드 복원은 아직 구현하지 않았다. 다음 실행은 [A1 Step 1](../../../phases/admin-console-foundation/step1.md)이다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
 
 ## 방향과 현재 근거
 
@@ -42,9 +42,9 @@ Second Brain의 초기 통합 대상은 기존 DB 기록 작성·회고·연결�
 
 ## 인증과 명령 경계
 
-- A1 Step 0에서 단일 소유자 인증 계약을 확정한다. 기존 256-bit Basic 키·HTTPS·정확한 Host/Origin 검사를 출발점으로 삼되 Brain DB 활성 여부와 관리자 인증 활성 여부를 분리한다. Brain 기능을 끈 상태에서도 관리자 실험실을 사용할 수 있어야 한다. 기존 Brain 설정의 이전·키 회전·복구와 운영 진입점의 추가 인증 필요성을 기록한다. 인증 제공자나 세션 라이브러리를 이번 등록만으로 설치하지 않는다.
+- A1 Step 0에서 [관리자 접근·명령 계약](ADMIN_ACCESS_CONTRACT.md)을 확정했다. 후속 인증/명령 구현은 이 계약을 함께 읽는다. 기존 256-bit Basic 키를 재사용하고 `HLOG_ADMIN_ENABLED/OWNER_KEY/ORIGIN`을 Brain DB flag와 분리한다. 구 Brain owner 설정은 자동 fallback하지 않으며 키 교체·분실 복구는 기존 SSH 관리 경로를 사용한다. 운영 초기 기본안은 SSH 터널 안의 관리자 HTTPS 진입점과 앱 인증이다. 운영 설정은 아직 적용하지 않았다.
 - Proxy만으로 보호하지 않는다. 서버 page, Route Handler/Server Action과 데이터 접근 경계에서 권한을 확인하며 HTML/RSC/prefetch/직접 API 요청도 검증한다. 누락·잘못된 설정은 닫힌 상태로 처리한다. 관리자 응답은 private/no-store/noindex로 하고 공개 검색·사이트맵·feed·llms에서 제외한다. noindex는 접근 제어를 대신하지 않는다. [Next.js 인증 지침](https://nextjs.org/docs/app/guides/authentication)을 기준으로 적용한다.
-- 변경 요청은 정확한 관리자 Origin만 허용하고 GET에는 부작용을 넣지 않는다. 형제 서브도메인도 자동으로 신뢰하지 않으며 null/누락 Origin·잘못된 Host·위조 forwarded header·교차 출처 요청을 거부한다. 세션 쿠키를 선택한다면 host 전용 Secure/HttpOnly 설정과 CSRF 방어를 함께 확정한다. [OWASP CSRF 지침](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)을 참고한다.
+- 변경 요청은 정확한 관리자 Origin만 허용하고 GET에는 부작용을 넣지 않는다. 형제 서브도메인도 자동으로 신뢰하지 않으며 null/누락 Origin·잘못된 Host·위조 forwarded header·교차 출처 요청을 거부한다. 초기 계약에는 세션 쿠키/로그아웃 API가 없으며 Basic 캐시의 한계와 키 폐기를 안내한다. [OWASP CSRF 지침](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)을 참고한다.
 - 명령은 대상·예상 버전/상태·사유·중복 요청 키로 확인하고 원자적 상태 변경/감사를 보장한다. 중복 클릭·늦은 응답·동시 편집·실행 중 재시도를 테스트한다. 새 일반 목적 명령 버스는 만들지 않고 실제 필요한 저장 항목만 추가한다.
 - 원문·키·provider credential·환경변수 전체·원본 stack trace를 개요/로그에 복사하지 않는다. API 오류는 원인을 구분할 안전한 코드와 안내를 제공한다. 인증 전 데이터가 HTML/RSC payload로 전달되지 않아야 한다.
 
@@ -114,7 +114,7 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 
 ## 실행 순서와 기존 계획
 
-1. 기본 다음 작업은 **A1 Step 0**이다. A1 Steps 0–3으로 관리자 경계·Queue 비공개·Brain 통합을 먼저 진행한다. 계획 등록 시점에는 `/lab/queue`와 공개 링크가 그대로 남아 있다.
+1. 기본 다음 작업은 **A1 Step 1**이다. A1 Step 0의 계약을 기준으로 Steps 1–3에서 관리자 경계·Queue 비공개·Brain 통합을 진행한다. 현재도 `/lab/queue`와 공개 링크가 그대로 남아 있다.
 2. A1 완료 뒤 독립적인 **A4 이력서 PDF Steps 0–3**을 진행한다. A4 번호는 기존 A1–A3의 참조를 보존하기 위한 것이며 운영 rollout 뒤로 미루는 뜻이 아니다. 이어 `operations-observability / Step 0`에서 신호·권한·예산을 확정한다. A2 Steps 0–3과 A3 Steps 0–1은 이를 참고해 실제 저장·제어를 구현하며, 수집 스택 설치를 선행 조건으로 요구하지 않는다.
 3. observability Steps 1–6을 구현·로컬 검증한 뒤 A3 Steps 2–3을 완료한다. 관측 데이터의 생산자는 모니터링 phase, 관리자 화면은 소비자로 둔다.
 4. 운영은 기존 OCI 보류 해제 및 범위별 승인 후 진행한다. observability Step 7은 비활성 scheduler 상태에서도 완료할 수 있다. 이어 A3 Step 4에서 관리자 도메인과 A4의 비공개 파일 저장/migration을 적용한다. 관리자 rollout은 자동 발행 timer를 켜거나 실제 글/Brain 사본/PDF를 공개하지 않는다. 특정 PDF 공개는 관리자에서 검수한 파일을 선택하는 별도 행동이다.
@@ -130,7 +130,7 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 - 작업: test provider와 합성 자료만 사용해 중복 요청·버전 충돌·감사 실패 rollback·lease 경합·정책 변경·재시작·결과 불명확을 재현한다. 공개 URL/Markdown/sitemap/feed/llms/search/related에 private 데이터가 없어야 한다.
 - 배포 구성: 로컬 Compose/Nginx 검증은 운영 변경과 분리한다. `admin` host에서도 public canonical을 바꾸지 않고 upstream 직접 접근·위조 host/header·cache 누출을 검사한다.
 
-이번 계획 등록은 코드/설정/DB/운영 상태를 변경하지 않는다. 실제 도메인 선택, 인증 수단의 최종 운영 설정과 OCI 적용은 해당 step에서 다룬다. 관리 화면에서 수행할 기능을 만드는 일과 실제 provider 호출·공개 발행·운영 활성화는 서로 다른 완료 기준이다.
+계획 등록과 A1 Step 0 계약 확정은 코드/설정/DB/운영 상태를 변경하지 않는다. 실제 도메인 선택, 확정한 인증 방식의 운영 설정과 OCI 적용은 해당 step에서 다룬다. 관리 화면에서 수행할 기능을 만드는 일과 실제 provider 호출·공개 발행·운영 활성화는 서로 다른 완료 기준이다.
 
 ## 최초 계획 등록 검증 — 2026-10-22, PDF 추가 전
 
@@ -139,3 +139,7 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 ## PDF 계획 추가 검증 — 2026-10-22
 
 같은 문서 검증 명령으로 통합 변경 36개(Markdown 31개/JSON 5개), 전체 phase JSON 46개, 상대 링크 53개, 새 step의 읽을 파일 경로 400개를 확인했다. 관리자 계획은 4개 phase/17개 step, pending 16개·blocked 1개이며 기존 완료/운영 보류 상태는 보존했다. A1 → A4 → 모니터링/블로그/운영 순서와 PDF 등록·교체·해제·복구 계약을 대조했다. `git diff --check`를 통과했으며 앱 코드·설정·개인 파일·DB는 변경하지 않았다. 실제 Queue는 공개, PDF 다운로드는 제거 상태 그대로다. 구현 테스트나 실제 PDF 공개를 완료했다고 기록하지 않는다.
+
+## A1 Step 0 계약 검증 — 2026-10-23
+
+기존 `brain-owner.test.ts`·`brain-capture-http.test.ts` 기준선 6/6을 통과했다. `node private/admin-access-check/verify-docs.mjs`로 변경 문서 13개(Markdown 11개/JSON 2개), 전체 phase JSON 46개·162개 step, 상대 링크 13개·읽을 파일 84개와 다른 단계의 상태 보존을 확인했다. `git diff --check`도 통과했다. 목표 인증·명령·중지 행렬은 계약 검토 결과이며 새 runtime 테스트의 통과를 뜻하지 않는다. 다음 A1 Step 1에서 공통 인증과 관리자 shell을 실제 구현·검수한다.

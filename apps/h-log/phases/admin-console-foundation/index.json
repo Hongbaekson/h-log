@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "admin-access-and-command-contract",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-23: Finalized shared owner Basic settings, explicit Brain env migration/key recovery, private HTTPS ingress and Host/Origin/RSC rejection matrix, command revision/idempotency/audit and pause admission contracts against live callers. Existing auth/HTTP baseline 6/6 and Markdown/JSON/link/phase checks passed. Documentation only; runtime and OCI hold unchanged. Next: Step 1 shared-owner-auth-and-shell."
     },
     {
       "step": 1,

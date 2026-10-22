@@ -178,7 +178,7 @@
     {
       "dir": "admin-console-foundation",
       "status": "pending",
-      "summary": "2026-10-22 plan registered: shared single-owner admin boundary, private shell, Queue lab removal from public surfaces and integration of existing Brain capture. All four steps pending; default next local work is Step 0 admin-access-and-command-contract. No route/auth/ingress changes yet."
+      "summary": "2026-10-23 Step 0 completed: access and command contracts finalized against current auth/page/HTTP/DB/worker/ingress callers. Explicit shared Basic env migration, key recovery, private HTTPS ingress, Host/Origin matrix, atomic audit/idempotency and pause admission defined. Existing auth/HTTP baseline 6/6 and documentation checks passed. Steps 1-3 pending; next: Step 1 shared-owner-auth-and-shell. No runtime/ingress changes; Queue remains public and OCI hold remains active."
     },
     {
       "dir": "admin-blog-publishing",

@@ -383,7 +383,9 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 ### ADR-038: 운영 기능은 단일 소유자의 관리자 영역에서 통합한다
 
-**결정 (2026-10-22 계획)**: 사용자 요청에 따라 기존 Next.js `/admin`에 블로그 편집·초안 생성·자동화 허용·실제 작업 조회/제어·Second Brain·모니터링·가상 실험실을 모은다. 운영 진입점은 `admin.<선택 도메인>`으로 분리하되 별도 앱/마이크로서비스를 추가하지 않는다. 공통 소유자 인증과 정확한 Host/Origin, page/HTTP/data 권한 검사를 적용하고 공개 host에서 관리 경로를 거부한다. 기존 Brain 인증의 구체적인 이전·회전·운영 접근 계약은 A1 Step 0에서 확정한다.
+**결정 (2026-10-22 계획)**: 사용자 요청에 따라 기존 Next.js `/admin`에 블로그 편집·초안 생성·자동화 허용·실제 작업 조회/제어·Second Brain·모니터링·가상 실험실을 모은다. 운영 진입점은 `admin.<선택 도메인>`으로 분리하되 별도 앱/마이크로서비스를 추가하지 않는다. 공통 소유자 인증과 정확한 Host/Origin, page/HTTP/data 권한 검사를 적용하고 공개 host에서 관리 경로를 거부한다.
+
+**접근 계약 확정 (2026-10-23, A1 Step 0)**: [관리자 접근·명령 계약](ADMIN_ACCESS_CONTRACT.md)에 따라 기존 Basic 256-bit 키를 `HLOG_ADMIN_ENABLED/OWNER_KEY/ORIGIN`으로 이전하고 Brain DB flag와 분리한다. 구 owner 환경값은 fallback하지 않고 잘못된 설정은 닫는다. 별도 세션/계정 저장 없이 시작하며 Basic 캐시의 로그아웃 한계를 명시한다. 초기 운영 접근은 기존 SSH 공개키 터널 안의 관리자 HTTPS + 앱 인증으로 제한하는 기본안이다. 공개 인터넷 로그인/MFA 제공자는 별도 결정 없이 추가하지 않는다. 명령은 중복 receipt·예상 상태/revision·감사를 같은 transaction에 넣고 중지는 정책 row를 통한 실행 예약 순서로 정의한다. 이는 설계 완료이며 실제 인증/DB/ingress는 아직 변경하지 않았다.
 
 **공개 범위 변경**: ADR-037의 가상 모델은 유지하지만 공개 방문자용 진입은 관리자 실험실로 바꾸기로 했다. A1 Step 2에서 `/admin/lab/queue`로 이동하고 기존 `/lab/queue`는 404, Portfolio 링크/sitemap 항목은 제거한다. 현재 공개 구현이 이미 비공개로 바뀌었다는 뜻은 아니다. 공개 `/brain`과 기존 승인된 콘텐츠·원문/hash·레이더는 유지한다.
 
@@ -391,7 +393,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **근거와 트레이드오프**: 실제 운영 화면이 필요해져 ADR-002에서 제거했던 caller-free 명령을 일괄 복원하지 않고 필요한 caller와 함께 설계한다. 기존 Brain UI·가상 재생·DB/worker를 재사용할 수 있으나 초안 전용 persistence와 운영 정책의 실제 enforcement는 새 구현이 필요하다. 서브도메인 분리는 프로세스/DB 격리나 인증을 대신하지 않는다. [Next.js 인증 지침](https://nextjs.org/docs/app/guides/authentication)과 [OWASP CSRF 지침](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)을 따라 직접 endpoint/RSC·형제 origin·위조 header를 검증한다.
 
-**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 pending 16개·운영 rollout blocked 1개다. Prometheus/Grafana는 기존 observability phase가 소유하며 관리자 화면에 새 모니터링 시스템을 만들지 않는다. 계획 등록은 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
+**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1 Step 0 completed 1개·pending 15개·운영 rollout blocked 1개다. Prometheus/Grafana는 기존 observability phase가 소유하며 관리자 화면에 새 모니터링 시스템을 만들지 않는다. 계획/계약 확정은 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
 
 ### ADR-039: 이력서 PDF는 비공개 버전에서 검토한 파일 하나만 공개한다
 

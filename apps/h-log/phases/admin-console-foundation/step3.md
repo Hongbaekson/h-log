@@ -19,6 +19,7 @@
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/ADMIN_CONSOLE_PLAN.md`
+- `apps/h-log/.codex/docs/harness/ADMIN_ACCESS_CONTRACT.md`
 - `plans/automated-blog-publishing-plan.md`
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/phases/admin-console-foundation/index.json`
@@ -32,12 +33,14 @@
 - `apps/h-log/lib/brain-postgres-repository.integration.test.ts`
 - `apps/h-log/scripts/brain-capture.http.test.mjs`
 - `apps/h-log/migrations/004_brain_capture.sql`
+- `apps/h-log/migrations/003_publish_rollback_audit.sql`
 
 ## 작업
 
 1. 기존 /admin/brain 작성·검색·회고·연결·후보·미리보기를 공통 관리자 탐색에서 사용한다. 현재 URL과 원본/수정 이력을 보존하고 별도 Brain 관리 도구를 만들지 않는다. 정적 28개 노드/42개 연결은 코드로 관리됨을 구분하고 이 편입에서 자동 DB 이관이나 전체 카탈로그 웹 편집을 구현하지 않는다.
 2. 기록 저장·공개용 사본 확인·공개·해제를 명확히 구분한다. 비공개 수정과 연결 후보 선택으로 기존 공개 사본이 자동 갱신되지 않게 한다.
 3. 공통 인증 전환 후 records endpoint·동시 revision 충돌·DB 오류·기능 비활성 상태를 검증한다. 공개 /brain 그래프의 기존 Memory UI와 카탈로그는 변경하지 않는다.
+4. Step 0 계약에 따라 내용 revision을 보존하면서 모든 변경에 증가하는 명령 revision과 commandId를 UI/API/DB에 함께 적용한다. 같은 내용의 공개/해제 경합과 중복 신규 저장을 구분하고 `admin_actions`를 Brain 대상·중복 receipt에 필요한 만큼만 확장한다. 상태 변경과 감사/receipt는 같은 transaction이며 감사 실패는 rollback한다. 기존 원문 버전·공개 snapshot은 재작성하지 않는다.
 
 ## 인수 기준
 
@@ -56,6 +59,7 @@ git diff --check
 ```
 
 1. 합성 메모로 저장→수정→충돌→공개→비공개 수정→공개 해제를 확인하고 원문이 public 응답에 없는지 검사한다.
+   동일 commandId 재전송/다른 입력 충돌, 동시 공개·해제의 오래된 명령 revision 거부, 감사 실패 rollback을 추가로 재현한다. 예전 client의 누락 필드는 400과 새로고침 안내로 처리한다.
 2. npm run test:brain:http 및 필요한 격리 DB 통합 테스트, 1440/390/320px의 작성/검색/오류를 검증한다.
 3. 이 step과 phase index에 실제 command·결과·남은 한계·다음 작업을 기록한다. 완료한 구현만 completed로 변경한다. UI 변경은 개발 서버의 데스크톱/모바일 검수를 포함한다.
 

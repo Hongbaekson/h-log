@@ -8,6 +8,8 @@
 
 실제 DNS/TLS·운영 secret·migration·관리 경로 개방은 `admin-operations-control / Step 4`이며 기존 OCI 보류로 blocked다. 로컬 관리자 검수와 운영 모니터링 Step 7이 선행한다. 관리자 rollout 자체는 provider·공개 발행·timer를 활성화하지 않으며, 이들은 기존 `auto-publish-ops-hardening / Step 4`의 별도 범위다. public canonical과 worker의 공개 검증 origin도 관리자 도메인으로 바꾸지 않는다.
 
+2026-10-23 A1 Step 0에서 [관리자 접근 계약](harness/ADMIN_ACCESS_CONTRACT.md)을 확정했다. 운영 초기 기본안은 SSH 공개키 터널 안의 관리자 HTTPS 진입점 + 앱 Basic 인증이다. 실제 도메인·인증서·터널 포트는 rollout에서 선택하며 인터넷에 Basic 로그인만 직접 열지 않는다. `HLOG_ADMIN_ENABLED/OWNER_KEY/ORIGIN`으로의 명시적 이전과 키 회전은 ingress를 닫은 상태에서 코드/env를 함께 전환하고 모든 웹 인스턴스의 옛 키 거부를 검증한다. 공개 ingress는 계속 404, 관리자 ingress는 canonical Host 전달/forwarded header 덮어쓰기와 경로 허용 목록을 사용한다. web 포트 직접 외부 노출은 금지한다. 이 문단은 목표 계약이며 현재 Compose/Nginx/env는 변경하지 않았다.
+
 ## Target Flow
 
 이력서 PDF는 A4에서 제한된 PostgreSQL 비공개 저장과 공개 current handler를 구현할 계획이다. 관리자 rollout 시 해당 migration·파서 자원 예산·파일을 포함한 backup/restore·관리 업로드 크기 제한도 확인한다. 공개 정적 디렉터리나 bucket을 만들지 않으며 기존 Nginx의 2m 제한은 관리자 업로드 경로에서만 확정된 값으로 조정한다. 복구/rollout 시 PDF 공개 게이트는 닫고 실제 파일 검토·공개 선택을 별도로 수행한다. 현재 설정/DB/다운로드 API는 이 문서 갱신으로 변경되지 않았다.
