@@ -34,7 +34,19 @@ npm run typecheck
 npm run build
 ```
 
+## 관리자 통합 목표 — 아직 미구현
+
+2026-10-22 사용자 요청과 ADR-038에 따라 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 등록했다. 현재 `/admin/brain`과 공개 `/lab/queue`는 그대로이며, 다음은 공통 관리자 접근 계약을 정하는 A1 Step 0이다. 목표는 같은 앱의 `/admin` 아래 전용 shell·Blog/automation/jobs/Brain/monitoring/audit/lab을 두고 별도 관리자 host로 진입하는 구조다. 공개 host의 관리자 거부와 서버별 권한 검사를 함께 적용한다.
+
+기존 `brain-owner.ts`는 Brain DB flag에 결합돼 있고 Nginx는 모든 관리자 경로를 막으며 Host를 `hlog-web`로 재작성한다. 따라서 서브도메인 이름만 추가해 운영을 여는 방식으로 구현하지 않는다. A1에서 공통 인증·기능별 활성화·설정 이전과 host 전달을 로컬 검증하고 A3의 승인된 rollout에서 실제 ingress에 적용한다. 가상 Queue는 A1 Step 2에서 인증 경로로 이동하며 공개 링크/사이트맵도 그때 제거한다.
+
+Blog 관리 조회/명령·draft-only persistence·지속 정책과 요청은 아직 없다. 기존 generation은 `publishing` aggregate/required jobs를 만들므로 A2에서 비공개 초안 저장과 명시적 공개를 나눈다. 웹 요청은 기존 실행자에게 지속 요청을 전달하며 shell/worker 프로세스를 직접 띄우지 않는다. 기존 `publish_jobs`/lease·usage·audit를 재사용하고 모든 새 실행/공개 전이에 정책을 적용한다. 수집 신호는 observability phase가 생산하고 A3 관리자 화면이 읽는다. 세부 schema/새 파일은 실제 step에서 필요한 만큼 정한다.
+
 ## Runtime 구성
+
+### 이력서 PDF 관리 목표 — 아직 미구현
+
+ADR-039와 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A4는 기존 인증 뒤 `/admin/resume` 등록/미리보기/버전 관리, 검토한 파일의 공개 포인터와 `/api/resume/pdf` 다운로드를 추가하는 계획이다. PostgreSQL에 제한된 PDF 바이트와 메타데이터를 보관하는 안으로 시작하고 실제 schema/파서·크기·backup 예산은 A4 Step 0에서 확정한다. 파일 교체는 새 비공개 버전이며 공개/해제와 감사는 원자적으로 처리한다. Resume은 공개 여부만 조회하고 다운로드 handler가 current 바이트/hash를 읽는다. 임의 version ID·정적 public 파일·캐시로 비공개 파일에 접근할 수 없도록 검증한다. 기존 PDF asset/CTA/API는 여전히 없으며 이 문단은 현재 구현을 뜻하지 않는다.
 
 ### Queue 재생 실험
 

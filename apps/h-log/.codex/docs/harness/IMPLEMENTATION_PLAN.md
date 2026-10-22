@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-22 관리자 통합 요청: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 **4개 phase / 17개 step**을 추가했다. 계획 등록 상태는 pending 16개·운영 rollout blocked 1개이며 기본 다음 작업은 **`admin-console-foundation / Step 0: admin-access-and-command-contract`**다. A1 인증/실험실/Brain → A4 이력서 PDF 등록/공개/다운로드 → 모니터링 Step 0 → A2 블로그/초안/자동화 정책 → A3 작업 조회/제어 → 모니터링 Steps 1–6 → A3 모니터링/로컬 검수 순으로 진행한다. 운영 모니터링 Step 7 → 승인된 관리자 rollout → 별도 timer 활성화 순서는 OCI 보류 해제 뒤 적용한다. 기존 공개 경험/Second Brain의 완료 이력은 유지하며 Queue는 A1 Step 2 실행 전까지 공개 상태다. 아래 다음 단계 표기는 당시 이력이다.
+
 2026-10-22 Phase 6 Step 1 완료: Queue 실험의 동시성·네트워크·영속성·재처리 한계를 설명하고 Redisson/DLQ 사례와 양방향으로 연결했다. 사례의 기존 공개 글 판정을 재사용하고 sitemap에 실험 경로를 추가했다. **공개 경험 개선 6개 phase / 19개 step 전체 완료**이며, 다음은 **`operations-observability / Step 0: monitoring-contract-and-budget`**다. 실제 발행·OCI 적용·모니터링 구현 완료를 뜻하지 않는다. [Step 1 기록](../../../phases/backend-operations-lab/step1.md)에 검증 결과와 기존 no-JS Blog 목록의 제약을 남겼다. 다음 모니터링 단계는 로컬 문서 계약이며 설치/운영 적용을 시작하지 않는다. 아래 다음 단계 표기는 당시 이력이다.
 
 2026-10-22 Phase 6 Step 0 완료: `/lab/queue`에서 가상 작업 6개의 Queue → 실패 → DLQ → 원인 해결 후 재처리를 재생한다. Worker 1~3개·실패 조건 3개와 재생/일시정지/한 단계/초기화, 처리 기록을 제공한다. Focused 2/2, unit 227 pass/14 DB skip, lint·typecheck·build와 1440/390/320px·키보드·설정 9조합·reduced motion·JavaScript 없는 초기 표시·DB 연결 실패 상태의 운영 모드 검증을 통과했다. **공개 경험 18/19개 step 완료, 0개 blocked, 1개 pending**이며 다음은 **`backend-operations-lab / Step 1: lab-case-study-connection`**이다. [Step 0 기록](../../../phases/backend-operations-lab/step0.md)에 검증과 가상 모델의 한계를 남겼다. 아래 기록의 다음 단계는 당시 상태다.

@@ -381,6 +381,28 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **사례 연결 (2026-10-22 Step 1)**: 실험과 기존 Redisson/DLQ 상세를 정적 링크로 왕복하고, 관련 글은 프로젝트의 기존 `ProjectRelatedPosts`와 ADR-034 공개 판정을 재사용한다. 실험 페이지에 별도 DB 조회나 글 제목/slug 복사본을 추가하지 않는다. 동시성·네트워크·영속성 설명은 실제 설계 시 확인할 조건으로 표시하고, 가상 수치를 프로젝트 성과의 근거로 사용하지 않는다. 실험은 sitemap에 포함하되 feed/llms의 Blog-only 범위는 유지한다.
 
+### ADR-038: 운영 기능은 단일 소유자의 관리자 영역에서 통합한다
+
+**결정 (2026-10-22 계획)**: 사용자 요청에 따라 기존 Next.js `/admin`에 블로그 편집·초안 생성·자동화 허용·실제 작업 조회/제어·Second Brain·모니터링·가상 실험실을 모은다. 운영 진입점은 `admin.<선택 도메인>`으로 분리하되 별도 앱/마이크로서비스를 추가하지 않는다. 공통 소유자 인증과 정확한 Host/Origin, page/HTTP/data 권한 검사를 적용하고 공개 host에서 관리 경로를 거부한다. 기존 Brain 인증의 구체적인 이전·회전·운영 접근 계약은 A1 Step 0에서 확정한다.
+
+**공개 범위 변경**: ADR-037의 가상 모델은 유지하지만 공개 방문자용 진입은 관리자 실험실로 바꾸기로 했다. A1 Step 2에서 `/admin/lab/queue`로 이동하고 기존 `/lab/queue`는 404, Portfolio 링크/sitemap 항목은 제거한다. 현재 공개 구현이 이미 비공개로 바뀌었다는 뜻은 아니다. 공개 `/brain`과 기존 승인된 콘텐츠·원문/hash·레이더는 유지한다.
+
+**명령/실행 계약**: 초안 저장과 공개 발행, 새 claim 중지와 이미 진행 중인 작업을 구분한다. 정책/요청/감사는 필요한 최소 지속 상태로 만들고 웹·CLI·scheduler·worker가 동일한 허용 조건을 확인한다. 서버 운영 허용 설정은 상한이며 UI에서 timer/credential을 바꾸지 않는다. 기존 상태 전이·lease·중복 방지·usage/quality/privacy를 재사용한다. 새 작업이 중지돼도 공개 검증·실패 시 숨김·철회 같은 보호 조치는 유지한다.
+
+**근거와 트레이드오프**: 실제 운영 화면이 필요해져 ADR-002에서 제거했던 caller-free 명령을 일괄 복원하지 않고 필요한 caller와 함께 설계한다. 기존 Brain UI·가상 재생·DB/worker를 재사용할 수 있으나 초안 전용 persistence와 운영 정책의 실제 enforcement는 새 구현이 필요하다. 서브도메인 분리는 프로세스/DB 격리나 인증을 대신하지 않는다. [Next.js 인증 지침](https://nextjs.org/docs/app/guides/authentication)과 [OWASP CSRF 지침](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)을 따라 직접 endpoint/RSC·형제 origin·위조 header를 검증한다.
+
+**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 pending 16개·운영 rollout blocked 1개다. Prometheus/Grafana는 기존 observability phase가 소유하며 관리자 화면에 새 모니터링 시스템을 만들지 않는다. 계획 등록은 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
+
+### ADR-039: 이력서 PDF는 비공개 버전에서 검토한 파일 하나만 공개한다
+
+**결정 (2026-10-22 계획)**: A4 `admin-resume-pdf`에서 `/admin/resume` 등록·미리보기·파일 교체·버전 선택·공개 해제를 제공한다. 업로드는 비공개이며 특정 버전/hash의 전체 검토 후 공개 포인터를 전환한다. Resume의 다운로드와 `/api/resume/pdf`는 매 요청의 승인된 current 파일만 제공한다. 과거 정적 PDF나 비공개 버전은 노출하지 않는다.
+
+**저장/회수**: 제한된 수의 작은 이력서 파일이므로 기존 PostgreSQL bytea·메타데이터·공개 포인터를 기본안으로 두고 A4 Step 0에서 총량·파서·backup 예산을 확정한다. 새 public asset/bucket·원격 변환 서비스·범용 파일 관리 플랫폼은 만들지 않는다. 공개/교체/해제와 감사는 transaction으로 처리하며 no-store와 동적 공개 판정으로 철회 뒤 새 요청을 차단한다. 이미 받은/전송 중인 사본의 회수는 보장하지 않는다. DB 복구 시에는 공개 게이트를 닫고 현재 공개 의사를 확인한다.
+
+**수정 범위**: 파일 바이트의 수정은 새 버전 등록이다. 관리자용 메모와 공개본 선택은 웹에서 바꾸지만 임의 PDF의 본문·폰트·레이아웃 직접 편집이나 온라인 Resume와의 자동 동기화는 구현 범위가 아니다. 구조화된 이력서 편집→PDF 생성은 이후 별도 요구로 다룬다. 검토를 통과한 파일 바이트/hash를 서버에서 몰래 정제·재작성하지 않는다.
+
+**근거/실행 경계**: [OWASP 업로드 지침](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html)에 따라 허용 형식·실제 파싱·크기/자원·인증·CSRF·비공개 저장/handler 접근을 검증한다. 자동 검사는 전 페이지·메타데이터·주석·링크의 공개 검토를 대신하지 않는다. 이번 결정은 계획 등록이며 파일 업로드·실제 PDF 공개·운영 migration은 아직 수행하지 않았다.
+
 ## 공식/내부 기준
 
 - Next.js docs

@@ -1,0 +1,32 @@
+{
+  "project": "h-log",
+  "phase": "admin-operations-control",
+  "steps": [
+    {
+      "step": 0,
+      "name": "job-and-audit-inspection",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "bounded-retry-and-pause",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "monitoring-overview",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "local-admin-release-rehearsal",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "name": "approved-admin-origin-rollout",
+      "status": "blocked",
+      "blocked_reason": "User-directed OCI hold remains active. Requires local admin acceptance, operations-observability Step 7, chosen admin HTTPS origin/authentication, backup/migration scope and explicit rollout approval. This step does not activate providers, publishing or the timer."
+    }
+  ]
+}

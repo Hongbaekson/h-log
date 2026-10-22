@@ -29,7 +29,7 @@
 - 디자인 방향: Clean Dark Engineer Portfolio + Subtle AI Workflow Console
 - MVP pages: `/`, `/resume`, `/portfolio`, `/portfolio/[slug]`, `/blog`, `/blog/[slug]`
 - 제외: 방문자 RAG 챗봇, SSE 대화 UI, 방문자 세션 메모리, 댓글, 공개 조회수
-- 관리자 기능은 preview/save/publish 중심의 최소 운영 화면만 허용한다.
+- 관리자 기능은 단일 소유자의 블로그 검토/저장/발행, 자동 작성·발행 허용, Worker 작업 조회·제한된 재시도/일시정지, Second Brain 관리, 이력서 PDF 등록/버전 교체/공개 여부 관리와 비공개 실험실로 한정한다. 상세 범위와 순서는 `.codex/docs/harness/ADMIN_CONSOLE_PLAN.md`를 따른다. 웹에서 임의 shell·Docker·systemd 제어는 제공하지 않는다.
 
 ## Lazy-Load Documents
 

@@ -23,6 +23,8 @@
 
 사용자 승인 후에만 production provider와 scheduler를 canary로 활성화하고 rollback까지 검증한다.
 
+2026-10-22 추가 선행 조건: [통합 관리자 계획](../../.codex/docs/harness/ADMIN_CONSOLE_PLAN.md)의 A1/A2/A3를 통해 지속적인 자동화 허용·새 작업 중지·감사·단건 재시도를 검증하고 승인된 관리자 rollout을 완료한 뒤 반복 timer를 활성화한다. 관리자 rollout과 모니터링 검증은 timer가 꺼진 상태에서 수행하므로 이 단계와 순환 의존이 없다. UI 설정만으로 서버 허용 상한·실제 provider/발행 승인을 대신하지 않는다.
+
 2026-10-06 추가 선행 조건: 반복 timer 활성화 전에 [operations-observability](../operations-observability/index.json)의 운영 수집·알림·외부 감시 검증을 완료한다. 기존 OCI 보류는 유지한다. 모니터링 phase는 비활성 scheduler 상태까지 검증하며 실제 timer를 켜지 않으므로 순환 의존은 없다. 아래 2026-07 기록은 당시 결과이며 현재 재개 승인으로 사용하지 않는다.
 
 - 실제 provider credential은 서버/CI secret으로만 주입하고 저장소에는 기록하지 않는다.

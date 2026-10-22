@@ -1,0 +1,141 @@
+# H-Log 통합 관리자 계획
+
+등록일: 2026-10-22. 이력서 PDF 관리 요청을 추가해 **4개 phase / 17개 step의 계획 등록이며 관리자 통합·Queue 비공개 전환·PDF 다운로드 복원은 아직 구현하지 않았다.** 다음 실행은 [A1 Step 0](../../../phases/admin-console-foundation/step0.md)이다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
+
+## 방향과 현재 근거
+
+공개 사이트는 소개·포트폴리오·기술 글·공개 Second Brain을 보여 주고, 운영자는 별도 관리자 진입점에서 글·자동화·작업·기록을 관리한다. 사용자 요청에 따라 가상 Queue 실험도 관리자 실험실로 이동한다. 실제 작업 관리와 가상 재생은 화면·데이터·조작을 구분한다.
+
+| 현재 코드 | 확인한 상태 | 계획에서 보완할 부분 |
+| --- | --- | --- |
+| `app/admin/brain`, `lib/brain-owner.ts` | 소유자 Basic 인증, Host/Origin 검사, 비공개 응답, 기록/공개 사본 분리 | 공통 관리자 인증·탐색에 편입; 원문·수정 이력·공개 그래프 유지 |
+| `proxy.ts` | `/admin/brain/:path*`만 보호 | 전체 `/admin` 및 관련 읽기/쓰기 endpoint 보호 |
+| `deploy/nginx/conf.d/hlog.conf` | 공개 ingress에서 `/admin`·`/api/internal` 404; upstream Host는 `hlog-web` | 공개 차단 유지, 별도 관리자 host의 정확한 Host 전달·허용 경로를 로컬 검증 |
+| `lib/blog-admin.ts`, `lib/blog-postgres-repository.ts` | 철회와 감사 저장은 존재; 블로그 관리자 UI와 preview/save/publish caller는 없음 | 실제 화면에 필요한 명령만 버전·상태·감사 계약과 함께 구현 |
+| `lib/blog-daily-auto-article.ts`, `scripts/blog-auto-publish.mjs` | 검증 결과를 비공개 `publishing` aggregate와 queued required jobs로 저장 | 초안 전용 저장과 명시적 발행 승인/자동 허용을 분리 |
+| `lib/blog-persistent-worker.ts`, `deploy/systemd/` | lease 기반 한 건 실행, 유한 cycle, 09:00 KST timer 패키지 | 작업 조회·명시적 재시도·새 작업 claim 일시정지; 프로세스 생존은 별도 신호 |
+| `usage_events`, `admin_actions`, `publish_verifications` | 비용·일부 감사·검증 자료가 존재 | 실제 저장 항목만 조회, 기록되지 않은 실행 이력을 성공/0건으로 추정하지 않음 |
+| `/lab/queue`, Portfolio 링크, sitemap | 누구나 접근하는 가상 실험 | 인증된 `/admin/lab/queue`로 이동하고 기존 공개 경로·링크 제거 |
+| `/resume`, 과거 PDF 다운로드 제거 이력 | 온라인 이력서는 존재; PDF asset·버튼·API는 제거된 상태 | 관리자 파일/버전 관리와 공개 current PDF의 다운로드 복원 |
+
+## 화면과 주소
+
+아래 주소는 목표 구조다. 실제 도메인은 정해지지 않았으며 DNS/TLS를 변경하지 않는다.
+
+| 메뉴 | 목표 경로 | 다루는 내용 |
+| --- | --- | --- |
+| 개요 | `/admin` | 설정/실제 적용 상태, 처리할 글·실패 작업, 데이터 관측 시각 |
+| 블로그 | `/admin/posts` | 비공개 목록·미리보기·버전·저장·발행·철회 |
+| 자동 작성 | `/admin/automation` | 초안 생성 요청, 자동 초안/자동 발행 허용, 중지·비용 한도 |
+| 작업 | `/admin/jobs` | 실제 publish job 상태·lease·재시도·일시정지 |
+| Second Brain | `/admin/brain` | 기존 기록 작성·검색·회고·연결·공개 사본 관리 |
+| 이력서 PDF | `/admin/resume` | 파일 등록·비공개 미리보기·버전 교체·공개/비공개·이전 버전 선택 |
+| 모니터링 | `/admin/monitoring` | 상태 요약·누락·오래된 값과 인증된 Grafana 진입 안내 |
+| 변경 이력 | `/admin/audit` | 관리자 명령과 결과·실패·사유; 본문/비밀값 제외 |
+| 실험실 | `/admin/lab/queue` | 고정 가상 작업 재생; 운영 Queue 제어와 분리 |
+
+기존 Discord dark 스타일로 관리자 전용 탐색을 구성한다. 공개 메뉴에는 관리자 링크를 추가하지 않는다. 기존 `/brain`의 Memory UI와 Home/레이더는 유지한다. 목록과 개요에 값이 없으면 미설정·미수집·오류·실제 0건을 구분한다.
+
+Second Brain의 초기 통합 대상은 기존 DB 기록 작성·회고·연결·공개 사본 관리다. 기존 28개 노드/42개 연결의 정적 카탈로그는 코드로 관리되는 자료임을 표시한다. 그 카탈로그까지 웹에서 편집하려면 원문/공개 사본·식별자·관계의 별도 이관 검증이 필요하므로 A1 편입 중에 자동으로 DB 원본으로 바꾸지 않는다.
+
+초기 구현은 같은 Next.js 앱의 `/admin`을 사용한다. 운영 목표는 `admin.<선택한 도메인>`이며 해당 host의 `/`는 `/admin`으로 연결한다. 공개 host의 `/admin`·관리 API는 계속 거부한다. 관리자 host에는 허용한 관리자 경로와 필요한 정적 자산만 통과시키며, 공개 글의 canonical/worker 검증 origin은 공개 host로 유지한다. 서브도메인은 진입점 분리이며 별도 프로세스/DB 격리를 의미하지 않는다. 새 프런트엔드·마이크로서비스·회원가입·다중 역할 체계는 이번 범위에 없다.
+
+## 인증과 명령 경계
+
+- A1 Step 0에서 단일 소유자 인증 계약을 확정한다. 기존 256-bit Basic 키·HTTPS·정확한 Host/Origin 검사를 출발점으로 삼되 Brain DB 활성 여부와 관리자 인증 활성 여부를 분리한다. Brain 기능을 끈 상태에서도 관리자 실험실을 사용할 수 있어야 한다. 기존 Brain 설정의 이전·키 회전·복구와 운영 진입점의 추가 인증 필요성을 기록한다. 인증 제공자나 세션 라이브러리를 이번 등록만으로 설치하지 않는다.
+- Proxy만으로 보호하지 않는다. 서버 page, Route Handler/Server Action과 데이터 접근 경계에서 권한을 확인하며 HTML/RSC/prefetch/직접 API 요청도 검증한다. 누락·잘못된 설정은 닫힌 상태로 처리한다. 관리자 응답은 private/no-store/noindex로 하고 공개 검색·사이트맵·feed·llms에서 제외한다. noindex는 접근 제어를 대신하지 않는다. [Next.js 인증 지침](https://nextjs.org/docs/app/guides/authentication)을 기준으로 적용한다.
+- 변경 요청은 정확한 관리자 Origin만 허용하고 GET에는 부작용을 넣지 않는다. 형제 서브도메인도 자동으로 신뢰하지 않으며 null/누락 Origin·잘못된 Host·위조 forwarded header·교차 출처 요청을 거부한다. 세션 쿠키를 선택한다면 host 전용 Secure/HttpOnly 설정과 CSRF 방어를 함께 확정한다. [OWASP CSRF 지침](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)을 참고한다.
+- 명령은 대상·예상 버전/상태·사유·중복 요청 키로 확인하고 원자적 상태 변경/감사를 보장한다. 중복 클릭·늦은 응답·동시 편집·실행 중 재시도를 테스트한다. 새 일반 목적 명령 버스는 만들지 않고 실제 필요한 저장 항목만 추가한다.
+- 원문·키·provider credential·환경변수 전체·원본 stack trace를 개요/로그에 복사하지 않는다. API 오류는 원인을 구분할 안전한 코드와 안내를 제공한다. 인증 전 데이터가 HTML/RSC payload로 전달되지 않아야 한다.
+
+## 자동 작성과 공개 허용
+
+`자동 초안 작성 허용`, `자동 공개 발행 허용`, `새 작업 처리 허용`을 구분한다. 초기값은 닫힘이다. 읽기 화면에서 **요청한 설정·실제 적용 상태·차단 이유·관측 시각**을 함께 보여 준다. 초안/수동 검수 모드와 자동 공개 모드를 지원하되, 자동 공개 모드가 승인된 뒤에는 각 글의 수동 승인을 강제하지 않고 기존 claim/privacy/quality gate를 적용한다.
+
+웹 요청은 장시간 LLM을 직접 실행하지 않는다. A2 Step 2에서 초안 요청의 최소 지속 기록·중복 방지·결과 저장과 기존 one-shot 실행자의 연결을 함께 구현한다. source freshness·실제 경험 근거·한국어 작성 규칙·budget·사용량 기록을 재사용한다. 초안 저장 시 `publishing`과 required publish job을 만들지 않는다. 새로고침·worker 재시작 후에도 요청과 결과를 확인할 수 있어야 하며, 외부 호출의 결과가 불명확한 경우 자동 재호출해 비용을 중복 발생시키지 않는다.
+
+설정은 웹/CLI/scheduler/worker 모두 읽는 지속 저장소에 둔다. 정책 확인 실패는 새 외부 호출·공개 전이를 차단한다. 서버의 운영 허용 설정은 관리자 토글보다 우선하는 상한으로 유지하며 UI에서 credential·systemd timer·배포 설정을 변경하지 않는다. A2 Step 3은 provider 호출 직전과 공개 전이 직전에 정책을 재확인하고, 이미 승인·진행 중인 호출은 중지 이후에도 완료될 수 있음을 표시한다. 중지와 새 작업 시작의 경계를 transaction/버전 검사로 정의해 “일시정지 완료”의 의미를 검증한다.
+
+새 실행의 허용을 중단해도 이미 공개된 글의 검증·실패 시 숨김·철회 같은 보호 조치는 유지한다. 설정 변경을 이미 진행 중인 외부 요청 취소나 과거 공개 글 삭제로 표시하지 않는다. 실제 timer 활성화는 기존 운영 단계의 별도 승인 경계를 유지한다.
+
+## Worker와 관측
+
+실제 작업 원장은 `publish_jobs`다. 가상 실험의 DLQ 표시를 실제 DB의 DLQ 구현으로 부르지 않는다. 대기/실행/실패, required/retryable, 시도 횟수, lease 만료, 버전/hash, 안전한 실패 분류를 보여 준다. 작업이 없다는 사실만으로 Worker가 살아 있다고 표시하지 않는다. 성공 판정은 cycle의 `completed`/worker의 `idle`이 아닌 해당 글의 required 공개 검증 결과를 따른다.
+
+재시도는 허용된 실패 작업 하나에만 적용하고 성공 작업·유효 lease·철회 글·오래된 버전·이미 처리 중인 요청은 거부한다. 일시정지는 새 claim을 막고 진행 중 작업을 표시한다. 무제한 재시도, 전체 실패 일괄 재실행, 웹에서 shell/systemctl/docker 실행, Docker socket mount는 포함하지 않는다. 프로세스 재시작/배포는 기존 운영 runbook을 사용한다.
+
+Prometheus/Grafana는 [operations-observability](../../../phases/operations-observability/index.json)가 소유한다. 관리자 화면은 기존 원장 및 확정된 관측 신호를 읽고, 새 수집기·heartbeat·경보 이력을 중복 구현하지 않는다. Grafana는 비공개 인증 경계를 유지하며 공개 iframe·service token 전달·공개 metrics endpoint를 만들지 않는다. 연결 전에는 미설정으로 표시한다.
+
+## 이력서 PDF의 등록·수정·공개
+
+관리자에서 새 PDF를 등록하면 비공개 버전으로 보관하고 모든 페이지를 미리 본다. 파일 형식 검증과 공개 내용 검토를 마친 **특정 버전/hash**를 명시적으로 공개하면 Resume에 `이력서 다운로드` 링크를 제공한다. 새 파일 등록은 기존 공개본을 자동 교체하지 않는다. 교체는 공개 포인터를 새 버전으로 전환하는 작업이며 원본 바이트와 과거 버전은 덮어쓰지 않는다. 이전 버전도 다시 검토한 뒤 명시적으로 선택할 수 있다. 공개 해제는 다운로드를 막는 일이며 보관 파일 삭제와 구분한다.
+
+### 관리자에서 수정할 수 있는 범위
+
+- 이번 계획에는 **수정한 PDF 파일로 교체, 관리자용 버전 메모 변경, 공개본 지정, 비공개 전환, 이전 버전 재선택**을 포함한다. 파일 바이트가 달라지면 새 버전이며 이전 검토 승인을 재사용하지 않는다. 공개 파일명은 원본 업로드 이름과 관계없이 `이력서.pdf`로 통일한다.
+- 기존 PDF의 글자·이미지·폰트·배치를 웹에서 직접 고치는 범용 PDF 편집기는 포함하지 않는다. 원본 문서 편집 도구에서 수정한 뒤 다시 업로드하는 흐름으로 시작한다. 미리보기 도구인 [PDF.js](https://mozilla.github.io/pdf.js/)의 파싱/렌더링 기능을 범용 본문 편집 구현으로 간주하지 않는다.
+- 이후 브라우저에서 경력 내용을 직접 수정하고 싶다면 구조화된 이력서 입력 → 정해진 템플릿의 새 PDF 생성이 별도 후보가 된다. 이는 임의 PDF를 수정하는 기능과 다르며 현재 온라인 Resume 내용과 PDF를 자동 동기화하지 않는다. 이번 phase의 필수 범위나 구현 완료 항목으로 넣지 않는다.
+
+### 저장과 공개 경계
+
+소수의 개인 이력서 버전만 다루므로 **기존 PostgreSQL에 PDF 바이트(`bytea`)·메타데이터·공개 포인터를 저장하는 안**을 기본으로 한다. 새 object storage·공개 bucket·정적 `public/` 복사본은 만들지 않는다. A4 Step 0에서 파일/페이지/버전 수·총량·메모리·백업 예산을 확정한다. 시작 검토값은 파일당 5 MiB, 10페이지, 최대 20개 보관 버전이며 초과 시 기존 파일을 자동 삭제하지 않고 새 등록을 거부한다. 현재 Nginx `client_max_body_size 2m`과 업로드 크기의 차이는 관리자 업로드 경로에서만 검증·조정한다. 공개/다른 API의 제한을 일괄 완화하지 않는다.
+
+업로드는 인증된 소유자만 수행한다. 확장자·요청 MIME만 믿지 않고 크기·PDF 식별자·실제 파싱·페이지 수·암호화/손상·첨부 파일과 실행 동작을 검사한다. 미리보기는 실행 동작/외부 네트워크를 허용하지 않는 제한된 렌더링 경계를 사용하고 parser timeout·출력/자원 상한·임시 파일 정리를 검증한다. 지원하지 않거나 검사할 수 없는 PDF는 공개 후보로 받지 않는다. parser/렌더러는 Step 0에서 현재 지원 상태를 확인한 최소 도구를 선택하고 원격 변환 서비스로 개인 파일을 전송하지 않는다. 업로드/검증과 미리보기는 같은 검증된 바이트/hash를 기준으로 한다. 이 방어는 [OWASP 파일 업로드 지침](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html)에 근거한다.
+
+공개 전에 모든 페이지·메타데이터·주석/링크·숨겨진 내용과 회사/고객사 식별자 등을 검토하고 해당 파일/hash의 검토 확인을 기록한다. 자동 검사 통과가 개인정보 검수 완료를 대신하지 않는다. 공개 승인·교체·해제와 감사 기록은 예상 revision·중복 키를 확인한 transaction으로 처리한다. 기존 `admin_actions.target_type` 제약에는 이력서가 없으므로 기존 글 ID로 위장하지 않고 A4 Step 0에서 최소 schema 확장 여부를 결정한다.
+
+공개 다운로드 경로는 과거 주소인 `/api/resume/pdf`를 재사용하는 목표다. 매 요청마다 공개 current 포인터와 승인된 파일/hash를 확인해 `application/pdf`, attachment, 한글 `이력서.pdf`와 안전한 ASCII fallback을 반환한다. 임의 version ID로 이전/비공개 파일을 다운로드하는 public endpoint는 만들지 않는다. 비공개/미등록/회수 상태는 404, 저장소 장애는 일반 오류로 구분하며 과거 파일로 fallback하지 않는다. Resume 링크는 실제 공개본이 있을 때만 표시하고 DB 장애는 이력서 본문을 막지 않도록 다운로드 영역에 한정한다.
+
+PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록시·Next cache·조건부/Range 요청이 권한 판정을 우회하지 못하게 한다. 공개 해제 뒤의 새 요청은 404여야 하며, 이미 전송 중이거나 방문자가 내려받은 사본까지 회수할 수 있다고 설명하지 않는다. PDF를 별도 sitemap/feed/llms 항목으로 확장하지 않고 Resume 링크에서 제공한다. 원본 업로드 파일명·내부 메타데이터·비공개 과거 버전은 공개하지 않는다.
+
+바이트·메타데이터·포인터가 같은 DB backup/restore 경계에 포함되는지 hash로 검증한다. 과거 DB 복구가 철회한 공개본을 다시 열지 않도록 복구/rollout 시 PDF 공개 게이트를 닫고 현재 의사를 재확인하는 절차를 둔다. 관리자 PDF 등록 기능 배포가 기존 Git PDF의 복원이나 실제 파일 공개를 뜻하지 않는다.
+
+## Phase와 Step
+
+| Phase | Step | 완료 결과 |
+| --- | --- | --- |
+| A1 [admin-console-foundation](../../../phases/admin-console-foundation/index.json) | [0: admin-access-and-command-contract](../../../phases/admin-console-foundation/step0.md) | 인증·host·작업 권한·설정 이전·테스트 행렬 확정 |
+| A1 | [1: shared-owner-auth-and-shell](../../../phases/admin-console-foundation/step1.md) | 전체 관리자 보호와 전용 탐색, 공개 host 차단 로컬 검증 |
+| A1 | [2: private-queue-lab](../../../phases/admin-console-foundation/step2.md) | Queue 실험 비공개 이동, 기존 공개 URL 404·링크/sitemap 제거 |
+| A1 | [3: second-brain-admin-integration](../../../phases/admin-console-foundation/step3.md) | 기존 Brain 작성·공개 사본 관리를 공통 관리자에 편입 |
+| A2 [admin-blog-publishing](../../../phases/admin-blog-publishing/index.json) | [0: private-post-review](../../../phases/admin-blog-publishing/step0.md) | 비공개 글/버전·안전한 미리보기·저장된 검증 결과 조회 |
+| A2 | [1: versioned-editorial-actions](../../../phases/admin-blog-publishing/step1.md) | 저장·선택 버전 발행·철회와 동시 수정/감사 처리 |
+| A2 | [2: draft-generation-requests](../../../phases/admin-blog-publishing/step2.md) | 중복 없는 초안 요청·기존 실행자 처리·비공개 결과 저장 |
+| A2 | [3: automation-policy-controls](../../../phases/admin-blog-publishing/step3.md) | 초안/자동 발행 허용 분리, 정책 지속 저장과 전 실행 경로 적용 |
+| A3 [admin-operations-control](../../../phases/admin-operations-control/index.json) | [0: job-and-audit-inspection](../../../phases/admin-operations-control/step0.md) | 실제 작업/lease/실패·감사·비용 조회 |
+| A3 | [1: bounded-retry-and-pause](../../../phases/admin-operations-control/step1.md) | 단건 재시도·새 claim 중지·동시성/재시작 검증 |
+| A3 | [2: monitoring-overview](../../../phases/admin-operations-control/step2.md) | 기존 모니터링 신호·누락/오류·비공개 Grafana 연결 |
+| A3 | [3: local-admin-release-rehearsal](../../../phases/admin-operations-control/step3.md) | 공개/관리 host·데이터 누출·실패/복구·모바일 종합 검수 |
+| A3 | [4: approved-admin-origin-rollout](../../../phases/admin-operations-control/step4.md) | 승인된 admin 도메인·TLS·접근 제한 적용/롤백 — OCI 보류로 blocked |
+| A4 [admin-resume-pdf](../../../phases/admin-resume-pdf/index.json) | [0: resume-file-and-visibility-contract](../../../phases/admin-resume-pdf/step0.md) | 저장·버전·검토·공개/회수·크기/백업 계약 확정 |
+| A4 | [1: private-upload-preview-and-versions](../../../phases/admin-resume-pdf/step1.md) | 비공개 등록·검증·전 페이지 미리보기·수정 파일 교체/이력 |
+| A4 | [2: published-resume-download](../../../phases/admin-resume-pdf/step2.md) | 공개본 지정/해제와 Resume 다운로드·교체/이전 버전 선택 |
+| A4 | [3: resume-privacy-and-recovery-rehearsal](../../../phases/admin-resume-pdf/step3.md) | 공개 경계·cache·동시성·실패·backup/restore 종합 검수 |
+
+## 실행 순서와 기존 계획
+
+1. 기본 다음 작업은 **A1 Step 0**이다. A1 Steps 0–3으로 관리자 경계·Queue 비공개·Brain 통합을 먼저 진행한다. 계획 등록 시점에는 `/lab/queue`와 공개 링크가 그대로 남아 있다.
+2. A1 완료 뒤 독립적인 **A4 이력서 PDF Steps 0–3**을 진행한다. A4 번호는 기존 A1–A3의 참조를 보존하기 위한 것이며 운영 rollout 뒤로 미루는 뜻이 아니다. 이어 `operations-observability / Step 0`에서 신호·권한·예산을 확정한다. A2 Steps 0–3과 A3 Steps 0–1은 이를 참고해 실제 저장·제어를 구현하며, 수집 스택 설치를 선행 조건으로 요구하지 않는다.
+3. observability Steps 1–6을 구현·로컬 검증한 뒤 A3 Steps 2–3을 완료한다. 관측 데이터의 생산자는 모니터링 phase, 관리자 화면은 소비자로 둔다.
+4. 운영은 기존 OCI 보류 해제 및 범위별 승인 후 진행한다. observability Step 7은 비활성 scheduler 상태에서도 완료할 수 있다. 이어 A3 Step 4에서 관리자 도메인과 A4의 비공개 파일 저장/migration을 적용한다. 관리자 rollout은 자동 발행 timer를 켜거나 실제 글/Brain 사본/PDF를 공개하지 않는다. 특정 PDF 공개는 관리자에서 검수한 파일을 선택하는 별도 행동이다.
+5. 반복 자동 발행은 기존 `auto-publish-ops-hardening / Step 4`에서 관리자 제어·운영 모니터링·실제 공개 origin/privacy 설정·별도 canary 승인을 확인한 뒤 활성화한다. 이 단계의 완료를 앞 단계의 선행 조건으로 삼지 않아 순환 의존을 피한다.
+
+기존 Second Brain·공개 경험 phase를 다시 열거나 재번호하지 않는다. 새 관리자 작업은 위 4개 phase에서 추적하고, 기존 no-JS 블로그 목록 후속과 Terraform 운영 보류는 별도로 유지한다.
+
+## 검증과 범위
+
+- 문서: Markdown/JSON parse, 읽을 파일·상대 링크·phase/step 상태·선행 순서 검사, `git diff --check`.
+- 코드: 한 동작의 focused RED → GREEN 뒤 `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`. DB/worker/migration 변경 시 격리 DB의 `npm run test:integration` 추가.
+- UI: 개발 서버의 1440/390/320px·키보드·긴 제목/본문·0건·오류·미설정·stale 확인. 인증되지 않은 직접 URL/API/RSC와 같은 site의 다른 origin도 검증한다.
+- 작업: test provider와 합성 자료만 사용해 중복 요청·버전 충돌·감사 실패 rollback·lease 경합·정책 변경·재시작·결과 불명확을 재현한다. 공개 URL/Markdown/sitemap/feed/llms/search/related에 private 데이터가 없어야 한다.
+- 배포 구성: 로컬 Compose/Nginx 검증은 운영 변경과 분리한다. `admin` host에서도 public canonical을 바꾸지 않고 upstream 직접 접근·위조 host/header·cache 누출을 검사한다.
+
+이번 계획 등록은 코드/설정/DB/운영 상태를 변경하지 않는다. 실제 도메인 선택, 인증 수단의 최종 운영 설정과 OCI 적용은 해당 step에서 다룬다. 관리 화면에서 수행할 기능을 만드는 일과 실제 provider 호출·공개 발행·운영 활성화는 서로 다른 완료 기준이다.
+
+## 최초 계획 등록 검증 — 2026-10-22, PDF 추가 전
+
+앱 디렉터리에서 `node private/admin-plan-check/verify-docs.mjs`를 실행했다. 변경 문서/JSON 29개, 전체 phase JSON 45개, 상대 링크 41개, 새 step의 읽을 파일 경로 296개를 확인했다. 새 상태는 pending 12개·blocked 1개이며 기존 phase/step 상태와 운영 보류를 보존했다. Markdown/JSON 파싱·단계/의존 순서 검토·`git diff --check`를 통과했다. 코드/설정 변경이 없어 앱 build나 브라우저 검수는 재실행하지 않았다. 이 결과는 계획 문서 검증이며 새 기능 완료 판정이 아니다.
+
+## PDF 계획 추가 검증 — 2026-10-22
+
+같은 문서 검증 명령으로 통합 변경 36개(Markdown 31개/JSON 5개), 전체 phase JSON 46개, 상대 링크 53개, 새 step의 읽을 파일 경로 400개를 확인했다. 관리자 계획은 4개 phase/17개 step, pending 16개·blocked 1개이며 기존 완료/운영 보류 상태는 보존했다. A1 → A4 → 모니터링/블로그/운영 순서와 PDF 등록·교체·해제·복구 계약을 대조했다. `git diff --check`를 통과했으며 앱 코드·설정·개인 파일·DB는 변경하지 않았다. 실제 Queue는 공개, PDF 다운로드는 제거 상태 그대로다. 구현 테스트나 실제 PDF 공개를 완료했다고 기록하지 않는다.

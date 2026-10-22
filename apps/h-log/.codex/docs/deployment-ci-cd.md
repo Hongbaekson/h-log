@@ -2,7 +2,15 @@
 
 이 문서는 배포 작업을 할 때만 읽는다.
 
+## 관리자 도메인 계획 — 아직 미적용
+
+2026-10-22 [통합 관리자 계획](harness/ADMIN_CONSOLE_PLAN.md)을 등록했다. 기존 Next.js `/admin`을 유지하면서 `admin.<선택 도메인>`을 별도 진입점으로 사용하는 목표다. 공개 Nginx의 `/admin`·`/api/internal` 차단은 유지하며, 관리자 host에는 인증된 관리자 경로와 필요한 정적 자산만 허용한다. 정확한 Host 전달·origin 제한·직접 upstream 차단을 격리 로컬에서 검증한 뒤 적용한다. 현재 `Host hlog-web` 재작성 설정을 그대로 사용해 관리자 인증이 된다고 가정하지 않는다.
+
+실제 DNS/TLS·운영 secret·migration·관리 경로 개방은 `admin-operations-control / Step 4`이며 기존 OCI 보류로 blocked다. 로컬 관리자 검수와 운영 모니터링 Step 7이 선행한다. 관리자 rollout 자체는 provider·공개 발행·timer를 활성화하지 않으며, 이들은 기존 `auto-publish-ops-hardening / Step 4`의 별도 범위다. public canonical과 worker의 공개 검증 origin도 관리자 도메인으로 바꾸지 않는다.
+
 ## Target Flow
+
+이력서 PDF는 A4에서 제한된 PostgreSQL 비공개 저장과 공개 current handler를 구현할 계획이다. 관리자 rollout 시 해당 migration·파서 자원 예산·파일을 포함한 backup/restore·관리 업로드 크기 제한도 확인한다. 공개 정적 디렉터리나 bucket을 만들지 않으며 기존 Nginx의 2m 제한은 관리자 업로드 경로에서만 확정된 값으로 조정한다. 복구/rollout 시 PDF 공개 게이트는 닫고 실제 파일 검토·공개 선택을 별도로 수행한다. 현재 설정/DB/다운로드 API는 이 문서 갱신으로 변경되지 않았다.
 
 ```text
 Local development

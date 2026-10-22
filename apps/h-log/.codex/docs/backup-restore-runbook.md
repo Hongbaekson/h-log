@@ -4,6 +4,8 @@
 
 ## 범위
 
+2026-10-22 [관리자 PDF 계획](harness/ADMIN_CONSOLE_PLAN.md)의 A4는 PDF 바이트/메타데이터/공개 포인터를 같은 PostgreSQL backup 범위에 두는 목표다. 아직 관련 schema/파일 저장은 구현하지 않았다. A4 Step 3에서 격리 복구 후 파일 SHA-256·버전·포인터·감사 이력과 최대 보관 예산을 확인한다. 과거 backup의 공개 포인터가 철회된 PDF를 다시 노출하지 않도록 복구 환경의 PDF 공개 게이트를 먼저 닫고 현재 운영 의사를 확인한 뒤 별도로 연다. 실제 개인 PDF나 dump는 저장소·검수 로그에 포함하지 않는다.
+
 - 대상 DB: Compose service `hlog-postgres`
 - 대상 volume: Compose volume `postgres_data`
 - 대상 image: `pgvector/pgvector:pg16`

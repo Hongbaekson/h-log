@@ -1,0 +1,26 @@
+{
+  "project": "h-log",
+  "phase": "admin-resume-pdf",
+  "steps": [
+    {
+      "step": 0,
+      "name": "resume-file-and-visibility-contract",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "private-upload-preview-and-versions",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "published-resume-download",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "resume-privacy-and-recovery-rehearsal",
+      "status": "pending"
+    }
+  ]
+}

@@ -105,6 +105,18 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 - 문체 교정은 사실·수치·코드·출처를 보존하고 실제 경험과 자료 분석을 구분한다. writer의 no-tool/단일 호출 및 claim/privacy/quality gate를 유지하며 별도 LLM 교정 서비스나 persona learning을 추가하지 않는다.
 - 수정 이력·시리즈는 기존 H-03 계획을 재사용한다. 이 계획의 완료는 초안과 로컬 기능 검증을 뜻하며 운영 글 삭제·배포·발행·timer 활성화를 포함하지 않는다.
 
+### H-06: 단일 소유자 통합 관리자
+
+2026-10-22 사용자 요청으로 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 4개 phase / 17개 step으로 등록했다. **계획이며 아직 통합 구현하지 않았다. 기본 다음 작업은 `admin-console-foundation / Step 0`**이다. A1의 공통 인증·비공개 Queue 실험실·기존 Brain 편입, A2의 블로그 검토/버전 명령·초안 생성·자동화 허용, A3의 실제 작업/감사·재시도/중지·모니터링·운영 검증을 한 step씩 진행한다.
+
+- 기존 Next.js `/admin`을 사용하고 운영 시 `admin.<선택 도메인>`으로 진입점을 분리한다. 공개 host는 관리자 경로를 차단하며 인증·정확한 Host/Origin·데이터 접근 검사를 함께 적용한다. 새 앱/회원가입/다중 역할은 만들지 않는다.
+- `/lab/queue`의 관리자 실험실 이동과 Portfolio/sitemap 노출 제거는 A1 Step 2다. 현재 공개 코드와 이전 Phase 6 완료 이력은 계획 등록만으로 바뀌지 않는다.
+- 기존 `/admin/brain`의 원문·이력·공개 사본을 유지하고 공통 관리자 탐색으로 편입한다. 공개 `/brain`의 UI·내용과 Home/레이더는 그대로다.
+- 초안 생성과 자동 공개 발행을 별도로 허용하고 초기값은 OFF다. 웹·CLI·scheduler·worker에 동일한 지속 정책을 적용하며 서버 운영 허용 설정을 넘지 못한다. 이미 시작한 작업과 새 작업 중지를 구분한다.
+- 실제 job/lease·감사·비용을 재사용하고 단건 재시도와 새 claim 일시정지만 제공한다. 웹에서 shell/systemctl/docker 실행과 무제한 재처리는 제외한다. 모니터링은 I-02의 기존 계획을 소비한다.
+- 실제 admin 도메인·DNS/TLS·OCI 개방은 A3 Step 4의 blocked 범위다. 관리자 rollout과 실제 provider/발행/timer 활성화는 별도 승인·검증으로 다룬다.
+- 추가 요청으로 A4 `admin-resume-pdf` 4개 step을 등록했다. 관리자에서 PDF를 비공개로 등록·전 페이지 미리보기하고 검토한 버전만 공개한다. 공개본이 있을 때 Resume에서 다운로드하며, 새 업로드만으로 기존 공개본이 바뀌지 않는다. 수정한 파일 교체·버전 메모·이전 버전 재선택·공개 해제를 제공하고 범용 PDF 본문 편집은 포함하지 않는다. 기존 공개 PDF/API의 제거 상태는 아직 그대로다.
+
 ### I-01: OCI self-hosted infrastructure
 
 인프라와 클라우드는 OCI를 기본 운영 환경으로 둔다.
@@ -126,7 +138,7 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 - 지표·대시보드는 비공개 운영 표면이며 콘텐츠·검색어·credential·내부 식별자를 노출하지 않는다. 기존 published-current/privacy와 비용 guard를 유지한다.
 - Steps 0–6은 격리 로컬에서 진행하고 Step 7은 기존 OCI 보류로 blocked다. 외부 HTTP/heartbeat 감시를 포함한 운영 검증을 반복 발행 timer 활성화 전에 완료한다.
 - 모니터링 완료에 실제 반복 발행을 요구하지 않는다. 비활성 상태를 구분한 뒤 timer 재개는 기존 자동 발행 phase에서 별도 승인으로 수행한다.
-- 공개 경험 개선 완료 후 기본 다음 작업은 `operations-observability / Step 0`의 지표·권한·자원 예산 계약이다. 운영 적용 보류는 유지한다.
+- 2026-10-22 관리자 통합 요청에 따라 A1 관리자 기반과 A4 이력서 PDF를 먼저 진행한 뒤 `operations-observability / Step 0`의 지표·권한·자원 예산을 확정한다. 로컬 Steps 1–6은 A3 모니터링 화면보다 먼저, 운영 Step 7은 관리자 rollout·timer보다 먼저 완료한다. 운영 적용 보류는 유지한다.
 
 ### H-02: 파일 기반 블로그 호환 이력
 

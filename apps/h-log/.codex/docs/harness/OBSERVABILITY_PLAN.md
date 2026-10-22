@@ -24,7 +24,9 @@
 | [6](../../../phases/operations-observability/step6.md) | isolated-failure-rehearsal | 장애·누락·수집 중단·복구를 로컬에서 종합 검증 |
 | [7](../../../phases/operations-observability/step7.md) | approved-production-rollout | 승인된 운영 설치와 서버 외부 감시 검증 |
 
-Steps 0–6은 OCI 보류 중에도 로컬에서 순서대로 진행할 수 있다. Step 7은 기존 OCI 보류로 `blocked`다. 사용자 지시로 모니터링 작업을 선택하면 Step 0부터 한 번에 한 step을 실행한다. 공개 경험 개선의 6개 phase/19개 step은 2026-10-22 완료했다. 일반적인 다음 작업은 이 phase의 `Step 0: monitoring-contract-and-budget`이며, 실제 지표 계약·권한·자원 예산을 정리하는 문서 단계부터 시작한다. 모니터링 구현이나 운영 적용은 아직 완료하지 않았다.
+Steps 0–6은 OCI 보류 중에도 로컬에서 순서대로 진행할 수 있다. Step 7은 기존 OCI 보류로 `blocked`다. 공개 경험 개선의 6개 phase/19개 step은 2026-10-22 완료했다. 같은 날 [통합 관리자 요청](ADMIN_CONSOLE_PLAN.md)에 따라 기본 다음 작업은 `admin-console-foundation / Step 0`으로 변경했다. 관리자 기반 A1과 이력서 PDF A4를 완료한 뒤 이 phase의 `Step 0: monitoring-contract-and-budget`에서 지표·권한·자원 예산을 확정한다. 모니터링 구현이나 운영 적용은 아직 완료하지 않았다.
+
+수집기·대시보드·신호·알림은 이 phase가 소유한다. 로컬 Steps 1–6은 `admin-operations-control / Step 2`보다 먼저 완료하고 관리자 화면은 그 결과만 읽는다. 이 phase는 관리자 화면이나 관리자 rollout을 선행 조건으로 요구하지 않는다. 운영 Step 7을 완료한 뒤 관리자 rollout과 기존 자동 발행 활성화를 각각 진행하며, 어느 쪽도 선행 모니터링 검증을 위해 timer를 켤 필요는 없다.
 
 `auto-publish-ops-hardening / Step 4`의 반복 timer 활성화 전에 이 phase의 운영 검증을 완료한다. **모니터링 완료에 실제 반복 발행을 요구하지 않는다.** Step 7에서는 scheduler 비활성 상태와 로컬 누락 재현 결과를 검증하고, 이후 별도 승인된 timer 활성화 때 감시 기준 시각을 설정한다. 이 순서로 순환 의존을 피한다.
 

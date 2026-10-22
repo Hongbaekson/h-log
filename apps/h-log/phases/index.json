@@ -176,9 +176,29 @@
       "summary": "2026-10-16 Steps 0-1 completed: article typography and integrated reading review of two unchanged final drafts plus separate synthetic assets at 1440/390/320px. Fixed server-error retry with current-URL reload; browser/test RED-GREEN and dev/production-mode list/detail recovery preserve query/tag/page/hash. Focused 52/52, unit 213 pass/13 DB skip, public-read integration 1/1 and lint/typecheck/build passed; source dates and Markdown/HTML/hash preserved. All seven T1/T2/T3 steps complete. Next: blog-discovery-and-home Step 3 rss-and-work-evidence-links. Real-model prose, publication preparation and OCI activation remain separate; Home/radar and Second Brain unchanged."
     },
     {
+      "dir": "admin-console-foundation",
+      "status": "pending",
+      "summary": "2026-10-22 plan registered: shared single-owner admin boundary, private shell, Queue lab removal from public surfaces and integration of existing Brain capture. All four steps pending; default next local work is Step 0 admin-access-and-command-contract. No route/auth/ingress changes yet."
+    },
+    {
+      "dir": "admin-blog-publishing",
+      "status": "pending",
+      "summary": "2026-10-22 plan registered: private post review, versioned editorial commands, durable draft-only generation and separate automation permissions. Four steps pending; depends on shared admin foundation. Existing generation still hands off publishing jobs; draft-only mode and policy controls are not implemented."
+    },
+    {
+      "dir": "admin-operations-control",
+      "status": "pending",
+      "summary": "2026-10-22 plan registered: real job/audit inspection, bounded retry and claim pause, existing observability integration, local release rehearsal and approved admin-host rollout. Steps 0-3 pending; Step 4 blocked by OCI hold. No Docker/shell control from web and no timer/provider activation implied."
+    },
+    {
+      "dir": "admin-resume-pdf",
+      "status": "pending",
+      "summary": "2026-10-22 plan registered: private PDF upload/validation/preview, immutable file versions, explicit public current selection/replacement/revocation and Resume download, with cache/privacy/backup recovery checks. Four steps pending; execute after admin foundation and before observability Step 0. Uploaded files stay private until reviewed and published. Arbitrary PDF content editing and online Resume synchronization are out of scope; no asset/API restored yet."
+    },
+    {
       "dir": "operations-observability",
       "status": "pending",
-      "summary": "2026-10-06 plan registered: local Steps 0-6 cover metric contracts, private Prometheus/Grafana, host/DB/HTTP probes, durable publishing/cost and backup/restore signals, dashboards/alerts and failure rehearsal. Step 7 production rollout is blocked by the user's OCI hold. Runtime is not implemented. Verified production monitoring is a pre-timer gate; after public-experience completion on 2026-10-22, the default next local step is this phase Step 0 monitoring-contract-and-budget."
+      "summary": "2026-10-06 plan registered: local Steps 0-6 cover metric contracts, private Prometheus/Grafana, host/DB/HTTP probes, durable publishing/cost and backup/restore signals, dashboards/alerts and failure rehearsal. Step 7 production rollout is blocked by the user's OCI hold. Runtime is not implemented. Verified production monitoring is a pre-timer gate; the 2026-10-22 admin request takes priority with admin-console-foundation Step 0. Run this phase Step 0 after admin foundation and admin-resume-pdf; finish local monitoring Steps 1-6 before admin-operations-control Step 2. Monitoring production verification remains independent of admin rollout and timer activation."
     },
     {
       "dir": "second-brain-foundation",
@@ -199,7 +219,7 @@
     {
       "dir": "auto-publish-ops-hardening",
       "status": "pending",
-      "summary": "Steps 0-3 completed. Step 4 artifact 70fd31c is live with server-local credential rotation, production env/input, migrations 001-003, production audit 0, a successful Hermes canary across required/public/crawler/search/usage surfaces, and an audited eight-surface rollback. Timer activation is intentionally deferred until public-site-quality-hardening is complete and a real HTTPS public origin plus privacy organization/private-repository lists are ready for production cutover. The 2026-10-06 operations-observability plan adds verified production monitoring as a pre-timer gate; the user-directed OCI hold remains in force."
+      "summary": "Steps 0-3 completed. Step 4 artifact 70fd31c is live with server-local credential rotation, production env/input, migrations 001-003, production audit 0, a successful Hermes canary across required/public/crawler/search/usage surfaces, and an audited eight-surface rollback. Timer activation is intentionally deferred until public-site-quality-hardening is complete and a real HTTPS public origin plus privacy organization/private-repository lists are ready for production cutover. The 2026-10-06 operations-observability plan adds verified production monitoring as a pre-timer gate; the user-directed OCI hold remains in force. The 2026-10-22 admin plan also requires the verified admin policy/control rollout before timer activation; it does not revoke the OCI hold."
     },
     {
       "dir": "feedback-and-persona-learning",

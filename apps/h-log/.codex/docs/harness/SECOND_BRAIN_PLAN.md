@@ -10,6 +10,8 @@
 
 ## 현재 결과와 공개 검토
 
+2026-10-22: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1 Step 3에 기존 `/admin/brain` 편입을 등록했다. 공통 인증/탐색을 적용하며 원문·append-only 이력·명시적 공개 사본과 기존 URL을 보존한다. 공개 `/brain`의 Memory UI와 이 문서의 완료 이력은 변경하지 않는다. 통합 구현과 운영 개방은 아직 수행하지 않았다.
+
 2026-10-15: 사용자 답변에 따라 Memory Interface Step 3에서 실제 공개 사이트 기준으로 UI를 수정했다. 화면과 bundle은 REA로 확인했다. 상세 기준과 로컬 HTML 대비 차이는 [Memory UI](MEMORY_UI_REFERENCE.md)를 따른다. Foundation Steps 0–5는 그대로 유지한다.
 
 2026-10-14: REA 분석과 실제 화면 비교를 거쳐 Memory Interface Step 2를 완료했다. 변경된 원본의 패널·검색·필터·그래프 투영을 반영하고 공개 기록과 개인 작성 기능은 유지했다. Foundation Steps 0–5와 Memory Interface Steps 0–2가 완료 상태다. 근거와 화면별 검증은 [현재 UI 기준](LOCAL_BRAIN_UI_REFERENCE.md)에 남겼다.

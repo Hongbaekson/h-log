@@ -1,0 +1,26 @@
+{
+  "project": "h-log",
+  "phase": "admin-blog-publishing",
+  "steps": [
+    {
+      "step": 0,
+      "name": "private-post-review",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "versioned-editorial-actions",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "draft-generation-requests",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "automation-policy-controls",
+      "status": "pending"
+    }
+  ]
+}

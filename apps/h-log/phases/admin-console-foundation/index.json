@@ -1,0 +1,26 @@
+{
+  "project": "h-log",
+  "phase": "admin-console-foundation",
+  "steps": [
+    {
+      "step": 0,
+      "name": "admin-access-and-command-contract",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "shared-owner-auth-and-shell",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "private-queue-lab",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "second-brain-admin-integration",
+      "status": "pending"
+    }
+  ]
+}
