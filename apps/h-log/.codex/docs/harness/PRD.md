@@ -53,7 +53,7 @@ H-01에서 제외한다.
 
 ### H-03: 공개 읽기와 사례 연결 개선 계획
 
-2026-10-01 사용자 요청에 따라 [공개 경험 개선 계획](PUBLIC_EXPERIENCE_PLAN.md)을 등록했다. Markdown 기본 읽기 → 목차/코드 도구/관련 글 → 검색/홈 연결 → 포트폴리오 근거 → 수정 이력/시리즈 → 작은 Queue/DLQ 실험 순서로 한 step씩 구현한다. 후속 기능은 현재 구현 완료로 간주하지 않는다.
+2026-10-01 사용자 요청에 따라 [공개 경험 개선 계획](PUBLIC_EXPERIENCE_PLAN.md)을 등록했다. Markdown 기본 읽기 → 목차/코드 도구/관련 글 → 검색/홈 연결 → 포트폴리오 근거 → 수정 이력/시리즈 → 작은 Queue/DLQ 실험 순서로 한 step씩 구현한다. 이 계획의 6개 phase/19개 step은 2026-10-22 로컬 구현·검수를 완료했다. 실제 글 발행과 운영 활성화는 별도다.
 
 - Discord dark-only 스타일과 현재 레이더의 데이터·축·형태·동작·배치·주변 영역을 보존한다.
 - 공개 글은 계속 published-current 데이터만 사용하고 richer Markdown은 typed React 요소와 허용 목록으로 확장한다.
@@ -84,6 +84,8 @@ H-01에서 제외한다.
 
 - 2026-10-22 Phase 6 Step 0 완료: `/lab/queue`에서 가상 작업 6개의 Queue → 실패 → DLQ → 원인 해결 후 재처리를 재생한다. Worker 1~3개·실패 조건 3개와 재생/일시정지/한 단계/초기화, 처리 기록을 제공한다. Focused 2/2, unit 227 pass/14 DB skip, lint·typecheck·build와 1440/390/320px·키보드·설정 9조합·reduced motion·JavaScript 없는 초기 표시·DB 연결 실패 상태의 운영 모드 검증을 통과했다. **공개 경험 18/19개 step 완료, 0개 blocked, 1개 pending**이며 다음은 **`backend-operations-lab / Step 1: lab-case-study-connection`**이다. 실험의 숫자는 실제 프로젝트 성과가 아니며 DB·실제 Queue·외부 실행을 연결하지 않는다.
 
+- 2026-10-22 Phase 6 Step 1 완료: Queue 실험의 동시성·네트워크·영속성·재처리 한계를 설명하고 Redisson/DLQ 사례와 양방향으로 연결했다. 사례의 기존 공개 글 판정을 재사용하고 sitemap에 실험 경로를 추가했다. **공개 경험 개선 6개 phase / 19개 step 전체 완료**이며, 다음은 **`operations-observability / Step 0: monitoring-contract-and-budget`**다. 실제 발행·OCI 적용·모니터링 구현 완료를 뜻하지 않는다. 검증: focused 51/51, unit 227 pass/14 DB skip, public-read integration 1/1, lint·typecheck·build와 세 화면 폭의 왕복·공개 경계·DB 오류 격리. 기존 no-JS Blog 목록의 로딩 제약은 별도 후속으로 남겼다.
+
 ### H-04: 개인 Second Brain
 
 2026-10-06 사용자 요청으로 [Second Brain 계획](SECOND_BRAIN_PLAN.md)을 등록했다. `/brain`과 개별 기억의 `/brain/[slug]`를 독립 메뉴로 제공하고, 개인 소개·공개 경력 및 허용된 코드 조사에서 일반화한 기술 노드를 연결한다. 확인한 경험, 구현 기반 정리, 재구성한 회고와 검토 질문을 구분한다. 회사 원문·내부 식별자와 추측한 감정/성과는 공개하지 않는다.
@@ -96,7 +98,7 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 
 ### H-05: 기술 글 문체와 읽기 화면 개선 계획
 
-2026-10-15 토스 기술 블로그 분석을 [3개 phase / 7개 step](BLOG_EDITORIAL_READING_PLAN.md)으로 등록했다. T1에서 [한국어 작성 가이드](BLOG_WRITING_GUIDE.md)·비공개 기술 초안 2개, 기존 writer의 정적 문체 규칙, 초안 교정과 로컬 작성 계약 검증을 완료했다. 산문 3곳의 교정과 Redis 조건 1곳의 사실 수정을 분리했고 기존 테스트 39/39·모의 writer 시나리오 5/5를 확인했다. T2 Step 0은 일반 목록·검색 결과의 공통 행, 두 줄 요약과 별도 메타정보를 적용하고 1440/390/320px 및 검색 회귀를 검증했다. 2026-10-16 T2 Step 1은 명시적으로 지정한 자산의 현재 버전/content hash·파일 SHA-256 검증, 목록/검색 공통 반응형 썸네일과 실패 시 텍스트 유지 동작을 격리 합성 이미지로 검증했다. 같은 날 T3 Step 0은 최대 736px·17px/32px 본문과 제목·코드·표·그림 여백을 실제 검수 초안 2개와 합성 글의 1440/390/320px 화면에서 확인했다. Step 1에서 최종 교정본의 목록→본문 통합 검수와 오류 재시도 수정을 마쳤고 기존 읽기 기능·원문/hash·공개 경계를 유지했다. [검수 기록](BLOG_READING_REVIEW.md)에 완료 범위와 발행 준비를 구분했으며 7개 step은 모두 완료다. 후속 `blog-discovery-and-home / Step 3`와 포트폴리오 목록 정리는 2026-10-19, 상세 근거 보강은 2026-10-20 완료했다. 프로젝트↔글 연결과 공개 검증·수정 기록 표시까지 완료했다. 2026-10-21 Step 2의 사례 검토와 Step 1의 나머지 원고 2편 준비를 마쳤다. 관련 원고 3편을 준비한 뒤 2026-10-22 `editorial-trust-and-series / Step 1`의 시리즈 기능 구현·검증까지 완료했다. 후속 Queue 실험 Step 0도 2026-10-22 완료했으며 다음은 `backend-operations-lab / Step 1`이다. 실물 이미지 적용과 실제 모델의 생성 문체 평가는 아직 수행하지 않았다.
+2026-10-15 토스 기술 블로그 분석을 [3개 phase / 7개 step](BLOG_EDITORIAL_READING_PLAN.md)으로 등록했다. T1에서 [한국어 작성 가이드](BLOG_WRITING_GUIDE.md)·비공개 기술 초안 2개, 기존 writer의 정적 문체 규칙, 초안 교정과 로컬 작성 계약 검증을 완료했다. 산문 3곳의 교정과 Redis 조건 1곳의 사실 수정을 분리했고 기존 테스트 39/39·모의 writer 시나리오 5/5를 확인했다. T2 Step 0은 일반 목록·검색 결과의 공통 행, 두 줄 요약과 별도 메타정보를 적용하고 1440/390/320px 및 검색 회귀를 검증했다. 2026-10-16 T2 Step 1은 명시적으로 지정한 자산의 현재 버전/content hash·파일 SHA-256 검증, 목록/검색 공통 반응형 썸네일과 실패 시 텍스트 유지 동작을 격리 합성 이미지로 검증했다. 같은 날 T3 Step 0은 최대 736px·17px/32px 본문과 제목·코드·표·그림 여백을 실제 검수 초안 2개와 합성 글의 1440/390/320px 화면에서 확인했다. Step 1에서 최종 교정본의 목록→본문 통합 검수와 오류 재시도 수정을 마쳤고 기존 읽기 기능·원문/hash·공개 경계를 유지했다. [검수 기록](BLOG_READING_REVIEW.md)에 완료 범위와 발행 준비를 구분했으며 7개 step은 모두 완료다. 후속 `blog-discovery-and-home / Step 3`와 포트폴리오 목록 정리는 2026-10-19, 상세 근거 보강은 2026-10-20 완료했다. 프로젝트↔글 연결과 공개 검증·수정 기록 표시까지 완료했다. 2026-10-21 Step 2의 사례 검토와 Step 1의 나머지 원고 2편 준비를 마쳤다. 관련 원고 3편을 준비한 뒤 2026-10-22 `editorial-trust-and-series / Step 1`의 시리즈 기능 구현·검증까지 완료했다. 후속 Queue 실험과 사례 연결까지 2026-10-22 완료했으며 다음은 `operations-observability / Step 0`이다. 실물 이미지 적용과 실제 모델의 생성 문체 평가는 아직 수행하지 않았다.
 
 - 목록·검색 결과는 제목·요약·날짜를 중심으로 맞추고 검증된 자산이 있을 때만 썸네일을 표시한다. 검색/모바일 태그 필터와 URL 상태를 유지한다.
 - 본문은 기존 목차·코드 복사·표·출처·관련 글을 유지하면서 폭·글자·여백을 실제 초안으로 확인한다. Discord 팔레트와 Home/레이더, Second Brain을 변경하지 않는다.
@@ -124,7 +126,7 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 - 지표·대시보드는 비공개 운영 표면이며 콘텐츠·검색어·credential·내부 식별자를 노출하지 않는다. 기존 published-current/privacy와 비용 guard를 유지한다.
 - Steps 0–6은 격리 로컬에서 진행하고 Step 7은 기존 OCI 보류로 blocked다. 외부 HTTP/heartbeat 감시를 포함한 운영 검증을 반복 발행 timer 활성화 전에 완료한다.
 - 모니터링 완료에 실제 반복 발행을 요구하지 않는다. 비활성 상태를 구분한 뒤 timer 재개는 기존 자동 발행 phase에서 별도 승인으로 수행한다.
-- 기본 다음 작업은 `blog-reading-foundation / Step 3`로 유지하며 모니터링을 선택하면 새 phase의 Step 0부터 진행한다.
+- 공개 경험 개선 완료 후 기본 다음 작업은 `operations-observability / Step 0`의 지표·권한·자원 예산 계약이다. 운영 적용 보류는 유지한다.
 
 ### H-02: 파일 기반 블로그 호환 이력
 

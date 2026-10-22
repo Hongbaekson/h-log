@@ -267,6 +267,13 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
             ) : project.slug !== "ai-backend-workflow-standardization" && (
               <SystemMap project={project} />
             )}
+            {project.slug === "redisson-async-processing-recovery" && (
+              <section aria-label="Queue 흐름 직접 보기" className="border-t border-slate-700 pt-8">
+                <h2 className="text-xl font-semibold text-white">Queue 흐름 직접 보기</h2>
+                <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">가상 작업으로 실패·DLQ 보관·재처리 순서를 살펴볼 수 있습니다. 실제 프로젝트를 재현하거나 이 페이지의 성과를 측정하는 실험은 아닙니다.</p>
+                <Link className="mt-3 inline-flex min-h-11 items-center rounded-md py-2 font-semibold text-[#b6bdff] underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4" href="/lab/queue">Queue와 DLQ 재생 실험 열기</Link>
+              </section>
+            )}
             <TechStack project={project} />
             <Suspense fallback={
               <noscript>

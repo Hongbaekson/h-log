@@ -17,6 +17,7 @@ export async function GET(request: Request) {
       "/portfolio",
       ...projects.map((project) => `/portfolio/${project.slug}`),
       "/blog",
+      "/lab/queue",
       "/brain",
       ...brain.nodes.map((node) => `/brain/${node.id}`),
     ],

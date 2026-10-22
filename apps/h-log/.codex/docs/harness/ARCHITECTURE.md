@@ -40,7 +40,7 @@ npm run build
 
 `app/lab/queue/page.tsx`는 가상 실험 안내·canonical·초기 화면을 제공한다(ADR-037). `lib/queue-lab.ts`의 순수 함수는 6개 작업의 Queue/처리 중/완료/DLQ 배열과 단계별 설명을 생성한다. 기존 frame을 변경하지 않고, 최대 2회 시도 후 DLQ에 보관하며 원인 해결을 가정한 재처리에서 해당 작업만 Queue로 이동한다.
 
-`components/lab/QueueReplay.tsx`는 현재 frame 위치·재생·설정·재처리 상태만 보관한다. 1초 간격은 읽기 속도이며 실제 처리 시간을 뜻하지 않는다. 일시정지·초기화·설정 변경·화면 이탈 시 타이머를 정리하고 마지막 단계에서 멈춘다. 시작은 수동이며 이동 애니메이션을 사용하지 않는다. DB/repository/API/실제 worker와 연결하지 않아 DB가 없어도 동작한다. 실제 사례 및 공개 글 연결은 다음 Step 1 범위다.
+`components/lab/QueueReplay.tsx`는 현재 frame 위치·재생·설정·재처리 상태만 보관한다. 1초 간격은 읽기 속도이며 실제 처리 시간을 뜻하지 않는다. 일시정지·초기화·설정 변경·화면 이탈 시 타이머를 정리하고 마지막 단계에서 멈춘다. 시작은 수동이며 이동 애니메이션을 사용하지 않는다. DB/repository/API/실제 worker와 연결하지 않아 DB가 없어도 동작한다. Step 1에서는 실험 본문에 실제 설계와의 비교와 `getProjectBySlug`로 읽은 공개 사례 링크를 추가했다. `portfolio/[slug]`는 해당 Redisson/DLQ 사례에만 실험 진입점을 제공하며 기존 `ProjectRelatedPosts`를 통해 현재 공개 글을 이어 읽는다. 실험에 DB 조회를 추가하지 않았고 관련 글의 비공개/철회·오류 격리 경계는 유지한다. `/lab/queue`는 기존 sitemap의 정적 경로 목록에 포함하며 blog-only feed/llms는 유지한다.
 
 ### 순서가 있는 시리즈
 

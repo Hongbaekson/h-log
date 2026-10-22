@@ -45,15 +45,15 @@
 | 5 | 1 | 시리즈 순서·현재 편·공개 글 이전/다음 구현 완료 |
 | 5 | 2 | 실제 근거를 갖춘 선택/AI 협업/재검증 기록 초안 하나 — H-Log 사례 검수 완료 |
 | 6. [backend-operations-lab](../../../phases/backend-operations-lab/index.json) | 0 | deterministic Queue→실패→DLQ→재처리 재생 완료 |
-| 6 | 1 | 가상 실험과 실제 프로젝트/글 연결 및 한계 설명 |
+| 6 | 1 | 가상 실험과 실제 프로젝트/글 연결 및 한계 설명 완료 |
 
 각 step 파일에 읽을 파일, 작업 경계, 독립적인 완료 기준, 검증 command를 둔다. 후속 step은 이전 단계의 실제 파일과 결정을 다시 확인한다. 새 parser나 DB 필드가 필요하면 해당 단계에서 필요한 최소 변경만 결정한다.
 
 ## 이번 실행 단위
 
-2026-10-22 Phase 6 Step 0 완료: `/lab/queue`에서 가상 작업 6개의 Queue → 실패 → DLQ → 원인 해결 후 재처리를 재생한다. Worker 1~3개·실패 조건 3개와 재생/일시정지/한 단계/초기화, 처리 기록을 제공한다. Focused 2/2, unit 227 pass/14 DB skip, lint·typecheck·build와 1440/390/320px·키보드·설정 9조합·reduced motion·JavaScript 없는 초기 표시·DB 연결 실패 상태의 운영 모드 검증을 통과했다. **공개 경험 18/19개 step 완료, 0개 blocked, 1개 pending**이며 다음은 **`backend-operations-lab / Step 1: lab-case-study-connection`**이다.
+2026-10-22 Phase 6 Step 1 완료: Queue 실험의 동시성·네트워크·영속성·재처리 한계를 설명하고 Redisson/DLQ 사례와 양방향으로 연결했다. 사례의 기존 공개 글 판정을 재사용하고 sitemap에 실험 경로를 추가했다. **공개 경험 개선 6개 phase / 19개 step 전체 완료**이며, 다음은 **`operations-observability / Step 0: monitoring-contract-and-budget`**다. 실제 발행·OCI 적용·모니터링 구현 완료를 뜻하지 않는다.
 
-[Step 0 검증 기록](../../../phases/backend-operations-lab/step0.md)에 재생 계약·화면 결과·한계를 남겼다. 실제 Queue/Worker/DB/API를 연결하지 않았다. 프로젝트/글 연결·진입점은 Step 1에서 정리하며 Home/레이더·Second Brain·실제 발행·OCI는 유지한다.
+[Step 1 검증 기록](../../../phases/backend-operations-lab/step1.md): focused 51/51, unit 227 pass/14 DB skip, public-read integration 1/1, lint·typecheck·build와 1440/390/320px 왕복·키보드·긴 글·비공개/철회·DB 오류 격리를 확인했다. 실험과 공개 사례 설명을 재사용했으며 원문/hash·기존 성과·Home/레이더·Second Brain을 변경하지 않았다.
 
 ## 이후 설계 원칙
 
@@ -67,7 +67,9 @@
 
 ### 별도 후속 작업
 
-- 2026-10-15 등록한 [기술 글 문체와 읽기 화면 개선](BLOG_EDITORIAL_READING_PLAN.md)의 T1~T3 / 7개 step은 2026-10-16 로컬 구현·검수를 완료했다. 이후 Phase 3 Step 3의 RSS·사례 연결과 Phase 4 Steps 0–2, Phase 5 Step 0까지 완료했다. 2026-10-21 Phase 5 Step 1의 콘텐츠 부족을 기록한 뒤 Step 2의 H-Log 사례 검토를 완료했다. 이후 원고 준비와 Phase 5를 완료했고 Phase 6 Step 0까지 검증했다. 다음은 Phase 6 Step 1이며 기존 Phase 1~6의 번호·완료 이력은 유지한다.
+- 2026-10-22 추가 검수에서 JavaScript가 없는 기존 `/blog` 목록이 loading boundary의 안내에 머무는 현상을 확인했다. 실험↔프로젝트 링크와 글 직접 URL은 읽을 수 있다. 목록의 스트리밍/로딩 계약을 보존하면서 no-JS 탐색을 보완하는 작업은 이번 사례 연결과 분리해 남긴다.
+
+- 2026-10-15 등록한 [기술 글 문체와 읽기 화면 개선](BLOG_EDITORIAL_READING_PLAN.md)의 T1~T3 / 7개 step은 2026-10-16 로컬 구현·검수를 완료했다. 이후 Phase 3 Step 3의 RSS·사례 연결과 Phase 4 Steps 0–2, Phase 5 Step 0까지 완료했다. 2026-10-21 Phase 5 Step 1의 콘텐츠 부족을 기록한 뒤 Step 2의 H-Log 사례 검토를 완료했다. 이후 원고 준비와 Phase 5를 완료했고 Phase 6 Step 0까지 검증했다. Phase 6 Step 1까지 완료했으며 기존 Phase 1~6의 번호·완료 이력은 유지한다. 다음은 운영 모니터링 Step 0이다.
 
 - 2026-10-06 [운영 모니터링](OBSERVABILITY_PLAN.md)을 독립 phase/8개 step으로 등록했다. 기존 공개 경험 6개 phase/19개 step의 번호·실행 순서는 유지한다. 모니터링을 지정하면 해당 Step 0부터 로컬 진행할 수 있고 운영 적용은 OCI 보류를 따른다. 자동 발행 timer 재개 전 운영 모니터링 검증이 필요하다.
 
@@ -108,3 +110,5 @@
 2026-10-22 Phase 5 Step 1 완료: 명시적인 시리즈 순서를 기존 공개 글에 연결했다. 기본 목록 첫 페이지와 상세의 접이식 목록·현재 편·시리즈 이전/다음을 제공한다. 비공개/철회 글을 제외하고 원래 편 번호·canonical·원문/hash를 유지한다. Focused 47/47, unit 225 pass/14 DB skip, public-read integration 1/1, lint/typecheck/build와 1440/390/320px·키보드·긴 글·빈 시리즈·JavaScript 없는 이동·DB 오류 검증을 통과했다. 실제 원고는 비공개로 유지했다. **Phase 5 전체 완료, 다음은 `backend-operations-lab / Step 0: deterministic-queue-replay`**다. 공개 경험은 **17/19개 step 완료, 0개 blocked, 2개 pending**이다. 실제 발행·운영 활성화는 별도로 남아 있다.
 
 2026-10-22 Phase 6 Step 0 완료: `/lab/queue`에서 가상 작업 6개의 Queue → 실패 → DLQ → 원인 해결 후 재처리를 재생한다. Worker 1~3개·실패 조건 3개와 재생/일시정지/한 단계/초기화, 처리 기록을 제공한다. Focused 2/2, unit 227 pass/14 DB skip, lint·typecheck·build와 1440/390/320px·키보드·설정 9조합·reduced motion·JavaScript 없는 초기 표시·DB 연결 실패 상태의 운영 모드 검증을 통과했다. **공개 경험 18/19개 step 완료, 0개 blocked, 1개 pending**이며 다음은 **`backend-operations-lab / Step 1: lab-case-study-connection`**이다. 실제 발행·운영 활성화는 별도로 남아 있다.
+
+2026-10-22 Phase 6 Step 1 완료: Queue 실험의 동시성·네트워크·영속성·재처리 한계를 설명하고 Redisson/DLQ 사례와 양방향으로 연결했다. 사례의 기존 공개 글 판정을 재사용하고 sitemap에 실험 경로를 추가했다. **공개 경험 개선 6개 phase / 19개 step 전체 완료**이며, 다음은 **`operations-observability / Step 0: monitoring-contract-and-budget`**다. 실제 발행·OCI 적용·모니터링 구현 완료를 뜻하지 않는다.
