@@ -107,11 +107,11 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 
 ### H-06: 단일 소유자 통합 관리자
 
-2026-10-22 사용자 요청으로 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 4개 phase / 17개 step으로 등록했다. 2026-10-23 A1 Steps 0–1의 [접근·명령 계약](ADMIN_ACCESS_CONTRACT.md), 공통 인증과 관리자 개요/탐색을 완료했다. **다음은 `admin-console-foundation / Step 2`의 Queue 비공개 이동**이다. A1의 Brain 명령 통합, A2의 블로그 검토/버전 명령·초안 생성·자동화 허용, A3의 실제 작업/감사·재시도/중지·모니터링·운영 검증은 후속 단계다.
+2026-10-22 사용자 요청으로 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 4개 phase / 17개 step으로 등록했다. 2026-10-23 A1 Steps 0–2의 [접근·명령 계약](ADMIN_ACCESS_CONTRACT.md), 공통 인증·관리자 개요/탐색·Queue 비공개 이동을 완료했다. **다음은 `admin-console-foundation / Step 3`의 Brain 명령 통합**이다. A2의 블로그 검토/버전 명령·초안 생성·자동화 허용, A3의 실제 작업/감사·재시도/중지·모니터링·운영 검증은 후속 단계다.
 
 - 기존 Next.js `/admin`을 사용하고 운영 시 `admin.<선택 도메인>`으로 진입점을 분리한다. 공개 host는 관리자 경로를 차단하며 인증·정확한 Host/Origin·데이터 접근 검사를 함께 적용한다. 새 앱/회원가입/다중 역할은 만들지 않는다.
 - 공통 인증은 기존 Basic 소유자 키를 `HLOG_ADMIN_*`로 이전하고 Brain DB flag와 분리했다. 인증된 개요/Brain에서 미설정·저장소 오류를 구분하며 준비 중인 메뉴는 동작하지 않는다. 운영 초기 접근은 기존 SSH 터널 안의 HTTPS 관리자 진입점이 목표다. 명령의 원자적 상태·중복·감사와 새 작업 중지는 후속 step에서 구현한다.
-- `/lab/queue`의 관리자 실험실 이동과 Portfolio/sitemap 노출 제거는 A1 Step 2다. 현재 공개 코드와 이전 Phase 6 완료 이력은 계획 등록만으로 바뀌지 않는다.
+- A1 Step 2에서 가상 Queue를 `/admin/lab/queue`로 이동했다. 기존 `/lab/queue`는 404이며 Portfolio 진입 영역과 sitemap 항목을 제거했다. 가상 계산/재생은 유지하고 실제 작업 제어와 연결하지 않는다. 이전 Phase 6 완료 기록은 당시 공개 구현 이력으로 보존한다.
 - 기존 `/admin/brain`의 원문·이력·공개 사본을 유지하고 공통 관리자 탐색으로 편입한다. 공개 `/brain`의 UI·내용과 Home/레이더는 그대로다.
 - 초안 생성과 자동 공개 발행을 별도로 허용하고 초기값은 OFF다. 웹·CLI·scheduler·worker에 동일한 지속 정책을 적용하며 서버 운영 허용 설정을 넘지 못한다. 이미 시작한 작업과 새 작업 중지를 구분한다.
 - 실제 job/lease·감사·비용을 재사용하고 단건 재시도와 새 claim 일시정지만 제공한다. 웹에서 shell/systemctl/docker 실행과 무제한 재처리는 제외한다. 모니터링은 I-02의 기존 계획을 소비한다.

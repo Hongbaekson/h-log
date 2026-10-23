@@ -387,7 +387,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **접근 계약 확정 (2026-10-23, A1 Step 0)**: [관리자 접근·명령 계약](ADMIN_ACCESS_CONTRACT.md)에 따라 기존 Basic 256-bit 키를 `HLOG_ADMIN_ENABLED/OWNER_KEY/ORIGIN`으로 이전하고 Brain DB flag와 분리한다. 구 owner 환경값은 fallback하지 않고 잘못된 설정은 닫는다. 별도 세션/계정 저장 없이 시작하며 Basic 캐시의 로그아웃 한계를 명시한다. 초기 운영 접근은 기존 SSH 공개키 터널 안의 관리자 HTTPS + 앱 인증으로 제한하는 기본안이다. 공개 인터넷 로그인/MFA 제공자는 별도 결정 없이 추가하지 않는다. 명령은 중복 receipt·예상 상태/revision·감사를 같은 transaction에 넣고 중지는 정책 row를 통한 실행 예약 순서로 정의한다. 이는 설계 완료이며 실제 인증/DB/ingress는 아직 변경하지 않았다.
 
-**공개 범위 변경**: ADR-037의 가상 모델은 유지하지만 공개 방문자용 진입은 관리자 실험실로 바꾸기로 했다. A1 Step 2에서 `/admin/lab/queue`로 이동하고 기존 `/lab/queue`는 404, Portfolio 링크/sitemap 항목은 제거한다. 현재 공개 구현이 이미 비공개로 바뀌었다는 뜻은 아니다. 공개 `/brain`과 기존 승인된 콘텐츠·원문/hash·레이더는 유지한다.
+**공개 범위 변경 (2026-10-23, A1 Step 2 구현)**: ADR-037의 가상 모델과 재생 컴포넌트를 유지하며 `/admin/lab/queue`로 이동했다. 공통 Proxy와 page 인증으로 보호하고 기존 `/lab/queue`는 redirect 없이 404로 종료했다. Portfolio 진입 영역·sitemap 항목·공개 canonical을 제거했으며 관리자 실험의 공개 프로젝트 링크만 공개 origin으로 연결한다. 공개 `/brain`과 기존 승인된 콘텐츠·원문/hash·레이더는 유지한다.
 
 **명령/실행 계약**: 초안 저장과 공개 발행, 새 claim 중지와 이미 진행 중인 작업을 구분한다. 정책/요청/감사는 필요한 최소 지속 상태로 만들고 웹·CLI·scheduler·worker가 동일한 허용 조건을 확인한다. 서버 운영 허용 설정은 상한이며 UI에서 timer/credential을 바꾸지 않는다. 기존 상태 전이·lease·중복 방지·usage/quality/privacy를 재사용한다. 새 작업이 중지돼도 공개 검증·실패 시 숨김·철회 같은 보호 조치는 유지한다.
 
@@ -395,7 +395,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **A1 Step 1 구현 (2026-10-23)**: 공통 `admin-owner.ts`와 `/admin/:path*` Proxy, page의 조회 전 검사, Brain handler의 공통 인증+기능 flag를 적용했다. 관리자 전용 탐색과 개요는 기존 Discord 스타일을 사용하고 준비 메뉴/미설정/오류를 구분한다. 공개 Header/Footer는 관리자 경로에서 렌더링하지 않으며 이는 인증 경계와 별개다. Brain 공개 링크는 공개 origin을 사용한다. 세션 DB·새 명령 schema·운영 ingress는 추가하지 않았다.
 
-**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1 Steps 0–1 completed 2개·pending 14개·운영 rollout blocked 1개다. Prometheus/Grafana는 기존 observability phase가 소유하며 관리자 화면에 새 모니터링 시스템을 만들지 않는다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
+**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1 Steps 0–2 completed 3개·pending 13개·운영 rollout blocked 1개다. Prometheus/Grafana는 기존 observability phase가 소유하며 관리자 화면에 새 모니터링 시스템을 만들지 않는다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
 
 ### ADR-039: 이력서 PDF는 비공개 버전에서 검토한 파일 하나만 공개한다
 

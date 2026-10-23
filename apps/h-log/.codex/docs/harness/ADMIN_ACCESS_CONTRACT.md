@@ -1,6 +1,6 @@
 # 관리자 접근과 명령 계약
 
-확정일: 2026-10-23. `admin-console-foundation / Step 0`의 설계 결과다. **A1 Step 1에서 공통 인증·관리자 shell·기존 Brain 인증 이전을 로컬 구현/검증했다.** 아래 명령 DB·정책/중지·운영 ingress 계약은 후속 단계이며, 다음은 A1 Step 2다. 단계별 범위는 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 따른다.
+확정일: 2026-10-23. `admin-console-foundation / Step 0`의 설계 결과다. **A1 Step 1에서 공통 인증·관리자 shell·기존 Brain 인증 이전을 로컬 구현/검증했다.** 아래 명령 DB·정책/중지·운영 ingress 계약은 후속 단계다. A1 Step 2에서 Queue 실험을 공통 인증 아래로 이동했고 다음은 A1 Step 3이다. 단계별 범위는 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 따른다.
 
 ## 1. 현재 caller와 부족한 계약
 
@@ -27,7 +27,7 @@
 | `HLOG_ADMIN_OWNER_KEY` | 소문자 hex 64자; CSPRNG로 생성, URL·브라우저 저장소·클라이언트 props·로그에 넣지 않음 |
 | `HLOG_ADMIN_ORIGIN` | 경로/쿼리/fragment/사용자 정보 없는 정규 origin 하나; 운영 HTTPS 필수. 비운영 HTTP는 localhost/127.0.0.1/[::1]만 허용 |
 
-`HLOG_BRAIN_DATABASE_ENABLED`는 Brain 저장/공개 데이터 기능에만 남긴다. Brain DB가 꺼져도 관리자 shell은 사용할 수 있으며 가상 실험실은 A1 Step 2에서 연결한다. 관리자 인증을 꺼도 기존 공개 Brain의 정책과 승인된 사본을 임의로 바꾸지 않는다. A1 Step 1에서 새 설정으로 코드·테스트·안내를 함께 이전했다.
+`HLOG_BRAIN_DATABASE_ENABLED`는 Brain 저장/공개 데이터 기능에만 남긴다. Brain DB가 꺼져도 관리자 shell은 사용할 수 있으며 가상 실험실도 A1 Step 2에서 연결했다. 관리자 인증을 꺼도 기존 공개 Brain의 정책과 승인된 사본을 임의로 바꾸지 않는다. A1 Step 1에서 새 설정으로 코드·테스트·안내를 함께 이전했다.
 
 이전은 한 번의 명시적 전환으로 한다. 관리자 ingress를 닫고 기존 Brain owner key/origin을 새 이름으로 옮기며 `HLOG_ADMIN_ENABLED=1`을 설정한 뒤 웹을 재시작한다. A1 코드 전환 후에는 `HLOG_BRAIN_OWNER_KEY/ORIGIN`을 자동 fallback으로 받지 않는다. 새 값 누락/잘못된 값은 404로 닫히고, 구·신 설정이 함께 있으면 새 값만 사용한다. Brain DB flag는 별도로 유지한다. 서버 env와 코드 버전을 함께 검증한 뒤 이전 이름을 지운다. 실제 운영 전환은 A3 Step 4의 승인 범위다.
 
@@ -127,3 +127,5 @@ A1 Step 1의 focused 명령(앱 디렉터리): `node --no-warnings --test --expe
 Step 0 당시 검증은 문서/JSON·링크·읽을 파일·phase 상태 검사와 `git diff --check`, 기존 auth/HTTP 기준선 6개였다. A1 Step 1은 별도로 focused RED/GREEN 11/11, 전체 unit 232 pass/14 DB skip, lint/typecheck/build, 격리 Brain DB/HTTP와 관리자 HTTP 행렬, 1440/390/320px·키보드·no-JS·DB 오류·설정/키 재시작 검증을 수행했다. 새 명령/정책이나 운영 TLS 검증 완료를 뜻하지 않는다.
 
 공통 경계 재검증은 앱 디렉터리에서 `npm run test:admin:http`를 사용한다. `HLOG_ADMIN_HTTP_TEST=1`, 테스트용 `HLOG_ADMIN_ORIGIN/OWNER_KEY`, `HLOG_ADMIN_HTTP_PUBLIC_ORIGIN`, `HLOG_ADMIN_HTTP_UPSTREAM`을 설정한 격리 HTTP loopback 두 ingress가 필요하다. 실제 secret/도메인을 넣지 않는다. A1의 검수 설정·결과·스크린샷은 Git 제외 `private/admin-shell-check/`에 보관했다.
+
+A1 Step 2에서 같은 `test:admin:http`에 Queue 공개 종료·공개 탐색 제외·소유자 접근 검증 3개를 추가했다(부모 테스트 포함 4/4). 공개 sitemap/검색/글 조회도 검사하므로 앱에 migration이 적용된 격리 DB를 연결해야 하며 Brain 저장 flag는 OFF여도 된다. `/lab/queue`는 공개/관리자/직접 upstream에서 GET·HEAD·RSC 모두 404이며 관리자 redirect는 없다. `/admin/lab/queue`는 공개 ingress에서 정상 키로도 404, 관리자 익명/잘못된 키는 401, 잘못된 Host는 403이다. 인증된 HTML·RSC·prefetch·HEAD와 private/no-store/noindex를 확인했다. 공개 페이지·프로젝트 RSC·sitemap·검색·feed/llms에는 실험 주소/본문이 없다.

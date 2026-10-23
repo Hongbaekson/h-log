@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-23 **A1 Step 2 completed**: Queue 실험을 인증된 `/admin/lab/queue`로 이동하고 기존 공개 URL을 redirect 없이 404로 종료했다. Portfolio 진입 영역·sitemap 항목·공개 canonical을 제거하고 가상 계산/재생과 실제 설계 설명을 보존했다. HTTP RED → GREEN 4/4, Queue/SEO 5/5, unit 232 pass/14 DB skip, lint/typecheck/build, 1440/390/320px·설정 9조합·키보드·no-JS·공개 링크 경계를 검증했다. 관리자 트랙은 completed 3개·pending 13개·blocked 1개이며 **다음은 `admin-console-foundation / Step 3: second-brain-admin-integration`**이다. 실제 작업 실행과 운영 상태는 변경하지 않았다. 아래는 당시 이력이다.
+
 2026-10-23 **A1 Step 1 completed**: `/admin` 공통 인증·전용 개요/탐색, Brain flag 분리와 기존 작성 화면의 인증 이전을 완료했다. Focused 11/11, unit 232 pass/14 DB skip, lint/typecheck/build, 격리 Brain integration/HTTP·admin HTTP 각 1/1과 1440/390/320px·키보드·no-JS·DB 오류·재시작 검증을 통과했다. 관리자 트랙은 completed 2개·pending 14개·blocked 1개이며 **다음은 `admin-console-foundation / Step 2: private-queue-lab`**다. `/lab/queue`와 PDF/정책·운영 상태는 아직 그대로다. 아래는 당시 이력이다.
 
 2026-10-23 **A1 Step 0 completed**: [관리자 접근·명령 계약](ADMIN_ACCESS_CONTRACT.md)을 확정했다. 공통 Basic 설정·Brain flag 분리·명시적 환경값 이전/키 복구, Host/Origin·직접 API/RSC 행렬, 명령별 revision/중복/감사와 중지 기준을 실제 caller에 대응했다. 기존 인증/HTTP 6/6과 문서 검증을 통과했다. 관리자 트랙은 completed 1개·pending 15개·blocked 1개이며 **다음은 `admin-console-foundation / Step 1: shared-owner-auth-and-shell`**이다. 코드/DB/운영 상태는 그대로다. 아래는 당시 이력이다.

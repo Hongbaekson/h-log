@@ -18,12 +18,12 @@ export default async function AdminPage() {
           <Link href="/admin/brain" prefetch={false}>{brainConfigured ? "기록 관리" : "설정 상태 확인"}<ArrowUpRight size={16} aria-hidden="true" /></Link>
         </div>
       </section>
+      <p className="admin-access-help"><Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/lab/queue" prefetch={false}>Queue 실험실 열기</Link> · 가상 작업의 실패와 재처리를 살펴볼 수 있습니다. 실제 운영 작업과는 연결되지 않습니다.</p>
       <section className="admin-next" aria-labelledby="admin-next-title">
         <div><CircleDashed size={19} aria-hidden="true" /><h2 id="admin-next-title">이어서 추가할 기능</h2></div>
         <ul>
           <li><strong>글과 이력서 관리</strong><p>글 검토와 발행, PDF 등록·교체·공개 여부를 관리할 예정입니다.</p></li>
           <li><strong>자동 작성과 작업 관리</strong><p>자동 작성 허용, 작업 조회와 재시도, 모니터링을 차례로 연결합니다.</p></li>
-          <li><strong>비공개 실험실</strong><p>Queue 실험을 관리자 영역으로 옮길 예정입니다. 현재 실험 페이지는 아직 공개 상태입니다.</p></li>
         </ul>
         <p className="admin-note">준비 중인 기능은 아직 사용할 수 없습니다. 실제 운영 상태는 각 기능이 연결된 뒤 표시합니다.</p>
       </section>

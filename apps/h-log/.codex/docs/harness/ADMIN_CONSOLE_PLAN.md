@@ -1,6 +1,6 @@
 # H-Log 통합 관리자 계획
 
-등록일: 2026-10-22. 2026-10-23 **A1 Steps 0–1의 계약·공통 인증·관리자 shell을 완료했다. 4개 phase / 17개 step 중 completed 2개·pending 14개·blocked 1개**다. 기존 Brain은 공통 인증으로 연결했으며 Queue 비공개 전환·PDF 다운로드·블로그/작업 관리는 아직 미구현이다. 다음 실행은 [A1 Step 2](../../../phases/admin-console-foundation/step2.md)이다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
+등록일: 2026-10-22. 2026-10-23 **A1 Steps 0–2의 계약·공통 인증·관리자 shell·Queue 비공개 이동을 완료했다. 4개 phase / 17개 step 중 completed 3개·pending 13개·blocked 1개**다. 기존 Brain은 공통 인증으로 연결했고 가상 실험은 `/admin/lab/queue`에서만 제공한다. PDF 다운로드·블로그/작업 관리는 아직 미구현이다. 다음 실행은 [A1 Step 3](../../../phases/admin-console-foundation/step3.md)이다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
 
 ## 방향과 현재 근거
 
@@ -15,7 +15,7 @@
 | `lib/blog-daily-auto-article.ts`, `scripts/blog-auto-publish.mjs` | 검증 결과를 비공개 `publishing` aggregate와 queued required jobs로 저장 | 초안 전용 저장과 명시적 발행 승인/자동 허용을 분리 |
 | `lib/blog-persistent-worker.ts`, `deploy/systemd/` | lease 기반 한 건 실행, 유한 cycle, 09:00 KST timer 패키지 | 작업 조회·명시적 재시도·새 작업 claim 일시정지; 프로세스 생존은 별도 신호 |
 | `usage_events`, `admin_actions`, `publish_verifications` | 비용·일부 감사·검증 자료가 존재 | 실제 저장 항목만 조회, 기록되지 않은 실행 이력을 성공/0건으로 추정하지 않음 |
-| `/lab/queue`, Portfolio 링크, sitemap | 누구나 접근하는 가상 실험 | 인증된 `/admin/lab/queue`로 이동하고 기존 공개 경로·링크 제거 |
+| `/admin/lab/queue`, 관리자 실험실 메뉴 | 인증된 소유자만 접근; 기존 `/lab/queue`는 404, 공개 링크/sitemap 제거 | 가상 모델 유지; 실제 작업 제어는 A3의 별도 기능 |
 | `/resume`, 과거 PDF 다운로드 제거 이력 | 온라인 이력서는 존재; PDF asset·버튼·API는 제거된 상태 | 관리자 파일/버전 관리와 공개 current PDF의 다운로드 복원 |
 
 ## 화면과 주소
@@ -114,7 +114,7 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 
 ## 실행 순서와 기존 계획
 
-1. 기본 다음 작업은 **A1 Step 2**다. A1 Steps 0–1의 계약·공통 인증/shell을 기준으로 Queue 비공개와 Brain 명령 통합을 진행한다. 현재도 `/lab/queue`와 공개 링크가 그대로 남아 있다.
+1. 기본 다음 작업은 **A1 Step 3**이다. A1 Steps 0–2의 공통 인증·관리자 화면·비공개 실험실을 기준으로 Brain 명령 revision과 감사/중복 처리를 통합한다. 기존 `/lab/queue`는 404이며 공개 진입 링크와 sitemap 항목을 제거했다.
 2. A1 완료 뒤 독립적인 **A4 이력서 PDF Steps 0–3**을 진행한다. A4 번호는 기존 A1–A3의 참조를 보존하기 위한 것이며 운영 rollout 뒤로 미루는 뜻이 아니다. 이어 `operations-observability / Step 0`에서 신호·권한·예산을 확정한다. A2 Steps 0–3과 A3 Steps 0–1은 이를 참고해 실제 저장·제어를 구현하며, 수집 스택 설치를 선행 조건으로 요구하지 않는다.
 3. observability Steps 1–6을 구현·로컬 검증한 뒤 A3 Steps 2–3을 완료한다. 관측 데이터의 생산자는 모니터링 phase, 관리자 화면은 소비자로 둔다.
 4. 운영은 기존 OCI 보류 해제 및 범위별 승인 후 진행한다. observability Step 7은 비활성 scheduler 상태에서도 완료할 수 있다. 이어 A3 Step 4에서 관리자 도메인과 A4의 비공개 파일 저장/migration을 적용한다. 관리자 rollout은 자동 발행 timer를 켜거나 실제 글/Brain 사본/PDF를 공개하지 않는다. 특정 PDF 공개는 관리자에서 검수한 파일을 선택하는 별도 행동이다.
@@ -149,3 +149,7 @@ A1 Step 1은 공통 인증과 관리자 화면의 앱 코드/테스트를 변경
 ## A1 Step 1 구현 검증 — 2026-10-23
 
 공통 인증과 Brain 환경값 이전의 RED/GREEN, 관리자 개요의 404→200, 공개 Brain 링크의 잘못된 origin→공개 origin을 확인했다. Focused 11/11, unit 232 pass/14 DB skip, lint/typecheck/build, 격리 Brain integration 1/1·Brain HTTP 1/1·admin HTTP 1/1을 통과했다. 1440/390/320px의 미설정/연결/오류 화면·키보드·no-JS 이동을 검수했고 overflow/pageerror는 없었다. 키 누락·관리자 OFF·회전·DB 오류·운영 HTTP 거부의 재시작 5가지를 확인했다. 상세 기록은 A1 Step 1에 남겼다. Queue 이동, 새 명령/감사/정책, PDF와 운영 TLS는 다음 범위다.
+
+## A1 Step 2 구현 검증 — 2026-10-23
+
+기존 Queue 계산과 재생 컴포넌트를 그대로 재사용해 `/admin/lab/queue`로 이동했다. 공통 Proxy와 page 인증을 적용하고 공개 경로는 redirect 없이 404로 종료했다. Portfolio 진입 영역·sitemap 항목·공개 canonical을 제거했으며 실험에서 공개 프로젝트로 나가는 링크는 공개 origin을 사용한다. HTTP RED → GREEN 4/4, Queue/SEO 5/5, unit 232 pass/14 DB skip, lint/typecheck/build를 통과했다. 1440/390/320px·재생 설정 9조합·DLQ 재처리·키보드·no-JS·공개 링크의 credential/Referer 미전달을 검증했다. 운영 설정과 실제 작업 실행은 변경하지 않았다. 상세 기록은 A1 Step 2에 남겼다.

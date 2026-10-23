@@ -7,6 +7,7 @@ import { Activity, BookOpen, Brain, FileText, FlaskConical, History, LayoutDashb
 const items = [
   { label: "개요", href: "/admin", icon: LayoutDashboard },
   { label: "Second Brain", href: "/admin/brain", icon: Brain },
+  { label: "실험실", href: "/admin/lab/queue", icon: FlaskConical },
 ];
 const upcoming = [
   { label: "블로그", icon: BookOpen },
@@ -15,7 +16,6 @@ const upcoming = [
   { label: "이력서 PDF", icon: FileText },
   { label: "모니터링", icon: Activity },
   { label: "변경 이력", icon: History },
-  { label: "실험실", icon: FlaskConical },
 ];
 
 export function AdminNavigation() {

@@ -178,7 +178,7 @@
     {
       "dir": "admin-console-foundation",
       "status": "pending",
-      "summary": "2026-10-23 Steps 0-1 completed: shared /admin owner auth and Discord overview/navigation, independent Brain storage flag, explicit env migration and public-origin Brain links. Focused 11/11, unit 232 pass/14 DB skip, lint/typecheck/build, isolated Brain integration/HTTP and admin HTTP each 1/1, 1440/390/320px keyboard/no-JS/error and five restart scenarios passed. Steps 2-3 pending; next: Step 2 private-queue-lab. Queue remains public; production ingress, command schema and OCI hold unchanged."
+      "summary": "2026-10-23 Steps 0-2 completed: shared owner admin shell and private /admin/lab/queue. Old public Queue URL returns 404 without redirect; Portfolio and sitemap entry removed. Existing replay preserved. HTTP 4/4, Queue/SEO 5/5, unit 232 pass/14 DB skip, lint/typecheck/build and desktop/mobile, keyboard/no-JS checks passed. Next: Step 3 second-brain-admin-integration. Production ingress, DB/worker and OCI hold unchanged."
     },
     {
       "dir": "admin-blog-publishing",

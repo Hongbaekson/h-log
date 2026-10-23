@@ -36,7 +36,7 @@ npm run build
 
 ## 관리자 통합 현황과 목표
 
-2026-10-23 A1 Steps 0–1에서 [접근·명령 계약](ADMIN_ACCESS_CONTRACT.md)과 `/admin` 전용 shell/개요·공통 인증을 구현했다. 다음은 A1 Step 2의 Queue 비공개 이동이다. Blog/automation/jobs/resume/monitoring/audit/lab 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
+2026-10-23 A1 Steps 0–2에서 [접근·명령 계약](ADMIN_ACCESS_CONTRACT.md)과 `/admin` 전용 shell/개요·공통 인증·Queue 비공개 이동을 구현했다. 다음은 A1 Step 3의 Brain 명령 통합이다. Blog/automation/jobs/resume/monitoring/audit 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
 
 `lib/admin-owner.ts`는 설정·Host·Basic·Origin 검사와 비공개 헤더를 소유한다. `proxy.ts`는 전체 `/admin/:path*`, `lib/admin-server.ts`는 page/layout의 데이터 조회 전 검사를 담당한다. `brain-owner.ts`는 공통 인증 후 Brain DB flag를 검사하는 얇은 경계로 남는다. 기존 Nginx는 여전히 모든 관리자 경로를 차단하고 Host를 `hlog-web`로 전달한다. 두 loopback ingress의 정확한 Host 전달/공개 차단은 격리 구성으로 검증했으며 운영 설정은 변경하지 않았다.
 
@@ -52,9 +52,9 @@ ADR-039와 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A4는 기존 인�
 
 ### Queue 재생 실험
 
-`app/lab/queue/page.tsx`는 가상 실험 안내·canonical·초기 화면을 제공한다(ADR-037). `lib/queue-lab.ts`의 순수 함수는 6개 작업의 Queue/처리 중/완료/DLQ 배열과 단계별 설명을 생성한다. 기존 frame을 변경하지 않고, 최대 2회 시도 후 DLQ에 보관하며 원인 해결을 가정한 재처리에서 해당 작업만 Queue로 이동한다.
+`app/admin/lab/queue/page.tsx`는 `requireAdminOwner()` 이후 가상 실험을 렌더링하며 공통 `/admin` Proxy도 적용한다(ADR-037/038). 공개 canonical 없이 noindex 메타데이터를 사용한다. 기존 `app/lab/queue/page.tsx`는 제거해 404로 종료했다. `lib/queue-lab.ts`의 순수 함수는 기존과 같은 6개 작업의 Queue/처리 중/완료/DLQ 배열과 단계별 설명을 생성한다. 최대 2회 시도 후 DLQ에 보관하며 원인 해결을 가정한 재처리에서 해당 작업만 Queue로 이동한다.
 
-`components/lab/QueueReplay.tsx`는 현재 frame 위치·재생·설정·재처리 상태만 보관한다. 1초 간격은 읽기 속도이며 실제 처리 시간을 뜻하지 않는다. 일시정지·초기화·설정 변경·화면 이탈 시 타이머를 정리하고 마지막 단계에서 멈춘다. 시작은 수동이며 이동 애니메이션을 사용하지 않는다. DB/repository/API/실제 worker와 연결하지 않아 DB가 없어도 동작한다. Step 1에서는 실험 본문에 실제 설계와의 비교와 `getProjectBySlug`로 읽은 공개 사례 링크를 추가했다. `portfolio/[slug]`는 해당 Redisson/DLQ 사례에만 실험 진입점을 제공하며 기존 `ProjectRelatedPosts`를 통해 현재 공개 글을 이어 읽는다. 실험에 DB 조회를 추가하지 않았고 관련 글의 비공개/철회·오류 격리 경계는 유지한다. `/lab/queue`는 기존 sitemap의 정적 경로 목록에 포함하며 blog-only feed/llms는 유지한다.
+`components/lab/QueueReplay.tsx`는 현재 frame 위치·재생·설정·재처리 상태만 보관한다. 1초 간격은 읽기 속도이며 실제 처리 시간을 뜻하지 않는다. 일시정지·초기화·설정 변경·화면 이탈 시 타이머를 정리하고 마지막 단계에서 멈춘다. DB/repository/API/실제 Worker와 연결하지 않아 Brain DB가 꺼져도 동작한다. 실험의 동시성·네트워크·영속성 설명과 `getProjectBySlug`로 읽은 공개 사례는 유지한다. 사례 링크는 `HLOG_PUBLIC_BASE_URL`의 공개 origin으로 나가는 일반 링크이며 credential/Referer를 전달하지 않는다. 공개 Portfolio의 실험 진입 영역과 sitemap 항목은 제거했고, 관련 글의 기존 공개 판정·Blog-only feed/llms는 유지한다.
 
 ### 순서가 있는 시리즈
 

@@ -51,7 +51,7 @@
 
 ## 이번 실행 단위
 
-2026-10-22 후속 사용자 요청: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 등록해 기본 다음 작업을 `admin-console-foundation / Step 0`으로 변경했다. A1 Step 2에서 Queue를 관리자 실험실로 옮기고 공개 URL·Portfolio 링크·sitemap 노출을 제거한다. 현재는 계획만 등록했으며 `/lab/queue`가 여전히 공개라는 점을 유지해서 기록한다. 아래 19개 step 완료는 당시 공개 경험 구현 이력이며 새 관리자 전환은 별도 phase다.
+2026-10-22 후속 사용자 요청으로 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 등록했다. 2026-10-23 A1 Steps 0–2에서 공통 인증·관리자 화면과 Queue 비공개 이동을 완료했다. 실험은 `/admin/lab/queue`에서만 제공하며 기존 공개 URL은 404, Portfolio 진입 영역과 sitemap 항목은 제거했다. 다음은 `admin-console-foundation / Step 3`이다. 아래 19개 step 완료는 당시 공개 경험 구현 이력이며 관리자 전환은 별도 phase다.
 
 2026-10-22 Phase 6 Step 1 완료: Queue 실험의 동시성·네트워크·영속성·재처리 한계를 설명하고 Redisson/DLQ 사례와 양방향으로 연결했다. 사례의 기존 공개 글 판정을 재사용하고 sitemap에 실험 경로를 추가했다. **공개 경험 개선 6개 phase / 19개 step 전체 완료**이며, 다음은 **`operations-observability / Step 0: monitoring-contract-and-budget`**다. 실제 발행·OCI 적용·모니터링 구현 완료를 뜻하지 않는다.
 

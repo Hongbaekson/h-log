@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "private-queue-lab",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-23: Moved the unchanged synthetic Queue replay to owner-only /admin/lab/queue with Proxy and page auth. Removed the public route (404, no redirect), Portfolio entry and sitemap/canonical exposure; outbound project link uses the public origin. HTTP RED/GREEN 4/4, Queue/SEO 5/5, unit 232 pass/14 DB skip, lint/typecheck/build, 1440/390/320px, nine configurations, keyboard/no-JS and credential/referrer boundary checks passed. No DB/worker/operational changes. Next: Step 3 second-brain-admin-integration."
     },
     {
       "step": 3,
