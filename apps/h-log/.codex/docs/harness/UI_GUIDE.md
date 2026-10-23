@@ -7,6 +7,10 @@
 
 ## 디자인 원칙
 
+### 관리자 화면 — 2026-10-23
+
+`/admin`은 232px 탐색 영역·작업 공간으로 구성하고 모바일에서는 탐색을 위로 배치한다. 기존 Discord indigo/Blurple을 사용하며 공개 Header/Footer를 함께 표시하지 않는다. 개요와 Second Brain만 실제 링크이고 나머지 7개 메뉴는 접이식 준비 목록이다. 저장소 미설정·설정됨·연결 오류를 구분하며 운영 수치나 성공 이력을 꾸미지 않는다. 1440/390/320px·키보드 초점·JavaScript 없는 이동을 검증했다. 공개 `/brain` UI와 Home/레이더는 변경하지 않았다.
+
 ### 2026-10-15 Second Brain 전용 수정
 
 사용자가 최종 기준을 공개 `careerhackeralex.com/memory` 화면으로 확정했다. `/brain`에 한해 [실제 사이트 기준](MEMORY_UI_REFERENCE.md)과 ADR-031의 260px 밝은 sidebar·상단 검색·관계 기반 3D 별자리·밝은 평면 배치·480px preview·560px 전체 높이 본문을 우선한다. 모바일은 전체 화면 본문과 필터 drawer를 사용한다. 밝은 sidebar/평면 모드는 이 경로의 사용자 요청에 따른 예외이며 전역 Light theme을 추가하지 않는다. 다른 경로의 Discord 스타일과 Home 레이더 전체를 보존한다.

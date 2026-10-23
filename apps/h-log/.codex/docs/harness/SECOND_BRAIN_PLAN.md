@@ -80,14 +80,16 @@ ADR-023에 따라 회고는 새 기록으로 이전 생각을 가리킨다. 관�
 
 ## 로컬 작성 화면 실행
 
-설정이 없으면 `/admin/brain`은 404이며 공개 Brain은 기존 카탈로그를 읽는다. 다음 값은 서버 로컬 환경에만 둔다. 저장소나 클라이언트 코드에 넣지 않는다.
+2026-10-23 A1 Step 1부터 공통 관리자 인증을 사용한다. 관리자 설정이 없으면 `/admin` 전체가 404이며, 인증된 상태에서 Brain 저장 기능만 꺼져 있으면 작성 화면에 미설정을 안내한다. 공개 Brain의 기존 카탈로그/공개 사본 정책은 별개다. 다음 값은 서버 로컬 환경에만 둔다. 저장소나 클라이언트 코드에 넣지 않는다.
 
 | 환경값 | 용도 |
 | --- | --- |
 | `DATABASE_URL` | 별도로 준비한 로컬 PostgreSQL/pgvector DB. 기존 migration runner를 공유한다. |
 | `HLOG_BRAIN_DATABASE_ENABLED=1` | DB 메모 조회와 작성 기능 활성화. |
-| `HLOG_BRAIN_OWNER_KEY` | 암호학적 난수 32바이트를 64자리 소문자 hex로 표현한 소유자 비밀번호. |
-| `HLOG_BRAIN_OWNER_ORIGIN` | 실제 접속 origin. 예: `http://127.0.0.1:3013` (끝 `/` 제외). |
+| `HLOG_ADMIN_ENABLED=1` | 공통 관리자 인증 활성화. Brain 저장 기능과 독립적이다. |
+| `HLOG_ADMIN_OWNER_KEY` | 암호학적 난수 32바이트를 64자리 소문자 hex로 표현한 소유자 비밀번호. |
+| `HLOG_ADMIN_ORIGIN` | 실제 관리자 origin. 예: `http://127.0.0.1:3013` (끝 `/` 제외). |
+| `HLOG_PUBLIC_BASE_URL` | 공개 사이트 origin. 공개 Brain 보기 링크도 이 주소를 사용한다. |
 
 1. 격리된 로컬 DB를 준비하고 해당 `DATABASE_URL`로 앱 폴더에서 `npm run db:migrate`를 실행한다. `004_brain_capture`까지 적용됐는지 확인한다. 운영 DB에는 이 로컬 절차를 실행하지 않는다.
 2. `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`로 로컬 터미널에서 키를 생성해 서버 환경에 넣는다. 키가 노출되면 새 값으로 바꾸고 서버를 재시작한다.
@@ -98,7 +100,9 @@ ADR-023에 따라 회고는 새 기록으로 이전 생각을 가리킨다. 관�
 
 공개 검사에는 기존 `HLOG_PRIVACY_ORGANIZATION_NAMES`, `HLOG_PRIVACY_PRIVATE_REPOSITORIES` JSON 배열 정책도 적용한다. 미설정 정책이 모든 회사 식별자를 찾아 준다고 가정하지 않는다. 원문과 공개 사본을 분리하고 작성자가 사본을 직접 확인한다.
 
-HTTP 검증은 합성 기록을 만들므로 격리된 loopback preview에서만 `HLOG_BRAIN_HTTP_TEST=1`과 위 인증 환경을 설정한 뒤 `npm run test:brain:http`를 실행한다. DB 검증은 같은 격리 DB 서버를 가리키는 `DATABASE_URL`로 `npm run test:integration`을 실행한다. 현재 제공한 preview는 임시 DB이며, 영구 보관용 volume·백업을 설정한 운영 저장소가 아니다. Nginx 관리자 경로 차단, 운영 HTTPS·migration·배포·OCI 보류는 유지한다.
+구 `HLOG_BRAIN_OWNER_KEY/ORIGIN`으로 자동 fallback하지 않는다. 기존 키/origin을 새 이름으로 명시적으로 옮기고 `HLOG_ADMIN_ENABLED=1`을 설정한 뒤 웹을 재시작한다. 상세 회전/복구와 운영 경계는 [관리자 접근 계약](ADMIN_ACCESS_CONTRACT.md)을 따른다.
+
+HTTP 검증은 합성 기록을 만들므로 격리된 loopback preview에서만 `HLOG_BRAIN_HTTP_TEST=1`과 위 인증 환경을 설정한 뒤 `npm run test:brain:http`를 실행한다. 두 host를 사용하면 `HLOG_BRAIN_HTTP_PUBLIC_ORIGIN`도 공개 preview origin으로 설정한다. DB 검증은 같은 격리 DB 서버를 가리키는 `DATABASE_URL`로 `npm run test:integration`을 실행한다. 현재 제공한 preview는 임시 DB이며, 영구 보관용 volume·백업을 설정한 운영 저장소가 아니다. Nginx 관리자 경로 차단, 운영 HTTPS·migration·배포·OCI 보류는 유지한다.
 
 ## 검증 결과
 

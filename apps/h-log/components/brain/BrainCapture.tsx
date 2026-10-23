@@ -30,7 +30,7 @@ async function request<T>(path = "", command?: object): Promise<T> {
   return result as T;
 }
 
-export function BrainCapture({ initialNotes, catalog }: { initialNotes: BrainNoteSummary[]; catalog: BrainGraph }) {
+export function BrainCapture({ initialNotes, catalog, publicOrigin }: { initialNotes: BrainNoteSummary[]; catalog: BrainGraph; publicOrigin: string }) {
   const [notes, setNotes] = useState(initialNotes);
   const [note, setNote] = useState<BrainOwnerNote | null>(null);
   const [draft, setDraft] = useState<BrainDraft>({ ...emptyDraft });
@@ -93,7 +93,7 @@ export function BrainCapture({ initialNotes, catalog }: { initialNotes: BrainNot
   }
 
   return <div className="brain-capture">
-    <header className="capture-header"><div><p className="capture-eyebrow">PRIVATE NOTES</p><h1>나만 보는 기록</h1><p>그때 있었던 일과 생각을 편하게 적어 두세요.</p></div><a href="/brain" target="_blank" rel="noreferrer">Second Brain 열기 ↗</a></header>
+    <header className="capture-header"><div><p className="capture-eyebrow">PRIVATE NOTES</p><h1>나만 보는 기록</h1><p>그때 있었던 일과 생각을 편하게 적어 두세요.</p></div><a href={`${publicOrigin}/brain`} target="_blank" rel="noreferrer">Second Brain 열기 ↗</a></header>
     <div className="capture-layout">
       <aside className="capture-sidebar" aria-label="내 기록"><button type="button" className="capture-primary" disabled={busy} onClick={() => open()}>새 기록 쓰기</button><h2>저장한 기록 <small>{notes.length}</small></h2>
         <label htmlFor="capture-search">내 기록 검색</label><input id="capture-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="제목이나 태그" />
@@ -103,7 +103,7 @@ export function BrainCapture({ initialNotes, catalog }: { initialNotes: BrainNot
         <ul>{visibleNotes.map(item => <li key={item.id}><button type="button" disabled={busy} aria-current={note?.id === item.id ? "true" : undefined} onClick={() => open(item.id)}><strong>{item.title}</strong><small>{item.publishedRevision ? "공개 사본 있음" : "비공개"} · v{item.revision}</small><small>정리일 {new Date(item.createdAt).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" })}{item.occurredOn ? ` · 사건 ${item.occurredOn}` : ""}</small></button></li>)}</ul>
       </aside>
       <section className="capture-editor" aria-label="기록 작성">
-        <div className="capture-state"><span>{note ? `저장된 버전 v${note.revision}` : "새 기록"}</span><span>{dirty ? "저장하지 않은 내용 있음" : ""}</span>{note?.publishedRevision && <a href={`/brain/${note.id}`} target="_blank" rel="noreferrer">공개 중인 버전 v{note.publishedRevision} ↗</a>}</div>
+        <div className="capture-state"><span>{note ? `저장된 버전 v${note.revision}` : "새 기록"}</span><span>{dirty ? "저장하지 않은 내용 있음" : ""}</span>{note?.publishedRevision && <a href={`${publicOrigin}/brain/${note.id}`} target="_blank" rel="noreferrer">공개 중인 버전 v{note.publishedRevision} ↗</a>}</div>
         {note && <div className="capture-actions"><button type="button" disabled={busy} onClick={() => open(undefined, note)}>회고 이어 쓰기</button></div>}
         {laterReflections.length > 0 && <section aria-label="이후 회고"><h2>이후 회고</h2>{laterReflections.map(item => <button key={item.id} type="button" disabled={busy} onClick={() => open(item.id)}>{item.title}</button>)}</section>}
         <form onSubmit={event => act("save", event)}>

@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-상태: pending — 미구현. A1 Step 0의 접근·명령 계약은 2026-10-23 완료했다.
+상태: completed — 2026-10-23 로컬 구현·검증 완료. 선행 A1 Step 0의 계약을 적용했으며 운영 ingress는 변경하지 않았다.
 
 ## 읽을 파일
 
@@ -27,6 +27,14 @@
 - `apps/h-log/proxy.ts`
 - `apps/h-log/lib/brain-owner.ts`
 - `apps/h-log/lib/brain-owner.test.ts`
+- `apps/h-log/lib/admin-owner.ts`
+- `apps/h-log/lib/admin-owner.test.ts`
+- `apps/h-log/lib/admin-server.ts`
+- `apps/h-log/app/admin/layout.tsx`
+- `apps/h-log/app/admin/page.tsx`
+- `apps/h-log/app/admin/admin.css`
+- `apps/h-log/components/admin/AdminNavigation.tsx`
+- `apps/h-log/scripts/admin-owner.http.test.mjs`
 - `apps/h-log/app/admin/brain/page.tsx`
 - `apps/h-log/app/admin/brain/records/route.ts`
 - `apps/h-log/lib/brain-capture-http.ts`
@@ -79,3 +87,48 @@ Focused 시작 명령은 `node --no-warnings --test --experimental-strip-types l
 ## 다음 단계
 
 A1 Step 2 private-queue-lab. 전체 순서는 [통합 관리자 계획](../../.codex/docs/harness/ADMIN_CONSOLE_PLAN.md)을 따른다.
+
+## 완료 기록 — 2026-10-23
+
+`admin-owner.ts`에 설정/Host/Basic/Origin 검사와 비공개 헤더를 모으고 `/admin/:path*` Proxy, page의 `requireAdminOwner`, Brain records의 공통 인증+기능 flag로 적용했다. 구 Brain owner 환경값 fallback은 없다. Brain OFF여도 관리자 개요와 미설정 안내는 열리며 records는 404다. DB 장애는 기존 안전한 503/영역 오류로 표시한다.
+
+관리자 전용 Discord 탐색·개요와 준비 메뉴 7개를 추가했다. 공개 Header/Footer는 관리자 경로에서 렌더링하지 않고 Home/레이더·공개 Brain UI는 유지했다. 기존 Brain 공개 보기 링크가 관리자 host에서 404가 되는 문제를 재현해 `HLOG_PUBLIC_BASE_URL`의 공개 주소로 수정했다. 원문/버전/공개 snapshot과 데이터 저장 계약은 바꾸지 않았다.
+
+### RED → GREEN
+
+- 공통 설정으로 Brain 없이 인증: 기존 guard 404 → 새 guard 허용.
+- 누락 Host/`same-site` 변경 요청: 기존 허용 → 각각 403.
+- Brain 인증 환경 이전: 기존 테스트 6개 404 실패 → 새 설정으로 6/6.
+- 관리자 개요: 실제 HTTP 404 → 200, 공개 Header/Footer 없음.
+- 공개 Brain 링크: 상대 주소로 인한 공개 origin assertion 실패 → 공개 origin 사용.
+- DB 오류 화면: 제목 크기와 모바일 메뉴 높이 assertion 실패 → 공통 제목 스타일과 모바일 grid 행 크기 수정 후 통과.
+
+### 검증
+
+앱 디렉터리에서 실행했다. HTTP/DB/브라우저 fixture는 별도 loopback 환경과 합성 기록만 사용했다.
+
+```bash
+node --no-warnings --test --experimental-strip-types lib/admin-owner.test.ts lib/brain-owner.test.ts lib/brain-capture-http.test.ts
+npm run test
+npm run lint
+npm run typecheck
+npm run build
+node private/admin-shell-check/http.mjs
+node private/admin-shell-check/brain-check.mjs
+node private/admin-shell-check/browser.mjs
+node private/admin-shell-check/lifecycle.mjs
+node private/admin-shell-check/verify-docs.mjs
+git diff --check
+```
+
+- Focused 11/11, 전체 unit 232 pass/14 DB skip, lint/typecheck/build 통과.
+- 격리 DB `hlog_admin_shell_20261023`에서 기존 migration 5개 적용 후 Brain repository integration 1/1·Brain HTTP 1/1 통과. 저장/과거 원문/충돌/명시적 공개/비공개 수정/해제와 공개 graph/sitemap 경계를 확인했다. DB/repository/worker/migration 코드를 바꾸지 않아 전체 integration 재실행은 생략했다.
+- 공개 `127.0.0.1:3030`·관리자 `localhost:3031` Nginx → 동일 loopback 앱으로 admin HTTP 1/1 통과. 공개 host+정상 키 404, 익명/잘못된 키 401, HTML/API/RSC·HEAD, 잘못된/누락 Host, sibling/null/누락 Origin, 위조 forwarded header와 관리자 경로 허용 목록을 확인했다. 누락 Host는 Node HTTP parser의 400 또는 guard 403으로 닫힌다.
+- 1440/390/320px의 개요·Brain 미설정/연결/DB 오류, 준비 목록 펼치기·키보드 왕복·공개 메뉴 유지·no-JS 이동을 검수했다. 가로 넘침과 pageerror는 0건이었다.
+- 실제 재시작 5종: 키 누락 404, Brain ON+관리자 OFF 404, 키 회전 뒤 이전 키 401/새 키 200, Brain DB 오류 화면과 API 503, production HTTP origin 404.
+- 문서/상태 검사: 변경 파일 32개, Markdown 12개·JSON 3개 파싱, 추가 링크 9개·읽기 경로 67개 확인. Phase JSON 46개·Step 162개의 상태를 비교해 A1 Step 1만 완료로 바뀌었음을 검증했다. 관리자 계획은 완료 2·대기 14·차단 1이며 운영 설정과 다른 phase 상태는 그대로다.
+- 로컬 Turbopack 개발 컴파일 지연으로 검수 서버는 Next가 지원하는 `dev --webpack`을 사용했다. production build는 기본 Turbopack으로 통과했다. 환경값/스크린샷/결과는 Git 제외 `private/admin-shell-check/`에 보관했다.
+
+### 남은 범위
+
+다음은 Step 2의 `/lab/queue` 비공개 이동과 공개 링크/sitemap 제거다. 현재 Queue는 여전히 공개이고 관리자 실험실은 준비 상태다. 새 명령 revision/감사/정책·PDF 다운로드는 구현하지 않았다. Basic의 브라우저 인증 캐시 한계와 키 폐기는 안내하되 별도 로그아웃/세션 DB는 추가하지 않았다. 운영 Compose/Nginx/env·DNS/TLS·SSH 접근·OCI·실제 provider/발행/timer는 변경하지 않았다.

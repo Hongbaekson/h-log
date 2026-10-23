@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-23 **A1 Step 1 completed**: `/admin` 공통 인증·전용 개요/탐색, Brain flag 분리와 기존 작성 화면의 인증 이전을 완료했다. Focused 11/11, unit 232 pass/14 DB skip, lint/typecheck/build, 격리 Brain integration/HTTP·admin HTTP 각 1/1과 1440/390/320px·키보드·no-JS·DB 오류·재시작 검증을 통과했다. 관리자 트랙은 completed 2개·pending 14개·blocked 1개이며 **다음은 `admin-console-foundation / Step 2: private-queue-lab`**다. `/lab/queue`와 PDF/정책·운영 상태는 아직 그대로다. 아래는 당시 이력이다.
+
 2026-10-23 **A1 Step 0 completed**: [관리자 접근·명령 계약](ADMIN_ACCESS_CONTRACT.md)을 확정했다. 공통 Basic 설정·Brain flag 분리·명시적 환경값 이전/키 복구, Host/Origin·직접 API/RSC 행렬, 명령별 revision/중복/감사와 중지 기준을 실제 caller에 대응했다. 기존 인증/HTTP 6/6과 문서 검증을 통과했다. 관리자 트랙은 completed 1개·pending 15개·blocked 1개이며 **다음은 `admin-console-foundation / Step 1: shared-owner-auth-and-shell`**이다. 코드/DB/운영 상태는 그대로다. 아래는 당시 이력이다.
 
 2026-10-22 관리자 통합 요청: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 **4개 phase / 17개 step**을 추가했다. 계획 등록 상태는 pending 16개·운영 rollout blocked 1개이며 기본 다음 작업은 **`admin-console-foundation / Step 0: admin-access-and-command-contract`**다. A1 인증/실험실/Brain → A4 이력서 PDF 등록/공개/다운로드 → 모니터링 Step 0 → A2 블로그/초안/자동화 정책 → A3 작업 조회/제어 → 모니터링 Steps 1–6 → A3 모니터링/로컬 검수 순으로 진행한다. 운영 모니터링 Step 7 → 승인된 관리자 rollout → 별도 timer 활성화 순서는 OCI 보류 해제 뒤 적용한다. 기존 공개 경험/Second Brain의 완료 이력은 유지하며 Queue는 A1 Step 2 실행 전까지 공개 상태다. 아래 다음 단계 표기는 당시 이력이다.

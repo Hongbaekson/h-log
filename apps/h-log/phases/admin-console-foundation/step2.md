@@ -19,6 +19,13 @@
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/ADMIN_CONSOLE_PLAN.md`
+- `apps/h-log/.codex/docs/harness/ADMIN_ACCESS_CONTRACT.md`
+- `apps/h-log/lib/admin-owner.ts`
+- `apps/h-log/lib/admin-server.ts`
+- `apps/h-log/app/admin/layout.tsx`
+- `apps/h-log/app/admin/page.tsx`
+- `apps/h-log/components/admin/AdminNavigation.tsx`
+- `apps/h-log/scripts/admin-owner.http.test.mjs`
 - `plans/automated-blog-publishing-plan.md`
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/phases/admin-console-foundation/index.json`

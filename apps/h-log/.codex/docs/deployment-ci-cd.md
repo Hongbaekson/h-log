@@ -12,6 +12,8 @@
 
 ## Target Flow
 
+2026-10-23 A1 Step 1 로컬 구현: 앱은 `HLOG_ADMIN_ENABLED/OWNER_KEY/ORIGIN`만 읽고 구 Brain owner 환경값으로 fallback하지 않는다. 운영 전환은 여전히 승인된 rollout에서 수행한다. 공개 `127.0.0.1:3030`/관리자 `localhost:3031`의 격리 Nginx로 Host 전달·공개 404·RSC/API 인증을 검증했고, 저장소의 Compose/Nginx/env는 바꾸지 않았다. 공개 보기 링크를 위해 `HLOG_PUBLIC_BASE_URL`은 공개 origin을 유지한다.
+
 이력서 PDF는 A4에서 제한된 PostgreSQL 비공개 저장과 공개 current handler를 구현할 계획이다. 관리자 rollout 시 해당 migration·파서 자원 예산·파일을 포함한 backup/restore·관리 업로드 크기 제한도 확인한다. 공개 정적 디렉터리나 bucket을 만들지 않으며 기존 Nginx의 2m 제한은 관리자 업로드 경로에서만 확정된 값으로 조정한다. 복구/rollout 시 PDF 공개 게이트는 닫고 실제 파일 검토·공개 선택을 별도로 수행한다. 현재 설정/DB/다운로드 API는 이 문서 갱신으로 변경되지 않았다.
 
 ```text

@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "shared-owner-auth-and-shell",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-23: Shared owner Basic/Host/Origin guard protects all /admin routes with page/handler rechecks; Brain storage flag is independent and legacy auth env no longer falls back. Added Discord admin overview/navigation, explicit pending states and public-origin Brain links. Focused RED/GREEN 11/11, unit 232 pass/14 DB skip, lint/typecheck/build, isolated Brain integration/HTTP and admin HTTP each 1/1, 1440/390/320px keyboard/no-JS/error and five restart scenarios passed. No operational ingress/schema changes. Next: Step 2 private-queue-lab."
     },
     {
       "step": 2,

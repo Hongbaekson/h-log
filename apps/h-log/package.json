@@ -16,6 +16,7 @@
     "test:dry-run": "node --no-warnings --test --experimental-strip-types lib/blog-local-dry-run.integration.test.ts",
     "test:brain": "node --no-warnings --test --experimental-strip-types lib/brain-postgres-repository.integration.test.ts",
     "test:brain:http": "node --test scripts/brain-capture.http.test.mjs",
+    "test:admin:http": "node --test scripts/admin-owner.http.test.mjs",
     "db:migrate": "node scripts/blog-migrations.mjs",
     "auth:preflight": "node --no-warnings --experimental-strip-types scripts/blog-hermes-auth-preflight.mjs",
     "auto-publish:cycle": "node --no-warnings --experimental-strip-types scripts/blog-auto-publish-cycle.mjs --once",

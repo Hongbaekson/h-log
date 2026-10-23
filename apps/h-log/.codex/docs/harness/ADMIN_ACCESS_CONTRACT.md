@@ -1,14 +1,14 @@
 # 관리자 접근과 명령 계약
 
-확정일: 2026-10-23. `admin-console-foundation / Step 0`의 설계 결과다. **아래 목표 계약은 아직 runtime에 적용하지 않았다.** 다음 구현은 A1 Step 1이며, 단계별 범위는 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 따른다.
+확정일: 2026-10-23. `admin-console-foundation / Step 0`의 설계 결과다. **A1 Step 1에서 공통 인증·관리자 shell·기존 Brain 인증 이전을 로컬 구현/검증했다.** 아래 명령 DB·정책/중지·운영 ingress 계약은 후속 단계이며, 다음은 A1 Step 2다. 단계별 범위는 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 따른다.
 
 ## 1. 현재 caller와 부족한 계약
 
 | 현재 경로 | 확인한 동작 | 후속 작업 |
 | --- | --- | --- |
-| `proxy.ts` → `authorizeBrainOwner` | `/admin/brain/:path*`만 검사; Brain DB flag가 인증도 끔 | A1 Step 1에서 공통 `/admin` 검사와 별도 관리자 활성 설정 |
-| `app/admin/brain/page.tsx` → `getBrainRepository().listOwnerNotes()` | 요청 헤더로 인증한 뒤 DB 조회; 인증 실패 시 notFound | 공통 인증을 조회 직전에 유지; DB 비활성은 인증된 화면에서 미설정 안내 |
-| `app/admin/brain/records/route.ts` → `handleBrainCaptureRequest` | 인증 → 요청 형식/256 KiB 제한 → repository; 안전한 오류 코드 | 공통 인증으로 이전하되 기존 GET/POST·오류 계약 유지 |
+| `proxy.ts` → `authorizeAdminOwner` | `/admin/:path*` 공통 검사, 별도 관리자 활성 설정 | A1 Step 1 완료; 운영 ingress는 계속 차단 |
+| `app/admin/brain/page.tsx` → `getBrainRepository().listOwnerNotes()` | `requireAdminOwner` 뒤 DB 조회; 기능 OFF는 미설정 안내, 실패는 해당 영역 오류 | A1 Step 1 완료; 원문/공개 사본 기능은 유지 |
+| `app/admin/brain/records/route.ts` → `handleBrainCaptureRequest` | 공통 인증 → 요청 형식/256 KiB 제한 → repository; 안전한 오류 코드 | A1 Step 1 이전 완료; 기존 GET/POST·오류 계약 유지 |
 | `brain-postgres-repository.ts` | row lock·내용 revision·append-only 버전·별도 공개 사본 | A1 Step 3에서 명령 중복/감사와 공개 상태 충돌 검사 보완 |
 | `blog-admin.ts` → `blog-postgres-repository.ts` | 철회 상태+감사는 transaction; UI caller·예상 revision·명령 receipt는 없음 | A2 Step 1에서 실제 caller와 함께 구현; 제거된 범용 facade 일괄 복원 금지 |
 | `blog-daily-auto-article.ts` → `savePost` | `publishing` aggregate와 required job 저장 | A2 Step 2에서 draft-only 요청/저장; 기존 함수를 그대로 초안 API에 연결하지 않음 |
@@ -27,7 +27,7 @@
 | `HLOG_ADMIN_OWNER_KEY` | 소문자 hex 64자; CSPRNG로 생성, URL·브라우저 저장소·클라이언트 props·로그에 넣지 않음 |
 | `HLOG_ADMIN_ORIGIN` | 경로/쿼리/fragment/사용자 정보 없는 정규 origin 하나; 운영 HTTPS 필수. 비운영 HTTP는 localhost/127.0.0.1/[::1]만 허용 |
 
-`HLOG_BRAIN_DATABASE_ENABLED`는 Brain 저장/공개 데이터 기능에만 남긴다. Brain DB가 꺼져도 관리자 shell/가상 실험실은 사용할 수 있다. 관리자 인증을 꺼도 기존 공개 Brain의 정책과 승인된 사본을 임의로 바꾸지 않는다. 새 설정은 아직 읽히지 않으며 A1 Step 1에서 코드·테스트·안내를 함께 이전한다.
+`HLOG_BRAIN_DATABASE_ENABLED`는 Brain 저장/공개 데이터 기능에만 남긴다. Brain DB가 꺼져도 관리자 shell은 사용할 수 있으며 가상 실험실은 A1 Step 2에서 연결한다. 관리자 인증을 꺼도 기존 공개 Brain의 정책과 승인된 사본을 임의로 바꾸지 않는다. A1 Step 1에서 새 설정으로 코드·테스트·안내를 함께 이전했다.
 
 이전은 한 번의 명시적 전환으로 한다. 관리자 ingress를 닫고 기존 Brain owner key/origin을 새 이름으로 옮기며 `HLOG_ADMIN_ENABLED=1`을 설정한 뒤 웹을 재시작한다. A1 코드 전환 후에는 `HLOG_BRAIN_OWNER_KEY/ORIGIN`을 자동 fallback으로 받지 않는다. 새 값 누락/잘못된 값은 404로 닫히고, 구·신 설정이 함께 있으면 새 값만 사용한다. Brain DB flag는 별도로 유지한다. 서버 env와 코드 버전을 함께 검증한 뒤 이전 이름을 지운다. 실제 운영 전환은 A3 Step 4의 승인 범위다.
 
@@ -45,7 +45,7 @@ Basic은 전송 암호화가 아니므로 TLS와 변경 요청의 CSRF 방어가
 | --- | --- |
 | 비활성/키 누락·형식 오류/origin 오류/운영 HTTP 설정 | 앱 404; 인증 challenge 없음, DB 호출 없음 |
 | 공개 ingress의 `/admin`, `/admin/*`, `/api/internal/*` | 키 유무와 무관하게 404 |
-| 앱에 직접 전달된 잘못된 Host·누락 Host | 403; `X-Forwarded-Host`나 `Forwarded`로 보정하지 않음 |
+| 앱에 직접 전달된 잘못된 Host·누락 Host | guard는 403; 누락 Host는 HTTP parser에서 먼저 400일 수 있음. `X-Forwarded-Host`나 `Forwarded`로 보정하지 않음 |
 | 올바른 관리자 Host + 익명/잘못된 키 | 401, `Basic realm="H-Log admin", charset="UTF-8"`; 응답에 원문 없음 |
 | 올바른 Host/키 + GET/HEAD | 읽기만 허용; Origin 누락 가능; HEAD는 본문 없음 |
 | POST 등 변경 요청 + 정확한 Origin | 허용된 메서드/형식과 명령 전제 검사 후 실행 |
@@ -124,4 +124,6 @@ Basic은 전송 암호화가 아니므로 TLS와 변경 요청의 CSRF 방어가
 
 A1 Step 1의 focused 명령(앱 디렉터리): `node --no-warnings --test --experimental-strip-types lib/admin-owner.test.ts lib/brain-owner.test.ts lib/brain-capture-http.test.ts`. 새 테스트 파일은 해당 step에서 작성한다. 인증 wrapper가 불필요해지면 기존 테스트를 공통 테스트로 옮기고 실제 명령을 완료 기록에 남긴다. 관련 env 참조는 `rg -l 'HLOG_BRAIN_OWNER_(KEY|ORIGIN)'`로 찾아 테스트/문서를 함께 이전하며 실제 secret 값은 출력하지 않는다.
 
-현재 Step 0의 검증은 문서/JSON·링크·읽을 파일·phase 상태 검사와 `git diff --check`다. 기존 auth/HTTP 단위 6개는 현재 동작의 기준선으로 확인하며 목표 행렬의 구현 증거로 대신하지 않는다. production 변경이 없어 새 RED/GREEN·앱 build·UI 검수·운영 접속은 이 단계의 완료 조건이 아니다. A1 Step 1은 TDD와 앱 기본 gate·브라우저 검수를 별도로 수행한다.
+Step 0 당시 검증은 문서/JSON·링크·읽을 파일·phase 상태 검사와 `git diff --check`, 기존 auth/HTTP 기준선 6개였다. A1 Step 1은 별도로 focused RED/GREEN 11/11, 전체 unit 232 pass/14 DB skip, lint/typecheck/build, 격리 Brain DB/HTTP와 관리자 HTTP 행렬, 1440/390/320px·키보드·no-JS·DB 오류·설정/키 재시작 검증을 수행했다. 새 명령/정책이나 운영 TLS 검증 완료를 뜻하지 않는다.
+
+공통 경계 재검증은 앱 디렉터리에서 `npm run test:admin:http`를 사용한다. `HLOG_ADMIN_HTTP_TEST=1`, 테스트용 `HLOG_ADMIN_ORIGIN/OWNER_KEY`, `HLOG_ADMIN_HTTP_PUBLIC_ORIGIN`, `HLOG_ADMIN_HTTP_UPSTREAM`을 설정한 격리 HTTP loopback 두 ingress가 필요하다. 실제 secret/도메인을 넣지 않는다. A1의 검수 설정·결과·스크린샷은 Git 제외 `private/admin-shell-check/`에 보관했다.

@@ -1,6 +1,6 @@
 # H-Log 통합 관리자 계획
 
-등록일: 2026-10-22. 2026-10-23 **A1 Step 0의 접근·명령 계약을 확정했다. 4개 phase / 17개 step 중 completed 1개·pending 15개·blocked 1개**다. 관리자 통합·Queue 비공개 전환·PDF 다운로드 복원은 아직 구현하지 않았다. 다음 실행은 [A1 Step 1](../../../phases/admin-console-foundation/step1.md)이다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
+등록일: 2026-10-22. 2026-10-23 **A1 Steps 0–1의 계약·공통 인증·관리자 shell을 완료했다. 4개 phase / 17개 step 중 completed 2개·pending 14개·blocked 1개**다. 기존 Brain은 공통 인증으로 연결했으며 Queue 비공개 전환·PDF 다운로드·블로그/작업 관리는 아직 미구현이다. 다음 실행은 [A1 Step 2](../../../phases/admin-console-foundation/step2.md)이다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
 
 ## 방향과 현재 근거
 
@@ -8,8 +8,8 @@
 
 | 현재 코드 | 확인한 상태 | 계획에서 보완할 부분 |
 | --- | --- | --- |
-| `app/admin/brain`, `lib/brain-owner.ts` | 소유자 Basic 인증, Host/Origin 검사, 비공개 응답, 기록/공개 사본 분리 | 공통 관리자 인증·탐색에 편입; 원문·수정 이력·공개 그래프 유지 |
-| `proxy.ts` | `/admin/brain/:path*`만 보호 | 전체 `/admin` 및 관련 읽기/쓰기 endpoint 보호 |
+| `app/admin`, `lib/admin-owner.ts`, `lib/brain-owner.ts` | 공통 Basic/Host/Origin 인증·전용 탐색, Brain DB flag 분리 | 기존 기록/공개 사본 유지; A1 Step 3에서 명령 revision/감사 보완 |
+| `proxy.ts` | 전체 `/admin/:path*` 보호; page·records handler도 데이터 접근 전 검사 | 운영 ingress는 승인된 rollout에서 적용 |
 | `deploy/nginx/conf.d/hlog.conf` | 공개 ingress에서 `/admin`·`/api/internal` 404; upstream Host는 `hlog-web` | 공개 차단 유지, 별도 관리자 host의 정확한 Host 전달·허용 경로를 로컬 검증 |
 | `lib/blog-admin.ts`, `lib/blog-postgres-repository.ts` | 철회와 감사 저장은 존재; 블로그 관리자 UI와 preview/save/publish caller는 없음 | 실제 화면에 필요한 명령만 버전·상태·감사 계약과 함께 구현 |
 | `lib/blog-daily-auto-article.ts`, `scripts/blog-auto-publish.mjs` | 검증 결과를 비공개 `publishing` aggregate와 queued required jobs로 저장 | 초안 전용 저장과 명시적 발행 승인/자동 허용을 분리 |
@@ -114,7 +114,7 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 
 ## 실행 순서와 기존 계획
 
-1. 기본 다음 작업은 **A1 Step 1**이다. A1 Step 0의 계약을 기준으로 Steps 1–3에서 관리자 경계·Queue 비공개·Brain 통합을 진행한다. 현재도 `/lab/queue`와 공개 링크가 그대로 남아 있다.
+1. 기본 다음 작업은 **A1 Step 2**다. A1 Steps 0–1의 계약·공통 인증/shell을 기준으로 Queue 비공개와 Brain 명령 통합을 진행한다. 현재도 `/lab/queue`와 공개 링크가 그대로 남아 있다.
 2. A1 완료 뒤 독립적인 **A4 이력서 PDF Steps 0–3**을 진행한다. A4 번호는 기존 A1–A3의 참조를 보존하기 위한 것이며 운영 rollout 뒤로 미루는 뜻이 아니다. 이어 `operations-observability / Step 0`에서 신호·권한·예산을 확정한다. A2 Steps 0–3과 A3 Steps 0–1은 이를 참고해 실제 저장·제어를 구현하며, 수집 스택 설치를 선행 조건으로 요구하지 않는다.
 3. observability Steps 1–6을 구현·로컬 검증한 뒤 A3 Steps 2–3을 완료한다. 관측 데이터의 생산자는 모니터링 phase, 관리자 화면은 소비자로 둔다.
 4. 운영은 기존 OCI 보류 해제 및 범위별 승인 후 진행한다. observability Step 7은 비활성 scheduler 상태에서도 완료할 수 있다. 이어 A3 Step 4에서 관리자 도메인과 A4의 비공개 파일 저장/migration을 적용한다. 관리자 rollout은 자동 발행 timer를 켜거나 실제 글/Brain 사본/PDF를 공개하지 않는다. 특정 PDF 공개는 관리자에서 검수한 파일을 선택하는 별도 행동이다.
@@ -132,6 +132,8 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 
 계획 등록과 A1 Step 0 계약 확정은 코드/설정/DB/운영 상태를 변경하지 않는다. 실제 도메인 선택, 확정한 인증 방식의 운영 설정과 OCI 적용은 해당 step에서 다룬다. 관리 화면에서 수행할 기능을 만드는 일과 실제 provider 호출·공개 발행·운영 활성화는 서로 다른 완료 기준이다.
 
+A1 Step 1은 공통 인증과 관리자 화면의 앱 코드/테스트를 변경했다. `HLOG_ADMIN_ENABLED/OWNER_KEY/ORIGIN`만 사용하며 기존 Brain owner 설정은 더 이상 인증에 쓰지 않는다. 로컬 두 ingress 검증은 Git 제외 구성으로 수행했고 저장소의 운영 Compose/Nginx/env는 변경하지 않았다.
+
 ## 최초 계획 등록 검증 — 2026-10-22, PDF 추가 전
 
 앱 디렉터리에서 `node private/admin-plan-check/verify-docs.mjs`를 실행했다. 변경 문서/JSON 29개, 전체 phase JSON 45개, 상대 링크 41개, 새 step의 읽을 파일 경로 296개를 확인했다. 새 상태는 pending 12개·blocked 1개이며 기존 phase/step 상태와 운영 보류를 보존했다. Markdown/JSON 파싱·단계/의존 순서 검토·`git diff --check`를 통과했다. 코드/설정 변경이 없어 앱 build나 브라우저 검수는 재실행하지 않았다. 이 결과는 계획 문서 검증이며 새 기능 완료 판정이 아니다.
@@ -143,3 +145,7 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 ## A1 Step 0 계약 검증 — 2026-10-23
 
 기존 `brain-owner.test.ts`·`brain-capture-http.test.ts` 기준선 6/6을 통과했다. `node private/admin-access-check/verify-docs.mjs`로 변경 문서 13개(Markdown 11개/JSON 2개), 전체 phase JSON 46개·162개 step, 상대 링크 13개·읽을 파일 84개와 다른 단계의 상태 보존을 확인했다. `git diff --check`도 통과했다. 목표 인증·명령·중지 행렬은 계약 검토 결과이며 새 runtime 테스트의 통과를 뜻하지 않는다. 다음 A1 Step 1에서 공통 인증과 관리자 shell을 실제 구현·검수한다.
+
+## A1 Step 1 구현 검증 — 2026-10-23
+
+공통 인증과 Brain 환경값 이전의 RED/GREEN, 관리자 개요의 404→200, 공개 Brain 링크의 잘못된 origin→공개 origin을 확인했다. Focused 11/11, unit 232 pass/14 DB skip, lint/typecheck/build, 격리 Brain integration 1/1·Brain HTTP 1/1·admin HTTP 1/1을 통과했다. 1440/390/320px의 미설정/연결/오류 화면·키보드·no-JS 이동을 검수했고 overflow/pageerror는 없었다. 키 누락·관리자 OFF·회전·DB 오류·운영 HTTP 거부의 재시작 5가지를 확인했다. 상세 기록은 A1 Step 1에 남겼다. Queue 이동, 새 명령/감사/정책, PDF와 운영 TLS는 다음 범위다.

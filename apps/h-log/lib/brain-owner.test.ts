@@ -3,14 +3,14 @@ import test from "node:test";
 import { authorizeBrainOwner } from "./brain-owner.ts";
 
 const environment = {
-  HLOG_BRAIN_DATABASE_ENABLED: "1",
-  HLOG_BRAIN_OWNER_KEY: "a".repeat(64),
-  HLOG_BRAIN_OWNER_ORIGIN: "http://127.0.0.1:3013",
+  HLOG_ADMIN_ENABLED: "1", HLOG_BRAIN_DATABASE_ENABLED: "1",
+  HLOG_ADMIN_OWNER_KEY: "a".repeat(64),
+  HLOG_ADMIN_ORIGIN: "http://127.0.0.1:3013",
   NODE_ENV: "development",
 };
-const authorization = `Basic ${Buffer.from(`owner:${environment.HLOG_BRAIN_OWNER_KEY}`).toString("base64")}`;
+const authorization = `Basic ${Buffer.from(`owner:${environment.HLOG_ADMIN_OWNER_KEY}`).toString("base64")}`;
 function request(method = "GET", headers: Record<string, string> = {}) {
-  return new Request(`${environment.HLOG_BRAIN_OWNER_ORIGIN}/admin/brain/records`, { method, headers });
+  return new Request(`${environment.HLOG_ADMIN_ORIGIN}/admin/brain/records`, { method, headers: { host: "127.0.0.1:3013", ...headers } });
 }
 
 test("owner capture is disabled without explicit configuration and challenges everyone without the key", () => {
@@ -27,9 +27,9 @@ test("owner writes reject cross-origin, missing-origin and insecure production r
   for (const origin of [undefined, "https://untrusted.example", "null"]) {
     assert.equal(authorizeBrainOwner(request("POST", { authorization, ...(origin ? { origin } : {}) }), environment)?.status, 403);
   }
-  assert.equal(authorizeBrainOwner(request("POST", { authorization, origin: environment.HLOG_BRAIN_OWNER_ORIGIN }), environment), null);
+  assert.equal(authorizeBrainOwner(request("POST", { authorization, origin: environment.HLOG_ADMIN_ORIGIN }), environment), null);
   assert.equal(authorizeBrainOwner(request("GET", { authorization }), { ...environment, NODE_ENV: "production" })?.status, 404);
-  assert.equal(authorizeBrainOwner(request("GET", { authorization }), { ...environment, HLOG_BRAIN_OWNER_KEY: "short" })?.status, 404);
+  assert.equal(authorizeBrainOwner(request("GET", { authorization }), { ...environment, HLOG_ADMIN_OWNER_KEY: "short" })?.status, 404);
 });
 
 test("owner authority uses the request Host even when Next normalizes loopback URLs", () => {

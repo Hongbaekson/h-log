@@ -178,7 +178,7 @@
     {
       "dir": "admin-console-foundation",
       "status": "pending",
-      "summary": "2026-10-23 Step 0 completed: access and command contracts finalized against current auth/page/HTTP/DB/worker/ingress callers. Explicit shared Basic env migration, key recovery, private HTTPS ingress, Host/Origin matrix, atomic audit/idempotency and pause admission defined. Existing auth/HTTP baseline 6/6 and documentation checks passed. Steps 1-3 pending; next: Step 1 shared-owner-auth-and-shell. No runtime/ingress changes; Queue remains public and OCI hold remains active."
+      "summary": "2026-10-23 Steps 0-1 completed: shared /admin owner auth and Discord overview/navigation, independent Brain storage flag, explicit env migration and public-origin Brain links. Focused 11/11, unit 232 pass/14 DB skip, lint/typecheck/build, isolated Brain integration/HTTP and admin HTTP each 1/1, 1440/390/320px keyboard/no-JS/error and five restart scenarios passed. Steps 2-3 pending; next: Step 2 private-queue-lab. Queue remains public; production ingress, command schema and OCI hold unchanged."
     },
     {
       "dir": "admin-blog-publishing",
