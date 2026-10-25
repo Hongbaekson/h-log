@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-26 **A4 Step 0 계약 완료**: [PDF 저장·공개 계약](RESUME_PDF_CONTRACT.md)에 bytea/불변 버전·공개 state·감사 receipt, 5 MiB·10페이지·20버전/100 MiB, qpdf+Poppler의 제한된 검사/PNG 미리보기, GET/HEAD·ETag·Range·no-store와 복구 epoch를 확정했다. Live 파일/schema/ingress 대조와 문서 검증 결과이며 PDF 도구·schema·API는 아직 미구현이다. 관리자 트랙은 completed 5개·pending 11개·blocked 1개, **다음은 `admin-resume-pdf / Step 1: private-upload-preview-and-versions`**다. 실제 파일·운영 상태는 변경하지 않았다. 아래는 당시 이력이다.
+
 2026-10-26 **A1 Step 3 completed, A1 phase 완료**: 기존 Brain 관리자에 UUID/명령 revision·중복 receipt·원자적 감사와 응답 유실 재확인·최근 변경 이력을 적용했다. 기존 원문·공개 snapshot·정적 카탈로그/Memory UI를 보존했다. Unit 234 pass/14 DB skip, 격리 integration 16/16, Brain HTTP 1/1·admin HTTP 4/4, lint/typecheck/build와 1440/390/320px·충돌·오류·기능 OFF 검수를 통과했다. 관리자 트랙은 completed 4개·pending 12개·blocked 1개이며 **다음은 `admin-resume-pdf / Step 0: resume-file-and-visibility-contract`**다. 운영 migration·공개·OCI·timer는 수행하지 않았다. 아래는 당시 이력이다.
 
 2026-10-23 **A1 Step 2 completed**: Queue 실험을 인증된 `/admin/lab/queue`로 이동하고 기존 공개 URL을 redirect 없이 404로 종료했다. Portfolio 진입 영역·sitemap 항목·공개 canonical을 제거하고 가상 계산/재생과 실제 설계 설명을 보존했다. HTTP RED → GREEN 4/4, Queue/SEO 5/5, unit 232 pass/14 DB skip, lint/typecheck/build, 1440/390/320px·설정 9조합·키보드·no-JS·공개 링크 경계를 검증했다. 관리자 트랙은 completed 3개·pending 13개·blocked 1개이며 **다음은 `admin-console-foundation / Step 3: second-brain-admin-integration`**이다. 실제 작업 실행과 운영 상태는 변경하지 않았다. 아래는 당시 이력이다.

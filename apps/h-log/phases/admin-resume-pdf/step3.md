@@ -19,6 +19,8 @@ pending — 계획이며 미구현. A4 Steps 0–2 완료. 실제 개인 PDF를 
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/ADMIN_CONSOLE_PLAN.md`
+- `apps/h-log/.codex/docs/harness/ADMIN_ACCESS_CONTRACT.md`
+- `apps/h-log/.codex/docs/harness/RESUME_PDF_CONTRACT.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `plans/automated-blog-publishing-plan.md`
 - `.codex/skills/tdd/SKILL.md`
@@ -35,6 +37,8 @@ pending — 계획이며 미구현. A4 Steps 0–2 완료. 실제 개인 PDF를 
 - `apps/h-log/phases/admin-operations-control/step4.md`
 
 ## 작업
+
+A4 Step 0의 [확정 계약](../../.codex/docs/harness/RESUME_PDF_CONTRACT.md)을 구현 기준으로 사용한다. 예정 파일/명령은 live code와 대조해 추가하고 문서만으로 구현된 것으로 취급하지 않는다.
 
 1. 격리 local DB/두 host의 합성 PDF로 관리자 등록부터 전 페이지 미리보기·공개/교체·해제·이전 버전 선택까지 검수한다. parser/인증/비공개 원문·hash·Nginx 제한·cache·오류의 실패 행렬을 재현한다.
 2. DB dump를 별도 테스트 DB에 복구해 바이트/hash·메타데이터·공개 포인터·감사 이력을 대조한다. 복구 후 공개 게이트가 닫힌 상태에서 철회 의사를 재확인해 과거 공개 포인터가 자동 노출되지 않는지 검사한다.

@@ -1,6 +1,6 @@
 # 관리자 접근과 명령 계약
 
-확정일: 2026-10-23. `admin-console-foundation / Step 0`의 설계 결과다. **A1 Steps 0–3에서 공통 인증·관리자 shell·Queue 비공개 이동·Brain 명령 통합을 로컬 구현/검증했다.** Brain 외 명령 DB·정책/중지·운영 ingress 계약은 후속 단계다. 다음은 A4 Step 0이다. 단계별 범위는 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 따른다.
+확정일: 2026-10-23. `admin-console-foundation / Step 0`의 설계 결과다. **A1 Steps 0–3에서 공통 인증·관리자 shell·Queue 비공개 이동·Brain 명령 통합을 로컬 구현/검증했다.** Brain 외 명령 DB·정책/중지·운영 ingress 계약은 후속 단계다. A4 Step 0의 [PDF 계약](RESUME_PDF_CONTRACT.md)도 확정했고 다음은 A4 Step 1이다. 단계별 범위는 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 따른다.
 
 ## 1. 현재 caller와 부족한 계약
 
@@ -84,12 +84,12 @@ Basic은 전송 암호화가 아니므로 TLS와 변경 요청의 CSRF 방어가
 | 자동 초안/자동 발행 정책 — A2 Step 3 | policy revision, 각각의 boolean, 허용 범위 안의 한도, 사유 | 지속 정책 변경+감사. 서버 상한·실제 timer를 켜지 않으며 정책 읽기 실패는 새 외부 호출/공개 차단 |
 | 단건 재시도 — A3 Step 1 | job ID, 현재 version/hash, 예상 상태/attempt/revision, 사유 | 허용한 실패 한 건만 재대기. 성공·running·유효 lease·구버전·철회 글·중복 재시도는 409. 무제한 retry count 초기화 금지 |
 | 새 claim 중지/재개 — A3 Step 1 | policy revision, desired 값, 사유 | 정책 저장으로 새 일반 claim 차단/허용. 이미 시작한 작업 취소·timer 중지·Worker 종료를 의미하지 않음 |
-| PDF 등록/수정 파일 교체 — A4 Step 1 | 제한된 파일, SHA-256, 명령 키, 메모 revision | 검증 뒤 불변 private 버전 추가. 기존 공개본 자동 교체 없음; 같은 명령 재전송은 같은 결과 |
-| PDF 메모 수정 — A4 Step 1 | version ID, 메모 revision, 안전한 메모 | private 메모만 변경; 파일 바이트/hash·공개 포인터 유지 |
-| PDF 공개/공개본 교체/이전본 선택 — A4 Step 2 | 파일 ID/hash, public pointer revision, 전 페이지 검토 확인·사유 | 현재 기준으로 검토한 버전 하나로 pointer 전환+감사. 변경/미검토 파일은 422, 오래된 pointer는 409 |
-| PDF 공개 해제 — A4 Step 2 | pointer revision, 사유 | pointer 제거+감사. 이후 다운로드 404; 이미 전송/다운로드한 사본 회수는 보장하지 않음 |
+| PDF 등록/수정 파일 교체 — A4 Step 1 | 제한된 파일, SHA-256, 명령 키, 전역 expectedRevision | 검증 뒤 불변 private 버전 추가. 기존 공개본 자동 교체 없음; 같은 명령 재전송은 같은 결과 |
+| PDF 메모 수정 — A4 Step 1 | version ID, 전역 expectedRevision, 안전한 메모 | private 메모만 변경; 파일 바이트/hash·공개 포인터 유지 |
+| PDF 공개/공개본 교체/이전본 선택 — A4 Step 2 | 파일 ID/hash, 전역 expectedRevision, 전 페이지 검토 확인·서버 고정 사유 | 현재 기준으로 검토한 버전 하나로 pointer 전환+감사. 변경/미검토 파일은 422, 오래된 pointer는 409 |
+| PDF 공개 해제 — A4 Step 2 | 전역 expectedRevision, 서버 고정 사유 | pointer 제거+감사. 이후 다운로드 404; 이미 전송/다운로드한 사본 회수는 보장하지 않음 |
 
-블로그 편집용 private 후보와 공개 current를 분리할 최소 저장 방식은 A2 Step 1에서 구현한다. 기존 `posts.current_version_id`를 private 저장만으로 바꾸지 않는 것이 인수 조건이다. 발행 전환 중 기존 글이 비공개가 되는 현재 pipeline의 의미도 화면에 안내한다. 공개 글의 무중단 버전 전환을 이번 계약만으로 보장하지 않는다. PDF의 parser/파일·총량 예산/schema는 A4 Step 0이 확정한다.
+블로그 편집용 private 후보와 공개 current를 분리할 최소 저장 방식은 A2 Step 1에서 구현한다. 기존 `posts.current_version_id`를 private 저장만으로 바꾸지 않는 것이 인수 조건이다. 발행 전환 중 기존 글이 비공개가 되는 현재 pipeline의 의미도 화면에 안내한다. 공개 글의 무중단 버전 전환을 이번 계약만으로 보장하지 않는다. PDF의 parser/파일·총량 예산/schema·전역 expectedRevision·공개 epoch·HTTP 조건부/Range는 A4 Step 0의 [확정 계약](RESUME_PDF_CONTRACT.md)을 따른다. `resume_pdf_versions`/`resume_pdf_state`와 PDF target 추가는 Step 1 구현 대상이며 현재 006 schema에는 없다.
 
 ### 충돌·중복·감사
 

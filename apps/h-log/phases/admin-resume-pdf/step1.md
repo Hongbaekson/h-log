@@ -19,6 +19,8 @@ pending — 계획이며 미구현. A4 Step 0 및 A1 공통 인증/관리 shell 
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/ADMIN_CONSOLE_PLAN.md`
+- `apps/h-log/.codex/docs/harness/ADMIN_ACCESS_CONTRACT.md`
+- `apps/h-log/.codex/docs/harness/RESUME_PDF_CONTRACT.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `plans/automated-blog-publishing-plan.md`
 - `.codex/skills/tdd/SKILL.md`
@@ -37,6 +39,8 @@ pending — 계획이며 미구현. A4 Step 0 및 A1 공통 인증/관리 shell 
 - `apps/h-log/.codex/docs/harness/UI_GUIDE.md`
 
 ## 작업
+
+A4 Step 0의 [확정 계약](../../.codex/docs/harness/RESUME_PDF_CONTRACT.md)을 구현 기준으로 사용한다. 예정 파일/명령은 live code와 대조해 추가하고 문서만으로 구현된 것으로 취급하지 않는다.
 
 1. 확정한 private PDF 저장 schema와 /admin/resume 업로드·버전 목록을 구현한다. 서버가 생성한 식별자와 내용 hash를 쓰고 원본 파일명을 경로/공개 이름에 사용하지 않는다. 메모·바이트 크기·페이지 수·검증 상태·등록 시각을 인증 후 조회한다. 제한된 양의 메타데이터 목록만 읽고 모든 PDF 바이트를 한꺼번에 로드하지 않는다.
 2. 인증·정확한 Origin·크기 상한을 확인한 뒤 실제 PDF 형식/파싱/지원 가능성을 검증한다. 선언한 Content-Length를 신뢰하지 않고 실제 수신량도 제한한다. 파서 실패·시간 초과·암호화·손상·활성 내용 등 확정된 거부 조건에서는 공개 가능한 버전을 만들지 않는다.

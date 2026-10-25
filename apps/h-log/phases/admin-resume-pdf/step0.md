@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 계획이며 미구현. A1 admin-console-foundation 전체 완료. Blog 자동화/모니터링 구현을 기다릴 필요는 없다.
+completed — 2026-10-26 설계 계약 확정. PDF 기능 구현은 아직 하지 않았다. A1 전체 완료를 확인했으며 다음은 A4 Step 1이다.
 
 ## 읽을 파일
 
@@ -19,12 +19,19 @@ pending — 계획이며 미구현. A1 admin-console-foundation 전체 완료. B
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/ADMIN_CONSOLE_PLAN.md`
+- `apps/h-log/.codex/docs/harness/ADMIN_ACCESS_CONTRACT.md`
+- `apps/h-log/.codex/docs/harness/RESUME_PDF_CONTRACT.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `plans/automated-blog-publishing-plan.md`
 - `apps/h-log/phases/admin-resume-pdf/index.json`
 - `apps/h-log/phases/admin-console-foundation/index.json`
 - `apps/h-log/app/resume/page.tsx`
+- `apps/h-log/lib/admin-owner.ts`
+- `apps/h-log/lib/admin-server.ts`
 - `apps/h-log/lib/brain-owner.ts`
+- `apps/h-log/lib/brain-postgres-repository.ts`
+- `apps/h-log/migrations/006_brain_admin_commands.sql`
+- `apps/h-log/Dockerfile`
 - `apps/h-log/migrations/003_publish_rollback_audit.sql`
 - `apps/h-log/migrations/004_brain_capture.sql`
 - `apps/h-log/compose.yaml`
@@ -60,6 +67,24 @@ Markdown/JSON 파싱·상대 링크/읽을 파일 존재·상태/의존 순서�
 - 파일 교체를 범용 PDF 본문 편집이나 온라인 Resume 자동 동기화로 설명하지 말 것. 이번 구현 범위가 다르다.
 - 실제 이력서·비공개 과거 파일·metadata/본문·키를 fixture/로그/커밋에 넣지 말 것. 검증은 합성 자료로 수행한다.
 - OCI/DNS/TLS/운영 migration·실제 PDF 공개·provider/timer를 실행하지 말 것. 로컬 phase 완료와 운영 승인은 별개다.
+
+## 완료 기록 — 2026-10-26
+
+- [이력서 PDF 계약](../../.codex/docs/harness/RESUME_PDF_CONTRACT.md)에 저장·검증·검토·공개·회수·복구와 단계별 파일/테스트를 확정했다. 이는 기능 구현 완료가 아닌 Step 0의 설계 결과다.
+- 현재 Resume의 PDF CTA, `public/` PDF, `/api/resume/pdf`가 없는 상태를 확인했다. 공통 owner 인증과 006의 감사 receipt, Nginx 공개 차단/2m, Linux web image와 기존 DB backup 경계를 읽고 설계에 반영했다. 과거 step 문서의 삭제된 경로를 live 구현으로 사용하지 않았다.
+- 파일 5 MiB·10페이지·최대 20버전/100 MiB, private bytea/검사 보고서·공개 state와 전역 revision, 기존 감사 target 최소 확장을 정했다. raw PDF 업로드와 메모 변경을 나눠 원본 파일명을 저장하지 않으며 원본/검사/감사를 같은 transaction에 넣는다.
+- 공식 문서로 qpdf 구조 검사/JSON v2·Poppler의 PNG 렌더/정보 추출, prlimit/네트워크 syscall 제한의 지원 기능을 확인했다. qpdf 문서 12.4.2·Poppler 26.10.0을 확인했지만 설치/실행한 버전으로 기록하지 않는다. Step 1에서 actual image/package pin과 Linux 네트워크/자원 제한을 증명해야 한다.
+- 공개 current만 읽는 GET/HEAD, 현재 판정 후 ETag 조건부, Range 미지원(전체 200), no-store·이력서.pdf 파일명을 확정했다. 복구 때 새 publication epoch로 과거 공개 포인터를 막고 다시 검토하도록 했다. 전송 중/다운로드한 사본은 회수 대상이 아니다.
+
+### 검증
+
+앱 디렉터리에서 `node --no-warnings --test --experimental-strip-types lib/admin-owner.test.ts lib/brain-capture-http.test.ts` 10/10을 확인했다. 이는 기존 인증/명령 경계의 기준선 검증이며 아직 없는 PDF API 테스트를 뜻하지 않는다.
+
+`node private/admin-resume-contract-check/verify-docs.mjs`로 변경 파일 15개(Markdown 13개·JSON 2개), 추가 상대 링크 28개·읽을 파일 113개, 전체 phase JSON 46개·162개 step과 코드·DB·운영 설정의 비변경을 확인했다. 관리자 step은 completed 5개·pending 11개·blocked 1개이며 다른 phase 상태는 보존했다. `git diff --check`를 통과했다. 문서/JSON만 바뀌어 TDD·앱 build·브라우저 검수는 이번 step에 적용하지 않았다.
+
+### 남은 범위
+
+PDF schema·도구 설치·parser/renderer 실행·파일 등록·합성 PDF 검증·자원 실측은 Steps 1–3이다. 실제 개인 PDF·운영 migration·OCI/DNS/TLS·공개·provider/timer는 변경하지 않았다. 현재 다운로드 버튼도 복원하지 않았다. 다음은 Step 1의 비공개 업로드·미리보기·버전 관리다.
 
 ## 다음 단계
 

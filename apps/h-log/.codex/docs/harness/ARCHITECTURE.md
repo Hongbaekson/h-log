@@ -36,7 +36,7 @@ npm run build
 
 ## 관리자 통합 현황과 목표
 
-2026-10-26 A1 Steps 0–3의 [접근·명령 계약](ADMIN_ACCESS_CONTRACT.md), `/admin` 전용 shell/개요·공통 인증·Queue 비공개 이동·Brain 명령 통합을 완료했다. 다음은 A4 Step 0의 이력서 PDF 저장 계약이다. Blog/automation/jobs/resume/monitoring/audit 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
+2026-10-26 A1 Steps 0–3의 [접근·명령 계약](ADMIN_ACCESS_CONTRACT.md), `/admin` 전용 shell/개요·공통 인증·Queue 비공개 이동·Brain 명령 통합을 완료했다. A4 Step 0의 이력서 PDF 저장 계약도 확정했으며 다음은 A4 Step 1의 비공개 업로드·미리보기 구현이다. Blog/automation/jobs/resume/monitoring/audit 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
 
 `lib/admin-owner.ts`는 설정·Host·Basic·Origin 검사와 비공개 헤더를 소유한다. `proxy.ts`는 전체 `/admin/:path*`, `lib/admin-server.ts`는 page/layout의 데이터 조회 전 검사를 담당한다. `brain-owner.ts`는 공통 인증 후 Brain DB flag를 검사하는 얇은 경계로 남는다. 기존 Nginx는 여전히 모든 관리자 경로를 차단하고 Host를 `hlog-web`로 전달한다. 두 loopback ingress의 정확한 Host 전달/공개 차단은 격리 구성으로 검증했으며 운영 설정은 변경하지 않았다.
 
@@ -50,7 +50,7 @@ Blog 관리 조회/명령·draft-only persistence·지속 정책과 요청은 �
 
 ### 이력서 PDF 관리 목표 — 아직 미구현
 
-ADR-039와 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A4는 기존 인증 뒤 `/admin/resume` 등록/미리보기/버전 관리, 검토한 파일의 공개 포인터와 `/api/resume/pdf` 다운로드를 추가하는 계획이다. PostgreSQL에 제한된 PDF 바이트와 메타데이터를 보관하는 안으로 시작하고 실제 schema/파서·크기·backup 예산은 A4 Step 0에서 확정한다. 파일 교체는 새 비공개 버전이며 공개/해제와 감사는 원자적으로 처리한다. Resume은 공개 여부만 조회하고 다운로드 handler가 current 바이트/hash를 읽는다. 임의 version ID·정적 public 파일·캐시로 비공개 파일에 접근할 수 없도록 검증한다. 기존 PDF asset/CTA/API는 여전히 없으며 이 문단은 현재 구현을 뜻하지 않는다.
+ADR-039와 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A4는 기존 인증 뒤 `/admin/resume` 등록/미리보기/버전 관리, 검토한 파일의 공개 포인터와 `/api/resume/pdf` 다운로드를 추가하는 계획이다. [A4 Step 0 계약](RESUME_PDF_CONTRACT.md)은 PostgreSQL `resume_pdf_versions` bytea/검사 보고서와 `resume_pdf_state`의 전역 revision·공개 포인터·epoch, 기존 감사 receipt 확장을 정의했다. 파일 5 MiB·10페이지·20버전/100 MiB를 제한하고 qpdf+Poppler를 같은 Linux web image의 자원/네트워크 제한 자식 프로세스로 실행하는 설계다. PNG는 인증된 handler에서만 전달하며 영구 저장하지 않는다. 도구·schema·handler는 Step 1 구현 대상이다. 파일 교체는 새 비공개 버전이며 공개/해제와 감사는 원자적으로 처리한다. Resume은 공개 여부만 조회하고 다운로드 handler가 current 바이트/hash를 읽는다. 임의 version ID·정적 public 파일·캐시로 비공개 파일에 접근할 수 없도록 검증한다. 기존 PDF asset/CTA/API는 여전히 없으며 이 문단은 현재 구현을 뜻하지 않는다.
 
 ### Queue 재생 실험
 

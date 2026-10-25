@@ -1,10 +1,10 @@
 # H-Log PostgreSQL Backup/Restore Runbook
 
-이 문서는 OCI self-hosted PostgreSQL + pgvector 운영을 위한 백업/복구 기준이다. 현재 저장소에는 local migration runner가 있지만 실제 DB adapter와 운영 DB 연결은 없으므로, 이 runbook은 운영 DB를 직접 조작하지 않고 로컬/테스트 DB 리허설을 먼저 강제한다.
+이 문서는 OCI self-hosted PostgreSQL + pgvector 운영을 위한 백업/복구 기준이다. 저장소에는 PostgreSQL repository와 migration runner가 있다. 이 runbook은 운영 DB를 직접 조작하지 않고 로컬/테스트 DB 리허설을 먼저 요구한다.
 
 ## 범위
 
-2026-10-22 [관리자 PDF 계획](harness/ADMIN_CONSOLE_PLAN.md)의 A4는 PDF 바이트/메타데이터/공개 포인터를 같은 PostgreSQL backup 범위에 두는 목표다. 아직 관련 schema/파일 저장은 구현하지 않았다. A4 Step 3에서 격리 복구 후 파일 SHA-256·버전·포인터·감사 이력과 최대 보관 예산을 확인한다. 과거 backup의 공개 포인터가 철회된 PDF를 다시 노출하지 않도록 복구 환경의 PDF 공개 게이트를 먼저 닫고 현재 운영 의사를 확인한 뒤 별도로 연다. 실제 개인 PDF나 dump는 저장소·검수 로그에 포함하지 않는다.
+2026-10-26 [PDF 계약](harness/RESUME_PDF_CONTRACT.md)의 A4는 PDF 바이트/검사 보고서/공개 포인터/감사 receipt를 같은 PostgreSQL backup 범위에 두도록 확정했다. 아직 관련 schema/파일 저장은 구현하지 않았다. A4 Step 3에서 격리 복구 후 파일 SHA-256·버전·포인터·감사 이력과 최대 보관 예산을 확인한다. 과거 backup의 공개 포인터가 철회된 PDF를 다시 노출하지 않도록 복구 환경의 PDF 공개 게이트를 먼저 닫고 dump 밖의 새 publication epoch를 발급한다. 구 포인터와 epoch가 달라 새 다운로드가 404인지 확인한 뒤, 포인터를 감사와 함께 해제하고 현재 파일을 재검토·명시적으로 공개한다. 원본 최대 100 MiB/검사 보고서 10 MiB, PDF DB 증분 256 MiB/custom dump 증분 200 MiB·보관 여유 3 GiB의 예산은 Step 3에서 실측한다. 실제 개인 PDF나 dump는 저장소·검수 로그에 포함하지 않는다.
 
 - 대상 DB: Compose service `hlog-postgres`
 - 대상 volume: Compose volume `postgres_data`

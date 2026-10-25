@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "resume-file-and-visibility-contract",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-26: Completed design contract only: confirmed absent PDF assets/API and shared owner/auth/audit baseline; defined 5 MiB/10-page/20-version bytea storage, bounded qpdf/Poppler PNG inspection, global revision and atomic command receipts, current-only GET/HEAD/ETag/no-Range download, private review and external recovery epoch. Official tool/HTTP docs and live schema/ingress reviewed; auth/HTTP baseline 10/10 and Markdown/JSON/link/scope checks passed. No runtime/schema/dependencies/PDF or operational changes. Next: Step 1 private-upload-preview-and-versions."
     },
     {
       "step": 1,

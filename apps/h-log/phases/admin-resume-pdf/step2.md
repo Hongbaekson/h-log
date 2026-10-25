@@ -19,6 +19,8 @@ pending — 계획이며 미구현. A4 Step 1의 private 저장/미리보기와 
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/ADMIN_CONSOLE_PLAN.md`
+- `apps/h-log/.codex/docs/harness/ADMIN_ACCESS_CONTRACT.md`
+- `apps/h-log/.codex/docs/harness/RESUME_PDF_CONTRACT.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `plans/automated-blog-publishing-plan.md`
 - `.codex/skills/tdd/SKILL.md`
@@ -35,6 +37,8 @@ pending — 계획이며 미구현. A4 Step 1의 private 저장/미리보기와 
 - `apps/h-log/phases/public-site-quality-hardening/step5.md`
 
 ## 작업
+
+A4 Step 0의 [확정 계약](../../.codex/docs/harness/RESUME_PDF_CONTRACT.md)을 구현 기준으로 사용한다. 예정 파일/명령은 live code와 대조해 추가하고 문서만으로 구현된 것으로 취급하지 않는다.
 
 1. 특정 버전/hash의 전 페이지·메타데이터·공개 정책 검토 확인을 거쳐 공개본 지정·교체·해제·이전 버전 재선택 명령을 구현한다. 예상 revision/중복 요청 키를 확인하고 공개 포인터/감사를 원자적으로 변경한다. 과거 검토를 새 파일 승인으로 재사용하지 않는다.
 2. 인증 없는 /api/resume/pdf는 승인된 current PDF만 반환하도록 구현한다. 공개 query에 임의 version ID/과거 파일 선택을 허용하지 않는다. private/없음/해제는 404, DB/파일 무결성 실패는 일반 오류이며 과거 파일로 fallback하지 않는다.

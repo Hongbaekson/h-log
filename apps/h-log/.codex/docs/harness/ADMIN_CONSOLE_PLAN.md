@@ -1,6 +1,6 @@
 # H-Log 통합 관리자 계획
 
-등록일: 2026-10-22. 2026-10-26 **A1 Steps 0–3의 계약·공통 인증·관리자 shell·Queue 비공개 이동·Brain 명령 통합을 완료했다. 4개 phase / 17개 step 중 completed 4개·pending 12개·blocked 1개**다. PDF 다운로드·블로그/작업 관리는 아직 미구현이다. 다음 실행은 [A4 Step 0](../../../phases/admin-resume-pdf/step0.md)이다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
+등록일: 2026-10-22. 2026-10-26 **A1 Steps 0–3의 계약·공통 인증·관리자 shell·Queue 비공개 이동·Brain 명령 통합을 완료했다. 4개 phase / 17개 step 중 completed 5개·pending 11개·blocked 1개**다. PDF 다운로드·블로그/작업 관리는 아직 미구현이다. A4 Step 0의 [PDF 저장·공개 계약](RESUME_PDF_CONTRACT.md)도 확정했으며 다음 실행은 [A4 Step 1](../../../phases/admin-resume-pdf/step1.md)이다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
 
 ## 방향과 현재 근거
 
@@ -78,15 +78,15 @@ Prometheus/Grafana는 [operations-observability](../../../phases/operations-obse
 
 ### 저장과 공개 경계
 
-소수의 개인 이력서 버전만 다루므로 **기존 PostgreSQL에 PDF 바이트(`bytea`)·메타데이터·공개 포인터를 저장하는 안**을 기본으로 한다. 새 object storage·공개 bucket·정적 `public/` 복사본은 만들지 않는다. A4 Step 0에서 파일/페이지/버전 수·총량·메모리·백업 예산을 확정한다. 시작 검토값은 파일당 5 MiB, 10페이지, 최대 20개 보관 버전이며 초과 시 기존 파일을 자동 삭제하지 않고 새 등록을 거부한다. 현재 Nginx `client_max_body_size 2m`과 업로드 크기의 차이는 관리자 업로드 경로에서만 검증·조정한다. 공개/다른 API의 제한을 일괄 완화하지 않는다.
+소수의 개인 이력서 버전만 다루므로 **기존 PostgreSQL에 PDF 바이트(`bytea`)·메타데이터·공개 포인터를 저장하는 안**을 기본으로 한다. 새 object storage·공개 bucket·정적 `public/` 복사본은 만들지 않는다. A4 Step 0의 [확정 계약](RESUME_PDF_CONTRACT.md)은 파일당 5 MiB·10페이지·최대 20버전/원본 합계 100 MiB, qpdf 구조 검사+Poppler 페이지 이미지, 자원/네트워크 제한과 복구 epoch를 정의한다. 아직 구현/설치한 상태는 아니며 초과 시 기존 파일을 자동 삭제하지 않고 새 등록을 거부한다. 현재 Nginx `client_max_body_size 2m`과 업로드 크기의 차이는 관리자 업로드 경로에서만 검증·조정한다. 공개/다른 API의 제한을 일괄 완화하지 않는다.
 
-업로드는 인증된 소유자만 수행한다. 확장자·요청 MIME만 믿지 않고 크기·PDF 식별자·실제 파싱·페이지 수·암호화/손상·첨부 파일과 실행 동작을 검사한다. 미리보기는 실행 동작/외부 네트워크를 허용하지 않는 제한된 렌더링 경계를 사용하고 parser timeout·출력/자원 상한·임시 파일 정리를 검증한다. 지원하지 않거나 검사할 수 없는 PDF는 공개 후보로 받지 않는다. parser/렌더러는 Step 0에서 현재 지원 상태를 확인한 최소 도구를 선택하고 원격 변환 서비스로 개인 파일을 전송하지 않는다. 업로드/검증과 미리보기는 같은 검증된 바이트/hash를 기준으로 한다. 이 방어는 [OWASP 파일 업로드 지침](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html)에 근거한다.
+업로드는 인증된 소유자만 수행한다. 확장자·요청 MIME만 믿지 않고 크기·PDF 식별자·실제 파싱·페이지 수·암호화/손상·첨부 파일과 실행 동작을 검사한다. 미리보기는 실행 동작/외부 네트워크를 허용하지 않는 제한된 렌더링 경계를 사용하고 parser timeout·출력/자원 상한·임시 파일 정리를 검증한다. 지원하지 않거나 검사할 수 없는 PDF는 공개 후보로 받지 않는다. parser/렌더러는 Step 0에서 qpdf+Poppler로 선택했으며 원격 변환 서비스로 개인 파일을 전송하지 않는다. 업로드/검증과 미리보기는 같은 검증된 바이트/hash를 기준으로 한다. 이 방어는 [OWASP 파일 업로드 지침](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html)에 근거한다.
 
-공개 전에 모든 페이지·메타데이터·주석/링크·숨겨진 내용과 회사/고객사 식별자 등을 검토하고 해당 파일/hash의 검토 확인을 기록한다. 자동 검사 통과가 개인정보 검수 완료를 대신하지 않는다. 공개 승인·교체·해제와 감사 기록은 예상 revision·중복 키를 확인한 transaction으로 처리한다. 기존 `admin_actions.target_type` 제약에는 이력서가 없으므로 기존 글 ID로 위장하지 않고 A4 Step 0에서 최소 schema 확장 여부를 결정한다.
+공개 전에 모든 페이지·메타데이터·주석/링크·숨겨진 내용과 회사/고객사 식별자 등을 검토하고 해당 파일/hash의 검토 확인을 기록한다. 자동 검사 통과가 개인정보 검수 완료를 대신하지 않는다. 공개 승인·교체·해제와 감사 기록은 예상 revision·중복 키를 확인한 transaction으로 처리한다. 기존 `admin_actions.target_type` 제약에는 이력서가 없으므로 기존 글 ID로 위장하지 않는다. A4 Step 0은 PDF version/state 대상과 기존 명령 receipt의 재사용을 확정했고 Step 1에서 구현한다.
 
 공개 다운로드 경로는 과거 주소인 `/api/resume/pdf`를 재사용하는 목표다. 매 요청마다 공개 current 포인터와 승인된 파일/hash를 확인해 `application/pdf`, attachment, 한글 `이력서.pdf`와 안전한 ASCII fallback을 반환한다. 임의 version ID로 이전/비공개 파일을 다운로드하는 public endpoint는 만들지 않는다. 비공개/미등록/회수 상태는 404, 저장소 장애는 일반 오류로 구분하며 과거 파일로 fallback하지 않는다. Resume 링크는 실제 공개본이 있을 때만 표시하고 DB 장애는 이력서 본문을 막지 않도록 다운로드 영역에 한정한다.
 
-PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록시·Next cache·조건부/Range 요청이 권한 판정을 우회하지 못하게 한다. 공개 해제 뒤의 새 요청은 404여야 하며, 이미 전송 중이거나 방문자가 내려받은 사본까지 회수할 수 있다고 설명하지 않는다. PDF를 별도 sitemap/feed/llms 항목으로 확장하지 않고 Resume 링크에서 제공한다. 원본 업로드 파일명·내부 메타데이터·비공개 과거 버전은 공개하지 않는다.
+PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록시·Next cache·조건부/Range 요청이 권한 판정을 우회하지 못하게 한다. 공개 해제 뒤의 새 요청은 404여야 하며, 이미 전송 중이거나 방문자가 내려받은 사본까지 회수할 수 있다고 설명하지 않는다. PDF를 별도 sitemap/feed/llms 항목으로 확장하지 않고 Resume 링크에서 제공한다. 원본 업로드 파일명·서버 검사 보고서·비공개 과거 버전은 공개하지 않는다. PDF 안에 포함된 메타데이터는 다운로드 원본에도 남으므로 공개 전에 검토하고, 부적합하면 원본 문서에서 수정해 다시 등록한다.
 
 바이트·메타데이터·포인터가 같은 DB backup/restore 경계에 포함되는지 hash로 검증한다. 과거 DB 복구가 철회한 공개본을 다시 열지 않도록 복구/rollout 시 PDF 공개 게이트를 닫고 현재 의사를 재확인하는 절차를 둔다. 관리자 PDF 등록 기능 배포가 기존 Git PDF의 복원이나 실제 파일 공개를 뜻하지 않는다.
 
@@ -107,14 +107,14 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 | A3 | [2: monitoring-overview](../../../phases/admin-operations-control/step2.md) | 기존 모니터링 신호·누락/오류·비공개 Grafana 연결 |
 | A3 | [3: local-admin-release-rehearsal](../../../phases/admin-operations-control/step3.md) | 공개/관리 host·데이터 누출·실패/복구·모바일 종합 검수 |
 | A3 | [4: approved-admin-origin-rollout](../../../phases/admin-operations-control/step4.md) | 승인된 admin 도메인·TLS·접근 제한 적용/롤백 — OCI 보류로 blocked |
-| A4 [admin-resume-pdf](../../../phases/admin-resume-pdf/index.json) | [0: resume-file-and-visibility-contract](../../../phases/admin-resume-pdf/step0.md) | 저장·버전·검토·공개/회수·크기/백업 계약 확정 |
+| A4 [admin-resume-pdf](../../../phases/admin-resume-pdf/index.json) | [0: resume-file-and-visibility-contract](../../../phases/admin-resume-pdf/step0.md) | 저장·검사 도구/예산·공개/HTTP·복구 계약 확정 완료(기능 미구현) |
 | A4 | [1: private-upload-preview-and-versions](../../../phases/admin-resume-pdf/step1.md) | 비공개 등록·검증·전 페이지 미리보기·수정 파일 교체/이력 |
 | A4 | [2: published-resume-download](../../../phases/admin-resume-pdf/step2.md) | 공개본 지정/해제와 Resume 다운로드·교체/이전 버전 선택 |
 | A4 | [3: resume-privacy-and-recovery-rehearsal](../../../phases/admin-resume-pdf/step3.md) | 공개 경계·cache·동시성·실패·backup/restore 종합 검수 |
 
 ## 실행 순서와 기존 계획
 
-1. 기본 다음 작업은 **A4 Step 0**이다. A1 Steps 0–3의 공통 인증·관리자 화면·비공개 실험실·Brain 명령 통합을 완료했다. 다음 이력서 PDF 단계에서 파일 저장·검수·공개 pointer 계약을 확정한다. 기존 `/lab/queue`는 404이며 공개 진입 링크와 sitemap 항목을 제거했다.
+1. 기본 다음 작업은 **A4 Step 1**이다. A1 Steps 0–3과 A4 Step 0의 PDF 파일 저장·검수·공개 pointer 계약을 완료했다. 다음 단계에서 비공개 업로드·전 페이지 이미지 미리보기·버전 메모를 구현한다. 기존 `/lab/queue`는 404이며 공개 진입 링크와 sitemap 항목을 제거했다.
 2. A1 완료 뒤 독립적인 **A4 이력서 PDF Steps 0–3**을 진행한다. A4 번호는 기존 A1–A3의 참조를 보존하기 위한 것이며 운영 rollout 뒤로 미루는 뜻이 아니다. 이어 `operations-observability / Step 0`에서 신호·권한·예산을 확정한다. A2 Steps 0–3과 A3 Steps 0–1은 이를 참고해 실제 저장·제어를 구현하며, 수집 스택 설치를 선행 조건으로 요구하지 않는다.
 3. observability Steps 1–6을 구현·로컬 검증한 뒤 A3 Steps 2–3을 완료한다. 관측 데이터의 생산자는 모니터링 phase, 관리자 화면은 소비자로 둔다.
 4. 운영은 기존 OCI 보류 해제 및 범위별 승인 후 진행한다. observability Step 7은 비활성 scheduler 상태에서도 완료할 수 있다. 이어 A3 Step 4에서 관리자 도메인과 A4의 비공개 파일 저장/migration을 적용한다. 관리자 rollout은 자동 발행 timer를 켜거나 실제 글/Brain 사본/PDF를 공개하지 않는다. 특정 PDF 공개는 관리자에서 검수한 파일을 선택하는 별도 행동이다.
@@ -157,3 +157,7 @@ A1 Step 1은 공통 인증과 관리자 화면의 앱 코드/테스트를 변경
 ## A1 Step 3 구현 검증 — 2026-10-26
 
 Brain 저장·공개·해제에 내용 revision과 별도 명령 revision/UUID를 적용했다. 기존 `admin_actions`를 확장해 중복 receipt와 안전한 감사·상태 변경을 원자적으로 처리한다. UI는 응답 유실 재확인과 최근 변경 이력·코드 관리 카탈로그 안내를 제공한다. RED/GREEN, unit 234 pass/14 DB skip, 전체 격리 integration 16/16, Brain HTTP 1/1·admin HTTP 4/4, lint/typecheck/build, 1440/390/320px 작성/검색/이력/응답 유실/충돌과 기능 OFF·DB 오류를 검증했다. 기존 원문·공개 snapshot·과거 감사 보존을 upgrade fixture로 확인했다. 상세 명령과 한계는 [Step 3](../../../phases/admin-console-foundation/step3.md)에 남겼다. A1은 완료이며 다음은 A4 Step 0이다. 운영 적용은 별도다.
+
+## A4 Step 0 계약 검증 — 2026-10-26
+
+[PDF 계약](RESUME_PDF_CONTRACT.md)에 실제 live 코드/schema/Nginx/backup 대조, 도구 선택·파일/메모리/보관 예산, 원자적 상태/receipt와 공개 다운로드/복구 epoch를 확정했다. 기존 공통 인증·Brain HTTP 기준선 10/10, Markdown/JSON·링크·phase 상태·변경 범위 검사와 `git diff --check`를 통과했다. PDF 도구·schema·API·화면 구현은 아직 없으며 Step 0만 완료다. 다음 A4 Step 1에서 비공개 등록/PNG 미리보기를 구현한다.
