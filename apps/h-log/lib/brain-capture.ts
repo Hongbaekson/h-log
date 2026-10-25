@@ -66,6 +66,16 @@ export function assertSafeBrainPublication(node: BrainNode, policy: BlogPrivacyS
   }
 }
 
-export type BrainNoteSummary = { id: string; title: string; revision: number; publishedRevision: number | null; createdAt: string; occurredOn?: string; tags: string[]; topic: BrainTopic; links?: BrainLink[] };
+export type BrainCommand = { commandId: string; commandRevision: number };
+export type BrainCommandReceipt = { id: string; revision: number; commandRevision: number };
+export type BrainAction = { action: "save" | "publish" | "unpublish"; revision: number; commandRevision: number; createdAt: string };
+export type BrainNoteSummary = { id: string; title: string; revision: number; commandRevision: number; publishedRevision: number | null; createdAt: string; occurredOn?: string; tags: string[]; topic: BrainTopic; links?: BrainLink[] };
 export type BrainRevision = { revision: number; draft: BrainDraft; createdAt: string };
-export type BrainOwnerNote = BrainNoteSummary & { draft: BrainDraft; history: BrainRevision[] };
+export type BrainOwnerNote = BrainNoteSummary & { draft: BrainDraft; history: BrainRevision[]; actions: BrainAction[] };
+
+export function parseBrainCommand(input: { commandId?: unknown; commandRevision?: unknown }): BrainCommand {
+  if (input.commandId === undefined || input.commandRevision === undefined) throw new Error("command_metadata_required");
+  if (typeof input.commandId !== "string" || !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(input.commandId)
+    || !Number.isSafeInteger(input.commandRevision) || (input.commandRevision as number) < 0) throw new Error("invalid_command_metadata");
+  return { commandId: input.commandId.toLowerCase(), commandRevision: input.commandRevision as number };
+}

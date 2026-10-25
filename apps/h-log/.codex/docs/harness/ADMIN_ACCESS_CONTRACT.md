@@ -1,6 +1,6 @@
 # 관리자 접근과 명령 계약
 
-확정일: 2026-10-23. `admin-console-foundation / Step 0`의 설계 결과다. **A1 Step 1에서 공통 인증·관리자 shell·기존 Brain 인증 이전을 로컬 구현/검증했다.** 아래 명령 DB·정책/중지·운영 ingress 계약은 후속 단계다. A1 Step 2에서 Queue 실험을 공통 인증 아래로 이동했고 다음은 A1 Step 3이다. 단계별 범위는 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 따른다.
+확정일: 2026-10-23. `admin-console-foundation / Step 0`의 설계 결과다. **A1 Steps 0–3에서 공통 인증·관리자 shell·Queue 비공개 이동·Brain 명령 통합을 로컬 구현/검증했다.** Brain 외 명령 DB·정책/중지·운영 ingress 계약은 후속 단계다. 다음은 A4 Step 0이다. 단계별 범위는 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 따른다.
 
 ## 1. 현재 caller와 부족한 계약
 
@@ -8,14 +8,14 @@
 | --- | --- | --- |
 | `proxy.ts` → `authorizeAdminOwner` | `/admin/:path*` 공통 검사, 별도 관리자 활성 설정 | A1 Step 1 완료; 운영 ingress는 계속 차단 |
 | `app/admin/brain/page.tsx` → `getBrainRepository().listOwnerNotes()` | `requireAdminOwner` 뒤 DB 조회; 기능 OFF는 미설정 안내, 실패는 해당 영역 오류 | A1 Step 1 완료; 원문/공개 사본 기능은 유지 |
-| `app/admin/brain/records/route.ts` → `handleBrainCaptureRequest` | 공통 인증 → 요청 형식/256 KiB 제한 → repository; 안전한 오류 코드 | A1 Step 1 이전 완료; 기존 GET/POST·오류 계약 유지 |
-| `brain-postgres-repository.ts` | row lock·내용 revision·append-only 버전·별도 공개 사본 | A1 Step 3에서 명령 중복/감사와 공개 상태 충돌 검사 보완 |
+| `app/admin/brain/records/route.ts` → `handleBrainCaptureRequest` | 공통 인증 → 요청 형식/256 KiB 제한 → repository; 안전한 오류 코드 | A1 Step 3 완료; POST에 commandId/commandRevision 필수, 누락 시 400·새로고침 안내 |
+| `brain-postgres-repository.ts` | row lock·내용/명령 revision·append-only 버전·공개 사본·원자적 감사 receipt | A1 Step 3 완료; 중복 재전송·공개/해제 경합·감사 실패 rollback 검증 |
 | `blog-admin.ts` → `blog-postgres-repository.ts` | 철회 상태+감사는 transaction; UI caller·예상 revision·명령 receipt는 없음 | A2 Step 1에서 실제 caller와 함께 구현; 제거된 범용 facade 일괄 복원 금지 |
 | `blog-daily-auto-article.ts` → `savePost` | `publishing` aggregate와 required job 저장 | A2 Step 2에서 draft-only 요청/저장; 기존 함수를 그대로 초안 API에 연결하지 않음 |
 | `blog-persistent-worker.ts` | `FOR UPDATE SKIP LOCKED` claim·5분 lease·소유자 조건부 완료·유한 재시도 | A2 Step 3/A3 Step 1에서 정책 확인과 claim 중지의 transaction 경계 추가 |
 | Nginx → Compose web | 공개 `/admin`·`/api/internal` 404, upstream `Host hlog-web`, web은 expose만 사용 | 공개 차단 유지; 별도 관리자 ingress의 Host 전달을 로컬 검증 후 승인된 운영 단계에서 적용 |
 
-현재 Brain의 `publish`/`unpublish`는 내용 revision을 증가시키지 않는다. 같은 내용에 대한 공개→해제 경합을 기존 revision 검사만으로 해결했다고 볼 수 없다. `admin_actions`도 현재 글/글 버전/job/topic 대상만 허용하므로 Brain·PDF·정책 감사가 이미 구현됐다고 표시하지 않는다. Worker의 `idle`이나 cycle의 `completed`는 해당 글의 공개 검증 성공을 뜻하지 않는다.
+Brain의 `publish`/`unpublish`는 내용 revision을 증가시키지 않으며 별도 `command_revision`으로 공개/해제 경합을 검사한다. `006_brain_admin_commands`는 `admin_actions`에 Brain 대상과 nullable 명령/receipt 필드를 추가한다. PDF·정책 감사는 아직 미구현이다. Worker의 `idle`이나 cycle의 `completed`는 해당 글의 공개 검증 성공을 뜻하지 않는다.
 
 ## 2. 단일 소유자 인증과 설정 이전
 
@@ -94,11 +94,18 @@ Basic은 전송 암호화가 아니므로 TLS와 변경 요청의 CSRF 방어가
 ### 충돌·중복·감사
 
 - 새 변경 명령은 UUID `commandId`, action, target, 예상 revision/state와 안전한 사유를 받는다. body/파일의 내용 hash와 의미 있는 입력으로 fingerprint를 만들고 key/본문/파일 자체를 감사 내용에 복사하지 않는다. 같은 owner+commandId+같은 fingerprint의 재전송은 기존 receipt를 반환하고 부작용을 반복하지 않는다. 같은 키에 다른 입력이면 409다.
-- 하나의 DB transaction 안에서 receipt 중복 확인 → 대상/정책 잠금 → 예상 상태 확인 → 상태/버전 변경 → 감사/receipt 저장을 수행한다. 고유 제약으로 동시 재전송도 수렴시킨다. 감사 저장 실패는 전체 rollback하며 성공이라고 응답하지 않는다. 서버가 commit했는지 모르는 통신 오류는 같은 키로 조회/재시도한다.
-- 기존 `admin_actions`를 확장해 action/target 제약과 필요한 command key/fingerprint/안전한 결과·revision을 담는 최소 receipt로 재사용한다. 과거 row는 새 필드 nullable로 보존하며 과거 감사 결과를 만들어 채우지 않는다. A1 Step 3에서 Brain 명령에 필요한 부분을 먼저 추가하고 A4/A2/A3는 실제 caller에 필요한 대상/필드만 확장한다. 별도 범용 command bus/event store는 만들지 않는다.
+- 하나의 DB transaction 안에서 receipt 중복 확인/고유 키 예약 → 대상/정책 잠금 → 예상 상태 확인 → 상태/버전 변경 → 감사/receipt와 함께 commit한다. Brain은 고유 키를 먼저 INSERT해 동시 중복을 기다리게 하며 이 예약 row도 commit 전에는 노출되지 않는다. 고유 제약으로 동시 재전송도 수렴시킨다. 감사 저장 실패는 전체 rollback하며 성공이라고 응답하지 않는다. 서버가 commit했는지 모르는 통신 오류는 같은 키로 조회/재시도한다.
+- 기존 `admin_actions`를 확장해 action/target 제약과 필요한 command key/fingerprint/안전한 결과·revision을 담는 최소 receipt로 재사용한다. 과거 row는 새 필드 nullable로 보존하며 과거 감사 결과를 만들어 채우지 않는다. A1 Step 3에서 Brain 명령에 필요한 부분을 추가했으며 A4/A2/A3는 실제 caller에 필요한 대상/필드만 확장한다. 별도 범용 command bus/event store는 만들지 않는다.
 - 읽기와 인증 실패는 상태 변경 감사로 쌓지 않는다. 검증 실패/충돌은 안전한 오류 코드로 응답하며 필요하면 본문 없는 운영 로그에 남긴다. DB 장애 때문에 기록하지 못한 실패를 감사 화면에서 완전한 이력이라고 표시하지 않는다. 커밋된 변경에는 receipt가 반드시 있어야 한다.
-- 기존 Brain API는 A1 Step 1에서 인증만 옮긴다. 새 commandId/명령 revision은 A1 Step 3에서 UI·API·DB를 함께 변경한다. 내용 revision은 기존 append-only 버전 의미를 보존한다. 예전 client의 변경 요청을 추정해 실행하지 않고 400 후 새로고침을 안내한다.
+- Brain API는 A1 Step 1에서 인증을 옮겼고 A1 Step 3에서 commandId/명령 revision을 UI·API·DB에 함께 적용했다. 내용 revision은 기존 append-only 버전 의미를 보존한다. 예전 client의 변경 요청을 추정해 실행하지 않고 400 후 새로고침을 안내한다.
 - 새 명령의 공통 오류 의미는 잘못된 입력 400, 인증 401, Host/Origin 403, 없는/꺼진 기능 404, 미지원 메서드 405, revision/state/중복 키 충돌 409, 크기 413, 형식 415, 검토/품질/정책 차단 422, 저장소·정책 조회 장애 503이다. 소유자에게만 안전한 code를 반환하며 raw DB/provider 오류는 노출하지 않는다. 기존 Brain의 세부 오류 코드는 의미를 유지한다.
+
+### Brain 명령 구현 — 2026-10-26
+
+- POST는 기존 action/id/revision 외에 UUID `commandId`와 0 이상 정수 `commandRevision`을 요구한다. 새 기록은 두 revision 모두 0, 기존 기록은 GET에서 읽은 값을 보낸다. 내용 revision은 저장에만, command revision은 저장·공개·해제마다 증가한다. 기존 DB 기록의 command revision은 0에서 시작하며 과거 감사를 만들어 채우지 않는다.
+- 성공 receipt는 `{ id, revision, commandRevision }`다. 서버 actor는 `admin/owner`로 고정하고 action·대상·두 예상 revision·검증된 초안의 정규 JSON을 SHA-256으로 비교한다. 같은 요청은 이후 수정이 있어도 최초 receipt를 반환한다. 다른 입력의 키 재사용과 오래된 상태는 409, 누락/잘못된 명령 필드는 400, 원시 오류 없는 저장소 오류는 503이다.
+- 사유는 서버가 버튼 의미에 맞춰 `private_note_saved` / `reviewed_public_copy` / `public_copy_removed`로 저장한다. 자유 입력 사유나 원문을 감사에 복사하지 않는다. owner 조회에는 최근 20개의 action·내용/명령 revision·시각만 추가하며 command ID/fingerprint/credential은 보내지 않는다.
+- UI는 통신 오류·5xx·성공 후 재조회 실패 시 같은 키와 내용을 메모리에 보관하고 다른 변경을 잠근다. “같은 요청 다시 확인”으로 재시도하며 페이지 이탈에는 경고한다. 서버가 거부한 4xx에서는 초안을 유지하고 편집을 다시 허용한다. 재시도 정보는 새로고침/창 종료 후에는 남지 않으므로 닫기 전에 처리 결과를 확인한다. 브라우저 영구 저장소에 원문을 추가 저장하지 않는다.
 
 ## 5. 중지와 실행 시작의 기준
 

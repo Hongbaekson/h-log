@@ -177,8 +177,8 @@
     },
     {
       "dir": "admin-console-foundation",
-      "status": "pending",
-      "summary": "2026-10-23 Steps 0-2 completed: shared owner admin shell and private /admin/lab/queue. Old public Queue URL returns 404 without redirect; Portfolio and sitemap entry removed. Existing replay preserved. HTTP 4/4, Queue/SEO 5/5, unit 232 pass/14 DB skip, lint/typecheck/build and desktop/mobile, keyboard/no-JS checks passed. Next: Step 3 second-brain-admin-integration. Production ingress, DB/worker and OCI hold unchanged."
+      "status": "completed",
+      "summary": "2026-10-26: Completed Brain admin integration with command UUID/revision, transactional audit receipts, duplicate replay and stale publication rejection. Preserved immutable originals and public snapshots; added uncertain-request retry, recent safe action history and code-managed catalog notice. RED/GREEN, unit 234 pass/14 DB skip, full isolated integration 16/16, Brain HTTP 1/1, admin HTTP 4/4, lint/typecheck/build and 1440/390/320px save/search/conflict/error/feature-off checks passed. No production rollout. Next: admin-resume-pdf Step 0."
     },
     {
       "dir": "admin-blog-publishing",

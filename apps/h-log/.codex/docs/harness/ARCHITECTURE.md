@@ -36,11 +36,13 @@ npm run build
 
 ## 관리자 통합 현황과 목표
 
-2026-10-23 A1 Steps 0–2에서 [접근·명령 계약](ADMIN_ACCESS_CONTRACT.md)과 `/admin` 전용 shell/개요·공통 인증·Queue 비공개 이동을 구현했다. 다음은 A1 Step 3의 Brain 명령 통합이다. Blog/automation/jobs/resume/monitoring/audit 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
+2026-10-26 A1 Steps 0–3의 [접근·명령 계약](ADMIN_ACCESS_CONTRACT.md), `/admin` 전용 shell/개요·공통 인증·Queue 비공개 이동·Brain 명령 통합을 완료했다. 다음은 A4 Step 0의 이력서 PDF 저장 계약이다. Blog/automation/jobs/resume/monitoring/audit 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
 
 `lib/admin-owner.ts`는 설정·Host·Basic·Origin 검사와 비공개 헤더를 소유한다. `proxy.ts`는 전체 `/admin/:path*`, `lib/admin-server.ts`는 page/layout의 데이터 조회 전 검사를 담당한다. `brain-owner.ts`는 공통 인증 후 Brain DB flag를 검사하는 얇은 경계로 남는다. 기존 Nginx는 여전히 모든 관리자 경로를 차단하고 Host를 `hlog-web`로 전달한다. 두 loopback ingress의 정확한 Host 전달/공개 차단은 격리 구성으로 검증했으며 운영 설정은 변경하지 않았다.
 
-`app/admin/layout.tsx`·`admin.css`·`components/admin/AdminNavigation.tsx`가 전용 탐색을 제공하고 `app/admin/page.tsx`는 설정 여부와 준비 상태만 표시한다. 공개 Header/Footer는 경로에 따라 렌더링을 생략한다. Brain page는 기능 OFF 안내, DB 오류, 기존 편집기를 구분하고 공개 보기 URL은 `HLOG_PUBLIC_BASE_URL`을 사용한다. Brain의 명령 revision/감사 확장은 A1 Step 3이며 원문 버전과 public snapshot은 현재 그대로다.
+`app/admin/layout.tsx`·`admin.css`·`components/admin/AdminNavigation.tsx`가 전용 탐색을 제공하고 `app/admin/page.tsx`는 설정 여부와 준비 상태만 표시한다. 공개 Header/Footer는 경로에 따라 렌더링을 생략한다. Brain page는 기능 OFF 안내, DB 오류, 기존 편집기를 구분하고 공개 보기 URL은 `HLOG_PUBLIC_BASE_URL`을 사용한다. BrainCapture는 요청 UUID/명령 revision·응답 유실 재시도·최근 변경 이력과 코드 관리 카탈로그 안내를 제공한다. 원문 버전과 public snapshot은 그대로다.
+
+`006_brain_admin_commands.sql`은 `brain_notes.command_revision`과 `admin_actions`의 Brain target/고유 명령 ID/fingerprint/receipt를 추가한다. `brain-capture-http.ts`가 필수 명령 메타데이터를 검사하고 `brain-postgres-repository.ts`가 고유 키 예약·row lock·두 revision 검사·변경·감사를 한 transaction으로 commit한다. 키 충돌 시 이전 입력과 비교해 원래 receipt를 돌려주며 감사 실패는 버전/공개 상태까지 rollback한다. 기존 원문/공개 snapshot/감사 row의 보존을 upgrade fixture로 검증했다. 공개 그래프 조회는 기존 published snapshot만 사용한다.
 
 Blog 관리 조회/명령·draft-only persistence·지속 정책과 요청은 아직 없다. 기존 generation은 `publishing` aggregate/required jobs를 만들므로 A2에서 비공개 초안 저장과 명시적 공개를 나눈다. 웹 요청은 기존 실행자에게 지속 요청을 전달하며 shell/worker 프로세스를 직접 띄우지 않는다. 기존 `publish_jobs`/lease·usage·audit를 재사용하고 모든 새 실행/공개 전이에 정책을 적용한다. 수집 신호는 observability phase가 생산하고 A3 관리자 화면이 읽는다. 세부 schema/새 파일은 실제 step에서 필요한 만큼 정한다.
 

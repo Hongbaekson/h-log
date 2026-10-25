@@ -395,7 +395,9 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **A1 Step 1 구현 (2026-10-23)**: 공통 `admin-owner.ts`와 `/admin/:path*` Proxy, page의 조회 전 검사, Brain handler의 공통 인증+기능 flag를 적용했다. 관리자 전용 탐색과 개요는 기존 Discord 스타일을 사용하고 준비 메뉴/미설정/오류를 구분한다. 공개 Header/Footer는 관리자 경로에서 렌더링하지 않으며 이는 인증 경계와 별개다. Brain 공개 링크는 공개 origin을 사용한다. 세션 DB·새 명령 schema·운영 ingress는 추가하지 않았다.
 
-**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1 Steps 0–2 completed 3개·pending 13개·운영 rollout blocked 1개다. Prometheus/Grafana는 기존 observability phase가 소유하며 관리자 화면에 새 모니터링 시스템을 만들지 않는다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
+**A1 Step 3 구현 (2026-10-26)**: 내용 revision과 별도로 증가하는 command revision, UUID 멱등 키와 SHA-256 입력 비교를 적용했다. 기존 `admin_actions`를 최소 확장해 Brain 상태/버전과 감사 receipt를 같은 transaction에 저장한다. 고유 키를 먼저 예약해 중복 신규 저장을 수렴시키며 실패 시 예약도 함께 rollback한다. 감사 사유는 버튼의 고정 의미만 남기고 원문은 복제하지 않는다. UI는 결과 불명확 시 동일 요청을 재사용하고 최근 20개 변경을 표시한다. 기존 원문·공개 snapshot·과거 감사는 보존하며 범용 명령 계층은 추가하지 않았다.
+
+**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1 Steps 0–3 completed 4개·pending 12개·운영 rollout blocked 1개다. 다음은 A4 Step 0이다. Prometheus/Grafana는 기존 observability phase가 소유하며 관리자 화면에 새 모니터링 시스템을 만들지 않는다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
 
 ### ADR-039: 이력서 PDF는 비공개 버전에서 검토한 파일 하나만 공개한다
 

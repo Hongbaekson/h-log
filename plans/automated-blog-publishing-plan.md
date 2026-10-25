@@ -18,9 +18,9 @@
 
 [통합 관리자 계획](../apps/h-log/.codex/docs/harness/ADMIN_CONSOLE_PLAN.md)을 4개 phase / 17개 step으로 등록했다. 기존 Next.js `/admin`과 단일 소유자 인증을 기반으로 블로그·초안/자동화 허용·실제 Worker 작업·Second Brain·모니터링·실험실을 모은다. 운영 목표는 `admin.<선택 도메인>`이며 공개 host의 관리자 접근은 차단한다. A1 Step 2에서 Queue를 `/admin/lab/queue`로 이동했다. 기존 공개 주소는 404이며 공개 진입 영역과 sitemap 항목을 제거했다.
 
-2026-10-23 A1 Steps 0–2의 [접근·명령 계약](../apps/h-log/.codex/docs/harness/ADMIN_ACCESS_CONTRACT.md), 공통 인증·관리자 개요/탐색·Queue 비공개 이동을 완료했다. `HLOG_ADMIN_*` 인증과 Brain flag 분리를 유지하며 가상 재생은 기존 계산/컴포넌트를 재사용한다. HTTP 접근/공개 노출 4/4, Queue/SEO 5/5, unit 232 pass/14 DB skip, lint/typecheck/build와 데스크톱·모바일 검수를 통과했다. 관리자 트랙은 completed 3개·pending 13개·blocked 1개이며 새 명령/정책·PDF·운영 설정은 아직 변경하지 않았다.
+2026-10-26 A1 Steps 0–3의 [접근·명령 계약](../apps/h-log/.codex/docs/harness/ADMIN_ACCESS_CONTRACT.md), 공통 인증·관리자 개요/탐색·Queue 비공개 이동·Brain 명령 통합을 완료했다. Brain은 UUID/명령 revision·원자적 감사 receipt로 중복/충돌을 검사하고 UI에서 응답 유실 재확인과 최근 이력을 제공한다. 기존 원문·공개 snapshot은 보존했다. Unit 234 pass/14 DB skip, 격리 integration 16/16, Brain HTTP 1/1·admin HTTP 4/4, lint/typecheck/build와 데스크톱·모바일·오류 검수를 통과했다. 관리자 트랙은 completed 4개·pending 12개·blocked 1개이며 PDF·블로그/작업 명령·운영 설정은 아직 미구현/보류 상태다.
 
-기본 다음 작업은 **`admin-console-foundation / Step 3`**이다. A1 완료 → A4 이력서 PDF 등록/공개/다운로드 → 기존 모니터링 Step 0 → A2 블로그/자동화 → A3 작업 제어 → 모니터링 Steps 1–6 → A3 모니터링/로컬 검수 순으로 진행한다. 운영 모니터링 Step 7과 관리자 rollout은 OCI 보류 해제 뒤 승인 범위로 수행하고, 실제 timer는 그 다음 기존 운영 활성화 단계에서 다룬다. 구현되지 않은 초안 전용 저장·지속 정책·요청 이력과 블로그/작업 관리자 UI를 현재 runtime으로 설명하지 않는다. 아래 기존 기록의 다음 단계는 당시 상태다.
+기본 다음 작업은 **`admin-resume-pdf / Step 0`**이다. A1 완료 → A4 이력서 PDF 등록/공개/다운로드 → 기존 모니터링 Step 0 → A2 블로그/자동화 → A3 작업 제어 → 모니터링 Steps 1–6 → A3 모니터링/로컬 검수 순으로 진행한다. 운영 모니터링 Step 7과 관리자 rollout은 OCI 보류 해제 뒤 승인 범위로 수행하고, 실제 timer는 그 다음 기존 운영 활성화 단계에서 다룬다. 구현되지 않은 초안 전용 저장·지속 정책·요청 이력과 블로그/작업 관리자 UI를 현재 runtime으로 설명하지 않는다. 아래 기존 기록의 다음 단계는 당시 상태다.
 
 현재 결정과 구현 상태:
 

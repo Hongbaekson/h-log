@@ -325,3 +325,9 @@ systemctl --user list-timers hlog-auto-publish.timer
 ## 공개 편집 기록 migration — 2026-10-20
 
 `editorial-trust-and-series / Step 0`은 `005_blog_public_editorial`을 추가했다. nullable JSONB 컬럼이며 기존 본문·HTML·hash나 운영 데이터를 backfill하지 않는다. 향후 명시적으로 승인된 배포에서 기존 migration runner로 005를 적용한 다음 새 web/worker 쓰기를 시작한다. 이전 앱은 추가 컬럼을 사용하지 않으므로 앱 rollback 시 컬럼을 즉시 삭제할 필요가 없다. 이번 작업은 격리 로컬 DB의 migration/repository/worker 전체 통합 검증만 수행했으며 운영 migration·배포·timer 활성화는 기존 OCI 보류 상태다.
+
+## Brain 관리자 명령 migration — 2026-10-26
+
+`admin-console-foundation / Step 3`은 `006_brain_admin_commands`를 추가했다. 기존 메모의 명령 revision은 0, 과거 감사의 명령 필드는 null로 시작한다. 원문 버전·공개 snapshot·과거 감사 내용을 재작성하지 않는다. 격리 DB에서 005→006 보존·재실행과 전체 DB 통합을 검증했다.
+
+향후 승인된 배포에서 관리자 쓰기를 닫고 006 적용 후 새 UI/API를 함께 시작한다. 이전 화면의 commandId/commandRevision 누락 요청은 400으로 거부하므로 입력을 보관한 뒤 새로고침한다. 앱을 이전 버전으로 돌리면 옛 쓰기는 명령 revision/감사를 남기지 않으므로 관리자 쓰기를 계속 닫고 새 버전으로 복구한 뒤 다시 연다. 단순히 컬럼이 남았다는 이유로 구·신 버전의 동시 쓰기를 허용하지 않는다. 새 migration/웹 구현은 아직 로컬 검증 상태이며 운영 적용·DNS/TLS·provider·timer 활성화는 수행하지 않았다.

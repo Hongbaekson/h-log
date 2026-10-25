@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFile } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
 
 import pg from "pg";
 
@@ -43,6 +45,7 @@ test(
         "003_publish_rollback_audit",
         "004_brain_capture",
         "005_blog_public_editorial",
+        "006_brain_admin_commands",
       ]);
 
       const extension = await database.query(
@@ -73,7 +76,7 @@ test(
 
       const secondRun = await runBlogMigrations(testUrl.toString());
       assert.deepEqual(secondRun.appliedVersions, []);
-      assert.equal(secondRun.currentVersion, "005_blog_public_editorial");
+      assert.equal(secondRun.currentVersion, "006_brain_admin_commands");
 
       const versions = await database.query(
         "select version from schema_migrations order by version",
@@ -84,6 +87,7 @@ test(
         { version: "003_publish_rollback_audit" },
         { version: "004_brain_capture" },
         { version: "005_blog_public_editorial" },
+        { version: "006_brain_admin_commands" },
       ]);
     } finally {
       await database.end();
@@ -96,3 +100,41 @@ test(
     }
   },
 );
+
+test("Brain command migration preserves legacy versions, public snapshots and audit rows", { skip: !databaseUrl && "DATABASE_URL is required" }, async () => {
+  const url = new URL(databaseUrl);
+  const name = `hlog_upgrade_${randomUUID().replaceAll("-", "")}`;
+  url.pathname = "/postgres";
+  const admin = new Client({ connectionString: url.toString() });
+  await admin.connect();
+  await admin.query(`create database ${name}`);
+  url.pathname = `/${name}`;
+  const database = new Client({ connectionString: url.toString() });
+  try {
+    await database.connect();
+    await database.query("create table schema_migrations (version text primary key, applied_at timestamptz not null default now())");
+    for (const version of ["001_blog_core", "002_publish_job_leases", "003_publish_rollback_audit", "004_brain_capture", "005_blog_public_editorial"]) {
+      await database.query(await readFile(new URL(`../migrations/${version}.sql`, import.meta.url), "utf8"));
+      await database.query("insert into schema_migrations (version) values ($1)", [version]);
+    }
+    const id = `note-${randomUUID()}`;
+    await database.query("begin");
+    await database.query("insert into brain_notes (id) values ($1)", [id]);
+    await database.query("insert into brain_note_versions (note_id, revision, draft) values ($1, 1, $2)", [id, JSON.stringify({ originalText: "  PRIVATE_ORIGINAL\n unchanged  " })]);
+    await database.query("update brain_notes set current_revision = 1, published_revision = 1, public_node = $2 where id = $1", [id, JSON.stringify({ id, title: "Reviewed legacy snapshot" })]);
+    await database.query("insert into admin_actions values ('legacy', 'unpublish', 'admin', 'owner', 'post', 'synthetic-post', 'legacy reason', now())");
+    await database.query("commit");
+    const versions = await database.query("select * from brain_note_versions");
+    const notes = await database.query("select * from brain_notes");
+    const audit = await database.query("select * from admin_actions");
+    assert.deepEqual((await runBlogMigrations(url.toString())).appliedVersions, ["006_brain_admin_commands"]);
+    assert.deepEqual((await database.query("select * from brain_note_versions")).rows, versions.rows);
+    assert.deepEqual((await database.query("select * from brain_notes")).rows, notes.rows.map(note => ({ ...note, command_revision: 0 })));
+    assert.deepEqual((await database.query("select * from admin_actions")).rows, audit.rows.map(row => ({ ...row, command_id: null, request_fingerprint: null, command_receipt: null })));
+    assert.deepEqual((await runBlogMigrations(url.toString())).appliedVersions, []);
+  } finally {
+    await database.end();
+    await admin.query(`drop database ${name}`);
+    await admin.end();
+  }
+});

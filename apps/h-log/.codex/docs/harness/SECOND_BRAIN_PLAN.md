@@ -10,7 +10,7 @@
 
 ## 현재 결과와 공개 검토
 
-2026-10-22: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1 Step 3에 기존 `/admin/brain` 편입을 등록했다. 공통 인증/탐색을 적용하며 원문·append-only 이력·명시적 공개 사본과 기존 URL을 보존한다. 공개 `/brain`의 Memory UI와 이 문서의 완료 이력은 변경하지 않는다. 통합 구현과 운영 개방은 아직 수행하지 않았다.
+2026-10-26: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1 Step 3을 완료했다. 기존 `/admin/brain`에 공통 인증/탐색과 요청 중복 방지·공개/해제 충돌 검사·원자적 변경 이력을 적용했다. 응답 유실 재확인과 최근 20개 변경 이력을 제공하며 정적 28개 노드/42개 연결은 코드 관리로 표시한다. 원문·append-only 이력·명시적 공개 사본과 URL, 공개 `/brain` Memory UI는 보존한다. 운영 개방은 미실행이며 다음은 A4 이력서 PDF Step 0이다.
 
 2026-10-15: 사용자 답변에 따라 Memory Interface Step 3에서 실제 공개 사이트 기준으로 UI를 수정했다. 화면과 bundle은 REA로 확인했다. 상세 기준과 로컬 HTML 대비 차이는 [Memory UI](MEMORY_UI_REFERENCE.md)를 따른다. Foundation Steps 0–5는 그대로 유지한다.
 
@@ -91,7 +91,7 @@ ADR-023에 따라 회고는 새 기록으로 이전 생각을 가리킨다. 관�
 | `HLOG_ADMIN_ORIGIN` | 실제 관리자 origin. 예: `http://127.0.0.1:3013` (끝 `/` 제외). |
 | `HLOG_PUBLIC_BASE_URL` | 공개 사이트 origin. 공개 Brain 보기 링크도 이 주소를 사용한다. |
 
-1. 격리된 로컬 DB를 준비하고 해당 `DATABASE_URL`로 앱 폴더에서 `npm run db:migrate`를 실행한다. `004_brain_capture`까지 적용됐는지 확인한다. 운영 DB에는 이 로컬 절차를 실행하지 않는다.
+1. 격리된 로컬 DB를 준비하고 해당 `DATABASE_URL`로 앱 폴더에서 `npm run db:migrate`를 실행한다. `006_brain_admin_commands`까지 적용됐는지 확인한다. UI/API/DB를 함께 갱신하며 이전 UI의 필수 명령 필드 누락은 400으로 거부한다. 운영 DB에는 이 로컬 절차를 실행하지 않는다.
 2. `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`로 로컬 터미널에서 키를 생성해 서버 환경에 넣는다. 키가 노출되면 새 값으로 바꾸고 서버를 재시작한다.
 3. 나머지 환경값을 설정하고 `npm run dev -- --hostname 127.0.0.1 --port 3013`을 실행한다. 같은 origin의 `/admin/brain`에서 사용자 이름 `owner`, 생성한 키를 비밀번호로 입력한다. 브라우저의 Basic 인증을 사용하므로 별도 로그인/로그아웃 페이지는 없다.
 4. 원문을 쓰고 **비공개로 저장**한다. 자동 저장은 하지 않는다. 공개하려면 공개용 메모를 따로 작성해 저장한 뒤 확인란을 체크하고 **확인한 사본 공개**를 누른다. **공개 해제**는 공개 사본만 내린다.

@@ -26,3 +26,26 @@ test("private HTTP never echoes database errors or private content", async () =>
   assert.equal(response.status, 503);
   assert.doesNotMatch(await response.text(), /PRIVATE_DATABASE_SENTINEL/);
 });
+
+test("old clients without command identity receive a refresh error before storage access", async () => {
+  const draft = { title: "비공개 제목", originalText: "원문", publicTitle: "", publicSummary: "", publicBody: "", kind: "question", topic: "reliability", basis: "question", tags: [] };
+  let accessed = false;
+  const response = await handleBrainCaptureRequest(new Request(url, { method: "POST", headers, body: JSON.stringify({ action: "save", revision: 0, draft }) }), () => {
+    accessed = true; throw new Error("must not open storage");
+  }, environment);
+  assert.equal(response.status, 400);
+  assert.equal((await response.json()).error, "command_metadata_required");
+  assert.equal(accessed, false);
+});
+
+test("command identity is validated before storage and feature-off never opens storage", async () => {
+  const unavailable = () => { assert.fail("must not open storage"); };
+  const base = { action: "unpublish", id: "note-12345678-1234-1234-1234-123456789abc", revision: 1 };
+  for (const metadata of [{ commandId: "bad", commandRevision: 0 }, { commandId: base.id.slice(5), commandRevision: -1 }, { commandId: base.id.slice(5), commandRevision: 0.5 }]) {
+    const response = await handleBrainCaptureRequest(new Request(url, { method: "POST", headers, body: JSON.stringify({ ...base, ...metadata }) }), unavailable, environment);
+    assert.equal(response.status, 400);
+    assert.equal((await response.json()).error, "invalid_command_metadata");
+  }
+  const off = await handleBrainCaptureRequest(new Request(url, { headers }), unavailable, { ...environment, HLOG_BRAIN_DATABASE_ENABLED: "0" });
+  assert.equal(off.status, 404);
+});

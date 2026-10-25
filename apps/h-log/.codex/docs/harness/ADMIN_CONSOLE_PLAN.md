@@ -1,6 +1,6 @@
 # H-Log 통합 관리자 계획
 
-등록일: 2026-10-22. 2026-10-23 **A1 Steps 0–2의 계약·공통 인증·관리자 shell·Queue 비공개 이동을 완료했다. 4개 phase / 17개 step 중 completed 3개·pending 13개·blocked 1개**다. 기존 Brain은 공통 인증으로 연결했고 가상 실험은 `/admin/lab/queue`에서만 제공한다. PDF 다운로드·블로그/작업 관리는 아직 미구현이다. 다음 실행은 [A1 Step 3](../../../phases/admin-console-foundation/step3.md)이다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
+등록일: 2026-10-22. 2026-10-26 **A1 Steps 0–3의 계약·공통 인증·관리자 shell·Queue 비공개 이동·Brain 명령 통합을 완료했다. 4개 phase / 17개 step 중 completed 4개·pending 12개·blocked 1개**다. PDF 다운로드·블로그/작업 관리는 아직 미구현이다. 다음 실행은 [A4 Step 0](../../../phases/admin-resume-pdf/step0.md)이다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
 
 ## 방향과 현재 근거
 
@@ -8,7 +8,7 @@
 
 | 현재 코드 | 확인한 상태 | 계획에서 보완할 부분 |
 | --- | --- | --- |
-| `app/admin`, `lib/admin-owner.ts`, `lib/brain-owner.ts` | 공통 Basic/Host/Origin 인증·전용 탐색, Brain DB flag 분리 | 기존 기록/공개 사본 유지; A1 Step 3에서 명령 revision/감사 보완 |
+| `app/admin`, `lib/admin-owner.ts`, `lib/brain-owner.ts` | 공통 Basic/Host/Origin 인증·전용 탐색, Brain DB flag 분리 | A1 Step 3 완료: 기록/공개 사본 보존·명령 revision·중복 재확인·원자적 감사 |
 | `proxy.ts` | 전체 `/admin/:path*` 보호; page·records handler도 데이터 접근 전 검사 | 운영 ingress는 승인된 rollout에서 적용 |
 | `deploy/nginx/conf.d/hlog.conf` | 공개 ingress에서 `/admin`·`/api/internal` 404; upstream Host는 `hlog-web` | 공개 차단 유지, 별도 관리자 host의 정확한 Host 전달·허용 경로를 로컬 검증 |
 | `lib/blog-admin.ts`, `lib/blog-postgres-repository.ts` | 철회와 감사 저장은 존재; 블로그 관리자 UI와 preview/save/publish caller는 없음 | 실제 화면에 필요한 명령만 버전·상태·감사 계약과 함께 구현 |
@@ -97,7 +97,7 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 | A1 [admin-console-foundation](../../../phases/admin-console-foundation/index.json) | [0: admin-access-and-command-contract](../../../phases/admin-console-foundation/step0.md) | 인증·host·작업 권한·설정 이전·테스트 행렬 확정 |
 | A1 | [1: shared-owner-auth-and-shell](../../../phases/admin-console-foundation/step1.md) | 전체 관리자 보호와 전용 탐색, 공개 host 차단 로컬 검증 |
 | A1 | [2: private-queue-lab](../../../phases/admin-console-foundation/step2.md) | Queue 실험 비공개 이동, 기존 공개 URL 404·링크/sitemap 제거 |
-| A1 | [3: second-brain-admin-integration](../../../phases/admin-console-foundation/step3.md) | 기존 Brain 작성·공개 사본 관리를 공통 관리자에 편입 |
+| A1 | [3: second-brain-admin-integration](../../../phases/admin-console-foundation/step3.md) | Brain 편입·중복 방지·공개 상태 충돌·변경 이력 완료 |
 | A2 [admin-blog-publishing](../../../phases/admin-blog-publishing/index.json) | [0: private-post-review](../../../phases/admin-blog-publishing/step0.md) | 비공개 글/버전·안전한 미리보기·저장된 검증 결과 조회 |
 | A2 | [1: versioned-editorial-actions](../../../phases/admin-blog-publishing/step1.md) | 저장·선택 버전 발행·철회와 동시 수정/감사 처리 |
 | A2 | [2: draft-generation-requests](../../../phases/admin-blog-publishing/step2.md) | 중복 없는 초안 요청·기존 실행자 처리·비공개 결과 저장 |
@@ -114,7 +114,7 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 
 ## 실행 순서와 기존 계획
 
-1. 기본 다음 작업은 **A1 Step 3**이다. A1 Steps 0–2의 공통 인증·관리자 화면·비공개 실험실을 기준으로 Brain 명령 revision과 감사/중복 처리를 통합한다. 기존 `/lab/queue`는 404이며 공개 진입 링크와 sitemap 항목을 제거했다.
+1. 기본 다음 작업은 **A4 Step 0**이다. A1 Steps 0–3의 공통 인증·관리자 화면·비공개 실험실·Brain 명령 통합을 완료했다. 다음 이력서 PDF 단계에서 파일 저장·검수·공개 pointer 계약을 확정한다. 기존 `/lab/queue`는 404이며 공개 진입 링크와 sitemap 항목을 제거했다.
 2. A1 완료 뒤 독립적인 **A4 이력서 PDF Steps 0–3**을 진행한다. A4 번호는 기존 A1–A3의 참조를 보존하기 위한 것이며 운영 rollout 뒤로 미루는 뜻이 아니다. 이어 `operations-observability / Step 0`에서 신호·권한·예산을 확정한다. A2 Steps 0–3과 A3 Steps 0–1은 이를 참고해 실제 저장·제어를 구현하며, 수집 스택 설치를 선행 조건으로 요구하지 않는다.
 3. observability Steps 1–6을 구현·로컬 검증한 뒤 A3 Steps 2–3을 완료한다. 관측 데이터의 생산자는 모니터링 phase, 관리자 화면은 소비자로 둔다.
 4. 운영은 기존 OCI 보류 해제 및 범위별 승인 후 진행한다. observability Step 7은 비활성 scheduler 상태에서도 완료할 수 있다. 이어 A3 Step 4에서 관리자 도메인과 A4의 비공개 파일 저장/migration을 적용한다. 관리자 rollout은 자동 발행 timer를 켜거나 실제 글/Brain 사본/PDF를 공개하지 않는다. 특정 PDF 공개는 관리자에서 검수한 파일을 선택하는 별도 행동이다.
@@ -153,3 +153,7 @@ A1 Step 1은 공통 인증과 관리자 화면의 앱 코드/테스트를 변경
 ## A1 Step 2 구현 검증 — 2026-10-23
 
 기존 Queue 계산과 재생 컴포넌트를 그대로 재사용해 `/admin/lab/queue`로 이동했다. 공통 Proxy와 page 인증을 적용하고 공개 경로는 redirect 없이 404로 종료했다. Portfolio 진입 영역·sitemap 항목·공개 canonical을 제거했으며 실험에서 공개 프로젝트로 나가는 링크는 공개 origin을 사용한다. HTTP RED → GREEN 4/4, Queue/SEO 5/5, unit 232 pass/14 DB skip, lint/typecheck/build를 통과했다. 1440/390/320px·재생 설정 9조합·DLQ 재처리·키보드·no-JS·공개 링크의 credential/Referer 미전달을 검증했다. 운영 설정과 실제 작업 실행은 변경하지 않았다. 상세 기록은 A1 Step 2에 남겼다.
+
+## A1 Step 3 구현 검증 — 2026-10-26
+
+Brain 저장·공개·해제에 내용 revision과 별도 명령 revision/UUID를 적용했다. 기존 `admin_actions`를 확장해 중복 receipt와 안전한 감사·상태 변경을 원자적으로 처리한다. UI는 응답 유실 재확인과 최근 변경 이력·코드 관리 카탈로그 안내를 제공한다. RED/GREEN, unit 234 pass/14 DB skip, 전체 격리 integration 16/16, Brain HTTP 1/1·admin HTTP 4/4, lint/typecheck/build, 1440/390/320px 작성/검색/이력/응답 유실/충돌과 기능 OFF·DB 오류를 검증했다. 기존 원문·공개 snapshot·과거 감사 보존을 upgrade fixture로 확인했다. 상세 명령과 한계는 [Step 3](../../../phases/admin-console-foundation/step3.md)에 남겼다. A1은 완료이며 다음은 A4 Step 0이다. 운영 적용은 별도다.
