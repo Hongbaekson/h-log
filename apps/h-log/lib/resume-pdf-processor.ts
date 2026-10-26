@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { constants } from "node:fs";
-import { access, lstat, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { access, lstat, mkdir, mkdtemp, readFile, readdir, rm, statfs, writeFile } from "node:fs/promises";
 import { isIP } from "node:net";
 import { join } from "node:path";
 import { scanBlogPrivacyText, type BlogPrivacyScanPolicy } from "./blog-privacy-scanner.ts";
@@ -50,6 +50,8 @@ async function prepare(signal: AbortSignal) {
     await mkdir(temporaryRoot, { mode: 0o700, recursive: true });
     const root = await lstat(temporaryRoot);
     if (!root.isDirectory() || root.isSymbolicLink() || root.uid !== process.getuid?.() || (root.mode & 0o777) !== 0o700) throw new Error("pdf_processor_unavailable");
+    const filesystem = await statfs(temporaryRoot);
+    if (filesystem.type !== 0x1021994 || filesystem.blocks * filesystem.bsize > 32 * 1024 * 1024) throw new Error("pdf_processor_unavailable");
     for (const entry of await readdir(temporaryRoot)) {
       if (/^job-[A-Za-z0-9]+$/.test(entry)) await rm(join(temporaryRoot, entry), { recursive: true, force: true });
     }

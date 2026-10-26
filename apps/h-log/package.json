@@ -18,8 +18,10 @@
     "test:brain:http": "node --test scripts/brain-capture.http.test.mjs",
     "test:admin:http": "node --test scripts/admin-owner.http.test.mjs",
     "test:resume": "node --no-warnings --test --experimental-strip-types lib/resume-pdf-repository.integration.test.ts",
-    "test:resume:processor": "docker build --target resume-pdf-test -t hlog-resume-pdf-test . && docker run --rm hlog-resume-pdf-test",
+    "test:resume:processor": "docker build --target resume-pdf-test -t hlog-resume-pdf-test . && docker run --rm --tmpfs /tmp/hlog-resume:size=32m,uid=1000,gid=1000,mode=0700,noexec,nosuid,nodev hlog-resume-pdf-test && docker run --rm --tmpfs /tmp/hlog-resume:size=32m,uid=1000,gid=1000,mode=0700,noexec,nosuid,nodev hlog-resume-pdf-test node --no-warnings --test --experimental-strip-types scripts/resume-pdf-storage.test.mjs && docker run --rm -e HLOG_RESUME_TEST_UNBOUNDED=1 hlog-resume-pdf-test node --no-warnings --test --experimental-strip-types scripts/resume-pdf-storage.test.mjs",
     "test:resume:http": "node --test scripts/resume-pdf.http.test.mjs",
+    "test:resume:rehearsal": "node --no-warnings --experimental-strip-types scripts/resume-pdf.rehearsal.mjs",
+    "resume:recovery-reset": "node --no-warnings --experimental-strip-types scripts/resume-pdf-recovery.mjs",
     "db:migrate": "node scripts/blog-migrations.mjs",
     "auth:preflight": "node --no-warnings --experimental-strip-types scripts/blog-hermes-auth-preflight.mjs",
     "auto-publish:cycle": "node --no-warnings --experimental-strip-types scripts/blog-auto-publish-cycle.mjs --once",
@@ -32,7 +34,7 @@
     "d3-force-3d": "3.0.6",
     "lucide-react": "^1.20.0",
     "marked": "18.0.14",
-    "next": "16.2.11",
+    "next": "16.4.3",
     "pg": "^8.22.0",
     "react": "19.2.7",
     "react-dom": "19.2.7"
@@ -44,12 +46,12 @@
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "eslint": "9.39.4",
-    "eslint-config-next": "16.2.11",
+    "eslint-config-next": "16.4.3",
     "tailwindcss": "4.3.1",
     "typescript": "6.0.3"
   },
   "overrides": {
     "postcss": "8.5.23",
-    "sharp": "0.35.3"
+    "sharp": "0.35.5"
   }
 }

@@ -18,7 +18,7 @@
 
 [SEO 개선 계획](../apps/h-log/.codex/docs/harness/SEO_OPTIMIZATION_PLAN.md)을 3개 phase / 10개 step(pending 9·blocked 1)으로 등록했다. claude-seo 2.5.0의 commit `6be93f45064ffbadced572b5d5c95f55fd263af0`을 기준으로 필요한 지침을 repo-local Codex 스킬로 선별 이식한다. S1 도입/감사 기준선 → S2 canonical·no-JS 발견·metadata/schema·실측 성능·근거/링크 → S3 회귀/승인된 실제 검색 성과 순서다. 기존 SEO 코드를 재사용하고 소스 검사와 실제 HTTP/DOM·검색 성과를 구분한다. 계획 등록과 기존 기준선 7/7만 완료했으며 설치·앱 최적화·외부 제출은 수행하지 않았다.
 
-관리자/비공개 Brain·PDF·회사 원문은 SEO 감사에서 제외한다. 콘텐츠 후보는 기존 발행/검토 경계를 따르고 자동 SEO 발행·외부 유료 API·상시 감사 자동화는 추가하지 않는다. **일반 다음 작업 A4 Step 2는 유지하며 SEO를 지정하면 `seo-codex-foundation / Step 0`부터 시작**한다. 관리자/모니터링/운영 순서는 그대로이고 실제 도메인·GSC·배포 측정은 OCI 보류 해제와 해당 승인 이후다.
+관리자/비공개 Brain·PDF·회사 원문은 SEO 감사에서 제외한다. 콘텐츠 후보는 기존 발행/검토 경계를 따르고 자동 SEO 발행·외부 유료 API·상시 감사 자동화는 추가하지 않는다. **일반 다음 작업은 operations-observability Step 0이며 SEO를 지정하면 `seo-codex-foundation / Step 0`부터 시작**한다. 관리자/모니터링/운영 순서는 그대로이고 실제 도메인·GSC·배포 측정은 OCI 보류 해제와 해당 승인 이후다.
 
 ### 2026-10-22 통합 관리자 계획
 
@@ -28,11 +28,13 @@
 
 2026-10-26 A4 Step 2에서 검토한 파일의 공개·교체·해제와 Resume 다운로드를 완료했다. 버전/hash 검토·현재 정책 재검사·epoch/revision·감사와 캐시/장애/늦은 요청을 합성 자료로 검증했다. 단위 244 pass/16 DB skip, 격리 integration 18/18, PDF/admin HTTP 6/6과 기본 gate·1440/390/320px를 통과했다. 현재 관리자 트랙은 completed 7개·pending 9개·blocked 1개다.
 
-기본 다음 작업은 **`admin-resume-pdf / Step 3`**다. A1 완료 → A4 이력서 PDF 등록/공개/다운로드 → 기존 모니터링 Step 0 → A2 블로그/자동화 → A3 작업 제어 → 모니터링 Steps 1–6 → A3 모니터링/로컬 검수 순으로 진행한다. 운영 모니터링 Step 7과 관리자 rollout은 OCI 보류 해제 뒤 승인 범위로 수행하고, 실제 timer는 그 다음 기존 운영 활성화 단계에서 다룬다. 구현되지 않은 초안 전용 저장·지속 정책·요청 이력과 블로그/작업 관리자 UI를 현재 runtime으로 설명하지 않는다. 아래 기존 기록의 다음 단계는 당시 상태다.
+2026-10-26 A4 Step 3까지 완료했다. 32 MiB tmpfs 강제와 감사 기반 복구 초기화, 최대 100 MiB 합성 원본의 실제 dump/restore·새 epoch·과거 receipt·장애/rollback을 검증했다. Next.js 16.4.3/sharp 0.35.5 등의 production 감사는 0건이다. 현재 관리자 트랙은 completed 8개·pending 8개·blocked 1개다. [완료 기록과 자원 실측](../apps/h-log/phases/admin-resume-pdf/step3.md)을 따른다.
+
+기본 다음 작업은 **`operations-observability / Step 0`**이다. A1 완료 → A4 이력서 PDF 등록/공개/다운로드 → 기존 모니터링 Step 0 → A2 블로그/자동화 → A3 작업 제어 → 모니터링 Steps 1–6 → A3 모니터링/로컬 검수 순으로 진행한다. 운영 모니터링 Step 7과 관리자 rollout은 OCI 보류 해제 뒤 승인 범위로 수행하고, 실제 timer는 그 다음 기존 운영 활성화 단계에서 다룬다. 구현되지 않은 초안 전용 저장·지속 정책·요청 이력과 블로그/작업 관리자 UI를 현재 runtime으로 설명하지 않는다. 아래 기존 기록의 다음 단계는 당시 상태다.
 
 현재 결정과 구현 상태:
 
-이력서 PDF도 관리자에서 등록·전 페이지 미리보기·수정 파일 교체·공개/해제·이전 버전 선택을 관리하는 A4를 추가했다. 검토한 공개본 하나만 Resume에서 다운로드하고 업로드만으로 공개 상태를 바꾸지 않는다. 범용 PDF 본문 편집은 포함하지 않으며 현재 PDF/다운로드 API 제거 상태는 그대로다. A4 Step 0에서 5 MiB·10페이지·20버전/100 MiB와 qpdf+Poppler의 검증·인증된 PNG 미리보기, 원자적 감사와 복구 epoch를 확정했다. Step 1에서 private 도구/DB/API·화면을 구현했다. 공개/다운로드는 Step 2이며 실제 파일과 운영 공개는 포함하지 않는다.
+이력서 PDF도 관리자에서 등록·전 페이지 미리보기·수정 파일 교체·공개/해제·이전 버전 선택을 관리하는 A4를 추가했다. 검토한 공개본 하나만 Resume에서 다운로드하고 업로드만으로 공개 상태를 바꾸지 않는다. 범용 PDF 본문 편집은 포함하지 않으며 정적 PDF asset은 없다. 검토한 DB 공개본의 다운로드 API와 조건부 Resume 링크는 구현됐다. A4 Step 0에서 5 MiB·10페이지·20버전/100 MiB와 qpdf+Poppler의 검증·인증된 PNG 미리보기, 원자적 감사와 복구 epoch를 확정했다. Step 1에서 private 도구/DB/API·화면을 구현했다. 공개/다운로드는 Step 2, 최대 보관량과 복구 검증은 Step 3에서 완료했다. 실제 파일과 운영 공개는 포함하지 않는다.
 
 ```text
 - 선택지 B(DB-first 자동 블로그 플랫폼)로 전환 결정은 완료됐다.

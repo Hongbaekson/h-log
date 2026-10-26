@@ -83,3 +83,13 @@ git diff --check
 - 도메인 공개 초기 theme은 dark-only로 유지한다. Light theme은 별도 token refactor 없이는 다시 추가하지 않는다.
 - 전화번호, 생년월일, 내부 URL, 서버 IP, API key, 비공개 저장소명은 노출하지 않는다.
 - OCI, DNS, TLS, production 환경값, live migration, canary, timer, 실제 외부 API 호출과 자동 발행 활성화는 사용자 명시 승인 없이 수행하지 않는다.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

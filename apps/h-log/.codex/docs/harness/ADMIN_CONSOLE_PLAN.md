@@ -1,6 +1,6 @@
 # H-Log 통합 관리자 계획
 
-등록일: 2026-10-22. 2026-10-26 **A1 Steps 0–3와 A4 Steps 0–2를 완료했다. 4개 phase / 17개 step 중 completed 7개·pending 9개·blocked 1개**다. PDF 비공개 보관·검토 후 공개/교체/해제와 Resume 다운로드를 구현했다. 다음 실행은 [A4 Step 3](../../../phases/admin-resume-pdf/step3.md)의 개인정보·복구 종합 검수다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
+등록일: 2026-10-22. 2026-10-26 **A1 Steps 0–3와 A4 Steps 0–3를 완료했다. 4개 phase / 17개 step 중 completed 8개·pending 8개·blocked 1개**다. PDF 비공개 보관·검토 후 공개/교체/해제와 Resume 다운로드를 구현했다. 최대 보관량·복구/철회·임시 공간 제한·의존성 패치 검증도 완료했다. 다음 실행은 [모니터링 Step 0](../../../phases/operations-observability/step0.md)의 신호·권한·자원 예산 계약이다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
 
 ## 방향과 현재 근거
 
@@ -16,7 +16,7 @@
 | `lib/blog-persistent-worker.ts`, `deploy/systemd/` | lease 기반 한 건 실행, 유한 cycle, 09:00 KST timer 패키지 | 작업 조회·명시적 재시도·새 작업 claim 일시정지; 프로세스 생존은 별도 신호 |
 | `usage_events`, `admin_actions`, `publish_verifications` | 비용·일부 감사·검증 자료가 존재 | 실제 저장 항목만 조회, 기록되지 않은 실행 이력을 성공/0건으로 추정하지 않음 |
 | `/admin/lab/queue`, 관리자 실험실 메뉴 | 인증된 소유자만 접근; 기존 `/lab/queue`는 404, 공개 링크/sitemap 제거 | 가상 모델 유지; 실제 작업 제어는 A3의 별도 기능 |
-| `/admin/resume`, `/resume` | 비공개 PDF 등록·PNG 미리보기·불변 버전/메모 구현; 공개 PDF asset·CTA·API는 없음 | A4 Step 2에서 검토한 current PDF의 공개/해제·다운로드 연결 |
+| `/admin/resume`, `/resume` | 비공개 PDF 등록·PNG 미리보기·불변 버전/메모·검토 후 공개/해제·현재 공개본 다운로드 구현 | A4 로컬 검증 완료; 실제 파일 공개와 운영 rollout은 별도 |
 
 ## 화면과 주소
 
@@ -114,7 +114,7 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 
 ## 실행 순서와 기존 계획
 
-1. 기본 다음 작업은 **A4 Step 2**다. A1 Steps 0–3과 A4 Steps 0–1의 PDF 계약·비공개 업로드·전 페이지 PNG 미리보기·버전 메모를 완료했다. 다음 단계에서 검토한 공개본 선택·교체·해제와 Resume 다운로드를 연결한다. 기존 `/lab/queue`는 404이며 공개 진입 링크와 sitemap 항목을 제거했다.
+1. 기본 다음 작업은 **operations-observability Step 0**이다. A1과 A4의 모든 로컬 step을 완료했다. PDF 최대 보관량·백업/복구·공개 철회·의존성 패치까지 검증했으며 운영 rollout은 아직 수행하지 않았다. 기존 `/lab/queue`는 404이며 공개 진입 링크와 sitemap 항목을 제거했다.
 2. A1 완료 뒤 독립적인 **A4 이력서 PDF Steps 0–3**을 진행한다. A4 번호는 기존 A1–A3의 참조를 보존하기 위한 것이며 운영 rollout 뒤로 미루는 뜻이 아니다. 이어 `operations-observability / Step 0`에서 신호·권한·예산을 확정한다. A2 Steps 0–3과 A3 Steps 0–1은 이를 참고해 실제 저장·제어를 구현하며, 수집 스택 설치를 선행 조건으로 요구하지 않는다.
 3. observability Steps 1–6을 구현·로컬 검증한 뒤 A3 Steps 2–3을 완료한다. 관측 데이터의 생산자는 모니터링 phase, 관리자 화면은 소비자로 둔다.
 4. 운영은 기존 OCI 보류 해제 및 범위별 승인 후 진행한다. observability Step 7은 비활성 scheduler 상태에서도 완료할 수 있다. 이어 A3 Step 4에서 관리자 도메인과 A4의 비공개 파일 저장/migration을 적용한다. 관리자 rollout은 자동 발행 timer를 켜거나 실제 글/Brain 사본/PDF를 공개하지 않는다. 특정 PDF 공개는 관리자에서 검수한 파일을 선택하는 별도 행동이다.
@@ -169,3 +169,7 @@ Brain 저장·공개·해제에 내용 revision과 별도 명령 revision/UUID�
 ## A4 Step 2 구현 검증 — 2026-10-26
 
 버전/hash별 검토, 공개 시 재검사, revision·epoch·감사 transaction, 공개본 전용 다운로드와 Resume 링크를 구현했다. 합성 PDF로 단위 244 pass/16 DB skip·격리 integration 18/18·PDF HTTP 2/2·관리자 HTTP 4/4, lint/typecheck/build와 1440/390/320px를 확인했다. 공개 해제 뒤 조건부·프록시·브라우저 요청 차단, 늦은 receipt, 현재 개인정보 정책 거부와 DB 장애 시 본문 보존을 검증했다. [Step 2 기록](../../../phases/admin-resume-pdf/step2.md)에 실행 조건과 한계를 남겼다. 다음은 A4 Step 3이며 실제 PDF 공개·운영 적용은 수행하지 않았다.
+
+## A4 Step 3 완료 — 2026-10-26
+
+32 MiB tmpfs가 없는 환경의 검사 차단, 공간 소진 후 정리/복구, 감사와 함께 공개 포인터를 초기화하는 오프라인 명령을 구현했다. 최대 합성 자료의 실제 dump/restore와 과거 공개 명령 재전송·새 epoch·재검토·이전 image의 기능 OFF rollback을 검증했다. Next.js/sharp 등 production 감사는 0건이다. 자원 실측·검증 명령·한계는 [Step 3 완료 기록](../../../phases/admin-resume-pdf/step3.md)을 따른다.

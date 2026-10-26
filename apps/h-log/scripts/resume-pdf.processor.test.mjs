@@ -3,7 +3,8 @@ import test from 'node:test';
 import { inspectResumePdf, renderResumePage, runBoundedPdfProcess } from '../lib/resume-pdf-processor.ts';
 import { mkdtemp, readFile, rm, writeFile, readdir } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
-import { syntheticPdf } from './resume-pdf-fixtures.mjs';
+import { syntheticPdf, maximumSyntheticPdf } from './resume-pdf-fixtures.mjs';
+import { deflateSync } from 'node:zlib';
 
 test('real bounded tools inspect every page and render authenticated preview bytes', async () => {
   const bytes = syntheticPdf();
@@ -76,4 +77,17 @@ test('rejects invalid, active, private and unsupported documents before registra
   ]) await assert.rejects(inspectResumePdf(bytes), /pdf_(invalid|unsupported|privacy_blocked)/);
   const report = await inspectResumePdf(syntheticPdf({ annotations: '/Annots [<< /Subtype /Link /Rect [0 0 1 1] /A << /S /URI /URI (https://example.com/) >> >>]' }));
   assert.deepEqual(report.links, ['https://example.com/']);
+});
+
+test('maximum file and report remain bounded while expanded metadata is rejected', async () => {
+  const maximum = maximumSyntheticPdf();
+  assert.equal(maximum.length, 5242880);
+  const report = await inspectResumePdf(maximum);
+  assert.equal(report.pages, 10);
+  assert(Buffer.byteLength(JSON.stringify(report)) > 500000);
+  assert(Buffer.byteLength(JSON.stringify(report)) <= 524288);
+  const compressed = deflateSync(Buffer.alloc(32 * 1024 * 1024, 'a'));
+  const bomb = syntheticPdf({ extra: [Buffer.concat([Buffer.from(`<< /Type /Metadata /Subtype /XML /Filter /FlateDecode /Length ${compressed.length} >>\nstream\n`), compressed, Buffer.from('\nendstream')])] });
+  await assert.rejects(inspectResumePdf(bomb), /pdf_(unsupported|invalid)/);
+  assert.deepEqual(await readdir('/tmp/hlog-resume'), []);
 });

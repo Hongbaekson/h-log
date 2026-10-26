@@ -44,6 +44,8 @@ test("reviewed publication, replacement, withdrawal and epoch guards preserve at
     assert.equal(withdrawn.publicVersionId, null);
     assert.equal(await repo.publicFile(epoch), null);
     assert.deepEqual(await repo.unpublish(withdraw), withdrawn);
+    assert.equal((await pool.query("select request_fingerprint from admin_actions where command_id = $1", [withdraw.commandId])).rows[0].request_fingerprint,
+      createHash("sha256").update(JSON.stringify(["resume_pdf", { action: "unpublish", commandId: withdraw.commandId, expectedRevision: withdraw.expectedRevision }])).digest("hex"), "existing withdrawal receipts retain their fingerprint contract");
     await assert.rejects(repo.publish(reviewA, randomUUID()), /command_conflict/);
     assert.equal(await repo.publicFile(epoch), null);
     await pool.query("create function resume_test_fail() returns trigger language plpgsql as $$ begin raise exception 'synthetic audit failure'; end $$");
@@ -58,6 +60,17 @@ test("reviewed publication, replacement, withdrawal and epoch guards preserve at
     assert.equal((await repo.publicFile(epoch))?.sha256, reviewA.sha256);
     const audit = await pool.query("select action_type, target_type, reason from admin_actions where action_type in ('publish','unpublish')");
     assert(audit.rows.some(row => row.action_type === "unpublish" && row.target_type === "resume_pdf"));
+    const reset = await command();
+    const resetReceipt = await repo.resetAfterRecovery(reset);
+    assert.equal(resetReceipt.publicVersionId, null);
+    assert.equal(resetReceipt.revision, reset.expectedRevision + 1);
+    assert.deepEqual(await repo.resetAfterRecovery(reset), resetReceipt);
+    assert.equal(await repo.publicMetadata(epoch), null);
+    assert.deepEqual(await repo.publish(reviewA, epoch), published);
+    assert.equal(await repo.publicMetadata(epoch), null, "replayed pre-recovery receipt must not resurrect publication");
+    assert.equal((await pool.query("select reason from admin_actions where command_id = $1", [reset.commandId])).rows[0].reason, "resume_recovery_reset");
+    await assert.rejects(repo.unpublish({ ...reset, action: "unpublish" }), /command_conflict/);
+    await repo.publish({ ...reviewA, ...await command() }, epoch);
     // A corrupted byte stream must not be served even when its old ETag still matches.
     await pool.query("alter table resume_pdf_versions disable trigger user");
     await pool.query("update resume_pdf_versions set bytes = $1 where id = $2", [Buffer.from("corrupted A"), a.targetId]);

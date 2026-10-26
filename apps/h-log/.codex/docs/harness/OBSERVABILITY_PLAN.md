@@ -24,7 +24,7 @@
 | [6](../../../phases/operations-observability/step6.md) | isolated-failure-rehearsal | 장애·누락·수집 중단·복구를 로컬에서 종합 검증 |
 | [7](../../../phases/operations-observability/step7.md) | approved-production-rollout | 승인된 운영 설치와 서버 외부 감시 검증 |
 
-Steps 0–6은 OCI 보류 중에도 로컬에서 순서대로 진행할 수 있다. Step 7은 기존 OCI 보류로 `blocked`다. 공개 경험 개선의 6개 phase/19개 step은 2026-10-22 완료했다. 같은 날 [통합 관리자 요청](ADMIN_CONSOLE_PLAN.md)에 따라 기본 다음 작업은 `admin-console-foundation / Step 0`으로 변경했다. 관리자 기반 A1과 이력서 PDF A4를 완료한 뒤 이 phase의 `Step 0: monitoring-contract-and-budget`에서 지표·권한·자원 예산을 확정한다. 모니터링 구현이나 운영 적용은 아직 완료하지 않았다.
+Steps 0–6은 OCI 보류 중에도 로컬에서 순서대로 진행할 수 있다. Step 7은 기존 OCI 보류로 `blocked`다. 공개 경험 개선의 6개 phase/19개 step은 2026-10-22 완료했다. [통합 관리자 요청](ADMIN_CONSOLE_PLAN.md)의 A1/A4는 2026-10-26 로컬 검증을 완료했다. 기본 다음 작업은 이 phase의 `Step 0: monitoring-contract-and-budget`으로 지표·권한·자원 예산을 확정하는 것이다. [A4 Step 3 실측](../../../phases/admin-resume-pdf/step3.md)의 단일 PDF 검사와 동시 다운로드 메모리, tmpfs·DB/dump 용량을 예산 입력에 포함한다. 모니터링 구현이나 운영 적용은 아직 완료하지 않았다.
 
 수집기·대시보드·신호·알림은 이 phase가 소유한다. 로컬 Steps 1–6은 `admin-operations-control / Step 2`보다 먼저 완료하고 관리자 화면은 그 결과만 읽는다. 이 phase는 관리자 화면이나 관리자 rollout을 선행 조건으로 요구하지 않는다. 운영 Step 7을 완료한 뒤 관리자 rollout과 기존 자동 발행 활성화를 각각 진행하며, 어느 쪽도 선행 모니터링 검증을 위해 timer를 켤 필요는 없다.
 

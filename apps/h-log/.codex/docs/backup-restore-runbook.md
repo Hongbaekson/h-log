@@ -4,7 +4,7 @@
 
 ## 범위
 
-2026-10-26 [PDF 계약](harness/RESUME_PDF_CONTRACT.md)의 A4는 PDF 바이트/검사 보고서/공개 포인터/감사 receipt를 같은 PostgreSQL backup 범위에 두도록 확정했다. A4 Step 1에서 migration 007의 `resume_pdf_versions`(불변 bytea/보고서)·`resume_pdf_state`·감사 receipt를 구현하고 격리 DB upgrade/재시작·원자적 rollback을 검증했다. 최대 파일 전체 dump/restore 리허설은 아직 수행하지 않았다. A4 Step 3에서 격리 복구 후 파일 SHA-256·버전·포인터·감사 이력과 최대 보관 예산을 확인한다. 과거 backup의 공개 포인터가 철회된 PDF를 다시 노출하지 않도록 복구 환경의 PDF 공개 게이트를 먼저 닫고 dump 밖의 새 publication epoch를 발급한다. 구 포인터와 epoch가 달라 새 다운로드가 404인지 확인한 뒤, 포인터를 감사와 함께 해제하고 현재 파일을 재검토·명시적으로 공개한다. 원본 최대 100 MiB/검사 보고서 10 MiB, PDF DB 증분 256 MiB/custom dump 증분 200 MiB·보관 여유 3 GiB의 예산은 Step 3에서 실측한다. 실제 개인 PDF나 dump는 저장소·검수 로그에 포함하지 않는다.
+2026-10-26 [PDF 계약](harness/RESUME_PDF_CONTRACT.md)의 A4는 PDF 바이트/검사 보고서/공개 포인터/감사 receipt를 같은 PostgreSQL backup 범위에 두도록 확정했다. A4 Step 1에서 migration 007의 `resume_pdf_versions`(불변 bytea/보고서)·`resume_pdf_state`·감사 receipt를 구현하고 격리 DB upgrade/재시작·원자적 rollback을 검증했다. A4 Step 3에서 최대 원본 100 MiB의 실제 custom dump와 별도 DB restore를 수행해 파일 SHA-256·버전·포인터·감사 이력과 최대 보관 예산을 확인했다. 과거 backup의 공개 포인터가 철회된 PDF를 다시 노출하지 않도록 복구 환경의 PDF 공개 게이트를 먼저 닫고 dump 밖의 새 publication epoch를 발급한다. 구 포인터와 epoch가 달라 새 다운로드가 404인지 확인한 뒤, 포인터를 감사와 함께 해제하고 현재 파일을 재검토·명시적으로 공개한다. 원본 최대 100 MiB/검사 보고서 10 MiB, PDF DB 증분 256 MiB/custom dump 증분 200 MiB·보관 여유 3 GiB의 예산은 [Step 3](../../phases/admin-resume-pdf/step3.md)에서 실측했다. 실제 개인 PDF나 dump는 저장소·검수 로그에 포함하지 않는다.
 
 - 대상 DB: Compose service `hlog-postgres`
 - 대상 volume: Compose volume `postgres_data`
@@ -119,3 +119,29 @@ docker compose -p hlog_restore_rehearsal exec -T hlog-postgres sh -lc 'psql -U "
 - bucket, namespace, credential, signed URL은 저장소에 남기지 않는다.
 - 백업/복구 로그는 token, cookie, DB password, private URL을 제거한 뒤 공유한다.
 - production backup, restore, compose restart는 명시 승인 없이 실행하지 않는다.
+
+## PDF가 포함된 복구의 공개 초기화 — A4 완료 절차
+
+1. 모든 PDF reader/writer web을 중지하고 공개/관리 ingress를 닫는다. 복구 대상 환경의 HLOG_RESUME_PDF_ENABLED=0, HLOG_RESUME_PDF_PUBLICATION_EPOCH 비움을 확인한다. 셸의 환경값만 변경해서 이미 실행 중인 web도 닫혔다고 가정하지 않는다.
+2. 원래 DB/volume을 보존하고 명확히 분리된 빈 DB에 pg_restore --exit-on-error로 복구한다. 007 migration과 image를 대조한다. bytes의 SHA-256·byte_size·page_count, inspection/정책/도구, 메모/시각, state와 admin_actions를 dump 기준과 비교한다. 원문·보고서·키를 공개 로그에 출력하지 않는다.
+3. web을 계속 중지한 채 아래 SQL로 revision만 읽고 새 UUID를 생성한다. 같은 명령을 재시도할 때는 UUID와 expected revision을 그대로 사용한다. revision_conflict면 현재 상태를 다시 확인하며 임의 값을 올려 덮어쓰지 않는다.
+
+```sql
+select revision from resume_pdf_state where id = 1;
+```
+
+복구 DB의 DATABASE_URL을 비공개 환경으로 주입한 관리 셸에서 실행한다. Node와 앱 의존성이 있는 해당 commit의 migrations image 또는 관리 checkout을 사용한다. 명령은 새 서버 endpoint를 열지 않는다.
+
+```bash
+HLOG_RESUME_PDF_ENABLED=0 HLOG_RESUME_PDF_PUBLICATION_EPOCH= \
+  node --no-warnings --experimental-strip-types scripts/resume-pdf-recovery.mjs \
+  --command-id "$RESET_COMMAND_ID" --expected-revision "$RESTORED_REVISION"
+```
+
+4. 반환 receipt와 DB에서 포인터/검토 필드 null, revision 증가, resume_recovery_reset 감사 한 건을 확인한다. 도구는 현재 셸의 공개 설정만 검사하므로 web 중지/ingress 차단은 운영자가 별도로 확인해야 한다.
+5. dump와 이전 운영 환경에서 복사하지 않은 새 publication epoch UUID를 비공개 설정에 보관한다. 새 image와 필수 tmpfs, 정확한 관리자 HTTPS/Host/Origin으로 재기동한다. 초기 GET/HEAD/옛 ETag/Range PDF 요청이 모두 404인지 확인한다. 예전 공개 명령/receipt를 재전송해도 공개 상태가 복원되면 안 된다.
+6. 현재 의도에 맞는 버전만 전 페이지·검사 보고서·메타데이터/링크/숨은 내용까지 다시 검토하고 새 명령 UUID로 공개한다. 다운로드 SHA-256이 검토본과 같고 no-store인지 확인한다. 재공개할 의사가 없으면 포인터를 비운 채 둔다.
+
+일반 앱 재시작은 기존 epoch를 유지한다. 백업 복구나 공개 게이트를 되살리는 재개 절차는 새 epoch를 사용한다. 예전 epoch를 재사용하면 철회했던 dump 포인터가 다시 유효해질 수 있다. 기본 복구 예시의 drop/clean은 명시적인 일회용 DB에만 적용하고 기존 운영 DB/volume에 복사 실행하지 않는다.
+
+관리자 키 분실/회전은 기존 SSH 관리 경로에서 모든 web의 owner 키를 교체하고 오래된 키의 401을 확인한다. 키 교체가 PDF 공개 해제를 뜻하지 않으므로 PDF 철회가 필요하면 ingress를 먼저 차단하고 위 reset 절차로 별도 처리한다. 복구 검증과 실제 파일 공개는 운영 승인 범위와 구분한다.

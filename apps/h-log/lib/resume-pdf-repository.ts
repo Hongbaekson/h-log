@@ -9,7 +9,7 @@ type VersionRow = Omit<ResumeVersion, "createdAt"> & { createdAt: Date };
 const version = (row: VersionRow): ResumeVersion => ({ ...row, createdAt: row.createdAt.toISOString() });
 
 export function createResumeRepository(pool: Pool) {
-  async function mutate(command: ResumeCommand, action: ResumeReceipt["action"], targetId: string, fingerprint: string, change: (client: PoolClient) => Promise<void>): Promise<ResumeReceipt> {
+  async function mutate(command: ResumeCommand, action: ResumeReceipt["action"], targetId: string, fingerprint: string, change: (client: PoolClient) => Promise<void>, reason?: "resume_recovery_reset"): Promise<ResumeReceipt> {
     parseResumeMetadata(command);
     const client = await pool.connect();
     try {
@@ -20,7 +20,7 @@ export function createResumeRepository(pool: Pool) {
         (id, action_type, actor_type, actor_id, target_type, target_id, reason, created_at, command_id, request_fingerprint, command_receipt)
         values ($1, $7, 'admin', 'owner', $8, $2, $3, now(), $4, $5, $6)
         on conflict (actor_type, actor_id, command_id) where command_id is not null do nothing returning id`,
-      [randomUUID(), targetId, reasons[action], command.commandId, fingerprint, JSON.stringify(receipt),
+      [randomUUID(), targetId, reason ?? reasons[action], command.commandId, fingerprint, JSON.stringify(receipt),
         action === "publish" || action === "unpublish" ? action : "save", action === "unpublish" ? "resume_pdf" : "resume_pdf_version"]);
       if (!reserved.rowCount) {
         const previous = await client.query<{ request_fingerprint: string; command_receipt: ResumeReceipt }>("select request_fingerprint, command_receipt from admin_actions where actor_type = 'admin' and actor_id = 'owner' and command_id = $1", [command.commandId]);
@@ -38,6 +38,12 @@ export function createResumeRepository(pool: Pool) {
       return receipt;
     } catch (error) { await client.query("rollback"); throw error; }
     finally { client.release(); }
+  }
+  async function withdraw(command: ResumeCommand, recovery = false) {
+    return mutate(command, "unpublish", "current", sha256(JSON.stringify(recovery ? ["resume_pdf", "recovery_reset", command] : ["resume_pdf", command])), async client => {
+      await client.query(`update resume_pdf_state set public_version_id = null, public_sha256 = null, publication_epoch = null,
+        reviewed_at = null, reviewed_by = null, review_checklist = null where id = 1`);
+    }, recovery ? "resume_recovery_reset" : undefined);
   }
   async function readPublic(epoch: string, includeBytes: boolean) {
     assertResumeId(epoch);
@@ -128,10 +134,10 @@ export function createResumeRepository(pool: Pool) {
     async unpublish(input: ResumeWithdrawCommand) {
       const command = parseResumeCommand(input);
       if (command.action !== "unpublish") throw new Error("invalid_request");
-      return mutate(command, "unpublish", "current", sha256(JSON.stringify(["resume_pdf", command])), async client => {
-        await client.query(`update resume_pdf_state set public_version_id = null, public_sha256 = null, publication_epoch = null,
-          reviewed_at = null, reviewed_by = null, review_checklist = null where id = 1`);
-      });
+      return withdraw(command);
+    },
+    async resetAfterRecovery(input: ResumeCommand) {
+      return withdraw(parseResumeMetadata(input), true);
     },
     async withProcessingLock<T>(action: (signal: AbortSignal) => Promise<T>, signal?: AbortSignal): Promise<T> {
       // ponytail: one PDF job for this single-owner site; split locks only if the storage budget grows.

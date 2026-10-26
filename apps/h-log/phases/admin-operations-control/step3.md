@@ -72,3 +72,7 @@ git diff --check
 ## 다음 단계
 
 승인 후 observability Step 7, 이후 A3 Step 4. 전체 순서는 [통합 관리자 계획](../../.codex/docs/harness/ADMIN_CONSOLE_PLAN.md)을 따른다.
+
+## A4 인계 — 2026-10-26
+
+A4 Steps 0–3의 합성 로컬 검증은 완료했다. [PDF Step 3](../admin-resume-pdf/step3.md)의 실제 최대 보관량 dump/restore·공개 초기화·의존성 패치 결과를 읽는다. 이 단계에서는 같은 artifact/schema·32 MiB tmpfs/UID·native sandbox·공개/관리 ingress와 새 epoch 복구·feature OFF rollback을 다시 대조하고 운영 자원 예산을 확인한다. A4 완료는 이 단계의 다른 선행 조건이나 운영 보류를 해제하지 않는다.

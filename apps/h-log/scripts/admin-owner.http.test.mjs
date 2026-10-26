@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import http from "node:http";
+import https from "node:https";
 import test from "node:test";
 
 const enabled = process.env.HLOG_ADMIN_HTTP_TEST === "1";
@@ -9,19 +10,29 @@ test("shared admin HTML, API and RSC stay behind the owner boundary on two local
   const publicOrigin = new URL(process.env.HLOG_ADMIN_HTTP_PUBLIC_ORIGIN);
   const upstream = new URL(process.env.HLOG_ADMIN_HTTP_UPSTREAM);
   for (const url of [admin, publicOrigin, upstream]) {
-    assert.equal(url.protocol, "http:");
+    assert(["http:", "https:"].includes(url.protocol));
     assert(["localhost", "127.0.0.1", "[::1]"].includes(url.hostname), "Use isolated loopback origins");
   }
   assert.notEqual(admin.origin, publicOrigin.origin);
   const key = process.env.HLOG_ADMIN_OWNER_KEY;
   assert.match(key ?? "", /^[a-f0-9]{64}$/);
   const authorization = `Basic ${Buffer.from(`owner:${key}`).toString("base64")}`;
-  const get = (origin, path, headers = {}, method = "GET") => new Promise((resolve, reject) => {
-    const req = http.request(new URL(path, origin), { headers, method, timeout: 30000 }, res => {
+  const get = (origin, path, headers = {}, method = "GET", redirects = 0) => new Promise((resolve, reject) => {
+    const req = (origin.protocol === "https:" ? https : http).request(new URL(path, origin), { headers, method, timeout: 30000 }, res => {
       let body = "";
       res.setEncoding("utf8");
       res.on("data", chunk => body += chunk);
-      res.on("end", () => resolve({ status: res.statusCode, headers: res.headers, body }));
+      res.on("end", () => {
+        // Patched Next.js canonicalizes the RSC cache key before serving a payload.
+        if (res.statusCode === 307 && headers.RSC && redirects < 2) {
+          const next = new URL(res.headers.location, origin);
+          if (next.origin !== origin.origin || next.pathname !== new URL(path, origin).pathname || !next.searchParams.has("_rsc")) {
+            reject(new Error("Unexpected RSC redirect")); return;
+          }
+          resolve(get(origin, next.pathname + next.search, headers, method, redirects + 1)); return;
+        }
+        resolve({ status: res.statusCode, headers: res.headers, body });
+      });
     });
     req.on("error", reject);
     req.on("timeout", () => req.destroy(new Error(`local request timed out: ${method} ${origin.origin}${path}, Host=${headers.host ?? origin.host}`)));
@@ -105,7 +116,7 @@ test("shared admin HTML, API and RSC stay behind the owner boundary on two local
     assert.match(lab.body, /가상 작업 6개|Queue 재생기/);
     assert.match(lab.body, /name="robots" content="noindex, nofollow"/);
     assert.doesNotMatch(lab.body, /class="site-header|class="site-footer|rel="canonical"/);
-    assert(lab.body.includes(`href="${publicOrigin.origin}/portfolio/redisson-async-processing-recovery"`));
+    assert(lab.body.includes(`href="${process.env.HLOG_PUBLIC_BASE_URL || publicOrigin.origin}/portfolio/redisson-async-processing-recovery"`));
     const rsc = await get(admin, path + "?_rsc=owner", { authorization, RSC: "1" });
     assert.equal(rsc.status, 200); assert.match(rsc.headers["content-type"], /text\/x-component/);
     assert.match(rsc.body, /Queue와 DLQ 재생 실험/);

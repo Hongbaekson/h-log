@@ -36,7 +36,7 @@ npm run build
 
 ## 관리자 통합 현황과 목표
 
-2026-10-26 A1 Steps 0–3의 [접근·명령 계약](ADMIN_ACCESS_CONTRACT.md), `/admin` shell·공통 인증·Queue 비공개 이동·Brain 명령 통합과 A4 Steps 0–1의 PDF 계약·비공개 보관을 완료했다. 다음은 A4 Step 2의 공개본 선택·다운로드다. Blog/automation/jobs/monitoring/audit 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
+2026-10-26 A1 Steps 0–3의 [접근·명령 계약](ADMIN_ACCESS_CONTRACT.md), `/admin` shell·공통 인증·Queue 비공개 이동·Brain 명령 통합과 A4 Steps 0–3의 PDF 보관·공개·복구 검증을 완료했다. 다음은 operations-observability Step 0의 모니터링 계약과 예산이다. Blog/automation/jobs/monitoring/audit 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
 
 `lib/admin-owner.ts`는 설정·Host·Basic·Origin 검사와 비공개 헤더를 소유한다. `proxy.ts`는 전체 `/admin/:path*`, `lib/admin-server.ts`는 page/layout의 데이터 조회 전 검사를 담당한다. `brain-owner.ts`는 공통 인증 후 Brain DB flag를 검사하는 얇은 경계로 남는다. 기존 Nginx는 여전히 모든 관리자 경로를 차단하고 Host를 `hlog-web`로 전달한다. 두 loopback ingress의 정확한 Host 전달/공개 차단은 격리 구성으로 검증했으며 운영 설정은 변경하지 않았다.
 
@@ -50,13 +50,13 @@ Blog 관리 조회/명령·draft-only persistence·지속 정책과 요청은 �
 
 [SEO 계획](SEO_OPTIMIZATION_PLAN.md)과 ADR-040은 claude-seo의 고정 자료를 Codex의 저장소 스킬로 선별 이식하는 개발 작업이다. 기본 예정 위치는 루트 `.agents/skills/hlog-seo/`이고 실제 인식은 S1에서 검증한다. 참고 지침·출처/라이선스와 실제 감사 표본을 관리하며 Claude 전용 installer/hook이 Codex에서 자동 동작한다고 가정하지 않는다. 별도 SEO 서버·DB·worker나 production Python 의존성을 추가하지 않는다.
 
-감사는 공개 selector/route의 source 확인 → 합성 DB/loopback public ingress의 HTTP·DOM·no-JS → 승인된 공개 origin/검색 계정 순서다. 원자료는 `private/seo/`, 검토된 요약은 Harness 문서에 둔다. 기존 `site-seo`의 소스 검사에 실제 head/JSON-LD·상태/색인·공개 경계 검증을 보완할 계획이며 현재 metadata/crawler runtime은 바꾸지 않았다. 성능 lab/field와 실제 검색 노출을 분리한다. 일반 다음 작업 A4 Step 2와 운영 보류도 유지한다.
+감사는 공개 selector/route의 source 확인 → 합성 DB/loopback public ingress의 HTTP·DOM·no-JS → 승인된 공개 origin/검색 계정 순서다. 원자료는 `private/seo/`, 검토된 요약은 Harness 문서에 둔다. 기존 `site-seo`의 소스 검사에 실제 head/JSON-LD·상태/색인·공개 경계 검증을 보완할 계획이며 현재 metadata/crawler runtime은 바꾸지 않았다. 성능 lab/field와 실제 검색 노출을 분리한다. 일반 다음 작업은 operations-observability Step 0이며 운영 보류는 유지한다.
 
 ## Runtime 구성
 
-### 이력서 PDF 보관·공개 — A4 Steps 1–2 구현
+### 이력서 PDF 보관·공개·복구 — A4 Steps 1–3 구현
 
-ADR-039와 [PDF 계약](RESUME_PDF_CONTRACT.md)에 따라 `/admin/resume` page·records/files/preview handler는 공통 owner 인증 뒤 PDF flag를 검사한다. `ResumeManager`는 업로드·버전 목록·페이지 이동/확대·검사 보고서·메모·같은 명령 재확인을 제공한다. `resume-pdf-http.ts`가 수신량·시간·형식을 제한하고 `resume-pdf-processor.ts`가 같은 Linux image의 qpdf/Poppler를 고정 인자·자원 제한·seccomp 네트워크 차단으로 실행한다. PNG만 인증된 no-store 응답으로 전송하며 영구 저장하지 않는다. `resume-pdf-repository.ts`와 migration 007은 불변 bytea 버전/보고서, singleton revision, 기존 감사 receipt를 원자적으로 저장한다. PG session advisory lock 710493708로 처리 한 건만 허용하고 저장 transaction은 검사 후에 연다. 전용 pool은 최대 3개 연결이며 연결 오류는 원시 설정 없이 고정 문구만 기록한다. 새 파일/메모는 기존 공개 포인터를 보존한다. `ResumeManager`는 전체 페이지/보고서와 네 가지 확인을 거쳐 파일 hash에 묶인 공개 명령을 보낸다. 공개 handler는 현재 정책으로 재검사한 뒤 서버 epoch·검토·포인터·감사를 같은 transaction으로 저장한다. `resume-pdf-download.ts`와 `/api/resume/pdf`는 한 SQL snapshot으로 현재 버전의 epoch/검토/정책/bytes/hash를 확인하고 no-store attachment·GET/HEAD/ETag를 반환한다. Range는 전체 응답이며 네 스트림/30초 상한을 적용한다. DB statement 5초/query 6초 제한도 사용한다. `ResumeDownload`는 bytea 없는 metadata를 Suspense 안에서 읽어 공개된 경우만 링크를 표시한다. DB 장애는 다운로드 안내에만 반영된다. 정적 PDF는 없으며 전체 예산/복구는 Step 3 대상이다.
+ADR-039와 [PDF 계약](RESUME_PDF_CONTRACT.md)에 따라 `/admin/resume` page·records/files/preview handler는 공통 owner 인증 뒤 PDF flag를 검사한다. `ResumeManager`는 업로드·버전 목록·페이지 이동/확대·검사 보고서·메모·같은 명령 재확인을 제공한다. `resume-pdf-http.ts`가 수신량·시간·형식을 제한하고 `resume-pdf-processor.ts`가 같은 Linux image의 qpdf/Poppler를 고정 인자·자원 제한·seccomp 네트워크 차단으로 실행한다. PNG만 인증된 no-store 응답으로 전송하며 영구 저장하지 않는다. `resume-pdf-repository.ts`와 migration 007은 불변 bytea 버전/보고서, singleton revision, 기존 감사 receipt를 원자적으로 저장한다. PG session advisory lock 710493708로 처리 한 건만 허용하고 저장 transaction은 검사 후에 연다. 전용 pool은 최대 3개 연결이며 연결 오류는 원시 설정 없이 고정 문구만 기록한다. 새 파일/메모는 기존 공개 포인터를 보존한다. `ResumeManager`는 전체 페이지/보고서와 네 가지 확인을 거쳐 파일 hash에 묶인 공개 명령을 보낸다. 공개 handler는 현재 정책으로 재검사한 뒤 서버 epoch·검토·포인터·감사를 같은 transaction으로 저장한다. `resume-pdf-download.ts`와 `/api/resume/pdf`는 한 SQL snapshot으로 현재 버전의 epoch/검토/정책/bytes/hash를 확인하고 no-store attachment·GET/HEAD/ETag를 반환한다. Range는 전체 응답이며 네 스트림/30초 상한을 적용한다. DB statement 5초/query 6초 제한도 사용한다. `ResumeDownload`는 bytea 없는 metadata를 Suspense 안에서 읽어 공개된 경우만 링크를 표시한다. DB 장애는 다운로드 안내에만 반영된다. 정적 PDF는 없다. Step 3에서 web UID/GID 1001과 0700 전용 32 MiB tmpfs를 Compose에 고정했으며 processor가 tmpfs 종류/총량을 확인한다. 별도 서비스 없이 기존 repository의 원자적 해제를 재사용하는 `scripts/resume-pdf-recovery.mjs`를 추가했다. 오프라인 reset은 revision과 `resume_recovery_reset` 감사를 남기고 과거 receipt는 공개 상태를 되살리지 않는다. 최대 용량·별도 DB 복구·장애와 feature-OFF rollback을 합성 자료로 검증했다. 상세 실측은 A4 Step 3에 기록했다.
 
 ### Queue 재생 실험
 

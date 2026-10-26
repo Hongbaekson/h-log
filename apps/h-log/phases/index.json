@@ -192,8 +192,8 @@
     },
     {
       "dir": "admin-resume-pdf",
-      "status": "pending",
-      "summary": "2026-10-26: Completed reviewed PDF publication/replacement/withdrawal with current-policy reinspection, hash-bound checklist, epoch/revision and atomic audit receipts. Added current-only no-store GET/HEAD/ETag download and isolated Resume metadata link. Unit 244 pass/16 DB skip, isolated integration 18/18, PDF HTTP 2/2, admin HTTP 4/4, lint/typecheck/build and 1440/390/320px checks passed; cache withdrawal, DB failure, policy rejection and stale receipts verified with synthetic local PDFs. Next: Step 3 privacy-and-recovery rehearsal. No real PDF or operational rollout; existing dependency patch gate remains. Steps 0-2 completed; Step 3 pending."
+      "status": "completed",
+      "summary": "2026-10-26: Completed bounded 32 MiB tmpfs and audited offline publication reset; 20 x 5 MiB / 10-page synthetic PDFs passed real custom dump/restore, hash/metadata/audit comparison, fresh epoch, stale receipts, storage failure and feature-off rollback. Next.js 16.4.3/sharp 0.35.5 production audit 0. Unit 245 pass/16 DB skip, integration 18/18, native 7/7, two-ingress HTTP 6/6, lint/typecheck/build and 1440/390/320px passed. Synthetic local verification only; no real PDF or operational rollout. Next: operations-observability Step 0."
     },
     {
       "dir": "seo-codex-foundation",

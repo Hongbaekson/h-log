@@ -1,6 +1,6 @@
 # 이력서 PDF 저장·검토·공개 계약
 
-확정일: 2026-10-26. A4 `admin-resume-pdf / Step 0`의 설계 결과다. **Steps 1–2에서 비공개 보관·검토 후 공개/교체/해제·현재 공개본 다운로드와 Resume 링크를 구현/검증했다. 최대 예산·복구 종합 검수는 Step 3에 남아 있다.** 운영 적용은 A3 Step 4가 담당한다. [관리자 접근 계약](ADMIN_ACCESS_CONTRACT.md)과 [공개 정보 기준](../../rules/content-seo-privacy.md)을 함께 적용한다. 아래 목표 계약과 실제 완료 범위는 [Step 1 기록](../../../phases/admin-resume-pdf/step1.md)으로 구분한다.
+확정일: 2026-10-26. A4 `admin-resume-pdf / Step 0`의 설계 결과다. **Steps 1–3에서 비공개 보관·검토 후 공개/교체/해제·다운로드와 최대 용량/복구 종합 검수를 완료했다.** 운영 적용은 A3 Step 4가 담당한다. [관리자 접근 계약](ADMIN_ACCESS_CONTRACT.md)과 [공개 정보 기준](../../rules/content-seo-privacy.md)을 함께 적용한다. 아래 목표 계약과 실제 완료 범위는 [Step 1 기록](../../../phases/admin-resume-pdf/step1.md)으로 구분한다.
 
 ## 1. Step 0 당시 코드와 구현 경계
 
@@ -29,7 +29,7 @@
 | parser JSON | 프로세스 stdout 최대 8 MiB, 객체 20,000개·중첩 64단계; 초과 422 |
 | 렌더 이미지 | 한 페이지씩 PNG, 긴 변 최대 2,000px, 최대 4백만 픽셀·8 MiB; 페이지 크기/회전 검사 후 렌더 |
 | 실행 자원 | native 자식 프로세스 가상 주소 공간 256 MiB, CPU 5초/호출, wall 10초/호출, 전체 검사 45초 |
-| 임시 파일 | 전체 처리 한 건만, 전용 공간 예산 32 MiB, 한 출력 파일 8 MiB; 입력은 최대 5 MiB, 페이지 출력은 읽고 바로 삭제. Step 1은 per-file 제한을 구현했으며 전체 공간 실측/총량 quota는 Step 3 대상 |
+| 임시 파일 | 전체 처리 한 건만, 전용 공간 예산 32 MiB, 한 출력 파일 8 MiB; 입력은 최대 5 MiB, 페이지 출력은 읽고 바로 삭제. Step 3에서 UID/GID 1001·0700 전용 tmpfs를 Compose에 강제하고 종류/총량을 검사; 미설정은 503, 공간 소진 뒤 작업 정리/복구 검증 완료 |
 | 동시 처리 | PDF 검사/미리보기 전역 1건, 대기열 없이 429와 `Retry-After: 2`; PDF 다운로드는 web instance당 최대 4건 |
 | 수신/응답 | 수신 30초, 다운로드 전송 30초; 연결 종료 시 reader·자식·임시 파일 정리 |
 | 저장/백업 준비 예산 | PDF 원본 100 MiB+보고서 최대 10 MiB. DB/TOAST/index 증분 256 MiB, custom dump 증분 200 MiB를 리허설 예산으로 잡음 |
@@ -132,15 +132,15 @@ Resume은 바이트 없이 공개 가능 여부만 동적으로 읽는다. 공�
 
 ## 7. 백업·복구·배포
 
-원본 bytea, 검사 보고서/도구 버전, state/검토 확인, 감사 receipt를 기존 `pg_dump --format=custom` 경계에 포함한다. PNG/임시 파일은 제외한다. dump는 개인 문서이며 저장소/공개 artifact에 넣지 않는다. Step 3에서 20버전 최대 원본 합계, DB/dump 크기·복구 시간·전후 SHA-256을 측정한다.
+원본 bytea, 검사 보고서/도구 버전, state/검토 확인, 감사 receipt를 기존 `pg_dump --format=custom` 경계에 포함한다. PNG/임시 파일은 제외한다. dump는 개인 문서이며 저장소/공개 artifact에 넣지 않는다. Step 3에서 20버전 최대 원본 합계, DB/dump 크기·복구 시간·전후 SHA-256을 측정했다. [완료 기록](../../../phases/admin-resume-pdf/step3.md)을 다음 모니터링 자원 예산의 입력으로 사용한다.
 
-복구 순서는 **공개 설정 제거·기존 web 중지 → 독립 DB로 restore → 새 publication epoch 설정 → hash/FK/검사 결과/감사 비교 → 이전 포인터를 감사와 함께 해제하고 revision 증가 → 현재 파일 전 페이지 재검토/명시적 공개**다. 새 epoch는 dump에 들어 있는 값을 복사하지 않는다. 이전 command receipt 재전송은 상태를 되살리지 않으며 현재 epoch의 새 공개 명령은 새 키를 쓴다. 복구를 평범한 앱 재시작으로 처리하지 않는다.
+복구 순서는 **공개 설정 제거·기존 web 중지 → 독립 DB로 restore → hash/FK/검사 결과/감사 비교 → 공개 설정이 닫힌 오프라인 명령으로 이전 포인터 해제·revision 증가 → 새 publication epoch 설정·재기동 후 404 확인 → 현재 파일 전 페이지 재검토/명시적 공개**다. 새 epoch는 dump에 들어 있는 값을 복사하지 않는다. 이전 command receipt 재전송은 상태를 되살리지 않으며 현재 epoch의 새 공개 명령은 새 키를 쓴다. 복구를 평범한 앱 재시작으로 처리하지 않는다.
 
 새 migration을 적용하기 전에 관리자 쓰기를 닫고 백업한다. code/schema/tool/filter를 맞춰 배포한 뒤 합성 자료로 검사한다. schema 없는 새 앱은 PDF 기능을 열지 않는다. rollback은 PDF feature/public epoch를 닫고 이전 image로 돌아가며 새 bytea/감사는 보존한다. 새 필드/파일을 지우는 down migration을 자동 실행하지 않는다. 운영 포인터를 열거나 실제 개인 PDF를 공개하는 것은 기능 배포와 별도 행동이다.
 
 ## 8. 구현 파일과 검증 인계
 
-아래 Steps 1–2 파일은 구현됐으며 Step 3은 예정이다. 공개 검증은 합성 자료로 수행했고 실제 개인 PDF는 공개하지 않았다. 범용 명령 버스·PDF 편집기·새 서비스는 만들지 않는다.
+아래 Steps 1–3 파일과 합성 로컬 리허설은 완료했다. 공개 검증은 합성 자료로 수행했고 실제 개인 PDF는 공개하지 않았다. 범용 명령 버스·PDF 편집기·새 서비스는 만들지 않는다.
 
 | 단계 | 변경 대상 | 필수 검증 |
 | --- | --- | --- |
@@ -164,4 +164,4 @@ Resume은 바이트 없이 공개 가능 여부만 동적으로 읽는다. 공�
 | 1440/390/320px·키보드·이미지 확대/페이지 이동·메모/오류·Resume no-JS | 공개/비공개 의미와 원문 검토 가능, 본문 회귀 없음 / Steps 1–3 |
 | 공개 A backup→해제→restore, 새 epoch, 구 receipt 재전송·최대 보관량 복구 | A 자동 재공개 없음·동일 바이트/hash·명시적 재검토 후만 공개 / Step 3 |
 
-Step 0 당시 완료 근거는 live code/schema/ingress와 이 계약의 대조, 공식 도구/HTTP 문서 확인, 문서·phase 파싱/링크/상태 검사였다. 이후 Step 1에서 parser 실행·합성 PDF 렌더·비공개 파일 등록을 검증했다. Step 2에서 검토한 버전의 공개/교체/해제와 current-only 다운로드를 합성 자료로 검증했다. [완료 기록](../../../phases/admin-resume-pdf/step2.md)을 따르며 최대 보관 예산·복구/운영 성능 검증과 실제 개인 PDF 공개는 아직 완료하지 않았다.
+Step 0 당시 완료 근거는 live code/schema/ingress와 이 계약의 대조, 공식 도구/HTTP 문서 확인, 문서·phase 파싱/링크/상태 검사였다. 이후 Step 1에서 parser 실행·합성 PDF 렌더·비공개 파일 등록을 검증했다. Step 2에서 검토한 버전의 공개/교체/해제와 current-only 다운로드를 합성 자료로 검증했다. Step 3에서 tmpfs 강제·오프라인 복구 reset과 최대 보관량의 실제 dump/restore·장애/rollback을 검증했다. [완료 기록](../../../phases/admin-resume-pdf/step3.md)을 따르며 운영 성능 검증과 실제 개인 PDF 공개는 아직 수행하지 않았다.

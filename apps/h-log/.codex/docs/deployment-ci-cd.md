@@ -4,7 +4,7 @@
 
 ## SEO 배포 검증 계획 — 아직 미적용
 
-2026-10-26 [claude-seo 기반 SEO 계획](harness/SEO_OPTIMIZATION_PLAN.md)을 등록했다. S1/S2·S3 Step 0은 로컬 도입/감사/개선/회귀이며 production image에 SEO Python·extension·계정 키를 넣지 않는다. S3 Step 1의 실제 도메인·Search Console·sitemap 제출은 OCI 보류 해제·공개 HTTPS origin/소유권·범위별 운영 승인 이후다. 기존 Next.js critical 경고의 패치/재검증, 실제 콘텐츠 검수와 비공개 경계 확인을 선행한다. 이 문서 변경으로 배포·DNS/계정·robots·발행 상태가 바뀌지 않는다.
+2026-10-26 [claude-seo 기반 SEO 계획](harness/SEO_OPTIMIZATION_PLAN.md)을 등록했다. S1/S2·S3 Step 0은 로컬 도입/감사/개선/회귀이며 production image에 SEO Python·extension·계정 키를 넣지 않는다. S3 Step 1의 실제 도메인·Search Console·sitemap 제출은 OCI 보류 해제·공개 HTTPS origin/소유권·범위별 운영 승인 이후다. A4 Step 3에서 기존 Next.js critical 경고를 패치/로컬 재검증했으며, 배포 시점에 감사를 다시 확인하고 실제 콘텐츠 검수와 비공개 경계 확인을 선행한다. 이 문서 변경으로 배포·DNS/계정·robots·발행 상태가 바뀌지 않는다.
 
 ## 관리자 도메인 계획 — 아직 미적용
 
@@ -341,11 +341,19 @@ systemctl --user list-timers hlog-auto-publish.timer
 - `007_resume_pdf_storage.sql`과 동일 버전 web image가 필요하다. `HLOG_RESUME_PDF_ENABLED=1`이 없으면 API는 닫히고 화면은 미설정을 표시한다. Linux 도구가 없으면 503이며 Windows에서 별도 무제한 parser로 대체하지 않는다.
 - Dockerfile의 qpdf 12.3.2-r0, poppler-utils 25.12.0-r1, util-linux-misc 2.42.3-r1, Noto CJK/DejaVu 핀과 비 root 실행을 유지한다. 이미지/도구 증거와 검증 명령은 [Step 1](../../phases/admin-resume-pdf/step1.md)에 기록했다.
 - 공개 ingress의 `/admin` 차단과 2m 제한은 유지한다. 정확한 관리자 업로드 경로에만 5m/수신 30초/upstream 90초/요청 buffering OFF를 적용하는 계약을 로컬 검증했다. 운영 Compose/Nginx/환경값은 이번 step에서 변경하지 않았다.
-- 기존 Next.js 16.2.11이 포함된 lockfile에 `npm audit --omit=dev` 결과 critical 1·high 3·moderate 1이 남아 있다. PDF 구현으로 npm 의존성은 추가하지 않았다. 배포 전에 지원 패치 버전과 영향 범위를 확인해 갱신하고 공개/관리 인증·SSR·이미지·빌드를 다시 검증해야 한다. 현재 image를 운영 배포 준비 완료로 취급하지 않는다.
-- 단일 작업의 임시 입력/출력은 제한했지만 별도 32 MiB tmpfs 총량 quota는 아직 설치하지 않았다. 최대 임시 공간·web RSS·backup/restore 예산과 격리는 A4 Step 3에서 검증/보완하고 실제 rollout 전에 확인한다.
+- Step 1 당시 Next.js 16.2.11의 production audit critical 1·high 3·moderate 1은 A4 Step 3에서 Next.js/eslint-config-next 16.4.3, sharp 0.35.5와 하위 의존성 갱신으로 0건이 됐다. 공개/관리 인증·SSR·RSC·프로필 이미지·빌드를 로컬 재검증했다. 이 결과는 운영 rollout 승인이 아니다.
+- A4 Step 3에서 Compose web의 /tmp/hlog-resume을 size=32m,uid=1001,gid=1001,mode=0700,noexec,nosuid,nodev tmpfs로 지정했다. 같은 image의 비 root uid/gid를 고정했고 quota가 없으면 검사 503이다. 미설정·ENOSPC·복구/정리와 최대 임시 공간·RSS·backup/restore를 로컬 검증했다. 실제 rollout에서도 동일 mount와 native sandbox를 확인한다.
 
 ## PDF 공개 연결 배포 전 확인 — A4 Step 2
 
 로컬에서 검토한 버전 공개·교체·해제와 `/api/resume/pdf`·Resume 링크를 구현했다. `HLOG_RESUME_PDF_ENABLED=1`과 유효한 UUID `HLOG_RESUME_PDF_PUBLICATION_EPOCH`가 있어야 공개를 허용한다. 미설정·epoch 불일치 때 공개 조회는 닫히고 비공개 검토·해제는 가능하다. 일반 재시작은 epoch를 유지하고, 복구·공개 게이트 재개는 새 epoch와 전 페이지 재검토를 거친다. 운영 환경값은 아직 주입하지 않았다.
 
-공개 PDF 응답의 `Cache-Control: no-store`를 CDN/Nginx에서 덮어쓰지 않는다. 관리자 ingress의 private/no-store, 공개 host의 관리자 차단과 기존 업로드 제한을 유지한다. 로컬 캐시 프록시에서 공개 200/MISS, 해제 후 일반·조건부 404/MISS를 확인했다. 직접 개발 서버의 SSR 헤더는 ingress와 다르므로 관리자 HTTP 회귀는 두 ingress 환경에서 실행한다. 전체 예산·dump/restore·실제 두 ingress 릴리스 검증과 기존 의존성 패치 gate는 후속 단계에 남는다. 상세는 [Step 2 완료 기록](../../phases/admin-resume-pdf/step2.md)을 따른다.
+공개 PDF 응답의 `Cache-Control: no-store`를 CDN/Nginx에서 덮어쓰지 않는다. 관리자 ingress의 private/no-store, 공개 host의 관리자 차단과 기존 업로드 제한을 유지한다. 로컬 캐시 프록시에서 공개 200/MISS, 해제 후 일반·조건부 404/MISS를 확인했다. 직접 개발 서버의 SSR 헤더는 ingress와 다르므로 관리자 HTTP 회귀는 두 ingress 환경에서 실행한다. 전체 예산·dump/restore·로컬 두 ingress와 의존성 패치는 A4 Step 3에서 완료했다. 운영 두 ingress/TLS·실제 자원/승인 검증은 A3 rollout에 남는다. 상세는 [Step 2 완료 기록](../../phases/admin-resume-pdf/step2.md)을 따른다.
+
+## A4 완료 후 배포 인계
+
+[Next.js 16.4.3](https://github.com/vercel/next.js/releases/tag/v16.4.3)와 [sharp 0.35.5](https://github.com/lovell/sharp/releases/tag/v0.35.5)의 공식 릴리스를 확인하고 lockfile을 갱신했다. npm audit --omit=dev 결과만 0건으로 기록하며 개발 도구까지 모든 취약점이 해소됐다고 표현하지 않는다. 후속 배포는 당시 감사 결과를 다시 확인한다.
+
+007 schema·web/migrations image·native 도구·tmpfs를 함께 준비한다. 작업 전 비공개 backup/격리 restore를 검증하고 쓰기 중지 상태에서 migration한다. 개인 파일 없이 feature OFF/epoch 미설정을 기본값으로 시작한다. [백업 복구](backup-restore-runbook.md)의 오프라인 reset과 새 epoch 절차, 실제 파일 검수는 별도로 수행한다. 공개 ingress와 worker canonical은 공개 origin이며 테스트용 resume-rehearsal.nginx.conf를 운영 conf.d로 복사하지 않는다.
+
+A3 Step 3/4는 [A4 실측](../../phases/admin-resume-pdf/step3.md)의 단일 검사와 4개 동시 다운로드·native 프로세스·tmpfs를 함께 검토하고 운영 메모리/보관 예산을 확인한다. 로컬 수치는 운영 SLO가 아니다.

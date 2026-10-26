@@ -213,3 +213,15 @@ rollback 후에는 production smoke를 다시 실행한다. smoke가 계속 실�
 - phase-gated crawler route는 구현 상태에 맞게 200 또는 expected 404로 기록했다.
 - Nginx 보안 헤더와 upstream proxy 경계를 확인했다.
 - rollback image tag와 migration 판단 결과가 운영 노트에 남아 있다.
+
+## 이력서 PDF release/rollback 확인
+
+A4 Steps 0–3의 합성 로컬 검증은 완료했다. A3 운영 적용 전 다음을 같은 artifact로 확인한다.
+
+- 007 schema와 pinned native 도구, UID/GID 1001·0700·32 MiB tmpfs가 함께 준비돼야 한다. 관리자 쓰기를 닫고 backup/restore 경계를 확인한다. 개인 PDF·dump·환경 키를 image나 공개 artifact에 포함하지 않는다.
+- 공개 host의 /admin 차단, 관리자 HTTPS·Host/Origin/소유자 인증, 업로드 전용 5 MiB 제한, private/no-store/noindex를 확인한다. PDF GET/HEAD는 feature OFF/epoch 없음/미등록/해제 시 404다. DB 오류는 고정 503이며 Resume 본문은 계속 읽힌다.
+- 실제 파일은 source에서 전화번호·생년월일·내부 URL/IP·비공개 회사/고객/저장소명을 정리한 새 버전으로 등록한다. 전 페이지 이미지와 텍스트/metadata/annotation/link/hidden content를 직접 비교한다. 검사 통과는 공개 적합성 승인을 대신하지 않는다. 문제를 발견하면 원본 문서를 수정해 새 PDF를 등록하고 새로운 hash를 검토한다.
+- 검토한 공개본은 파일명 이력서.pdf, SHA-256 일치, no-store다. B 비공개 업로드는 A를 유지하고 B 공개 후 옛 ETag는 B의 전체 응답, 해제 후 조건부/Range도 404다. 이미 내려받은 사본의 회수는 보장하지 않는다.
+- 장애 rollback은 PDF 공개/관리 쓰기를 닫고 기존 web을 중지한 뒤 검증한 이전 image로 전환한다. PDF 기능 OFF와 epoch 비움을 모든 instance에 적용하고 404를 확인한다. 새 bytea/보고서/감사를 삭제하는 down migration은 실행하지 않는다. DB를 되돌려야 하면 [복구 runbook](backup-restore-runbook.md)의 새 epoch·오프라인 reset·전 페이지 재검토를 따른다.
+
+이 단계에서 실제 파일을 공개하거나 OCI·DNS/TLS·운영 migration·timer를 실행하지 않았다. 기능 배포와 파일 공개는 별도 검수/행동이다.

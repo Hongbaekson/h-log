@@ -24,6 +24,8 @@ services:
       - ${HLOG_RUNTIME_ENV_FILE:-./deploy/env.dev}
     expose:
       - "3000"
+    tmpfs:
+      - /tmp/hlog-resume:size=32m,uid=1001,gid=1001,mode=0700,noexec,nosuid,nodev
     depends_on:
       hlog-postgres:
         condition: service_healthy
