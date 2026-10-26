@@ -213,7 +213,7 @@
     {
       "dir": "operations-observability",
       "status": "pending",
-      "summary": "2026-10-06 plan registered: local Steps 0-6 cover metric contracts, private Prometheus/Grafana, host/DB/HTTP probes, durable publishing/cost and backup/restore signals, dashboards/alerts and failure rehearsal. Step 7 production rollout is blocked by the user's OCI hold. Runtime is not implemented. Verified production monitoring is a pre-timer gate; the 2026-10-22 admin request takes priority with admin-console-foundation Step 0. Run this phase Step 0 after admin foundation and admin-resume-pdf; finish local monitoring Steps 1-6 before admin-operations-control Step 2. Monitoring production verification remains independent of admin rollout and timer activation."
+      "summary": "2026-10-26 Step 0 contract completed after live source/schema and PDF resource review. Required-six publishing proof, atomic host summaries, minimal read-only collection, missing/unknown/stale/disabled semantics and separate 1 GiB memory/3 GiB disk budget are specified. Runtime remains unimplemented; Steps 1-6 pending and Step 7 blocked by OCI hold. General next: admin-blog-publishing Step 0; monitoring-track next: Step 1. Complete local monitoring before admin-operations-control Step 2 and approved production monitoring before admin rollout/timer activation."
     },
     {
       "dir": "second-brain-foundation",

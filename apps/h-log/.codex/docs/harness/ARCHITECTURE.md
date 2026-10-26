@@ -36,7 +36,7 @@ npm run build
 
 ## 관리자 통합 현황과 목표
 
-2026-10-26 A1 Steps 0–3의 [접근·명령 계약](ADMIN_ACCESS_CONTRACT.md), `/admin` shell·공통 인증·Queue 비공개 이동·Brain 명령 통합과 A4 Steps 0–3의 PDF 보관·공개·복구 검증을 완료했다. 다음은 operations-observability Step 0의 모니터링 계약과 예산이다. Blog/automation/jobs/monitoring/audit 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
+2026-10-26 A1 Steps 0–3의 [접근·명령 계약](ADMIN_ACCESS_CONTRACT.md), `/admin` shell·공통 인증·Queue 비공개 이동·Brain 명령 통합과 A4 Steps 0–3의 PDF 보관·공개·복구 검증을 완료했다. 모니터링 Step 0 계약을 완료했고 다음은 admin-blog-publishing Step 0의 비공개 글 검토다. Blog/automation/jobs/monitoring/audit 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
 
 `lib/admin-owner.ts`는 설정·Host·Basic·Origin 검사와 비공개 헤더를 소유한다. `proxy.ts`는 전체 `/admin/:path*`, `lib/admin-server.ts`는 page/layout의 데이터 조회 전 검사를 담당한다. `brain-owner.ts`는 공통 인증 후 Brain DB flag를 검사하는 얇은 경계로 남는다. 기존 Nginx는 여전히 모든 관리자 경로를 차단하고 Host를 `hlog-web`로 전달한다. 두 loopback ingress의 정확한 Host 전달/공개 차단은 격리 구성으로 검증했으며 운영 설정은 변경하지 않았다.
 
@@ -50,7 +50,7 @@ Blog 관리 조회/명령·draft-only persistence·지속 정책과 요청은 �
 
 [SEO 계획](SEO_OPTIMIZATION_PLAN.md)과 ADR-040은 claude-seo의 고정 자료를 Codex의 저장소 스킬로 선별 이식하는 개발 작업이다. 기본 예정 위치는 루트 `.agents/skills/hlog-seo/`이고 실제 인식은 S1에서 검증한다. 참고 지침·출처/라이선스와 실제 감사 표본을 관리하며 Claude 전용 installer/hook이 Codex에서 자동 동작한다고 가정하지 않는다. 별도 SEO 서버·DB·worker나 production Python 의존성을 추가하지 않는다.
 
-감사는 공개 selector/route의 source 확인 → 합성 DB/loopback public ingress의 HTTP·DOM·no-JS → 승인된 공개 origin/검색 계정 순서다. 원자료는 `private/seo/`, 검토된 요약은 Harness 문서에 둔다. 기존 `site-seo`의 소스 검사에 실제 head/JSON-LD·상태/색인·공개 경계 검증을 보완할 계획이며 현재 metadata/crawler runtime은 바꾸지 않았다. 성능 lab/field와 실제 검색 노출을 분리한다. 일반 다음 작업은 operations-observability Step 0이며 운영 보류는 유지한다.
+감사는 공개 selector/route의 source 확인 → 합성 DB/loopback public ingress의 HTTP·DOM·no-JS → 승인된 공개 origin/검색 계정 순서다. 원자료는 `private/seo/`, 검토된 요약은 Harness 문서에 둔다. 기존 `site-seo`의 소스 검사에 실제 head/JSON-LD·상태/색인·공개 경계 검증을 보완할 계획이며 현재 metadata/crawler runtime은 바꾸지 않았다. 성능 lab/field와 실제 검색 노출을 분리한다. 일반 다음 작업은 admin-blog-publishing Step 0이며 운영 보류는 유지한다.
 
 ## Runtime 구성
 
@@ -290,7 +290,7 @@ Kubernetes is not required for the initial OCI deployment. If a later ADR adopts
 
 ## 운영 모니터링 목표 구조 (미구현)
 
-2026-10-06 [operations-observability](OBSERVABILITY_PLAN.md)를 등록했다. 현재 `compose.yaml`의 web/PostgreSQL healthcheck와 DB의 작업/비용 기록은 유지하며 아래 구성은 앞으로 구현할 목표다.
+2026-10-06 [operations-observability](OBSERVABILITY_PLAN.md)를 등록했다. 2026-10-26 Step 0 계약을 완료했다. 현재 `compose.yaml`의 web/PostgreSQL healthcheck와 DB의 작업/비용 기록은 유지하며 아래 구성은 앞으로 구현할 목표다.
 
 ```text
 Linux host / PostgreSQL / fixed HTTP-TLS targets
@@ -303,7 +303,7 @@ independent external monitor -> public HTTPS + monitoring heartbeat
 
 수집 경로는 read-only 집계와 최소 network/secret 권한을 사용한다. One-shot 결과는 종료 후에도 수집 가능해야 하며 cycle `completed`, worker idle, duplicate skip을 검증된 발행 성공으로 대체하지 않는다. 미수집·오류·never succeeded·stale·disabled를 구분한다. 공개 Nginx 내부 경로 차단, published-current 데이터와 발행/비용 상태 전이는 유지한다.
 
-모니터링 설정과 데이터 volume은 앱과 분리하며 Grafana는 localhost/SSH 터널을 기본안으로 둔다. 후보 파일은 `compose.observability.yaml`, `deploy/observability/`이며 아직 존재하는 runtime 파일로 간주하지 않는다. 로컬 계약·수집·알림·장애 검증은 Steps 0–6, 운영 적용·외부 감시는 Step 7에서 진행한다. 운영 모니터링을 확인한 뒤 별도 자동 발행 phase에서 timer를 재개하며 현재 OCI 보류는 유지된다.
+모니터링 설정과 데이터 volume은 앱과 분리하며 Grafana는 localhost/SSH 터널을 기본안으로 둔다. 예정 파일은 `compose.observability.yaml`, `deploy/observability/`다. DB 집계 view와 host atomic JSON summary를 기존 Node/pg collector가 읽는다. 시작/종료 helper는 DB·Docker와 독립되며 ExecStartPre/ExecStopPost에 연결할 예정이다. DB 계정은 원문/쓰기 권한 없이 필요한 통계·집계만 읽는다. 상세 파일·지표·1 GiB/3 GiB 예산과 검증 명령은 단일 계획을 따르며 아직 존재하는 runtime으로 간주하지 않는다. 로컬 계약·수집·알림·장애 검증은 Steps 0–6, 운영 적용·외부 감시는 Step 7에서 진행한다. 운영 모니터링을 확인한 뒤 별도 자동 발행 phase에서 timer를 재개하며 현재 OCI 보류는 유지된다.
 
 ## Backup/Restore Boundary
 

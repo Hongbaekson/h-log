@@ -54,3 +54,7 @@ Steps 0–1 완료 후 Linux host, PostgreSQL, HTTP/TLS의 최소 상태를 수�
 - 민감 본문·credential·내부 URL/IP를 metric/label/로그/알림/커밋에 넣지 말 것. 운영 데이터도 공개 저장소의 privacy 경계를 따른다.
 - Discord 스타일과 레이더 전체 영역을 변경하지 말 것. 이번 phase는 비공개 운영 모니터링 범위다.
 - OCI·DNS/TLS·운영 timer·실제 provider·외부 알림 전송을 실행하지 말 것. 현재 사용자 보류와 로컬 검증 범위를 유지한다.
+
+## Step 0 확정 계약 인계 — pending
+
+DB exporter는 비특권 built-in 통계, H-Log collector는 고정 집계 view를 읽는다. Deprecated custom query·pg_monitor 권한은 쓰지 않는다. Source freshness·3초 query timeout·실제 권한 거부와 Linux VM/host 차이를 검증한다. [지표·권한·자원·예정 파일과 명령](../../.codex/docs/harness/OBSERVABILITY_PLAN.md)을 기준으로 하며 이번 인계 기록은 구현 완료가 아니다.

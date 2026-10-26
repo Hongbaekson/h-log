@@ -62,3 +62,7 @@ DB commit 전 generation/auth 실패, required 검증 실패, 미실행, 최초 
 - 민감 본문·credential·내부 URL/IP를 metric/label/로그/알림/커밋에 넣지 말 것. 운영 데이터도 공개 저장소의 privacy 경계를 따른다.
 - Discord 스타일과 레이더 전체 영역을 변경하지 말 것. 이번 phase는 비공개 운영 모니터링 범위다.
 - OCI·DNS/TLS·운영 timer·실제 provider·외부 알림 전송을 실행하지 말 것. 현재 사용자 보류와 로컬 검증 범위를 유지한다.
+
+## Step 0 확정 계약 인계 — pending
+
+DB 독립 host atomic JSON summary와 ExecStartPre/ExecStopPost, 현재 버전 required 6종의 실제 성공 증거를 구현한다. 최초 enqueued_at/cost_basis·unknown/zero/unlimited·09:00 KST/UTC 경계를 보존한다. Migration 번호는 당시 다음 빈 번호로 할당한다. [지표·권한·자원·예정 파일과 명령](../../.codex/docs/harness/OBSERVABILITY_PLAN.md)을 기준으로 하며 이번 인계 기록은 구현 완료가 아니다.

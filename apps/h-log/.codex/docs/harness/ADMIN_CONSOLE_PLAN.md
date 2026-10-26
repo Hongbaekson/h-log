@@ -1,6 +1,6 @@
 # H-Log 통합 관리자 계획
 
-등록일: 2026-10-22. 2026-10-26 **A1 Steps 0–3와 A4 Steps 0–3를 완료했다. 4개 phase / 17개 step 중 completed 8개·pending 8개·blocked 1개**다. PDF 비공개 보관·검토 후 공개/교체/해제와 Resume 다운로드를 구현했다. 최대 보관량·복구/철회·임시 공간 제한·의존성 패치 검증도 완료했다. 다음 실행은 [모니터링 Step 0](../../../phases/operations-observability/step0.md)의 신호·권한·자원 예산 계약이다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
+등록일: 2026-10-22. 2026-10-26 **A1 Steps 0–3와 A4 Steps 0–3를 완료했다. 4개 phase / 17개 step 중 completed 8개·pending 8개·blocked 1개**다. PDF 비공개 보관·검토 후 공개/교체/해제와 Resume 다운로드를 구현했다. 최대 보관량·복구/철회·임시 공간 제한·의존성 패치 검증도 완료했다. 모니터링 Step 0의 신호·권한·자원 예산 계약도 확정했다. 다음 실행은 [A2 Step 0](../../../phases/admin-blog-publishing/step0.md)의 비공개 글 검토 화면이다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
 
 ## 방향과 현재 근거
 
@@ -114,8 +114,8 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 
 ## 실행 순서와 기존 계획
 
-1. 기본 다음 작업은 **operations-observability Step 0**이다. A1과 A4의 모든 로컬 step을 완료했다. PDF 최대 보관량·백업/복구·공개 철회·의존성 패치까지 검증했으며 운영 rollout은 아직 수행하지 않았다. 기존 `/lab/queue`는 404이며 공개 진입 링크와 sitemap 항목을 제거했다.
-2. A1 완료 뒤 독립적인 **A4 이력서 PDF Steps 0–3**을 진행한다. A4 번호는 기존 A1–A3의 참조를 보존하기 위한 것이며 운영 rollout 뒤로 미루는 뜻이 아니다. 이어 `operations-observability / Step 0`에서 신호·권한·예산을 확정한다. A2 Steps 0–3과 A3 Steps 0–1은 이를 참고해 실제 저장·제어를 구현하며, 수집 스택 설치를 선행 조건으로 요구하지 않는다.
+1. 기본 다음 작업은 **admin-blog-publishing Step 0: private-post-review**다. 모니터링 Step 0의 문서 계약을 완료했으며 수집 스택은 아직 설치하지 않았다. A1과 A4의 모든 로컬 step을 완료했다. PDF 최대 보관량·백업/복구·공개 철회·의존성 패치까지 검증했으며 운영 rollout은 아직 수행하지 않았다. 기존 `/lab/queue`는 404이며 공개 진입 링크와 sitemap 항목을 제거했다.
+2. A1 완료 뒤 독립적인 **A4 이력서 PDF Steps 0–3**을 진행한다. A4 번호는 기존 A1–A3의 참조를 보존하기 위한 것이며 운영 rollout 뒤로 미루는 뜻이 아니다. 이어 `operations-observability / Step 0`의 신호·권한·예산 계약까지 완료했다. A2 Steps 0–3과 A3 Steps 0–1은 이를 참고해 실제 저장·제어를 구현하며, 수집 스택 설치를 선행 조건으로 요구하지 않는다.
 3. observability Steps 1–6을 구현·로컬 검증한 뒤 A3 Steps 2–3을 완료한다. 관측 데이터의 생산자는 모니터링 phase, 관리자 화면은 소비자로 둔다.
 4. 운영은 기존 OCI 보류 해제 및 범위별 승인 후 진행한다. observability Step 7은 비활성 scheduler 상태에서도 완료할 수 있다. 이어 A3 Step 4에서 관리자 도메인과 A4의 비공개 파일 저장/migration을 적용한다. 관리자 rollout은 자동 발행 timer를 켜거나 실제 글/Brain 사본/PDF를 공개하지 않는다. 특정 PDF 공개는 관리자에서 검수한 파일을 선택하는 별도 행동이다.
 5. 반복 자동 발행은 기존 `auto-publish-ops-hardening / Step 4`에서 관리자 제어·운영 모니터링·실제 공개 origin/privacy 설정·별도 canary 승인을 확인한 뒤 활성화한다. 이 단계의 완료를 앞 단계의 선행 조건으로 삼지 않아 순환 의존을 피한다.

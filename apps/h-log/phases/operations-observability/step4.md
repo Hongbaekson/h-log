@@ -54,3 +54,7 @@ Steps 0–3 완료 후 백업 성공과 복구 검증 성공을 별도 지표로
 - 민감 본문·credential·내부 URL/IP를 metric/label/로그/알림/커밋에 넣지 말 것. 운영 데이터도 공개 저장소의 privacy 경계를 따른다.
 - Discord 스타일과 레이더 전체 영역을 변경하지 말 것. 이번 phase는 비공개 운영 모니터링 범위다.
 - OCI·DNS/TLS·운영 timer·실제 provider·외부 알림 전송을 실행하지 말 것. 현재 사용자 보류와 로컬 검증 범위를 유지한다.
+
+## Step 0 확정 계약 인계 — pending
+
+공통 atomic summary와 별도 backup/restore 성공을 재사용한다. 첫 백업 26시간·첫 복구 검증 24시간/이후 30일, disabled/never/stale와 PDF 복구 epoch를 포함한다. [지표·권한·자원·예정 파일과 명령](../../.codex/docs/harness/OBSERVABILITY_PLAN.md)을 기준으로 하며 이번 인계 기록은 구현 완료가 아니다.

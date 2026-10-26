@@ -2,7 +2,7 @@
   "project": "h-log",
   "phase": "operations-observability",
   "steps": [
-    { "step": 0, "name": "monitoring-contract-and-budget", "status": "pending" },
+    { "step": 0, "name": "monitoring-contract-and-budget", "status": "completed", "summary": "2026-10-26: Verified live schema/callers and finalized required-six publishing proof, DB-independent atomic summaries, unknown/disabled/stale semantics, read-only access, KST schedules/UTC cost and separate 1 GiB memory/3 GiB disk budget including PDF workload inputs. Documentation/JSON/link/registry checks passed. Runtime remains unimplemented. General next: admin-blog-publishing Step 0; monitoring next: Step 1. OCI hold unchanged." },
     { "step": 1, "name": "private-metrics-stack", "status": "pending" },
     { "step": 2, "name": "host-database-http-probes", "status": "pending" },
     { "step": 3, "name": "durable-publishing-signals", "status": "pending" },

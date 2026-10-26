@@ -51,3 +51,7 @@ Steps 0–4 완료 후 수집 지표를 운영 화면과 알림에 연결한다.
 - 민감 본문·credential·내부 URL/IP를 metric/label/로그/알림/커밋에 넣지 말 것. 운영 데이터도 공개 저장소의 privacy 경계를 따른다.
 - Discord 스타일과 레이더 전체 영역을 변경하지 말 것. 이번 phase는 비공개 운영 모니터링 범위다.
 - OCI·DNS/TLS·운영 timer·실제 provider·외부 알림 전송을 실행하지 말 것. 현재 사용자 보류와 로컬 검증 범위를 유지한다.
+
+## Step 0 확정 계약 인계 — pending
+
+단일 계약의 고정 labels·알림 임계/그룹/24시간 reminder와 freshness를 적용한다. Keep Last State만으로 오류를 숨기지 않고 NoData/Error 별도 경보와 신선한 복구 증거를 mock에서 확인한다. [지표·권한·자원·예정 파일과 명령](../../.codex/docs/harness/OBSERVABILITY_PLAN.md)을 기준으로 하며 이번 인계 기록은 구현 완료가 아니다.

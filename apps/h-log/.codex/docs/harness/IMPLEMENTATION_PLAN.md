@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-26 **operations-observability Step 0 completed**: 실제 schema/caller를 대조해 required 6종 성공·atomic 실행 결과·누락/오류/disabled·비용 unknown·최초 enqueue 시각·최소 권한과 모니터링 메모리 1 GiB/디스크 3 GiB 계약을 확정했다. [단일 계획](OBSERVABILITY_PLAN.md)과 후속 파일/검증 인계를 갱신했다. 문서/JSON·링크·읽을 파일·registry 보존 검사와 git diff --check를 통과했다. 수집기 설치/OCI 적용은 하지 않았다. 모니터링은 completed 1·pending 6·blocked 1, 관리자 트랙은 completed 8·pending 8·blocked 1이다. **일반 다음은 admin-blog-publishing Step 0: private-post-review**이며 모니터링 트랙의 다음은 Step 1: private-metrics-stack이다. 아래 다음 단계 표기는 당시 이력이다.
+
 2026-10-26 **A4 Step 3 completed**: 이력서 PDF phase의 모든 로컬 step을 완료했다. 32 MiB tmpfs 강제·감사 기반 복구 초기화·최대 100 MiB 원본의 dump/restore와 공개 철회·장애/rollback을 검증하고 production 의존성 감사를 0건으로 해소했다. Unit 245 pass/16 DB skip, integration 18/18, native 7/7, HTTP 6/6, 기본 gate와 모바일/데스크톱 검수를 통과했다. 관리자 트랙은 completed 8·pending 8·blocked 1이며 **다음은 `operations-observability / Step 0: monitoring-contract-and-budget`**다. [실측과 한계](../../../phases/admin-resume-pdf/step3.md)를 다음 단계의 예산 입력으로 사용한다. 실제 PDF 공개·운영 적용은 별도다. 아래는 당시 완료 이력이다.
 
 2026-10-26 **A4 Step 2 completed**: 검토한 PDF 공개·교체·해제, 현재 정책 재검사, epoch/revision·원자적 감사, 공개본 전용 GET/HEAD 다운로드와 Resume 링크를 구현했다. 단위 244 pass/16 DB skip, 격리 integration 18/18, PDF HTTP 2/2·admin HTTP 4/4, lint/typecheck/build·1440/390/320px와 캐시/DB 장애 검증을 통과했다. 관리자 트랙은 completed 7개·pending 9개·blocked 1개이며 **다음은 `admin-resume-pdf / Step 3: resume-privacy-and-recovery-rehearsal`**이다. 실제 PDF 공개·운영 적용은 수행하지 않았다. [Step 2 완료 기록](../../../phases/admin-resume-pdf/step2.md)을 따르며 아래 완료 기록은 당시 이력이다.
@@ -165,7 +167,7 @@ public-surface-refactor-pruning: completed, native legacy redirects and shared b
 discord-design-preview: completed Home/shared-shell design and browser screenshots; user accepted the design and requested commit/push; production deployment verification remains separate
 local-blog-design-verification: completed, populated Blog/public boundaries and desktop/mobile interaction verified; long list/search title clipping fixed with browser RED/GREEN and all required gates passed
 generation-input-freshness: completed, Step 0 rejects expired/future/invalid research before daily generation side effects; local and isolated DB gates passed
-operations-observability: pending, Steps 0-6 planned locally; Step 7 blocked by OCI hold; required before production timer activation
+operations-observability: pending, Step 0 contract completed; Steps 1-6 pending locally; Step 7 blocked by OCI hold; next general step admin-blog-publishing Step 0; verified production monitoring required before timer activation
 terraform-infrastructure-adoption: blocked by user's OCI hold; Steps 0-1 and Step 2 preparation preserved, no cloud apply/import executed
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned

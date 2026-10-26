@@ -213,6 +213,8 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **트레이드오프**: 로그 전문 검색·분산 추적·컨테이너별 자원 분석은 후속 요구로 남는다. 같은 host의 수집/알림은 host 전체 장애 때 멈추므로 독립된 외부 HTTP/heartbeat 감시가 필요하다. 자원·retention은 로컬 예산과 실측으로 검증하고 운영 host에 맞지 않으면 배치를 재검토한다.
 
+**Step 0 확정 (2026-10-26, runtime 미구현)**: 현재 DB가 기록하는 publish_jobs를 성공 근거로 사용한다. Required 6종의 존재와 현재 버전 succeeded를 확인하고 cycle completed/idle/중복 skip을 제외한다. DB 이전·ExecStartPre 실패와 미실행을 위해 host의 atomic JSON summary를 선택했다. Host Python 표준 라이브러리 helper는 Docker/DB 장애에서도 시작·종료를 기록하고, 기존 Node/pg 기반 read-only collector가 집계와 파일을 읽는다. 새 범용 실행 이력·Pushgateway는 추가하지 않는다. 최초 enqueue 시각과 비용 근거만 후속 schema에 추가하며 기존 값은 소급 추정하지 않는다. [단일 계약](OBSERVABILITY_PLAN.md)에 권한·60초 수집·3초 query timeout·1 GiB 메모리/3 GiB 디스크·일정/알림과 구현 파일을 확정했다. A4 PDF 백업 예산은 별도다. 이 자원 상한은 로컬 검증용 예산이며 운영 수용성을 아직 확인하지 않았다.
+
 **실행 경계**: 로컬 Steps 0–6 후 승인된 Step 7에서 운영 수집과 수신처를 검증한다. 이 phase의 완료를 자동 발행 timer 활성화 선행 조건으로 추가하되 timer 자체는 활성화하지 않는다. disabled schedule을 구분해 순환 의존을 피한다. 기존 OCI 보류·Terraform·발행/비용/privacy 경계는 유지한다.
 
 ### ADR-019: Second Brain은 검수한 기술 노트의 읽기 전용 카탈로그로 시작한다
@@ -397,7 +399,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **A1 Step 3 구현 (2026-10-26)**: 내용 revision과 별도로 증가하는 command revision, UUID 멱등 키와 SHA-256 입력 비교를 적용했다. 기존 `admin_actions`를 최소 확장해 Brain 상태/버전과 감사 receipt를 같은 transaction에 저장한다. 고유 키를 먼저 예약해 중복 신규 저장을 수렴시키며 실패 시 예약도 함께 rollback한다. 감사 사유는 버튼의 고정 의미만 남기고 원문은 복제하지 않는다. UI는 결과 불명확 시 동일 요청을 재사용하고 최근 20개 변경을 표시한다. 기존 원문·공개 snapshot·과거 감사는 보존하며 범용 명령 계층은 추가하지 않았다.
 
-**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1 Steps 0–3와 A4 Steps 0–3 completed 8개·pending 8개·운영 rollout blocked 1개다. 다음은 operations-observability Step 0이다. Prometheus/Grafana는 기존 observability phase가 소유하며 관리자 화면에 새 모니터링 시스템을 만들지 않는다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
+**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1 Steps 0–3와 A4 Steps 0–3 completed 8개·pending 8개·운영 rollout blocked 1개다. 모니터링 Step 0 계약을 완료했으며 다음은 admin-blog-publishing Step 0이다. Prometheus/Grafana는 기존 observability phase가 소유하며 관리자 화면에 새 모니터링 시스템을 만들지 않는다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
 
 ### ADR-039: 이력서 PDF는 비공개 버전에서 검토한 파일 하나만 공개한다
 
