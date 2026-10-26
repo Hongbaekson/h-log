@@ -257,9 +257,9 @@ function toPublicBlogPost(
   };
 }
 
-function buildPublicBlogContentBlocks(
+export function buildPublicBlogContentBlocks(
   markdown: string,
-  diagram: PublicBlogContentBlock | undefined,
+  diagram?: PublicBlogContentBlock,
 ): PublicBlogContentBlock[] {
   const normalized = markdown.replace(/\r\n?/g, "\n").trimEnd();
   const tokenizer = new Tokenizer();

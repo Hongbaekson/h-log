@@ -1,6 +1,6 @@
 # H-Log 통합 관리자 계획
 
-등록일: 2026-10-22. 2026-10-26 **A1 Steps 0–3와 A4 Steps 0–3를 완료했다. 4개 phase / 17개 step 중 completed 8개·pending 8개·blocked 1개**다. PDF 비공개 보관·검토 후 공개/교체/해제와 Resume 다운로드를 구현했다. 최대 보관량·복구/철회·임시 공간 제한·의존성 패치 검증도 완료했다. 모니터링 Step 0의 신호·권한·자원 예산 계약도 확정했다. 다음 실행은 [A2 Step 0](../../../phases/admin-blog-publishing/step0.md)의 비공개 글 검토 화면이다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
+등록일: 2026-10-22. 2026-10-27 **A1 Steps 0–3, A4 Steps 0–3와 A2 Step 0을 완료했다. 4개 phase / 17개 step 중 completed 9개·pending 7개·blocked 1개**다. PDF 보관·검토/공개·다운로드·복구와 비공개 블로그 목록/버전 검토를 로컬에서 검증했다. 모니터링 Step 0 계약도 완료했다. 다음 실행은 [A2 Step 1](../../../phases/admin-blog-publishing/step1.md)의 버전 저장·발행·철회 명령이다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
 
 ## 방향과 현재 근거
 
@@ -11,7 +11,7 @@
 | `app/admin`, `lib/admin-owner.ts`, `lib/brain-owner.ts` | 공통 Basic/Host/Origin 인증·전용 탐색, Brain DB flag 분리 | A1 Step 3 완료: 기록/공개 사본 보존·명령 revision·중복 재확인·원자적 감사 |
 | `proxy.ts` | 전체 `/admin/:path*` 보호; page·records handler도 데이터 접근 전 검사 | 운영 ingress는 승인된 rollout에서 적용 |
 | `deploy/nginx/conf.d/hlog.conf` | 공개 ingress에서 `/admin`·`/api/internal` 404; upstream Host는 `hlog-web` | 공개 차단 유지, 별도 관리자 host의 정확한 Host 전달·허용 경로를 로컬 검증 |
-| `lib/blog-admin.ts`, `lib/blog-postgres-repository.ts` | 철회와 감사 저장은 존재; 블로그 관리자 UI와 preview/save/publish caller는 없음 | 실제 화면에 필요한 명령만 버전·상태·감사 계약과 함께 구현 |
+| `app/admin/posts`, `lib/blog-admin-review.ts`, `lib/blog-admin.ts` | 인증된 글/버전·안전한 미리보기·출처/검증 조회 구현; 기존 철회와 감사 저장 존재 | A2 Step 1에서 실제 저장·발행·철회 caller와 버전·상태·감사 계약 구현 |
 | `lib/blog-daily-auto-article.ts`, `scripts/blog-auto-publish.mjs` | 검증 결과를 비공개 `publishing` aggregate와 queued required jobs로 저장 | 초안 전용 저장과 명시적 발행 승인/자동 허용을 분리 |
 | `lib/blog-persistent-worker.ts`, `deploy/systemd/` | lease 기반 한 건 실행, 유한 cycle, 09:00 KST timer 패키지 | 작업 조회·명시적 재시도·새 작업 claim 일시정지; 프로세스 생존은 별도 신호 |
 | `usage_events`, `admin_actions`, `publish_verifications` | 비용·일부 감사·검증 자료가 존재 | 실제 저장 항목만 조회, 기록되지 않은 실행 이력을 성공/0건으로 추정하지 않음 |
@@ -98,7 +98,7 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 | A1 | [1: shared-owner-auth-and-shell](../../../phases/admin-console-foundation/step1.md) | 전체 관리자 보호와 전용 탐색, 공개 host 차단 로컬 검증 |
 | A1 | [2: private-queue-lab](../../../phases/admin-console-foundation/step2.md) | Queue 실험 비공개 이동, 기존 공개 URL 404·링크/sitemap 제거 |
 | A1 | [3: second-brain-admin-integration](../../../phases/admin-console-foundation/step3.md) | Brain 편입·중복 방지·공개 상태 충돌·변경 이력 완료 |
-| A2 [admin-blog-publishing](../../../phases/admin-blog-publishing/index.json) | [0: private-post-review](../../../phases/admin-blog-publishing/step0.md) | 비공개 글/버전·안전한 미리보기·저장된 검증 결과 조회 |
+| A2 [admin-blog-publishing](../../../phases/admin-blog-publishing/index.json) | [0: private-post-review](../../../phases/admin-blog-publishing/step0.md) | **완료**: 비공개 글/버전·안전한 미리보기·저장된 검증 결과 조회 |
 | A2 | [1: versioned-editorial-actions](../../../phases/admin-blog-publishing/step1.md) | 저장·선택 버전 발행·철회와 동시 수정/감사 처리 |
 | A2 | [2: draft-generation-requests](../../../phases/admin-blog-publishing/step2.md) | 중복 없는 초안 요청·기존 실행자 처리·비공개 결과 저장 |
 | A2 | [3: automation-policy-controls](../../../phases/admin-blog-publishing/step3.md) | 초안/자동 발행 허용 분리, 정책 지속 저장과 전 실행 경로 적용 |
@@ -114,7 +114,7 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 
 ## 실행 순서와 기존 계획
 
-1. 기본 다음 작업은 **admin-blog-publishing Step 0: private-post-review**다. 모니터링 Step 0의 문서 계약을 완료했으며 수집 스택은 아직 설치하지 않았다. A1과 A4의 모든 로컬 step을 완료했다. PDF 최대 보관량·백업/복구·공개 철회·의존성 패치까지 검증했으며 운영 rollout은 아직 수행하지 않았다. 기존 `/lab/queue`는 404이며 공개 진입 링크와 sitemap 항목을 제거했다.
+1. 기본 다음 작업은 **admin-blog-publishing Step 1: versioned-editorial-actions**다. A2 Step 0의 인증된 조회·안전한 미리보기·공개 제외·원문 보존을 검증했다. A1/A4의 로컬 step과 모니터링 Step 0 계약도 완료했으며, 수집 스택 설치와 운영 rollout은 아직 수행하지 않았다.
 2. A1 완료 뒤 독립적인 **A4 이력서 PDF Steps 0–3**을 진행한다. A4 번호는 기존 A1–A3의 참조를 보존하기 위한 것이며 운영 rollout 뒤로 미루는 뜻이 아니다. 이어 `operations-observability / Step 0`의 신호·권한·예산 계약까지 완료했다. A2 Steps 0–3과 A3 Steps 0–1은 이를 참고해 실제 저장·제어를 구현하며, 수집 스택 설치를 선행 조건으로 요구하지 않는다.
 3. observability Steps 1–6을 구현·로컬 검증한 뒤 A3 Steps 2–3을 완료한다. 관측 데이터의 생산자는 모니터링 phase, 관리자 화면은 소비자로 둔다.
 4. 운영은 기존 OCI 보류 해제 및 범위별 승인 후 진행한다. observability Step 7은 비활성 scheduler 상태에서도 완료할 수 있다. 이어 A3 Step 4에서 관리자 도메인과 A4의 비공개 파일 저장/migration을 적용한다. 관리자 rollout은 자동 발행 timer를 켜거나 실제 글/Brain 사본/PDF를 공개하지 않는다. 특정 PDF 공개는 관리자에서 검수한 파일을 선택하는 별도 행동이다.

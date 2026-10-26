@@ -6,12 +6,12 @@ import { Activity, BookOpen, Brain, FileText, FlaskConical, History, LayoutDashb
 
 const items = [
   { label: "개요", href: "/admin", icon: LayoutDashboard },
+  { label: "블로그", href: "/admin/posts", icon: BookOpen },
   { label: "Second Brain", href: "/admin/brain", icon: Brain },
   { label: "이력서 PDF", href: "/admin/resume", icon: FileText },
   { label: "실험실", href: "/admin/lab/queue", icon: FlaskConical },
 ];
 const upcoming = [
-  { label: "블로그", icon: BookOpen },
   { label: "자동 작성", icon: WandSparkles },
   { label: "작업", icon: ListTodo },
   { label: "모니터링", icon: Activity },

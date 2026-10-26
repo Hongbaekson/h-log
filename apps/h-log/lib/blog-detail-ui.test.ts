@@ -21,7 +21,9 @@ describe("blog detail UI", () => {
     );
 
     assert.match(source, /max-w-\[46rem\]/);
-    assert.match(source, /<CodeBlock code=\{block\.code\}/);
+    assert.match(source, /<BlogContent blocks=\{post\.contentBlocks\}/);
+    const renderer = await readFile(new URL("../components/blog/BlogContent.tsx", import.meta.url), "utf8");
+    assert.match(renderer, /<CodeBlock code=\{block\.code\}/);
     const codeSource = await readFile(
       new URL("../components/blog/CodeBlock.tsx", import.meta.url), "utf8",
     );

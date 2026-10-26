@@ -107,7 +107,7 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 
 ### H-06: 단일 소유자 통합 관리자
 
-2026-10-22 사용자 요청으로 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 4개 phase / 17개 step으로 등록했다. 2026-10-26 A1 Steps 0–3의 계약·공통 인증·관리자 shell·Queue 비공개 이동·Brain 명령 통합과 A4 Steps 0–3의 PDF 계약·비공개 등록/미리보기·공개본 다운로드·최대 용량/복구 검증을 완료했다. 모니터링 Step 0의 문서 계약도 확정했다. **다음은 `admin-blog-publishing / Step 0: private-post-review`**다. A2 블로그/초안/자동화 정책과 A3 작업/감사·재시도/중지·모니터링·운영 적용은 후속 단계다.
+2026-10-22 사용자 요청으로 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 4개 phase / 17개 step으로 등록했다. A1 Steps 0–3, A4 Steps 0–3와 모니터링 Step 0 계약을 완료했으며, 2026-10-27 A2 Step 0에서 인증된 글 목록·현재/저장 버전·출처/검증 기록·안전한 비공개 미리보기를 구현했다. 원문과 공개 current pointer는 그대로 유지한다. **다음은 `admin-blog-publishing / Step 1: versioned-editorial-actions`**다. 글 저장/발행·초안 요청/자동화 정책과 A3 작업/감사·재시도/중지·모니터링·운영 적용은 후속 단계다.
 
 - 기존 Next.js `/admin`을 사용하고 운영 시 `admin.<선택 도메인>`으로 진입점을 분리한다. 공개 host는 관리자 경로를 차단하며 인증·정확한 Host/Origin·데이터 접근 검사를 함께 적용한다. 새 앱/회원가입/다중 역할은 만들지 않는다.
 - 공통 인증은 기존 Basic 소유자 키를 `HLOG_ADMIN_*`로 이전하고 Brain DB flag와 분리했다. 인증된 개요/Brain에서 미설정·저장소 오류를 구분하며 준비 중인 메뉴는 동작하지 않는다. 운영 초기 접근은 기존 SSH 터널 안의 HTTPS 관리자 진입점이 목표다. Brain 저장·공개·해제의 원자적 상태·중복·감사는 A1 Step 3에서 구현했다. 다른 관리자 명령과 새 작업 중지는 후속 step에서 구현한다.
@@ -122,7 +122,7 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 
 2026-10-26 [SEO 개선 계획](SEO_OPTIMIZATION_PLAN.md)을 3개 phase / 10개 step(pending 9·운영/계정 확인 blocked 1)으로 등록했다. claude-seo 2.5.0의 고정 commit에서 H-Log에 필요한 기술 SEO·schema·content·GEO 지침을 Codex용 `hlog-seo`로 선별 이식하고, 공개 HTTP/HTML 기준선 → URL/기본 읽기·metadata·성능·근거/링크 개선 → 회귀/실제 검색 성과 순서로 진행한다. 스킬 설치와 실제 최적화는 아직 수행하지 않았다.
 
-기존 canonical·sitemap·robots·JSON-LD·RSS/llms·공개 selector를 재사용한다. no-JS Blog 목록의 기존 후속 항목을 우선 재현하고 관리자/비공개 Brain/PDF는 감사 대상에서 제외한다. 검색 순위·AI 인용을 보장하지 않으며, 실제 도메인·GSC/CrUX와 배포는 운영 승인 이후다. 일반 다음 작업은 operations-observability Step 0이며 SEO를 지정하면 S1 Step 0부터 독립 진행한다.
+기존 canonical·sitemap·robots·JSON-LD·RSS/llms·공개 selector를 재사용한다. no-JS Blog 목록의 기존 후속 항목을 우선 재현하고 관리자/비공개 Brain/PDF는 감사 대상에서 제외한다. 검색 순위·AI 인용을 보장하지 않으며, 실제 도메인·GSC/CrUX와 배포는 운영 승인 이후다. 일반 다음 작업은 admin-blog-publishing Step 1이며 SEO를 지정하면 S1 Step 0부터 독립 진행한다.
 
 ### I-01: OCI self-hosted infrastructure
 

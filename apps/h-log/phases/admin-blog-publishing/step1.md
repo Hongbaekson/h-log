@@ -23,6 +23,11 @@
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/phases/admin-blog-publishing/index.json`
 - `apps/h-log/phases/admin-blog-publishing/step0.md`
+- `apps/h-log/app/admin/posts/page.tsx`
+- `apps/h-log/lib/blog-admin-review.ts`
+- `apps/h-log/lib/blog-admin-review-server.ts`
+- `apps/h-log/components/blog/BlogContent.tsx`
+- `apps/h-log/lib/blog-admin-review.integration.test.ts`
 - `apps/h-log/lib/blog-admin.ts`
 - `apps/h-log/lib/blog-postgres-repository.ts`
 - `apps/h-log/lib/blog-content-model.ts`

@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-계획 등록 상태: pending — 미구현. A1 전체와 operations-observability Step 0 완료. 모니터링 스택 설치는 필요하지 않다.
+2026-10-27 구현·로컬 검증 완료: completed. A1 전체와 operations-observability Step 0 완료. 모니터링 스택 설치는 필요하지 않다.
 
 ## 읽을 파일
 
@@ -68,3 +68,24 @@ git diff --check
 ## 다음 단계
 
 A2 Step 1 versioned-editorial-actions. 전체 순서는 [통합 관리자 계획](../../.codex/docs/harness/ADMIN_CONSOLE_PLAN.md)을 따른다.
+
+## 완료 기록 — 2026-10-27
+
+- `app/admin/posts/page.tsx`와 `posts.css`에 상태 필터·20개 단위 목록·버전 번호 선택·본문/원문·출처·검증 결과를 추가했다. 준비 메뉴였던 블로그를 실제 링크로 연결했다. 저장·발행·철회 버튼은 Step 1에서 구현한다.
+- `lib/blog-admin-review-server.ts`는 owner 인증 뒤에만 DB를 읽는다. `blog-admin-review.ts`는 read-only repeatable-read transaction, 3초 statement timeout, 제한된 페이지·256 KiB 본문/HTML·50개 출처/검증/작업을 사용한다. 현재 포인터와 선택 버전을 구분하며 요청한 버전이 없으면 다른 버전으로 대체하지 않는다.
+- 공개 상세의 안전한 renderer를 `components/blog/BlogContent.tsx`로 옮겨 재사용했다. Markdown/HTML/hash·상태·current pointer는 읽기 전후 동일하다. 저장 HTML은 escaped text로만 보여 주며 원격 이미지·실행 HTML을 주입하지 않는다. 본문 문법은 기존 공개 renderer와 같다.
+- 출처는 글 단위 기록이므로 과거 버전 당시 목록임을 보장하지 않는다. 검증/작업은 선택 버전만 읽고 raw result/error를 제외한다. 저장되지 않은 생성 이력·품질 점수는 미기록이라고 안내한다. 미설정·DB 오류·빈 목록·없는 버전을 구분한다.
+
+### 실행한 검증
+
+- RED: 새 query/parser 테스트와 격리 DB 테스트가 모듈 부재로 실패했다. 구현 전 인증된 `/admin/posts` HTTP 요청은 404였다. GREEN: query/안전 본문 단위 2개와 DB 통합 1개 통과.
+- `npm run test`: 247 pass / 17 DB skip / 0 fail. `npm run test:integration`: 19/19, 신규 `test:admin:posts` 포함. 각 DB suite는 자체 임시 DB를 생성·정리했다.
+- `npm run test:admin:posts:http`: 개발 모드 1/1, 로컬 production 모드 1/1. 합성 `review-private` v1/v2와 별도 public/admin ingress를 사용했다. owner 200, 익명/잘못된 인증 401, 공개 ingress 404, 위조 Host 403, HEAD/RSC/prefetch, raw HTML·오류 원문 제외, 공개 detail/Markdown/검색/crawler 제외를 확인했다. Next 개발 모드는 no-store, production 모드는 private/no-store를 확인했다. prefetch는 본문 없는 route tree일 수 있으며 실제 RSC 본문 조회는 별도로 검사한다.
+- `npm run test:admin:http`: production HTTPS ingress에서 4/4. 테스트 인증서는 이 명령의 Node 프로세스에만 신뢰시켰다. 운영 인증서/설정은 변경하지 않았다.
+- `npm run lint`, `npm run typecheck`, `npm run build` 통과. 빌드에는 기존 `blog-thumbnails.ts`의 dynamic filesystem tracing 경고 2개가 남아 있다.
+- 개발 서버 1440×1000 / 390×844 / 320×780에서 목록/본문·표/코드·원문·필터·페이지 이동·저장 버전 전환·키보드 제출을 확인했다. 모바일에서 페이지 가로 넘침은 없고 표/코드만 내부 스크롤한다. 합성 DB 중지 시 오류 안내, 재시작 후 같은 필터의 native 재요청 복구를 확인했다.
+- 문서·phase JSON·상대 링크/읽을 파일과 `git diff --check` 검증. 테스트 원자료/로그/임시 TLS 파일은 ignored `private/admin-post-review-check/`에만 보관했다.
+
+### 남은 범위
+
+운영 배포·실제 글 발행·외부 provider·timer는 실행하지 않았다. 새 schema/API/쓰기 명령은 없다. 별도 버전 목록 페이지·전체 원문 다운로드·256 KiB 초과 미리보기는 제공하지 않는다. 다음은 **A2 Step 1: versioned-editorial-actions**다.

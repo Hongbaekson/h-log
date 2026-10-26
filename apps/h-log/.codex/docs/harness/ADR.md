@@ -399,7 +399,9 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **A1 Step 3 구현 (2026-10-26)**: 내용 revision과 별도로 증가하는 command revision, UUID 멱등 키와 SHA-256 입력 비교를 적용했다. 기존 `admin_actions`를 최소 확장해 Brain 상태/버전과 감사 receipt를 같은 transaction에 저장한다. 고유 키를 먼저 예약해 중복 신규 저장을 수렴시키며 실패 시 예약도 함께 rollback한다. 감사 사유는 버튼의 고정 의미만 남기고 원문은 복제하지 않는다. UI는 결과 불명확 시 동일 요청을 재사용하고 최근 20개 변경을 표시한다. 기존 원문·공개 snapshot·과거 감사는 보존하며 범용 명령 계층은 추가하지 않았다.
 
-**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1 Steps 0–3와 A4 Steps 0–3 completed 8개·pending 8개·운영 rollout blocked 1개다. 모니터링 Step 0 계약을 완료했으며 다음은 admin-blog-publishing Step 0이다. Prometheus/Grafana는 기존 observability phase가 소유하며 관리자 화면에 새 모니터링 시스템을 만들지 않는다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
+**A2 Step 0 구현 (2026-10-27)**: `/admin/posts`에서 인증 후 read-only snapshot으로 글·선택 버전·출처·저장 검증을 조회한다. 20개 목록, 본문/HTML 각 256 KiB, 출처/검증/작업 각 50개와 query timeout으로 제한한다. 공개 본문 renderer를 분리해 재사용하며 저장 HTML은 실행하지 않는다. 출처는 글 단위, 검사와 작업은 선택 버전 단위임을 구분하고 raw result/error와 미저장 품질 점수는 노출/추정하지 않는다. 새 schema·쓰기 API·공개 selector 변경 없이 원문/hash/current를 보존한다.
+
+**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4 전체와 A2 Step 0 completed 9개·pending 7개·운영 rollout blocked 1개다. 모니터링 Step 0 계약도 완료했으며 다음은 admin-blog-publishing Step 1이다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
 
 ### ADR-039: 이력서 PDF는 비공개 버전에서 검토한 파일 하나만 공개한다
 

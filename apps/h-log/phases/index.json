@@ -183,7 +183,7 @@
     {
       "dir": "admin-blog-publishing",
       "status": "pending",
-      "summary": "2026-10-22 plan registered: private post review, versioned editorial commands, durable draft-only generation and separate automation permissions. Four steps pending; depends on shared admin foundation. Existing generation still hands off publishing jobs; draft-only mode and policy controls are not implemented."
+      "summary": "2026-10-27 Step 0 completed: authenticated /admin/posts with 20-row status-filtered pages, exact stored-version preview, escaped originals/hash, post-level sources and version-scoped verification/job records. Read-only snapshot and public published-current selectors preserved. RED/GREEN, unit 247 pass/17 DB skip, isolated integration 19/19, dev/prod review HTTP 1/1 each, shared admin HTTP 4/4, lint/typecheck/build and 1440/390/320px UI/error recovery checks passed. Steps 1-3 pending; next Step 1 versioned-editorial-actions. No production rollout or publishing."
     },
     {
       "dir": "admin-operations-control",
@@ -213,7 +213,7 @@
     {
       "dir": "operations-observability",
       "status": "pending",
-      "summary": "2026-10-26 Step 0 contract completed after live source/schema and PDF resource review. Required-six publishing proof, atomic host summaries, minimal read-only collection, missing/unknown/stale/disabled semantics and separate 1 GiB memory/3 GiB disk budget are specified. Runtime remains unimplemented; Steps 1-6 pending and Step 7 blocked by OCI hold. General next: admin-blog-publishing Step 0; monitoring-track next: Step 1. Complete local monitoring before admin-operations-control Step 2 and approved production monitoring before admin rollout/timer activation."
+      "summary": "2026-10-26 Step 0 contract completed after live source/schema and PDF resource review. Required-six publishing proof, atomic host summaries, minimal read-only collection, missing/unknown/stale/disabled semantics and separate 1 GiB memory/3 GiB disk budget are specified. Runtime remains unimplemented; Steps 1-6 pending and Step 7 blocked by OCI hold. General next: admin-blog-publishing Step 1; monitoring-track next: Step 1. Complete local monitoring before admin-operations-control Step 2 and approved production monitoring before admin rollout/timer activation."
     },
     {
       "dir": "second-brain-foundation",

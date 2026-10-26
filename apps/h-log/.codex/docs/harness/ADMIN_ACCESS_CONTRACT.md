@@ -1,6 +1,6 @@
 # 관리자 접근과 명령 계약
 
-확정일: 2026-10-23. `admin-console-foundation / Step 0`의 설계 결과다. **A1 Steps 0–3의 공통 인증·관리자 shell·Queue 비공개 이동·Brain 명령 통합과 A4 Steps 0–1의 PDF 계약·비공개 등록/미리보기를 로컬 구현·검증했다.** PDF 공개/해제, 블로그·정책/중지·운영 ingress는 후속 단계다. 다음은 A4 Step 2이며 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 따른다.
+확정일: 2026-10-23. `admin-console-foundation / Step 0`의 설계 결과다. **2026-10-27 기준 A1/A4 전체와 A2 Step 0의 인증된 비공개 글 검토를 로컬 구현·검증했다.** 글 저장·발행·철회 caller, 정책/중지·운영 ingress는 후속 단계다. 다음은 A2 Step 1이며 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 따른다.
 
 ## 1. 현재 caller와 부족한 계약
 

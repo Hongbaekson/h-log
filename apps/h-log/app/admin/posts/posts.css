@@ -1,0 +1,46 @@
+.post-review { min-width: 0; }
+.review-filter, .review-version { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; font-size: 14px; }
+.review-filter p { width: 100%; color: #a8aecb; font-size: 13px; }
+.post-review select, .post-review input[type="number"] { min-height: 44px; background: #11152f; border: 1px solid #41486b; border-radius: 8px; color: #e6e9ff; padding: 8px 12px; }
+.post-review button { min-height: 44px; border-radius: 8px; background: #5865f2; padding: 10px 18px; color: white; font-weight: 600; cursor: pointer; }
+.post-review button:hover { background: #4752c4; }
+.post-review :is(button, select, input):focus-visible { outline: 2px solid #b6bdff; outline-offset: 4px; }
+.review-columns { display: grid; grid-template-columns: minmax(200px, .75fr) minmax(0, 1.6fr); gap: 28px; align-items: start; }
+.review-section-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding-bottom: 16px; font-size: 13px; }
+.review-section-heading h2 { color: #f2f3ff; font-size: 17px; font-weight: 650; }
+.review-section-heading > span, .review-caption { color: #a8aecb; }
+.review-list { min-width: 0; }
+.review-list ul { list-style: none; padding: 0; }
+.review-list li { border-top: 1px solid #303654; }
+.review-list li a { display: block; padding: 18px 12px; border-radius: 8px; overflow-wrap: anywhere; }
+.review-list li a:hover { background: #191d3a; }
+.review-list li a[aria-current] { background: #20264c; box-shadow: inset 3px 0 #8891ff; }
+.review-list strong { display: block; margin: 9px 0; line-height: 1.65; font-weight: 550; }
+.review-list time { color: #a8aecb; font-size: 12px; }
+.review-status { display: inline-block; font-size: 12px; color: #c7cbff; background: #5865f21c; padding: 4px 8px; border-radius: 6px; }
+.review-pagination { display: flex; justify-content: space-between; gap: 14px; margin-top: 20px; }
+.review-pagination a, .review-link, .review-version a, .review-section-heading a { display: inline-flex; align-items: center; min-height: 44px; font-size: 13px; color: #c7cbff; text-decoration: underline; text-underline-offset: 4px; }
+.review-empty { color: #b8bdd3; padding: 30px 0; }
+.review-detail { min-width: 0; background: #11152f; border: 1px solid #303654; border-radius: 14px; padding: 24px; scroll-margin-top: 20px; overflow-wrap: anywhere; }
+.review-title { font-size: 24px; font-weight: 700; line-height: 1.5; letter-spacing: -.03em; margin: 8px 0 16px; }
+.review-caption { font-size: 12px; line-height: 1.8; margin: 5px 0; }
+.review-version { border-block: 1px solid #303654; margin-top: 22px; padding-block: 18px; }
+.review-version label { width: 100%; }
+.review-version small { color: #a8aecb; }
+.review-version input { width: 90px; }
+.review-description { color: #b8bdd3; font-size: 14px; line-height: 1.8; }
+.review-warning { border-left: 3px solid #e7aa69; color: #ffcf9b; padding: 12px; margin-top: 16px; font-size: 14px; }
+.review-preview { margin-top: 28px; }
+.review-preview > h3 { font-size: 12px; color: #a8aecb; margin-bottom: 20px; }
+.review-record { border-top: 1px solid #303654; margin-top: 24px; padding-top: 12px; min-width: 0; }
+.review-record summary { min-height: 44px; padding-block: 12px; cursor: pointer; font-weight: 600; font-size: 14px; }
+.review-record p, .review-record li { font-size: 13px; color: #b8bdd3; line-height: 1.8; }
+.review-record h4 { font-size: 13px; font-weight: 650; margin: 18px 0 8px; }
+.review-record pre { max-height: 320px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; background: #0c1027; border-radius: 8px; padding: 14px; font-size: 12px; line-height: 1.8; }
+.review-hash { display: block; overflow-wrap: anywhere; font-size: 12px; margin-top: 8px; color: #c7cbff; }
+.review-record ul { list-style: none; padding: 0; }
+.review-record li { border-bottom: 1px solid #303654; padding-block: 12px; }
+.review-record li small { display: block; color: #a8aecb; }
+.review-record a { color: #c7cbff; text-decoration: underline; text-underline-offset: 4px; }
+@media (max-width: 1100px) { .review-columns { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 767px) { .review-detail { padding: 18px; } .review-title { font-size: 21px; } }
