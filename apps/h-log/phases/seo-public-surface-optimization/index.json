@@ -1,0 +1,31 @@
+{
+  "project": "h-log",
+  "phase": "seo-public-surface-optimization",
+  "steps": [
+    {
+      "step": 0,
+      "name": "crawl-and-index-policy",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "server-rendered-blog-discovery",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "metadata-and-structured-data",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "measured-page-performance",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "name": "evidence-based-content-and-links",
+      "status": "pending"
+    }
+  ]
+}

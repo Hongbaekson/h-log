@@ -14,6 +14,12 @@
 - 운영 인프라와 클라우드는 OCI를 기본값으로 둔다.
 - 앞으로 클라우드 자원 관리는 Terraform을 기준으로 한다. 기존 자원 편입은 `terraform-infrastructure-adoption`에서 inventory → 코드화 → 승인된 import/no-change plan 순서로 진행한다. Compose/Nginx/systemd와 DB migration은 기존 배포 흐름을 유지한다.
 
+### 2026-10-26 claude-seo의 Codex 도입과 SEO 개선 계획
+
+[SEO 개선 계획](../apps/h-log/.codex/docs/harness/SEO_OPTIMIZATION_PLAN.md)을 3개 phase / 10개 step(pending 9·blocked 1)으로 등록했다. claude-seo 2.5.0의 commit `6be93f45064ffbadced572b5d5c95f55fd263af0`을 기준으로 필요한 지침을 repo-local Codex 스킬로 선별 이식한다. S1 도입/감사 기준선 → S2 canonical·no-JS 발견·metadata/schema·실측 성능·근거/링크 → S3 회귀/승인된 실제 검색 성과 순서다. 기존 SEO 코드를 재사용하고 소스 검사와 실제 HTTP/DOM·검색 성과를 구분한다. 계획 등록과 기존 기준선 7/7만 완료했으며 설치·앱 최적화·외부 제출은 수행하지 않았다.
+
+관리자/비공개 Brain·PDF·회사 원문은 SEO 감사에서 제외한다. 콘텐츠 후보는 기존 발행/검토 경계를 따르고 자동 SEO 발행·외부 유료 API·상시 감사 자동화는 추가하지 않는다. **일반 다음 작업 A4 Step 2는 유지하며 SEO를 지정하면 `seo-codex-foundation / Step 0`부터 시작**한다. 관리자/모니터링/운영 순서는 그대로이고 실제 도메인·GSC·배포 측정은 OCI 보류 해제와 해당 승인 이후다.
+
 ### 2026-10-22 통합 관리자 계획
 
 [통합 관리자 계획](../apps/h-log/.codex/docs/harness/ADMIN_CONSOLE_PLAN.md)을 4개 phase / 17개 step으로 등록했다. 기존 Next.js `/admin`과 단일 소유자 인증을 기반으로 블로그·초안/자동화 허용·실제 Worker 작업·Second Brain·모니터링·실험실을 모은다. 운영 목표는 `admin.<선택 도메인>`이며 공개 host의 관리자 접근은 차단한다. A1 Step 2에서 Queue를 `/admin/lab/queue`로 이동했다. 기존 공개 주소는 404이며 공개 진입 영역과 sitemap 항목을 제거했다.

@@ -46,6 +46,12 @@ npm run build
 
 Blog 관리 조회/명령·draft-only persistence·지속 정책과 요청은 아직 없다. 기존 generation은 `publishing` aggregate/required jobs를 만들므로 A2에서 비공개 초안 저장과 명시적 공개를 나눈다. 웹 요청은 기존 실행자에게 지속 요청을 전달하며 shell/worker 프로세스를 직접 띄우지 않는다. 기존 `publish_jobs`/lease·usage·audit를 재사용하고 모든 새 실행/공개 전이에 정책을 적용한다. 수집 신호는 observability phase가 생산하고 A3 관리자 화면이 읽는다. 세부 schema/새 파일은 실제 step에서 필요한 만큼 정한다.
 
+## SEO 개발 도구 도입 목표 — 아직 미구현
+
+[SEO 계획](SEO_OPTIMIZATION_PLAN.md)과 ADR-040은 claude-seo의 고정 자료를 Codex의 저장소 스킬로 선별 이식하는 개발 작업이다. 기본 예정 위치는 루트 `.agents/skills/hlog-seo/`이고 실제 인식은 S1에서 검증한다. 참고 지침·출처/라이선스와 실제 감사 표본을 관리하며 Claude 전용 installer/hook이 Codex에서 자동 동작한다고 가정하지 않는다. 별도 SEO 서버·DB·worker나 production Python 의존성을 추가하지 않는다.
+
+감사는 공개 selector/route의 source 확인 → 합성 DB/loopback public ingress의 HTTP·DOM·no-JS → 승인된 공개 origin/검색 계정 순서다. 원자료는 `private/seo/`, 검토된 요약은 Harness 문서에 둔다. 기존 `site-seo`의 소스 검사에 실제 head/JSON-LD·상태/색인·공개 경계 검증을 보완할 계획이며 현재 metadata/crawler runtime은 바꾸지 않았다. 성능 lab/field와 실제 검색 노출을 분리한다. 일반 다음 작업 A4 Step 2와 운영 보류도 유지한다.
+
 ## Runtime 구성
 
 ### 이력서 PDF 비공개 보관 — A4 Step 1 구현

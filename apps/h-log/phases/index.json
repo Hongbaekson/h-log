@@ -196,6 +196,21 @@
       "summary": "2026-10-26: Implemented owner-only PDF upload, immutable bytea versions, all-page PNG inspection, notes and atomic command receipts in migration 007. Pinned Linux qpdf/Poppler with process/network limits; 5 MiB/10 pages/20 versions. Unit 237 pass/15 DB skip, integration 17/17, native processor 4/4, admin/PDF HTTP 5/5, lint/typecheck/build and 1440/390/320px checks passed. Synthetic local data only. Next: Step 2 published-resume-download; public PDF and operational rollout remain unimplemented. Existing Next.js audit finding is a pre-deployment patch gate. Steps 0-1 completed; Steps 2-3 pending."
     },
     {
+      "dir": "seo-codex-foundation",
+      "status": "pending",
+      "summary": "2026-10-26 plan registered: selectively adapt pinned claude-seo 2.5.0 guidance for Codex, then establish a public-route SEO audit baseline. Two steps pending; no skill installation or full audit performed. Explicit SEO work starts at Step 0; the general admin next step remains admin-resume-pdf Step 2."
+    },
+    {
+      "dir": "seo-public-surface-optimization",
+      "status": "pending",
+      "summary": "2026-10-26 plan registered: five steps for crawl/index policy, no-JS Blog discovery, rendered metadata/schema, measured performance and evidence-based content/internal links. Depends on the SEO baseline; existing SEO, approved Brain UI, Home radar and public-content boundaries remain intact. No app changes implemented."
+    },
+    {
+      "dir": "seo-release-and-measurement",
+      "status": "pending",
+      "summary": "2026-10-26 plan registered: local SEO release rehearsal, approved public-domain/Search Console verification and later measured search review. Steps 0 and 2 pending; Step 1 blocked by OCI hold and unresolved public-domain/account scope. No deployment, DNS, account submission, tracker or recurring audit was activated."
+    },
+    {
       "dir": "operations-observability",
       "status": "pending",
       "summary": "2026-10-06 plan registered: local Steps 0-6 cover metric contracts, private Prometheus/Grafana, host/DB/HTTP probes, durable publishing/cost and backup/restore signals, dashboards/alerts and failure rehearsal. Step 7 production rollout is blocked by the user's OCI hold. Runtime is not implemented. Verified production monitoring is a pre-timer gate; the 2026-10-22 admin request takes priority with admin-console-foundation Step 0. Run this phase Step 0 after admin foundation and admin-resume-pdf; finish local monitoring Steps 1-6 before admin-operations-control Step 2. Monitoring production verification remains independent of admin rollout and timer activation."

@@ -1,0 +1,16 @@
+{
+  "project": "h-log",
+  "phase": "seo-codex-foundation",
+  "steps": [
+    {
+      "step": 0,
+      "name": "codex-skill-adapter",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "public-audit-baseline",
+      "status": "pending"
+    }
+  ]
+}

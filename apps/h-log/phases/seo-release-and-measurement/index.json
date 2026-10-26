@@ -1,0 +1,22 @@
+{
+  "project": "h-log",
+  "phase": "seo-release-and-measurement",
+  "steps": [
+    {
+      "step": 0,
+      "name": "local-seo-release-rehearsal",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "approved-domain-and-search-console",
+      "status": "blocked",
+      "blocked_reason": "사용자 OCI 보류가 유지되고 실제 공개 도메인/소유권·Search Console 계정 및 사용 범위가 아직 확정되지 않았다. 계획/커밋 요청은 운영 배포·DNS/계정 변경 승인이 아니다."
+    },
+    {
+      "step": 2,
+      "name": "search-performance-review",
+      "status": "pending"
+    }
+  ]
+}

@@ -411,6 +411,14 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **근거/실행 경계**: [OWASP 업로드 지침](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html)에 따라 허용 형식·실제 파싱·크기/자원·인증·CSRF·비공개 저장/handler 접근을 검증한다. 자동 검사는 전 페이지·메타데이터·주석·링크의 공개 검토를 대신하지 않는다. A4 Step 1은 합성 PDF로 비공개 업로드·PNG 렌더·불변 버전·메모·중복 receipt를 구현/검증했다. 공개 기능과 실제 PDF 공개·운영 migration은 수행하지 않았다.
 
+### ADR-040: SEO 도구는 개발용 Codex 지침으로 선별 이식한다
+
+**결정 (2026-10-26 계획)**: [claude-seo 기준 commit](https://github.com/AgriciDaniel/claude-seo/tree/6be93f45064ffbadced572b5d5c95f55fd263af0)의 필요한 지침·참고 자료를 MIT/출처와 함께 저장소 `hlog-seo` 스킬로 이식한다. `.agents/skills/hlog-seo/`를 기본 후보로 삼고 실제 Codex 검색/명시 호출로 검증한다. Claude installer·plugin root·agent/model 지정·hook을 그대로 활성화하지 않는다. 기존 `.codex/skills` 전체 이동이나 새 SEO 서비스/DB·web 의존성은 만들지 않는다.
+
+**이유와 범위**: H-Log의 기존 metadata/crawler/public selector가 이미 있어 새 SEO 프레임워크보다 실제 응답 감사와 확인된 결함의 작은 수정이 필요하다. source/local/public 모드를 분리하고 인증 자료/비공개 문서를 전달하지 않는다. 원본 Python helper는 필요한 경우에만 격리 도구로 검증하며 SSRF 경계를 유지한다. schema hook의 자동 실행을 가정하지 않고 렌더된 JSON-LD를 명시적으로 검사한다.
+
+**완료 판단**: [SEO 계획](SEO_OPTIMIZATION_PLAN.md)의 S1은 도입/기준선, S2는 공개 표면, S3는 회귀/승인된 운영 측정이다. 점수·llms 존재·GEO 평가를 실제 순위/인용으로 설명하지 않는다. 기존 경험/수치·공개 사본·레이더/Brain UI와 OCI 보류를 유지하며 스킬 설치·앱 최적화·외부 제출은 아직 미실행이다.
+
 ## 공식/내부 기준
 
 - Next.js docs

@@ -118,6 +118,12 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 - 실제 admin 도메인·DNS/TLS·OCI 개방은 A3 Step 4의 blocked 범위다. 관리자 rollout과 실제 provider/발행/timer 활성화는 별도 승인·검증으로 다룬다.
 - 추가 요청으로 A4 `admin-resume-pdf` 4개 step을 등록했다. 관리자에서 PDF를 비공개로 등록·전 페이지 미리보기하고 검토한 버전만 공개한다. 공개본이 있을 때 Resume에서 다운로드하며, 새 업로드만으로 기존 공개본이 바뀌지 않는다. 수정한 파일 교체·버전 메모·이전 버전 재선택·공개 해제를 제공하고 범용 PDF 본문 편집은 포함하지 않는다. A4 Step 0은 5 MiB·10페이지·20버전, qpdf+Poppler의 제한된 검증/이미지 미리보기, 원자적 감사와 복구 epoch·다운로드 HTTP 계약을 확정했다. A4 Step 1에서 등록·전 페이지 PNG 미리보기·버전 메모·중복 재확인과 원자적 감사를 구현했다. 공개/해제와 다운로드는 Step 2 대상이며 기존 공개 PDF/API의 제거 상태는 그대로다.
 
+### H-07: claude-seo를 활용한 SEO 개선 계획
+
+2026-10-26 [SEO 개선 계획](SEO_OPTIMIZATION_PLAN.md)을 3개 phase / 10개 step(pending 9·운영/계정 확인 blocked 1)으로 등록했다. claude-seo 2.5.0의 고정 commit에서 H-Log에 필요한 기술 SEO·schema·content·GEO 지침을 Codex용 `hlog-seo`로 선별 이식하고, 공개 HTTP/HTML 기준선 → URL/기본 읽기·metadata·성능·근거/링크 개선 → 회귀/실제 검색 성과 순서로 진행한다. 스킬 설치와 실제 최적화는 아직 수행하지 않았다.
+
+기존 canonical·sitemap·robots·JSON-LD·RSS/llms·공개 selector를 재사용한다. no-JS Blog 목록의 기존 후속 항목을 우선 재현하고 관리자/비공개 Brain/PDF는 감사 대상에서 제외한다. 검색 순위·AI 인용을 보장하지 않으며, 실제 도메인·GSC/CrUX와 배포는 운영 승인 이후다. 일반 다음 작업은 A4 Step 2를 유지하고 SEO를 지정하면 S1 Step 0부터 독립 진행한다.
+
 ### I-01: OCI self-hosted infrastructure
 
 인프라와 클라우드는 OCI를 기본 운영 환경으로 둔다.

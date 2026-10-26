@@ -71,6 +71,8 @@
 
 - 2026-10-22 추가 검수에서 JavaScript가 없는 기존 `/blog` 목록이 loading boundary의 안내에 머무는 현상을 확인했다. 실험↔프로젝트 링크와 글 직접 URL은 읽을 수 있다. 목록의 스트리밍/로딩 계약을 보존하면서 no-JS 탐색을 보완하는 작업은 이번 사례 연결과 분리해 남긴다.
 
+  2026-10-26 [SEO 개선 계획](SEO_OPTIMIZATION_PLAN.md)의 S1 기준선과 [S2 Step 1](../../../phases/seo-public-surface-optimization/step1.md)이 이 후속 항목의 재현·최소 보완을 담당한다. 계획 등록이며 기존 결함을 해결한 것으로 표시하지 않는다. 레이더와 승인된 Brain UI, 기존 19개 step의 완료 이력은 유지한다.
+
 - 2026-10-15 등록한 [기술 글 문체와 읽기 화면 개선](BLOG_EDITORIAL_READING_PLAN.md)의 T1~T3 / 7개 step은 2026-10-16 로컬 구현·검수를 완료했다. 이후 Phase 3 Step 3의 RSS·사례 연결과 Phase 4 Steps 0–2, Phase 5 Step 0까지 완료했다. 2026-10-21 Phase 5 Step 1의 콘텐츠 부족을 기록한 뒤 Step 2의 H-Log 사례 검토를 완료했다. 이후 원고 준비와 Phase 5를 완료했고 Phase 6 Step 0까지 검증했다. Phase 6 Step 1까지 완료했으며 기존 Phase 1~6의 번호·완료 이력은 유지한다. 다음은 운영 모니터링 Step 0이다.
 
 - 2026-10-06 [운영 모니터링](OBSERVABILITY_PLAN.md)을 독립 phase/8개 step으로 등록했다. 기존 공개 경험 6개 phase/19개 step의 번호·실행 순서는 유지한다. 모니터링을 지정하면 해당 Step 0부터 로컬 진행할 수 있고 운영 적용은 OCI 보류를 따른다. 자동 발행 timer 재개 전 운영 모니터링 검증이 필요하다.

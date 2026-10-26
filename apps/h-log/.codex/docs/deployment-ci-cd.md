@@ -2,6 +2,10 @@
 
 이 문서는 배포 작업을 할 때만 읽는다.
 
+## SEO 배포 검증 계획 — 아직 미적용
+
+2026-10-26 [claude-seo 기반 SEO 계획](harness/SEO_OPTIMIZATION_PLAN.md)을 등록했다. S1/S2·S3 Step 0은 로컬 도입/감사/개선/회귀이며 production image에 SEO Python·extension·계정 키를 넣지 않는다. S3 Step 1의 실제 도메인·Search Console·sitemap 제출은 OCI 보류 해제·공개 HTTPS origin/소유권·범위별 운영 승인 이후다. 기존 Next.js critical 경고의 패치/재검증, 실제 콘텐츠 검수와 비공개 경계 확인을 선행한다. 이 문서 변경으로 배포·DNS/계정·robots·발행 상태가 바뀌지 않는다.
+
 ## 관리자 도메인 계획 — 아직 미적용
 
 2026-10-22 [통합 관리자 계획](harness/ADMIN_CONSOLE_PLAN.md)을 등록했다. 기존 Next.js `/admin`을 유지하면서 `admin.<선택 도메인>`을 별도 진입점으로 사용하는 목표다. 공개 Nginx의 `/admin`·`/api/internal` 차단은 유지하며, 관리자 host에는 인증된 관리자 경로와 필요한 정적 자산만 허용한다. 정확한 Host 전달·origin 제한·직접 upstream 차단을 격리 로컬에서 검증한 뒤 적용한다. 현재 `Host hlog-web` 재작성 설정을 그대로 사용해 관리자 인증이 된다고 가정하지 않는다.

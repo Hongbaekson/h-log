@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-26 **SEO 계획 등록**: [claude-seo의 Codex 도입·SEO 개선](SEO_OPTIMIZATION_PLAN.md)을 S1 도입/기준선 2개·S2 공개 표면 개선 5개·S3 회귀/운영 측정 3개, 총 10개 step(pending 9·blocked 1)으로 추가했다. upstream 2.5.0/고정 commit과 live SEO 코드를 비교했고 기존 SEO/crawler/origin 7/7 기준선을 통과했다. 설치·전체 감사·최적화·GSC 제출은 미실행이다. **일반 다음 작업은 A4 Step 2 그대로이며, SEO를 지정하면 `seo-codex-foundation / Step 0`부터 진행**한다. 이 트랙은 기존 관리자/모니터링/운영 순서를 바꾸지 않는다.
+
 2026-10-26 **A4 Step 1 completed**: 관리자 PDF 비공개 업로드·전체 PNG 검사/미리보기·불변 버전·메모·중복 receipt와 migration 007을 구현했다. 단위 237 pass/15 DB skip, 격리 integration 17/17, native processor 4/4, 두 ingress HTTP 5/5, lint/typecheck/build·1440/390/320px 검수를 통과했다. 관리자 트랙은 completed 6개·pending 10개·blocked 1개이며 **다음은 `admin-resume-pdf / Step 2: published-resume-download`**다. 기존 Next.js critical audit는 배포 전 별도 패치 gate로 기록했다. 공개 기능·실제 PDF·운영 적용은 포함하지 않았다. 상세는 [Step 1 완료 기록](../../../phases/admin-resume-pdf/step1.md)을 따른다. 아래는 당시 이력이다.
 
 2026-10-26 **A4 Step 0 계약 완료**: [PDF 저장·공개 계약](RESUME_PDF_CONTRACT.md)에 bytea/불변 버전·공개 state·감사 receipt, 5 MiB·10페이지·20버전/100 MiB, qpdf+Poppler의 제한된 검사/PNG 미리보기, GET/HEAD·ETag·Range·no-store와 복구 epoch를 확정했다. Live 파일/schema/ingress 대조와 문서 검증 결과이며 PDF 도구·schema·API는 아직 미구현이다. 관리자 트랙은 completed 5개·pending 11개·blocked 1개, **다음은 `admin-resume-pdf / Step 1: private-upload-preview-and-versions`**다. 실제 파일·운영 상태는 변경하지 않았다. 아래는 당시 이력이다.
