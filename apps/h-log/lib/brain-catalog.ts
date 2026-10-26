@@ -217,7 +217,8 @@ export const brainCatalog = {
         {
           "heading": "남겨 둔 해결 방식",
           "paragraphs": [
-            "실패한 작업을 DLQ로 옮겨 운영자가 다시 처리할 수 있게 만든 과정을 공개 사례에 적어 뒀다. 살펴본 코드에서도 일반 큐와 실패 큐를 따로 두고 있었다."
+            "동기 처리에서 API 타임아웃이 발생하고, 실패한 작업을 수동으로 다시 처리해야 했다. Redisson RBlockingQueue로 후속 작업을 분리하고 실패 메시지의 자동 재시도와 DLQ 격리를 구현했다.",
+            "자동 재시도와 DLQ로 격리한 작업의 재처리는 나눠서 설명한다. 격리한 작업은 운영자가 확인하고 다시 처리할 수 있게 했다."
           ]
         },
         {
@@ -250,13 +251,14 @@ export const brainCatalog = {
       "summary": "조회가 빨라져도 캐시를 채우는 데는 비용이 든다.",
       "kind": "reflection",
       "topic": "data",
-      "basis": "reflection",
+      "basis": "profile",
       "recordedAt": "2026-10-06",
       "sections": [
         {
-          "heading": "구현에서 출발한 생각",
+          "heading": "직접 개선한 부분",
           "paragraphs": [
-            "살펴본 캐시 예열 코드는 전체 대상을 조회한 뒤 항목별로 저장했다. 실행 시간을 재고 중복 실행을 제한하는 장치도 있었다. 캐시를 읽을 때뿐 아니라 채울 때 드는 비용도 봐야 한다."
+            "여러 인스턴스가 뜰 때마다 같은 데이터를 조회하고 Redis 캐시를 채우는 작업이 중복됐다. ApplicationReadyEvent에서 필요한 데이터를 일괄 조회해 Redis CacheManager에 미리 넣고, ShedLock + JDBC LockProvider로 한 인스턴스만 실행하도록 구성했다.",
+            "캐시 예열 시간은 35분 36초에서 68초로 줄었다. 캐시를 읽는 속도뿐 아니라 처음 채우는 비용과 중복 실행도 함께 확인할 항목이다."
           ]
         },
         {
@@ -278,7 +280,8 @@ export const brainCatalog = {
       ],
       "sources": [
         {
-          "label": "허용된 구현을 읽고 일반화한 기술 메모"
+          "label": "이력서 · Redis 캐시 예열 개선",
+          "href": "/resume"
         }
       ],
       "visibility": "public"
@@ -289,13 +292,13 @@ export const brainCatalog = {
       "summary": "트랜잭션이 성공한 시점과 알림을 보내는 시점을 구분한다.",
       "kind": "learning",
       "topic": "reliability",
-      "basis": "implementation",
+      "basis": "profile",
       "recordedAt": "2026-10-06",
       "sections": [
         {
-          "heading": "확인한 동작",
+          "heading": "직접 분리한 처리",
           "paragraphs": [
-            "Spring 코드를 읽다가 AFTER_COMMIT 이벤트와 별도 트랜잭션으로 후속 작업을 처리하는 부분을 봤다. 주 작업의 저장 결과와 그 뒤에 일어나는 부수 효과를 나눠 보려고 적어 둔 메모다."
+            "트랜잭션 안에서 외부 API를 호출하면서 DB 커넥션을 오래 점유했고, 부가 로직의 실패가 핵심 작업의 롤백으로 이어졌다. Spring ApplicationEvent와 @TransactionalEventListener(AFTER_COMMIT), Propagation.REQUIRES_NEW를 적용해 후속 작업을 별도 트랜잭션으로 분리했다."
           ]
         },
         {
@@ -316,7 +319,8 @@ export const brainCatalog = {
       ],
       "sources": [
         {
-          "label": "허용된 구현을 읽고 일반화한 기술 메모"
+          "label": "이력서 · 트랜잭션 분리 경험",
+          "href": "/resume"
         },
         {
           "label": "Spring 공식 문서 · 트랜잭션 이벤트",

@@ -25,6 +25,20 @@
 
 ## Phase / Step 실행 순서
 
+### 2026-10-26 경력 콘텐츠 정정과 Portfolio 참고
+
+사용자가 다시 제공한 5쪽 경력기술서와 공개 콘텐츠를 대조하고, 확인한 차이의 수정을 요청했다. 이번 작업은 기존 화면의 콘텐츠 정정이며 phase 완료 상태와 관리자 다음 작업 `admin-resume-pdf / Step 2`, SEO 시작점 `seo-codex-foundation / Step 0`을 바꾸지 않는다.
+
+- Redisson 사례의 결과를 **평균 복구 시간 30초 이내**로 바로잡았다. 자동 재시도·DLQ 격리와 운영자의 격리 작업 확인/재처리를 구분했다. 평균값을 모든 장애의 복구 상한으로 표현하지 않는다.
+- Resume에 서버 백엔드 매니저 역할과 직접 설계·구현한 트랜잭션 분리·캐시 예열 방식을 보완했다. 캐시 예열의 ApplicationReadyEvent·Redis CacheManager·ShedLock + JDBC LockProvider와 기존 시간 수치는 경력기술서에 근거한다.
+- Brain의 DLQ·캐시 예열·트랜잭션 노드를 수정했다. 후자의 두 노드는 근거를 `profile`로 표시하고 `/resume`에 연결했다. 실제 수행한 내용과 이후 검토 질문을 구분하며 기존 ID·종류·날짜·연결·공개 범위를 유지한다. DB에 보관한 원문/수정 이력/공개 사본은 변경하지 않았다.
+- [참고 Portfolio](https://zerry.co.kr/portfolio)와 [대표 사례 상세](https://zerry.co.kr/portfolio/healthcare-platform)를 웹·브라우저로 확인했다. 대표 사례와 경력 목록의 구분, 상단 결과 요약, 문제→해결→결과의 읽기 순서를 참고했다. H-Log의 기존 역할/핵심 결과와 상세 구성을 재사용하고 소개 문구를 구체화했다. 타인의 기술 선택·성과·회사 내용과 숫자 애니메이션은 가져오지 않았다.
+- 새 컴포넌트·의존성·동작 변경 없이 공개 문구와 출처 표시만 수정했다. `portfolio-evidence-experience / Step 1`의 순수 콘텐츠 예외에 따라 문구 고정 테스트를 새로 만들지 않고 기존 테스트·형식/공개 경계·화면을 검증한다. 한국어 문체는 humanize-korean 지침으로 정리했다.
+
+검증: focused `projects`·`brain`·`brain-layout`·`resume-profile`·`site-seo` 30/30, 전체 단위 237 pass/15 DB skip, lint/typecheck/build와 `git diff --check`를 통과했다. 기본 sandbox의 build는 compile 단계에서 진행되지 않아 중단했고 같은 명령을 권한 확장 환경에서 재실행해 통과했다. 개발 서버의 Resume·Portfolio 목록/Redisson 상세·Brain 상세 3곳에서 1440/390/320px 문구 표시·가로 넘침을 확인하고 화면을 검수했다. DB 연결을 끈 콘텐츠 검수이므로 관련 글의 성공 조회·DB integration은 이번 범위에 포함하지 않는다. Browser의 임시 viewport를 원복하고 검증용 서버를 종료했으며 Next typegen으로 개발 서버가 바꾼 생성 파일을 복원했다.
+
+변경한 Brain 노드 3개 외 기존 25개 노드·42개 연결과 ID/종류/날짜/공개 범위, 프로젝트 URL·기존 정량 성과, Home/레이더·phase 레지스트리 보존을 별도로 비교했다. 원본 PDF와 임시 검증 자료는 공개 저장소에 추가하지 않았다. 앱 코드에서 공개할 문구를 정정한 결과이며 운영 배포·실제 PDF 공개는 수행하지 않았다.
+
 | Phase | Step | 개선 사항 |
 | --- | --- | --- |
 | 1. [blog-reading-foundation](../../../phases/blog-reading-foundation/index.json) | 0 | 빈 줄·인접 문단이 있는 fenced code를 안전한 코드 블록으로 보존 |

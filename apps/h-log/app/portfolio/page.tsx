@@ -90,7 +90,8 @@ export default function PortfolioPage() {
             포트폴리오
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--text-secondary)]">
-            백엔드 개발과 운영에서 맡은 역할과 결과를 정리했습니다.
+            반복 구현, 비동기 처리, 장애 추적에서 풀었던 문제를 정리했습니다.
+            각 사례에서 맡은 역할과 선택한 방법, 결과를 함께 볼 수 있습니다.
           </p>
         </Container>
       </section>

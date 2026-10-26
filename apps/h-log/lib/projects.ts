@@ -79,19 +79,19 @@ export const projects = [
   {
     approach: [
       "Redisson RBlockingQueue로 요청 처리와 후속 작업을 분리",
-      "DLQ와 재처리 흐름으로 실패 작업의 복구 경로 확보",
+      "실패 메시지의 자동 재시도와 DLQ 격리로 복구 흐름 구성",
       "별도 트랜잭션과 동시성 제어로 처리 범위를 축소",
     ],
     context: "Redisson 기반 비동기 처리와 DLQ 장애 복구",
     detail: {
       architecture: [
         "API 요청은 필요한 상태만 저장한 뒤 Queue에 후속 작업을 전달",
-        "Worker는 Redisson RBlockingQueue에서 작업을 가져와 독립 처리",
-        "실패 작업은 DLQ에 격리하고 운영자가 재처리할 수 있게 구성",
+        "Worker는 Redisson RBlockingQueue에서 작업을 가져와 독립 처리하고 실패 메시지를 자동 재시도",
+        "DLQ로 격리한 작업은 운영자가 확인하고 재처리할 수 있게 구성",
       ],
       role: [
-        "비동기 처리 구조와 실패 복구 흐름 설계",
-        "Redisson Queue와 DLQ 처리 구현",
+        "Redisson 비동기 처리·자동 재시도·DLQ 격리 설계와 구현",
+        "자동 재시도와 격리된 작업의 재처리 흐름 구분",
         "트랜잭션·동시성 경계 정리",
       ],
     },
@@ -99,14 +99,14 @@ export const projects = [
     impact: [
       "비동기 분리로 API 응답 시간을 약 80% 단축",
       "처리량을 기존 대비 2배로 개선",
-      "DLQ 재처리로 장애 복구 시간을 30초 이내로 단축",
+      "자동 재시도·DLQ 격리 체계로 평균 복구 시간을 30초 이내로 단축",
     ],
     period: "2025.03 - 현재",
     problem: "외부 연동과 후속 처리가 요청 트랜잭션에 묶여 응답이 느리고, 처리 실패 시 빠르게 복구할 표준 경로가 부족했습니다.",
     section: "featured",
     slug: "redisson-async-processing-recovery",
     stack: ["Java", "Spring Boot", "Redisson", "Redis", "DLQ", "PostgreSQL"],
-    summary: "요청과 후속 처리를 Redisson Queue로 분리해 API 응답 시간을 약 80% 단축하고 처리량을 2배로 높였으며, DLQ 재처리로 장애 복구 시간을 30초 이내로 줄였습니다.",
+    summary: "요청과 후속 처리를 Redisson Queue로 분리해 API 응답 시간을 약 80% 단축하고 처리량을 2배로 높였습니다. 자동 재시도와 DLQ 격리 체계로 평균 복구 시간을 30초 이내로 줄였습니다.",
     tone: "mint",
     type: "Async Processing & Recovery",
     year: "2025",
