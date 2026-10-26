@@ -397,7 +397,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **A1 Step 3 구현 (2026-10-26)**: 내용 revision과 별도로 증가하는 command revision, UUID 멱등 키와 SHA-256 입력 비교를 적용했다. 기존 `admin_actions`를 최소 확장해 Brain 상태/버전과 감사 receipt를 같은 transaction에 저장한다. 고유 키를 먼저 예약해 중복 신규 저장을 수렴시키며 실패 시 예약도 함께 rollback한다. 감사 사유는 버튼의 고정 의미만 남기고 원문은 복제하지 않는다. UI는 결과 불명확 시 동일 요청을 재사용하고 최근 20개 변경을 표시한다. 기존 원문·공개 snapshot·과거 감사는 보존하며 범용 명령 계층은 추가하지 않았다.
 
-**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1 Steps 0–3와 A4 Step 0 completed 5개·pending 11개·운영 rollout blocked 1개다. 다음은 A4 Step 1이다. Prometheus/Grafana는 기존 observability phase가 소유하며 관리자 화면에 새 모니터링 시스템을 만들지 않는다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
+**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1 Steps 0–3와 A4 Steps 0–1 completed 6개·pending 10개·운영 rollout blocked 1개다. 다음은 A4 Step 2다. Prometheus/Grafana는 기존 observability phase가 소유하며 관리자 화면에 새 모니터링 시스템을 만들지 않는다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
 
 ### ADR-039: 이력서 PDF는 비공개 버전에서 검토한 파일 하나만 공개한다
 
@@ -405,11 +405,11 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **저장/회수**: A4 Step 0(2026-10-26)에서 [PDF 계약](RESUME_PDF_CONTRACT.md)을 확정했다. 기존 PostgreSQL bytea·검사 보고서·공개 포인터를 사용하고 5 MiB·10페이지·20버전/원본 100 MiB를 제한한다. 전역 revision과 기존 감사 receipt로 파일 저장/메모/공개 변경을 원자적으로 처리한다. 새 public asset/bucket·원격 변환 서비스·범용 파일 관리 플랫폼은 만들지 않는다. 공개/교체/해제와 감사는 transaction으로 처리하며 no-store와 동적 공개 판정으로 철회 뒤 새 요청을 차단한다. 이미 받은/전송 중인 사본의 회수는 보장하지 않는다. DB 복구 시에는 공개 게이트를 닫고 dump 밖의 새 publication epoch와 현재 공개 의사를 확인한다. 공개 요청마다 current/epoch/hash를 확인하고 ETag 조건부도 그 뒤에 평가한다. Range는 최대 5 MiB 전체 응답으로 처리한다.
 
-**검사 도구 결정 (2026-10-26)**: qpdf JSON v2 구조 검사와 Poppler의 서버 PNG 미리보기를 선택했다. 같은 web image의 고정 CLI·prlimit·seccomp 네트워크 차단을 사용하며 새 서비스/브라우저 PDF viewer/원격 변환은 추가하지 않는다. 도구와 제한이 검증되지 않으면 기능을 닫는다. 이미지 변환은 검토용이며 공개 원본 바이트를 바꾸지 않는다. 실제 설치·Linux 제한·렌더 성능은 Step 1/3의 검증 대상이다.
+**검사 도구 결정 (2026-10-26)**: qpdf JSON v2 구조 검사와 Poppler의 서버 PNG 미리보기를 선택했다. 같은 web image의 고정 CLI·prlimit·seccomp 네트워크 차단을 사용하며 새 서비스/브라우저 PDF viewer/원격 변환은 추가하지 않는다. 도구와 제한이 검증되지 않으면 기능을 닫는다. 이미지 변환은 검토용이며 공개 원본 바이트를 바꾸지 않는다. Step 1에서 qpdf 12.3.2·Poppler 25.12.0·util-linux 2.42.3과 폰트를 기존 Linux image에 고정하고 네트워크/CPU/메모리/종료·청소를 검증했다. 최대 보관량의 RSS·dump·복구 실측은 Step 3 대상이다.
 
 **수정 범위**: 파일 바이트의 수정은 새 버전 등록이다. 관리자용 메모와 공개본 선택은 웹에서 바꾸지만 임의 PDF의 본문·폰트·레이아웃 직접 편집이나 온라인 Resume와의 자동 동기화는 구현 범위가 아니다. 구조화된 이력서 편집→PDF 생성은 이후 별도 요구로 다룬다. 검토를 통과한 파일 바이트/hash를 서버에서 몰래 정제·재작성하지 않는다.
 
-**근거/실행 경계**: [OWASP 업로드 지침](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html)에 따라 허용 형식·실제 파싱·크기/자원·인증·CSRF·비공개 저장/handler 접근을 검증한다. 자동 검사는 전 페이지·메타데이터·주석·링크의 공개 검토를 대신하지 않는다. 이번 완료는 A4 Step 0의 설계 계약 확정이며 파일 업로드·PDF renderer 실행·실제 PDF 공개·운영 migration은 수행하지 않았다.
+**근거/실행 경계**: [OWASP 업로드 지침](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html)에 따라 허용 형식·실제 파싱·크기/자원·인증·CSRF·비공개 저장/handler 접근을 검증한다. 자동 검사는 전 페이지·메타데이터·주석·링크의 공개 검토를 대신하지 않는다. A4 Step 1은 합성 PDF로 비공개 업로드·PNG 렌더·불변 버전·메모·중복 receipt를 구현/검증했다. 공개 기능과 실제 PDF 공개·운영 migration은 수행하지 않았다.
 
 ## 공식/내부 기준
 

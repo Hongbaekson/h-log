@@ -14,7 +14,7 @@
 
 2026-10-23 A1 Step 1 로컬 구현: 앱은 `HLOG_ADMIN_ENABLED/OWNER_KEY/ORIGIN`만 읽고 구 Brain owner 환경값으로 fallback하지 않는다. 운영 전환은 여전히 승인된 rollout에서 수행한다. 공개 `127.0.0.1:3030`/관리자 `localhost:3031`의 격리 Nginx로 Host 전달·공개 404·RSC/API 인증을 검증했고, 저장소의 Compose/Nginx/env는 바꾸지 않았다. 공개 보기 링크를 위해 `HLOG_PUBLIC_BASE_URL`은 공개 origin을 유지한다.
 
-이력서 PDF는 A4에서 제한된 PostgreSQL 비공개 저장과 공개 current handler를 구현할 계획이다. 관리자 rollout 시 해당 migration·파서 자원 예산·파일을 포함한 backup/restore·관리 업로드 크기 제한도 확인한다. 공개 정적 디렉터리나 bucket을 만들지 않으며 기존 Nginx의 2m 제한은 관리자 업로드 경로에서만 확정된 값으로 조정한다. 복구/rollout 시 PDF 공개 게이트는 닫고 실제 파일 검토·공개 선택을 별도로 수행한다. 현재 설정/DB/다운로드 API는 이 문서 갱신으로 변경되지 않았다.
+A4 Step 1에서 제한된 PostgreSQL 비공개 PDF 저장·관리 화면을 구현했다. 공개 current handler는 Step 2 대상이다. 관리자 rollout 시 해당 migration·파서 자원 예산·파일을 포함한 backup/restore·관리 업로드 크기 제한도 확인한다. 공개 정적 디렉터리나 bucket을 만들지 않으며 기존 Nginx의 2m 제한은 관리자 업로드 경로에서만 확정된 값으로 조정한다. 복구/rollout 시 PDF 공개 게이트는 닫고 실제 파일 검토·공개 선택을 별도로 수행한다. 현재 설정/DB/다운로드 API는 이 문서 갱신으로 변경되지 않았다.
 
 ```text
 Local development
@@ -331,3 +331,11 @@ systemctl --user list-timers hlog-auto-publish.timer
 `admin-console-foundation / Step 3`은 `006_brain_admin_commands`를 추가했다. 기존 메모의 명령 revision은 0, 과거 감사의 명령 필드는 null로 시작한다. 원문 버전·공개 snapshot·과거 감사 내용을 재작성하지 않는다. 격리 DB에서 005→006 보존·재실행과 전체 DB 통합을 검증했다.
 
 향후 승인된 배포에서 관리자 쓰기를 닫고 006 적용 후 새 UI/API를 함께 시작한다. 이전 화면의 commandId/commandRevision 누락 요청은 400으로 거부하므로 입력을 보관한 뒤 새로고침한다. 앱을 이전 버전으로 돌리면 옛 쓰기는 명령 revision/감사를 남기지 않으므로 관리자 쓰기를 계속 닫고 새 버전으로 복구한 뒤 다시 연다. 단순히 컬럼이 남았다는 이유로 구·신 버전의 동시 쓰기를 허용하지 않는다. 새 migration/웹 구현은 아직 로컬 검증 상태이며 운영 적용·DNS/TLS·provider·timer 활성화는 수행하지 않았다.
+
+## PDF 비공개 보관 배포 전 확인 — 2026-10-26
+
+- `007_resume_pdf_storage.sql`과 동일 버전 web image가 필요하다. `HLOG_RESUME_PDF_ENABLED=1`이 없으면 API는 닫히고 화면은 미설정을 표시한다. Linux 도구가 없으면 503이며 Windows에서 별도 무제한 parser로 대체하지 않는다.
+- Dockerfile의 qpdf 12.3.2-r0, poppler-utils 25.12.0-r1, util-linux-misc 2.42.3-r1, Noto CJK/DejaVu 핀과 비 root 실행을 유지한다. 이미지/도구 증거와 검증 명령은 [Step 1](../../phases/admin-resume-pdf/step1.md)에 기록했다.
+- 공개 ingress의 `/admin` 차단과 2m 제한은 유지한다. 정확한 관리자 업로드 경로에만 5m/수신 30초/upstream 90초/요청 buffering OFF를 적용하는 계약을 로컬 검증했다. 운영 Compose/Nginx/환경값은 이번 step에서 변경하지 않았다.
+- 기존 Next.js 16.2.11이 포함된 lockfile에 `npm audit --omit=dev` 결과 critical 1·high 3·moderate 1이 남아 있다. PDF 구현으로 npm 의존성은 추가하지 않았다. 배포 전에 지원 패치 버전과 영향 범위를 확인해 갱신하고 공개/관리 인증·SSR·이미지·빌드를 다시 검증해야 한다. 현재 image를 운영 배포 준비 완료로 취급하지 않는다.
+- 단일 작업의 임시 입력/출력은 제한했지만 별도 32 MiB tmpfs 총량 quota는 아직 설치하지 않았다. 최대 임시 공간·web RSS·backup/restore 예산과 격리는 A4 Step 3에서 검증/보완하고 실제 rollout 전에 확인한다.

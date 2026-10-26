@@ -18,13 +18,13 @@
 
 [통합 관리자 계획](../apps/h-log/.codex/docs/harness/ADMIN_CONSOLE_PLAN.md)을 4개 phase / 17개 step으로 등록했다. 기존 Next.js `/admin`과 단일 소유자 인증을 기반으로 블로그·초안/자동화 허용·실제 Worker 작업·Second Brain·모니터링·실험실을 모은다. 운영 목표는 `admin.<선택 도메인>`이며 공개 host의 관리자 접근은 차단한다. A1 Step 2에서 Queue를 `/admin/lab/queue`로 이동했다. 기존 공개 주소는 404이며 공개 진입 영역과 sitemap 항목을 제거했다.
 
-2026-10-26 A1 Steps 0–3의 [접근·명령 계약](../apps/h-log/.codex/docs/harness/ADMIN_ACCESS_CONTRACT.md), 공통 인증·관리자 개요/탐색·Queue 비공개 이동·Brain 명령 통합을 완료했다. Brain은 UUID/명령 revision·원자적 감사 receipt로 중복/충돌을 검사하고 UI에서 응답 유실 재확인과 최근 이력을 제공한다. 기존 원문·공개 snapshot은 보존했다. Unit 234 pass/14 DB skip, 격리 integration 16/16, Brain HTTP 1/1·admin HTTP 4/4, lint/typecheck/build와 데스크톱·모바일·오류 검수를 통과했다. A4 Step 0의 [PDF 저장·공개 계약](../apps/h-log/.codex/docs/harness/RESUME_PDF_CONTRACT.md)도 확정했다. 관리자 트랙은 completed 5개·pending 11개·blocked 1개이며 PDF runtime·블로그/작업 명령·운영 설정은 아직 미구현/보류 상태다.
+2026-10-26 A1 Steps 0–3의 공통 인증·관리자 개요/탐색·Queue 비공개 이동·Brain 명령 통합과 A4 Steps 0–1의 [PDF 계약](../apps/h-log/.codex/docs/harness/RESUME_PDF_CONTRACT.md)·비공개 업로드/미리보기/버전 메모를 완료했다. PDF는 제한된 Linux 도구로 검사하고 불변 bytea·전역 revision·감사 receipt로 저장한다. Unit 237 pass/15 DB skip, 격리 integration 17/17, native 4/4, admin/PDF HTTP 5/5, 기본 gate·1440/390/320px 검수를 통과했다. 관리자 트랙은 completed 6개·pending 10개·blocked 1개다. 공개 PDF·블로그/작업 명령·운영 적용은 후속 단계이며 기존 Next.js critical audit 패치는 배포 전 선행 항목이다.
 
-기본 다음 작업은 **`admin-resume-pdf / Step 1`**이다. A1 완료 → A4 이력서 PDF 등록/공개/다운로드 → 기존 모니터링 Step 0 → A2 블로그/자동화 → A3 작업 제어 → 모니터링 Steps 1–6 → A3 모니터링/로컬 검수 순으로 진행한다. 운영 모니터링 Step 7과 관리자 rollout은 OCI 보류 해제 뒤 승인 범위로 수행하고, 실제 timer는 그 다음 기존 운영 활성화 단계에서 다룬다. 구현되지 않은 초안 전용 저장·지속 정책·요청 이력과 블로그/작업 관리자 UI를 현재 runtime으로 설명하지 않는다. 아래 기존 기록의 다음 단계는 당시 상태다.
+기본 다음 작업은 **`admin-resume-pdf / Step 2`**다. A1 완료 → A4 이력서 PDF 등록/공개/다운로드 → 기존 모니터링 Step 0 → A2 블로그/자동화 → A3 작업 제어 → 모니터링 Steps 1–6 → A3 모니터링/로컬 검수 순으로 진행한다. 운영 모니터링 Step 7과 관리자 rollout은 OCI 보류 해제 뒤 승인 범위로 수행하고, 실제 timer는 그 다음 기존 운영 활성화 단계에서 다룬다. 구현되지 않은 초안 전용 저장·지속 정책·요청 이력과 블로그/작업 관리자 UI를 현재 runtime으로 설명하지 않는다. 아래 기존 기록의 다음 단계는 당시 상태다.
 
 현재 결정과 구현 상태:
 
-이력서 PDF도 관리자에서 등록·전 페이지 미리보기·수정 파일 교체·공개/해제·이전 버전 선택을 관리하는 A4를 추가했다. 검토한 공개본 하나만 Resume에서 다운로드하고 업로드만으로 공개 상태를 바꾸지 않는다. 범용 PDF 본문 편집은 포함하지 않으며 현재 PDF/다운로드 API 제거 상태는 그대로다. A4 Step 0에서 5 MiB·10페이지·20버전/100 MiB와 qpdf+Poppler의 검증·인증된 PNG 미리보기, 원자적 감사와 복구 epoch를 확정했다. 도구/DB/API 구현은 Step 1부터이며 실제 파일과 운영 공개는 포함하지 않는다.
+이력서 PDF도 관리자에서 등록·전 페이지 미리보기·수정 파일 교체·공개/해제·이전 버전 선택을 관리하는 A4를 추가했다. 검토한 공개본 하나만 Resume에서 다운로드하고 업로드만으로 공개 상태를 바꾸지 않는다. 범용 PDF 본문 편집은 포함하지 않으며 현재 PDF/다운로드 API 제거 상태는 그대로다. A4 Step 0에서 5 MiB·10페이지·20버전/100 MiB와 qpdf+Poppler의 검증·인증된 PNG 미리보기, 원자적 감사와 복구 epoch를 확정했다. Step 1에서 private 도구/DB/API·화면을 구현했다. 공개/다운로드는 Step 2이며 실제 파일과 운영 공개는 포함하지 않는다.
 
 ```text
 - 선택지 B(DB-first 자동 블로그 플랫폼)로 전환 결정은 완료됐다.

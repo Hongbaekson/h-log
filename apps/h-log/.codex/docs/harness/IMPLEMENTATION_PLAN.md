@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-26 **A4 Step 1 completed**: 관리자 PDF 비공개 업로드·전체 PNG 검사/미리보기·불변 버전·메모·중복 receipt와 migration 007을 구현했다. 단위 237 pass/15 DB skip, 격리 integration 17/17, native processor 4/4, 두 ingress HTTP 5/5, lint/typecheck/build·1440/390/320px 검수를 통과했다. 관리자 트랙은 completed 6개·pending 10개·blocked 1개이며 **다음은 `admin-resume-pdf / Step 2: published-resume-download`**다. 기존 Next.js critical audit는 배포 전 별도 패치 gate로 기록했다. 공개 기능·실제 PDF·운영 적용은 포함하지 않았다. 상세는 [Step 1 완료 기록](../../../phases/admin-resume-pdf/step1.md)을 따른다. 아래는 당시 이력이다.
+
 2026-10-26 **A4 Step 0 계약 완료**: [PDF 저장·공개 계약](RESUME_PDF_CONTRACT.md)에 bytea/불변 버전·공개 state·감사 receipt, 5 MiB·10페이지·20버전/100 MiB, qpdf+Poppler의 제한된 검사/PNG 미리보기, GET/HEAD·ETag·Range·no-store와 복구 epoch를 확정했다. Live 파일/schema/ingress 대조와 문서 검증 결과이며 PDF 도구·schema·API는 아직 미구현이다. 관리자 트랙은 completed 5개·pending 11개·blocked 1개, **다음은 `admin-resume-pdf / Step 1: private-upload-preview-and-versions`**다. 실제 파일·운영 상태는 변경하지 않았다. 아래는 당시 이력이다.
 
 2026-10-26 **A1 Step 3 completed, A1 phase 완료**: 기존 Brain 관리자에 UUID/명령 revision·중복 receipt·원자적 감사와 응답 유실 재확인·최근 변경 이력을 적용했다. 기존 원문·공개 snapshot·정적 카탈로그/Memory UI를 보존했다. Unit 234 pass/14 DB skip, 격리 integration 16/16, Brain HTTP 1/1·admin HTTP 4/4, lint/typecheck/build와 1440/390/320px·충돌·오류·기능 OFF 검수를 통과했다. 관리자 트랙은 completed 4개·pending 12개·blocked 1개이며 **다음은 `admin-resume-pdf / Step 0: resume-file-and-visibility-contract`**다. 운영 migration·공개·OCI·timer는 수행하지 않았다. 아래는 당시 이력이다.

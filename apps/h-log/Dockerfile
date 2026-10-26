@@ -43,7 +43,18 @@ FROM migrations AS dry-run
 
 CMD ["npm", "run", "dry-run:local"]
 
-FROM node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43 AS runner
+FROM node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43 AS pdf-tools
+
+RUN apk add --no-cache qpdf=12.3.2-r0 poppler-utils=25.12.0-r1 util-linux-misc=2.42.3-r1 font-noto-cjk=0_git20220127-r1 font-dejavu=2.37-r6
+
+FROM pdf-tools AS resume-pdf-test
+WORKDIR /app
+COPY --chown=node:node lib ./lib
+COPY --chown=node:node scripts ./scripts
+USER node
+CMD ["node", "--no-warnings", "--test", "--experimental-strip-types", "scripts/resume-pdf.processor.test.mjs"]
+
+FROM pdf-tools AS runner
 
 WORKDIR /app
 

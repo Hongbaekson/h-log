@@ -1,6 +1,6 @@
 # 관리자 접근과 명령 계약
 
-확정일: 2026-10-23. `admin-console-foundation / Step 0`의 설계 결과다. **A1 Steps 0–3에서 공통 인증·관리자 shell·Queue 비공개 이동·Brain 명령 통합을 로컬 구현/검증했다.** Brain 외 명령 DB·정책/중지·운영 ingress 계약은 후속 단계다. A4 Step 0의 [PDF 계약](RESUME_PDF_CONTRACT.md)도 확정했고 다음은 A4 Step 1이다. 단계별 범위는 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 따른다.
+확정일: 2026-10-23. `admin-console-foundation / Step 0`의 설계 결과다. **A1 Steps 0–3의 공통 인증·관리자 shell·Queue 비공개 이동·Brain 명령 통합과 A4 Steps 0–1의 PDF 계약·비공개 등록/미리보기를 로컬 구현·검증했다.** PDF 공개/해제, 블로그·정책/중지·운영 ingress는 후속 단계다. 다음은 A4 Step 2이며 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 따른다.
 
 ## 1. 현재 caller와 부족한 계약
 
@@ -15,7 +15,7 @@
 | `blog-persistent-worker.ts` | `FOR UPDATE SKIP LOCKED` claim·5분 lease·소유자 조건부 완료·유한 재시도 | A2 Step 3/A3 Step 1에서 정책 확인과 claim 중지의 transaction 경계 추가 |
 | Nginx → Compose web | 공개 `/admin`·`/api/internal` 404, upstream `Host hlog-web`, web은 expose만 사용 | 공개 차단 유지; 별도 관리자 ingress의 Host 전달을 로컬 검증 후 승인된 운영 단계에서 적용 |
 
-Brain의 `publish`/`unpublish`는 내용 revision을 증가시키지 않으며 별도 `command_revision`으로 공개/해제 경합을 검사한다. `006_brain_admin_commands`는 `admin_actions`에 Brain 대상과 nullable 명령/receipt 필드를 추가한다. PDF·정책 감사는 아직 미구현이다. Worker의 `idle`이나 cycle의 `completed`는 해당 글의 공개 검증 성공을 뜻하지 않는다.
+Brain의 `publish`/`unpublish`는 내용 revision을 증가시키지 않으며 별도 `command_revision`으로 공개/해제 경합을 검사한다. `006_brain_admin_commands`는 `admin_actions`에 Brain 대상과 nullable 명령/receipt 필드를 추가한다. A4 Step 1의 `007_resume_pdf_storage.sql`은 PDF version/state와 PDF 감사 target을 추가했다. 업로드·메모는 전역 revision과 같은 명령 receipt를 사용하며 공개/해제·정책 감사는 아직 미구현이다. Worker의 `idle`이나 cycle의 `completed`는 해당 글의 공개 검증 성공을 뜻하지 않는다.
 
 ## 2. 단일 소유자 인증과 설정 이전
 

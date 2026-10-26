@@ -4,7 +4,7 @@
 
 ## 범위
 
-2026-10-26 [PDF 계약](harness/RESUME_PDF_CONTRACT.md)의 A4는 PDF 바이트/검사 보고서/공개 포인터/감사 receipt를 같은 PostgreSQL backup 범위에 두도록 확정했다. 아직 관련 schema/파일 저장은 구현하지 않았다. A4 Step 3에서 격리 복구 후 파일 SHA-256·버전·포인터·감사 이력과 최대 보관 예산을 확인한다. 과거 backup의 공개 포인터가 철회된 PDF를 다시 노출하지 않도록 복구 환경의 PDF 공개 게이트를 먼저 닫고 dump 밖의 새 publication epoch를 발급한다. 구 포인터와 epoch가 달라 새 다운로드가 404인지 확인한 뒤, 포인터를 감사와 함께 해제하고 현재 파일을 재검토·명시적으로 공개한다. 원본 최대 100 MiB/검사 보고서 10 MiB, PDF DB 증분 256 MiB/custom dump 증분 200 MiB·보관 여유 3 GiB의 예산은 Step 3에서 실측한다. 실제 개인 PDF나 dump는 저장소·검수 로그에 포함하지 않는다.
+2026-10-26 [PDF 계약](harness/RESUME_PDF_CONTRACT.md)의 A4는 PDF 바이트/검사 보고서/공개 포인터/감사 receipt를 같은 PostgreSQL backup 범위에 두도록 확정했다. A4 Step 1에서 migration 007의 `resume_pdf_versions`(불변 bytea/보고서)·`resume_pdf_state`·감사 receipt를 구현하고 격리 DB upgrade/재시작·원자적 rollback을 검증했다. 최대 파일 전체 dump/restore 리허설은 아직 수행하지 않았다. A4 Step 3에서 격리 복구 후 파일 SHA-256·버전·포인터·감사 이력과 최대 보관 예산을 확인한다. 과거 backup의 공개 포인터가 철회된 PDF를 다시 노출하지 않도록 복구 환경의 PDF 공개 게이트를 먼저 닫고 dump 밖의 새 publication epoch를 발급한다. 구 포인터와 epoch가 달라 새 다운로드가 404인지 확인한 뒤, 포인터를 감사와 함께 해제하고 현재 파일을 재검토·명시적으로 공개한다. 원본 최대 100 MiB/검사 보고서 10 MiB, PDF DB 증분 256 MiB/custom dump 증분 200 MiB·보관 여유 3 GiB의 예산은 Step 3에서 실측한다. 실제 개인 PDF나 dump는 저장소·검수 로그에 포함하지 않는다.
 
 - 대상 DB: Compose service `hlog-postgres`
 - 대상 volume: Compose volume `postgres_data`

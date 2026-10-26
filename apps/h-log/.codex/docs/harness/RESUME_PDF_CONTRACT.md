@@ -1,8 +1,8 @@
 # 이력서 PDF 저장·검토·공개 계약
 
-확정일: 2026-10-26. A4 `admin-resume-pdf / Step 0`의 설계 결과다. **계약 검토만 완료했으며 아래 schema·도구·API·화면은 아직 구현하지 않았다.** 구현은 Steps 1–3, 운영 적용은 A3 Step 4가 담당한다. [관리자 접근 계약](ADMIN_ACCESS_CONTRACT.md)과 [공개 정보 기준](../../rules/content-seo-privacy.md)을 함께 적용한다.
+확정일: 2026-10-26. A4 `admin-resume-pdf / Step 0`의 설계 결과다. **Step 1에서 비공개 schema·도구·API·화면을 구현/검증했다. 공개/다운로드는 Step 2, 최대 예산·복구는 Step 3에 남아 있다.** 운영 적용은 A3 Step 4가 담당한다. [관리자 접근 계약](ADMIN_ACCESS_CONTRACT.md)과 [공개 정보 기준](../../rules/content-seo-privacy.md)을 함께 적용한다. 아래 목표 계약과 실제 완료 범위는 [Step 1 기록](../../../phases/admin-resume-pdf/step1.md)으로 구분한다.
 
-## 1. 현재 코드와 구현 경계
+## 1. Step 0 당시 코드와 구현 경계
 
 | 확인한 파일 | 현재 사실 | 이 계약의 적용 지점 |
 | --- | --- | --- |
@@ -29,7 +29,7 @@
 | parser JSON | 프로세스 stdout 최대 8 MiB, 객체 20,000개·중첩 64단계; 초과 422 |
 | 렌더 이미지 | 한 페이지씩 PNG, 긴 변 최대 2,000px, 최대 4백만 픽셀·8 MiB; 페이지 크기/회전 검사 후 렌더 |
 | 실행 자원 | native 자식 프로세스 가상 주소 공간 256 MiB, CPU 5초/호출, wall 10초/호출, 전체 검사 45초 |
-| 임시 파일 | 전체 처리 한 건만, 전용 공간 32 MiB, 한 출력 파일 8 MiB; 입력은 최대 5 MiB, 페이지 출력은 읽고 바로 삭제 |
+| 임시 파일 | 전체 처리 한 건만, 전용 공간 예산 32 MiB, 한 출력 파일 8 MiB; 입력은 최대 5 MiB, 페이지 출력은 읽고 바로 삭제. Step 1은 per-file 제한을 구현했으며 전체 공간 실측/총량 quota는 Step 3 대상 |
 | 동시 처리 | PDF 검사/미리보기 전역 1건, 대기열 없이 429와 `Retry-After: 2`; PDF 다운로드는 web instance당 최대 4건 |
 | 수신/응답 | 수신 30초, 다운로드 전송 30초; 연결 종료 시 reader·자식·임시 파일 정리 |
 | 저장/백업 준비 예산 | PDF 원본 100 MiB+보고서 최대 10 MiB. DB/TOAST/index 증분 256 MiB, custom dump 증분 200 MiB를 리허설 예산으로 잡음 |
@@ -68,7 +68,7 @@ Step 1은 Linux image에서 네트워크 요청 probe·자원 초과·종료/청
 
 ## 4. 데이터와 트랜잭션
 
-현재 최신 migration은 006이다. **Step 1의 새 migration 후보는 `007_resume_pdf_storage.sql`**이며 실행 직전에 번호 충돌을 다시 확인한다. 이 문서에서는 SQL/DB를 만들지 않는다.
+Step 1에서 **`007_resume_pdf_storage.sql`**을 추가했다. 격리 DB의 fresh/006→007 upgrade에서 기존 Brain/블로그/감사 보존을 확인했다. 운영 migration은 적용하지 않았다.
 
 | 대상 | 최소 필드 / 불변 조건 |
 | --- | --- |
@@ -140,7 +140,7 @@ Resume은 바이트 없이 공개 가능 여부만 동적으로 읽는다. 공�
 
 ## 8. 구현 파일과 검증 인계
 
-아래 새 경로/명령은 **예정**이며 Step 1 시작 시 기존 파일과 충돌 여부를 확인한다. 범용 명령 버스·PDF 편집기·새 서비스는 만들지 않는다.
+아래 Step 1 파일은 구현됐으며 Steps 2–3은 예정이다. 범용 명령 버스·PDF 편집기·새 서비스는 만들지 않는다.
 
 | 단계 | 변경 대상 | 필수 검증 |
 | --- | --- | --- |
@@ -148,7 +148,7 @@ Resume은 바이트 없이 공개 가능 여부만 동적으로 읽는다. 공�
 | Step 2 | 기존 `app/resume/page.tsx`; 새 `app/api/resume/pdf/route.ts`; Step 1 명령/조회·관리자 공개 UI | 선택·교체·해제·재검토·HTTP 조건부·Range·캐시·모바일 |
 | Step 3 | 동일 경계의 보완 테스트와 backup/deployment runbook | 실제 Linux image·최대 예산·복구 epoch·상태 재확인·두 ingress 종합 리허설 |
 
-기본 gate는 각 코드 step의 RED→GREEN 뒤 `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`, `git diff --check`다. DB 변경은 기존 `npm run test:integration`에 PDF suite를 연결한다. 새 명령 `npm run test:resume:processor`(동일 Linux image), `npm run test:resume:http`(격리 DB/두 loopback host)는 Step 1에서 실제 스크립트와 함께 추가한다. 오늘 존재하거나 통과한 명령으로 기록하지 않는다.
+기본 gate는 각 코드 step의 RED→GREEN 뒤 `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`, `git diff --check`다. Step 1에서 `npm run test:integration`에 PDF suite를 연결하고 `npm run test:resume:processor`(동일 Linux 도구 image)와 `npm run test:resume:http`(격리 DB/두 loopback host)를 추가했다. 상세 실행 조건·결과와 남은 검증은 [Step 1 완료 기록](../../../phases/admin-resume-pdf/step1.md)을 따른다.
 
 | 사례 | 예상 결과 / 담당 |
 | --- | --- |
@@ -164,4 +164,4 @@ Resume은 바이트 없이 공개 가능 여부만 동적으로 읽는다. 공�
 | 1440/390/320px·키보드·이미지 확대/페이지 이동·메모/오류·Resume no-JS | 공개/비공개 의미와 원문 검토 가능, 본문 회귀 없음 / Steps 1–3 |
 | 공개 A backup→해제→restore, 새 epoch, 구 receipt 재전송·최대 보관량 복구 | A 자동 재공개 없음·동일 바이트/hash·명시적 재검토 후만 공개 / Step 3 |
 
-Step 0 완료 근거는 live code/schema/ingress와 이 계약의 대조, 공식 도구/HTTP 문서 확인, 문서·phase 파싱/링크/상태 검사다. parser 실행·합성 PDF 렌더·파일 등록·운영 성능은 아직 검증하지 않았으며 다음 step의 완료 조건으로 남긴다.
+Step 0 당시 완료 근거는 live code/schema/ingress와 이 계약의 대조, 공식 도구/HTTP 문서 확인, 문서·phase 파싱/링크/상태 검사였다. 이후 Step 1에서 parser 실행·합성 PDF 렌더·비공개 파일 등록을 검증했다. 최대 보관 예산·복구/운영 성능 검증과 실제 공개는 아직 완료하지 않았다.

@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "private-upload-preview-and-versions",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-26: Implemented owner-only PDF upload, immutable bytea versions, all-page PNG inspection, notes and atomic command receipts in migration 007. Pinned Linux qpdf/Poppler with process/network limits; 5 MiB/10 pages/20 versions. Unit 237 pass/15 DB skip, integration 17/17, native processor 4/4, admin/PDF HTTP 5/5, lint/typecheck/build and 1440/390/320px checks passed. Synthetic local data only. Next: Step 2 published-resume-download; public PDF and operational rollout remain unimplemented. Existing Next.js audit finding is a pre-deployment patch gate."
     },
     {
       "step": 2,

@@ -27,6 +27,14 @@ pending — 계획이며 미구현. A4 Step 1의 private 저장/미리보기와 
 - `apps/h-log/phases/admin-resume-pdf/index.json`
 - `apps/h-log/phases/admin-console-foundation/index.json`
 - `apps/h-log/phases/admin-resume-pdf/step1.md`
+- `apps/h-log/lib/resume-pdf.ts`
+- `apps/h-log/lib/resume-pdf-http.ts`
+- `apps/h-log/lib/resume-pdf-processor.ts`
+- `apps/h-log/lib/resume-pdf-repository.ts`
+- `apps/h-log/lib/resume-pdf-server.ts`
+- `apps/h-log/components/admin/ResumeManager.tsx`
+- `apps/h-log/migrations/007_resume_pdf_storage.sql`
+- `apps/h-log/scripts/resume-pdf.http.test.mjs`
 - `apps/h-log/app/resume/page.tsx`
 - `apps/h-log/app/sitemap.xml/route.ts`
 - `apps/h-log/lib/blog-public-source.ts`

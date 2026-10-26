@@ -36,6 +36,11 @@ pending — 계획이며 미구현. A4 Steps 0–2 완료. 실제 개인 PDF를 
 - `apps/h-log/phases/admin-operations-control/step3.md`
 - `apps/h-log/phases/admin-operations-control/step4.md`
 
+## Step 1에서 이어받을 항목
+
+- 전체 원본 100 MiB/보고서 10 MiB·web 추가 RSS 64 MiB·tmp 32 MiB·DB/dump/복구 시간을 실측한다. Step 1의 per-process/per-file 제한은 전체 임시 디스크 quota가 아니다. 별도 총량 제한을 검증/보완한 뒤 운영 준비 완료로 표시한다.
+- 기존 Next.js 16.2.11의 production audit critical 1·high 3·moderate 1을 배포 전 패치하고 전체 인증/공개 회귀를 확인한다. Step 1은 기존 npm lockfile을 변경하지 않았다.
+
 ## 작업
 
 A4 Step 0의 [확정 계약](../../.codex/docs/harness/RESUME_PDF_CONTRACT.md)을 구현 기준으로 사용한다. 예정 파일/명령은 live code와 대조해 추가하고 문서만으로 구현된 것으로 취급하지 않는다.

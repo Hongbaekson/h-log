@@ -46,6 +46,7 @@ test(
         "004_brain_capture",
         "005_blog_public_editorial",
         "006_brain_admin_commands",
+        "007_resume_pdf_storage",
       ]);
 
       const extension = await database.query(
@@ -76,7 +77,7 @@ test(
 
       const secondRun = await runBlogMigrations(testUrl.toString());
       assert.deepEqual(secondRun.appliedVersions, []);
-      assert.equal(secondRun.currentVersion, "006_brain_admin_commands");
+      assert.equal(secondRun.currentVersion, "007_resume_pdf_storage");
 
       const versions = await database.query(
         "select version from schema_migrations order by version",
@@ -88,6 +89,7 @@ test(
         { version: "004_brain_capture" },
         { version: "005_blog_public_editorial" },
         { version: "006_brain_admin_commands" },
+        { version: "007_resume_pdf_storage" },
       ]);
     } finally {
       await database.end();
@@ -127,10 +129,22 @@ test("Brain command migration preserves legacy versions, public snapshots and au
     const versions = await database.query("select * from brain_note_versions");
     const notes = await database.query("select * from brain_notes");
     const audit = await database.query("select * from admin_actions");
-    assert.deepEqual((await runBlogMigrations(url.toString())).appliedVersions, ["006_brain_admin_commands"]);
+    await database.query(await readFile(new URL("../migrations/006_brain_admin_commands.sql", import.meta.url), "utf8"));
+    await database.query("insert into schema_migrations (version) values ('006_brain_admin_commands')");
     assert.deepEqual((await database.query("select * from brain_note_versions")).rows, versions.rows);
     assert.deepEqual((await database.query("select * from brain_notes")).rows, notes.rows.map(note => ({ ...note, command_revision: 0 })));
     assert.deepEqual((await database.query("select * from admin_actions")).rows, audit.rows.map(row => ({ ...row, command_id: null, request_fingerprint: null, command_receipt: null })));
+    await database.query("update brain_notes set command_revision = 2 where id = $1", [id]);
+    await database.query(`insert into admin_actions
+      (id, action_type, actor_type, actor_id, target_type, target_id, reason, created_at, command_id, request_fingerprint, command_receipt)
+      values ('brain-command', 'save', 'admin', 'owner', 'brain_note', $1, 'brain_saved', now(), $2, $3, $4)`,
+    [id, randomUUID(), "b".repeat(64), JSON.stringify({ action: "save", noteId: id, commandRevision: 2 })]);
+    const beforePdfNotes = await database.query("select * from brain_notes");
+    const beforePdfAudit = await database.query("select * from admin_actions order by id");
+    assert.deepEqual((await runBlogMigrations(url.toString())).appliedVersions, ["007_resume_pdf_storage"]);
+    assert.deepEqual((await database.query("select * from brain_note_versions")).rows, versions.rows);
+    assert.deepEqual((await database.query("select * from brain_notes")).rows, beforePdfNotes.rows);
+    assert.deepEqual((await database.query("select * from admin_actions order by id")).rows, beforePdfAudit.rows);
     assert.deepEqual((await runBlogMigrations(url.toString())).appliedVersions, []);
   } finally {
     await database.end();
