@@ -16,6 +16,15 @@ test("PDF records, upload and previews authorize before reading body or storage"
     assert.equal(origin.status, 403);
   }
 });
+
+test("publication requires a server epoch before storage access", async () => {
+  const command = { action: "publish", commandId: "11111111-1111-4111-8111-111111111111", expectedRevision: 1,
+    id: "22222222-2222-4222-8222-222222222222", sha256: "a".repeat(64),
+    checklist: { allPages: true, metadataAndLinks: true, privacyAndOrganizations: true, hiddenContentAndSource: true } };
+  const req = () => new Request(environment.HLOG_ADMIN_ORIGIN, { method: "POST", headers: { ...headers, "content-type": "application/json" }, body: JSON.stringify(command) });
+  const closed = await handleResumeRequest(req(), unavailable, "records", environment);
+  assert.equal(closed.status, 409); assert.deepEqual(await closed.json(), { error: "publication_disabled" });
+});
 test("PDF handlers reject invalid input and never reveal storage errors", async () => {
   const request = (body: string, type = "application/json") => new Request(environment.HLOG_ADMIN_ORIGIN, { method: "POST", headers: { ...headers, "content-type": type }, body });
   assert.equal((await handleResumeRequest(request('{}'), unavailable, "records", environment)).status, 400);

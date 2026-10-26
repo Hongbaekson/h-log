@@ -26,7 +26,9 @@
 
 2026-10-26 A1 Steps 0–3의 공통 인증·관리자 개요/탐색·Queue 비공개 이동·Brain 명령 통합과 A4 Steps 0–1의 [PDF 계약](../apps/h-log/.codex/docs/harness/RESUME_PDF_CONTRACT.md)·비공개 업로드/미리보기/버전 메모를 완료했다. PDF는 제한된 Linux 도구로 검사하고 불변 bytea·전역 revision·감사 receipt로 저장한다. Unit 237 pass/15 DB skip, 격리 integration 17/17, native 4/4, admin/PDF HTTP 5/5, 기본 gate·1440/390/320px 검수를 통과했다. 관리자 트랙은 completed 6개·pending 10개·blocked 1개다. 공개 PDF·블로그/작업 명령·운영 적용은 후속 단계이며 기존 Next.js critical audit 패치는 배포 전 선행 항목이다.
 
-기본 다음 작업은 **`admin-resume-pdf / Step 2`**다. A1 완료 → A4 이력서 PDF 등록/공개/다운로드 → 기존 모니터링 Step 0 → A2 블로그/자동화 → A3 작업 제어 → 모니터링 Steps 1–6 → A3 모니터링/로컬 검수 순으로 진행한다. 운영 모니터링 Step 7과 관리자 rollout은 OCI 보류 해제 뒤 승인 범위로 수행하고, 실제 timer는 그 다음 기존 운영 활성화 단계에서 다룬다. 구현되지 않은 초안 전용 저장·지속 정책·요청 이력과 블로그/작업 관리자 UI를 현재 runtime으로 설명하지 않는다. 아래 기존 기록의 다음 단계는 당시 상태다.
+2026-10-26 A4 Step 2에서 검토한 파일의 공개·교체·해제와 Resume 다운로드를 완료했다. 버전/hash 검토·현재 정책 재검사·epoch/revision·감사와 캐시/장애/늦은 요청을 합성 자료로 검증했다. 단위 244 pass/16 DB skip, 격리 integration 18/18, PDF/admin HTTP 6/6과 기본 gate·1440/390/320px를 통과했다. 현재 관리자 트랙은 completed 7개·pending 9개·blocked 1개다.
+
+기본 다음 작업은 **`admin-resume-pdf / Step 3`**다. A1 완료 → A4 이력서 PDF 등록/공개/다운로드 → 기존 모니터링 Step 0 → A2 블로그/자동화 → A3 작업 제어 → 모니터링 Steps 1–6 → A3 모니터링/로컬 검수 순으로 진행한다. 운영 모니터링 Step 7과 관리자 rollout은 OCI 보류 해제 뒤 승인 범위로 수행하고, 실제 timer는 그 다음 기존 운영 활성화 단계에서 다룬다. 구현되지 않은 초안 전용 저장·지속 정책·요청 이력과 블로그/작업 관리자 UI를 현재 runtime으로 설명하지 않는다. 아래 기존 기록의 다음 단계는 당시 상태다.
 
 현재 결정과 구현 상태:
 

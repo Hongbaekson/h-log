@@ -1,6 +1,6 @@
 # H-Log 통합 관리자 계획
 
-등록일: 2026-10-22. 2026-10-26 **A1 Steps 0–3와 A4 Steps 0–1을 완료했다. 4개 phase / 17개 step 중 completed 6개·pending 10개·blocked 1개**다. PDF의 비공개 등록·전 페이지 미리보기·버전 메모를 구현했고 공개 다운로드·블로그/작업 관리는 후속 단계다. 다음 실행은 [A4 Step 2](../../../phases/admin-resume-pdf/step2.md)다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
+등록일: 2026-10-22. 2026-10-26 **A1 Steps 0–3와 A4 Steps 0–2를 완료했다. 4개 phase / 17개 step 중 completed 7개·pending 9개·blocked 1개**다. PDF 비공개 보관·검토 후 공개/교체/해제와 Resume 다운로드를 구현했다. 다음 실행은 [A4 Step 3](../../../phases/admin-resume-pdf/step3.md)의 개인정보·복구 종합 검수다. 이전 공개 경험 19개 step의 완료 이력은 보존한다.
 
 ## 방향과 현재 근거
 
@@ -165,3 +165,7 @@ Brain 저장·공개·해제에 내용 revision과 별도 명령 revision/UUID�
 ## A4 Step 1 구현 검증 — 2026-10-26
 
 인증된 `/admin/resume`에서 5 MiB·10페이지 이하 PDF를 최대 20개 보관하고 페이지 이동·확대·검사 보고서·메모 변경을 제공한다. 업로드와 메모는 기존 감사 receipt와 전역 revision으로 중복/충돌을 검사하며 기존 바이트와 공개 포인터를 보존한다. Linux qpdf/Poppler 제한 실행, migration 007, 단위 237 pass/15 DB skip·격리 integration 17/17·native 4/4·두 ingress HTTP 5/5와 기본 gate를 통과했다. 상세 범위·화면 검수·운영 전 제약은 [Step 1 기록](../../../phases/admin-resume-pdf/step1.md)을 따른다. 실제 파일 공개와 운영 환경 적용은 수행하지 않았다. 다음은 A4 Step 2다.
+
+## A4 Step 2 구현 검증 — 2026-10-26
+
+버전/hash별 검토, 공개 시 재검사, revision·epoch·감사 transaction, 공개본 전용 다운로드와 Resume 링크를 구현했다. 합성 PDF로 단위 244 pass/16 DB skip·격리 integration 18/18·PDF HTTP 2/2·관리자 HTTP 4/4, lint/typecheck/build와 1440/390/320px를 확인했다. 공개 해제 뒤 조건부·프록시·브라우저 요청 차단, 늦은 receipt, 현재 개인정보 정책 거부와 DB 장애 시 본문 보존을 검증했다. [Step 2 기록](../../../phases/admin-resume-pdf/step2.md)에 실행 조건과 한계를 남겼다. 다음은 A4 Step 3이며 실제 PDF 공개·운영 적용은 수행하지 않았다.

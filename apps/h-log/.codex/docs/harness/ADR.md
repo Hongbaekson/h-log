@@ -409,7 +409,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **수정 범위**: 파일 바이트의 수정은 새 버전 등록이다. 관리자용 메모와 공개본 선택은 웹에서 바꾸지만 임의 PDF의 본문·폰트·레이아웃 직접 편집이나 온라인 Resume와의 자동 동기화는 구현 범위가 아니다. 구조화된 이력서 편집→PDF 생성은 이후 별도 요구로 다룬다. 검토를 통과한 파일 바이트/hash를 서버에서 몰래 정제·재작성하지 않는다.
 
-**근거/실행 경계**: [OWASP 업로드 지침](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html)에 따라 허용 형식·실제 파싱·크기/자원·인증·CSRF·비공개 저장/handler 접근을 검증한다. 자동 검사는 전 페이지·메타데이터·주석·링크의 공개 검토를 대신하지 않는다. A4 Step 1은 합성 PDF로 비공개 업로드·PNG 렌더·불변 버전·메모·중복 receipt를 구현/검증했다. 공개 기능과 실제 PDF 공개·운영 migration은 수행하지 않았다.
+**근거/실행 경계**: [OWASP 업로드 지침](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html)에 따라 허용 형식·실제 파싱·크기/자원·인증·CSRF·비공개 저장/handler 접근을 검증한다. 자동 검사는 전 페이지·메타데이터·주석·링크의 공개 검토를 대신하지 않는다. A4 Step 1은 합성 PDF로 비공개 업로드·PNG 렌더·불변 버전·메모·중복 receipt를 구현/검증했다. A4 Step 2에서 공개 시 재검사·hash별 검토·epoch/revision·원자적 감사, current-only 다운로드와 Resume 링크를 구현했다. 합성 자료의 공개→교체→해제와 캐시/장애/재전송을 검증했다. 실제 PDF 공개·운영 migration은 수행하지 않았으며 최대 예산·복구는 Step 3에 남았다.
 
 ### ADR-040: SEO 도구는 개발용 Codex 지침으로 선별 이식한다
 

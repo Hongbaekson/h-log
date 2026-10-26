@@ -54,9 +54,9 @@ Blog 관리 조회/명령·draft-only persistence·지속 정책과 요청은 �
 
 ## Runtime 구성
 
-### 이력서 PDF 비공개 보관 — A4 Step 1 구현
+### 이력서 PDF 보관·공개 — A4 Steps 1–2 구현
 
-ADR-039와 [PDF 계약](RESUME_PDF_CONTRACT.md)에 따라 `/admin/resume` page·records/files/preview handler는 공통 owner 인증 뒤 PDF flag를 검사한다. `ResumeManager`는 업로드·버전 목록·페이지 이동/확대·검사 보고서·메모·같은 명령 재확인을 제공한다. `resume-pdf-http.ts`가 수신량·시간·형식을 제한하고 `resume-pdf-processor.ts`가 같은 Linux image의 qpdf/Poppler를 고정 인자·자원 제한·seccomp 네트워크 차단으로 실행한다. PNG만 인증된 no-store 응답으로 전송하며 영구 저장하지 않는다. `resume-pdf-repository.ts`와 migration 007은 불변 bytea 버전/보고서, singleton revision, 기존 감사 receipt를 원자적으로 저장한다. PG session advisory lock 710493708로 처리 한 건만 허용하고 저장 transaction은 검사 후에 연다. 전용 pool은 최대 3개 연결이며 연결 오류는 원시 설정 없이 고정 문구만 기록한다. 새 파일/메모는 기존 공개 포인터를 보존한다. 현재 공개 PDF asset·CTA·다운로드 API는 없고 공개/해제·current-only 조회·epoch는 Step 2, 전체 예산/복구는 Step 3 구현 대상이다.
+ADR-039와 [PDF 계약](RESUME_PDF_CONTRACT.md)에 따라 `/admin/resume` page·records/files/preview handler는 공통 owner 인증 뒤 PDF flag를 검사한다. `ResumeManager`는 업로드·버전 목록·페이지 이동/확대·검사 보고서·메모·같은 명령 재확인을 제공한다. `resume-pdf-http.ts`가 수신량·시간·형식을 제한하고 `resume-pdf-processor.ts`가 같은 Linux image의 qpdf/Poppler를 고정 인자·자원 제한·seccomp 네트워크 차단으로 실행한다. PNG만 인증된 no-store 응답으로 전송하며 영구 저장하지 않는다. `resume-pdf-repository.ts`와 migration 007은 불변 bytea 버전/보고서, singleton revision, 기존 감사 receipt를 원자적으로 저장한다. PG session advisory lock 710493708로 처리 한 건만 허용하고 저장 transaction은 검사 후에 연다. 전용 pool은 최대 3개 연결이며 연결 오류는 원시 설정 없이 고정 문구만 기록한다. 새 파일/메모는 기존 공개 포인터를 보존한다. `ResumeManager`는 전체 페이지/보고서와 네 가지 확인을 거쳐 파일 hash에 묶인 공개 명령을 보낸다. 공개 handler는 현재 정책으로 재검사한 뒤 서버 epoch·검토·포인터·감사를 같은 transaction으로 저장한다. `resume-pdf-download.ts`와 `/api/resume/pdf`는 한 SQL snapshot으로 현재 버전의 epoch/검토/정책/bytes/hash를 확인하고 no-store attachment·GET/HEAD/ETag를 반환한다. Range는 전체 응답이며 네 스트림/30초 상한을 적용한다. DB statement 5초/query 6초 제한도 사용한다. `ResumeDownload`는 bytea 없는 metadata를 Suspense 안에서 읽어 공개된 경우만 링크를 표시한다. DB 장애는 다운로드 안내에만 반영된다. 정적 PDF는 없으며 전체 예산/복구는 Step 3 대상이다.
 
 ### Queue 재생 실험
 

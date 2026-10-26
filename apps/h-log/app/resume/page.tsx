@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { GraduationCap, Layers3, Terminal } from "lucide-react";
 
 import { ResumeProfilePhoto } from "@/components/resume/ResumeProfilePhoto";
+import { ResumeDownload } from "@/components/resume/ResumeDownload";
 import { Badge, Card, Container } from "@/components/ui";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   alternates: {
@@ -137,6 +141,7 @@ export default function ResumePage() {
               <h1 className="hero-heading hero-reveal hero-reveal-2 mt-6 max-w-3xl text-4xl leading-[1.1] tracking-normal text-white md:text-6xl">
                 손홍백 <span className="hero-name-gradient">Resume</span>
               </h1>
+              <Suspense fallback={null}><ResumeDownload /></Suspense>
             </div>
 
             <ResumeProfilePhoto />

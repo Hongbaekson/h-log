@@ -22,7 +22,7 @@ export default async function AdminPage() {
       <section className="admin-next" aria-labelledby="admin-next-title">
         <div><CircleDashed size={19} aria-hidden="true" /><h2 id="admin-next-title">이어서 추가할 기능</h2></div>
         <ul>
-          <li><strong>글과 이력서 관리</strong><p><Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/resume" prefetch={false}>이력서 PDF 보관함</Link>에서 파일 등록과 미리보기를 사용할 수 있습니다. 글 검토·발행과 PDF 공개 기능은 준비 중입니다.</p></li>
+          <li><strong>글과 이력서 관리</strong><p><Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/resume" prefetch={false}>이력서 PDF 보관함</Link>에서 파일을 등록·검토하고 공개본을 선택하거나 해제할 수 있습니다. 글 검토·발행은 준비 중입니다.</p></li>
           <li><strong>자동 작성과 작업 관리</strong><p>자동 작성 허용, 작업 조회와 재시도, 모니터링을 차례로 연결합니다.</p></li>
         </ul>
         <p className="admin-note">준비 중인 기능은 아직 사용할 수 없습니다. 실제 운영 상태는 각 기능이 연결된 뒤 표시합니다.</p>

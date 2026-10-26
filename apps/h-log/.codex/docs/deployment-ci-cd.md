@@ -343,3 +343,9 @@ systemctl --user list-timers hlog-auto-publish.timer
 - 공개 ingress의 `/admin` 차단과 2m 제한은 유지한다. 정확한 관리자 업로드 경로에만 5m/수신 30초/upstream 90초/요청 buffering OFF를 적용하는 계약을 로컬 검증했다. 운영 Compose/Nginx/환경값은 이번 step에서 변경하지 않았다.
 - 기존 Next.js 16.2.11이 포함된 lockfile에 `npm audit --omit=dev` 결과 critical 1·high 3·moderate 1이 남아 있다. PDF 구현으로 npm 의존성은 추가하지 않았다. 배포 전에 지원 패치 버전과 영향 범위를 확인해 갱신하고 공개/관리 인증·SSR·이미지·빌드를 다시 검증해야 한다. 현재 image를 운영 배포 준비 완료로 취급하지 않는다.
 - 단일 작업의 임시 입력/출력은 제한했지만 별도 32 MiB tmpfs 총량 quota는 아직 설치하지 않았다. 최대 임시 공간·web RSS·backup/restore 예산과 격리는 A4 Step 3에서 검증/보완하고 실제 rollout 전에 확인한다.
+
+## PDF 공개 연결 배포 전 확인 — A4 Step 2
+
+로컬에서 검토한 버전 공개·교체·해제와 `/api/resume/pdf`·Resume 링크를 구현했다. `HLOG_RESUME_PDF_ENABLED=1`과 유효한 UUID `HLOG_RESUME_PDF_PUBLICATION_EPOCH`가 있어야 공개를 허용한다. 미설정·epoch 불일치 때 공개 조회는 닫히고 비공개 검토·해제는 가능하다. 일반 재시작은 epoch를 유지하고, 복구·공개 게이트 재개는 새 epoch와 전 페이지 재검토를 거친다. 운영 환경값은 아직 주입하지 않았다.
+
+공개 PDF 응답의 `Cache-Control: no-store`를 CDN/Nginx에서 덮어쓰지 않는다. 관리자 ingress의 private/no-store, 공개 host의 관리자 차단과 기존 업로드 제한을 유지한다. 로컬 캐시 프록시에서 공개 200/MISS, 해제 후 일반·조건부 404/MISS를 확인했다. 직접 개발 서버의 SSR 헤더는 ingress와 다르므로 관리자 HTTP 회귀는 두 ingress 환경에서 실행한다. 전체 예산·dump/restore·실제 두 ingress 릴리스 검증과 기존 의존성 패치 gate는 후속 단계에 남는다. 상세는 [Step 2 완료 기록](../../phases/admin-resume-pdf/step2.md)을 따른다.

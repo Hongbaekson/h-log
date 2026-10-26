@@ -1,6 +1,6 @@
 import { authorizeAdminOwner, adminPrivateHeaders } from "./admin-owner.ts";
 import { createBlogPrivacyScanPolicyFromEnvironment } from "./blog-privacy-scanner.ts";
-import { assertResumeId, parseResumeCommand, parseResumeMetadata, resumePdfLimits } from "./resume-pdf.ts";
+import { assertResumeId, parseResumeCommand, parseResumeMetadata, resumePdfLimits, resumePublicationEpoch } from "./resume-pdf.ts";
 import { inspectResumePdf, renderResumePage } from "./resume-pdf-processor.ts";
 import type { createResumeRepository } from "./resume-pdf-repository.ts";
 
@@ -70,7 +70,7 @@ export async function handleResumeRequest(request: Request, getRepository: () =>
     }
     if (request.method === "GET") {
       const id = new URL(request.url).searchParams.get("id");
-      if (id === null) return json(await getRepository().list());
+      if (id === null) return json(await getRepository().list(resumePublicationEpoch(environment)));
       assertResumeId(id);
       const detail = await getRepository().detail(id);
       return detail ? json(detail) : json({ error: "file_not_found" }, 404);
@@ -81,11 +81,25 @@ export async function handleResumeRequest(request: Request, getRepository: () =>
     let value: unknown;
     try { value = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)); } catch { throw new Error("invalid_request"); }
     const command = parseResumeCommand(value);
-    return json(await getRepository().saveNote(command));
+    if (command.action === "publish") {
+      const epoch = resumePublicationEpoch(environment);
+      if (!epoch) throw new Error("publication_disabled");
+      const repository = getRepository();
+      return json(await repository.withProcessingLock(async signal => {
+        const file = await repository.file(command.id);
+        if (!file) throw new Error("file_not_found");
+        if (file.sha256 !== command.sha256) throw new Error("review_conflict");
+        const inspection = await inspectResumePdf(file.bytes, createBlogPrivacyScanPolicyFromEnvironment(environment), signal);
+        if (inspection.pages !== file.inspection.pages || inspection.policy !== file.inspection.policy) throw new Error("review_conflict");
+        if (signal.aborted) throw new Error("request_timeout");
+        return repository.publish(command, epoch);
+      }, request.signal));
+    }
+    return json(command.action === "unpublish" ? await getRepository().unpublish(command) : await getRepository().saveNote(command));
   } catch (error) {
     const statuses: Record<string, number> = { invalid_request: 400, unsupported_media_type: 415, request_too_large: 413, request_timeout: 408,
       pdf_invalid: 422, pdf_unsupported: 422, pdf_privacy_blocked: 422, pdf_timeout: 422, pdf_processor_unavailable: 503, pdf_busy: 429,
-      duplicate_file: 409, revision_conflict: 409, command_conflict: 409, storage_full: 409, file_not_found: 404 };
+      duplicate_file: 409, revision_conflict: 409, command_conflict: 409, review_conflict: 409, publication_disabled: 409, storage_full: 409, file_not_found: 404 };
     const code = error instanceof Error && Object.hasOwn(statuses, error.message) ? error.message : "storage_unavailable";
     if (code === "pdf_busy") return Response.json({ error: code }, { status: 429, headers: { ...headers, "retry-after": "2" } });
     const existingId = code === "duplicate_file" && error && typeof error === "object" && "existingId" in error ? error.existingId : undefined;

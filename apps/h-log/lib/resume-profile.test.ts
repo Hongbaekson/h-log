@@ -40,11 +40,14 @@ describe("resume profile", () => {
     assert.match(page, /개인 프로젝트·운영/);
   });
 
-  it("withholds the unsafe PDF download surface until a safe replacement exists", async () => {
+  it("keeps the legacy PDF absent and isolates the current-only download from Resume content", async () => {
     const page = await readFile("app/resume/page.tsx", "utf8");
 
-    assert.doesNotMatch(page, /PdfDownloadButton|\/api\/resume\/pdf/);
+    assert.match(page, /<Suspense[^>]*><ResumeDownload\s*\/><\/Suspense>/);
+    const download = await readFile("components/resume/ResumeDownload.tsx", "utf8");
+    assert.match(download, /publicMetadata\(epoch\)/);
+    assert.doesNotMatch(download, /publicFile\(/);
     await assert.rejects(access("public/son-hongbaek-resume.pdf"));
-    await assert.rejects(access("app/api/resume/pdf/route.ts"));
+    await access("app/api/resume/pdf/route.ts");
   });
 });

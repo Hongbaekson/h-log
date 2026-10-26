@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { Pool, PoolClient } from "pg";
 import { assertResumeId, parseResumeCommand, parseResumeMetadata, resumePdfLimits as limits, resumePdfPolicy,
-  type ResumeCommand, type ResumeDetail, type ResumeInspection, type ResumeNoteCommand, type ResumeReceipt, type ResumeState, type ResumeVersion } from "./resume-pdf.ts";
+  type ResumeCommand, type ResumeDetail, type ResumeInspection, type ResumeNoteCommand, type ResumePublishCommand, type ResumeWithdrawCommand, type ResumeReceipt, type ResumeState, type ResumeVersion } from "./resume-pdf.ts";
 
 const sha256 = (bytes: Buffer | string) => createHash("sha256").update(bytes).digest("hex");
 const columns = 'id, sha256, byte_size as "byteSize", page_count as "pageCount", note, created_at as "createdAt"';
@@ -15,11 +15,13 @@ export function createResumeRepository(pool: Pool) {
     try {
       await client.query("begin");
       const receipt: ResumeReceipt = { commandId: command.commandId, action, targetId, revision: command.expectedRevision + 1, publicVersionId: null };
+      const reasons = { upload: "resume_uploaded", save_note: "resume_note_changed", publish: "resume_reviewed_publication", unpublish: "resume_withdrawn" };
       const reserved = await client.query(`insert into admin_actions
         (id, action_type, actor_type, actor_id, target_type, target_id, reason, created_at, command_id, request_fingerprint, command_receipt)
-        values ($1, 'save', 'admin', 'owner', 'resume_pdf_version', $2, $3, now(), $4, $5, $6)
+        values ($1, $7, 'admin', 'owner', $8, $2, $3, now(), $4, $5, $6)
         on conflict (actor_type, actor_id, command_id) where command_id is not null do nothing returning id`,
-      [randomUUID(), targetId, action === "upload" ? "resume_uploaded" : "resume_note_changed", command.commandId, fingerprint, JSON.stringify(receipt)]);
+      [randomUUID(), targetId, reasons[action], command.commandId, fingerprint, JSON.stringify(receipt),
+        action === "publish" || action === "unpublish" ? action : "save", action === "unpublish" ? "resume_pdf" : "resume_pdf_version"]);
       if (!reserved.rowCount) {
         const previous = await client.query<{ request_fingerprint: string; command_receipt: ResumeReceipt }>("select request_fingerprint, command_receipt from admin_actions where actor_type = 'admin' and actor_id = 'owner' and command_id = $1", [command.commandId]);
         if (previous.rows[0].request_fingerprint !== fingerprint) throw new Error("command_conflict");
@@ -28,23 +30,49 @@ export function createResumeRepository(pool: Pool) {
       }
       const state = await client.query<{ revision: number; public_version_id: string | null }>("select revision, public_version_id from resume_pdf_state where id = 1 for update");
       if (state.rows[0].revision !== command.expectedRevision) throw new Error("revision_conflict");
-      receipt.publicVersionId = state.rows[0].public_version_id;
       await change(client);
-      await client.query("update resume_pdf_state set revision = revision + 1, updated_at = now() where id = 1");
+      const updated = await client.query("update resume_pdf_state set revision = revision + 1, updated_at = now() where id = 1 returning public_version_id");
+      receipt.publicVersionId = updated.rows[0].public_version_id;
       await client.query("update admin_actions set command_receipt = $1 where actor_type = 'admin' and actor_id = 'owner' and command_id = $2", [JSON.stringify(receipt), command.commandId]);
       await client.query("commit");
       return receipt;
     } catch (error) { await client.query("rollback"); throw error; }
     finally { client.release(); }
   }
+  async function readPublic(epoch: string, includeBytes: boolean) {
+    assertResumeId(epoch);
+    // The pointer, review and version are read in one snapshot. Metadata never selects bytea or report text.
+    const result = await pool.query<{ sha256: string; byteSize: number; valid: boolean; bytes?: Buffer }>(`select
+      v.sha256, v.byte_size as "byteSize", ${includeBytes ? "v.bytes," : ""}
+      (s.public_sha256 = v.sha256 and v.validation_policy = $2 and v.inspection->>'policy' = $2
+        and (v.inspection->>'pages')::int = v.page_count and v.inspection->'tools' = v.tool_versions
+        and s.reviewed_by = 'owner' and s.reviewed_at is not null
+        and s.review_checklist @> '{"allPages":true,"metadataAndLinks":true,"privacyAndOrganizations":true,"hiddenContentAndSource":true}'::jsonb) as valid
+      from resume_pdf_state s left join resume_pdf_versions v on v.id = s.public_version_id
+      where s.id = 1 and s.public_version_id is not null and s.publication_epoch = $1`, [epoch, resumePdfPolicy]);
+    const row = result.rows[0];
+    if (!row) return null;
+    if (!row.valid || !/^[0-9a-f]{64}$/.test(row.sha256) || row.byteSize < 1 || row.byteSize > limits.bytes
+      || (includeBytes && (!row.bytes || row.bytes.length !== row.byteSize || sha256(row.bytes) !== row.sha256))) throw new Error("storage_unavailable");
+    return row;
+  }
   return {
-    async list(): Promise<ResumeState> {
+    async list(epoch?: string | null): Promise<ResumeState> {
       // One statement gives the list and its revision the same snapshot without loading file/report data.
-      const rows = await pool.query(`select s.revision, s.public_version_id as "publicVersionId",
+      const rows = await pool.query(`select s.revision,
+        case when $1::boolean or s.publication_epoch::text = $2 then s.public_version_id else null end as "publicVersionId",
         coalesce((select jsonb_agg(v order by v."createdAt" desc, v.id) from
           (select ${columns} from resume_pdf_versions order by created_at desc, id limit 20) v), '[]') as versions
-        from resume_pdf_state s where id = 1`);
+        from resume_pdf_state s where id = 1`, [epoch === undefined, epoch ?? null]);
       return rows.rows[0];
+    },
+    async publicMetadata(epoch: string) {
+      const row = await readPublic(epoch, false);
+      return row ? { sha256: row.sha256, byteSize: row.byteSize } : null;
+    },
+    async publicFile(epoch: string) {
+      const row = await readPublic(epoch, true);
+      return row ? { sha256: row.sha256, byteSize: row.byteSize, bytes: row.bytes! } : null;
     },
     async detail(id: string): Promise<ResumeDetail | null> {
       assertResumeId(id);
@@ -77,10 +105,32 @@ export function createResumeRepository(pool: Pool) {
     },
     async saveNote(input: ResumeNoteCommand) {
       const command = parseResumeCommand(input);
+      if (command.action !== "save_note") throw new Error("invalid_request");
       const fingerprint = sha256(JSON.stringify(["resume_pdf_version", "save_note", command.id, command.expectedRevision, sha256(command.note)]));
       return mutate(command, "save_note", command.id, fingerprint, async client => {
         const result = await client.query("update resume_pdf_versions set note = $2 where id = $1", [command.id, command.note]);
         if (!result.rowCount) throw new Error("file_not_found");
+      });
+    },
+    async publish(input: ResumePublishCommand, epoch: string) {
+      assertResumeId(epoch);
+      const command = parseResumeCommand(input);
+      if (command.action !== "publish") throw new Error("invalid_request");
+      const fingerprint = sha256(JSON.stringify(["resume_pdf_version", command, epoch]));
+      return mutate(command, "publish", command.id, fingerprint, async client => {
+        const file = await client.query("select sha256, validation_policy from resume_pdf_versions where id = $1", [command.id]);
+        if (!file.rowCount) throw new Error("file_not_found");
+        if (file.rows[0].sha256 !== command.sha256 || file.rows[0].validation_policy !== resumePdfPolicy) throw new Error("review_conflict");
+        await client.query(`update resume_pdf_state set public_version_id = $1, public_sha256 = $2, publication_epoch = $3,
+          reviewed_at = now(), reviewed_by = 'owner', review_checklist = $4 where id = 1`, [command.id, command.sha256, epoch, JSON.stringify(command.checklist)]);
+      });
+    },
+    async unpublish(input: ResumeWithdrawCommand) {
+      const command = parseResumeCommand(input);
+      if (command.action !== "unpublish") throw new Error("invalid_request");
+      return mutate(command, "unpublish", "current", sha256(JSON.stringify(["resume_pdf", command])), async client => {
+        await client.query(`update resume_pdf_state set public_version_id = null, public_sha256 = null, publication_epoch = null,
+          reviewed_at = null, reviewed_by = null, review_checklist = null where id = 1`);
       });
     },
     async withProcessingLock<T>(action: (signal: AbortSignal) => Promise<T>, signal?: AbortSignal): Promise<T> {

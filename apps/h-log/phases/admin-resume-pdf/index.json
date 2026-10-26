@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "published-resume-download",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-26: Completed reviewed PDF publication/replacement/withdrawal with current-policy reinspection, hash-bound checklist, epoch/revision and atomic audit receipts. Added current-only no-store GET/HEAD/ETag download and isolated Resume metadata link. Unit 244 pass/16 DB skip, isolated integration 18/18, PDF HTTP 2/2, admin HTTP 4/4, lint/typecheck/build and 1440/390/320px checks passed; cache withdrawal, DB failure, policy rejection and stale receipts verified with synthetic local PDFs. Next: Step 3 privacy-and-recovery rehearsal. No real PDF or operational rollout; existing dependency patch gate remains."
     },
     {
       "step": 3,

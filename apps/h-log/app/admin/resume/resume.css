@@ -55,5 +55,13 @@
 .resume-report ul { padding-left: 20px; list-style: disc; }
 .resume-hash { margin-top: 20px; }
 .resume-reload { display: inline-block; margin-top: 18px; }
+.resume-publication { border-bottom: 1px solid var(--border); padding: 24px 0; }
+.resume-publication h2, .resume-review h3 { font-size: 17px; font-weight: 600; color: #eef0ff; }
+.resume-publication > p, .resume-review > p { color: #b8bdd3; line-height: 1.8; margin: 12px 0; }
+.resume-review { margin-top: 24px; border-top: 1px solid var(--border); padding-top: 24px; }
+.resume-review fieldset { margin: 18px 0; }
+.resume-review fieldset:disabled { opacity: .6; }
+.resume-review label { flex-wrap: nowrap; align-items: flex-start; gap: 12px; padding: 8px 0; line-height: 1.8; cursor: pointer; }
+.resume-review input { accent-color: #5865f2; width: 18px; height: 18px; flex-shrink: 0; margin-top: 4px; }
 @media (max-width: 1000px) { .resume-grid { grid-template-columns: minmax(0,1fr); } .resume-list ul { grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); } }
 @media (max-width: 480px) { .resume-upload { padding: 18px; } .resume-upload-controls { align-items: stretch; } .resume-upload-controls button { width: 100%; } .resume-list ul { grid-template-columns: minmax(0,1fr); } .resume-section-title > span { margin-left: 0; } .resume-section-title { align-items: start; } }

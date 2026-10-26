@@ -193,12 +193,12 @@
     {
       "dir": "admin-resume-pdf",
       "status": "pending",
-      "summary": "2026-10-26: Implemented owner-only PDF upload, immutable bytea versions, all-page PNG inspection, notes and atomic command receipts in migration 007. Pinned Linux qpdf/Poppler with process/network limits; 5 MiB/10 pages/20 versions. Unit 237 pass/15 DB skip, integration 17/17, native processor 4/4, admin/PDF HTTP 5/5, lint/typecheck/build and 1440/390/320px checks passed. Synthetic local data only. Next: Step 2 published-resume-download; public PDF and operational rollout remain unimplemented. Existing Next.js audit finding is a pre-deployment patch gate. Steps 0-1 completed; Steps 2-3 pending."
+      "summary": "2026-10-26: Completed reviewed PDF publication/replacement/withdrawal with current-policy reinspection, hash-bound checklist, epoch/revision and atomic audit receipts. Added current-only no-store GET/HEAD/ETag download and isolated Resume metadata link. Unit 244 pass/16 DB skip, isolated integration 18/18, PDF HTTP 2/2, admin HTTP 4/4, lint/typecheck/build and 1440/390/320px checks passed; cache withdrawal, DB failure, policy rejection and stale receipts verified with synthetic local PDFs. Next: Step 3 privacy-and-recovery rehearsal. No real PDF or operational rollout; existing dependency patch gate remains. Steps 0-2 completed; Step 3 pending."
     },
     {
       "dir": "seo-codex-foundation",
       "status": "pending",
-      "summary": "2026-10-26 plan registered: selectively adapt pinned claude-seo 2.5.0 guidance for Codex, then establish a public-route SEO audit baseline. Two steps pending; no skill installation or full audit performed. Explicit SEO work starts at Step 0; the general admin next step remains admin-resume-pdf Step 2."
+      "summary": "2026-10-26 plan registered: selectively adapt pinned claude-seo 2.5.0 guidance for Codex, then establish a public-route SEO audit baseline. Two steps pending; no skill installation or full audit performed. Explicit SEO work starts at Step 0; the general admin next step remains admin-resume-pdf Step 3."
     },
     {
       "dir": "seo-public-surface-optimization",

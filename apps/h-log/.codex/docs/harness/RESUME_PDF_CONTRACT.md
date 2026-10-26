@@ -1,6 +1,6 @@
 # 이력서 PDF 저장·검토·공개 계약
 
-확정일: 2026-10-26. A4 `admin-resume-pdf / Step 0`의 설계 결과다. **Step 1에서 비공개 schema·도구·API·화면을 구현/검증했다. 공개/다운로드는 Step 2, 최대 예산·복구는 Step 3에 남아 있다.** 운영 적용은 A3 Step 4가 담당한다. [관리자 접근 계약](ADMIN_ACCESS_CONTRACT.md)과 [공개 정보 기준](../../rules/content-seo-privacy.md)을 함께 적용한다. 아래 목표 계약과 실제 완료 범위는 [Step 1 기록](../../../phases/admin-resume-pdf/step1.md)으로 구분한다.
+확정일: 2026-10-26. A4 `admin-resume-pdf / Step 0`의 설계 결과다. **Steps 1–2에서 비공개 보관·검토 후 공개/교체/해제·현재 공개본 다운로드와 Resume 링크를 구현/검증했다. 최대 예산·복구 종합 검수는 Step 3에 남아 있다.** 운영 적용은 A3 Step 4가 담당한다. [관리자 접근 계약](ADMIN_ACCESS_CONTRACT.md)과 [공개 정보 기준](../../rules/content-seo-privacy.md)을 함께 적용한다. 아래 목표 계약과 실제 완료 범위는 [Step 1 기록](../../../phases/admin-resume-pdf/step1.md)으로 구분한다.
 
 ## 1. Step 0 당시 코드와 구현 경계
 
@@ -140,7 +140,7 @@ Resume은 바이트 없이 공개 가능 여부만 동적으로 읽는다. 공�
 
 ## 8. 구현 파일과 검증 인계
 
-아래 Step 1 파일은 구현됐으며 Steps 2–3은 예정이다. 범용 명령 버스·PDF 편집기·새 서비스는 만들지 않는다.
+아래 Steps 1–2 파일은 구현됐으며 Step 3은 예정이다. 공개 검증은 합성 자료로 수행했고 실제 개인 PDF는 공개하지 않았다. 범용 명령 버스·PDF 편집기·새 서비스는 만들지 않는다.
 
 | 단계 | 변경 대상 | 필수 검증 |
 | --- | --- | --- |
@@ -164,4 +164,4 @@ Resume은 바이트 없이 공개 가능 여부만 동적으로 읽는다. 공�
 | 1440/390/320px·키보드·이미지 확대/페이지 이동·메모/오류·Resume no-JS | 공개/비공개 의미와 원문 검토 가능, 본문 회귀 없음 / Steps 1–3 |
 | 공개 A backup→해제→restore, 새 epoch, 구 receipt 재전송·최대 보관량 복구 | A 자동 재공개 없음·동일 바이트/hash·명시적 재검토 후만 공개 / Step 3 |
 
-Step 0 당시 완료 근거는 live code/schema/ingress와 이 계약의 대조, 공식 도구/HTTP 문서 확인, 문서·phase 파싱/링크/상태 검사였다. 이후 Step 1에서 parser 실행·합성 PDF 렌더·비공개 파일 등록을 검증했다. 최대 보관 예산·복구/운영 성능 검증과 실제 공개는 아직 완료하지 않았다.
+Step 0 당시 완료 근거는 live code/schema/ingress와 이 계약의 대조, 공식 도구/HTTP 문서 확인, 문서·phase 파싱/링크/상태 검사였다. 이후 Step 1에서 parser 실행·합성 PDF 렌더·비공개 파일 등록을 검증했다. Step 2에서 검토한 버전의 공개/교체/해제와 current-only 다운로드를 합성 자료로 검증했다. [완료 기록](../../../phases/admin-resume-pdf/step2.md)을 따르며 최대 보관 예산·복구/운영 성능 검증과 실제 개인 PDF 공개는 아직 완료하지 않았다.

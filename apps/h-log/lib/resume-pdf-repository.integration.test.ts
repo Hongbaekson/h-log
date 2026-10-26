@@ -6,6 +6,65 @@ import { runBlogMigrations } from "../scripts/blog-migrations.mjs";
 import { createResumeRepository } from "./resume-pdf-repository.ts";
 import type { ResumeInspection } from "./resume-pdf.ts";
 
+test("reviewed publication, replacement, withdrawal and epoch guards preserve atomic current state", { skip: !process.env.DATABASE_URL && "DATABASE_URL is required" }, async () => {
+  const url = new URL(process.env.DATABASE_URL!);
+  const database = `hlog_resume_${randomUUID().replaceAll("-", "")}`;
+  const adminUrl = new URL(url); adminUrl.pathname = "/postgres";
+  const admin = new pg.Client({ connectionString: adminUrl.toString() });
+  await admin.connect(); await admin.query(`create database ${database}`);
+  url.pathname = `/${database}`;
+  const pool = new pg.Pool({ connectionString: url.toString(), max: 5 });
+  const repo = createResumeRepository(pool), epoch = randomUUID();
+  const inspection: ResumeInspection = { policy: "resume-pdf-v1", pages: 1, text: "Synthetic", metadata: "", links: [], tools: { qpdf: "test", poppler: "test" } };
+  const command = async () => ({ commandId: randomUUID(), expectedRevision: (await repo.list()).revision });
+  const checklist = { allPages: true, metadataAndLinks: true, privacyAndOrganizations: true, hiddenContentAndSource: true } as const;
+  try {
+    await runBlogMigrations(url.toString());
+    const a = await repo.saveUpload(Buffer.from("synthetic A"), inspection, await command());
+    assert.equal(await repo.publicFile(epoch), null);
+    const reviewA = { ...await command(), action: "publish" as const, id: a.targetId, sha256: (await repo.detail(a.targetId))!.sha256, checklist };
+    await assert.rejects(repo.publish({ ...reviewA, sha256: "f".repeat(64) }, epoch), /review_conflict/);
+    const published = await repo.publish(reviewA, epoch);
+    assert.equal(published.publicVersionId, a.targetId);
+    assert.equal((await repo.publicFile(epoch))?.bytes.toString(), "synthetic A");
+    const metadata = await repo.publicMetadata(epoch);
+    assert.deepEqual(metadata, { sha256: reviewA.sha256, byteSize: 11 });
+    assert.equal(await repo.publicMetadata(randomUUID()), null);
+    assert.equal((await repo.list(randomUUID())).publicVersionId, null);
+    const b = await repo.saveUpload(Buffer.from("synthetic B"), inspection, await command());
+    assert.equal((await repo.publicFile(epoch))?.sha256, reviewA.sha256);
+    const reviewB = { ...await command(), action: "publish" as const, id: b.targetId, sha256: (await repo.detail(b.targetId))!.sha256, checklist };
+    await repo.publish(reviewB, epoch);
+    assert.equal((await repo.publicFile(epoch))?.bytes.toString(), "synthetic B");
+    assert.deepEqual(await repo.publish(reviewA, epoch), published);
+    assert.equal((await repo.publicFile(epoch))?.sha256, reviewB.sha256, "late receipt cannot roll back the current pointer");
+    await assert.rejects(repo.publish({ ...reviewA, commandId: randomUUID() }, epoch), /revision_conflict/);
+    const withdraw = { ...await command(), action: "unpublish" as const };
+    const withdrawn = await repo.unpublish(withdraw);
+    assert.equal(withdrawn.publicVersionId, null);
+    assert.equal(await repo.publicFile(epoch), null);
+    assert.deepEqual(await repo.unpublish(withdraw), withdrawn);
+    await assert.rejects(repo.publish(reviewA, randomUUID()), /command_conflict/);
+    assert.equal(await repo.publicFile(epoch), null);
+    await pool.query("create function resume_test_fail() returns trigger language plpgsql as $$ begin raise exception 'synthetic audit failure'; end $$");
+    await pool.query("create trigger resume_test_fail before insert on admin_actions for each row execute function resume_test_fail()");
+    await assert.rejects(repo.publish({ ...reviewA, ...await command() }, epoch), /synthetic audit failure/);
+    assert.equal(await repo.publicFile(epoch), null);
+    await pool.query("drop trigger resume_test_fail on admin_actions; drop function resume_test_fail()");
+    const fresh = { ...reviewA, ...await command() };
+    const competing = await Promise.allSettled([repo.publish(fresh, epoch), repo.publish({ ...reviewB, ...fresh, id: b.targetId, sha256: reviewB.sha256, commandId: randomUUID() }, epoch)]);
+    assert.equal(competing.filter(result => result.status === "fulfilled").length, 1);
+    await repo.publish({ ...reviewA, ...await command() }, epoch);
+    assert.equal((await repo.publicFile(epoch))?.sha256, reviewA.sha256);
+    const audit = await pool.query("select action_type, target_type, reason from admin_actions where action_type in ('publish','unpublish')");
+    assert(audit.rows.some(row => row.action_type === "unpublish" && row.target_type === "resume_pdf"));
+    // A corrupted byte stream must not be served even when its old ETag still matches.
+    await pool.query("alter table resume_pdf_versions disable trigger user");
+    await pool.query("update resume_pdf_versions set bytes = $1 where id = $2", [Buffer.from("corrupted A"), a.targetId]);
+    await assert.rejects(repo.publicFile(epoch), /storage_unavailable/);
+  } finally { await pool.end(); await admin.query(`drop database ${database}`); await admin.end(); }
+});
+
 test("private PDF versions, receipts, revisions and audit commit atomically", { skip: !process.env.DATABASE_URL && "DATABASE_URL is required" }, async () => {
   const url = new URL(process.env.DATABASE_URL!);
   const database = `hlog_resume_${randomUUID().replaceAll("-", "")}`;
