@@ -147,6 +147,22 @@ function createPipelineInput(
 }
 
 describe("daily auto article pipeline", () => {
+  it("persists a manual generation as a private draft without publish jobs", async () => {
+    let saved = 0;
+    const result = await runDailyAutoArticlePipeline(createPipelineInput({
+      persistenceMode: "draft",
+      dayKey: "draft-123",
+      persistPublishingArticle: async ({ post, publishJobs }) => {
+        saved++;
+        assert.equal(post.status, "drafted");
+        assert.equal(post.id, "post-draft-123");
+        assert.equal(post.publishedAt, null);
+        assert.deepEqual(publishJobs, []);
+      },
+    }));
+    assert.equal(saved, 1);
+    assert.equal(result.status, "drafted");
+  });
   for (const [condition, fetchedAt] of [
     ["expired", "2026-07-06T23:59:59.999Z"],
     ["future", "2026-07-08T00:00:00.001Z"],

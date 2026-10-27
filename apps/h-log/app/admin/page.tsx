@@ -22,8 +22,8 @@ export default async function AdminPage() {
       <section className="admin-next" aria-labelledby="admin-next-title">
         <div><CircleDashed size={19} aria-hidden="true" /><h2 id="admin-next-title">이어서 추가할 기능</h2></div>
         <ul>
-          <li><strong>글과 이력서 관리</strong><p><Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/posts" prefetch={false}>블로그 검토</Link>에서 저장된 글과 이전 버전을 확인할 수 있습니다. 글 수정·발행은 준비 중입니다. <Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/resume" prefetch={false}>이력서 PDF 보관함</Link>에서는 파일을 등록·검토하고 공개본을 선택하거나 해제할 수 있습니다.</p></li>
-          <li><strong>자동 작성과 작업 관리</strong><p>자동 작성 허용, 작업 조회와 재시도, 모니터링을 차례로 연결합니다.</p></li>
+          <li><strong>글과 이력서 관리</strong><p><Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/posts" prefetch={false}>블로그 검토</Link>에서 글을 수정하고, 확인한 버전의 발행을 요청할 수 있습니다. <Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/resume" prefetch={false}>이력서 PDF 보관함</Link>에서는 파일을 등록·검토하고 공개본을 선택하거나 해제할 수 있습니다.</p></li>
+          <li><strong>자동 작성과 작업 관리</strong><p><Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/automation" prefetch={false}>자동 작성</Link>에서 비공개 초안을 요청할 수 있습니다. 정기 작성 허용, 작업 조회와 재시도, 모니터링은 차례로 연결합니다.</p></li>
         </ul>
         <p className="admin-note">준비 중인 기능은 아직 사용할 수 없습니다. 실제 운영 상태는 각 기능이 연결된 뒤 표시합니다.</p>
       </section>

@@ -1,0 +1,127 @@
+import assert from "node:assert/strict";
+import { randomUUID } from "node:crypto";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+import test from "node:test";
+import pg from "pg";
+import { runBlogMigrations } from "../scripts/blog-migrations.mjs";
+import { prepareDraftInput, createDraftRequestRepository, runDraftRequestOnce } from "./blog-draft-requests.ts";
+import { createPostgresBlogRepository } from "./blog-postgres-repository.ts";
+import type { GenerateArticleInput, GenerateArticleResult } from "./blog-daily-auto-article.ts";
+
+test("durable manual drafts deduplicate, recover saved results and stop uncertain provider calls", { skip: !process.env.DATABASE_URL && "DATABASE_URL required" }, async () => {
+  const base = new URL(process.env.DATABASE_URL!);
+  assert(["localhost", "127.0.0.1", "[::1]"].includes(base.hostname));
+  const name = `hlog_drafts_${randomUUID().replaceAll("-", "")}`;
+  const admin = new pg.Client({ connectionString: new URL("/postgres", base).href });
+  await admin.connect(); await admin.query(`create database ${name}`);
+  const url = new URL(`/${name}`, base).href, pool = new pg.Pool({ connectionString: url });
+  const now = new Date().toISOString();
+  const source = { id: "source", publisher: "Example", title: "런타임 변경 확인", summary: "공식 릴리스의 변경 사항을 정리합니다.", url: "https://example.com/releases/runtime" };
+  const input = { personalContextItems: [{ id: "context", category: "H-Log", title: "워커 적용 검토", summary: "공개 자료로 워커 적용을 검토합니다.", allowedUsage: "applied_analysis", publicSafe: true, createdAt: now, updatedAt: now, version: 1 }],
+    topicSources: [{ ...source, sourceType: "official_release_note", signals: { backendAutomationFit: true, directVerificationAvailable: true, originalSourceAvailable: true }, relevanceReason: "워커 적용 조건 검토" }],
+    researchPackSources: [{ ...source, fetchedAt: now, sourceRole: "official", excerpt: "공식 API 변경", rawContent: "THIS RAW BODY MUST NOT BE SAVED", claimMetadata: [{ claimId: "claim", claimText: "API 동작이 바뀌었습니다.", sourceId: "source" }] }] };
+  let calls = 0;
+  const generateArticle = async (i: GenerateArticleInput): Promise<GenerateArticleResult> => {
+    calls++;
+    return { output: { title: "런타임 변경과 워커 적용 조건", description: "공식 문서를 읽고 적용 조건을 정리해요.", slug: i.postId, articleMode: "applied_analysis", contentMarkdown: "## 변경 내용\n\nAPI 동작이 바뀌었습니다.\n", tags: ["운영"], claims: [{ id: "claim", text: "API 동작이 바뀌었습니다.", type: "api", sourceId: "source" }], sources: [source.url], evidencePaths: [], personalContextIds: ["context"], publishDecision: "publish", blockReason: null }, usage: { estimatedCost: 0.01, inputTokens: 100, outputTokens: 100, provider: "fake", model: "fake" } };
+  };
+  try {
+    await runBlogMigrations(url);
+    const prepared = prepareDraftInput(input);
+    assert(!JSON.stringify(prepared.input).includes("THIS RAW BODY"));
+    const repo = createDraftRequestRepository(pool);
+    const c = { commandId: randomUUID(), inputHash: prepared.hash, reason: "공식 자료로 초안 작성" };
+    const submit = (command = c, pack = prepared) => repo.submit(command, async () => pack, true);
+    const [receipt, duplicate] = await Promise.all([submit(), submit()]);
+    assert.deepEqual(duplicate, receipt);
+    assert.deepEqual(await repo.submit(c, async () => { throw Error("file changed"); }, false), receipt);
+    assert.equal((await submit({ ...c, commandId: randomUUID() })).requestId, receipt.requestId);
+    await assert.rejects(submit({ ...c, reason: "다른 요청" }), /command_conflict/);
+    await assert.rejects(submit({ ...c, commandId: randomUUID(), inputHash: "b".repeat(64) }), /input_changed/);
+    assert.equal((await repo.list())[0].status, "queued");
+    const opts = { pool, generateArticle, enabled: true, policy: { dailyEstimatedCostLimit: 1, monthlyEstimatedCostLimit: 10 } };
+    assert.equal((await runDraftRequestOnce({ ...opts, enabled: false })).status, "disabled");
+    assert.equal((await runDraftRequestOnce({ ...opts, policy: { dailyEstimatedCostLimit: Infinity, monthlyEstimatedCostLimit: 10 } })).status, "budget_unconfigured");
+    assert.equal(calls, 0);
+    const first = await runDraftRequestOnce(opts);
+    assert.equal(first.status, "completed", JSON.stringify(await repo.list()));
+    assert.equal(calls, 1);
+    assert.equal((await runDraftRequestOnce(opts)).status, "idle");
+    assert.equal((await pool.query("select status from posts")).rows[0].status, "drafted");
+    assert.equal((await pool.query("select count(*)::int n from publish_jobs")).rows[0].n, 0);
+    assert.equal((await createPostgresBlogRepository(pool).findPublicBlogContent()).posts.length, 0);
+    assert.equal((await pool.query("select count(*)::int n from admin_actions where action_type='draft_completed'")).rows[0].n, 1);
+    const next = async (suffix: string, packInput = input) => {
+      const pack = prepareDraftInput({ ...packInput, personalContextItems: packInput.personalContextItems.map(x => ({ ...x, title: x.title + suffix })) });
+      return submit({ ...c, commandId: randomUUID(), inputHash: pack.hash }, pack);
+    };
+    await next("budget");
+    assert.equal((await runDraftRequestOnce({ ...opts, policy: { dailyEstimatedCostLimit: 0, monthlyEstimatedCostLimit: 10 } })).status, "blocked");
+    assert.equal(calls, 1);
+    await next("timeout");
+    assert.equal((await runDraftRequestOnce({ ...opts, providerTimeoutMs: 10, generateArticle: async () => { calls++; return new Promise(() => {}); } })).status, "needs_review");
+    assert.equal((await runDraftRequestOnce(opts)).status, "idle");
+    assert.equal(calls, 2);
+    const waiting = await next("waiting");
+    assert.equal((await runDraftRequestOnce(opts)).status, "attention_required");
+    assert.equal(calls, 2);
+    // Test-only operator reconciliation: production must establish the provider outcome first.
+    await pool.query("update blog_draft_requests set status='blocked' where status='needs_review' or id=$1", [waiting.requestId]);
+    const stopped = await next("interrupted");
+    await pool.query("update blog_draft_requests set status='running',started_at=now()-interval '10 minutes',provider_started_at=now()-interval '10 minutes' where id=$1", [stopped.requestId]);
+    assert.equal((await runDraftRequestOnce(opts)).status, "idle");
+    assert.equal((await pool.query("select status from blog_draft_requests where id=$1", [stopped.requestId])).rows[0].status, "needs_review");
+    assert.equal(calls, 2);
+    await pool.query("update blog_draft_requests set status='blocked' where id=$1", [stopped.requestId]);
+    // The result survives a failed final transaction. A fresh runner saves it without generating again.
+    const recovery = await next("savefailure");
+    await pool.query("create function reject_draft_finish() returns trigger language plpgsql as $$ begin if NEW.action_type='draft_completed' then raise exception 'synthetic audit failure'; end if; return NEW; end $$");
+    await pool.query("create trigger reject_draft_finish before insert on admin_actions for each row execute function reject_draft_finish()");
+    assert.equal((await runDraftRequestOnce(opts)).status, "result_ready");
+    assert.equal((await pool.query("select count(*)::int n from posts")).rows[0].n, 1);
+    assert.equal(calls, 3);
+    await pool.query("drop trigger reject_draft_finish on admin_actions");
+    assert.equal((await runDraftRequestOnce(opts)).status, "completed");
+    assert.equal(calls, 3);
+    assert.equal((await pool.query("select status from blog_draft_requests where id=$1", [recovery.requestId])).rows[0].status, "completed");
+    assert.equal((await pool.query("select count(distinct post_id)::int n from post_sources")).rows[0].n, 2, "Each draft must retain its own source snapshot");
+    // Stale snapshots and invalid claims never produce public content or jobs.
+    await next("stale");
+    await pool.query("update blog_draft_requests set input_snapshot=jsonb_set(input_snapshot,'{researchPackSources,0,fetchedAt}',to_jsonb('2020-01-01T00:00:00Z'::text)) where status='queued'");
+    assert.equal((await runDraftRequestOnce(opts)).status, "blocked"); assert.equal(calls, 3);
+    await next("badclaims");
+    assert.equal((await runDraftRequestOnce({ ...opts, generateArticle: async i => { const g = await generateArticle(i); g.output.claims = [{ id: "bad", text: "주장", type: "api", sourceId: "missing" }]; return g; } })).status, "blocked");
+    assert.equal((await pool.query("select count(*)::int n from posts where status<>'drafted'")).rows[0].n, 0);
+    assert.equal((await pool.query("select count(*)::int n from publish_jobs")).rows[0].n, 0);
+    await next("concurrent");
+    let entered!: () => void, release!: () => void;
+    const started = new Promise<void>(resolve => { entered = resolve; });
+    const pause = new Promise<void>(resolve => { release = resolve; });
+    const active = runDraftRequestOnce({ ...opts, generateArticle: async i => { entered(); await pause; return generateArticle(i); } });
+    await started;
+    assert.equal((await runDraftRequestOnce(opts)).status, "busy");
+    release(); assert.equal((await active).status, "completed");
+    assert.equal((await pool.query("select count(*)::int n from usage_events where event_type='llm'")).rows[0].n, 4);
+    const unstaged = await next("result-not-saved");
+    await pool.query("create function reject_draft_result() returns trigger language plpgsql as $$ begin if NEW.status='result_ready' then raise exception 'synthetic result save failure'; end if; return NEW; end $$");
+    await pool.query("create trigger reject_draft_result before update on blog_draft_requests for each row execute function reject_draft_result()");
+    assert.equal((await runDraftRequestOnce(opts)).status, "needs_review");
+    const failedResult = (await pool.query("select status,reason_code,provider_returned_at,result from blog_draft_requests where id=$1", [unstaged.requestId])).rows[0];
+    assert.equal(failedResult.reason_code, "result_persistence_failed");
+    assert(failedResult.provider_returned_at); assert.equal(failedResult.result, null);
+    const callsBefore = calls;
+    await next("held-after-result-failure");
+    assert.equal((await runDraftRequestOnce(opts)).status, "attention_required"); assert.equal(calls, callsBefore);
+    const cli = await promisify(execFile)(process.execPath, ["--no-warnings", "--experimental-strip-types", "scripts/blog-auto-publish.mjs", "--once"], { env: { ...process.env, DATABASE_URL: url, HLOG_AUTO_PUBLISH_INPUT_FILE: "unused-while-paused.json" } });
+    const held = JSON.parse(cli.stdout);
+    assert.equal(held.status, "attention_required");
+    assert.match(held.postId, /^post-\d{4}-\d{2}-\d{2}$/, "Existing daily verification must still receive its Seoul post id");
+    await pool.query("drop trigger reject_draft_result on blog_draft_requests");
+    const requestCount = (await pool.query("select count(*)::int n from blog_draft_requests")).rows[0].n;
+    await pool.query("create function reject_draft_audit() returns trigger language plpgsql as $$ begin raise exception 'synthetic request audit failure'; end $$");
+    await pool.query("create trigger reject_draft_audit before update on admin_actions for each row execute function reject_draft_audit()");
+    await assert.rejects(next("request-audit-rollback"), /synthetic request audit failure/);
+    assert.equal((await pool.query("select count(*)::int n from blog_draft_requests")).rows[0].n, requestCount);
+  } finally { await pool.end(); await admin.query(`drop database ${name} with (force)`); await admin.end(); }
+});

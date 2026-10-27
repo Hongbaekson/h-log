@@ -7,13 +7,13 @@ import type { EditorialCommand } from "./blog-editorial-command.ts";
 
 export async function loadAdminPosts(query: AdminPostReviewQuery) {
   await requireAdminOwner();
-  return readAdminPosts(getPool(), query);
+  return readAdminPosts(getAdminBlogPool(), query);
 }
 export async function executeEditorialCommand(command: EditorialCommand) {
   await requireAdminOwner();
-  return createBlogEditorialRepository(getPool(), { publishEnabled: process.env.HLOG_BLOG_MANUAL_PUBLISH_ENABLED === "1" }).execute(command);
+  return createBlogEditorialRepository(getAdminBlogPool(), { publishEnabled: process.env.HLOG_BLOG_MANUAL_PUBLISH_ENABLED === "1" }).execute(command);
 }
-function getPool() {
+export function getAdminBlogPool() {
   if (!process.env.DATABASE_URL) throw new Error("storage_unavailable");
   const shared = globalThis as typeof globalThis & { hlogAdminReviewPool?: pg.Pool };
   if (!shared.hlogAdminReviewPool) {

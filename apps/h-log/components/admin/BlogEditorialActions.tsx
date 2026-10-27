@@ -72,7 +72,7 @@ export function BlogEditorialActions({ review, publishEnabled }: { review: Admin
   return <section className="review-editor" aria-label="글 수정과 발행">
     <h3>글 수정과 발행</h3>
     <noscript><p>수정본 저장과 발행·철회에는 JavaScript가 필요합니다.</p></noscript>
-    <p>기존 글의 수정본을 새 버전으로 저장합니다. 저장만으로 공개본은 바뀌지 않습니다. 새 초안 생성은 다음 단계에서 연결합니다.</p>
+    <p>기존 글의 수정본을 새 버전으로 저장합니다. 저장만으로 공개본은 바뀌지 않습니다. 새 글은 <a href="/admin/automation">자동 작성</a>에서 비공개 초안으로 요청할 수 있어요.</p>
     {!latest && <p>이전 버전은 읽기만 가능합니다. 버전 번호에서 최신 v{review.latestVersionNo}을 열어 주세요.</p>}
     <details><summary>수정본과 근거 작성</summary>
       <fieldset disabled={!canSave || busy || !!pending}>

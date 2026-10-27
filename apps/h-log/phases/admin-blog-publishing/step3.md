@@ -23,6 +23,13 @@
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/phases/admin-blog-publishing/index.json`
 - `apps/h-log/phases/admin-blog-publishing/step2.md`
+- `apps/h-log/.codex/docs/harness/DRAFT_GENERATION_REQUESTS.md`
+- `apps/h-log/migrations/009_blog_draft_requests.sql`
+- `apps/h-log/lib/blog-draft-requests.ts`
+- `apps/h-log/lib/blog-draft-server.ts`
+- `apps/h-log/lib/blog-draft-http.ts`
+- `apps/h-log/app/admin/automation/page.tsx`
+- `apps/h-log/scripts/blog-draft.http.test.mjs`
 - `apps/h-log/lib/blog-auto-publish-runner.ts`
 - `apps/h-log/lib/blog-auto-publish-cycle.ts`
 - `apps/h-log/lib/blog-daily-auto-article.ts`
@@ -71,3 +78,7 @@ git diff --check
 ## 다음 단계
 
 A3 Step 0 job-and-audit-inspection. 전체 순서는 [통합 관리자 계획](../../.codex/docs/harness/ADMIN_CONSOLE_PLAN.md)을 따른다.
+
+## Step 2 인계
+
+초안 요청 소비자는 구현됐다. HLOG_BLOG_DRAFT_GENERATION_ENABLED 기본 OFF와 유한한 일/월 한도를 상한으로 사용한다. 이 환경 flag는 지속 정책이나 진행 중 호출 취소 기능이 아니다. 공용 generation advisory lock과 별도의 Seoul daily lock, needs_review 보류, result_ready 저장만 재개, daily 검증용 postId와 공개 보호 작업을 유지하며 정책 admission을 연결한다. 외부 결과가 불명확한 요청을 정책 ON만으로 queued로 되돌리지 않는다.

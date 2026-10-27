@@ -1,0 +1,8 @@
+.draft-requests > section { margin-bottom: 24px; }
+.draft-input-title { margin-top: 20px; overflow-wrap: anywhere; font-weight: 600; }
+.draft-requests a { color: #c7cbff; text-decoration: underline; text-underline-offset: 4px; }
+.draft-history { list-style: none; margin-top: 20px; }
+.draft-history li { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 20px 0; border-top: 1px solid #303654; }
+.draft-history time { color: #b8bdd3; font-size: 13px; }
+.draft-history small, .draft-history p { flex-basis: 100%; color: #b8bdd3; overflow-wrap: anywhere; font-size: 13px; line-height: 1.8; }
+.draft-history a, .draft-requests .review-actions a { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; }

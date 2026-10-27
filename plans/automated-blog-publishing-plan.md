@@ -18,7 +18,7 @@
 
 [SEO 개선 계획](../apps/h-log/.codex/docs/harness/SEO_OPTIMIZATION_PLAN.md)을 3개 phase / 10개 step(pending 9·blocked 1)으로 등록했다. claude-seo 2.5.0의 commit `6be93f45064ffbadced572b5d5c95f55fd263af0`을 기준으로 필요한 지침을 repo-local Codex 스킬로 선별 이식한다. S1 도입/감사 기준선 → S2 canonical·no-JS 발견·metadata/schema·실측 성능·근거/링크 → S3 회귀/승인된 실제 검색 성과 순서다. 기존 SEO 코드를 재사용하고 소스 검사와 실제 HTTP/DOM·검색 성과를 구분한다. 계획 등록과 기존 기준선 7/7만 완료했으며 설치·앱 최적화·외부 제출은 수행하지 않았다.
 
-관리자/비공개 Brain·PDF·회사 원문은 SEO 감사에서 제외한다. 콘텐츠 후보는 기존 발행/검토 경계를 따르고 자동 SEO 발행·외부 유료 API·상시 감사 자동화는 추가하지 않는다. **일반 다음 작업은 admin-blog-publishing Step 2이며 SEO를 지정하면 `seo-codex-foundation / Step 0`부터 시작**한다. 관리자/모니터링/운영 순서는 그대로이고 실제 도메인·GSC·배포 측정은 OCI 보류 해제와 해당 승인 이후다.
+관리자/비공개 Brain·PDF·회사 원문은 SEO 감사에서 제외한다. 콘텐츠 후보는 기존 발행/검토 경계를 따르고 자동 SEO 발행·외부 유료 API·상시 감사 자동화는 추가하지 않는다. **일반 다음 작업은 admin-blog-publishing Step 3이며 SEO를 지정하면 `seo-codex-foundation / Step 0`부터 시작**한다. 관리자/모니터링/운영 순서는 그대로이고 실제 도메인·GSC·배포 측정은 OCI 보류 해제와 해당 승인 이후다.
 
 ### 2026-10-22 통합 관리자 계획
 
@@ -30,9 +30,11 @@
 
 2026-10-26 A4 Step 3까지 완료했다. 32 MiB tmpfs 강제와 감사 기반 복구 초기화, 최대 100 MiB 합성 원본의 실제 dump/restore·새 epoch·과거 receipt·장애/rollback을 검증했다. Next.js 16.4.3/sharp 0.35.5 등의 production 감사는 0건이다. 현재 관리자 트랙은 completed 8개·pending 8개·blocked 1개다. [완료 기록과 자원 실측](../apps/h-log/phases/admin-resume-pdf/step3.md)을 따른다.
 
-2026-10-26 모니터링 Step 0의 지표·권한·자원 계약도 완료했다. [단일 모니터링 계약](../apps/h-log/.codex/docs/harness/OBSERVABILITY_PLAN.md)에 required 6종의 실제 성공 증거·DB 독립 atomic summary·비용 unknown·일정/수집 오류·메모리 1 GiB/디스크 3 GiB와 후속 검증을 확정했다. 모니터링 설치·운영 적용은 아직 없다. A2 Steps 0–1의 검토/수정본/발행/철회도 완료해 기본 다음 작업은 **`admin-blog-publishing / Step 2: draft-generation-requests`**다. A1 완료 → A4 이력서 PDF 등록/공개/다운로드 → 기존 모니터링 Step 0 → A2 블로그/자동화 → A3 작업 제어 → 모니터링 Steps 1–6 → A3 모니터링/로컬 검수 순으로 진행한다. 운영 모니터링 Step 7과 관리자 rollout은 OCI 보류 해제 뒤 승인 범위로 수행하고, 실제 timer는 그 다음 기존 운영 활성화 단계에서 다룬다. 구현되지 않은 초안 전용 저장·지속 정책·요청 이력과 작업 관리자 UI를 현재 runtime으로 설명하지 않는다. 아래 기존 기록의 다음 단계는 당시 상태다.
+2026-10-26 모니터링 Step 0의 지표·권한·자원 계약도 완료했다. [단일 모니터링 계약](../apps/h-log/.codex/docs/harness/OBSERVABILITY_PLAN.md)에 required 6종의 실제 성공 증거·DB 독립 atomic summary·비용 unknown·일정/수집 오류·메모리 1 GiB/디스크 3 GiB와 후속 검증을 확정했다. 모니터링 설치·운영 적용은 아직 없다. A2 Steps 0–2의 검토/수정본/발행/철회/비공개 초안 요청도 완료해 기본 다음 작업은 **`admin-blog-publishing / Step 3: automation-policy-controls`**다. A1 완료 → A4 이력서 PDF 등록/공개/다운로드 → 기존 모니터링 Step 0 → A2 블로그/자동화 → A3 작업 제어 → 모니터링 Steps 1–6 → A3 모니터링/로컬 검수 순으로 진행한다. 운영 모니터링 Step 7과 관리자 rollout은 OCI 보류 해제 뒤 승인 범위로 수행하고, 실제 timer는 그 다음 기존 운영 활성화 단계에서 다룬다. 초안 전용 저장·요청 이력은 구현했으며 지속 정책과 작업 관리자 UI는 아직 구현하지 않았다. 아래 기존 기록의 다음 단계는 당시 상태다.
 
 2026-10-27 A2 Step 0에서 인증된 `/admin/posts` 목록·현재/저장 버전·안전한 미리보기·출처·검증 기록을 구현했다. 원문/hash/current와 공개 selector를 보존하고 DB 오류·빈 목록을 구분한다. Unit 247 pass/17 DB skip, 격리 integration 19/19, dev/prod review HTTP 각 1/1, admin HTTP 4/4, 기본 gate와 1440/390/320px 검수를 통과했다. 관리자 트랙은 completed 9·pending 7·blocked 1이다. 다음은 A2 Step 1이며 운영 발행은 하지 않았다.
+
+2026-10-27 A2 Step 2 완료: `/admin/automation`의 초안 요청·최근 이력·검토 링크와 migration 009의 지속 요청/입력 snapshot을 연결했다. 명령 UUID·입력 hash 중복 수렴과 감사 transaction, 기존 one-shot의 `--draft-once`, `drafted` 전용 저장을 구현했다. freshness/context/claim/privacy/한국어 규칙/usage를 재사용하며 발행 작업은 만들지 않는다. 불명확한 외부 결과는 새 생성도 보류하고, 보관된 결과의 저장 실패는 provider 재호출 없이 복구한다. Unit 250 pass/19 DB skip, 격리 integration 21/21, dev/prod draft HTTP 각 1/1, production admin HTTP 4/4, lint/typecheck/build와 1440/390/320px 검수를 통과했다. 관리자 completed 11·pending 5·blocked 1이며 다음은 **A2 Step 3: automation-policy-controls**다. 실제 provider·운영 migration·배포·공개 발행·timer는 실행하지 않았다.
 
 2026-10-27 A2 Step 1 완료: 기존 글의 불변 수정본 저장, 선택 버전/hash 검토 후 발행 요청, 철회와 원자적 감사 receipt를 연결했다. 저장은 공개 current를 유지하고 발행은 기존 required 6종 워커를 거친다. 중복·동시 수정·감사 실패 rollback·철회 후 늦은 작업의 재노출 방지를 검증했다. Unit 248 pass/18 DB skip, 격리 integration 20/20, 로컬 editorial HTTP, lint/typecheck/build와 1440/390/320px 저장·발행·철회·오류 복구를 확인했다. 관리자 completed 10·pending 6·blocked 1이며 다음은 A2 Step 2 draft-generation-requests다. 운영 발행·배포·provider·timer는 실행하지 않았다.
 

@@ -152,38 +152,11 @@ export function createPostgresBlogRepository(
     },
 
     async savePost(aggregate) {
-      assertAggregateReferences(aggregate);
-      if (aggregate.version.publicEditorial !== undefined &&
-          !parseBlogEditorialNote(aggregate.version.publicEditorial, options.privacyScanPolicy)) {
-        throw new Error("Invalid public editorial note");
-      }
       const client = await pool.connect();
 
       try {
         await client.query("begin");
-        await upsertPostWithoutCurrentVersion(client, aggregate.post);
-        await insertPostVersion(client, aggregate.version);
-        await client.query(
-          "update posts set current_version_id = $2 where id = $1",
-          [aggregate.post.id, aggregate.post.currentVersionId],
-        );
-
-        for (const tag of aggregate.tags) {
-          await upsertPostTag(client, tag);
-        }
-
-        for (const source of aggregate.sources) {
-          await upsertPostSource(client, source);
-        }
-
-        for (const asset of aggregate.assets) {
-          await upsertPostAsset(client, asset);
-        }
-
-        for (const job of aggregate.publishJobs) {
-          await insertPublishJob(client, job);
-        }
-
+        await saveBlogAggregate(client, aggregate, options);
         await client.query("commit");
       } catch (error) {
         await client.query("rollback");
@@ -193,6 +166,19 @@ export function createPostgresBlogRepository(
       }
     },
   };
+}
+
+// Caller owns the transaction, allowing a draft and its request receipt to commit together.
+export async function saveBlogAggregate(client: PoolClient, aggregate: BlogPostAggregate, options: PostgresBlogRepositoryOptions = {}) {
+  assertAggregateReferences(aggregate);
+  if (aggregate.version.publicEditorial !== undefined && !parseBlogEditorialNote(aggregate.version.publicEditorial, options.privacyScanPolicy)) throw new Error("Invalid public editorial note");
+  await upsertPostWithoutCurrentVersion(client, aggregate.post);
+  await insertPostVersion(client, aggregate.version);
+  await client.query("update posts set current_version_id = $2 where id = $1", [aggregate.post.id, aggregate.post.currentVersionId]);
+  for (const tag of aggregate.tags) await upsertPostTag(client, tag);
+  for (const source of aggregate.sources) await upsertPostSource(client, source);
+  for (const asset of aggregate.assets) await upsertPostAsset(client, asset);
+  for (const job of aggregate.publishJobs) await insertPublishJob(client, job);
 }
 
 async function findPrivacySafePublicBlogContent(

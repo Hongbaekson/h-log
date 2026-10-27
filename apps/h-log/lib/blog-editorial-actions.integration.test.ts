@@ -75,7 +75,7 @@ test("editorial versions preserve public content, validate evidence and commit c
     assert.equal((await pool.query("select status from posts where id='post'")).rows[0].status, "retracted");
     assert.equal((await publicRepo.findPublicBlogContent()).posts.length, 0);
     assert.deepEqual(await repository.execute(publish), accepted); // receipt does not republish
-    await assert.rejects(repository.execute({ ...edit, expectedRevision: 4, expectedStatus: "retracted" }), /state_conflict/);
+    await assert.rejects(repository.execute({ ...edit, commandId: randomUUID(), expectedRevision: 4, expectedStatus: "retracted" }), /state_conflict/);
     assert.equal((await pool.query("select content_markdown from post_versions where id='old'")).rows[0].content_markdown, old.contentMarkdown);
   } finally { await pool.end(); await admin.query(`drop database ${name} with (force)`); await admin.end(); }
 });

@@ -1,6 +1,6 @@
 # 관리자 접근과 명령 계약
 
-확정일: 2026-10-23. A1 Step 0 설계와 후속 구현 계약이다. **2026-10-27 기준 A1/A4 전체와 A2 Steps 0–1의 검토·수정본 저장·발행 요청·철회를 로컬 구현·검증했다.** 초안 요청·지속 정책/중지·운영 ingress는 후속 단계다. 다음은 A2 Step 2이며 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 따른다.
+확정일: 2026-10-23. A1 Step 0 설계와 후속 구현 계약이다. **2026-10-27 기준 A1/A4 전체와 A2 Steps 0–2의 검토·수정본 저장·발행 요청·철회·초안 요청을 로컬 구현·검증했다.** 지속 정책/중지·운영 ingress는 후속 단계다. 다음은 A2 Step 3이며 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 따른다.
 
 ## 1. 현재 caller와 부족한 계약
 
@@ -10,7 +10,7 @@
 | `app/admin/brain/page.tsx` → `getBrainRepository().listOwnerNotes()` | `requireAdminOwner` 뒤 DB 조회; 기능 OFF는 미설정 안내, 실패는 해당 영역 오류 | A1 Step 1 완료; 원문/공개 사본 기능은 유지 |
 | `app/admin/brain/records/route.ts` → `handleBrainCaptureRequest` | 공통 인증 → 요청 형식/256 KiB 제한 → repository; 안전한 오류 코드 | A1 Step 3 완료; POST에 commandId/commandRevision 필수, 누락 시 400·새로고침 안내 |
 | `brain-postgres-repository.ts` | row lock·내용/명령 revision·append-only 버전·공개 사본·원자적 감사 receipt | A1 Step 3 완료; 중복 재전송·공개/해제 경합·감사 실패 rollback 검증 |
-| `blog-editorial-actions.ts` → 기존 content model/worker | 불변 수정본, 버전/hash 검토, 예상 revision/state/current와 원자적 감사 receipt | A2 Step 1 구현; 새 생성 요청은 Step 2 |
+| `blog-editorial-actions.ts` → 기존 content model/worker | 불변 수정본, 버전/hash 검토, 예상 revision/state/current와 원자적 감사 receipt | A2 Step 1 구현; Step 2의 초안 요청과 분리 |
 | `blog-daily-auto-article.ts` → `savePost` | `publishing` aggregate와 required job 저장 | A2 Step 2에서 draft-only 요청/저장; 기존 함수를 그대로 초안 API에 연결하지 않음 |
 | `blog-persistent-worker.ts` | `FOR UPDATE SKIP LOCKED` claim·5분 lease·소유자 조건부 완료·유한 재시도 | A2 Step 3/A3 Step 1에서 정책 확인과 claim 중지의 transaction 경계 추가 |
 | Nginx → Compose web | 공개 `/admin`·`/api/internal` 404, upstream `Host hlog-web`, web은 expose만 사용 | 공개 차단 유지; 별도 관리자 ingress의 Host 전달을 로컬 검증 후 승인된 운영 단계에서 적용 |
@@ -136,3 +136,7 @@ Step 0 당시 검증은 문서/JSON·링크·읽을 파일·phase 상태 검사�
 공통 경계 재검증은 앱 디렉터리에서 `npm run test:admin:http`를 사용한다. `HLOG_ADMIN_HTTP_TEST=1`, 테스트용 `HLOG_ADMIN_ORIGIN/OWNER_KEY`, `HLOG_ADMIN_HTTP_PUBLIC_ORIGIN`, `HLOG_ADMIN_HTTP_UPSTREAM`을 설정한 격리 HTTP loopback 두 ingress가 필요하다. 실제 secret/도메인을 넣지 않는다. A1의 검수 설정·결과·스크린샷은 Git 제외 `private/admin-shell-check/`에 보관했다.
 
 A1 Step 2에서 같은 `test:admin:http`에 Queue 공개 종료·공개 탐색 제외·소유자 접근 검증 3개를 추가했다(부모 테스트 포함 4/4). 공개 sitemap/검색/글 조회도 검사하므로 앱에 migration이 적용된 격리 DB를 연결해야 하며 Brain 저장 flag는 OFF여도 된다. `/lab/queue`는 공개/관리자/직접 upstream에서 GET·HEAD·RSC 모두 404이며 관리자 redirect는 없다. `/admin/lab/queue`는 공개 ingress에서 정상 키로도 404, 관리자 익명/잘못된 키는 401, 잘못된 Host는 403이다. 인증된 HTML·RSC·prefetch·HEAD와 private/no-store/noindex를 확인했다. 공개 페이지·프로젝트 RSC·sitemap·검색·feed/llms에는 실험 주소/본문이 없다.
+
+## A2 Step 2 요청 경계
+
+POST `/admin/automation/requests`는 commandId/inputHash/reason만 받는다. JSON 4 KiB·본문 10초, unknown key 거부, 기존 Host/Origin/Basic + DAL owner 검사를 적용한다. 클라이언트가 파일 경로나 실행 명령을 지정할 수 없다. HLOG_AUTO_PUBLISH_INPUT_FILE의 검증 snapshot을 최대 256 KiB로 읽어 hash를 비교하며 admin_actions와 같은 transaction에 접수한다. 동일 키 replay는 flag/파일 변경 뒤에도 원래 receipt를 반환한다. 다른 키라도 같은 입력 hash는 동일 요청으로 합친다. 웹에서 provider나 shell을 호출하지 않는다. [상태·실행/복구 계약](DRAFT_GENERATION_REQUESTS.md)을 따른다.

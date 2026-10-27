@@ -50,6 +50,8 @@ apps/h-log/AGENTS.md
 
 ## 현재 phase 실행 순서
 
+2026-10-27 A2 Step 2 완료: `/admin/automation`의 초안 요청·최근 이력·검토 링크와 migration 009의 지속 요청/입력 snapshot을 연결했다. 명령 UUID·입력 hash 중복 수렴과 감사 transaction, 기존 one-shot의 `--draft-once`, `drafted` 전용 저장을 구현했다. freshness/context/claim/privacy/한국어 규칙/usage를 재사용하며 발행 작업은 만들지 않는다. 불명확한 외부 결과는 새 생성도 보류하고, 보관된 결과의 저장 실패는 provider 재호출 없이 복구한다. Unit 250 pass/19 DB skip, 격리 integration 21/21, dev/prod draft HTTP 각 1/1, production admin HTTP 4/4, lint/typecheck/build와 1440/390/320px 검수를 통과했다. 관리자 completed 11·pending 5·blocked 1이며 다음은 **A2 Step 3: automation-policy-controls**다. 실제 provider·운영 migration·배포·공개 발행·timer는 실행하지 않았다. 아래 다음 단계 표기는 당시 이력이다.
+
 2026-10-27 A2 Step 1 완료: 기존 글의 불변 수정본 저장, 선택 버전/hash 검토 후 발행 요청, 철회와 원자적 감사 receipt를 연결했다. 저장은 공개 current를 유지하고 발행은 기존 required 6종 워커를 거친다. 중복·동시 수정·감사 실패 rollback·철회 후 늦은 작업의 재노출 방지를 검증했다. Unit 248 pass/18 DB skip, 격리 integration 20/20, 로컬 editorial HTTP, lint/typecheck/build와 1440/390/320px 저장·발행·철회·오류 복구를 확인했다. 관리자 completed 10·pending 6·blocked 1이며 다음은 A2 Step 2 draft-generation-requests다. 운영 발행·배포·provider·timer는 실행하지 않았다. 아래 다음 단계 표기는 당시 이력이다.
 
 2026-10-27 **A2 Step 0 completed**: 인증된 `/admin/posts`의 제한된 상태 목록·선택 버전·출처/검증 기록과 안전한 비공개 미리보기를 구현했다. 공개 renderer를 공유하고 원문/hash/current·published-only 조회를 보존했다. Unit 247 pass/17 DB skip, integration 19/19, dev/prod HTTP 각각 1/1, 공통 admin HTTP 4/4, lint/typecheck/build와 1440/390/320px·오류 복구 검증을 통과했다. 관리자 트랙은 completed 9·pending 7·blocked 1이다. **일반 다음은 admin-blog-publishing Step 1: versioned-editorial-actions**다. 모니터링 구현/운영 보류는 유지한다. 아래 다음 단계 표기는 당시 이력이다.
@@ -171,7 +173,7 @@ public-surface-refactor-pruning: completed, native legacy redirects and shared b
 discord-design-preview: completed Home/shared-shell design and browser screenshots; user accepted the design and requested commit/push; production deployment verification remains separate
 local-blog-design-verification: completed, populated Blog/public boundaries and desktop/mobile interaction verified; long list/search title clipping fixed with browser RED/GREEN and all required gates passed
 generation-input-freshness: completed, Step 0 rejects expired/future/invalid research before daily generation side effects; local and isolated DB gates passed
-operations-observability: pending, Step 0 contract completed; Steps 1-6 pending locally; Step 7 blocked by OCI hold; next general step admin-blog-publishing Step 2; verified production monitoring required before timer activation
+operations-observability: pending, Step 0 contract completed; Steps 1-6 pending locally; Step 7 blocked by OCI hold; next general step admin-blog-publishing Step 3; verified production monitoring required before timer activation
 terraform-infrastructure-adoption: blocked by user's OCI hold; Steps 0-1 and Step 2 preparation preserved, no cloud apply/import executed
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned

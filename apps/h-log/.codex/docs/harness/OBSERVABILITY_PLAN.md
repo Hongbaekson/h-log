@@ -17,7 +17,7 @@
 | [6](../../../phases/operations-observability/step6.md) | isolated-failure-rehearsal | 장애·수집 중단·재기동·자원 검증 |
 | [7](../../../phases/operations-observability/step7.md) | approved-production-rollout | OCI 보류로 blocked: 승인된 운영 설치와 외부 감시 |
 
-현재 1 completed / 6 pending / 1 blocked다. **일반 다음 작업은 [A2 Step 2: draft-generation-requests](../../../phases/admin-blog-publishing/step2.md)**다. [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1/A4 → 모니터링 계약 → A2 Steps 0–3 → A3 Steps 0–1 → 모니터링 Steps 1–6 → A3 Steps 2–3 순서를 유지한다. 모니터링 트랙을 지정하면 이 phase의 Step 1부터 이어간다.
+현재 1 completed / 6 pending / 1 blocked다. **일반 다음 작업은 [A2 Step 3: automation-policy-controls](../../../phases/admin-blog-publishing/step3.md)**다. [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1/A4 → 모니터링 계약 → A2 Steps 0–3 → A3 Steps 0–1 → 모니터링 Steps 1–6 → A3 Steps 2–3 순서를 유지한다. 모니터링 트랙을 지정하면 이 phase의 Step 1부터 이어간다.
 
 수집기·신호·대시보드·알림은 이 phase가 소유하고 관리자 화면은 그 결과를 소비한다. 승인된 모니터링 Step 7 → 관리자 rollout → 기존 auto-publish-ops-hardening Step 4의 timer 활성화 순서다. **모니터링 완료에 실제 반복 발행을 요구하지 않는다.** 비활성 scheduler와 로컬 누락 재현으로 먼저 검증하므로 순환 의존이 없다.
 

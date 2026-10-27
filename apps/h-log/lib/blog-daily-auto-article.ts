@@ -73,6 +73,7 @@ export type PersistPublishingArticleInput = {
 };
 
 export type DailyAutoArticlePipelineInput = {
+  persistenceMode?: "draft" | "publish";
   dayKey: string;
   generateArticle(input: GenerateArticleInput): Promise<GenerateArticleResult>;
   hasPersistedPostSlug(slug: string): Promise<boolean>;
@@ -91,6 +92,7 @@ export type DailyAutoArticlePipelineInput = {
 };
 
 export type DailyAutoArticlePipelineStatus =
+  | "drafted"
   | "budget_exceeded"
   | "duplicate_daily_publish"
   | "generation_failed"
@@ -315,15 +317,16 @@ export async function runDailyAutoArticlePipeline(
   assertBlogPostStatusTransition(readyToPublishPost.status, "publishing");
   const publishingPost: PostRecord = {
     ...readyToPublishPost,
-    status: "publishing",
+    status: input.persistenceMode === "draft" ? "drafted" : "publishing",
   };
-  const publishJobs = createRequiredPublishJobs({
+  const publishJobs = input.persistenceMode === "draft" ? [] : createRequiredPublishJobs({
     post: publishingPost,
     runAt: input.runAt,
     version,
   });
   const sources = postSources.map((source): PostSourceRecord => ({
     ...source,
+    ...(input.persistenceMode === "draft" ? { id: `${postId}:${source.id}` } : {}),
     postId,
   }));
   const tags = validation.normalizedOutput.tags.map(
@@ -345,7 +348,7 @@ export async function runDailyAutoArticlePipeline(
 
   return {
     post: publishingPost,
-    status: "publishing",
+    status: input.persistenceMode === "draft" ? "drafted" : "publishing",
     version,
   };
 }
@@ -451,7 +454,7 @@ function createRequiredPublishJobs({
 }
 
 function emptyResult(
-  status: Exclude<DailyAutoArticlePipelineStatus, "publishing">,
+  status: Exclude<DailyAutoArticlePipelineStatus, "publishing" | "drafted">,
   failure?: DailyAutoArticlePipelineResult["failure"],
 ): DailyAutoArticlePipelineResult {
   return {

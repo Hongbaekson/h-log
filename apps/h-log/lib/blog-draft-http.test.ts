@@ -1,0 +1,23 @@
+import assert from "node:assert/strict";
+import { randomUUID } from "node:crypto";
+import test from "node:test";
+import { handleDraftRequest } from "./blog-draft-http.ts";
+const env = { HLOG_ADMIN_ENABLED: "1", HLOG_ADMIN_OWNER_KEY: "a".repeat(64), HLOG_ADMIN_ORIGIN: "https://admin.example", NODE_ENV: "production" };
+const headers = { host: "admin.example", origin: "https://admin.example", authorization: `Basic ${Buffer.from(`owner:${env.HLOG_ADMIN_OWNER_KEY}`).toString("base64")}`, "content-type": "application/json" };
+test("draft HTTP authenticates before input and accepts only bounded request references", async () => {
+  let calls = 0;
+  const command = { commandId: randomUUID(), inputHash: "b".repeat(64), reason: "검토용 초안" };
+  const execute = async () => { calls++; return { requestId: command.commandId, inputHash: command.inputHash, status: "accepted" as const }; };
+  const req = (body: unknown, overrides = {}) => new Request("https://admin.example/admin/automation/requests", { method: "POST", headers: { ...headers, ...overrides }, body: JSON.stringify(body) });
+  assert.equal((await handleDraftRequest(req(command, { authorization: "invalid" }), execute, env)).status, 401);
+  assert.equal((await handleDraftRequest(req(command, { origin: "https://sibling.example" }), execute, env)).status, 403);
+  assert.equal((await handleDraftRequest(req({ ...command, inputPath: "private" }), execute, env)).status, 400);
+  assert.equal((await handleDraftRequest(req({ body: "a".repeat(5000) }), execute, env)).status, 413);
+  assert.equal(calls, 0);
+  const ok = await handleDraftRequest(req(command), execute, env);
+  assert.equal(ok.status, 202); assert.match(ok.headers.get("cache-control")!, /private.*no-store/);
+  assert.equal(calls, 1);
+  const bad = await handleDraftRequest(req(command), async () => { throw Error("postgres://secret"); }, env);
+  assert.equal(bad.status, 503); assert.deepEqual(await bad.json(), { error: "storage_unavailable" });
+  assert.equal((await handleDraftRequest(req(command), async () => { throw Error("input_changed"); }, env)).status, 409);
+});

@@ -403,7 +403,9 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **A2 Step 1 구현 (2026-10-27)**: 기존 posts/post_versions에 명령 revision과 버전별 근거만 추가한다. 현재 공개본과 private 수정본을 분리하고 owner의 정확한 버전/hash 검토·사유·서버 수동 발행 flag·claim/privacy/quality 검사 뒤 publishing과 required jobs를 원자적으로 등록한다. 기존 admin_actions의 UUID/fingerprint/receipt를 재사용하며 중복은 이전 결과로 수렴하고 감사 실패는 모두 rollback한다. worker는 current 버전만 claim하고 늦은 완료가 철회 상태를 덮어쓰지 않도록 비교 갱신한다. API는 published로 바로 바꾸지 않는다. 새 글 생성·정책 제어·외부 사실 검증은 후속 범위다.
 
-**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4 전체와 A2 Steps 0–1 completed 10개·pending 6개·운영 rollout blocked 1개다. 모니터링 Step 0 계약도 완료했으며 다음은 admin-blog-publishing Step 2다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
+**A2 Step 2 구현 (2026-10-27)**: 실제 웹 요청과 소비자를 함께 구현하면서 migration 009에 검증된 입력 snapshot/hash, 실행 상태와 staged 결과만 추가했다. 파일이 바뀌어도 이전 요청을 재현하고 같은 입력은 한 요청으로 합친다. 일반 queue/메시지 브로커는 추가하지 않았다. 외부 실행 exactly-once를 보장하지 않으며 시작 표시 후 실패/연결 유실은 needs_review로 멈춘다. 결과를 보관한 뒤 초안·완료 감사가 원자적으로 저장되므로 저장 실패는 provider 재호출 없이 복구한다. 모든 수동 결과는 drafted이며 jobs는 0개다. 기존 일일 실행과 공통 generation lock을 공유해 usage admission을 직렬화하고, 별도 Seoul daily lock/검증 ID를 보존한다. 운영 gate/한도/복구 제한은 [실행 계약](DRAFT_GENERATION_REQUESTS.md)을 따른다. 지속 정책은 Step 3이다.
+
+**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4 전체와 A2 Steps 0–2 completed 11개·pending 5개·운영 rollout blocked 1개다. 모니터링 Step 0 계약도 완료했으며 다음은 admin-blog-publishing Step 3다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
 
 ### ADR-039: 이력서 PDF는 비공개 버전에서 검토한 파일 하나만 공개한다
 

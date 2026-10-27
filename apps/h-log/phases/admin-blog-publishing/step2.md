@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-계획 등록 상태: pending — 미구현. A2 Steps 0–1 완료. 기존 자동 발행 pipeline과 새 초안 요청의 의미를 분리한다.
+2026-10-27 completed. A2 Steps 0–2 완료. 다음은 Step 3 automation-policy-controls다.
 
 ## 읽을 파일
 
@@ -73,3 +73,16 @@ git diff --check
 ## 다음 단계
 
 A2 Step 3 automation-policy-controls. 전체 순서는 [통합 관리자 계획](../../.codex/docs/harness/ADMIN_CONSOLE_PLAN.md)을 따른다.
+
+## 완료 기록 — 2026-10-27
+
+2026-10-27 A2 Step 2 완료: `/admin/automation`의 초안 요청·최근 이력·검토 링크와 migration 009의 지속 요청/입력 snapshot을 연결했다. 명령 UUID·입력 hash 중복 수렴과 감사 transaction, 기존 one-shot의 `--draft-once`, `drafted` 전용 저장을 구현했다. freshness/context/claim/privacy/한국어 규칙/usage를 재사용하며 발행 작업은 만들지 않는다. 불명확한 외부 결과는 새 생성도 보류하고, 보관된 결과의 저장 실패는 provider 재호출 없이 복구한다. Unit 250 pass/19 DB skip, 격리 integration 21/21, dev/prod draft HTTP 각 1/1, production admin HTTP 4/4, lint/typecheck/build와 1440/390/320px 검수를 통과했다. 관리자 completed 11·pending 5·blocked 1이며 다음은 **A2 Step 3: automation-policy-controls**다. 실제 provider·운영 migration·배포·공개 발행·timer는 실행하지 않았다.
+
+- RED: draft 옵션에서 기존 publishing 저장이 발생함을 재현했다. 다중 초안의 출처 snapshot 충돌(2개 대신 1개)과 보류된 daily 출력의 postId 누락도 각각 RED→GREEN으로 수정했다.
+- DB: 중복 동시 접수·다른 키의 같은 입력·입력 변경·동시 실행·재시작·10ms fake deadline·budget 차단·잘못된 claim·요청 감사 rollback·생성 응답 후 결과 보관 실패·보관된 결과의 최종 감사 실패/복구를 확인했다. 실제 provider 호출 횟수와 초안/작업/usage 수를 검사했다.
+- HTTP: 인증 전 차단, public Host 404, 형제 Origin 403, 과대/추가 필드 거부, 202 receipt 재사용, 새로고침 후 이력과 Home/Blog/검색/sitemap/feed/llms/HTML/Markdown 비공개를 확인했다. 개발 모드의 HTML cache-control은 Next가 no-store로 덮어써 기존 production 전용 헤더 검사는 운영 빌드에서 4/4로 검증했다.
+- UI: 개발 서버에서 요청·중복 클릭 후 새로고침·완료 이력·검토 이동을 확인했다. 1440/390/320px의 가로 넘침이 없었다.
+- 기존 editorial integration의 동시 실행 승자에 따라 재사용 UUID가 다른 실패를 내던 테스트를 수정했다. 철회 상태 검사는 새 UUID로 실행하며 production 동작은 그대로다.
+- 최종 명령: npm run test / test:integration / test:drafts:http / test:admin:http / lint / typecheck / build, 문서/JSON/링크 검사, git diff --check. 기존 thumbnail 동적 파일 추적 경고 2개는 유지한다.
+
+입력 준비·서버 flag·한도·상태와 복구 한계는 [초안 요청 실행 계약](../../.codex/docs/harness/DRAFT_GENERATION_REQUESTS.md)을 따른다. 지속 정책 UI와 정확한 pause/admission 직렬화는 Step 3, 운영 실행은 별도 승인 범위다.

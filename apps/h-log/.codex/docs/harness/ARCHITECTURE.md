@@ -38,7 +38,7 @@ npm run build
 
 `app/admin/posts/page.tsx`와 `lib/blog-admin-review-server.ts`는 page/DAL 양쪽에서 owner를 확인한다. `lib/blog-admin-review.ts`는 read-only repeatable-read transaction으로 20개 상태 필터 목록과 선택 버전, 글 단위 출처·버전별 검사/작업을 읽는다. 풀은 최대 2개, 읽기 statement 3초/쓰기 5초/query 6초, 본문/HTML 각 256 KiB, 출처/검사/작업 각 50개로 제한한다. 원시 오류와 검사 result는 조회하지 않는다. `components/blog/BlogContent.tsx`를 공개 상세/관리자 미리보기에서 공유하며 저장 원문/hash와 공개 current 포인터를 변경하지 않는다. 수정본 저장은 공개 current를 유지하며 명시적인 발행 요청만 후보 버전을 선택한다.
 
-2026-10-27 기준 A1의 공통 인증·관리자 shell·Queue/Brain 통합, A4의 PDF 보관·공개·복구, 모니터링 Step 0 계약과 A2 Steps 0–1을 완료했다. 다음은 admin-blog-publishing Step 2다. automation/jobs/monitoring/audit 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
+2026-10-27 기준 A1의 공통 인증·관리자 shell·Queue/Brain 통합, A4의 PDF 보관·공개·복구, 모니터링 Step 0 계약과 A2 Steps 0–2를 완료했다. 다음은 admin-blog-publishing Step 3다. automation의 초안 요청/이력은 구현됐고 jobs/monitoring/audit 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
 
 `lib/admin-owner.ts`는 설정·Host·Basic·Origin 검사와 비공개 헤더를 소유한다. `proxy.ts`는 전체 `/admin/:path*`, `lib/admin-server.ts`는 page/layout의 데이터 조회 전 검사를 담당한다. `brain-owner.ts`는 공통 인증 후 Brain DB flag를 검사하는 얇은 경계로 남는다. 기존 Nginx는 여전히 모든 관리자 경로를 차단하고 Host를 `hlog-web`로 전달한다. 두 loopback ingress의 정확한 Host 전달/공개 차단은 격리 구성으로 검증했으며 운영 설정은 변경하지 않았다.
 
@@ -54,7 +54,7 @@ Blog 검토/수정본/발행/철회 명령은 구현됐으며, 생성기의 draf
 
 [SEO 계획](SEO_OPTIMIZATION_PLAN.md)과 ADR-040은 claude-seo의 고정 자료를 Codex의 저장소 스킬로 선별 이식하는 개발 작업이다. 기본 예정 위치는 루트 `.agents/skills/hlog-seo/`이고 실제 인식은 S1에서 검증한다. 참고 지침·출처/라이선스와 실제 감사 표본을 관리하며 Claude 전용 installer/hook이 Codex에서 자동 동작한다고 가정하지 않는다. 별도 SEO 서버·DB·worker나 production Python 의존성을 추가하지 않는다.
 
-감사는 공개 selector/route의 source 확인 → 합성 DB/loopback public ingress의 HTTP·DOM·no-JS → 승인된 공개 origin/검색 계정 순서다. 원자료는 `private/seo/`, 검토된 요약은 Harness 문서에 둔다. 기존 `site-seo`의 소스 검사에 실제 head/JSON-LD·상태/색인·공개 경계 검증을 보완할 계획이며 현재 metadata/crawler runtime은 바꾸지 않았다. 성능 lab/field와 실제 검색 노출을 분리한다. 일반 다음 작업은 admin-blog-publishing Step 2이며 운영 보류는 유지한다.
+감사는 공개 selector/route의 source 확인 → 합성 DB/loopback public ingress의 HTTP·DOM·no-JS → 승인된 공개 origin/검색 계정 순서다. 원자료는 `private/seo/`, 검토된 요약은 Harness 문서에 둔다. 기존 `site-seo`의 소스 검사에 실제 head/JSON-LD·상태/색인·공개 경계 검증을 보완할 계획이며 현재 metadata/crawler runtime은 바꾸지 않았다. 성능 lab/field와 실제 검색 노출을 분리한다. 일반 다음 작업은 admin-blog-publishing Step 3이며 운영 보류는 유지한다.
 
 ## Runtime 구성
 
@@ -494,3 +494,7 @@ npm run test
 npm run typecheck
 npm run build
 ```
+
+### 관리자 초안 요청 runtime — A2 Step 2
+
+`app/admin/automation` → `blog-draft-http.ts` → owner DAL `blog-draft-server.ts` → `blog-draft-requests.ts`가 설정된 입력 파일의 검증 snapshot/hash·UUID receipt를 저장한다. `009_blog_draft_requests.sql`에 실제 consumer가 사용하는 6개 상태와 시작/응답 시각·결과·post 포인터를 둔다. 기존 `blog-auto-publish.mjs --draft-once`가 단일 요청을 소비하며 기존 generation pipeline의 draft mode를 사용한다. `saveBlogAggregate`는 caller transaction 안에서 초안·완료·감사를 함께 저장한다. 일일 실행과 공통 generation lock을 사용하되 Seoul daily ID/lock은 별개다. 실패/한도/복구 경계는 [실행 계약](DRAFT_GENERATION_REQUESTS.md)에 기록했다.
