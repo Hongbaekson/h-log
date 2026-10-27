@@ -28,7 +28,7 @@ export async function handleDraftRequest(request: Request, execute: (command: Dr
     return json(await execute(parseDraftCommand(input)), 202);
   } catch (e) {
     const statuses: Record<string, number> = { invalid_request: 400, request_timeout: 408, request_too_large: 413, unsupported_media_type: 415,
-      command_conflict: 409, input_changed: 409, input_unavailable: 422, input_stale: 422, input_unsafe: 422, unsafe_reason: 422, generation_disabled: 422 };
+      command_conflict: 409, input_changed: 409, input_unavailable: 422, input_stale: 422, input_unsafe: 422, unsafe_reason: 422, generation_disabled: 422, automation_paused: 422 };
     const code = e instanceof Error && Object.hasOwn(statuses, e.message) ? e.message : "storage_unavailable";
     return json({ error: code }, statuses[code] ?? 503);
   }

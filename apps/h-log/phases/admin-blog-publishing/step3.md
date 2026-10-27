@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-계획 등록 상태: pending — 미구현. A2 Steps 0–2 및 operations-observability Step 0의 신호 계약 완료.
+계획 등록 상태: completed — 2026-10-28 로컬 구현/검증 완료. A2 Steps 0–2 및 operations-observability Step 0의 신호 계약 완료.
 
 ## 읽을 파일
 
@@ -82,3 +82,11 @@ A3 Step 0 job-and-audit-inspection. 전체 순서는 [통합 관리자 계획](.
 ## Step 2 인계
 
 초안 요청 소비자는 구현됐다. HLOG_BLOG_DRAFT_GENERATION_ENABLED 기본 OFF와 유한한 일/월 한도를 상한으로 사용한다. 이 환경 flag는 지속 정책이나 진행 중 호출 취소 기능이 아니다. 공용 generation advisory lock과 별도의 Seoul daily lock, needs_review 보류, result_ready 저장만 재개, daily 검증용 postId와 공개 보호 작업을 유지하며 정책 admission을 연결한다. 외부 결과가 불명확한 요청을 정책 ON만으로 queued로 되돌리지 않는다.
+
+## 완료 기록 — 2026-10-28
+
+2026-10-28 A2 Step 3 완료: 초안 생성·자동 공개·새 작업 처리를 기본 OFF의 DB 정책으로 분리했다. 요청한 설정/서버 상한을 반영한 실제 허용·차단 이유·확인 시각과 실행 예약 당시 revision을 표시한다. 정책 변경과 요청/lease admission을 같은 row lock으로 직렬화하고 관리자·CLI·일일 실행·worker에 적용했다. 자동 공개 OFF 또는 생성 중 중지 시 drafted/작업 0개로 저장하며 공개 전이를 재확인한다. 공개 후 필수 검증·실패 시 숨김·철회는 중지/정책 조회 실패에도 보존한다. 단위 252 pass/23 DB skip, 격리 integration 25/25, dev/prod draft·policy HTTP 각 1/1, production admin HTTP 4/4, lint/typecheck/build와 1440/390/320px 검수를 통과했다. A2 전체 완료, 관리자 completed 12·pending 4·blocked 1이며 다음은 **A3 Step 0: job-and-audit-inspection**다. 운영 migration·provider·배포·공개 발행·timer는 실행하지 않았다.
+
+검증: npm run test (275 total, 252 pass, 23 DB skip), npm run test:integration (25/25), npm run test:drafts:http (dev/prod 각 1/1), npm run test:admin:http (production 4/4), npm run lint, npm run typecheck, npm run build, 문서/phase JSON·링크 검사와 git diff --check. 초기 worker/초안/수동 발행/CLI 우회와 cycle paused RED 후 GREEN을 확인했다. 기존 썸네일 동적 파일 추적 경고 2건은 유지한다.
+
+변경 파일/실행 한계·서버 설정은 [자동화 정책 계약](../../.codex/docs/harness/AUTOMATION_POLICY.md)을 따른다. daily 저장 전 응답 유실 복구, 실제 프로세스 생존, 운영 적용은 완료 범위가 아니다. 다음은 A3 Step 0의 원장 조회다.

@@ -31,6 +31,11 @@
 - `apps/h-log/migrations/003_publish_rollback_audit.sql`
 - `apps/h-log/.codex/docs/harness/OBSERVABILITY_PLAN.md`
 
+- `apps/h-log/.codex/docs/harness/AUTOMATION_POLICY.md`
+- `apps/h-log/lib/blog-automation-policy.ts`
+- `apps/h-log/lib/blog-automation-runner.ts`
+- `apps/h-log/migrations/010_blog_automation_policy.sql`
+
 ## 작업
 
 1. 인증된 /admin/jobs와 /admin/audit에 제한된 페이지/필터 조회를 추가한다. 실제 publish_jobs 상태·required/retryable·lease·시도 횟수·안전한 오류 분류, 작업 대상 버전과 현재 공개 버전을 구분한다.
@@ -68,3 +73,7 @@ git diff --check
 ## 다음 단계
 
 A3 Step 1 bounded-retry-and-pause. 전체 순서는 [통합 관리자 계획](../../.codex/docs/harness/ADMIN_CONSOLE_PLAN.md)을 따른다.
+
+## A2 Step 3 인계
+
+정책 변경/일일 admission은 admin_actions, 초안/worker admission revision은 각 원장에 있다. 실제 0건·정책 차단·만료 lease·불명확 결과·프로세스 미관측을 구분한다. 보호 경로와 unknown 자동 재호출 금지를 보존한다.

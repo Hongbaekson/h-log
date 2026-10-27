@@ -2,6 +2,10 @@
 
 이 문서는 H-Log를 Harness step으로 구현하거나 자동 블로그 플랫폼으로 전환할 때의 기준 계획이다. 실제 phase 파일은 `apps/h-log/phases/` 아래에 생성한다.
 
+2026-10-28 A2 Step 3 완료: 초안 생성·자동 공개·새 작업 처리를 기본 OFF의 DB 정책으로 분리했다. 요청한 설정/서버 상한을 반영한 실제 허용·차단 이유·확인 시각과 실행 예약 당시 revision을 표시한다. 정책 변경과 요청/lease admission을 같은 row lock으로 직렬화하고 관리자·CLI·일일 실행·worker에 적용했다. 자동 공개 OFF 또는 생성 중 중지 시 drafted/작업 0개로 저장하며 공개 전이를 재확인한다. 공개 후 필수 검증·실패 시 숨김·철회는 중지/정책 조회 실패에도 보존한다. 단위 252 pass/23 DB skip, 격리 integration 25/25, dev/prod draft·policy HTTP 각 1/1, production admin HTTP 4/4, lint/typecheck/build와 1440/390/320px 검수를 통과했다. A2 전체 완료, 관리자 completed 12·pending 4·blocked 1이며 다음은 **A3 Step 0: job-and-audit-inspection**다. 운영 migration·provider·배포·공개 발행·timer는 실행하지 않았다.
+
+실행 정책은 [자동화 정책 계약](AUTOMATION_POLICY.md)을 따른다. 아래 기록은 당시 상태다.
+
 ## Dogfood 구조 분석 결과
 
 `D:\dogfood\backend`의 Codex 구조는 아래 흐름을 강제한다.
@@ -173,7 +177,7 @@ public-surface-refactor-pruning: completed, native legacy redirects and shared b
 discord-design-preview: completed Home/shared-shell design and browser screenshots; user accepted the design and requested commit/push; production deployment verification remains separate
 local-blog-design-verification: completed, populated Blog/public boundaries and desktop/mobile interaction verified; long list/search title clipping fixed with browser RED/GREEN and all required gates passed
 generation-input-freshness: completed, Step 0 rejects expired/future/invalid research before daily generation side effects; local and isolated DB gates passed
-operations-observability: pending, Step 0 contract completed; Steps 1-6 pending locally; Step 7 blocked by OCI hold; next general step admin-blog-publishing Step 3; verified production monitoring required before timer activation
+operations-observability: pending, Step 0 contract completed; Steps 1-6 pending locally; Step 7 blocked by OCI hold; next general step admin-operations-control Step 0; verified production monitoring required before timer activation
 terraform-infrastructure-adoption: blocked by user's OCI hold; Steps 0-1 and Step 2 preparation preserved, no cloud apply/import executed
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned

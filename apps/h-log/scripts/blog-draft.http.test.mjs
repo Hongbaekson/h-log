@@ -14,6 +14,18 @@ test('owner draft requests remain private across real HTTP surfaces', {skip: pro
   const endpoint='/admin/automation/requests', command={commandId:randomUUID(),inputHash:input.hash,reason:'HTTP 합성 자료 검수'};
   const send=(body,override={})=>fetch(new URL(endpoint,admin),{method:'POST',headers:{...headers,...override},body:JSON.stringify(body)});
   try {
+    const policyUrl = new URL('/admin/automation/policy',admin);
+    const policyCommand = {commandId:randomUUID(),expectedRevision:(await pool.query('select revision from blog_automation_policy')).rows[0].revision,generation:false,publication:false,jobs:false,reason:'HTTP 정책 OFF 검수'};
+    const setPolicy=(value,override={})=>fetch(policyUrl,{method:'POST',headers:{...headers,...override},body:JSON.stringify(value)});
+    assert.equal((await setPolicy(policyCommand,{authorization:'invalid'})).status,401);
+    assert.equal((await setPolicy(policyCommand,{origin:publicOrigin.origin})).status,403);
+    assert.equal((await fetch(new URL('/admin/automation/policy',publicOrigin),{method:'POST',headers,body:JSON.stringify(policyCommand)})).status,404);
+    const off=await setPolicy(policyCommand); assert.equal(off.status,200);
+    const offReceipt=await off.json(); assert.deepEqual(await (await setPolicy(policyCommand)).json(),offReceipt);
+    assert.equal((await send(command)).status,422,'Policy OFF blocks direct authenticated draft POST');
+    assert.equal((await setPolicy({...policyCommand,commandId:randomUUID(),generation:true})).status,409);
+    const on=await setPolicy({...policyCommand,commandId:randomUUID(),expectedRevision:offReceipt.revision,generation:true,jobs:true,publication:true}); assert.equal(on.status,200);
+    const onReceipt=await on.json();
     assert.equal((await send(command,{authorization:'invalid'})).status,401);
     assert.equal((await send(command,{origin:publicOrigin.origin})).status,403);
     assert.equal((await fetch(new URL(endpoint,publicOrigin),{method:'POST',headers,body:JSON.stringify(command)})).status,404);
@@ -40,6 +52,7 @@ test('owner draft requests remain private across real HTTP surfaces', {skip: pro
       const body=await publicResponse.text(); assert(!body.includes(post.title),path); assert(!body.includes(post.id),path);
     }
     for (const path of ['/blog/'+post.slug,'/blog/'+post.slug+'.md','/blog-markdown/'+post.slug]) assert.equal((await fetch(new URL(path,publicOrigin))).status,404,path);
+    assert.equal((await setPolicy({...policyCommand,commandId:randomUUID(),expectedRevision:onReceipt.revision})).status,200);
     assert.equal((await runDraftRequestOnce({pool,enabled:true,policy:{dailyEstimatedCostLimit:1,monthlyEstimatedCostLimit:10},generateArticle:async()=>{assert.fail('must not call twice');}})).status,'idle');
     assert.deepEqual(await (await send(command)).json(),receipt);
   } finally { await pool.end(); }

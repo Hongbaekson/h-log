@@ -7,6 +7,8 @@ import { createPostVersionContentFromMarkdown, requiredPublishJobTypes } from ".
 import { createBlogEditorialRepository } from "./blog-editorial-actions.ts";
 import { createPostgresBlogRepository } from "./blog-postgres-repository.ts";
 import { runPersistentWorkerOnce } from "./blog-persistent-worker.ts";
+process.env.HLOG_BLOG_JOBS_ENABLED = "1";
+process.env.HLOG_BLOG_MANUAL_PUBLISH_ENABLED = "1";
 import { createPostgresRequiredPublishJobAdapter } from "./blog-required-publish-job-adapter.ts";
 
 test("editorial versions preserve public content, validate evidence and commit commands with audit atomically", { skip: !process.env.DATABASE_URL && "DATABASE_URL required" }, async () => {
@@ -36,6 +38,8 @@ test("editorial versions preserve public content, validate evidence and commit c
     const selected = (await pool.query("select * from post_versions where id=$1", [result.versionId])).rows[0];
     const publish = { action: "publish", commandId: randomUUID(), postId: "post", expectedRevision: 1, expectedStatus: "published", expectedCurrentVersionId: "old", versionId: result.versionId, contentHash: selected.content_hash, reason: "본문과 근거 검토 완료", confirmed: true };
     await assert.rejects(createBlogEditorialRepository(pool).execute(publish), /publication_disabled/);
+    await assert.rejects(repository.execute(publish), /automation_paused/);
+    await pool.query("update blog_automation_policy set jobs=true");
     await assert.rejects(repository.execute({ ...publish, confirmed: false }), /review_required/);
     await assert.rejects(repository.execute({ ...publish, contentHash: "a".repeat(64) }), /version_conflict/);
     // A failed audit insert must roll back the new private version and revision.

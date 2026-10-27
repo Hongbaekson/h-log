@@ -38,7 +38,7 @@ test("shared admin HTML, API and RSC stay behind the owner boundary on two local
     req.on("timeout", () => req.destroy(new Error(`local request timed out: ${method} ${origin.origin}${path}, Host=${headers.host ?? origin.host}`)));
     req.end();
   });
-  for (const path of ["/admin", "/admin/brain", "/admin/brain/records", "/admin/posts", "/admin/automation", "/admin/automation?_rsc=boundary", "/admin/automation/requests", "/admin/brain?_rsc=boundary", "/admin/lab/queue", "/admin/lab/queue?_rsc=boundary", "/admin/resume", "/admin/resume?_rsc=boundary", "/admin/resume/records", "/admin/resume/files", "/admin/resume/preview/11111111-1111-4111-8111-111111111111/1"]) {
+  for (const path of ["/admin", "/admin/brain", "/admin/brain/records", "/admin/posts", "/admin/automation", "/admin/automation?_rsc=boundary", "/admin/automation/requests", "/admin/automation/policy", "/admin/brain?_rsc=boundary", "/admin/lab/queue", "/admin/lab/queue?_rsc=boundary", "/admin/resume", "/admin/resume?_rsc=boundary", "/admin/resume/records", "/admin/resume/files", "/admin/resume/preview/11111111-1111-4111-8111-111111111111/1"]) {
     for (const headers of [{}, { authorization }]) {
       const denied = await get(publicOrigin, path, headers);
       assert.equal(denied.status, 404, `public ${path}`);

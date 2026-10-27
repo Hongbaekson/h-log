@@ -1,4 +1,5 @@
-import type { Pool, QueryResultRow } from "pg";
+import type { Pool, PoolClient, QueryResultRow } from "pg";
+import { canPublish, readAutomationPolicy, withAutomationPolicy, type AutomationEnvironment, type AutomationPolicy } from "./blog-automation-policy.ts";
 
 import {
   assertBlogPostStatusTransition,
@@ -33,7 +34,7 @@ export type PersistentWorkerOperatorAlert = {
 };
 
 export type RunPersistentWorkerOnceResult =
-  | { status: "idle" }
+  | { status: "idle" | "paused" }
   | {
       job: PublishJobRecord;
       operatorAlert: PersistentWorkerOperatorAlert | null;
@@ -48,6 +49,7 @@ export async function runPersistentWorkerOnce({
   postId,
   runAt,
   workerId,
+  environment = process.env,
 }: {
   adapter: PersistentWorkerAdapter;
   importance?: PublishJobImportance;
@@ -55,8 +57,9 @@ export async function runPersistentWorkerOnce({
   postId?: string;
   runAt: Timestamp;
   workerId: string;
+  environment?: AutomationEnvironment;
 }): Promise<RunPersistentWorkerOnceResult> {
-  const claimed = await pool.query(
+  const claim = (client: Pick<PoolClient, "query">, policy?: AutomationPolicy) => client.query(
     `with next_job as (
        select job.id
        from publish_jobs job
@@ -73,13 +76,14 @@ export async function runPersistentWorkerOnce({
            job.importance = 'required'
            and job.type = any($3::text[])
            and post.status in ('publishing', 'verifying')
+           and $7 and (($8 and post.publication_mode='automatic') or ($9 and post.publication_mode='manual'))
          )
          or (
            job.importance = 'required'
            and job.type = any($4::text[])
            and post.status = 'published'
          )
-         or (job.importance = 'retryable' and post.status = 'published')
+         or (job.importance = 'retryable' and post.status = 'published' and $7)
        )
        order by case
          when job.type = any($3::text[]) then 0
@@ -95,6 +99,7 @@ export async function runPersistentWorkerOnce({
          lease_owner = $2,
          lease_expires_at = $1::timestamptz + interval '5 minutes',
          started_at = $1,
+         policy_revision = $10,
          finished_at = null
      where id = (select id from next_job)
      returning *`,
@@ -105,8 +110,19 @@ export async function runPersistentWorkerOnce({
       [...postPublishRequiredJobTypes],
       postId ?? null,
       importance ?? null,
+      policy?.effective.jobs ?? false,
+      policy?.effective.publication ?? false,
+      environment.HLOG_BLOG_MANUAL_PUBLISH_ENABLED === "1",
+      policy?.revision ?? null,
     ],
   );
+  let claimed;
+  try { claimed = await withAutomationPolicy(pool, (client, policy) => claim(client, policy), environment); }
+  catch (error) {
+    // A broken policy must still allow required verification of already public content.
+    if (!(error instanceof Error) || error.message !== "policy_unavailable") throw error;
+    claimed = await claim(pool);
+  }
 
   if (claimed.rowCount === 0) {
     return { status: "idle" };
@@ -114,7 +130,7 @@ export async function runPersistentWorkerOnce({
 
   const job = mapPublishJob(claimed.rows[0]);
   const postResult = await pool.query(
-    "select status, current_version_id from posts where id = $1",
+    "select status, current_version_id, publication_mode from posts where id = $1",
     [job.postId],
   );
   const postStatus = postResult.rows[0]?.status as BlogPostStatus | undefined;
@@ -246,6 +262,12 @@ export async function runPersistentWorkerOnce({
 
   try {
     await client.query("begin");
+    if ((postStatus === "publishing" || postStatus === "verifying") && !canPublish(await readAutomationPolicy(client, environment, true), postResult.rows[0].publication_mode, environment)) {
+      // Keep the last check runnable on resume. No public transition is made after pause.
+      await client.query("update publish_jobs set status='queued',lease_owner=null,lease_expires_at=null where id=$1 and status='running' and lease_owner=$2", [job.id, workerId]);
+      await client.query("commit");
+      return { status: "paused" };
+    }
     const updated = await client.query(
       `update publish_jobs
        set status = $2,

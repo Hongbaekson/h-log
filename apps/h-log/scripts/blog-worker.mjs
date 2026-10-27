@@ -23,7 +23,7 @@ if (!publicBaseUrl) {
   throw new Error("HLOG_WORKER_PUBLIC_BASE_URL or HLOG_PUBLIC_BASE_URL is required");
 }
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, connectionTimeoutMillis: 3000, statement_timeout: 10000, query_timeout: 11000 });
 const postId = process.env.HLOG_WORKER_POST_ID?.trim() || undefined;
 
 try {
@@ -49,7 +49,7 @@ try {
     }),
   );
   process.exitCode =
-    result.status === "idle" || result.status === "succeeded" ? 0 : 1;
+    ["idle", "succeeded", "paused"].includes(result.status) ? 0 : 1;
 } finally {
   await pool.end();
 }

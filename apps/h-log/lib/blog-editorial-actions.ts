@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { Pool } from "pg";
+import { readAutomationPolicy } from "./blog-automation-policy.ts";
 import { parseEditorialCommand, parseEditorialDraft, type EditorialReceipt } from "./blog-editorial-command.ts";
 import { assertBlogPostStatusTransition, createPostVersionContentFromMarkdown, createPostVersionContentHash, createPublishJobIdempotencyKey, requiredPublishJobTypes, type BlogPostStatus, type PostRecord, type PostSourceRole } from "./blog-content-model.ts";
 import { validateArticleWriterOutput } from "./blog-article-generation.ts";
@@ -26,6 +27,10 @@ export function createBlogEditorialRepository(pool: Pool, { publishEnabled = fal
         const previous = (await client.query("select request_fingerprint,command_receipt from admin_actions where actor_type='admin' and actor_id='owner' and command_id=$1", [c.commandId])).rows[0];
         if (previous.request_fingerprint !== fingerprint) throw new Error("command_conflict");
         await client.query("commit"); return previous.command_receipt;
+      }
+      if (c.action === "publish") {
+        if (!publishEnabled) throw new Error("publication_disabled");
+        if (!(await readAutomationPolicy(client, process.env, true)).effective.jobs) throw new Error("automation_paused");
       }
       const post = (await client.query("select * from posts where id=$1 for update", [c.postId])).rows[0];
       if (!post) throw new Error("post_not_found");
@@ -76,7 +81,7 @@ export function createBlogEditorialRepository(pool: Pool, { publishEnabled = fal
           if (status === "correction_pending") move("corrected");
           if (status !== "ready_to_publish") move("ready_to_publish");
           move("publishing");
-          await client.query("update posts set current_version_id=$2,title=$3,description=$4,status=$5 where id=$1", [post.id,version.id,version.title,version.description,status]);
+          await client.query("update posts set current_version_id=$2,title=$3,description=$4,status=$5,publication_mode='manual' where id=$1", [post.id,version.id,version.title,version.description,status]);
           for (const type of requiredPublishJobTypes) {
             await client.query(`insert into publish_jobs (id,post_id,post_version_id,type,importance,idempotency_key,status,retry_count)
               values ($1,$2,$3,$4,'required',$5,'queued',0)`, [randomUUID(),post.id,version.id,type,createPublishJobIdempotencyKey(type,{ id: version.id, contentHash: version.content_hash })]);

@@ -182,8 +182,8 @@
     },
     {
       "dir": "admin-blog-publishing",
-      "status": "pending",
-      "summary": "2026-10-27 Step 2 completed: authenticated /admin/automation persists input snapshots, request UUIDs, normalized hashes and atomic audit receipts. Existing one-shot --draft-once reuses freshness/context/claim/privacy/Korean-writing/usage gates and saves drafted posts with zero publish jobs. Session locking, uncertain-provider holds, staged-result recovery and per-draft source IDs verified. Unit 250 pass/19 DB skip, isolated integration 21/21, dev/prod draft HTTP 1/1 each, production admin HTTP 4/4, lint/typecheck/build and 1440/390/320px UI passed. Next Step 3 automation-policy-controls. No live provider, deployment, publication or timer."
+      "status": "completed",
+      "summary": "2026-10-28 Step 3 completed: default-OFF persistent generation/publication/jobs policy with requested/effective/reasons, observation time and inflight admission revisions. Transactional policy/receipt/admission locking across admin, CLI, daily runner and worker; pause keeps generated results private and prevents new publication while preserving public verification/retraction. Unit 252 pass/23 DB skip, isolated integration 25/25, dev/prod policy/draft HTTP 1/1 each, production admin HTTP 4/4, lint/typecheck/build and 1440/390/320px passed. A2 complete; next admin-operations-control Step 0. No production activation."
     },
     {
       "dir": "admin-operations-control",
@@ -213,7 +213,7 @@
     {
       "dir": "operations-observability",
       "status": "pending",
-      "summary": "2026-10-26 Step 0 contract completed after live source/schema and PDF resource review. Required-six publishing proof, atomic host summaries, minimal read-only collection, missing/unknown/stale/disabled semantics and separate 1 GiB memory/3 GiB disk budget are specified. Runtime remains unimplemented; Steps 1-6 pending and Step 7 blocked by OCI hold. General next: admin-blog-publishing Step 3; monitoring-track next: Step 1. Complete local monitoring before admin-operations-control Step 2 and approved production monitoring before admin rollout/timer activation."
+      "summary": "2026-10-26 Step 0 contract completed after live source/schema and PDF resource review. Required-six publishing proof, atomic host summaries, minimal read-only collection, missing/unknown/stale/disabled semantics and separate 1 GiB memory/3 GiB disk budget are specified. Runtime remains unimplemented; Steps 1-6 pending and Step 7 blocked by OCI hold. General next: admin-operations-control Step 0; monitoring-track next: Step 1. Complete local monitoring before admin-operations-control Step 2 and approved production monitoring before admin rollout/timer activation."
     },
     {
       "dir": "second-brain-foundation",

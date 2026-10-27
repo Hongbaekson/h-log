@@ -8,6 +8,8 @@ import { runBlogMigrations } from "../scripts/blog-migrations.mjs";
 import { prepareDraftInput, createDraftRequestRepository, runDraftRequestOnce } from "./blog-draft-requests.ts";
 import { createPostgresBlogRepository } from "./blog-postgres-repository.ts";
 import type { GenerateArticleInput, GenerateArticleResult } from "./blog-daily-auto-article.ts";
+process.env.HLOG_BLOG_DRAFT_GENERATION_ENABLED = "1";
+process.env.HLOG_BLOG_JOBS_ENABLED = "1";
 
 test("durable manual drafts deduplicate, recover saved results and stop uncertain provider calls", { skip: !process.env.DATABASE_URL && "DATABASE_URL required" }, async () => {
   const base = new URL(process.env.DATABASE_URL!);
@@ -32,6 +34,8 @@ test("durable manual drafts deduplicate, recover saved results and stop uncertai
     assert(!JSON.stringify(prepared.input).includes("THIS RAW BODY"));
     const repo = createDraftRequestRepository(pool);
     const c = { commandId: randomUUID(), inputHash: prepared.hash, reason: "공식 자료로 초안 작성" };
+    await assert.rejects(repo.submit(c, async () => prepared, true), /automation_paused/, "server permission alone cannot bypass default OFF policy");
+    await pool.query("update blog_automation_policy set generation=true,jobs=true");
     const submit = (command = c, pack = prepared) => repo.submit(command, async () => pack, true);
     const [receipt, duplicate] = await Promise.all([submit(), submit()]);
     assert.deepEqual(duplicate, receipt);

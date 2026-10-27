@@ -23,7 +23,8 @@
     {
       "step": 3,
       "name": "automation-policy-controls",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-28 Step 3 completed: default-OFF persistent generation/publication/jobs policy with requested/effective/reasons, observation time and inflight admission revisions. Transactional policy/receipt/admission locking across admin, CLI, daily runner and worker; pause keeps generated results private and prevents new publication while preserving public verification/retraction. Unit 252 pass/23 DB skip, isolated integration 25/25, dev/prod policy/draft HTTP 1/1 each, production admin HTTP 4/4, lint/typecheck/build and 1440/390/320px passed. A2 complete; next admin-operations-control Step 0. No production activation."
     }
   ]
 }

@@ -405,7 +405,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **A2 Step 2 구현 (2026-10-27)**: 실제 웹 요청과 소비자를 함께 구현하면서 migration 009에 검증된 입력 snapshot/hash, 실행 상태와 staged 결과만 추가했다. 파일이 바뀌어도 이전 요청을 재현하고 같은 입력은 한 요청으로 합친다. 일반 queue/메시지 브로커는 추가하지 않았다. 외부 실행 exactly-once를 보장하지 않으며 시작 표시 후 실패/연결 유실은 needs_review로 멈춘다. 결과를 보관한 뒤 초안·완료 감사가 원자적으로 저장되므로 저장 실패는 provider 재호출 없이 복구한다. 모든 수동 결과는 drafted이며 jobs는 0개다. 기존 일일 실행과 공통 generation lock을 공유해 usage admission을 직렬화하고, 별도 Seoul daily lock/검증 ID를 보존한다. 운영 gate/한도/복구 제한은 [실행 계약](DRAFT_GENERATION_REQUESTS.md)을 따른다. 지속 정책은 Step 3이다.
 
-**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4 전체와 A2 Steps 0–2 completed 11개·pending 5개·운영 rollout blocked 1개다. 모니터링 Step 0 계약도 완료했으며 다음은 admin-blog-publishing Step 3다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
+**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4/A2 전체 completed 12개·pending 4개·운영 rollout blocked 1개다. 모니터링 Step 0 계약도 완료했으며 다음은 admin-operations-control Step 0다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
 
 ### ADR-039: 이력서 PDF는 비공개 버전에서 검토한 파일 하나만 공개한다
 
@@ -436,3 +436,9 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 - `apps/h-log/.codex/rules/frontend.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `plans/automated-blog-publishing-plan.md`
+
+## 자동화 정책 구현 — 2026-10-28
+
+2026-10-28 A2 Step 3 완료: 초안 생성·자동 공개·새 작업 처리를 기본 OFF의 DB 정책으로 분리했다. 요청한 설정/서버 상한을 반영한 실제 허용·차단 이유·확인 시각과 실행 예약 당시 revision을 표시한다. 정책 변경과 요청/lease admission을 같은 row lock으로 직렬화하고 관리자·CLI·일일 실행·worker에 적용했다. 자동 공개 OFF 또는 생성 중 중지 시 drafted/작업 0개로 저장하며 공개 전이를 재확인한다. 공개 후 필수 검증·실패 시 숨김·철회는 중지/정책 조회 실패에도 보존한다. 단위 252 pass/23 DB skip, 격리 integration 25/25, dev/prod draft·policy HTTP 각 1/1, production admin HTTP 4/4, lint/typecheck/build와 1440/390/320px 검수를 통과했다. A2 전체 완료, 관리자 completed 12·pending 4·blocked 1이며 다음은 **A3 Step 0: job-and-audit-inspection**다. 운영 migration·provider·배포·공개 발행·timer는 실행하지 않았다.
+
+[자동화 정책 계약](AUTOMATION_POLICY.md)에 환경 상한·admission·공개 보호·복구 제한을 기록했다.

@@ -5,10 +5,51 @@ import pg from "pg";
 
 import { runPersistentWorkerOnce } from "./blog-persistent-worker.ts";
 import { runBlogMigrations } from "../scripts/blog-migrations.mjs";
+import { changeAutomationPolicy } from "./blog-automation-policy.ts";
+process.env.HLOG_BLOG_JOBS_ENABLED = "1";
+process.env.HLOG_BLOG_AUTO_PUBLISH_ENABLED = "1";
 
 const { Client, Pool } = pg;
 const databaseUrl = process.env.DATABASE_URL;
 const runAt = "2026-07-13T00:00:00.000Z";
+
+test("new workers fail closed before any adapter call by default", { skip: !databaseUrl }, async () => {
+  await withTestDatabase("hlog_worker_policy_off_test", async testUrl => {
+    const pool = new Pool({ connectionString: testUrl });
+    try {
+      await seedPostWithJobs(pool, ["job-policy-off"]);
+      let calls = 0;
+      await runPersistentWorkerOnce({ pool, runAt, workerId: "policy-off", adapter: { async run() { calls++; return { status: "succeeded" }; } } });
+      assert.equal(calls, 0, "a new installation must not admit work without persistent policy and server permission");
+      assert.equal((await pool.query("select status from posts")).rows[0].status, "publishing");
+    } finally { await pool.end(); }
+  });
+});
+
+test("pause after an admitted check blocks publication; required public protection survives policy failure", { skip: !databaseUrl }, async () => {
+  await withTestDatabase("hlog_worker_policy_pause_test", async testUrl => {
+    const pool = new Pool({ connectionString: testUrl });
+    try {
+      await seedPostWithJobs(pool, ["job-pause"]);
+      let calls = 0;
+      const options = { pool, runAt, workerId: "policy-worker", adapter: { async run() { calls++; return { status: "succeeded" as const }; } } };
+      assert.equal((await runPersistentWorkerOnce({ ...options, environment: {} })).status, "idle"); assert.equal(calls, 0);
+      const command = { commandId: crypto.randomUUID(), expectedRevision: 0, generation: false, publication: true, jobs: false, reason: "처리 중 중지" };
+      const stopped = await runPersistentWorkerOnce({ ...options, adapter: { async run() { calls++; await changeAutomationPolicy(pool, command); return { status: "succeeded" }; } } });
+      assert.equal(stopped.status, "paused"); assert.equal(calls, 1);
+      assert.equal((await pool.query("select status from posts")).rows[0].status, "publishing");
+      assert.equal((await runPersistentWorkerOnce(options)).status, "idle"); assert.equal(calls, 1);
+      await changeAutomationPolicy(pool, { ...command, commandId: crypto.randomUUID(), expectedRevision: 1, jobs: true });
+      assert.equal((await runPersistentWorkerOnce(options)).status, "succeeded");
+      assert.equal((await pool.query("select status from posts")).rows[0].status, "published");
+      await pool.query("insert into publish_jobs(id,post_id,post_version_id,type,importance,idempotency_key,status,retry_count) values ('public-check','post-worker','version-worker','public_url','required','public-check','queued',0)");
+      await pool.query("alter table blog_automation_policy rename to unavailable_policy");
+      const protectedResult = await runPersistentWorkerOnce({ ...options, environment: {}, adapter: { async run() { return { status: "failed", error: "synthetic public verification failure" }; } } });
+      assert.equal(protectedResult.status, "failed");
+      assert.equal((await pool.query("select status from posts")).rows[0].status, "correction_pending");
+    } finally { await pool.end(); }
+  });
+});
 
 test(
   "processes at most one queued job and exits",
@@ -525,6 +566,10 @@ async function withTestDatabase(
 
   try {
     await runBlogMigrations(testUrl.toString());
+    if (databaseName !== "hlog_worker_policy_off_test") {
+      const fixture = new Client({ connectionString: testUrl.toString() });
+      await fixture.connect(); await fixture.query("update blog_automation_policy set jobs=true,publication=true"); await fixture.end();
+    }
     await run(testUrl.toString());
   } finally {
     await admin.query(

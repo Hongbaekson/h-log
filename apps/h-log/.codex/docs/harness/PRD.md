@@ -122,7 +122,7 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 
 2026-10-26 [SEO 개선 계획](SEO_OPTIMIZATION_PLAN.md)을 3개 phase / 10개 step(pending 9·운영/계정 확인 blocked 1)으로 등록했다. claude-seo 2.5.0의 고정 commit에서 H-Log에 필요한 기술 SEO·schema·content·GEO 지침을 Codex용 `hlog-seo`로 선별 이식하고, 공개 HTTP/HTML 기준선 → URL/기본 읽기·metadata·성능·근거/링크 개선 → 회귀/실제 검색 성과 순서로 진행한다. 스킬 설치와 실제 최적화는 아직 수행하지 않았다.
 
-기존 canonical·sitemap·robots·JSON-LD·RSS/llms·공개 selector를 재사용한다. no-JS Blog 목록의 기존 후속 항목을 우선 재현하고 관리자/비공개 Brain/PDF는 감사 대상에서 제외한다. 검색 순위·AI 인용을 보장하지 않으며, 실제 도메인·GSC/CrUX와 배포는 운영 승인 이후다. 일반 다음 작업은 admin-blog-publishing Step 3이며 SEO를 지정하면 S1 Step 0부터 독립 진행한다.
+기존 canonical·sitemap·robots·JSON-LD·RSS/llms·공개 selector를 재사용한다. no-JS Blog 목록의 기존 후속 항목을 우선 재현하고 관리자/비공개 Brain/PDF는 감사 대상에서 제외한다. 검색 순위·AI 인용을 보장하지 않으며, 실제 도메인·GSC/CrUX와 배포는 운영 승인 이후다. 일반 다음 작업은 admin-operations-control Step 0이며 SEO를 지정하면 S1 Step 0부터 독립 진행한다.
 
 ### I-01: OCI self-hosted infrastructure
 
@@ -248,3 +248,9 @@ Feedback Steps 0-2의 synthetic contract 이력은 남기되, live caller와 pro
 - phase 파일은 `apps/h-log/phases/` 아래에 둔다.
 - 실행 순서는 `diagram-assets-automation -> blog-runtime-integration -> public-site-quality-hardening -> auto-publish-ops-hardening -> feedback-and-persona-learning` contract다. Feedback Steps 0-2의 이력 중 미연결 persona, performance-signal, failure-pattern contract는 pruning Steps 4-6에서 제거했으며, 공개 사이트 품질 게이트를 통과한 뒤 production signal collection/persona activation/timer 단계부터 실제 HTTPS public origin을 요구한다.
 - 설계 변경이 생기면 `PRD.md`, `ADR.md`, `ARCHITECTURE.md` 중 관련 문서를 함께 갱신한다.
+
+## 자동화 정책 구현 — 2026-10-28
+
+2026-10-28 A2 Step 3 완료: 초안 생성·자동 공개·새 작업 처리를 기본 OFF의 DB 정책으로 분리했다. 요청한 설정/서버 상한을 반영한 실제 허용·차단 이유·확인 시각과 실행 예약 당시 revision을 표시한다. 정책 변경과 요청/lease admission을 같은 row lock으로 직렬화하고 관리자·CLI·일일 실행·worker에 적용했다. 자동 공개 OFF 또는 생성 중 중지 시 drafted/작업 0개로 저장하며 공개 전이를 재확인한다. 공개 후 필수 검증·실패 시 숨김·철회는 중지/정책 조회 실패에도 보존한다. 단위 252 pass/23 DB skip, 격리 integration 25/25, dev/prod draft·policy HTTP 각 1/1, production admin HTTP 4/4, lint/typecheck/build와 1440/390/320px 검수를 통과했다. A2 전체 완료, 관리자 completed 12·pending 4·blocked 1이며 다음은 **A3 Step 0: job-and-audit-inspection**다. 운영 migration·provider·배포·공개 발행·timer는 실행하지 않았다.
+
+[자동화 정책 계약](AUTOMATION_POLICY.md)에 환경 상한·admission·공개 보호·복구 제한을 기록했다.

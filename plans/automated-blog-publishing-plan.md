@@ -1,5 +1,9 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
+2026-10-28 A2 Step 3 완료: 초안 생성·자동 공개·새 작업 처리를 기본 OFF의 DB 정책으로 분리했다. 요청한 설정/서버 상한을 반영한 실제 허용·차단 이유·확인 시각과 실행 예약 당시 revision을 표시한다. 정책 변경과 요청/lease admission을 같은 row lock으로 직렬화하고 관리자·CLI·일일 실행·worker에 적용했다. 자동 공개 OFF 또는 생성 중 중지 시 drafted/작업 0개로 저장하며 공개 전이를 재확인한다. 공개 후 필수 검증·실패 시 숨김·철회는 중지/정책 조회 실패에도 보존한다. 단위 252 pass/23 DB skip, 격리 integration 25/25, dev/prod draft·policy HTTP 각 1/1, production admin HTTP 4/4, lint/typecheck/build와 1440/390/320px 검수를 통과했다. A2 전체 완료, 관리자 completed 12·pending 4·blocked 1이며 다음은 **A3 Step 0: job-and-audit-inspection**다. 운영 migration·provider·배포·공개 발행·timer는 실행하지 않았다.
+
+현재 실행 계약은 [자동화 정책](../apps/h-log/.codex/docs/harness/AUTOMATION_POLICY.md)을 따른다. 아래 날짜별 기록은 당시 상태다.
+
 작성일: 2026-06-25
 최종 계획 정리: 2026-10-26
 
@@ -30,7 +34,7 @@
 
 2026-10-26 A4 Step 3까지 완료했다. 32 MiB tmpfs 강제와 감사 기반 복구 초기화, 최대 100 MiB 합성 원본의 실제 dump/restore·새 epoch·과거 receipt·장애/rollback을 검증했다. Next.js 16.4.3/sharp 0.35.5 등의 production 감사는 0건이다. 현재 관리자 트랙은 completed 8개·pending 8개·blocked 1개다. [완료 기록과 자원 실측](../apps/h-log/phases/admin-resume-pdf/step3.md)을 따른다.
 
-2026-10-26 모니터링 Step 0의 지표·권한·자원 계약도 완료했다. [단일 모니터링 계약](../apps/h-log/.codex/docs/harness/OBSERVABILITY_PLAN.md)에 required 6종의 실제 성공 증거·DB 독립 atomic summary·비용 unknown·일정/수집 오류·메모리 1 GiB/디스크 3 GiB와 후속 검증을 확정했다. 모니터링 설치·운영 적용은 아직 없다. A2 Steps 0–2의 검토/수정본/발행/철회/비공개 초안 요청도 완료해 기본 다음 작업은 **`admin-blog-publishing / Step 3: automation-policy-controls`**다. A1 완료 → A4 이력서 PDF 등록/공개/다운로드 → 기존 모니터링 Step 0 → A2 블로그/자동화 → A3 작업 제어 → 모니터링 Steps 1–6 → A3 모니터링/로컬 검수 순으로 진행한다. 운영 모니터링 Step 7과 관리자 rollout은 OCI 보류 해제 뒤 승인 범위로 수행하고, 실제 timer는 그 다음 기존 운영 활성화 단계에서 다룬다. 초안 전용 저장·요청 이력은 구현했으며 지속 정책과 작업 관리자 UI는 아직 구현하지 않았다. 아래 기존 기록의 다음 단계는 당시 상태다.
+2026-10-26 모니터링 Step 0의 지표·권한·자원 계약도 완료했다. [단일 모니터링 계약](../apps/h-log/.codex/docs/harness/OBSERVABILITY_PLAN.md)에 required 6종의 실제 성공 증거·DB 독립 atomic summary·비용 unknown·일정/수집 오류·메모리 1 GiB/디스크 3 GiB와 후속 검증을 확정했다. 모니터링 설치·운영 적용은 아직 없다. A2 Steps 0–2의 검토/수정본/발행/철회/비공개 초안 요청도 완료해 기본 다음 작업은 **`admin-operations-control / Step 0: job-and-audit-inspection`**다. A1 완료 → A4 이력서 PDF 등록/공개/다운로드 → 기존 모니터링 Step 0 → A2 블로그/자동화 → A3 작업 제어 → 모니터링 Steps 1–6 → A3 모니터링/로컬 검수 순으로 진행한다. 운영 모니터링 Step 7과 관리자 rollout은 OCI 보류 해제 뒤 승인 범위로 수행하고, 실제 timer는 그 다음 기존 운영 활성화 단계에서 다룬다. 초안 전용 저장·요청 이력과 지속 정책을 구현했다. 작업 관리자 UI는 A3에 남아 있다. 아래 기존 기록의 다음 단계는 당시 상태다.
 
 2026-10-27 A2 Step 0에서 인증된 `/admin/posts` 목록·현재/저장 버전·안전한 미리보기·출처·검증 기록을 구현했다. 원문/hash/current와 공개 selector를 보존하고 DB 오류·빈 목록을 구분한다. Unit 247 pass/17 DB skip, 격리 integration 19/19, dev/prod review HTTP 각 1/1, admin HTTP 4/4, 기본 gate와 1440/390/320px 검수를 통과했다. 관리자 트랙은 completed 9·pending 7·blocked 1이다. 다음은 A2 Step 1이며 운영 발행은 하지 않았다.
 

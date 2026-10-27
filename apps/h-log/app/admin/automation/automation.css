@@ -1,4 +1,9 @@
 .draft-requests > section { margin-bottom: 24px; }
+.automation-option { padding: 18px 0; border-bottom: 1px solid #303654; }
+.automation-policy .automation-option label { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; }
+.automation-policy input[type="checkbox"] { width: 20px; height: 20px; flex-shrink: 0; accent-color: #8992ff; }
+.automation-policy .automation-effective { color: #c7cbff; }
+.automation-policy p { overflow-wrap: anywhere; }
 .draft-input-title { margin-top: 20px; overflow-wrap: anywhere; font-weight: 600; }
 .draft-requests a { color: #c7cbff; text-decoration: underline; text-underline-offset: 4px; }
 .draft-history { list-style: none; margin-top: 20px; }

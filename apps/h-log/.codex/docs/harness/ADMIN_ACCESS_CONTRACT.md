@@ -140,3 +140,7 @@ A1 Step 2에서 같은 `test:admin:http`에 Queue 공개 종료·공개 탐색 �
 ## A2 Step 2 요청 경계
 
 POST `/admin/automation/requests`는 commandId/inputHash/reason만 받는다. JSON 4 KiB·본문 10초, unknown key 거부, 기존 Host/Origin/Basic + DAL owner 검사를 적용한다. 클라이언트가 파일 경로나 실행 명령을 지정할 수 없다. HLOG_AUTO_PUBLISH_INPUT_FILE의 검증 snapshot을 최대 256 KiB로 읽어 hash를 비교하며 admin_actions와 같은 transaction에 접수한다. 동일 키 replay는 flag/파일 변경 뒤에도 원래 receipt를 반환한다. 다른 키라도 같은 입력 hash는 동일 요청으로 합친다. 웹에서 provider나 shell을 호출하지 않는다. [상태·실행/복구 계약](DRAFT_GENERATION_REQUESTS.md)을 따른다.
+
+## A2 Step 3 구현 — 2026-10-28
+
+[자동화 정책 계약](AUTOMATION_POLICY.md)의 migration 010과 공통 row lock으로 위 중지/admission 계약을 구현했다. policy revision/감사 receipt·요청/lease admission revision을 저장하고 자동/수동 공개를 구분한다. 정책 조회 실패 시 새 일반 실행은 차단하고 공개 필수 검증은 유지한다.

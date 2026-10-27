@@ -357,3 +357,7 @@ systemctl --user list-timers hlog-auto-publish.timer
 007 schema·web/migrations image·native 도구·tmpfs를 함께 준비한다. 작업 전 비공개 backup/격리 restore를 검증하고 쓰기 중지 상태에서 migration한다. 개인 파일 없이 feature OFF/epoch 미설정을 기본값으로 시작한다. [백업 복구](backup-restore-runbook.md)의 오프라인 reset과 새 epoch 절차, 실제 파일 검수는 별도로 수행한다. 공개 ingress와 worker canonical은 공개 origin이며 테스트용 resume-rehearsal.nginx.conf를 운영 conf.d로 복사하지 않는다.
 
 A3 Step 3/4는 [A4 실측](../../phases/admin-resume-pdf/step3.md)의 단일 검사와 4개 동시 다운로드·native 프로세스·tmpfs를 함께 검토하고 운영 메모리/보관 예산을 확인한다. 로컬 수치는 운영 SLO가 아니다.
+
+## A2 Step 3 자동화 정책 — 2026-10-28
+
+로컬 구현/검증을 완료했으며 운영 적용은 하지 않았다. migration 010은 generation/publication/jobs를 OFF로 시작한다. HLOG_BLOG_DRAFT_GENERATION_ENABLED, HLOG_BLOG_AUTO_PUBLISH_ENABLED, HLOG_BLOG_JOBS_ENABLED를 web/runner/worker 환경에 승인 범위대로 전달해야 하며 모두 기본 OFF다. 수동 발행의 별도 HLOG_BLOG_MANUAL_PUBLISH_ENABLED 상한도 유지한다. 관리자 토글만으로 프로세스/타이머를 켜거나 서버 상한을 넘지 않는다. 일일/수동 생성 모두 유한한 일/월 비용 한도가 필요하다. 로컬 dry-run도 정책을 우회하지 않으며 격리 테스트 fixture에서만 필요한 설정을 명시한다. 기존 실행 중 글의 보호 검증은 정책 OFF에도 계속 허용한다. 실제 설정 준비·migration·운영 활성화는 별도 승인된 rollout에서 [자동화 정책 계약](harness/AUTOMATION_POLICY.md)을 따른다.

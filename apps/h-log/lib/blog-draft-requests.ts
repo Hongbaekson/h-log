@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { Pool } from "pg";
+import { readAutomationPolicy } from "./blog-automation-policy.ts";
 import { parseDailyAutoPublishInput } from "./blog-auto-publish-runner.ts";
 import { runDailyAutoArticlePipeline, type GenerateArticleInput, type GenerateArticleResult, type PersistPublishingArticleInput } from "./blog-daily-auto-article.ts";
 import { saveBlogAggregate } from "./blog-postgres-repository.ts";
@@ -62,6 +63,7 @@ export function createDraftRequestRepository(pool: Pool) {
           await client.query("commit"); return previous.command_receipt;
         }
         if (!enabled) throw Error("generation_disabled");
+        if (!(await readAutomationPolicy(client, process.env, true)).effective.generation) throw Error("automation_paused");
         const prepared = await loadInput();
         if (prepared.hash !== c.inputHash) throw Error("input_changed");
         const inserted = await client.query(`insert into blog_draft_requests(id,input_hash,input_snapshot) values ($1,$2,$3)
@@ -110,8 +112,14 @@ export async function runDraftRequestOnce({ pool, generateArticle, enabled = fal
       catch { return { status: "result_ready", requestId }; }
     }
     // Unknown provider cost must be reconciled before another chargeable request.
-    if ((await client.query("select 1 from blog_draft_requests where status='needs_review' limit 1")).rowCount) return { status: "attention_required" };
-    await client.query("update blog_draft_requests set status='running',started_at=now() where id=$1", [requestId]);
+    if ((await client.query("select 1 from blog_draft_requests where status='needs_review' union all select 1 from admin_actions where action_type='automation_admitted' and command_receipt->>'status' in ('running','needs_review') limit 1")).rowCount) return { status: "attention_required" };
+    await client.query("begin");
+    try {
+      const current = await readAutomationPolicy(client, process.env, true);
+      if (!current.effective.generation) { await client.query("rollback"); return { status: "paused", requestId }; }
+      await client.query("update blog_draft_requests set status='running',started_at=now(),policy_revision=$2 where id=$1", [requestId, current.revision]);
+      await client.query("commit");
+    } catch (e) { await client.query("rollback"); throw e; }
     let providerStarted = false, providerReturned = false, resultSaved = false;
     try {
       const prepared = prepareDraftInput(row.input_snapshot);
@@ -121,7 +129,13 @@ export async function runDraftRequestOnce({ pool, generateArticle, enabled = fal
         usageLedger: createPostgresBlogUsageLedger(client),
         hasPersistedPostSlug: async slug => (await client.query("select 1 from posts where slug=$1", [slug])).rowCount !== 0,
         generateArticle: async input => {
-          await client.query("update blog_draft_requests set provider_started_at=now() where id=$1", [requestId]);
+          await client.query("begin");
+          try {
+            const current = await readAutomationPolicy(client, process.env, true);
+            if (!current.effective.generation) throw Error("automation_paused");
+            await client.query("update blog_draft_requests set provider_started_at=now(),policy_revision=$2 where id=$1", [requestId, current.revision]);
+            await client.query("commit");
+          } catch (e) { await client.query("rollback"); throw e; }
           providerStarted = true;
           let timer: ReturnType<typeof setTimeout> | undefined;
           try {
@@ -142,6 +156,10 @@ export async function runDraftRequestOnce({ pool, generateArticle, enabled = fal
       return { status: "blocked", requestId };
     } catch (e) {
       if (resultSaved) return { status: "result_ready", requestId };
+      if (!providerStarted && e instanceof Error && ["automation_paused", "policy_unavailable"].includes(e.message)) {
+        await client.query("update blog_draft_requests set status='queued',reason_code='automation_paused',started_at=null where id=$1", [requestId]);
+        return { status: "paused", requestId };
+      }
       const status = providerStarted ? "needs_review" : "blocked";
       const reason = providerReturned ? "result_persistence_failed" : providerStarted ? "provider_outcome_unknown" : e instanceof Error && ["input_stale","input_unsafe","input_changed"].includes(e.message) ? e.message : "input_unavailable";
       await client.query("update blog_draft_requests set status=$2,reason_code=$3,finished_at=now() where id=$1", [requestId, status, reason]);

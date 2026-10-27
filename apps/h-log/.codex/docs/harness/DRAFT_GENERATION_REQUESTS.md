@@ -24,10 +24,12 @@
 
 Hermes process timeout은 기존 5분, 요청 소비자의 응답 deadline은 최대 330초다. timeout이 외부 실행 취소나 무과금을 뜻하지 않는다. 연결이 끊겨 session lock을 새 실행자가 얻으면 이전 running을 needs_review로 전환한다. 시작 전 중단, provider 결과 미확인, 응답 이후 결과 보관 실패를 reason_code와 시각으로 구분한다. 이력은 최근 20개를 표시하며 자동 polling은 없다.
 
-결과 보관 뒤 final transaction이 실패하면 post/완료 감사 모두 rollback되고 result_ready는 남는다. 이 상태에서는 재실행해 저장만 복구할 수 있다. 응답 후 보관 자체가 실패하면 결과 복구를 보장하지 않는다. 원본 오류·provider 응답을 웹으로 보내지 않으며 needs_review 상태에서 운영자가 provider 실행/과금·usage ledger·감사를 먼저 대조해야 한다. 상태를 무조건 queued로 되돌리거나 행을 지워 재시도하지 않는다. 결과 확인/정책 조정 UI는 Step 3/A3의 후속 범위다.
+결과 보관 뒤 final transaction이 실패하면 post/완료 감사 모두 rollback되고 result_ready는 남는다. 이 상태에서는 재실행해 저장만 복구할 수 있다. 응답 후 보관 자체가 실패하면 결과 복구를 보장하지 않는다. 원본 오류·provider 응답을 웹으로 보내지 않으며 needs_review 상태에서 운영자가 provider 실행/과금·usage ledger·감사를 먼저 대조해야 한다. 상태를 무조건 queued로 되돌리거나 행을 지워 재시도하지 않는다. 정책 조정은 [자동화 정책 계약](AUTOMATION_POLICY.md)에 따라 Step 3에서 구현했다. 결과 확인/복구는 A3 후속 범위다.
 
 ## 검증과 다음 단계
 
 2026-10-27 A2 Step 2 완료: `/admin/automation`의 초안 요청·최근 이력·검토 링크와 migration 009의 지속 요청/입력 snapshot을 연결했다. 명령 UUID·입력 hash 중복 수렴과 감사 transaction, 기존 one-shot의 `--draft-once`, `drafted` 전용 저장을 구현했다. freshness/context/claim/privacy/한국어 규칙/usage를 재사용하며 발행 작업은 만들지 않는다. 불명확한 외부 결과는 새 생성도 보류하고, 보관된 결과의 저장 실패는 provider 재호출 없이 복구한다. Unit 250 pass/19 DB skip, 격리 integration 21/21, dev/prod draft HTTP 각 1/1, production admin HTTP 4/4, lint/typecheck/build와 1440/390/320px 검수를 통과했다. 관리자 completed 11·pending 5·blocked 1이며 다음은 **A2 Step 3: automation-policy-controls**다. 실제 provider·운영 migration·배포·공개 발행·timer는 실행하지 않았다.
 
-기존 단위 250 pass/19 DB skip와 전체 격리 DB 21/21, 실제 local HTTP 공개 제외, production HTTPS Host/Origin/RSC/직접 API와 모바일 검수를 확인했다. 이 완료는 production activation 승인이 아니다. 다음은 [Step 3](../../../phases/admin-blog-publishing/step3.md)이다.
+기존 단위 250 pass/19 DB skip와 전체 격리 DB 21/21, 실제 local HTTP 공개 제외, production HTTPS Host/Origin/RSC/직접 API와 모바일 검수를 확인했다. 이 완료는 production activation 승인이 아니다. 2026-10-28 Step 3 완료 후 현재 다음은 [A3 Step 0](../../../phases/admin-operations-control/step0.md)이다.
+
+Step 3부터 접수/provider admission은 지속 generation/jobs 정책과 서버 상한을 모두 검사한다. 일일 실행의 불명확 예약도 새 수동 생성을 보류하며 수동 요청 결과는 자동 공개 설정과 관계없이 drafted다.

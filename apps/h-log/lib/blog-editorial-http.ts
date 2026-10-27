@@ -28,7 +28,7 @@ export async function handleEditorialRequest(request: Request, execute: (command
     return json(await execute(parseEditorialCommand(input)));
   } catch (error) {
     const statuses: Record<string, number> = { invalid_request: 400, request_timeout: 408, request_too_large: 413, unsupported_media_type: 415,
-      review_required: 422, publication_disabled: 422, quality_blocked: 422, unsafe_reason: 422, post_not_found: 404,
+      review_required: 422, publication_disabled: 422, automation_paused: 422, quality_blocked: 422, unsafe_reason: 422, post_not_found: 404,
       version_conflict: 409, revision_conflict: 409, state_conflict: 409, command_conflict: 409 };
     const code = error instanceof Error && Object.hasOwn(statuses, error.message) ? error.message : "storage_unavailable";
     return json({ error: code }, statuses[code] ?? 503);

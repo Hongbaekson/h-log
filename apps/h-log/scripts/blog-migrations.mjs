@@ -26,6 +26,7 @@ export const BLOG_MIGRATION_TABLES = [
   "resume_pdf_versions",
   "resume_pdf_state",
   "blog_draft_requests",
+  "blog_automation_policy",
 ];
 
 export async function runBlogMigrations(connectionString = process.env.DATABASE_URL) {

@@ -1,6 +1,6 @@
 # H-Log 통합 관리자 계획
 
-등록일: 2026-10-22. 2026-10-27 **A1 Steps 0–3, A4 Steps 0–3와 A2 Steps 0–2를 완료했다. 4개 phase / 17개 step 중 completed 11개·pending 5개·blocked 1개**다. PDF·블로그 검토/수정/발행/철회·비공개 초안 요청을 로컬 검증했다. 모니터링 Step 0 계약도 완료했다. 다음은 [A2 Step 3](../../../phases/admin-blog-publishing/step3.md)의 지속 자동화 정책이다. 이전 공개 경험 완료 이력은 보존한다.
+등록일: 2026-10-22. 2026-10-28 **A1/A4/A2 전체 완료. 4개 phase / 17개 step 중 completed 12개·pending 4개·blocked 1개**다. 모니터링 Step 0 계약도 완료했다. 다음은 [A3 Step 0](../../../phases/admin-operations-control/step0.md)의 작업·감사 조회다. 운영 활성화는 보류한다.
 
 ## 방향과 현재 근거
 
@@ -11,8 +11,8 @@
 | `app/admin`, `lib/admin-owner.ts`, `lib/brain-owner.ts` | 공통 Basic/Host/Origin 인증·전용 탐색, Brain DB flag 분리 | A1 Step 3 완료: 기록/공개 사본 보존·명령 revision·중복 재확인·원자적 감사 |
 | `proxy.ts` | 전체 `/admin/:path*` 보호; page·records handler도 데이터 접근 전 검사 | 운영 ingress는 승인된 rollout에서 적용 |
 | `deploy/nginx/conf.d/hlog.conf` | 공개 ingress에서 `/admin`·`/api/internal` 404; upstream Host는 `hlog-web` | 공개 차단 유지, 별도 관리자 host의 정확한 Host 전달·허용 경로를 로컬 검증 |
-| `app/admin/posts`, `lib/blog-editorial-actions.ts` | 인증된 검토·불변 수정본 저장·선택 버전 발행/철회·원자적 감사 구현 | A2 Step 2 초안 요청 완료, Step 3 지속 자동화 정책 |
-| `lib/blog-daily-auto-article.ts`, `scripts/blog-auto-publish.mjs` | 일일 발행 경로와 별도의 draft mode/one-shot 요청 소비 구현 | 자동화 지속 정책과 전 경로 enforcement는 Step 3 |
+| `app/admin/posts`, `lib/blog-editorial-actions.ts` | 인증된 검토·불변 수정본 저장·선택 버전 발행/철회·원자적 감사 구현 | A2 전체 완료; 후속 작업/감사 조회는 A3 |
+| `lib/blog-daily-auto-article.ts`, `scripts/blog-auto-publish.mjs` | 일일 발행 경로와 별도의 draft mode/one-shot 요청 소비 구현 | Step 3 완료: 기본 OFF 지속 정책과 공통 admission/공개 검사 |
 | `lib/blog-persistent-worker.ts`, `deploy/systemd/` | lease 기반 한 건 실행, 유한 cycle, 09:00 KST timer 패키지 | 작업 조회·명시적 재시도·새 작업 claim 일시정지; 프로세스 생존은 별도 신호 |
 | `usage_events`, `admin_actions`, `publish_verifications` | 비용·일부 감사·검증 자료가 존재 | 실제 저장 항목만 조회, 기록되지 않은 실행 이력을 성공/0건으로 추정하지 않음 |
 | `/admin/lab/queue`, 관리자 실험실 메뉴 | 인증된 소유자만 접근; 기존 `/lab/queue`는 404, 공개 링크/sitemap 제거 | 가상 모델 유지; 실제 작업 제어는 A3의 별도 기능 |
@@ -101,7 +101,7 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 | A2 [admin-blog-publishing](../../../phases/admin-blog-publishing/index.json) | [0: private-post-review](../../../phases/admin-blog-publishing/step0.md) | **완료**: 비공개 글/버전·안전한 미리보기·저장된 검증 결과 조회 |
 | A2 | [1: versioned-editorial-actions](../../../phases/admin-blog-publishing/step1.md) | **완료**: 저장·선택 버전 발행·철회와 동시 수정/감사 처리 |
 | A2 | [2: draft-generation-requests](../../../phases/admin-blog-publishing/step2.md) | **완료**: 중복 없는 초안 요청·기존 실행자 처리·비공개 결과 저장 |
-| A2 | [3: automation-policy-controls](../../../phases/admin-blog-publishing/step3.md) | 초안/자동 발행 허용 분리, 정책 지속 저장과 전 실행 경로 적용 |
+| A2 | [3: automation-policy-controls](../../../phases/admin-blog-publishing/step3.md) | **완료**: 기본 OFF 지속 정책·전 실행 경로 admission·공개 보호 |
 | A3 [admin-operations-control](../../../phases/admin-operations-control/index.json) | [0: job-and-audit-inspection](../../../phases/admin-operations-control/step0.md) | 실제 작업/lease/실패·감사·비용 조회 |
 | A3 | [1: bounded-retry-and-pause](../../../phases/admin-operations-control/step1.md) | 단건 재시도·새 claim 중지·동시성/재시작 검증 |
 | A3 | [2: monitoring-overview](../../../phases/admin-operations-control/step2.md) | 기존 모니터링 신호·누락/오류·비공개 Grafana 연결 |
@@ -114,7 +114,7 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 
 ## 실행 순서와 기존 계획
 
-1. 기본 다음 작업은 **admin-blog-publishing Step 3: automation-policy-controls**다. A2 Steps 0–2의 조회·수정본 저장·발행 요청·철회·초안 요청과 공개 경계를 로컬 검증했다. A1/A4와 모니터링 Step 0 계약도 완료했으며, 수집 스택 설치와 운영 rollout은 아직 수행하지 않았다.
+1. 기본 다음 작업은 **admin-operations-control Step 0: job-and-audit-inspection**다. A2 전체의 검토·초안 요청·지속 정책과 공개 경계를 로컬 검증했다. A1/A4와 모니터링 Step 0 계약도 완료했으며, 수집 스택 설치와 운영 rollout은 아직 수행하지 않았다.
 2. A1 완료 뒤 독립적인 **A4 이력서 PDF Steps 0–3**을 진행한다. A4 번호는 기존 A1–A3의 참조를 보존하기 위한 것이며 운영 rollout 뒤로 미루는 뜻이 아니다. 이어 `operations-observability / Step 0`의 신호·권한·예산 계약까지 완료했다. A2 Steps 0–3과 A3 Steps 0–1은 이를 참고해 실제 저장·제어를 구현하며, 수집 스택 설치를 선행 조건으로 요구하지 않는다.
 3. observability Steps 1–6을 구현·로컬 검증한 뒤 A3 Steps 2–3을 완료한다. 관측 데이터의 생산자는 모니터링 phase, 관리자 화면은 소비자로 둔다.
 4. 운영은 기존 OCI 보류 해제 및 범위별 승인 후 진행한다. observability Step 7은 비활성 scheduler 상태에서도 완료할 수 있다. 이어 A3 Step 4에서 관리자 도메인과 A4의 비공개 파일 저장/migration을 적용한다. 관리자 rollout은 자동 발행 timer를 켜거나 실제 글/Brain 사본/PDF를 공개하지 않는다. 특정 PDF 공개는 관리자에서 검수한 파일을 선택하는 별도 행동이다.
@@ -179,3 +179,9 @@ Brain 저장·공개·해제에 내용 revision과 별도 명령 revision/UUID�
 2026-10-27 A2 Step 1 완료: 기존 글의 불변 수정본 저장, 선택 버전/hash 검토 후 발행 요청, 철회와 원자적 감사 receipt를 연결했다. 저장은 공개 current를 유지하고 발행은 기존 required 6종 워커를 거친다. 중복·동시 수정·감사 실패 rollback·철회 후 늦은 작업의 재노출 방지를 검증했다. Unit 248 pass/18 DB skip, 격리 integration 20/20, 로컬 editorial HTTP, lint/typecheck/build와 1440/390/320px 저장·발행·철회·오류 복구를 확인했다. 관리자 completed 10·pending 6·blocked 1이며 다음은 A2 Step 2 draft-generation-requests다. 운영 발행·배포·provider·timer는 실행하지 않았다. 자세한 계약과 제약은 [Step 1 기록](../../../phases/admin-blog-publishing/step1.md)을 따른다. 수동 발행 flag 기본 OFF이며 기존 자동 실행자의 전역 중지 정책으로 해석하지 않는다.
 
 2026-10-27 A2 Step 2 완료: `/admin/automation`의 초안 요청·최근 이력·검토 링크와 migration 009의 지속 요청/입력 snapshot을 연결했다. 명령 UUID·입력 hash 중복 수렴과 감사 transaction, 기존 one-shot의 `--draft-once`, `drafted` 전용 저장을 구현했다. freshness/context/claim/privacy/한국어 규칙/usage를 재사용하며 발행 작업은 만들지 않는다. 불명확한 외부 결과는 새 생성도 보류하고, 보관된 결과의 저장 실패는 provider 재호출 없이 복구한다. Unit 250 pass/19 DB skip, 격리 integration 21/21, dev/prod draft HTTP 각 1/1, production admin HTTP 4/4, lint/typecheck/build와 1440/390/320px 검수를 통과했다. 관리자 completed 11·pending 5·blocked 1이며 다음은 **A2 Step 3: automation-policy-controls**다. 실제 provider·운영 migration·배포·공개 발행·timer는 실행하지 않았다.
+
+## 자동화 정책 구현 — 2026-10-28
+
+2026-10-28 A2 Step 3 완료: 초안 생성·자동 공개·새 작업 처리를 기본 OFF의 DB 정책으로 분리했다. 요청한 설정/서버 상한을 반영한 실제 허용·차단 이유·확인 시각과 실행 예약 당시 revision을 표시한다. 정책 변경과 요청/lease admission을 같은 row lock으로 직렬화하고 관리자·CLI·일일 실행·worker에 적용했다. 자동 공개 OFF 또는 생성 중 중지 시 drafted/작업 0개로 저장하며 공개 전이를 재확인한다. 공개 후 필수 검증·실패 시 숨김·철회는 중지/정책 조회 실패에도 보존한다. 단위 252 pass/23 DB skip, 격리 integration 25/25, dev/prod draft·policy HTTP 각 1/1, production admin HTTP 4/4, lint/typecheck/build와 1440/390/320px 검수를 통과했다. A2 전체 완료, 관리자 completed 12·pending 4·blocked 1이며 다음은 **A3 Step 0: job-and-audit-inspection**다. 운영 migration·provider·배포·공개 발행·timer는 실행하지 않았다.
+
+[자동화 정책 계약](AUTOMATION_POLICY.md)에 환경 상한·admission·공개 보호·복구 제한을 기록했다.

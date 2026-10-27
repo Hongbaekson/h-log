@@ -1,3 +1,5 @@
+process.env.HLOG_BLOG_JOBS_ENABLED = "1";
+process.env.HLOG_BLOG_AUTO_PUBLISH_ENABLED = "1";
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -220,6 +222,8 @@ async function withTestDatabase(
 
   try {
     await runBlogMigrations(testUrl.toString());
+    const fixture = new Client({ connectionString: testUrl.toString() });
+    await fixture.connect(); await fixture.query("update blog_automation_policy set jobs=true,publication=true"); await fixture.end();
     await run(testUrl.toString());
   } finally {
     for (let attempt = 0; attempt < 50; attempt += 1) {

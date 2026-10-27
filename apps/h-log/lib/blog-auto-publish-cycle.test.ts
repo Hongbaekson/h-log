@@ -5,6 +5,10 @@ import { requiredPublishJobTypes } from "./blog-content-model.ts";
 import { runAutoPublishCycle } from "./blog-auto-publish-cycle.ts";
 
 describe("auto publish cycle", () => {
+  it("reports a policy pause without treating it as a worker failure", async () => {
+    const result = await runAutoPublishCycle({ generate: async () => ({ postId: "post-2026-07-22", status: "paused" }), runRequiredWorkerOnce: async () => ({ status: "paused" }) });
+    assert.equal(result.status, "paused"); assert.equal(result.workerRuns, 1);
+  });
   it("drains only the deterministic daily post until its required jobs are idle", async () => {
     const workerPostIds: string[] = [];
     let workerRuns = 0;

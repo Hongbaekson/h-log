@@ -32,6 +32,7 @@ const result = await runAutoPublishCycle({
       output.status !== "failed" &&
       output.status !== "idle" &&
       output.status !== "retrying" &&
+      output.status !== "paused" &&
       output.status !== "succeeded"
     ) {
       throw new Error("required publish worker returned an invalid status");

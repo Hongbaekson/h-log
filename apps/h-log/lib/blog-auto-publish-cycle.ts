@@ -6,7 +6,7 @@ type AutoPublishGenerationResult = {
 };
 
 type RequiredWorkerResult = {
-  status: "failed" | "idle" | "retrying" | "succeeded";
+  status: "failed" | "idle" | "retrying" | "succeeded" | "paused";
 };
 
 export async function runAutoPublishCycle({
@@ -18,7 +18,7 @@ export async function runAutoPublishCycle({
 }): Promise<{
   generationStatus: string;
   postId: string;
-  status: "completed";
+  status: "completed" | "paused";
   workerRuns: number;
 }> {
   const generation = await generate();
@@ -27,11 +27,11 @@ export async function runAutoPublishCycle({
   for (let workerRuns = 1; workerRuns <= maxWorkerRuns; workerRuns += 1) {
     const worker = await runRequiredWorkerOnce(generation.postId);
 
-    if (worker.status === "idle") {
+    if (worker.status === "idle" || worker.status === "paused") {
       return {
         generationStatus: generation.status,
         postId: generation.postId,
-        status: "completed",
+        status: worker.status === "paused" ? "paused" : "completed",
         workerRuns,
       };
     }

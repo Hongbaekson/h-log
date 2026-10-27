@@ -20,7 +20,7 @@ export function DraftGenerationForm({ inputHash, enabled }: { inputHash: string;
       if (response.status >= 500) throw Error("uncertain");
       pending.current = null; setUncertain(false);
       const messages: Record<string,string> = { input_changed: "자료가 바뀌었어요. 새로고침한 뒤 확인해 주세요.", generation_disabled: "서버에서 초안 요청을 허용하지 않은 상태예요.", input_stale: "자료가 오래됐어요. 갱신한 뒤 다시 요청해 주세요.", unsafe_reason: "요청 사유에서 개인정보나 내부 주소를 빼 주세요." };
-      setMessage(messages[result.error] ?? "요청을 저장하지 못했어요. 입력과 로그인 상태를 확인해 주세요.");
+      setMessage(result.error === "automation_paused" ? "자동화가 중지되어 있어요. 허용 설정을 확인해 주세요." : messages[result.error] ?? "요청을 저장하지 못했어요. 입력과 로그인 상태를 확인해 주세요.");
     } catch { setUncertain(true); setMessage("접수 여부를 확인하지 못했어요. 같은 요청을 다시 확인하거나 새로고침해 목록을 확인해 주세요."); }
     finally { setBusy(false); }
   }
