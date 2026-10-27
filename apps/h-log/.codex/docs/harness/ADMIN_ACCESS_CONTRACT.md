@@ -1,6 +1,6 @@
 # 관리자 접근과 명령 계약
 
-확정일: 2026-10-23. `admin-console-foundation / Step 0`의 설계 결과다. **2026-10-27 기준 A1/A4 전체와 A2 Step 0의 인증된 비공개 글 검토를 로컬 구현·검증했다.** 글 저장·발행·철회 caller, 정책/중지·운영 ingress는 후속 단계다. 다음은 A2 Step 1이며 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 따른다.
+확정일: 2026-10-23. A1 Step 0 설계와 후속 구현 계약이다. **2026-10-27 기준 A1/A4 전체와 A2 Steps 0–1의 검토·수정본 저장·발행 요청·철회를 로컬 구현·검증했다.** 초안 요청·지속 정책/중지·운영 ingress는 후속 단계다. 다음은 A2 Step 2이며 [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)을 따른다.
 
 ## 1. 현재 caller와 부족한 계약
 
@@ -10,7 +10,7 @@
 | `app/admin/brain/page.tsx` → `getBrainRepository().listOwnerNotes()` | `requireAdminOwner` 뒤 DB 조회; 기능 OFF는 미설정 안내, 실패는 해당 영역 오류 | A1 Step 1 완료; 원문/공개 사본 기능은 유지 |
 | `app/admin/brain/records/route.ts` → `handleBrainCaptureRequest` | 공통 인증 → 요청 형식/256 KiB 제한 → repository; 안전한 오류 코드 | A1 Step 3 완료; POST에 commandId/commandRevision 필수, 누락 시 400·새로고침 안내 |
 | `brain-postgres-repository.ts` | row lock·내용/명령 revision·append-only 버전·공개 사본·원자적 감사 receipt | A1 Step 3 완료; 중복 재전송·공개/해제 경합·감사 실패 rollback 검증 |
-| `blog-admin.ts` → `blog-postgres-repository.ts` | 철회 상태+감사는 transaction; UI caller·예상 revision·명령 receipt는 없음 | A2 Step 1에서 실제 caller와 함께 구현; 제거된 범용 facade 일괄 복원 금지 |
+| `blog-editorial-actions.ts` → 기존 content model/worker | 불변 수정본, 버전/hash 검토, 예상 revision/state/current와 원자적 감사 receipt | A2 Step 1 구현; 새 생성 요청은 Step 2 |
 | `blog-daily-auto-article.ts` → `savePost` | `publishing` aggregate와 required job 저장 | A2 Step 2에서 draft-only 요청/저장; 기존 함수를 그대로 초안 API에 연결하지 않음 |
 | `blog-persistent-worker.ts` | `FOR UPDATE SKIP LOCKED` claim·5분 lease·소유자 조건부 완료·유한 재시도 | A2 Step 3/A3 Step 1에서 정책 확인과 claim 중지의 transaction 경계 추가 |
 | Nginx → Compose web | 공개 `/admin`·`/api/internal` 404, upstream `Host hlog-web`, web은 expose만 사용 | 공개 차단 유지; 별도 관리자 ingress의 Host 전달을 로컬 검증 후 승인된 운영 단계에서 적용 |
@@ -89,7 +89,7 @@ Basic은 전송 암호화가 아니므로 TLS와 변경 요청의 CSRF 방어가
 | PDF 공개/공개본 교체/이전본 선택 — A4 Step 2 | 파일 ID/hash, 전역 expectedRevision, 전 페이지 검토 확인·서버 고정 사유 | 현재 기준으로 검토한 버전 하나로 pointer 전환+감사. 변경/미검토 파일은 422, 오래된 pointer는 409 |
 | PDF 공개 해제 — A4 Step 2 | 전역 expectedRevision, 서버 고정 사유 | pointer 제거+감사. 이후 다운로드 404; 이미 전송/다운로드한 사본 회수는 보장하지 않음 |
 
-블로그 편집용 private 후보와 공개 current를 분리할 최소 저장 방식은 A2 Step 1에서 구현한다. 기존 `posts.current_version_id`를 private 저장만으로 바꾸지 않는 것이 인수 조건이다. 발행 전환 중 기존 글이 비공개가 되는 현재 pipeline의 의미도 화면에 안내한다. 공개 글의 무중단 버전 전환을 이번 계약만으로 보장하지 않는다. PDF의 parser/파일·총량 예산/schema·전역 expectedRevision·공개 epoch·HTTP 조건부/Range는 A4 Step 0의 [확정 계약](RESUME_PDF_CONTRACT.md)을 따른다. `resume_pdf_versions`/`resume_pdf_state`와 PDF target 추가는 Step 1 구현 대상이며 현재 006 schema에는 없다.
+A2 Step 1은 migration 008의 버전별 editorial_review와 posts.command_revision, 기존 admin_actions receipt를 사용해 private 후보와 공개 current를 분리했다. 수동 publish는 HLOG_BLOG_MANUAL_PUBLISH_ENABLED=1과 최신 admin 버전/hash·검토 확인·claim/privacy gate가 필요하다. JSON 256 KiB/본문 128 KiB/읽기 10초·statement 5초로 제한하고 오류는 안전한 코드만 반환한다. 기존 `posts.current_version_id`를 private 저장만으로 바꾸지 않는 것이 인수 조건이다. 발행 전환 중 기존 글이 비공개가 되는 현재 pipeline의 의미도 화면에 안내한다. 공개 글의 무중단 버전 전환을 이번 계약만으로 보장하지 않는다. PDF의 parser/파일·총량 예산/schema·전역 expectedRevision·공개 epoch·HTTP 조건부/Range는 A4 Step 0의 [확정 계약](RESUME_PDF_CONTRACT.md)을 따른다. `resume_pdf_versions`/`resume_pdf_state`와 PDF target 추가는 Step 1 구현 대상이며 현재 006 schema에는 없다.
 
 ### 충돌·중복·감사
 

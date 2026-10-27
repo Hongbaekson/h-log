@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BlogContent } from "@/components/blog/BlogContent";
+import { BlogEditorialActions } from "@/components/admin/BlogEditorialActions";
 import { requireAdminOwner } from "@/lib/admin-server";
 import { loadAdminPosts } from "@/lib/blog-admin-review-server";
 import { adminPostStatusLabels, parseAdminPostReviewQuery, type AdminPostReviewQuery, type AdminPostsResult } from "@/lib/blog-admin-review";
@@ -107,6 +108,7 @@ export default async function AdminPostsPage({ searchParams }: { searchParams: P
             <h4>발행 작업 결과</h4>
             {review.jobs.length ? <ul>{review.jobs.map(job => <li key={job.id}><strong>{job.type} · {resultLabels[job.status]}</strong><small>{job.importance === "required" ? "필수" : "후속"} 작업 · 재시도 {job.retryCount}회</small></li>)}</ul> : <p>이 버전의 발행 작업 기록이 없습니다.</p>}
           </details>
+          <BlogEditorialActions key={`${review.post.commandRevision}:${version?.id}`} review={review} publishEnabled={process.env.HLOG_BLOG_MANUAL_PUBLISH_ENABLED === "1"} />
         </>}
       </section>}
     </div>

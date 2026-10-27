@@ -162,12 +162,12 @@ export const blogPostStatusTransitions: {
   readonly [Status in BlogPostStatus]: readonly BlogPostStatus[];
 } = {
   correction_pending: ["corrected", "retracted"],
-  corrected: ["published"],
+  corrected: ["published", "ready_to_publish"],
   drafted: ["gate_failed", "ready_to_publish"],
-  failed_generation: [],
-  failed_publish: ["publishing"],
-  failed_verification: ["verifying"],
-  gate_failed: [],
+  failed_generation: ["ready_to_publish"],
+  failed_publish: ["publishing", "ready_to_publish"],
+  failed_verification: ["verifying", "ready_to_publish"],
+  gate_failed: ["ready_to_publish"],
   published: ["correction_pending", "unpublished", "retracted"],
   publishing: ["verifying", "failed_publish"],
   queued: ["researching"],

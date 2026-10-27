@@ -1,6 +1,7 @@
 import type { Pool } from "pg";
 import { blogPostStatuses, createPostVersionContentHash, type BlogPostStatus } from "./blog-content-model.ts";
 import { tryNormalizePublicSourceUrl } from "./public-source-url.ts";
+import type { EditorialDraft } from "./blog-editorial-command.ts";
 
 export const adminPostStatusLabels: Record<BlogPostStatus, string> = {
   queued: "작성 대기", researching: "자료 조사", drafted: "초안", gate_failed: "품질 검사 실패",
@@ -20,11 +21,11 @@ export function parseAdminPostReviewQuery(input: Record<string, string | string[
 }
 
 export type AdminReviewPost = {
-  id: string; title: string; status: BlogPostStatus; currentVersionId: string | null; updatedAt: string;
+  id: string; title: string; status: BlogPostStatus; currentVersionId: string | null; updatedAt: string; commandRevision: number;
 };
 type ReviewVersion = {
   id: string; versionNo: number; title: string; description: string; contentMarkdown: string | null;
-  contentHtml: string | null; contentHash: string; createdAt: string; createdBy: string;
+  contentHtml: string | null; contentHash: string; createdAt: string; createdBy: string; editorialReview: Pick<EditorialDraft, "claims" | "evidencePaths"> | null;
 };
 export type AdminPostReview = {
   post: AdminReviewPost; version: ReviewVersion | null; latestVersionNo: number | null; hashMatches: boolean | null;
@@ -41,19 +42,19 @@ export async function readAdminPosts(pool: Pool, query: AdminPostReviewQuery): P
     await client.query("begin isolation level repeatable read read only");
     await client.query("set local statement_timeout = '3s'");
     const { rows } = await client.query<AdminReviewPost>(
-      `select id, left(title,512) as title, status, current_version_id as "currentVersionId", updated_at::text as "updatedAt"
+      `select id, left(title,512) as title, status, command_revision as "commandRevision", current_version_id as "currentVersionId", updated_at::text as "updatedAt"
        from posts where ($1::text is null or status=$1) order by updated_at desc, id limit 21 offset $2`,
       [query.status, (query.page - 1) * 20],
     );
     const result: AdminPostsResult = { posts: rows.slice(0, 20), hasNext: rows.length > 20, review: null };
     if (query.post) {
       const post = (await client.query<AdminReviewPost>(
-        `select id, title, status, current_version_id as "currentVersionId", updated_at::text as "updatedAt" from posts where id=$1`, [query.post],
+        `select id, title, status, command_revision as "commandRevision", current_version_id as "currentVersionId", updated_at::text as "updatedAt" from posts where id=$1`, [query.post],
       )).rows[0];
       if (post) {
         const latestVersionNo = (await client.query<{ latest: number | null }>("select max(version_no) as latest from post_versions where post_id=$1", [post.id])).rows[0].latest;
         const version = (await client.query<ReviewVersion>(
-          `select id, version_no as "versionNo", title, description, content_hash as "contentHash", created_at::text as "createdAt", created_by as "createdBy",
+          `select id, version_no as "versionNo", title, description, editorial_review as "editorialReview", content_hash as "contentHash", created_at::text as "createdAt", created_by as "createdBy",
            case when octet_length(content_markdown)<=262144 then content_markdown end as "contentMarkdown",
            case when octet_length(content_html)<=262144 then content_html end as "contentHtml"
            from post_versions where post_id=$1 and

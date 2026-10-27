@@ -36,9 +36,9 @@ npm run build
 
 ## 관리자 통합 현황과 목표
 
-`app/admin/posts/page.tsx`와 `lib/blog-admin-review-server.ts`는 page/DAL 양쪽에서 owner를 확인한다. `lib/blog-admin-review.ts`는 read-only repeatable-read transaction으로 20개 상태 필터 목록과 선택 버전, 글 단위 출처·버전별 검사/작업을 읽는다. 풀은 최대 2개, statement 3초/query 5초, 본문/HTML 각 256 KiB, 출처/검사/작업 각 50개로 제한한다. 원시 오류와 검사 result는 조회하지 않는다. `components/blog/BlogContent.tsx`를 공개 상세/관리자 미리보기에서 공유하며 저장 원문/hash와 공개 current 포인터를 변경하지 않는다. 저장/발행 명령은 아직 없다.
+`app/admin/posts/page.tsx`와 `lib/blog-admin-review-server.ts`는 page/DAL 양쪽에서 owner를 확인한다. `lib/blog-admin-review.ts`는 read-only repeatable-read transaction으로 20개 상태 필터 목록과 선택 버전, 글 단위 출처·버전별 검사/작업을 읽는다. 풀은 최대 2개, 읽기 statement 3초/쓰기 5초/query 6초, 본문/HTML 각 256 KiB, 출처/검사/작업 각 50개로 제한한다. 원시 오류와 검사 result는 조회하지 않는다. `components/blog/BlogContent.tsx`를 공개 상세/관리자 미리보기에서 공유하며 저장 원문/hash와 공개 current 포인터를 변경하지 않는다. 수정본 저장은 공개 current를 유지하며 명시적인 발행 요청만 후보 버전을 선택한다.
 
-2026-10-27 기준 A1의 공통 인증·관리자 shell·Queue/Brain 통합, A4의 PDF 보관·공개·복구, 모니터링 Step 0 계약과 A2 Step 0의 글 검토를 완료했다. 다음은 admin-blog-publishing Step 1이다. automation/jobs/monitoring/audit 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
+2026-10-27 기준 A1의 공통 인증·관리자 shell·Queue/Brain 통합, A4의 PDF 보관·공개·복구, 모니터링 Step 0 계약과 A2 Steps 0–1을 완료했다. 다음은 admin-blog-publishing Step 2다. automation/jobs/monitoring/audit 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
 
 `lib/admin-owner.ts`는 설정·Host·Basic·Origin 검사와 비공개 헤더를 소유한다. `proxy.ts`는 전체 `/admin/:path*`, `lib/admin-server.ts`는 page/layout의 데이터 조회 전 검사를 담당한다. `brain-owner.ts`는 공통 인증 후 Brain DB flag를 검사하는 얇은 경계로 남는다. 기존 Nginx는 여전히 모든 관리자 경로를 차단하고 Host를 `hlog-web`로 전달한다. 두 loopback ingress의 정확한 Host 전달/공개 차단은 격리 구성으로 검증했으며 운영 설정은 변경하지 않았다.
 
@@ -46,13 +46,15 @@ npm run build
 
 `006_brain_admin_commands.sql`은 `brain_notes.command_revision`과 `admin_actions`의 Brain target/고유 명령 ID/fingerprint/receipt를 추가한다. `brain-capture-http.ts`가 필수 명령 메타데이터를 검사하고 `brain-postgres-repository.ts`가 고유 키 예약·row lock·두 revision 검사·변경·감사를 한 transaction으로 commit한다. 키 충돌 시 이전 입력과 비교해 원래 receipt를 돌려주며 감사 실패는 버전/공개 상태까지 rollback한다. 기존 원문/공개 snapshot/감사 row의 보존을 upgrade fixture로 검증했다. 공개 그래프 조회는 기존 published snapshot만 사용한다.
 
-Blog 검토 조회는 구현됐으며, 글 변경 명령·draft-only persistence·지속 정책과 요청은 아직 없다. 기존 generation은 `publishing` aggregate/required jobs를 만들므로 A2에서 비공개 초안 저장과 명시적 공개를 나눈다. 웹 요청은 기존 실행자에게 지속 요청을 전달하며 shell/worker 프로세스를 직접 띄우지 않는다. 기존 `publish_jobs`/lease·usage·audit를 재사용하고 모든 새 실행/공개 전이에 정책을 적용한다. 수집 신호는 observability phase가 생산하고 A3 관리자 화면이 읽는다. 세부 schema/새 파일은 실제 step에서 필요한 만큼 정한다.
+Blog 검토/수정본/발행/철회 명령은 구현됐으며, 생성기의 draft-only persistence·지속 정책과 요청은 아직 없다. 기존 generation은 `publishing` aggregate/required jobs를 만들므로 A2에서 비공개 초안 저장과 명시적 공개를 나눈다. 웹 요청은 기존 실행자에게 지속 요청을 전달하며 shell/worker 프로세스를 직접 띄우지 않는다. 기존 `publish_jobs`/lease·usage·audit를 재사용하고 모든 새 실행/공개 전이에 정책을 적용한다. 수집 신호는 observability phase가 생산하고 A3 관리자 화면이 읽는다. 세부 schema/새 파일은 실제 step에서 필요한 만큼 정한다.
+
+`blog-editorial-command.ts`는 제한된 JSON 계약, `blog-editorial-http.ts`는 인증 후 bounded body/안전한 오류, `blog-editorial-actions.ts`는 row lock·명령 receipt·검증·새 버전/작업/감사를 소유한다. migration 008은 command revision과 버전별 claims/evidencePaths만 추가한다. `/admin/posts/commands`는 DAL 인증을 다시 거치고 HLOG_BLOG_MANUAL_PUBLISH_ENABLED가 1일 때만 publish를 수락한다. 발행은 publishing과 required 6종을 등록하며 API에서 published를 쓰지 않는다. worker claim은 current 버전만 받고 완료는 예상 상태/current에 조건부 갱신한다. `BlogEditorialActions.tsx`는 저장/검토/철회를 분리하고 미저장 안내·동일 요청 재확인·같은 URL의 상태 재조회와 화면 안 철회 확인을 제공한다. 새 외부 호출이나 프로세스 실행은 없다.
 
 ## SEO 개발 도구 도입 목표 — 아직 미구현
 
 [SEO 계획](SEO_OPTIMIZATION_PLAN.md)과 ADR-040은 claude-seo의 고정 자료를 Codex의 저장소 스킬로 선별 이식하는 개발 작업이다. 기본 예정 위치는 루트 `.agents/skills/hlog-seo/`이고 실제 인식은 S1에서 검증한다. 참고 지침·출처/라이선스와 실제 감사 표본을 관리하며 Claude 전용 installer/hook이 Codex에서 자동 동작한다고 가정하지 않는다. 별도 SEO 서버·DB·worker나 production Python 의존성을 추가하지 않는다.
 
-감사는 공개 selector/route의 source 확인 → 합성 DB/loopback public ingress의 HTTP·DOM·no-JS → 승인된 공개 origin/검색 계정 순서다. 원자료는 `private/seo/`, 검토된 요약은 Harness 문서에 둔다. 기존 `site-seo`의 소스 검사에 실제 head/JSON-LD·상태/색인·공개 경계 검증을 보완할 계획이며 현재 metadata/crawler runtime은 바꾸지 않았다. 성능 lab/field와 실제 검색 노출을 분리한다. 일반 다음 작업은 admin-blog-publishing Step 1이며 운영 보류는 유지한다.
+감사는 공개 selector/route의 source 확인 → 합성 DB/loopback public ingress의 HTTP·DOM·no-JS → 승인된 공개 origin/검색 계정 순서다. 원자료는 `private/seo/`, 검토된 요약은 Harness 문서에 둔다. 기존 `site-seo`의 소스 검사에 실제 head/JSON-LD·상태/색인·공개 경계 검증을 보완할 계획이며 현재 metadata/crawler runtime은 바꾸지 않았다. 성능 lab/field와 실제 검색 노출을 분리한다. 일반 다음 작업은 admin-blog-publishing Step 2이며 운영 보류는 유지한다.
 
 ## Runtime 구성
 

@@ -67,6 +67,7 @@ export async function runPersistentWorkerOnce({
        )
        and ($5::text is null or job.post_id = $5)
        and ($6::text is null or job.importance = $6)
+       and job.post_version_id = post.current_version_id
        and (
          (
            job.importance = 'required'
@@ -200,10 +201,11 @@ export async function runPersistentWorkerOnce({
 
       if (failure.postStatus !== postStatus) {
         assertBlogPostStatusTransition(postStatus, failure.postStatus);
-        await client.query(
-          "update posts set status = $2, updated_at = $3 where id = $1",
-          [job.postId, failure.postStatus, runAt],
+        const changed = await client.query(
+          "update posts set status = $2, updated_at = $3 where id = $1 and current_version_id = $4 and status = $5",
+          [job.postId, failure.postStatus, runAt, job.postVersionId, postStatus],
         );
+        if (!changed.rowCount) failure.postStatus = (await client.query("select status from posts where id=$1", [job.postId])).rows[0].status;
       }
 
       await client.query("commit");
@@ -297,13 +299,13 @@ export async function runPersistentWorkerOnce({
           assertBlogPostStatusTransition("publishing", "verifying");
         }
         assertBlogPostStatusTransition("verifying", "published");
-        await client.query(
+        const changed = await client.query(
           `update posts
            set status = 'published', published_at = coalesce(published_at, $2), updated_at = $2
-           where id = $1 and current_version_id = $3`,
-          [finishedJob.postId, runAt, finishedJob.postVersionId],
+           where id = $1 and current_version_id = $3 and status = $4`,
+          [finishedJob.postId, runAt, finishedJob.postVersionId, postStatus],
         );
-        nextPostStatus = "published";
+        nextPostStatus = changed.rowCount ? "published" : (await client.query("select status from posts where id=$1", [job.postId])).rows[0].status;
       }
     }
 

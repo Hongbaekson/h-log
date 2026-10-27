@@ -1,0 +1,23 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { randomUUID } from "node:crypto";
+import { handleEditorialRequest } from "./blog-editorial-http.ts";
+const environment = { HLOG_ADMIN_ENABLED: "1", HLOG_ADMIN_OWNER_KEY: "a".repeat(64), HLOG_ADMIN_ORIGIN: "https://admin.example", NODE_ENV: "production" };
+const headers = { host: "admin.example", origin: "https://admin.example", authorization: `Basic ${Buffer.from(`owner:${environment.HLOG_ADMIN_OWNER_KEY}`).toString("base64")}`, "content-type": "application/json" };
+test("editorial HTTP authorizes before reading commands and rejects unsafe request shapes", async () => {
+  let calls = 0;
+  const execute = async () => { calls++; return { postId: "post", versionId: "v", versionNo: 2, commandRevision: 1, status: "drafted" as const }; };
+  const request = (body: unknown, overrides = {}) => new Request("https://admin.example/admin/posts/commands", { method: "POST", headers: { ...headers, ...overrides }, body: JSON.stringify(body) });
+  assert.equal((await handleEditorialRequest(request({}, { authorization: "invalid" }), execute, environment)).status, 401);
+  assert.equal((await handleEditorialRequest(request({}, { origin: "https://sibling.example" }), execute, environment)).status, 403);
+  assert.equal((await handleEditorialRequest(request({}), execute, environment)).status, 400);
+  assert.equal((await handleEditorialRequest(request({text:"x".repeat(300000)}), execute, environment)).status, 413);
+  assert.equal(calls, 0);
+  const command = { action: "retract", commandId: randomUUID(), postId: "post", versionId: "v", expectedRevision: 0, expectedStatus: "published", expectedCurrentVersionId: "v", reason: "검토 필요" };
+  const response = await handleEditorialRequest(request(command), execute, environment);
+  assert.equal(response.status, 200); assert.match(response.headers.get("cache-control")!, /private.*no-store/);
+  assert.equal(calls, 1);
+  assert.equal((await handleEditorialRequest(request({ ...command, actor: "admin" }), execute, environment)).status, 400);
+  const failure = await handleEditorialRequest(request(command), async()=>{throw new Error("postgres://private-secret");}, environment);
+  assert.equal(failure.status, 503); assert.equal(await failure.text(), '{"error":"storage_unavailable"}');
+});

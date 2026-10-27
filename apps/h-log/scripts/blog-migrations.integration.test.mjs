@@ -47,6 +47,7 @@ test(
         "005_blog_public_editorial",
         "006_brain_admin_commands",
         "007_resume_pdf_storage",
+        "008_blog_editorial_commands",
       ]);
 
       const extension = await database.query(
@@ -77,7 +78,7 @@ test(
 
       const secondRun = await runBlogMigrations(testUrl.toString());
       assert.deepEqual(secondRun.appliedVersions, []);
-      assert.equal(secondRun.currentVersion, "007_resume_pdf_storage");
+      assert.equal(secondRun.currentVersion, "008_blog_editorial_commands");
 
       const versions = await database.query(
         "select version from schema_migrations order by version",
@@ -90,6 +91,7 @@ test(
         { version: "005_blog_public_editorial" },
         { version: "006_brain_admin_commands" },
         { version: "007_resume_pdf_storage" },
+        { version: "008_blog_editorial_commands" },
       ]);
     } finally {
       await database.end();
@@ -141,7 +143,7 @@ test("Brain command migration preserves legacy versions, public snapshots and au
     [id, randomUUID(), "b".repeat(64), JSON.stringify({ action: "save", noteId: id, commandRevision: 2 })]);
     const beforePdfNotes = await database.query("select * from brain_notes");
     const beforePdfAudit = await database.query("select * from admin_actions order by id");
-    assert.deepEqual((await runBlogMigrations(url.toString())).appliedVersions, ["007_resume_pdf_storage"]);
+    assert.deepEqual((await runBlogMigrations(url.toString())).appliedVersions, ["007_resume_pdf_storage", "008_blog_editorial_commands"]);
     assert.deepEqual((await database.query("select * from brain_note_versions")).rows, versions.rows);
     assert.deepEqual((await database.query("select * from brain_notes")).rows, beforePdfNotes.rows);
     assert.deepEqual((await database.query("select * from admin_actions order by id")).rows, beforePdfAudit.rows);

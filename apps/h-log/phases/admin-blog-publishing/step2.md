@@ -23,6 +23,10 @@
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/phases/admin-blog-publishing/index.json`
 - `apps/h-log/phases/admin-blog-publishing/step1.md`
+- `apps/h-log/lib/blog-editorial-actions.ts`
+- `apps/h-log/lib/blog-editorial-command.ts`
+- `apps/h-log/migrations/008_blog_editorial_commands.sql`
+- `apps/h-log/scripts/blog-editorial.http.test.mjs`
 - `apps/h-log/lib/blog-daily-auto-article.ts`
 - `apps/h-log/lib/blog-auto-publish-runner.ts`
 - `apps/h-log/lib/blog-auto-publish-cycle.ts`

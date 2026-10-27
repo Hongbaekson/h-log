@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "versioned-editorial-actions",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-27 Step 1 completed: immutable editorial versions, owner-authenticated save/publish/retract commands, revision/state/hash checks and transactional idempotent audit receipts. Claim/privacy gates and required-six worker reused; stale-version jobs and late retraction overwrite blocked. Unit 248 pass/18 DB skip, isolated integration 20/20, local HTTP and desktop/mobile save/publish/retract/error recovery passed with lint/typecheck/build. Steps 0-1 completed; next Step 2 draft-generation-requests. No operational deployment or publication."
     },
     {
       "step": 2,

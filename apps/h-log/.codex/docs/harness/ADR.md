@@ -401,7 +401,9 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **A2 Step 0 구현 (2026-10-27)**: `/admin/posts`에서 인증 후 read-only snapshot으로 글·선택 버전·출처·저장 검증을 조회한다. 20개 목록, 본문/HTML 각 256 KiB, 출처/검증/작업 각 50개와 query timeout으로 제한한다. 공개 본문 renderer를 분리해 재사용하며 저장 HTML은 실행하지 않는다. 출처는 글 단위, 검사와 작업은 선택 버전 단위임을 구분하고 raw result/error와 미저장 품질 점수는 노출/추정하지 않는다. 새 schema·쓰기 API·공개 selector 변경 없이 원문/hash/current를 보존한다.
 
-**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4 전체와 A2 Step 0 completed 9개·pending 7개·운영 rollout blocked 1개다. 모니터링 Step 0 계약도 완료했으며 다음은 admin-blog-publishing Step 1이다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
+**A2 Step 1 구현 (2026-10-27)**: 기존 posts/post_versions에 명령 revision과 버전별 근거만 추가한다. 현재 공개본과 private 수정본을 분리하고 owner의 정확한 버전/hash 검토·사유·서버 수동 발행 flag·claim/privacy/quality 검사 뒤 publishing과 required jobs를 원자적으로 등록한다. 기존 admin_actions의 UUID/fingerprint/receipt를 재사용하며 중복은 이전 결과로 수렴하고 감사 실패는 모두 rollback한다. worker는 current 버전만 claim하고 늦은 완료가 철회 상태를 덮어쓰지 않도록 비교 갱신한다. API는 published로 바로 바꾸지 않는다. 새 글 생성·정책 제어·외부 사실 검증은 후속 범위다.
+
+**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4 전체와 A2 Steps 0–1 completed 10개·pending 6개·운영 rollout blocked 1개다. 모니터링 Step 0 계약도 완료했으며 다음은 admin-blog-publishing Step 2다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
 
 ### ADR-039: 이력서 PDF는 비공개 버전에서 검토한 파일 하나만 공개한다
 
