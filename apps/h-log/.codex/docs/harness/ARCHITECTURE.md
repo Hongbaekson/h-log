@@ -38,7 +38,9 @@ npm run build
 
 `app/admin/posts/page.tsx`와 `lib/blog-admin-review-server.ts`는 page/DAL 양쪽에서 owner를 확인한다. `lib/blog-admin-review.ts`는 read-only repeatable-read transaction으로 20개 상태 필터 목록과 선택 버전, 글 단위 출처·버전별 검사/작업을 읽는다. 풀은 최대 2개, 읽기 statement 3초/쓰기 5초/query 6초, 본문/HTML 각 256 KiB, 출처/검사/작업 각 50개로 제한한다. 원시 오류와 검사 result는 조회하지 않는다. `components/blog/BlogContent.tsx`를 공개 상세/관리자 미리보기에서 공유하며 저장 원문/hash와 공개 current 포인터를 변경하지 않는다. 수정본 저장은 공개 current를 유지하며 명시적인 발행 요청만 후보 버전을 선택한다.
 
-2026-10-28 기준 A1/A4/A2 전체와 모니터링 Step 0 계약을 완료했다. 다음은 admin-operations-control Step 0다. automation의 초안 요청/이력은 구현됐고 jobs/monitoring/audit 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
+2026-10-28 기준 A1/A4/A2 전체, A3 Step 0과 모니터링 Step 0 계약을 완료했다. 다음은 admin-operations-control Step 1이다. automation/jobs/audit는 구현됐고 monitoring 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
+
+`app/admin/jobs/page.tsx`와 `app/admin/audit/page.tsx`는 `blog-admin-operations-server.ts`의 owner 확인 후 기존 풀과 `blog-admin-operations.ts`의 read-only repeatable-read를 사용한다. 최대 21행/20건 반환, 10,000 페이지 상한, 3초 statement timeout이며 원문/원시 오류/원시 식별자를 DTO에 넣지 않는다. 감사 receipt는 정책 revision/boolean만 표시한다. UTC 일/월 사용량은 기존 guard와 동일한 범위로 집계하며 NULL 금액과 현재 schema의 비용 근거 부재를 별도로 표시한다. `AdminObservation`은 조회 시각부터 180초가 지나면 stale 안내만 바꾸며 데이터 재조회나 워커 heartbeat를 만들지 않는다. 새 migration·collector·쓰기 경로는 없다.
 
 `lib/admin-owner.ts`는 설정·Host·Basic·Origin 검사와 비공개 헤더를 소유한다. `proxy.ts`는 전체 `/admin/:path*`, `lib/admin-server.ts`는 page/layout의 데이터 조회 전 검사를 담당한다. `brain-owner.ts`는 공통 인증 후 Brain DB flag를 검사하는 얇은 경계로 남는다. 기존 Nginx는 여전히 모든 관리자 경로를 차단하고 Host를 `hlog-web`로 전달한다. 두 loopback ingress의 정확한 Host 전달/공개 차단은 격리 구성으로 검증했으며 운영 설정은 변경하지 않았다.
 

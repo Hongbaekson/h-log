@@ -2,7 +2,7 @@
 
 이 문서는 H-Log를 Harness step으로 구현하거나 자동 블로그 플랫폼으로 전환할 때의 기준 계획이다. 실제 phase 파일은 `apps/h-log/phases/` 아래에 생성한다.
 
-2026-10-28 A2 Step 3 완료: 초안 생성·자동 공개·새 작업 처리를 기본 OFF의 DB 정책으로 분리했다. 요청한 설정/서버 상한을 반영한 실제 허용·차단 이유·확인 시각과 실행 예약 당시 revision을 표시한다. 정책 변경과 요청/lease admission을 같은 row lock으로 직렬화하고 관리자·CLI·일일 실행·worker에 적용했다. 자동 공개 OFF 또는 생성 중 중지 시 drafted/작업 0개로 저장하며 공개 전이를 재확인한다. 공개 후 필수 검증·실패 시 숨김·철회는 중지/정책 조회 실패에도 보존한다. 단위 252 pass/23 DB skip, 격리 integration 25/25, dev/prod draft·policy HTTP 각 1/1, production admin HTTP 4/4, lint/typecheck/build와 1440/390/320px 검수를 통과했다. A2 전체 완료, 관리자 completed 12·pending 4·blocked 1이며 다음은 **A3 Step 0: job-and-audit-inspection**다. 운영 migration·provider·배포·공개 발행·timer는 실행하지 않았다.
+2026-10-28 A3 Step 0 완료: `/admin/jobs`와 `/admin/audit`에 실제 작업·명령·정책 변경·UTC 일/월 사용량 조회를 연결했다. 페이지당 20건, 허용된 필터, read-only snapshot과 안전한 표시 항목을 사용한다. 작업 대상/현재 공개 버전, 만료 lease, 미확인 비용, 워커 미관측, 3분 지난 조회값과 DB 오류를 구분한다. 단위 255 pass/24 DB skip, 격리 integration 26/26, dev 조회 HTTP 1/1, production 조회·admin HTTP 5/5, lint/typecheck/build와 1440/390/320px 검수를 통과했다. 관리자 completed 13·pending 3·blocked 1이며 다음은 **A3 Step 1: bounded-retry-and-pause**다. 운영 migration·provider·배포·공개 발행·timer는 실행하지 않았다.
 
 실행 정책은 [자동화 정책 계약](AUTOMATION_POLICY.md)을 따른다. 아래 기록은 당시 상태다.
 

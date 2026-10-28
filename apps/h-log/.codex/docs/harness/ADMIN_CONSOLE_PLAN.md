@@ -1,6 +1,6 @@
 # H-Log 통합 관리자 계획
 
-등록일: 2026-10-22. 2026-10-28 **A1/A4/A2 전체 완료. 4개 phase / 17개 step 중 completed 12개·pending 4개·blocked 1개**다. 모니터링 Step 0 계약도 완료했다. 다음은 [A3 Step 0](../../../phases/admin-operations-control/step0.md)의 작업·감사 조회다. 운영 활성화는 보류한다.
+등록일: 2026-10-22. 2026-10-28 **A1/A4/A2 전체와 A3 Step 0 완료. 4개 phase / 17개 step 중 completed 13개·pending 3개·blocked 1개**다. 모니터링 Step 0 계약도 완료했다. 다음은 [A3 Step 1](../../../phases/admin-operations-control/step1.md)의 제한된 재시도·일시정지다. 운영 활성화는 보류한다.
 
 ## 방향과 현재 근거
 
@@ -114,7 +114,7 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 
 ## 실행 순서와 기존 계획
 
-1. 기본 다음 작업은 **admin-operations-control Step 0: job-and-audit-inspection**다. A2 전체의 검토·초안 요청·지속 정책과 공개 경계를 로컬 검증했다. A1/A4와 모니터링 Step 0 계약도 완료했으며, 수집 스택 설치와 운영 rollout은 아직 수행하지 않았다.
+1. 기본 다음 작업은 **admin-operations-control Step 1: bounded-retry-and-pause**다. A3 Step 0의 실제 작업·감사·비용 조회도 완료했다. A2 전체의 검토·초안 요청·지속 정책과 공개 경계를 로컬 검증했다. A1/A4와 모니터링 Step 0 계약도 완료했으며, 수집 스택 설치와 운영 rollout은 아직 수행하지 않았다.
 2. A1 완료 뒤 독립적인 **A4 이력서 PDF Steps 0–3**을 진행한다. A4 번호는 기존 A1–A3의 참조를 보존하기 위한 것이며 운영 rollout 뒤로 미루는 뜻이 아니다. 이어 `operations-observability / Step 0`의 신호·권한·예산 계약까지 완료했다. A2 Steps 0–3과 A3 Steps 0–1은 이를 참고해 실제 저장·제어를 구현하며, 수집 스택 설치를 선행 조건으로 요구하지 않는다.
 3. observability Steps 1–6을 구현·로컬 검증한 뒤 A3 Steps 2–3을 완료한다. 관측 데이터의 생산자는 모니터링 phase, 관리자 화면은 소비자로 둔다.
 4. 운영은 기존 OCI 보류 해제 및 범위별 승인 후 진행한다. observability Step 7은 비활성 scheduler 상태에서도 완료할 수 있다. 이어 A3 Step 4에서 관리자 도메인과 A4의 비공개 파일 저장/migration을 적용한다. 관리자 rollout은 자동 발행 timer를 켜거나 실제 글/Brain 사본/PDF를 공개하지 않는다. 특정 PDF 공개는 관리자에서 검수한 파일을 선택하는 별도 행동이다.
@@ -185,3 +185,9 @@ Brain 저장·공개·해제에 내용 revision과 별도 명령 revision/UUID�
 2026-10-28 A2 Step 3 완료: 초안 생성·자동 공개·새 작업 처리를 기본 OFF의 DB 정책으로 분리했다. 요청한 설정/서버 상한을 반영한 실제 허용·차단 이유·확인 시각과 실행 예약 당시 revision을 표시한다. 정책 변경과 요청/lease admission을 같은 row lock으로 직렬화하고 관리자·CLI·일일 실행·worker에 적용했다. 자동 공개 OFF 또는 생성 중 중지 시 drafted/작업 0개로 저장하며 공개 전이를 재확인한다. 공개 후 필수 검증·실패 시 숨김·철회는 중지/정책 조회 실패에도 보존한다. 단위 252 pass/23 DB skip, 격리 integration 25/25, dev/prod draft·policy HTTP 각 1/1, production admin HTTP 4/4, lint/typecheck/build와 1440/390/320px 검수를 통과했다. A2 전체 완료, 관리자 completed 12·pending 4·blocked 1이며 다음은 **A3 Step 0: job-and-audit-inspection**다. 운영 migration·provider·배포·공개 발행·timer는 실행하지 않았다.
 
 [자동화 정책 계약](AUTOMATION_POLICY.md)에 환경 상한·admission·공개 보호·복구 제한을 기록했다.
+
+## 작업·감사 조회 구현 — 2026-10-28
+
+2026-10-28 A3 Step 0 완료: `/admin/jobs`와 `/admin/audit`에 실제 작업·명령·정책 변경·UTC 일/월 사용량 조회를 연결했다. 페이지당 20건, 허용된 필터, read-only snapshot과 안전한 표시 항목을 사용한다. 작업 대상/현재 공개 버전, 만료 lease, 미확인 비용, 워커 미관측, 3분 지난 조회값과 DB 오류를 구분한다. 단위 255 pass/24 DB skip, 격리 integration 26/26, dev 조회 HTTP 1/1, production 조회·admin HTTP 5/5, lint/typecheck/build와 1440/390/320px 검수를 통과했다. 관리자 completed 13·pending 3·blocked 1이며 다음은 **A3 Step 1: bounded-retry-and-pause**다. 운영 migration·provider·배포·공개 발행·timer는 실행하지 않았다.
+
+재시도 명령은 아직 없고, 자동 작성 화면의 기존 정책 변경만 가능하다. 비용 근거와 워커 생존 신호는 기록된 범위만 표시한다. 구현/검증과 한계는 [A3 Step 0 완료 기록](../../../phases/admin-operations-control/step0.md)을 따른다.

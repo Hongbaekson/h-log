@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-계획 등록 상태: pending — 미구현. A1/A2 완료. 운영 정책/감사 원본이 존재해야 한다.
+완료 상태: completed — 2026-10-28 로컬 구현·검증 완료. 실제 운영 활성화와 재시도 명령은 포함하지 않는다.
 
 ## 읽을 파일
 
@@ -77,3 +77,21 @@ A3 Step 1 bounded-retry-and-pause. 전체 순서는 [통합 관리자 계획](..
 ## A2 Step 3 인계
 
 정책 변경/일일 admission은 admin_actions, 초안/worker admission revision은 각 원장에 있다. 실제 0건·정책 차단·만료 lease·불명확 결과·프로세스 미관측을 구분한다. 보호 경로와 unknown 자동 재호출 금지를 보존한다.
+
+## 작업·감사 조회 구현 — 2026-10-28
+
+- 변경: `app/admin/jobs/page.tsx`, `app/admin/audit/page.tsx`, `app/admin/operations.css`, `components/admin/AdminOperations.tsx`, `AdminObservation.tsx`, 기존 개요/메뉴, `lib/blog-admin-operations.ts`, `blog-admin-operations-server.ts`, `admin-observation.ts`와 단위/통합/HTTP 검증. `package.json`의 전체 integration chain에도 조회 테스트를 추가했다.
+- page/DAL의 owner 확인과 기존 Host/Basic/cache 경계를 재사용한다. PostgreSQL read-only repeatable-read, 최대 21행 조회/20행 반환, 1~10,000 페이지와 허용 필터, statement 3초 제한이다. SQL은 원문·raw error·actor/target 원시 식별자를 반환하지 않는다. 오류/사유는 존재 여부만 표시하고 정책 receipt는 revision/boolean만 투영한다.
+- 작업별 최신 상태·필수/후속 구분·기록된 retry_count·대상 버전/hash·현재/공개 버전·admission revision·lease를 표시한다. 총 시도 횟수/최초 enqueue/실행별 이력/DLQ/heartbeat를 만들어 내지 않는다. finished_at은 기존 실행 기준 시각이므로 정확한 완료 시각/소요 시간으로 사용하지 않는다.
+- 사용량은 기존 guard와 같은 UTC 일/월 경계 및 미래 제외 합계다. NULL 금액은 합계 제외+미상 건수, 현재 cost_basis 부재는 모든 행의 근거 미기록으로 표시한다. 기록 없음·알려진 0·무제한·0 한도·유효 한도·잘못된 한도를 구분한다. 원장에 없는 호출 비용이나 무료/구독 포함 여부를 추정하지 않는다.
+- 워커 프로세스/idle은 미관측이다. 조회 시각부터 180초가 지난 화면은 오래된 값으로 바뀌며 자동 재조회하지 않는다. DB 오류를 0건으로 바꾸거나 이전 성공값으로 대체하지 않는다. 필터와 페이지 링크는 native GET이다.
+
+검증:
+
+1. RED: `node --no-warnings --experimental-strip-types --test lib/blog-admin-operations.test.ts lib/blog-admin-operations.integration.test.ts`에서 미구현 모듈 실패 확인. 조회 함수 구현 후 단위 3/3, 격리 DB 1/1 GREEN. UI는 `node --test scripts/blog-admin-operations.http.test.mjs`의 owner GET 404→200으로 RED/GREEN 확인.
+2. 5개 작업 상태·이전/현재/철회 버전·만료 lease·raw error/본문/사유/receipt sentinel·정책 revision·NULL/0 비용·미래/이전 월 제외·0/무제한/무효 한도를 확인했다. 작업/감사 각각 3,000건을 추가해 20건 제한과 페이지 중복 없음, 읽기 전후 원장 보존, DB 오류 거부를 검증했다.
+3. `npm run test`: 279개 중 255 pass/24 DB skip. `DATABASE_URL=<isolated-local> npm run test:integration`: 26/26. `npm run lint`, `npm run typecheck`, `npm run build` 통과. 기존 thumbnail tracing 경고 2개는 남아 있다.
+4. 개발 서버 3043의 조회 HTTP 1/1. production build 3048 + public 3049/admin HTTPS 3050에서 `node --test scripts/admin-owner.http.test.mjs scripts/blog-admin-operations.http.test.mjs`: 5/5. 익명 401/공개 origin 404, HTML/RSC/prefetch private/no-store와 비노출을 확인했다. 기존 테스트 인증서 만료와 합성 published fixture의 hash/origin 준비 오류는 로컬 fixture만 바로잡아 재검증했다. TLS 검증은 해제하지 않았다.
+5. 개발 서버 1440/390/320px, 가로 넘침 없음, 키보드 필터/초점/상세 열기, 페이지 이동, 0건, 테이블 일시 숨김의 DB 오류/복구, 실제 3분 경과 stale 표시를 검수했다. 새 collector·migration·provider·timer·운영 설정은 추가하지 않았다. 검수 서버/프록시/컨테이너/탭은 종료했다.
+
+한계와 다음 작업: OFFSET 상한/timeout을 둔 개인 규모 조회다. 더 큰 원장에서 지연이 확인되면 keyset/index를 추가한다. 표시용 hash 참조는 명령 인증 수단이 아니다. Step 1에서 명시적 대상 선택·재시도 상한·버전/lease 검증·사유·감사·기존 정책 pause 경계를 구현한다.

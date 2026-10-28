@@ -1,0 +1,56 @@
+.admin-operations { min-width: 0; }
+.ops-observation { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 16px 0; border-block: 1px solid #303654; color: #a8aecb; font-size: 12px; line-height: 1.8; }
+.ops-observation p { color: #c7cbff; }
+.ops-observation > span { flex-basis: 100%; }
+.ops-notice { padding: 20px 0; font-size: 13px; line-height: 1.8; color: #b8bdd3; }
+.ops-notice strong { color: #dedff5; font-weight: 600; }
+.ops-filters { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; margin-block: 24px 32px; }
+.ops-filters label { display: grid; gap: 8px; min-width: 0; color: #b8bdd3; font-size: 13px; }
+.ops-filters select { width: 100%; min-height: 44px; min-width: 0; border: 1px solid #41486b; border-radius: 8px; padding: 8px 12px; background: #11152f; color: #e6e9ff; }
+.ops-filters button { min-height: 44px; background: #5865f2; color: white; padding: 10px 22px; border-radius: 8px; cursor: pointer; }
+.ops-filters button:hover { background: #4752c4; }
+.ops-filters :is(button,select):focus-visible { outline: 2px solid #b6bdff; outline-offset: 4px; }
+.ops-filters a, .ops-pagination a, .ops-error a { display: inline-flex; align-items: center; min-height: 44px; color: #c7cbff; font-size: 13px; text-decoration: underline; text-underline-offset: 4px; }
+.ops-list-heading { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+.ops-list-heading h2, .ops-usage h2 { font-size: 18px; font-weight: 650; }
+.ops-list-heading span { font-size: 12px; color: #a8aecb; }
+.ops-records { list-style: none; padding: 0; }
+.ops-records > li { padding: 24px 0; border-top: 1px solid #303654; overflow-wrap: anywhere; }
+.ops-record-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.ops-record-heading h3 { font-size: 16px; font-weight: 600; color: #eef0ff; }
+.ops-badge { padding: 4px 9px; border-radius: 6px; background: #5865f21c; color: #c7cbff; font-size: 12px; }
+.ops-failed, .ops-retrying { color: #ffcf9b; background: #e7aa6914; }
+.ops-succeeded { color: #a7d5cb; background: #4d9d8814; }
+.ops-muted { font-size: 12px; color: #a8aecb; }
+.ops-reference { color: #a8aecb; font: 12px/1.8 monospace; margin: 10px 0 18px; }
+.ops-facts { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px 24px; font-size: 13px; line-height: 1.8; }
+.ops-facts dt { font-size: 12px; color: #a8aecb; margin-bottom: 3px; }
+.ops-facts dd { color: #e2e4f5; }
+.ops-facts small { display: block; color: #a8aecb; font-size: 12px; }
+.admin-operations .ops-warning { color: #ffcf9b; }
+.ops-records details { margin-top: 16px; }
+.ops-records summary { min-height: 44px; padding-block: 12px; font-size: 12px; color: #c7cbff; cursor: pointer; }
+.ops-hash { display: block; font-size: 12px; color: #b8bdd3; margin-top: 12px; overflow-wrap: anywhere; }
+.ops-pagination { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-block: 20px; border-top: 1px solid #303654; font-size: 12px; color: #a8aecb; }
+.ops-caption { font-size: 12px; color: #a8aecb; line-height: 1.85; margin-top: 12px; }
+.ops-caption a { color: #c7cbff; text-decoration: underline; }
+.ops-empty { padding-block: 28px; font-size: 14px; color: #b8bdd3; line-height: 1.8; }
+.ops-usage { margin-block: 28px 32px; }
+.ops-cost-windows { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-block: 20px; }
+.ops-cost-windows > div { border-left: 2px solid #5865f2; padding: 2px 20px; min-width: 0; overflow-wrap: anywhere; }
+.ops-cost-windows h3 { font-size: 14px; font-weight: 600; }
+.ops-cost-windows h3 span { color: #a8aecb; font-size: 11px; margin-left: 6px; }
+.ops-cost { display: block; font-size: 28px; font-weight: 650; letter-spacing: -.03em; margin: 12px 0; }
+.ops-cost-windows p { color: #b8bdd3; font-size: 12px; line-height: 1.85; }
+.ops-audit-time { color: #b8bdd3; font-size: 13px; }
+.ops-policy { color: #c7cbff; font-size: 13px; margin-top: 12px; line-height: 1.85; }
+.ops-error { border-left: 3px solid #e7aa69; padding: 12px 20px; }
+.ops-error h2 { font-size: 20px; font-weight: 650; }
+.ops-error p { color: #b8bdd3; font-size: 14px; line-height: 1.85; margin-top: 12px; }
+@media (max-width: 1000px) { .ops-facts { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 480px) {
+  .ops-filters label { flex: 1 1 100%; }
+  .ops-facts, .ops-cost-windows { grid-template-columns: minmax(0,1fr); }
+  .ops-facts { gap: 14px; }
+  .ops-observation { flex-direction: column; }
+}

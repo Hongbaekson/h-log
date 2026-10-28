@@ -38,7 +38,7 @@ test("shared admin HTML, API and RSC stay behind the owner boundary on two local
     req.on("timeout", () => req.destroy(new Error(`local request timed out: ${method} ${origin.origin}${path}, Host=${headers.host ?? origin.host}`)));
     req.end();
   });
-  for (const path of ["/admin", "/admin/brain", "/admin/brain/records", "/admin/posts", "/admin/automation", "/admin/automation?_rsc=boundary", "/admin/automation/requests", "/admin/automation/policy", "/admin/brain?_rsc=boundary", "/admin/lab/queue", "/admin/lab/queue?_rsc=boundary", "/admin/resume", "/admin/resume?_rsc=boundary", "/admin/resume/records", "/admin/resume/files", "/admin/resume/preview/11111111-1111-4111-8111-111111111111/1"]) {
+  for (const path of ["/admin", "/admin/brain", "/admin/brain/records", "/admin/posts", "/admin/automation", "/admin/jobs", "/admin/jobs?_rsc=boundary", "/admin/audit", "/admin/audit?_rsc=boundary", "/admin/automation?_rsc=boundary", "/admin/automation/requests", "/admin/automation/policy", "/admin/brain?_rsc=boundary", "/admin/lab/queue", "/admin/lab/queue?_rsc=boundary", "/admin/resume", "/admin/resume?_rsc=boundary", "/admin/resume/records", "/admin/resume/files", "/admin/resume/preview/11111111-1111-4111-8111-111111111111/1"]) {
     for (const headers of [{}, { authorization }]) {
       const denied = await get(publicOrigin, path, headers);
       assert.equal(denied.status, 404, `public ${path}`);
@@ -58,6 +58,15 @@ test("shared admin HTML, API and RSC stay behind the owner boundary on two local
   assert.match(overview.headers["cache-control"], /private.*no-store/);
   assert.match(overview.headers["x-robots-tag"], /noindex/);
   assert.equal(overview.headers["x-frame-options"], "DENY");
+  for (const path of ["/admin/jobs", "/admin/audit"]) {
+    for (const headers of [{ authorization }, { authorization, RSC: "1", "Next-Router-Prefetch": "1" }]) {
+      const page = await get(admin, path, headers);
+      assert.equal(page.status, 200);
+      assert.match(page.headers["cache-control"], /private.*no-store/);
+      assert.match(page.headers["x-robots-tag"], /noindex/);
+      assert.doesNotMatch(page.body, /SECRET-|internal\/path/);
+    }
+  }
   const head = await get(admin, "/admin", { authorization }, "HEAD");
   assert.equal(head.status, 200); assert.equal(head.body, "");
   const rsc = await get(admin, "/admin?_rsc=allowed", { authorization, RSC: "1" });

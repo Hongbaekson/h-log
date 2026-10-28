@@ -188,7 +188,7 @@
     {
       "dir": "admin-operations-control",
       "status": "pending",
-      "summary": "2026-10-22 plan registered: real job/audit inspection, bounded retry and claim pause, existing observability integration, local release rehearsal and approved admin-host rollout. Steps 0-3 pending; Step 4 blocked by OCI hold. No Docker/shell control from web and no timer/provider activation implied."
+      "summary": "2026-10-28 Step 0 completed: owner-only bounded job/audit/UTC usage inspection with safe projections, exact versions, expired leases and honest unknown/stale/error states. Steps 1-3 pending; Step 4 blocked by OCI hold. Next: Step 1 bounded retry and claim pause. No web shell/Docker controls, monitoring activation, provider calls or timer activation."
     },
     {
       "dir": "admin-resume-pdf",
@@ -213,7 +213,7 @@
     {
       "dir": "operations-observability",
       "status": "pending",
-      "summary": "2026-10-26 Step 0 contract completed after live source/schema and PDF resource review. Required-six publishing proof, atomic host summaries, minimal read-only collection, missing/unknown/stale/disabled semantics and separate 1 GiB memory/3 GiB disk budget are specified. Runtime remains unimplemented; Steps 1-6 pending and Step 7 blocked by OCI hold. General next: admin-operations-control Step 0; monitoring-track next: Step 1. Complete local monitoring before admin-operations-control Step 2 and approved production monitoring before admin rollout/timer activation."
+      "summary": "2026-10-26 Step 0 contract completed after live source/schema and PDF resource review. Required-six publishing proof, atomic host summaries, minimal read-only collection, missing/unknown/stale/disabled semantics and separate 1 GiB memory/3 GiB disk budget are specified. Runtime remains unimplemented; Steps 1-6 pending and Step 7 blocked by OCI hold. General next: admin-operations-control Step 1; monitoring-track next: Step 1. Complete local monitoring before admin-operations-control Step 2 and approved production monitoring before admin rollout/timer activation."
     },
     {
       "dir": "second-brain-foundation",

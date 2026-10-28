@@ -20,12 +20,12 @@ export default async function AdminPage() {
       </section>
       <p className="admin-access-help"><Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/lab/queue" prefetch={false}>Queue 실험실 열기</Link> · 가상 작업의 실패와 재처리를 살펴볼 수 있습니다. 실제 운영 작업과는 연결되지 않습니다.</p>
       <section className="admin-next" aria-labelledby="admin-next-title">
-        <div><CircleDashed size={19} aria-hidden="true" /><h2 id="admin-next-title">이어서 추가할 기능</h2></div>
+        <div><CircleDashed size={19} aria-hidden="true" /><h2 id="admin-next-title">관리할 수 있는 항목</h2></div>
         <ul>
           <li><strong>글과 이력서 관리</strong><p><Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/posts" prefetch={false}>블로그 검토</Link>에서 글을 수정하고, 확인한 버전의 발행을 요청할 수 있습니다. <Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/resume" prefetch={false}>이력서 PDF 보관함</Link>에서는 파일을 등록·검토하고 공개본을 선택하거나 해제할 수 있습니다.</p></li>
-          <li><strong>자동 작성과 작업 관리</strong><p><Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/automation" prefetch={false}>자동 작성</Link>에서 비공개 초안을 요청할 수 있습니다. 정기 작성 허용, 작업 조회와 재시도, 모니터링은 차례로 연결합니다.</p></li>
+          <li><strong>자동 작성과 작업 관리</strong><p><Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/automation" prefetch={false}>자동 작성</Link>에서 비공개 초안을 요청하고 작성·발행·새 작업 허용 여부를 설정할 수 있습니다. <Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/jobs" prefetch={false}>작업 원장</Link>에서 상태와 처리 기한을, <Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/audit" prefetch={false}>변경 이력</Link>에서 명령과 기록된 비용을 확인합니다.</p></li>
         </ul>
-        <p className="admin-note">준비 중인 기능은 아직 사용할 수 없습니다. 실제 운영 상태는 각 기능이 연결된 뒤 표시합니다.</p>
+        <p className="admin-note">실패 작업 재시도와 모니터링은 준비 중입니다. 작업 조회만으로 워커의 생존 상태를 판단하지 않습니다.</p>
       </section>
       <details className="admin-access-help"><summary>공용 기기에서 사용했다면</summary><p>브라우저가 인증 정보를 기억할 수 있습니다. 전용 프로필이나 비공개 창을 사용하고, 사용 후 창을 닫아 주세요. 접근 키가 노출됐다면 서버에서 키를 교체해야 합니다.</p></details>
     </div>

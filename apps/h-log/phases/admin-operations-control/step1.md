@@ -23,6 +23,12 @@
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/phases/admin-operations-control/index.json`
 - `apps/h-log/phases/admin-operations-control/step0.md`
+- `apps/h-log/lib/blog-admin-operations.ts`
+- `apps/h-log/lib/blog-admin-operations-server.ts`
+- `apps/h-log/lib/blog-admin-operations.integration.test.ts`
+- `apps/h-log/app/admin/jobs/page.tsx`
+- `apps/h-log/lib/blog-automation-policy.ts`
+- `apps/h-log/.codex/docs/harness/AUTOMATION_POLICY.md`
 - `apps/h-log/lib/blog-persistent-worker.ts`
 - `apps/h-log/lib/blog-persistent-worker.integration.test.ts`
 - `apps/h-log/lib/blog-required-publish-job-adapter.ts`
@@ -68,3 +74,7 @@ git diff --check
 ## 다음 단계
 
 operations-observability Steps 1–6, 이후 A3 Step 2. 전체 순서는 [통합 관리자 계획](../../.codex/docs/harness/ADMIN_CONSOLE_PLAN.md)을 따른다.
+
+## A3 Step 0 인계
+
+작업/감사 조회는 완료했으며 표시용 식별자는 원시 ID의 요약 hash다. 명령용 인증/대상 식별자로 간주하지 않는다. 기존 조회의 raw 오류·사유 비노출, unknown/미관측/stale 구분과 원장 보존을 유지한다. A2가 구현한 새 작업 정책과 공개 후 보호 경로를 재사용하며, 운영 rollout/모니터링 선행 순서는 바꾸지 않는다.

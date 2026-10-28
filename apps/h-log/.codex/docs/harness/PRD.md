@@ -254,3 +254,7 @@ Feedback Steps 0-2의 synthetic contract 이력은 남기되, live caller와 pro
 2026-10-28 A2 Step 3 완료: 초안 생성·자동 공개·새 작업 처리를 기본 OFF의 DB 정책으로 분리했다. 요청한 설정/서버 상한을 반영한 실제 허용·차단 이유·확인 시각과 실행 예약 당시 revision을 표시한다. 정책 변경과 요청/lease admission을 같은 row lock으로 직렬화하고 관리자·CLI·일일 실행·worker에 적용했다. 자동 공개 OFF 또는 생성 중 중지 시 drafted/작업 0개로 저장하며 공개 전이를 재확인한다. 공개 후 필수 검증·실패 시 숨김·철회는 중지/정책 조회 실패에도 보존한다. 단위 252 pass/23 DB skip, 격리 integration 25/25, dev/prod draft·policy HTTP 각 1/1, production admin HTTP 4/4, lint/typecheck/build와 1440/390/320px 검수를 통과했다. A2 전체 완료, 관리자 completed 12·pending 4·blocked 1이며 다음은 **A3 Step 0: job-and-audit-inspection**다. 운영 migration·provider·배포·공개 발행·timer는 실행하지 않았다.
 
 [자동화 정책 계약](AUTOMATION_POLICY.md)에 환경 상한·admission·공개 보호·복구 제한을 기록했다.
+
+## 작업·감사 조회 구현 — 2026-10-28
+
+A3 Step 0 완료: 소유자는 `/admin/jobs`에서 실제 작업 상태·대상/공개 버전·lease를, `/admin/audit`에서 명령/정책 변경과 기록된 비용·한도를 조회한다. 0건·미관측·오래된 값·DB 오류·비용 미상을 구분하고 원문/credential/원시 오류는 표시하지 않는다. 조회 화면에는 명령을 추가하지 않았다. 다음은 A3 Step 1이며 세부 검증은 해당 phase 완료 기록을 따른다.

@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "job-and-audit-inspection",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-28: owner-only /admin/jobs and /admin/audit read real job/action/usage ledgers in bounded read-only snapshots. Exact target/current/public versions, lease expiry, safe failure categories, requested policy revisions and UTC cost/unknown/limits are distinct from worker liveness. No commands, raw content/error/reason/identifiers or new monitoring schema. RED/GREEN, unit 255 pass/24 DB skip, integration 26/26, dev HTTP 1/1, production HTTP 5/5, lint/typecheck/build and 1440/390/320px/keyboard/error/stale checks passed. Next: Step 1; operations hold preserved."
     },
     {
       "step": 1,
