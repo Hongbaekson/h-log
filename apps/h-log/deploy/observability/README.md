@@ -1,6 +1,6 @@
 # 비공개 모니터링 로컬 실행
 
-`operations-observability / Steps 1–2` 구성이다. 기본 파일은 Prometheus self-scrape와 Grafana datasource를 연결하고, 명시적으로 추가하는 probes overlay가 CPU·메모리·Docker 저장소·DB·HTTP/TLS를 수집한다. 발행·비용·백업 신호, 대시보드와 알림은 후속 step이다. OCI 적용이나 timer 활성화 절차가 아니다.
+`operations-observability / Steps 1–3` 구성이다. 기본 파일은 Prometheus/Grafana, probes overlay는 host/DB/HTTP/TLS, publishing overlay는 작업·비용·실행 기록을 수집한다. 백업·복구 신호, 대시보드와 알림은 후속 step이다. OCI 적용이나 timer 활성화 절차가 아니다.
 
 ## 고정 이미지
 
@@ -118,3 +118,46 @@ npm run test:observability:probes
 Docker와 OpenSSL이 필요하다. Windows 기본값은 Git의 `usr/bin/openssl.exe`이며 `HLOG_TEST_OPENSSL`로 명시할 수 있다. 테스트가 저장소 밖 임시 비밀번호·2일짜리 TLS 인증서를 만들고 전용 `hlog-observe-probes-local` project를 정리한다. 기존 project가 있으면 거부한다. DB fixture는 tmpfs이며 앱 DB에 접근하지 않는다. Grafana의 loopback 포트 기본값은 3030이다.
 
 검증은 real SQL 권한 거부(본문/쓰기/일반·임시 table/schema), 실제 lock 대기, 3초 slow-query 취소, 정상 host/DB 지표, 고정 synthetic home/DB-backed blog, 정상 CA/임박 expiry·503·5초 timeout·redirect 거부, DB 중단과 exporter 중단의 구분을 포함한다. DB collector의 60초 주기는 그대로다. 테스트용 Prometheus만 10초 scrape로 바꾸며 배포 설정의 60초를 별도로 검사한다. 저장 series의 고정 label·canary/credential 로그 누락과 read-only mount·무 egress도 확인한다. 공개 ingress와 Grafana 인증·재생성 보존은 Step 1 smoke가 맡는다.
+
+## Step 3: 발행·비용과 실행 기록
+
+`compose.observability-publishing.yaml`을 두 모니터링 파일 뒤에 명시적으로 추가한다. Collector는 동일한 read-only transaction 안에서 `publishing-views.sql`의 세 집계 view를 읽는다. Migration `012_observability_signals` 적용 후 DB 소유자가 이 view를 설치해야 한다. Bootstrap과 마찬가지로 현재 검증 대상은 새 로컬 DB다. 운영 migration은 별도 승인 대상이다.
+
+- 작업은 현재 버전만 집계한다. 처리 가능한 글의 queued/retrying 최초 대기 시각, 시각 미상 수, 만료된 running lease를 구분한다. 기존 작업의 `enqueued_at`은 NULL이고 새 INSERT부터 DB가 시각을 채운다. 재시도/claim은 그 값을 바꾸지 않는다.
+- 비용은 UTC 일/월 경계부터 현재 시각까지 합산한다. `cost_basis`는 명시적인 provider 근거를 보존하며 기존 0원은 구독 포함으로 추정하지 않는다. 알려진 금액 합계와 unknown 건수는 겹칠 수 있다. 한도 0은 유효한 차단, 빈 설정은 무제한, 잘못된 값은 invalid다. Collector에는 자동 발행과 같은 두 `HLOG_*_ESTIMATED_COST_LIMIT` 값만 전달한다. 전체 provider 환경 파일을 수집기에 연결하지 않는다.
+- `source=db,autopublish,expectations`는 각각 수집한다. DB 중단 중에도 파일 신호를 읽고, 실패한 source는 성공 flag 0·기존 timestamp와 최대 180초 캐시를 유지한 뒤 업무 값을 생략한다. 읽기 성공 시각과 오래된 마지막 발행 성공은 별개다.
+- 성공은 이번 실행에서 생성한 글의 current/published 버전, 필수 6종의 존재·성공, 불변 본문 hash를 한 snapshot에서 확인한 경우다. 중복·idle·초안·budget 차단은 성공을 갱신하지 않는다. 실패 단계는 `hlog_batch_stage`, 결과는 `hlog_batch_result`로 구분한다. 본문·ID·URL·provider label은 내보내지 않는다.
+
+### Host 파일과 실행 hook
+
+Linux host의 Python 3 표준 라이브러리만 사용하며 pip 패키지는 없다. 개발용 Linux fixture에서는 고정 Python 이미지를 사용했다. OCI host의 Python 설치·systemd 버전·실제 service 실행은 Step 7 검수 대상이다.
+
+승인된 설치 시 `hlog-ops` 사용자와 `hlog-observe` 그룹을 준비한다. `/var/lib/hlog-observability`는 `hlog-ops:hlog-observe`, 0750, JSON/lock은 0640이다. 하위 `evidence`는 2770(setgid)으로 만들고 cycle에 이 디렉터리만 쓰기 가능하게 mount한다. Collector에는 상위 디렉터리 전체를 read-only로 mount한다. 두 컨테이너에 같은 그룹의 숫자 GID를 추가한다. Host helper만 요약을 쓰고 cycle은 증거 파일만 쓴다.
+
+`/etc/hlog/observability.env`에는 `HLOG_OBSERVABILITY_STATE_DIR=/var/lib/hlog-observability`와 실제 `HLOG_OBSERVABILITY_GID`를 넣는다. Compose를 수동 실행하는 환경에도 같은 값을 제공한다. 운영자에게 Docker와 앱 환경 파일을 사용할 권한이 있어야 한다. `docker` 그룹은 강한 host 권한이므로 비특권 파일 writer와 Docker 운영자를 보안 격리했다고 해석하지 않는다.
+
+선택형 [systemd drop-in](../systemd/hlog-auto-publish.service.d/observability.conf)은 첫 ExecStartPre에서 시작을 기록한 뒤 기존 auth 검사를 실행한다. ExecStopPost는 preflight 실패도 기록한다. Hook은 best-effort이며 저장 실패가 발행 실행·종료 코드·재시도를 바꾸지 않는다. 전원 차단은 완료 기록이 없는 running으로 남는다. 기록 자체가 실패하면 누락/오래된 시각을 확인해야 한다. 기존 timer 설정은 그대로이며 이번 단계에서는 drop-in을 설치하거나 timer를 켜지 않았다.
+
+`autopublish.json`과 `evidence/autopublish.json`은 helper/cycle이 관리한다. 기대 상태는 운영자가 별도로 관리하는 `expectations.json`이다. 초기 비활성 값은 아래와 같다. 활성화 시 실제 승인 시각을 epoch seconds로 기록한다. 임의 성공 파일을 만들지 않는다.
+
+```json
+{"schema_version":1,"autopublish":{"enabled":false,"enabled_at":0,"maintenance_from":0,"maintenance_until":0}}
+```
+
+Expectation도 `scripts/observability-state.py`의 `atomic_write`로 같은 filesystem에서 교체한다. 파일 누락/손상은 disabled가 아니다. enabled 기록만 있고 summary가 없으면 첫 실행 전으로 해석한다. KST 09:00 slot/09:30 deadline을 사용하며 09:10 활성화는 다음 날부터다. 재부팅 시 가장 최근 도래한 slot만 인정한다. 정비는 최대 24시간이고 정비 전 실패를 지우지 않는다. 수동 실행은 `python3 scripts/observability-state.py run -- <command>`로 감싸며 Docker에는 `-e HLOG_OBSERVABILITY_INVOCATION_ID`를 전달한다. 같은 publishing overlay를 사용한다. 수동 성공은 scheduled slot을 채우지 않는다.
+
+요약 교체에는 flock, file fsync, atomic rename, directory fsync를 사용한다. 파일은 32 KiB 이하이며 symlink·FIFO·손상·미래 시각을 정상값으로 읽지 않는다. 기록 실패는 원문 없는 고정 오류를 남긴다. 강제 전원 차단 때 남을 수 있는 `.tmp`의 정리와 state 디스크 예산은 Step 6 장애/자원 검수 항목이다. JSON은 감사 이력이나 발행 DB의 대체물이 아니다.
+
+### Step 3 격리 검증
+
+```powershell
+# DATABASE_URL은 전용 로컬 disposable DB에만 설정한다.
+npm run test:observability:publishing
+$env:HLOG_OBSERVABILITY_STATE_TEST = '1'
+npm run test:observability:state
+$env:HLOG_OBSERVABILITY_PROBES_SMOKE = '1'
+$env:HLOG_OBSERVABILITY_PUBLISHING_SMOKE = '1'
+npm run test:observability:probes
+```
+
+State test는 네트워크 없는 비특권 Linux 컨테이너와 tmpfs에서 실행한다. Publishing smoke는 가짜 provider와 실제 generation/worker/필수 adapter, host helper, 읽기 전용 collector, Prometheus를 연결한다. 중복 실행의 성공 보존, 컨테이너 재생성, 손상된 summary의 invalid/업무 series 생략, DB 중단 중 파일 수집, label/log 개인정보 경계를 확인한다. 실제 provider·운영 공개·scheduler는 사용하지 않는다. 검증 결과는 [Step 3 완료 기록](../../phases/operations-observability/step3.md)에 남긴다.

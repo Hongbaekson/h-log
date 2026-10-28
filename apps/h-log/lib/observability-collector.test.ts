@@ -1,8 +1,25 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createDatabaseCollector, createMetricsHandler, readDatabaseMetrics } from "./observability-collector.ts";
+import { createDatabaseCollector, createMetricsHandler, createSourceCollector, readDatabaseMetrics } from "./observability-collector.ts";
 import { createServer } from "node:http";
 import { once } from "node:events";
+
+test("file sources distinguish missing/invalid and preserve the last valid snapshot timestamp", async () => {
+  let now = 1_000_000, mode = "ready";
+  const source = createSourceCollector("autopublish", async () => {
+    if (mode !== "ready") throw Object.assign(new Error("SECRET"), { code: mode });
+    return "hlog_autopublish_last_success_timestamp_seconds 900\n";
+  }, () => now);
+  await source.collect();
+  mode = "ENOENT"; now += 60000; await source.collect();
+  assert.match(source.metrics(), /state="missing"} 1/);
+  assert.match(source.metrics(), /last_success_timestamp_seconds 900/);
+  mode = "INVALID_METRICS"; now += 60000; await source.collect();
+  assert.match(source.metrics(), /state="invalid"} 1/);
+  now += 60001;
+  assert.doesNotMatch(source.metrics(), /hlog_autopublish_|SECRET/);
+  assert.match(source.metrics(), /collected_timestamp_seconds\{source="autopublish"} 1000/);
+});
 
 test("collection preserves freshness on failure and removes expired values instead of fabricating zero", async () => {
   let now = 1_000_000;

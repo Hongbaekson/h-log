@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test": "node --no-warnings --test --experimental-strip-types lib/**/*.test.ts",
-    "test:integration": "node -e \"if (!process.env.DATABASE_URL) { console.error('DATABASE_URL is required for integration tests'); process.exit(1) }\" && npm run test:migrations && npm run test:repository && npm run test:public-read-path && npm run test:worker && npm run test:dry-run && npm run test:brain && npm run test:resume && npm run test:admin:posts && npm run test:editorial && npm run test:drafts && npm run test:automation && npm run test:admin:operations && npm run test:jobs:retry",
+    "test:integration": "node -e \"if (!process.env.DATABASE_URL) { console.error('DATABASE_URL is required for integration tests'); process.exit(1) }\" && npm run test:migrations && npm run test:repository && npm run test:public-read-path && npm run test:worker && npm run test:dry-run && npm run test:brain && npm run test:resume && npm run test:admin:posts && npm run test:editorial && npm run test:drafts && npm run test:automation && npm run test:admin:operations && npm run test:jobs:retry && npm run test:observability:publishing",
     "test:jobs:retry": "node --no-warnings --experimental-strip-types --test lib/blog-job-retry.integration.test.ts",
     "test:jobs:retry:http": "node --test scripts/blog-job-retry.http.test.mjs",
     "test:observability:stack": "node --test scripts/observability-stack.test.mjs",
@@ -42,7 +42,9 @@
     "auto-publish:once": "node --no-warnings --experimental-strip-types scripts/blog-auto-publish.mjs --once",
     "dry-run:local": "node --no-warnings --experimental-strip-types scripts/blog-local-dry-run.mjs",
     "worker:once": "node --no-warnings --experimental-strip-types scripts/blog-worker.mjs --once",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:observability:publishing": "node --no-warnings --experimental-strip-types --test lib/observability-publishing.integration.test.ts",
+    "test:observability:state": "node --test scripts/observability-state.test.mjs"
   },
   "dependencies": {
     "d3-force-3d": "3.0.6",

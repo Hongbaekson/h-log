@@ -96,6 +96,7 @@ describe("Hermes article provider", () => {
     );
     assert.deepEqual(result.output, writerOutput);
     assert.deepEqual(result.usage, {
+      costBasis: "included",
       estimatedCost: 0,
       inputTokens: 123,
       model: "gpt-5.6-sol",

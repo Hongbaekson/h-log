@@ -195,6 +195,7 @@ function parseHermesUsageReport(
   }
 
   return {
+    costBasis: "included",
     estimatedCost: 0,
     inputTokens: toNullableTokenCount(value.input_tokens),
     model: invocation.model,

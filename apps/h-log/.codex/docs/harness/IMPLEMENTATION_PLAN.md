@@ -1,6 +1,6 @@
 # Implementation Plan: H-Log Harness Baseline
 
-2026-10-28 모니터링 Step 2 완료: 선택형 probes overlay와 고정 Node/PostgreSQL/Blackbox Exporter, 기존 Node/pg 기반 별도 collector를 구현했다. CPU·메모리 통계 파일 3개와 내용 없는 Docker volume만 읽고 host root는 연결하지 않는다. 최소 DB 계정·집계 view, 60초 수집/3초 statement·5초 transaction 제한, 실패 시 timestamp 보존과 180초 stale 생략을 검증했다. 고정 home/blog의 HTTP 실패·timeout·redirect·임박 TLS, 실제 잠금·권한 거부·DB/수집기 중단·label/log 경계를 격리 검증했다. 단위 260 pass/25 DB skip, 전체 DB integration, lint/typecheck/build 통과. 모니터링 completed 3·pending 4·blocked 1이며 다음은 **operations-observability Step 3: durable-publishing-signals**다. 관리자 상태 14·2·1, OCI·provider·발행·timer 보류는 유지한다.
+2026-10-28 모니터링 Step 3 완료: migration 012의 최초 대기 시각·비용 근거, 현재 버전의 읽기 전용 집계, DB 밖 atomic 실행 기록과 선택형 systemd hook을 구현했다. 이번 실행의 공개 버전·필수 6종·본문 hash를 확인한 경우만 성공으로 기록한다. 가짜 provider부터 실제 worker·host helper·Prometheus까지 연결하고 중복/재생성/손상/DB 중단을 검증했다. 단위 268 pass/26 DB skip, 전체 DB integration, Linux state 8개·파일 6개, lint/typecheck/build 통과. 모니터링 completed 4·pending 3·blocked 1이며 다음은 **operations-observability Step 4: backup-and-restore-signals**다. 관리자 14·2·1과 OCI·실제 provider·발행·timer 보류는 유지한다.
 
 2026-10-28 모니터링 Step 1 완료: 선택형 Compose에 고정 Prometheus 3.13.5/Grafana 12.4.13, self-scrape·datasource·별도 volume·자원 제한을 추가했다. Docker 29의 internal-only 포트 미생성 문제는 localhost 전용 Nginx 진입점으로 해결하고 Grafana/Prometheus의 egress 차단을 유지했다. 기본 서비스/profile 보존, promtool·실제 인증/수집/ingress·재생성 후 과거 지표/Grafana 저장 자료 보존을 격리 smoke 1/1로 확인했다. 설정·문서 범위이며 앱/DB/worker/UI는 변경하지 않았다. 모니터링은 completed 2·pending 5·blocked 1, 관리자 상태는 14·2·1 그대로다. **다음은 operations-observability Step 2: host-database-http-probes**다. 운영 적용·외부 알림·실제 provider·발행·timer는 실행하지 않았다.
 
@@ -183,7 +183,7 @@ public-surface-refactor-pruning: completed, native legacy redirects and shared b
 discord-design-preview: completed Home/shared-shell design and browser screenshots; user accepted the design and requested commit/push; production deployment verification remains separate
 local-blog-design-verification: completed, populated Blog/public boundaries and desktop/mobile interaction verified; long list/search title clipping fixed with browser RED/GREEN and all required gates passed
 generation-input-freshness: completed, Step 0 rejects expired/future/invalid research before daily generation side effects; local and isolated DB gates passed
-operations-observability: pending, Steps 0-2 completed; private stack and host/DB/HTTP probes verified; Steps 3-6 pending; Step 7 blocked by OCI hold; next general step Step 3; verified production monitoring required before timer activation
+operations-observability: pending, Steps 0-3 completed; private stack, host/DB/HTTP and durable publishing/cost signals verified; Steps 4-6 pending; Step 7 blocked by OCI hold; next general step Step 4; verified production monitoring required before timer activation
 terraform-infrastructure-adoption: blocked by user's OCI hold; Steps 0-1 and Step 2 preparation preserved, no cloud apply/import executed
 auto-publish-ops-hardening: pending, steps 0-3 completed, Step 4 canary/rollback completed and timer deferred
 feedback-and-persona-learning: completed history, Steps 0-2 later pruned

@@ -2,14 +2,22 @@ import { spawn } from "node:child_process";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { runAutoPublishCycle } from "../lib/blog-auto-publish-cycle.ts";
+import pg from "pg";
+import { runObservedPublishCycle, writeCycleEvidence } from "../lib/observability-cycle.ts";
+import { verifyPublication } from "../lib/observability-publishing.ts";
 
 if (process.argv.slice(2).join(" ") !== "--once") {
   throw new Error("blog auto publish cycle requires --once");
 }
 
 const scriptsDirectory = dirname(fileURLToPath(import.meta.url));
-const result = await runAutoPublishCycle({
+const result = await runObservedPublishCycle({
+  write: writeCycleEvidence,
+  verify: async candidate => {
+    if (!process.env.HLOG_OBSERVABILITY_EVIDENCE_DIR) return false;
+    const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, max: 1, connectionTimeoutMillis: 2000, statement_timeout: 3000, query_timeout: 5000, options: "-c default_transaction_read_only=on" });
+    try { return await verifyPublication(pool, candidate); } finally { await pool.end(); }
+  },
   generate: async () => {
     const output = await runJsonScript("blog-auto-publish.mjs");
 
@@ -21,7 +29,7 @@ const result = await runAutoPublishCycle({
       throw new Error("auto publish generation did not return a status");
     }
 
-    return { postId: output.postId, status: output.status };
+    return { postId: output.postId, status: output.status, versionId: typeof output.versionId === "string" ? output.versionId : null };
   },
   runRequiredWorkerOnce: async (postId) => {
     const output = await runJsonScript("blog-worker.mjs", {

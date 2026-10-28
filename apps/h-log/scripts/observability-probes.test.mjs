@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { randomBytes } from "node:crypto";
-import { mkdtemp, readFile, writeFile, readdir, unlink, rmdir, chmod } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, writeFile, readdir, unlink, rmdir, chmod } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
@@ -9,6 +9,9 @@ import { promisify } from "node:util";
 import test from "node:test";
 import pg from "pg";
 import { readDatabaseMetrics } from "../lib/observability-collector.ts";
+import { runBlogMigrations } from "./blog-migrations.mjs";
+import { publishingFixture } from "./observability-publishing.fixture.mjs";
+import { runObservedPublishCycle } from "../lib/observability-cycle.ts";
 
 const app = resolve(import.meta.dirname, "..");
 const project = "hlog-observe-probes-local";
@@ -37,12 +40,14 @@ test("isolated host/DB/HTTP probes enforce permissions, privacy and distinguish 
   const collectorPassword = randomBytes(24).toString("hex");
   const base = JSON.parse(await docker(["compose", "-f", "compose.yaml", "config", "--format", "json"]));
   const fixture = path("compose.json");
-  const compose = ["compose", "-p", project, "-f", "compose.observability.yaml", "-f", "compose.observability-probes.yaml", "-f", fixture, "--profile", "observability"];
-  const envKeys = ["HLOG_GRAFANA_PASSWORD_FILE", "HLOG_EXPORTER_URI_FILE", "HLOG_EXPORTER_PASSWORD_FILE", "HLOG_COLLECTOR_DSN_FILE"];
+  const publishing = process.env.HLOG_OBSERVABILITY_PUBLISHING_SMOKE === "1";
+  const compose = ["compose", "-p", project, "-f", "compose.observability.yaml", "-f", "compose.observability-probes.yaml", ...(publishing ? ["-f", "compose.observability-publishing.yaml"] : []), "-f", fixture, "--profile", "observability"];
+  const envKeys = ["HLOG_GRAFANA_PASSWORD_FILE", "HLOG_EXPORTER_URI_FILE", "HLOG_EXPORTER_PASSWORD_FILE", "HLOG_COLLECTOR_DSN_FILE", "HLOG_OBSERVABILITY_STATE_DIR", "HLOG_OBSERVABILITY_GID", "HLOG_DAILY_ESTIMATED_COST_LIMIT", "HLOG_MONTHLY_ESTIMATED_COST_LIMIT"];
   const oldEnv = envKeys.map(key => process.env[key]);
   let admin;
   let pool;
   let integration;
+  let expectedSuccess;
   try {
     for (const [key, name, content] of [
       [envKeys[0], "grafana-password", password],
@@ -52,6 +57,14 @@ test("isolated host/DB/HTTP probes enforce permissions, privacy and distinguish 
     ]) { await writeFile(path(name), content, { mode: 0o444 }); process.env[key] = path(name); }
     await writeFile(path("db-password"), password, { mode: 0o444 });
     await writeFile(path("mode"), "normal");
+    if (publishing) {
+      await mkdir(path("state"), { mode: 0o750 });
+      process.env.HLOG_OBSERVABILITY_STATE_DIR = path("state");
+      process.env.HLOG_OBSERVABILITY_GID = "1000";
+      process.env.HLOG_DAILY_ESTIMATED_COST_LIMIT = "1";
+      process.env.HLOG_MONTHLY_ESTIMATED_COST_LIMIT = "10";
+      await writeFile(path("state/expectations.json"), JSON.stringify({ schema_version: 1, autopublish: { enabled: true, enabled_at: Math.floor(Date.now()/86400000)*86400-60, maintenance_from: 0, maintenance_until: 0 } }), { mode: 0o640 });
+    }
     const openssl = process.env.HLOG_TEST_OPENSSL || (process.platform === "win32" ? "C:/Program Files/Git/usr/bin/openssl.exe" : "openssl");
     await execute(openssl, ["req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "2", "-subj", "/CN=hlog-web", "-addext", "subjectAltName=DNS:hlog-web", "-keyout", path("key.pem"), "-out", path("cert.pem")]);
     await chmod(path("key.pem"), 0o444);
@@ -105,6 +118,28 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
     await admin.connect();
     await admin.query(await readFile(resolve(app, "deploy/observability/database-roles.sql"), "utf8"));
     await admin.query(`ALTER ROLE hlog_metrics_exporter LOGIN PASSWORD '${exporterPassword}'; ALTER ROLE hlog_metrics_collector LOGIN PASSWORD '${collectorPassword}'; CREATE TABLE private_content (body text); INSERT INTO private_content VALUES ('PRIVATE_CANARY');`);
+    if (publishing) {
+      await runBlogMigrations(localUrl);
+      await admin.query(await readFile(resolve(app, "deploy/observability/publishing-views.sql"), "utf8"));
+      const hostState = (action, invocation) => docker(["run", "--rm", "--network", "none", "--read-only", "--user", "1000:1000", "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--mount", `type=bind,source=${resolve(app, 'scripts')},target=/scripts,readonly`, "--mount", `type=bind,source=${path('state')},target=/state`, "-e", `INVOCATION_ID=${invocation}`, "-e", "SERVICE_RESULT=success", "-e", "EXIT_CODE=exited", "-e", "EXIT_STATUS=0", "-e", "PYTHONDONTWRITEBYTECODE=1", "python:3.14-alpine@sha256:bc62fbcb684904b1bb81a6240041bb60e9c1ee19ddeaf17a6b4297e1cc9c95d2", "python", "/scripts/observability-state.py", "--directory", "/state", action]);
+      let invocation = 'a'.repeat(32);
+      await hostState('start', invocation);
+      const writer = evidence => writeFile(path('state/evidence/autopublish.json'), JSON.stringify({ schema_version: 1, invocation_id: invocation, ...evidence }), { mode: 0o640 });
+      const fixturePool = new pg.Pool({ connectionString: localUrl });
+      try {
+        const options = await publishingFixture(fixturePool, writer);
+        await hostState('finish', invocation);
+        const success = JSON.parse(await readFile(path('state/autopublish.json'), 'utf8'));
+        assert.equal(success.result, 'succeeded'); expectedSuccess = success.last_success_at;
+        invocation = 'b'.repeat(32);
+        await hostState('start', invocation);
+        await runObservedPublishCycle(options);
+        await hostState('finish', invocation);
+        const duplicate = JSON.parse(await readFile(path('state/autopublish.json'), 'utf8'));
+        assert.equal(duplicate.result, 'skipped'); assert.equal(duplicate.last_success_at, expectedSuccess);
+      } finally { await fixturePool.end(); }
+      console.log('PASS: fake provider, six real required checks, durable success and duplicate preservation');
+    }
     for (const [role, secret] of [["hlog_metrics_exporter", exporterPassword], ["hlog_metrics_collector", collectorPassword]]) {
       const url = new URL(localUrl); url.username = role; url.password = secret;
       const client = new pg.Client({ connectionString: url.toString() });
@@ -119,7 +154,12 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
     }
     const collectorUrl = new URL(localUrl); collectorUrl.username = "hlog_metrics_collector"; collectorUrl.password = collectorPassword;
     pool = new pg.Pool({ connectionString: collectorUrl.toString(), max: 1, connectionTimeoutMillis: 2000 });
-    assert.ok((await readDatabaseMetrics(pool)).maxConnections > 0);
+    assert.ok((await readDatabaseMetrics(pool, publishing)).maxConnections > 0);
+    if (publishing) {
+      const restricted = await pool.connect();
+      try { for (const sql of ['SELECT * FROM posts', 'SELECT * FROM usage_events', "UPDATE publish_jobs SET status='failed'"]) await assert.rejects(restricted.query(sql), error => error.code === '42501' || error.code === '25006'); }
+      finally { restricted.release(); }
+    }
     // A real blocked lock appears in the aggregate, without query text or backend identifiers.
     const lock = new pg.Client({ connectionString: localUrl });
     const waiter = new pg.Client({ connectionString: localUrl });
@@ -158,6 +198,24 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
     await value("pg_up", 1);
     await value('hlog_metrics_collection_success{source="db"}', 1);
     await value('count(probe_success == 1)', 2);
+    if (publishing) {
+      await value('hlog_metrics_collection_success{source="autopublish"}', 1);
+      await value('hlog_autopublish_last_success_timestamp_seconds', expectedSuccess);
+      await value('hlog_usage_included_events{window="day"}', 1);
+      await value('hlog_batch_result{result="skipped"}', 1);
+      await value('sum(hlog_publish_jobs{state="succeeded",importance="required"})', 6);
+      await docker([...compose, 'up', '-d', '--no-deps', '--force-recreate', 'hlog-metrics']);
+      await value('hlog_autopublish_last_success_timestamp_seconds', expectedSuccess);
+      const original = await readFile(path('state/autopublish.json'), 'utf8');
+      await writeFile(path('state/autopublish.json'), '{');
+      await docker([...compose, 'up', '-d', '--no-deps', '--force-recreate', 'hlog-metrics']);
+      await value('hlog_metrics_source_state{source="autopublish",state="invalid"}', 1);
+      await value('hlog_metrics_collection_success{source="db"}', 1);
+      await eventually(async () => assert.equal((await query('hlog_autopublish_last_success_timestamp_seconds')).length, 0));
+      await writeFile(path('state/autopublish.json'), original);
+      await docker([...compose, 'up', '-d', '--no-deps', '--force-recreate', 'hlog-metrics']);
+      await value('hlog_autopublish_last_success_timestamp_seconds', expectedSuccess);
+    }
     assert.ok(Number((await query("node_memory_MemTotal_bytes"))[0]?.value[1]) > 0);
     assert.ok((await query("node_filesystem_size_bytes")).length > 0);
     const nodeContainer = await inspect("node-exporter");
@@ -187,7 +245,7 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
       assert.ok(routes.split("\n").slice(1).every(line => line.trim().split(/\s+/)[1] !== "00000000"));
     }
     const series = await query('{__name__=~".+"}');
-    const allowed = new Set(["__name__", "job", "instance", "cpu", "mode", "mountpoint", "database", "source", "state", "target"]);
+    const allowed = new Set(["__name__", "job", "instance", "cpu", "mode", "mountpoint", "database", "source", "state", "target", "job_type", "importance", "window", "task", "result", "stage"]);
     for (const sample of series) {
       assert.ok(Object.keys(sample.metric).every(key => allowed.has(key)), JSON.stringify(sample.metric));
       assert.doesNotMatch(JSON.stringify(sample.metric), /postgresql|hlog-postgres|hlog-web|PRIVATE_CANARY|127\.0\.0\.1|datid|datname/);
@@ -197,6 +255,10 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
     await value("pg_up", 0);
     await value('up{job="database"}', 1);
     await value('hlog_metrics_collection_success{source="db"}', 0);
+    if (publishing) {
+      await value('hlog_metrics_collection_success{source="autopublish"}', 1);
+      await value('hlog_autopublish_last_success_timestamp_seconds', expectedSuccess);
+    }
     await value('probe_success{target="blog"}', 0);
     await value('probe_success{target="home"}', 1);
     await docker([...compose, "stop", "postgres-exporter", "blackbox-exporter"]);
@@ -212,6 +274,13 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
     await docker([...compose, "down", "--volumes", "--timeout", "15"]);
     envKeys.forEach((key, index) => { if (oldEnv[index] === undefined) delete process.env[key]; else process.env[key] = oldEnv[index]; });
     // Only files created in our unique scratch directory; no recursive deletion.
+    if (publishing) {
+      const evidence = path('state/evidence');
+      for (const name of await readdir(evidence).catch(() => [])) await unlink(resolve(evidence, name));
+      await rmdir(evidence).catch(() => undefined);
+      for (const name of await readdir(path('state')).catch(() => [])) await unlink(path(`state/${name}`));
+      await rmdir(path('state')).catch(() => undefined);
+    }
     for (const name of await readdir(scratch)) await unlink(resolve(scratch, name));
     await rmdir(scratch);
   }

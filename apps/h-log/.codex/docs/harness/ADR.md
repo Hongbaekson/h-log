@@ -405,7 +405,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **A2 Step 2 구현 (2026-10-27)**: 실제 웹 요청과 소비자를 함께 구현하면서 migration 009에 검증된 입력 snapshot/hash, 실행 상태와 staged 결과만 추가했다. 파일이 바뀌어도 이전 요청을 재현하고 같은 입력은 한 요청으로 합친다. 일반 queue/메시지 브로커는 추가하지 않았다. 외부 실행 exactly-once를 보장하지 않으며 시작 표시 후 실패/연결 유실은 needs_review로 멈춘다. 결과를 보관한 뒤 초안·완료 감사가 원자적으로 저장되므로 저장 실패는 provider 재호출 없이 복구한다. 모든 수동 결과는 drafted이며 jobs는 0개다. 기존 일일 실행과 공통 generation lock을 공유해 usage admission을 직렬화하고, 별도 Seoul daily lock/검증 ID를 보존한다. 운영 gate/한도/복구 제한은 [실행 계약](DRAFT_GENERATION_REQUESTS.md)을 따른다. 지속 정책은 Step 3이다.
 
-**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4/A2 전체와 A3 Steps 0–1 completed 14개·pending 2개·운영 rollout blocked 1개다. 모니터링 Steps 0–2도 완료했으며 다음은 operations-observability Step 3다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
+**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4/A2 전체와 A3 Steps 0–1 completed 14개·pending 2개·운영 rollout blocked 1개다. 모니터링 Steps 0–3도 완료했으며 다음은 operations-observability Step 4다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
 
 ### ADR-039: 이력서 PDF는 비공개 버전에서 검토한 파일 하나만 공개한다
 
@@ -468,3 +468,9 @@ Gateway 자체 일반 bridge의 egress 가능성과 기존 공개 Nginx 이미�
 Built-in 연결 수의 임의 DB명을 alias로 무리하게 합치면 중복 series가 생긴다. 고정 앱 DB만 database=app으로 보존하고 전체 연결 수는 view의 hlog_db_connections 단일 합계로 추가했다. SQL·ID·주소를 저장하지 않는다. PG exporter 0.20.1의 오류 로그는 server/DSN을 포함할 수 있어 stdout/stderr를 버리고 up/pg_up/source state로 장애를 관측한다. 최종 지표는 allowlist만 저장한다. 반복 scrape에서 생성되는 Prometheus sample type label은 histogram 표본을 제외한 뒤 제거한다.
 
 Collector는 요청마다 DB를 읽지 않고 60초 캐시를 제공한다. 실패 시 원래 timestamp와 최대 180초 이전 값을 유지하고 이후 값을 생략한다. HTTP probe는 고정 경로·internal 망·무 host port·redirect 거부·정상 TLS 검증으로 제한한다. 신뢰된 monitoring 망의 exporter API를 사용자 URL 입력 기능으로 개방하지 않는다. 정상/권한/실제 잠금/slow query/DB 장애/HTTP·TLS/exporter 장애를 격리 검증했으며 운영과 공개 UI는 변경하지 않았다.
+
+## ADR-018 Step 3 구현 보완 — 2026-10-28
+
+DB 전에 실패할 수 있는 인증/생성을 DB 실행 이력만으로 관측할 수 없어 host Python 표준 라이브러리와 atomic JSON을 사용한다. 기본 service를 바꾸지 않고 선택형 drop-in/Compose overlay로 연결한다. Summary의 유일한 writer는 host helper이며 cycle은 제한된 evidence 경로만 쓴다. File source는 DB 장애 중에도 수집한다. Docker 그룹의 운영 권한을 파일 writer의 보안 격리로 설명하지 않는다.
+
+발행 성공은 worker idle/exit 0과 분리하고 이번 generation의 현재 공개 버전·필수 6종·content hash로 증명한다. 실제 검증 시각을 쓰며 중복·수동 slot·비용 차단·기록 실패는 성공으로 바꾸지 않는다. 기존 enqueued 시각/비용 근거는 추측하지 않고 unknown을 보존한다. Collector에는 원문 SELECT 대신 고정 집계 view만 부여한다. Linux 파일·강제 종료, 실제 DB 규모/권한과 synthetic provider-to-Prometheus 검증을 통과했으며 운영 설치는 아직 하지 않았다.

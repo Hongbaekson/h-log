@@ -1,0 +1,30 @@
+# Optional Step 3 overlay. Provision the host state directory before use.
+services:
+  hlog-metrics:
+    image: hlog-metrics:local
+    profiles: [observability]
+    environment:
+      HLOG_PUBLISHING_METRICS_ENABLED: "1"
+      HLOG_OBSERVABILITY_STATE_DIR: /var/lib/hlog-observability
+      HLOG_DAILY_ESTIMATED_COST_LIMIT: ${HLOG_DAILY_ESTIMATED_COST_LIMIT:-}
+      HLOG_MONTHLY_ESTIMATED_COST_LIMIT: ${HLOG_MONTHLY_ESTIMATED_COST_LIMIT:-}
+    group_add: ["${HLOG_OBSERVABILITY_GID:?Set the numeric host observation group ID}"]
+    volumes:
+      - type: bind
+        source: ${HLOG_OBSERVABILITY_STATE_DIR:?Set the external host state directory}
+        target: /var/lib/hlog-observability
+        read_only: true
+        bind: {create_host_path: false}
+
+  hlog-auto-publish:
+    image: hlog-auto-publish:dev
+    profiles: [scheduler]
+    environment:
+      HLOG_OBSERVABILITY_EVIDENCE_DIR: /var/lib/hlog-evidence
+      HLOG_OBSERVABILITY_INVOCATION_ID: ${HLOG_OBSERVABILITY_INVOCATION_ID:-}
+    group_add: ["${HLOG_OBSERVABILITY_GID:?Set the numeric host observation group ID}"]
+    volumes:
+      - type: bind
+        source: ${HLOG_OBSERVABILITY_STATE_DIR:?Set the external host state directory}/evidence
+        target: /var/lib/hlog-evidence
+        bind: {create_host_path: false}

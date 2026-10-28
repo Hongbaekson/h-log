@@ -510,3 +510,9 @@ npm run build
 ## 제한된 재시도·일시정지 구현 — 2026-10-28
 
 `blog-job-retry.ts`는 기존 worker의 3회 상수와 정책을 재사용하며 정책→post→job NOWAIT 잠금, 감사 command receipt와 정확한 버전/hash/retry_count/post revision 검사로 같은 작업만 재대기시킨다. migration 011의 unique admin_id UUID가 명령 대상을 식별하고 legacy ID는 DTO에 넣지 않는다. `blog-job-retry-http.ts`/`app/admin/jobs/retry/route.ts`는 owner/Origin/4 KiB 경계를 소유한다. `JobRetryForm`은 확인·사유와 응답 유실 시 동일 명령 재확인을 제공한다. 기존 정책 폼의 jobsOnly 모드가 새 작업 중지·재개를 담당하며 generation/publication 값과 공개 보호 경로를 보존한다. 새 broker/daemon/shell 제어는 없다.
+
+### 지속 발행 관측 — 모니터링 Step 3
+
+Migration 012는 새 job의 enqueued_at과 nullable cost_basis/usage 시간 index를 추가한다. 이전 값은 소급하지 않는다. 앱 소유자가 설치하는 monitoring.publishing_jobs/queue/usage만 제한된 collector 계정이 읽는다. SQL 결과는 현재 버전·UTC 비용의 고정 집계이며 원문을 반환하지 않는다. Collector는 DB와 autopublish/expectations 파일을 따로 수집하고 60초/180초 freshness 계약을 공유한다.
+
+Cycle 관측 wrapper는 기존 generate/worker의 결과와 오류를 보존한다. 같은 실행의 신규 published/current version·required 6종·본문 hash가 확인될 때만 실제 확인 시각을 evidence에 쓴다. Host Python helper가 flock/fsync/atomic replace로 요약을 갱신한다. 선택형 systemd drop-in은 preflight 전 시작과 ExecStopPost 종료를 기록하며 nonzero hook을 발행 재시도로 연결하지 않는다. Collector는 host state read-only, cycle은 evidence만 writable이다. 공개 route나 관리자 UI는 추가하지 않았다. 백업/복구·dashboard/알림은 Steps 4–5다.

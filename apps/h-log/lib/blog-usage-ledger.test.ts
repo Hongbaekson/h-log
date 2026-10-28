@@ -9,6 +9,16 @@ import {
 } from "./blog-usage-ledger.ts";
 
 describe("blog usage cost ledger", () => {
+  it("persists explicit provider cost basis without inferring inclusion from zero", async () => {
+    const calls: unknown[][] = [];
+    const ledger = createPostgresBlogUsageLedger({ query: async (_sql, values = []) => { calls.push(values); return { rows: [] }; } });
+    const input = { createdAt: "2026-10-28T00:00:00Z", eventType: "llm" as const, id: "basis", runId: "basis", status: "success" as const,
+      measurement: { costBasis: "included" as const, estimatedCost: 0, inputTokens: null, model: null, outputTokens: null, provider: "fixture" } };
+    const event = createBlogUsageEvent(input);
+    assert.equal(event.costBasis, "included");
+    await ledger.recordUsageEvent(event);
+    assert.equal(calls[0].at(-1), "included");
+  });
   it("blocks new costed work when either the daily or monthly budget is exhausted", () => {
     const policy = {
       dailyEstimatedCostLimit: 1,
@@ -118,6 +128,7 @@ describe("blog usage cost ledger", () => {
       0.003,
       "success",
       "2026-07-20T12:34:56.000Z",
+      null,
     ]);
     assert.deepEqual(calls[1]?.values, [
       "2026-07-20T00:00:00.000Z",

@@ -12,6 +12,7 @@ export const usageEventTypes = [
 export type UsageEventType = (typeof usageEventTypes)[number];
 
 export type UsageMeasurement = {
+  costBasis?: "estimated" | "included" | "unknown";
   estimatedCost: number;
   inputTokens: number | null;
   model: string | null;
@@ -61,6 +62,7 @@ export function createBlogUsageEvent(
   > & { measurement: UsageMeasurement },
 ): BlogUsageEventRecord {
   return {
+    ...(input.measurement.costBasis ? { costBasis: input.measurement.costBasis } : {}),
     createdAt: input.createdAt,
     estimatedCost: input.measurement.estimatedCost,
     eventType: input.eventType,
@@ -147,8 +149,9 @@ export function createPostgresBlogUsageLedger(
            output_tokens,
            estimated_cost,
            status,
-           created_at
-         ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+           created_at,
+           cost_basis
+         ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
          on conflict (id) do nothing`,
         [
           event.id,
@@ -161,6 +164,7 @@ export function createPostgresBlogUsageLedger(
           event.estimatedCost,
           event.status,
           event.createdAt,
+          event.costBasis ?? null,
         ],
       );
     },

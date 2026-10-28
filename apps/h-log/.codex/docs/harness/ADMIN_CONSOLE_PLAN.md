@@ -1,6 +1,6 @@
 # H-Log 통합 관리자 계획
 
-등록일: 2026-10-22. 2026-10-28 **A1/A4/A2 전체와 A3 Steps 0–1 완료. 4개 phase / 17개 step 중 completed 14개·pending 2개·blocked 1개**다. 모니터링 Steps 0–2도 완료했다. 다음은 [모니터링 Step 3](../../../phases/operations-observability/step3.md)의 지속 발행/비용 신호다. 운영 활성화는 보류한다.
+등록일: 2026-10-22. 2026-10-28 **A1/A4/A2 전체와 A3 Steps 0–1 완료. 4개 phase / 17개 step 중 completed 14개·pending 2개·blocked 1개**다. 모니터링 Steps 0–3도 완료했다. 다음은 [모니터링 Step 4](../../../phases/operations-observability/step4.md)의 백업·복구 신호다. 운영 활성화는 보류한다.
 
 ## 방향과 현재 근거
 
@@ -114,7 +114,7 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 
 ## 실행 순서와 기존 계획
 
-1. 기본 다음 작업은 **operations-observability Step 3: durable-publishing-signals**다. A1/A4/A2와 A3 Steps 0–1의 조회·제어, 모니터링 Steps 0–2의 계약/로컬 기반·host/DB/HTTP 상태 수집을 검증했다. 업무 수집·dashboard/알림과 운영 rollout은 후속 단계다.
+1. 기본 다음 작업은 **operations-observability Step 4: backup-and-restore-signals**다. A1/A4/A2와 A3 Steps 0–1, 모니터링 Steps 0–3의 계약/기반·host/DB/HTTP·지속 발행/비용 수집을 검증했다. 백업·복구 신호, dashboard/알림과 운영 rollout은 후속 단계다.
 2. A1 완료 뒤 독립적인 **A4 이력서 PDF Steps 0–3**을 진행한다. A4 번호는 기존 A1–A3의 참조를 보존하기 위한 것이며 운영 rollout 뒤로 미루는 뜻이 아니다. 이어 `operations-observability / Step 0`의 신호·권한·예산 계약까지 완료했다. A2 Steps 0–3과 A3 Steps 0–1은 이를 참고해 실제 저장·제어를 구현하며, 수집 스택 설치를 선행 조건으로 요구하지 않는다.
 3. observability Steps 1–6을 구현·로컬 검증한 뒤 A3 Steps 2–3을 완료한다. 관측 데이터의 생산자는 모니터링 phase, 관리자 화면은 소비자로 둔다.
 4. 운영은 기존 OCI 보류 해제 및 범위별 승인 후 진행한다. observability Step 7은 비활성 scheduler 상태에서도 완료할 수 있다. 이어 A3 Step 4에서 관리자 도메인과 A4의 비공개 파일 저장/migration을 적용한다. 관리자 rollout은 자동 발행 timer를 켜거나 실제 글/Brain 사본/PDF를 공개하지 않는다. 특정 PDF 공개는 관리자에서 검수한 파일을 선택하는 별도 행동이다.

@@ -58,3 +58,7 @@ Steps 0–3 완료 후 백업 성공과 복구 검증 성공을 별도 지표로
 ## Step 0 확정 계약 인계 — pending
 
 공통 atomic summary와 별도 backup/restore 성공을 재사용한다. 첫 백업 26시간·첫 복구 검증 24시간/이후 30일, disabled/never/stale와 PDF 복구 epoch를 포함한다. [지표·권한·자원·예정 파일과 명령](../../.codex/docs/harness/OBSERVABILITY_PLAN.md)을 기준으로 하며 이번 인계 기록은 구현 완료가 아니다.
+
+## Step 3 구현 인계
+
+`compose.observability-publishing.yaml`, `lib/observability-publishing.ts`, `lib/observability-collector.ts`, `scripts/observability-state.py`, Linux state test와 `deploy/observability/README.md`를 먼저 확인한다. File source/atomic helper를 재사용하되 backup/restore의 성공 근거·일정은 이 Step에서 추가한다. 현재 helper는 autopublish 전용이며 backup/restore를 구현했다고 해석하지 않는다.
