@@ -12,6 +12,7 @@
     "test:jobs:retry": "node --no-warnings --experimental-strip-types --test lib/blog-job-retry.integration.test.ts",
     "test:jobs:retry:http": "node --test scripts/blog-job-retry.http.test.mjs",
     "test:observability:stack": "node --test scripts/observability-stack.test.mjs",
+    "test:observability:probes": "node --no-warnings --experimental-strip-types --test scripts/observability-probes.test.mjs",
     "test:admin:operations": "node --no-warnings --experimental-strip-types --test lib/blog-admin-operations.integration.test.ts",
     "test:admin:operations:http": "node --test scripts/blog-admin-operations.http.test.mjs",
     "test:automation": "node --no-warnings --experimental-strip-types --test lib/blog-automation-policy.integration.test.ts",

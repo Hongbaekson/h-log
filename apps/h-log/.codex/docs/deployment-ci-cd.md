@@ -361,3 +361,7 @@ A3 Step 3/4는 [A4 실측](../../phases/admin-resume-pdf/step3.md)의 단일 검
 ## A2 Step 3 자동화 정책 — 2026-10-28
 
 로컬 구현/검증을 완료했으며 운영 적용은 하지 않았다. migration 010은 generation/publication/jobs를 OFF로 시작한다. HLOG_BLOG_DRAFT_GENERATION_ENABLED, HLOG_BLOG_AUTO_PUBLISH_ENABLED, HLOG_BLOG_JOBS_ENABLED를 web/runner/worker 환경에 승인 범위대로 전달해야 하며 모두 기본 OFF다. 수동 발행의 별도 HLOG_BLOG_MANUAL_PUBLISH_ENABLED 상한도 유지한다. 관리자 토글만으로 프로세스/타이머를 켜거나 서버 상한을 넘지 않는다. 일일/수동 생성 모두 유한한 일/월 비용 한도가 필요하다. 로컬 dry-run도 정책을 우회하지 않으며 격리 테스트 fixture에서만 필요한 설정을 명시한다. 기존 실행 중 글의 보호 검증은 정책 OFF에도 계속 허용한다. 실제 설정 준비·migration·운영 활성화는 별도 승인된 rollout에서 [자동화 정책 계약](harness/AUTOMATION_POLICY.md)을 따른다.
+
+## 모니터링 Step 2 로컬 검증 — 2026-10-28
+
+선택형 `compose.observability-probes.yaml`과 [수집/계정/장애 검증 절차](../../deploy/observability/README.md)를 추가했다. Host root mount는 사용하지 않으며 통계 파일 3개와 빈 Docker volume의 backing filesystem만 측정한다. 최소 DB 계정 bootstrap은 앱 migration과 분리했고 격리 DB에서만 실행했다. 운영 적용 전 PUBLIC temp/DDL 권한 회수 영향, DB secret/고정 DB alias, 실제 disk/volume driver, 대상 probe_net·HTTPS/CA를 검토한다. 전체 앱 DB integration과 private stack/probe smoke·production build를 통과했으며 OCI·기존 운영 container·timer를 변경하지 않았다. 다음은 발행/비용 지속 신호 Step 3다.

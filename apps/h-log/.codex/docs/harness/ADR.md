@@ -405,7 +405,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **A2 Step 2 구현 (2026-10-27)**: 실제 웹 요청과 소비자를 함께 구현하면서 migration 009에 검증된 입력 snapshot/hash, 실행 상태와 staged 결과만 추가했다. 파일이 바뀌어도 이전 요청을 재현하고 같은 입력은 한 요청으로 합친다. 일반 queue/메시지 브로커는 추가하지 않았다. 외부 실행 exactly-once를 보장하지 않으며 시작 표시 후 실패/연결 유실은 needs_review로 멈춘다. 결과를 보관한 뒤 초안·완료 감사가 원자적으로 저장되므로 저장 실패는 provider 재호출 없이 복구한다. 모든 수동 결과는 drafted이며 jobs는 0개다. 기존 일일 실행과 공통 generation lock을 공유해 usage admission을 직렬화하고, 별도 Seoul daily lock/검증 ID를 보존한다. 운영 gate/한도/복구 제한은 [실행 계약](DRAFT_GENERATION_REQUESTS.md)을 따른다. 지속 정책은 Step 3이다.
 
-**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4/A2 전체와 A3 Steps 0–1 completed 14개·pending 2개·운영 rollout blocked 1개다. 모니터링 Steps 0–1도 완료했으며 다음은 operations-observability Step 2다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
+**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4/A2 전체와 A3 Steps 0–1 completed 14개·pending 2개·운영 rollout blocked 1개다. 모니터링 Steps 0–2도 완료했으며 다음은 operations-observability Step 3다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
 
 ### ADR-039: 이력서 PDF는 비공개 버전에서 검토한 파일 하나만 공개한다
 
@@ -458,3 +458,13 @@ Prometheus 3.13.5 LTS/Grafana OSS 12.4.13 patch 지원 버전을 공식 manifest
 Docker 29.6.1에서 internal-only 컨테이너의 host port가 실제 생성되지 않는 것을 확인했다. Grafana를 egress 망에 붙이는 대신 기존 Nginx 기술을 재사용하되 새 진입점의 이미지는 공식 stable 1.30.6-alpine digest로 고정한다. Gateway는 고정 Grafana upstream만 전달하고 Prometheus/app/DB 망에는 접근하지 않는다. Grafana는 두 internal 망, Prometheus는 monitoring_net만 사용한다. Public Nginx는 계속 별도다. 새 기술/외부 서비스는 없고 Grafana의 기존 320 MiB/0.25 CPU 예산을 Grafana 304/0.20와 gateway 16/0.05로 나눈다. Gateway 로그 30 MiB는 디스크 예비 공간에서 배정한다.
 
 Gateway 자체 일반 bridge의 egress 가능성과 기존 공개 Nginx 이미지 갱신은 운영 검수에 남긴다. Grafana/Prometheus 외부 송신·익명/공개 공유는 막고 포트는 loopback에만 연다. 설정 검증/격리 smoke는 통과했으며 업무 지표·대시보드·알림과 24시간 검증은 미완료다. 다음은 monitoring Step 2이며 OCI 보류는 유지한다.
+
+## ADR-018 Step 2 구현 보완 — 2026-10-28
+
+수집기를 별도 opt-in Compose overlay로 분리해 기본 Prometheus/Grafana 실행에 DB secret을 요구하지 않는다. 공식 exporter version/digest를 고정하고 deprecated custom query 대신 built-in stat_database와 기존 Node/pg의 고정 집계 view 조회를 사용한다. 역할/권한 bootstrap은 앱 migration과 분리하고 NOLOGIN으로 생성한다. PUBLIC TEMPORARY/CREATE 회수는 운영 전 영향 검토 항목이다.
+
+기존 host root read-only mount 계획은 폐기했다. Docker Desktop의 rslave mount 오류 이후 자동 승인 검토가 전체 root 파일 노출 위험으로 실행을 거절했다. 최종 구현은 통계 파일 3개와 내용 없는 local Docker volume만 연결하며 검토를 통과했다. 실제 Prometheus volume과 filesystem ID/type이 같음을 확인했다. Docker data filesystem과 Linux VM CPU/메모리만 측정하며 OCI root/별도 DB disk로 일반화하지 않는다. 운영의 별도 disk는 내용 없는 전용 경로와 권한을 Step 7에서 검수한다.
+
+Built-in 연결 수의 임의 DB명을 alias로 무리하게 합치면 중복 series가 생긴다. 고정 앱 DB만 database=app으로 보존하고 전체 연결 수는 view의 hlog_db_connections 단일 합계로 추가했다. SQL·ID·주소를 저장하지 않는다. PG exporter 0.20.1의 오류 로그는 server/DSN을 포함할 수 있어 stdout/stderr를 버리고 up/pg_up/source state로 장애를 관측한다. 최종 지표는 allowlist만 저장한다. 반복 scrape에서 생성되는 Prometheus sample type label은 histogram 표본을 제외한 뒤 제거한다.
+
+Collector는 요청마다 DB를 읽지 않고 60초 캐시를 제공한다. 실패 시 원래 timestamp와 최대 180초 이전 값을 유지하고 이후 값을 생략한다. HTTP probe는 고정 경로·internal 망·무 host port·redirect 거부·정상 TLS 검증으로 제한한다. 신뢰된 monitoring 망의 exporter API를 사용자 URL 입력 기능으로 개방하지 않는다. 정상/권한/실제 잠금/slow query/DB 장애/HTTP·TLS/exporter 장애를 격리 검증했으며 운영과 공개 UI는 변경하지 않았다.

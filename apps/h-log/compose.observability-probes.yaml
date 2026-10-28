@@ -1,0 +1,100 @@
+# Add to compose.observability.yaml explicitly. Production attachment is Step 7.
+x-probe-defaults: &probe-defaults
+  profiles: [observability]
+  user: "65534:65534"
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  mem_limit: 64m
+  cpus: 0.05
+  pids_limit: 32
+  logging:
+    driver: json-file
+    options: {max-size: 10m, max-file: "3"}
+  restart: unless-stopped
+
+services:
+  prometheus:
+    volumes:
+      - ./deploy/observability/probes:/etc/prometheus/probes:ro
+
+  node-exporter:
+    <<: *probe-defaults
+    image: prom/node-exporter:v1.12.1@sha256:1b4e4438faca4dd7e001dd445d161a4a2091b0fededa84093b3a8dfeae1f1be0
+    command:
+      - --collector.disable-defaults
+      - --collector.cpu
+      - --collector.meminfo
+      - --collector.filesystem
+      - --collector.filesystem.mount-points-include=^/storage$$
+      - --web.disable-exporter-metrics
+      - --web.max-requests=1
+      - --log.level=error
+    volumes:
+      # Read only these numeric host statistics; never mount the host root.
+      - /proc/stat:/proc/stat:ro
+      - /proc/meminfo:/proc/meminfo:ro
+      - /proc/cpuinfo:/proc/cpuinfo:ro
+      # An empty local volume measures its backing filesystem without data access.
+      - observed_filesystem:/storage:ro
+    networks: [monitoring_net]
+
+  postgres-exporter:
+    <<: *probe-defaults
+    image: prometheuscommunity/postgres-exporter:v0.20.1@sha256:ac5ec343104fae0e2d84a27bb8d69b38430a11910c5382cad85d478d2bab713e
+    environment:
+      DATA_SOURCE_USER: hlog_metrics_exporter
+      DATA_SOURCE_URI_FILE: /run/secrets/exporter_uri
+      DATA_SOURCE_PASS_FILE: /run/secrets/exporter_password
+    secrets: [exporter_uri, exporter_password]
+    # Upstream errors contain DSN/server fields. Do not persist those logs.
+    # Availability is observable through up, pg_up and the collector state.
+    entrypoint: [/bin/sh, -c]
+    command:
+      - >-
+        exec /bin/postgres_exporter --disable-default-metrics
+        --no-collector.database --no-collector.locks --no-collector.replication
+        --no-collector.replication_slots --no-collector.roles --no-collector.settings
+        --no-collector.stat_activity --no-collector.stat_archiver --no-collector.stat_bgwriter
+        --no-collector.stat_progress_vacuum --no-collector.stat_replication
+        --no-collector.stat_user_tables --no-collector.statio_user_tables --no-collector.wal
+        --collection-timeout=5s --log.level=error >/dev/null 2>&1
+    networks: [monitoring_net, data_net]
+
+  blackbox-exporter:
+    <<: *probe-defaults
+    image: prom/blackbox-exporter:v0.29.1@sha256:ea1c7aa3ef3f307cd03e85f34abb604478ccb90b567fc690da0cd9776da76b13
+    command: [--config.file=/etc/blackbox/config.yml, --log.level=error]
+    volumes:
+      - ./deploy/observability/blackbox.yml:/etc/blackbox/config.yml:ro
+    networks: [monitoring_net, probe_net]
+
+  hlog-metrics:
+    <<: *probe-defaults
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: metrics-collector
+    image: hlog-metrics:local
+    user: "1000:1000"
+    mem_limit: 128m
+    cpus: 0.25
+    secrets: [collector_dsn]
+    networks: [monitoring_net, data_net]
+
+secrets:
+  exporter_uri:
+    file: ${HLOG_EXPORTER_URI_FILE:?Set the external exporter URI file}
+  exporter_password:
+    file: ${HLOG_EXPORTER_PASSWORD_FILE:?Set the external exporter password file}
+  collector_dsn:
+    file: ${HLOG_COLLECTOR_DSN_FILE:?Set the external collector DSN file}
+
+networks:
+  data_net:
+    internal: true
+  probe_net:
+    internal: true
+
+volumes:
+  observed_filesystem:

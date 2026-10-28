@@ -39,6 +39,12 @@ COPY --chown=node:node scripts ./scripts
 
 CMD ["npm", "run", "worker:once"]
 
+FROM job-deps AS metrics-collector
+
+COPY --chown=node:node lib/observability-collector.ts ./lib/
+COPY --chown=node:node scripts/observability-collector.mjs ./scripts/
+CMD ["node", "--no-warnings", "--experimental-strip-types", "scripts/observability-collector.mjs"]
+
 FROM migrations AS dry-run
 
 CMD ["npm", "run", "dry-run:local"]

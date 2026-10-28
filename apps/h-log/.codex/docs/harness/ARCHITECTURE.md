@@ -38,7 +38,7 @@ npm run build
 
 `app/admin/posts/page.tsx`와 `lib/blog-admin-review-server.ts`는 page/DAL 양쪽에서 owner를 확인한다. `lib/blog-admin-review.ts`는 read-only repeatable-read transaction으로 20개 상태 필터 목록과 선택 버전, 글 단위 출처·버전별 검사/작업을 읽는다. 풀은 최대 2개, 읽기 statement 3초/쓰기 5초/query 6초, 본문/HTML 각 256 KiB, 출처/검사/작업 각 50개로 제한한다. 원시 오류와 검사 result는 조회하지 않는다. `components/blog/BlogContent.tsx`를 공개 상세/관리자 미리보기에서 공유하며 저장 원문/hash와 공개 current 포인터를 변경하지 않는다. 수정본 저장은 공개 current를 유지하며 명시적인 발행 요청만 후보 버전을 선택한다.
 
-2026-10-28 기준 A1/A4/A2 전체, A3 Steps 0–1과 모니터링 Steps 0–1을 완료했다. 다음은 operations-observability Step 2다. automation/jobs/audit는 구현됐고 monitoring 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
+2026-10-28 기준 A1/A4/A2 전체, A3 Steps 0–1과 모니터링 Steps 0–2를 완료했다. 다음은 operations-observability Step 3다. automation/jobs/audit는 구현됐고 monitoring 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
 
 `app/admin/jobs/page.tsx`와 `app/admin/audit/page.tsx`는 `blog-admin-operations-server.ts`의 owner 확인 후 기존 풀과 `blog-admin-operations.ts`의 read-only repeatable-read를 사용한다. 최대 21행/20건 반환, 10,000 페이지 상한, 3초 statement timeout이며 원문/원시 오류/원시 식별자를 DTO에 넣지 않는다. 감사 receipt는 정책 revision/boolean만 표시한다. UTC 일/월 사용량은 기존 guard와 동일한 범위로 집계하며 NULL 금액과 현재 schema의 비용 근거 부재를 별도로 표시한다. `AdminObservation`은 조회 시각부터 180초가 지나면 stale 안내만 바꾸며 데이터 재조회나 워커 heartbeat를 만들지 않는다. 새 migration·collector·쓰기 경로는 없다.
 
@@ -296,7 +296,7 @@ Kubernetes is not required for the initial OCI deployment. If a later ADR adopts
 
 ## 운영 모니터링 구조 (로컬 기반 구현, 업무 수집은 예정)
 
-2026-10-28 Steps 0–1 완료. `compose.observability.yaml`의 Prometheus/Grafana·datasource·별도 volume과 localhost gateway를 로컬 검증했다. 기본 `compose.yaml`의 web/PostgreSQL healthcheck와 DB 기록은 유지한다. 아래 host/DB/업무 수집·알림·외부 감시는 후속 목표다.
+2026-10-28 Steps 0–2 완료. `compose.observability.yaml`의 Prometheus/Grafana·datasource·volume·localhost gateway와 `compose.observability-probes.yaml`의 host/DB/HTTP 수집기를 격리 검증했다. 기본 앱 서비스/healthcheck와 공개 UI는 유지한다. 아래 업무 수집·알림·외부 감시는 후속 목표다.
 
 ```text
 Linux host / PostgreSQL / fixed HTTP-TLS targets
@@ -309,7 +309,7 @@ independent external monitor -> public HTTPS + monitoring heartbeat
 
 수집 경로는 read-only 집계와 최소 network/secret 권한을 사용한다. One-shot 결과는 종료 후에도 수집 가능해야 하며 cycle `completed`, worker idle, duplicate skip을 검증된 발행 성공으로 대체하지 않는다. 미수집·오류·never succeeded·stale·disabled를 구분한다. 공개 Nginx 내부 경로 차단, published-current 데이터와 발행/비용 상태 전이는 유지한다.
 
-모니터링 설정과 데이터 volume은 앱과 분리하며 Grafana는 localhost/SSH 터널을 기본안으로 둔다. 구현 파일은 `compose.observability.yaml`, `deploy/observability/`이며 재현 검증은 `scripts/observability-stack.test.mjs`다. Prometheus는 internal monitoring_net, Grafana는 monitoring_net/internal grafana_access_net, 고정 upstream gateway는 grafana_access_net/별도 access bridge를 사용한다. Loopback 포트는 gateway에만 있고 공개 Nginx·앱/DB는 연결하지 않는다. 아래 collector/helper는 후속 구현이다. DB 집계 view와 host atomic JSON summary를 기존 Node/pg collector가 읽는다. 시작/종료 helper는 DB·Docker와 독립되며 ExecStartPre/ExecStopPost에 연결할 예정이다. DB 계정은 원문/쓰기 권한 없이 필요한 통계·집계만 읽는다. 상세 파일·지표·1 GiB/3 GiB 예산과 검증 명령은 단일 계획을 따르며 아직 존재하는 runtime으로 간주하지 않는다. 로컬 계약·수집·알림·장애 검증은 Steps 0–6, 운영 적용·외부 감시는 Step 7에서 진행한다. 운영 모니터링을 확인한 뒤 별도 자동 발행 phase에서 timer를 재개하며 현재 OCI 보류는 유지된다.
+모니터링 설정과 데이터 volume은 앱과 분리하며 Grafana는 localhost/SSH 터널을 기본안으로 둔다. 구현 파일은 `compose.observability.yaml`, `deploy/observability/`이며 재현 검증은 `scripts/observability-stack.test.mjs`다. Prometheus는 internal monitoring_net, Grafana는 monitoring_net/internal grafana_access_net, 고정 upstream gateway는 grafana_access_net/별도 access bridge를 사용한다. Loopback 포트는 gateway에만 있고 공개 Nginx·앱/DB는 연결하지 않는다. `lib/observability-collector.ts`와 `scripts/observability-collector.mjs`는 별도 private Node/pg 프로세스로 DB 연결·잠금·상한의 집계 view만 읽는다. DB 계정은 `deploy/observability/database-roles.sql`로 별도 준비한다. Host는 통계 파일 3개와 빈 Docker volume의 filesystem만 노출한다. 두 smoke가 권한/장애/비공개 경계를 확인한다. Host atomic JSON summary와 업무 집계 확장은 다음 Step 3다. 시작/종료 helper는 DB·Docker와 독립되며 ExecStartPre/ExecStopPost에 연결할 예정이다. DB 계정은 원문/쓰기 권한 없이 필요한 통계·집계만 읽는다. 상세 파일·지표·1 GiB/3 GiB 예산과 검증 명령은 단일 계획을 따른다. Steps 0–2 runtime만 구현됐으며 업무/백업/알림은 아직 존재하는 기능으로 간주하지 않는다. 로컬 계약·수집·알림·장애 검증은 Steps 0–6, 운영 적용·외부 감시는 Step 7에서 진행한다. 운영 모니터링을 확인한 뒤 별도 자동 발행 phase에서 timer를 재개하며 현재 OCI 보류는 유지된다.
 
 ## Backup/Restore Boundary
 

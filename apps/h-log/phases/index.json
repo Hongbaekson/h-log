@@ -188,7 +188,7 @@
     {
       "dir": "admin-operations-control",
       "status": "pending",
-      "summary": "2026-10-28 Steps 0-1 completed: bounded private inspection and explicit audited single-job retry with stable admin UUID, exact version/hash/revision/lease and retry budget checks. Existing policy pause/resume reused. Steps 2-3 pending; Step 4 blocked by OCI hold. Next: operations-observability Steps 2-6 before Step 2 (monitoring Step 1 completed). No shell/Docker web controls or provider/timer/production activation."
+      "summary": "2026-10-28 Steps 0-1 completed: bounded private inspection and explicit audited single-job retry with stable admin UUID, exact version/hash/revision/lease and retry budget checks. Existing policy pause/resume reused. Steps 2-3 pending; Step 4 blocked by OCI hold. Next: operations-observability Steps 3-6 before Step 2 (monitoring Steps 1-2 completed). No shell/Docker web controls or provider/timer/production activation."
     },
     {
       "dir": "admin-resume-pdf",
@@ -213,7 +213,7 @@
     {
       "dir": "operations-observability",
       "status": "pending",
-      "summary": "2026-10-28: Optional digest-pinned Prometheus/Grafana with private self-scrape, provisioned datasource, file secret, bounded resources and persistent volumes. Docker 29 internal-only publishing required a fixed localhost Nginx gateway while preserving collector egress isolation. Config/profile preservation, promtool, live auth/metrics/ingress/isolation and new-container historical sample/Grafana persistence passed (smoke 1/1). No application/DB/worker/UI or production changes. Next: Step 2; Steps 2-6 pending and Step 7 blocked."
+      "summary": "2026-10-28: Added opt-in digest-pinned host/DB/HTTP exporters and bounded Node/pg collector with least-privilege aggregate view. Replaced host-root mount with three proc statistics files and an empty local volume, verified same backing filesystem as Prometheus. Real permission/lock/query-timeout, near-expiry TLS, HTTP status/timeout/redirect, DB/exporter outage and label/log privacy tests passed. Unit 260 pass/25 DB skip, full isolated DB integration, lint/typecheck/build and both private stack/probe smokes passed. Next: Step 3; Steps 3-6 pending, Step 7 blocked; no production/provider/publication/timer changes."
     },
     {
       "dir": "second-brain-foundation",

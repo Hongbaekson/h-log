@@ -1,6 +1,6 @@
 # H-Log 운영 모니터링 계획
 
-등록일: 2026-10-06. **2026-10-28 Steps 0–1 완료: 계약과 비공개 Prometheus/Grafana 로컬 기반을 검증했다. Host/DB/HTTP 수집기·업무 신호·대시보드·알림은 아직 구현하지 않았다.** 실행 상태는 [phase registry](../../../phases/operations-observability/index.json)를 따른다. 이 문서가 모니터링 계약의 단일 기준이다.
+등록일: 2026-10-06. **2026-10-28 Steps 0–2 완료: 계약·비공개 Prometheus/Grafana와 host/DB/HTTP 수집을 격리 검증했다. 업무 신호·대시보드·알림은 후속 단계다.** 실행 상태는 [phase registry](../../../phases/operations-observability/index.json)를 따른다. 이 문서가 모니터링 계약의 단일 기준이다.
 
 ## 목적과 실행 순서
 
@@ -10,14 +10,14 @@
 | --- | --- | --- |
 | [0](../../../phases/operations-observability/step0.md) | monitoring-contract-and-budget | 완료: 아래 계약과 구현 인계 확정 |
 | [1](../../../phases/operations-observability/step1.md) | private-metrics-stack | 완료: 격리 로컬 Prometheus/Grafana·접근 차단·재생성 보존 |
-| [2](../../../phases/operations-observability/step2.md) | host-database-http-probes | Linux host·PostgreSQL·HTTP/TLS 수집 |
+| [2](../../../phases/operations-observability/step2.md) | host-database-http-probes | 완료: Linux VM CPU·메모리/Docker 저장소·최소 DB 계정/집계·고정 HTTP/TLS 장애 검증 |
 | [3](../../../phases/operations-observability/step3.md) | durable-publishing-signals | 지속 실행 결과·발행/비용·누락 신호 |
 | [4](../../../phases/operations-observability/step4.md) | backup-and-restore-signals | 백업과 복구 검증을 구분한 지속 신호 |
 | [5](../../../phases/operations-observability/step5.md) | dashboards-and-alert-routing | 대시보드·알림·복구 통지·대응 절차 |
 | [6](../../../phases/operations-observability/step6.md) | isolated-failure-rehearsal | 장애·수집 중단·재기동·자원 검증 |
 | [7](../../../phases/operations-observability/step7.md) | approved-production-rollout | OCI 보류로 blocked: 승인된 운영 설치와 외부 감시 |
 
-현재 2 completed / 5 pending / 1 blocked다. **일반 다음 작업은 [Step 2: host-database-http-probes](../../../phases/operations-observability/step2.md)**다. [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1/A4 → 모니터링 계약 → A2 Steps 0–3 → A3 Steps 0–1 → 모니터링 Steps 1–6 → A3 Steps 2–3 순서를 유지한다. A3 Steps 0–1도 완료했으며 이 phase의 Steps 2–6 이후 A3 Step 2로 돌아간다.
+현재 3 completed / 4 pending / 1 blocked다. **일반 다음 작업은 [Step 3: durable-publishing-signals](../../../phases/operations-observability/step3.md)**다. [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1/A4 → 모니터링 계약 → A2 Steps 0–3 → A3 Steps 0–1 → 모니터링 Steps 1–6 → A3 Steps 2–3 순서를 유지한다. A3 Steps 0–1도 완료했으며 이 phase의 Steps 3–6 이후 A3 Step 2로 돌아간다.
 
 수집기·신호·대시보드·알림은 이 phase가 소유하고 관리자 화면은 그 결과를 소비한다. 승인된 모니터링 Step 7 → 관리자 rollout → 기존 auto-publish-ops-hardening Step 4의 timer 활성화 순서다. **모니터링 완료에 실제 반복 발행을 요구하지 않는다.** 비활성 scheduler와 로컬 누락 재현으로 먼저 검증하므로 순환 의존이 없다.
 
@@ -27,7 +27,7 @@
 
 | 근거 | 현재 상태 | 계약 반영 |
 | --- | --- | --- |
-| compose / Nginx | 기본 앱은 유지. Step 1에 선택형 private stack·self-scrape·datasource·ingress 차단 구현 | exporter/업무 지표는 Steps 2–4 |
+| compose / Nginx | 기본 앱은 유지. Step 1에 선택형 private stack·self-scrape·datasource·ingress 차단 구현 | Step 2 host/DB/HTTP 완료, 업무 지표는 Steps 3–4 |
 | auto-publish-cycle / CLI | worker idle이면 completed; 중복·budget 차단도 반환 | 종료 코드나 completed를 발행 성공으로 사용하지 않음 |
 | content model / required adapter / persistent worker | required 6종 중 render/privacy는 공개 전, public_url/md_url/sitemap/content_version_match는 공개 후 검사 | 현재 버전의 6종 모두 존재하고 succeeded인지 확인. published만으로 성공 판정 금지 |
 | migration 001 publish_verifications | 테이블은 있으나 실제 adapter/worker의 INSERT 없음. dry-run fixture만 기록 | 이 테이블 대신 실제 publish_jobs를 성공 근거로 재사용 |
@@ -38,14 +38,14 @@
 
 ## 구성과 접근 권한
 
-선택형 `compose.observability.yaml`에 Prometheus, Grafana/Grafana Alerting, Node Exporter, PostgreSQL Exporter, Blackbox Exporter, H-Log collector를 둔다. Collector는 기존 Node/pg 런타임의 작은 별도 프로세스이며 공개 Next.js route가 아니다. 별도 Alertmanager/Loki/Tempo/OTel Collector/Pushgateway/cAdvisor는 추가하지 않는다.
+선택형 `compose.observability.yaml`에 Prometheus/Grafana를, 명시적으로 추가하는 `compose.observability-probes.yaml`에 Node/PostgreSQL/Blackbox Exporter와 H-Log collector를 둔다. Grafana Alerting 구성은 Step 5다. Collector는 기존 Node/pg 런타임의 작은 별도 프로세스이며 공개 Next.js route가 아니다. 별도 Alertmanager/Loki/Tempo/OTel Collector/Pushgateway/cAdvisor는 추가하지 않는다.
 
 - monitoring_net은 internal이다. Prometheus/Node exporter는 이 망만, Grafana는 추가 internal grafana_access_net, DB exporter/H-Log collector는 추가 data_net만 연결한다. Blackbox는 고정 HTTP 대상 접근망을 추가한다. 공개 Nginx와 monitoring-gateway는 monitoring_net에 연결하지 않는다. Gateway만 grafana_access_net과 일반 monitoring_access_net에서 고정 Grafana upstream을 전달한다. Docker 29의 internal-only publish 미동작을 재현해 추가했으며 Prometheus/Grafana의 egress는 차단한다. Grafana 외부 알림 egress는 Step 7에서 승인 수신처에 한해 연다.
 - Grafana 진입점만 gateway의 `127.0.0.1:3030:8080`을 기본값으로 publish하고 SSH 터널로 접속한다. 포트 충돌은 로컬 override로 기록한다. 익명 접근·가입·외부 공유를 끄고 Prometheus/exporter 포트는 publish하지 않는다. 공개/관리자 ingress 모두 metrics/probe를 제공하지 않는다.
 - DB exporter LOGIN에는 CONNECT와 필요한 기본 통계 조회만 허용한다. 앱 테이블, pg_monitor, pg_read_all_stats, superuser, 쓰기·DDL 권한은 부여하지 않는다. pg_up와 stat_database의 연결 수만 수집 allowlist에 남기고 SQL 전문·사용자·client 주소·테이블별 통계는 제외한다.
 - H-Log collector LOGIN은 별도로 두고 migration 소유자가 만든 monitoring schema의 고정 집계 view에만 USAGE/SELECT를 부여한다. PUBLIC에는 view 권한을 주지 않는다. View는 count/시각/금액만 반환하며 원문 테이블·PDF bytea·Brain·키에 대한 직접 SELECT와 쓰기를 거부해야 한다. 읽기 전용 transaction과 timeout도 적용한다.
 - [PostgreSQL 통계 권한](https://www.postgresql.org/docs/16/monitoring-stats.html)과 exporter built-in collector를 사용한다. Deprecated custom query 기능에는 의존하지 않는다. 선택 버전의 옵션·출력·비특권 동작을 Step 2에서 검증하고 권한 부족을 superuser로 해결하지 않는다.
-- Node Exporter는 Linux `/proc`, `/sys`, filesystem 통계용 root를 read-only로 연결한다. CPU/meminfo/filesystem만 enable하고 Docker socket·privileged·쓰기 mount는 금지한다. Root mount의 파일 읽기 가능성을 기록하고 비-root UID/cap-drop·host 파일 권한으로 제한한다. Docker Desktop 값은 Linux VM 수치이며 Windows host/OCI 실측이 아니다.
+- Node Exporter는 `/proc/stat`, `/proc/meminfo`, `/proc/cpuinfo` 세 통계 파일만 read-only로 연결한다. Host root·전체 proc/sys·Docker socket·privileged·쓰기 mount는 사용하지 않는다. CPU/meminfo/filesystem만 enable한다. 디스크는 비어 있는 local Docker volume의 backing filesystem을 `docker-data` 별칭으로 측정하며 Prometheus volume과 filesystem ID/type이 같은지 검증한다. 별도 디스크/volume driver가 있는 운영 배치는 Step 7에서 내용 없는 전용 경로별로 검수한다. Docker Desktop CPU/메모리는 Linux VM 수치이며 Windows host/OCI 실측이나 root disk 측정이 아니다.
 - Secret은 커밋하지 않는 파일로 주입한다. DSN·host/IP·오류 원문은 metrics/logs/알림에서 제외한다. Collector는 summary를 read-only로 받고 shell/systemctl/Docker 제어를 하지 않는다.
 - Blackbox는 운영자가 지정한 home/blog 두 별칭의 `/`, `/blog`만 검사한다. 관리자·PDF·임의 URL·credential·사용자 입력을 제외하고 외부 redirect를 거부한다. Timeout은 5초다. HTTPS origin은 Step 7 입력이며 로컬에서는 격리 HTTP/TLS fixture를 쓴다.
 
@@ -61,10 +61,10 @@
 | `hlog_metrics_source_state` | gauge, one-hot / source,state | state=ready,missing,invalid,error. 파일 없음과 파싱/IO/DB 오류 구분 |
 | `node_cpu_seconds_total` | counter, seconds / cpu,mode | Linux CPU 누적 시간. 5분 rate의 non-idle 비율로 사용률 계산 |
 | `node_memory_MemAvailable_bytes`, `node_memory_MemTotal_bytes` | gauge, bytes / 없음 | Linux meminfo |
-| `node_filesystem_avail_bytes`, `node_filesystem_size_bytes`, `node_filesystem_files_free`, `node_filesystem_files` | gauge, bytes 또는 inode 수 / mountpoint | root/DB/monitoring 실제 fs allowlist. 같은 fs는 중복 집계하지 않고 device/fstype은 필터 후 제거 |
+| `node_filesystem_avail_bytes`, `node_filesystem_size_bytes`, `node_filesystem_files_free`, `node_filesystem_files` | gauge, bytes 또는 inode 수 / mountpoint | Step 2는 내용 없는 local volume의 backing fs를 docker-data로 표시. Prometheus와 동일 fs 검증, 다른 운영 disk는 Step 7에서 검수. device/fstype 제거 |
 | `pg_up` | gauge, 0/1 / 없음 | DB exporter 연결/수집. exporter 자체 장애는 up으로 구분 |
-| `pg_stat_database_numbackends` | gauge, connections / database | pg_stat_database. datid 제거, DB명은 별칭. 전체 연결 대비는 모든 DB 합계 |
-| `hlog_db_max_connections`, `hlog_db_waiting_locks` | gauge, connections/locks / 없음 | 고정 view: current_setting('max_connections'), pg_locks NOT granted count |
+| `pg_stat_database_numbackends` | gauge, connections / database | built-in pg_stat_database 중 고정 hlog DB만 database=app으로 저장. datid/datname 제거. 전체 연결 대비는 아래 hlog_db_connections 사용 |
+| `hlog_db_max_connections`, `hlog_db_waiting_locks`, `hlog_db_connections` | gauge, connections/locks / 없음 | 고정 view: max_connections, pg_locks NOT granted count, 모든 DB numbackends 합계. 원문 DB명 없이 전체 연결 대비 계산 |
 | `probe_success`, `probe_duration_seconds`, `probe_ssl_earliest_cert_expiry` | gauge, 0/1·seconds·Unix seconds / target | target=home,blog. expiry는 HTTPS만. Synthetic 지연이며 방문자 p95/5xx 비율이 아님 |
 | `hlog_publish_jobs` | gauge, jobs / state,job_type,importance | Q1. live enum 5상태·15종·required/retryable, 현재 버전만 |
 | `hlog_publish_oldest_pending_age_seconds`, `hlog_publish_pending_age_unknown_jobs` | gauge, seconds/jobs / importance | Q1. queued/retrying의 최초 enqueued_at. 기존 시각 미상을 0초로 대체하지 않음 |
@@ -191,3 +191,9 @@ DB 테스트에는 격리 DATABASE_URL이 필수다. Host helper/systemd hook·�
 공개 대시보드·방문자 추적·자동 복구/재발행·Kubernetes·기존 UI/Discord theme/레이더 변경은 제외한다. Monitoring 실패는 공개 상태나 budget guard를 바꾸지 않는다. 운영 host 자원·HTTPS origin·비공개 알림 수신처·독립 외부 감시 서비스/비용은 Step 7에서 확정한다. OCI/DNS/TLS/운영 migration·timer/실제 provider/외부 전송/실제 PDF 공개는 이번 계약에 포함하지 않는다.
 
 공식 근거: [Prometheus batch 계측](https://prometheus.io/docs/practices/instrumentation/), [Node Exporter](https://github.com/prometheus/node_exporter), [PostgreSQL Exporter](https://github.com/prometheus-community/postgres_exporter), [Blackbox Exporter](https://github.com/prometheus/blackbox_exporter). 지원 옵션과 이미지 digest는 해당 구현 step에서 다시 확인한다.
+
+## Step 2 구현 인계 — 2026-10-28
+
+2026-10-28 모니터링 Step 2 완료: 선택형 probes overlay와 고정 Node/PostgreSQL/Blackbox Exporter, 기존 Node/pg 기반 별도 collector를 구현했다. CPU·메모리 통계 파일 3개와 내용 없는 Docker volume만 읽고 host root는 연결하지 않는다. 최소 DB 계정·집계 view, 60초 수집/3초 statement·5초 transaction 제한, 실패 시 timestamp 보존과 180초 stale 생략을 검증했다. 고정 home/blog의 HTTP 실패·timeout·redirect·임박 TLS, 실제 잠금·권한 거부·DB/수집기 중단·label/log 경계를 격리 검증했다. 단위 260 pass/25 DB skip, 전체 DB integration, lint/typecheck/build 통과. 모니터링 completed 3·pending 4·blocked 1이며 다음은 **operations-observability Step 3: durable-publishing-signals**다. 관리자 상태 14·2·1, OCI·provider·발행·timer 보류는 유지한다.
+
+최초 bootstrap은 `deploy/observability/database-roles.sql`이며 앱 migration과 분리했다. role/schema가 있으면 실패한다. 운영 적용은 보류하며 PUBLIC TEMPORARY/CREATE 회수 영향과 계정 password/LOGIN은 운영 검수 대상이다. Exporter upstream의 DSN/server 오류 로그는 폐기하고 scrape/DB/source state로 실패를 확인한다. `lib/observability-collector.ts`, `scripts/observability-collector.mjs`와 두 smoke의 실제 경계는 [실행 절차](../../../deploy/observability/README.md)를 따른다. Step 3는 현재 집계 view/collector를 확장하고 일회성 결과를 DB와 독립적으로 지속한다.

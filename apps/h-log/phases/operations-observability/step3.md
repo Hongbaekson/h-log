@@ -22,6 +22,14 @@ Steps 0–2 완료 후 자동 발행의 누락·실패·정체·비용을 실제
 - `apps/h-log/phases/operations-observability/index.json`
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/phases/operations-observability/step2.md`
+- `apps/h-log/compose.observability-probes.yaml`
+- `apps/h-log/deploy/observability/README.md`
+- `apps/h-log/deploy/observability/database-roles.sql`
+- `apps/h-log/deploy/observability/probes/host-db-http.yml`
+- `apps/h-log/lib/observability-collector.ts`
+- `apps/h-log/lib/observability-collector.test.ts`
+- `apps/h-log/scripts/observability-collector.mjs`
+- `apps/h-log/scripts/observability-probes.test.mjs`
 - `apps/h-log/lib/blog-auto-publish-cycle.ts`
 - `apps/h-log/lib/blog-auto-publish-cycle.test.ts`
 - `apps/h-log/lib/blog-auto-publish-runner.ts`

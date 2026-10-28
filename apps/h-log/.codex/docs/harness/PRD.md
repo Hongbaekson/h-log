@@ -145,7 +145,7 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 - 지표·대시보드는 비공개 운영 표면이며 콘텐츠·검색어·credential·내부 식별자를 노출하지 않는다. 기존 published-current/privacy와 비용 guard를 유지한다.
 - Steps 0–6은 격리 로컬에서 진행하고 Step 7은 기존 OCI 보류로 blocked다. 외부 HTTP/heartbeat 감시를 포함한 운영 검증을 반복 발행 timer 활성화 전에 완료한다.
 - 모니터링 완료에 실제 반복 발행을 요구하지 않는다. 비활성 상태를 구분한 뒤 timer 재개는 기존 자동 발행 phase에서 별도 승인으로 수행한다.
-- 2026-10-28 관리자 A1/A4/A2와 A3 Steps 0–1, 모니터링 Steps 0–1을 완료했다. 다음은 모니터링 Step 2다. 로컬 Steps 1–6은 A3 모니터링 화면보다 먼저, 운영 Step 7은 관리자 rollout·timer보다 먼저 완료한다. 운영 적용 보류는 유지한다.
+- 2026-10-28 관리자 A1/A4/A2와 A3 Steps 0–1, 모니터링 Steps 0–2를 완료했다. 다음은 모니터링 Step 3다. 로컬 Steps 1–6은 A3 모니터링 화면보다 먼저, 운영 Step 7은 관리자 rollout·timer보다 먼저 완료한다. 운영 적용 보류는 유지한다.
 
 ### H-02: 파일 기반 블로그 호환 이력
 
@@ -266,3 +266,7 @@ A3 Step 1 완료: 소유자는 원인·버전/hash를 확인한 실패 작업 �
 ## 비공개 모니터링 로컬 기반 — 2026-10-28
 
 2026-10-28 모니터링 Step 1 완료: 선택형 Compose에 고정 Prometheus 3.13.5/Grafana 12.4.13, self-scrape·datasource·별도 volume·자원 제한을 추가했다. Docker 29의 internal-only 포트 미생성 문제는 localhost 전용 Nginx 진입점으로 해결하고 Grafana/Prometheus의 egress 차단을 유지했다. 기본 서비스/profile 보존, promtool·실제 인증/수집/ingress·재생성 후 과거 지표/Grafana 저장 자료 보존을 격리 smoke 1/1로 확인했다. 설정·문서 범위이며 앱/DB/worker/UI는 변경하지 않았다. 모니터링은 completed 2·pending 5·blocked 1, 관리자 상태는 14·2·1 그대로다. **다음은 operations-observability Step 2: host-database-http-probes**다. 운영 적용·외부 알림·실제 provider·발행·timer는 실행하지 않았다.
+
+## 서버·DB·HTTP 상태 수집 — 2026-10-28
+
+2026-10-28 모니터링 Step 2 완료: 선택형 probes overlay와 고정 Node/PostgreSQL/Blackbox Exporter, 기존 Node/pg 기반 별도 collector를 구현했다. CPU·메모리 통계 파일 3개와 내용 없는 Docker volume만 읽고 host root는 연결하지 않는다. 최소 DB 계정·집계 view, 60초 수집/3초 statement·5초 transaction 제한, 실패 시 timestamp 보존과 180초 stale 생략을 검증했다. 고정 home/blog의 HTTP 실패·timeout·redirect·임박 TLS, 실제 잠금·권한 거부·DB/수집기 중단·label/log 경계를 격리 검증했다. 단위 260 pass/25 DB skip, 전체 DB integration, lint/typecheck/build 통과. 모니터링 completed 3·pending 4·blocked 1이며 다음은 **operations-observability Step 3: durable-publishing-signals**다. 관리자 상태 14·2·1, OCI·provider·발행·timer 보류는 유지한다.

@@ -8,6 +8,10 @@ global:
   label_name_length_limit: 128
   label_value_length_limit: 128
 
+# The optional probes overlay mounts this directory. No match is valid for Step 1.
+scrape_config_files:
+  - /etc/prometheus/probes/*.yml
+
 scrape_configs:
   - job_name: prometheus
     static_configs:
@@ -20,3 +24,8 @@ scrape_configs:
       - source_labels: [__name__]
         action: keep
         regex: "process_start_time_seconds|process_resident_memory_bytes|prometheus_tsdb_head_series|prometheus_tsdb_head_samples_appended_total|prometheus_tsdb_wal_storage_size_bytes"
+      - source_labels: [__name__, type]
+        action: drop
+        regex: prometheus_tsdb_head_samples_appended_total;histogram
+      - action: labelkeep
+        regex: __name__|job|instance
