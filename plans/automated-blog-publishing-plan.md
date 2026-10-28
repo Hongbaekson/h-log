@@ -1,5 +1,9 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
+2026-10-28 모니터링 Step 1 완료: 선택형 Compose에 고정 Prometheus 3.13.5/Grafana 12.4.13, self-scrape·datasource·별도 volume·자원 제한을 추가했다. Docker 29의 internal-only 포트 미생성 문제는 localhost 전용 Nginx 진입점으로 해결하고 Grafana/Prometheus의 egress 차단을 유지했다. 기본 서비스/profile 보존, promtool·실제 인증/수집/ingress·재생성 후 과거 지표/Grafana 저장 자료 보존을 격리 smoke 1/1로 확인했다. 설정·문서 범위이며 앱/DB/worker/UI는 변경하지 않았다. 모니터링은 completed 2·pending 5·blocked 1, 관리자 상태는 14·2·1 그대로다. **다음은 operations-observability Step 2: host-database-http-probes**다. 운영 적용·외부 알림·실제 provider·발행·timer는 실행하지 않았다.
+
+이하 날짜별 기록의 다음 단계는 당시 상태다.
+
 2026-10-28 A3 Step 1 완료: `/admin/jobs`에 실패 작업 한 건의 명시적 재시도와 기존 정책의 중지·재개를 연결했다. 명령 UUID·버전/hash·post revision·lease·3회 상한과 감사 transaction을 확인하고, 같은 작업/idempotency key를 보존한다. migration 011은 기존 내부 ID와 분리된 관리자 명령 UUID만 추가한다. 단위 257 pass/25 DB skip, 격리 integration 27/27, dev 재시도 HTTP 1/1, production HTTP 6/6, lint/typecheck/build 및 1440/390/320px 검수를 통과했다. 관리자 completed 14·pending 2·blocked 1이며 다음은 **operations-observability Step 1: private-metrics-stack**이다. 모니터링 Steps 1–6 후 A3 Step 2를 진행한다. 운영 migration·provider·공개 발행·timer·배포는 실행하지 않았다.
 
 현재 실행 계약은 [자동화 정책](../apps/h-log/.codex/docs/harness/AUTOMATION_POLICY.md)을 따른다. 아래 날짜별 기록은 당시 상태다.

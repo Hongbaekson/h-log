@@ -225,3 +225,7 @@ A4 Steps 0–3의 합성 로컬 검증은 완료했다. A3 운영 적용 전 다
 - 장애 rollback은 PDF 공개/관리 쓰기를 닫고 기존 web을 중지한 뒤 검증한 이전 image로 전환한다. PDF 기능 OFF와 epoch 비움을 모든 instance에 적용하고 404를 확인한다. 새 bytea/보고서/감사를 삭제하는 down migration은 실행하지 않는다. DB를 되돌려야 하면 [복구 runbook](backup-restore-runbook.md)의 새 epoch·오프라인 reset·전 페이지 재검토를 따른다.
 
 이 단계에서 실제 파일을 공개하거나 OCI·DNS/TLS·운영 migration·timer를 실행하지 않았다. 기능 배포와 파일 공개는 별도 검수/행동이다.
+
+## 모니터링 로컬 검증 추가 — 2026-10-28
+
+[선택형 실행 절차](../../deploy/observability/README.md)의 config/promtool/smoke를 별도 project에서 통과했다. 기본 Compose는 그대로이며 공개 Nginx에 metrics/probe/Prometheus/Grafana 경로 404만 추가했다. 기존 공개 경로 통과와 관리자 차단도 합성 upstream으로 검증했다. 운영 적용 시 해당 ingress 변경을 포함해 다시 확인한다. 운영 stack·exporter·외부 감시/알림은 아직 적용하지 않았고 승인된 rollout 전에는 운영 Compose를 재시작하지 않는다.

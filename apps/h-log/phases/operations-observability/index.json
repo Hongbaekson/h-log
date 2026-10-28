@@ -3,7 +3,7 @@
   "phase": "operations-observability",
   "steps": [
     { "step": 0, "name": "monitoring-contract-and-budget", "status": "completed", "summary": "2026-10-26: Verified live schema/callers and finalized required-six publishing proof, DB-independent atomic summaries, unknown/disabled/stale semantics, read-only access, KST schedules/UTC cost and separate 1 GiB memory/3 GiB disk budget including PDF workload inputs. Documentation/JSON/link/registry checks passed. Runtime remains unimplemented. General next: admin-blog-publishing Step 0; monitoring next: Step 1. OCI hold unchanged." },
-    { "step": 1, "name": "private-metrics-stack", "status": "pending" },
+    { "step": 1, "name": "private-metrics-stack", "status": "completed", "summary": "2026-10-28: Optional digest-pinned Prometheus/Grafana with private self-scrape, provisioned datasource, file secret, bounded resources and persistent volumes. Docker 29 internal-only publishing required a fixed localhost Nginx gateway while preserving collector egress isolation. Config/profile preservation, promtool, live auth/metrics/ingress/isolation and new-container historical sample/Grafana persistence passed (smoke 1/1). No application/DB/worker/UI or production changes. Next: Step 2; Steps 2-6 pending and Step 7 blocked." },
     { "step": 2, "name": "host-database-http-probes", "status": "pending" },
     { "step": 3, "name": "durable-publishing-signals", "status": "pending" },
     { "step": 4, "name": "backup-and-restore-signals", "status": "pending" },

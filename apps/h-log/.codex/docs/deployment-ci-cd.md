@@ -46,7 +46,7 @@ Local development
 
 ## 운영 모니터링 도입 계획
 
-2026-10-06 [operations-observability](harness/OBSERVABILITY_PLAN.md)를 등록했다. Prometheus/Grafana와 host/DB/HTTP exporter, 지속적인 발행·비용·백업 신호, 운영 알림을 8개 step으로 나눈다. 현재 Compose에 모니터링 서비스가 추가됐다는 뜻은 아니다.
+2026-10-06 [operations-observability](harness/OBSERVABILITY_PLAN.md)를 등록했다. Prometheus/Grafana와 host/DB/HTTP exporter, 지속적인 발행·비용·백업 신호, 운영 알림을 8개 step으로 나눈다. 2026-10-28 Step 1에서 선택형 `compose.observability.yaml`의 비공개 로컬 기반만 구현했다. 기본 앱 Compose는 그대로이며 [실행 절차](../../deploy/observability/README.md)에 image pin·secret·접근/보존 검증을 기록했다. Docker 29 대응 localhost gateway는 Grafana로만 전달하고 공개 Nginx는 metrics/probe/모니터링 경로를 404로 막는다. 운영에는 적용하지 않았다.
 
 - Steps 0–6은 격리 로컬에서 계약·수집·화면/알림·장애·자원 예산을 검증한다. Grafana는 localhost + SSH 터널을 기본안으로 두고 metrics/probe와 DB를 public ingress에 노출하지 않는다.
 - Step 7은 기존 OCI 보류로 blocked다. 검증된 artifact·자원 측정·변경 서비스·secret·rollback을 준비한 뒤 명시적 재개/배포 범위에 따라 운영에 적용한다. 실제 알림 수신처와 독립 외부 HTTP/heartbeat 감시도 이때 검증한다.

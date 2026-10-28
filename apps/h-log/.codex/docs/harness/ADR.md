@@ -405,7 +405,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **A2 Step 2 구현 (2026-10-27)**: 실제 웹 요청과 소비자를 함께 구현하면서 migration 009에 검증된 입력 snapshot/hash, 실행 상태와 staged 결과만 추가했다. 파일이 바뀌어도 이전 요청을 재현하고 같은 입력은 한 요청으로 합친다. 일반 queue/메시지 브로커는 추가하지 않았다. 외부 실행 exactly-once를 보장하지 않으며 시작 표시 후 실패/연결 유실은 needs_review로 멈춘다. 결과를 보관한 뒤 초안·완료 감사가 원자적으로 저장되므로 저장 실패는 provider 재호출 없이 복구한다. 모든 수동 결과는 drafted이며 jobs는 0개다. 기존 일일 실행과 공통 generation lock을 공유해 usage admission을 직렬화하고, 별도 Seoul daily lock/검증 ID를 보존한다. 운영 gate/한도/복구 제한은 [실행 계약](DRAFT_GENERATION_REQUESTS.md)을 따른다. 지속 정책은 Step 3이다.
 
-**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4/A2 전체와 A3 Steps 0–1 completed 14개·pending 2개·운영 rollout blocked 1개다. 모니터링 Step 0 계약도 완료했으며 다음은 operations-observability Step 1이다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
+**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4/A2 전체와 A3 Steps 0–1 completed 14개·pending 2개·운영 rollout blocked 1개다. 모니터링 Steps 0–1도 완료했으며 다음은 operations-observability Step 2다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
 
 ### ADR-039: 이력서 PDF는 비공개 버전에서 검토한 파일 하나만 공개한다
 
@@ -450,3 +450,11 @@ A3 Step 0은 기존 원장의 제한된 read-only 투영으로 구현한다. act
 ## 제한된 재시도·일시정지 구현 — 2026-10-28
 
 Legacy job ID에 private 정보가 있을 수 있어 명령용 admin_id UUID를 DB에서 발급한다. 표시 hash를 인증/명령 식별자로 쓰지 않는다. 재시도는 새 job이나 새 원고를 만들지 않고 기존 row와 idempotency key를 유지하며 횟수를 소비한다. worker와 같은 정책을 잠그고 job NOWAIT로 잠금 역전의 대기를 피한다. 공개 후 필수 검증 실패는 안전한 수정본 검토로 돌리고 결과가 불명확한 외부 호출은 자동 재실행하지 않는다. 중지·재개는 기존 정책을 재사용한다.
+
+## ADR-018 Step 1 구현 보완 — 2026-10-28
+
+Prometheus 3.13.5 LTS/Grafana OSS 12.4.13 patch 지원 버전을 공식 manifest digest로 고정했다. 선택형 overlay는 기본 앱 서비스/의존성을 바꾸지 않는다. 별도 local project/volume, 비-root·read-only config, 파일 secret, 7d/1GiB와 60초 self-scrape를 적용했다. 재현 명령/출처는 [실행 절차](../../../deploy/observability/README.md)를 따른다.
+
+Docker 29.6.1에서 internal-only 컨테이너의 host port가 실제 생성되지 않는 것을 확인했다. Grafana를 egress 망에 붙이는 대신 기존 Nginx 기술을 재사용하되 새 진입점의 이미지는 공식 stable 1.30.6-alpine digest로 고정한다. Gateway는 고정 Grafana upstream만 전달하고 Prometheus/app/DB 망에는 접근하지 않는다. Grafana는 두 internal 망, Prometheus는 monitoring_net만 사용한다. Public Nginx는 계속 별도다. 새 기술/외부 서비스는 없고 Grafana의 기존 320 MiB/0.25 CPU 예산을 Grafana 304/0.20와 gateway 16/0.05로 나눈다. Gateway 로그 30 MiB는 디스크 예비 공간에서 배정한다.
+
+Gateway 자체 일반 bridge의 egress 가능성과 기존 공개 Nginx 이미지 갱신은 운영 검수에 남긴다. Grafana/Prometheus 외부 송신·익명/공개 공유는 막고 포트는 loopback에만 연다. 설정 검증/격리 smoke는 통과했으며 업무 지표·대시보드·알림과 24시간 검증은 미완료다. 다음은 monitoring Step 2이며 OCI 보류는 유지한다.

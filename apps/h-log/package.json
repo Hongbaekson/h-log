@@ -11,6 +11,7 @@
     "test:integration": "node -e \"if (!process.env.DATABASE_URL) { console.error('DATABASE_URL is required for integration tests'); process.exit(1) }\" && npm run test:migrations && npm run test:repository && npm run test:public-read-path && npm run test:worker && npm run test:dry-run && npm run test:brain && npm run test:resume && npm run test:admin:posts && npm run test:editorial && npm run test:drafts && npm run test:automation && npm run test:admin:operations && npm run test:jobs:retry",
     "test:jobs:retry": "node --no-warnings --experimental-strip-types --test lib/blog-job-retry.integration.test.ts",
     "test:jobs:retry:http": "node --test scripts/blog-job-retry.http.test.mjs",
+    "test:observability:stack": "node --test scripts/observability-stack.test.mjs",
     "test:admin:operations": "node --no-warnings --experimental-strip-types --test lib/blog-admin-operations.integration.test.ts",
     "test:admin:operations:http": "node --test scripts/blog-admin-operations.http.test.mjs",
     "test:automation": "node --no-warnings --experimental-strip-types --test lib/blog-automation-policy.integration.test.ts",

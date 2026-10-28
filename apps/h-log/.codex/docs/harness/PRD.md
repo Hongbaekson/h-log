@@ -139,13 +139,13 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 
 ### I-02: 운영 모니터링 계획
 
-2026-10-06 사용자 요청으로 [operations-observability](OBSERVABILITY_PLAN.md)를 8개 step으로 등록했다. 수집 환경, 서버·DB·HTTP 상태, 지속적인 발행/비용·백업 신호, 대시보드/알림, 장애 검증과 승인된 운영 적용을 순서대로 진행한다. 2026-10-26 Step 0 계약만 완료했다. 수집 스택·대시보드·알림은 미구현이다. 현재 버전 required 6종의 성공 증거, DB 독립 atomic summary, UTC 비용/09:00 KST 일정과 unknown·stale·disabled를 구분한다. 초기 모니터링 예산은 별도 메모리 1 GiB·디스크 3 GiB이며 PDF 백업 예산과 합산해 검증한다.
+2026-10-06 사용자 요청으로 [operations-observability](OBSERVABILITY_PLAN.md)를 8개 step으로 등록했다. 수집 환경, 서버·DB·HTTP 상태, 지속적인 발행/비용·백업 신호, 대시보드/알림, 장애 검증과 승인된 운영 적용을 순서대로 진행한다. 2026-10-28 Steps 0–1을 완료했다. 비공개 Prometheus/Grafana self-scrape·datasource·지속 volume은 로컬 검증했고 host/DB/HTTP 수집·업무 지표·대시보드·알림은 후속 단계다. 현재 버전 required 6종의 성공 증거, DB 독립 atomic summary, UTC 비용/09:00 KST 일정과 unknown·stale·disabled를 구분한다. 초기 모니터링 예산은 별도 메모리 1 GiB·디스크 3 GiB이며 PDF 백업 예산과 합산해 검증한다.
 
 - 자동 발행 미실행·실패·정체, 백업/복구 검증 지연과 수집 자체의 오류를 감지한다.
 - 지표·대시보드는 비공개 운영 표면이며 콘텐츠·검색어·credential·내부 식별자를 노출하지 않는다. 기존 published-current/privacy와 비용 guard를 유지한다.
 - Steps 0–6은 격리 로컬에서 진행하고 Step 7은 기존 OCI 보류로 blocked다. 외부 HTTP/heartbeat 감시를 포함한 운영 검증을 반복 발행 timer 활성화 전에 완료한다.
 - 모니터링 완료에 실제 반복 발행을 요구하지 않는다. 비활성 상태를 구분한 뒤 timer 재개는 기존 자동 발행 phase에서 별도 승인으로 수행한다.
-- 2026-10-22 관리자 통합 요청의 A1/A4와 `operations-observability / Step 0` 계약을 완료했다. 다음 A2 블로그 검토/제어를 먼저 진행한다. 로컬 Steps 1–6은 A3 모니터링 화면보다 먼저, 운영 Step 7은 관리자 rollout·timer보다 먼저 완료한다. 운영 적용 보류는 유지한다.
+- 2026-10-28 관리자 A1/A4/A2와 A3 Steps 0–1, 모니터링 Steps 0–1을 완료했다. 다음은 모니터링 Step 2다. 로컬 Steps 1–6은 A3 모니터링 화면보다 먼저, 운영 Step 7은 관리자 rollout·timer보다 먼저 완료한다. 운영 적용 보류는 유지한다.
 
 ### H-02: 파일 기반 블로그 호환 이력
 
@@ -262,3 +262,7 @@ A3 Step 0 완료: 소유자는 `/admin/jobs`에서 실제 작업 상태·대상/
 ## 제한된 재시도·일시정지 구현 — 2026-10-28
 
 A3 Step 1 완료: 소유자는 원인·버전/hash를 확인한 실패 작업 한 건의 재시도를 요청하고, 기존 새 작업 정책을 중지·재개할 수 있다. 같은 UUID 요청은 같은 접수 결과로 수렴하며, 현재 버전·lease·재시도 상한을 넘거나 철회된 글은 변경하지 않는다. 공개 후 실패/불명확 외부 작업은 검토로 안내한다. 다음은 모니터링 로컬 기반 Step 1이다.
+
+## 비공개 모니터링 로컬 기반 — 2026-10-28
+
+2026-10-28 모니터링 Step 1 완료: 선택형 Compose에 고정 Prometheus 3.13.5/Grafana 12.4.13, self-scrape·datasource·별도 volume·자원 제한을 추가했다. Docker 29의 internal-only 포트 미생성 문제는 localhost 전용 Nginx 진입점으로 해결하고 Grafana/Prometheus의 egress 차단을 유지했다. 기본 서비스/profile 보존, promtool·실제 인증/수집/ingress·재생성 후 과거 지표/Grafana 저장 자료 보존을 격리 smoke 1/1로 확인했다. 설정·문서 범위이며 앱/DB/worker/UI는 변경하지 않았다. 모니터링은 completed 2·pending 5·blocked 1, 관리자 상태는 14·2·1 그대로다. **다음은 operations-observability Step 2: host-database-http-probes**다. 운영 적용·외부 알림·실제 provider·발행·timer는 실행하지 않았다.

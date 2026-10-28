@@ -23,6 +23,12 @@ Steps 0–1 완료 후 Linux host, PostgreSQL, HTTP/TLS의 최소 상태를 수�
 - `apps/h-log/phases/operations-observability/index.json`
 - `apps/h-log/phases/operations-observability/step1.md`
 - `apps/h-log/compose.yaml`
+- `apps/h-log/compose.observability.yaml`
+- `apps/h-log/deploy/observability/README.md`
+- `apps/h-log/deploy/observability/prometheus.yml`
+- `apps/h-log/deploy/observability/gateway.conf`
+- `apps/h-log/deploy/observability/grafana/provisioning/datasources/prometheus.yml`
+- `apps/h-log/scripts/observability-stack.test.mjs`
 - `apps/h-log/deploy/nginx/conf.d/hlog.conf`
 - `apps/h-log/.codex/docs/local-blog-dry-run.md`
 - `apps/h-log/.codex/docs/deployment-ci-cd.md`

@@ -1,6 +1,6 @@
 # H-Log 운영 모니터링 계획
 
-등록일: 2026-10-06. **2026-10-26 Step 0의 지표·권한·자원 계약을 확정했다. 수집기·대시보드·알림은 아직 구현하지 않았다.** 실행 상태는 [phase registry](../../../phases/operations-observability/index.json)를 따른다. 이 문서가 모니터링 계약의 단일 기준이다.
+등록일: 2026-10-06. **2026-10-28 Steps 0–1 완료: 계약과 비공개 Prometheus/Grafana 로컬 기반을 검증했다. Host/DB/HTTP 수집기·업무 신호·대시보드·알림은 아직 구현하지 않았다.** 실행 상태는 [phase registry](../../../phases/operations-observability/index.json)를 따른다. 이 문서가 모니터링 계약의 단일 기준이다.
 
 ## 목적과 실행 순서
 
@@ -9,7 +9,7 @@
 | Step | 이름 | 완료 결과 |
 | --- | --- | --- |
 | [0](../../../phases/operations-observability/step0.md) | monitoring-contract-and-budget | 완료: 아래 계약과 구현 인계 확정 |
-| [1](../../../phases/operations-observability/step1.md) | private-metrics-stack | 격리 로컬 Prometheus/Grafana와 재현 가능한 구성 |
+| [1](../../../phases/operations-observability/step1.md) | private-metrics-stack | 완료: 격리 로컬 Prometheus/Grafana·접근 차단·재생성 보존 |
 | [2](../../../phases/operations-observability/step2.md) | host-database-http-probes | Linux host·PostgreSQL·HTTP/TLS 수집 |
 | [3](../../../phases/operations-observability/step3.md) | durable-publishing-signals | 지속 실행 결과·발행/비용·누락 신호 |
 | [4](../../../phases/operations-observability/step4.md) | backup-and-restore-signals | 백업과 복구 검증을 구분한 지속 신호 |
@@ -17,7 +17,7 @@
 | [6](../../../phases/operations-observability/step6.md) | isolated-failure-rehearsal | 장애·수집 중단·재기동·자원 검증 |
 | [7](../../../phases/operations-observability/step7.md) | approved-production-rollout | OCI 보류로 blocked: 승인된 운영 설치와 외부 감시 |
 
-현재 1 completed / 6 pending / 1 blocked다. **일반 다음 작업은 [A3 Step 0: job-and-audit-inspection](../../../phases/admin-operations-control/step0.md)**다. [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1/A4 → 모니터링 계약 → A2 Steps 0–3 → A3 Steps 0–1 → 모니터링 Steps 1–6 → A3 Steps 2–3 순서를 유지한다. 모니터링 트랙을 지정하면 이 phase의 Step 1부터 이어간다.
+현재 2 completed / 5 pending / 1 blocked다. **일반 다음 작업은 [Step 2: host-database-http-probes](../../../phases/operations-observability/step2.md)**다. [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1/A4 → 모니터링 계약 → A2 Steps 0–3 → A3 Steps 0–1 → 모니터링 Steps 1–6 → A3 Steps 2–3 순서를 유지한다. A3 Steps 0–1도 완료했으며 이 phase의 Steps 2–6 이후 A3 Step 2로 돌아간다.
 
 수집기·신호·대시보드·알림은 이 phase가 소유하고 관리자 화면은 그 결과를 소비한다. 승인된 모니터링 Step 7 → 관리자 rollout → 기존 auto-publish-ops-hardening Step 4의 timer 활성화 순서다. **모니터링 완료에 실제 반복 발행을 요구하지 않는다.** 비활성 scheduler와 로컬 누락 재현으로 먼저 검증하므로 순환 의존이 없다.
 
@@ -27,7 +27,7 @@
 
 | 근거 | 현재 상태 | 계약 반영 |
 | --- | --- | --- |
-| compose / Nginx | web `/`·DB pg_isready healthcheck만 존재. 모니터링 없음 | 선택형 구성, ingress metrics/probe 차단을 후속 구현 |
+| compose / Nginx | 기본 앱은 유지. Step 1에 선택형 private stack·self-scrape·datasource·ingress 차단 구현 | exporter/업무 지표는 Steps 2–4 |
 | auto-publish-cycle / CLI | worker idle이면 completed; 중복·budget 차단도 반환 | 종료 코드나 completed를 발행 성공으로 사용하지 않음 |
 | content model / required adapter / persistent worker | required 6종 중 render/privacy는 공개 전, public_url/md_url/sitemap/content_version_match는 공개 후 검사 | 현재 버전의 6종 모두 존재하고 succeeded인지 확인. published만으로 성공 판정 금지 |
 | migration 001 publish_verifications | 테이블은 있으나 실제 adapter/worker의 INSERT 없음. dry-run fixture만 기록 | 이 테이블 대신 실제 publish_jobs를 성공 근거로 재사용 |
@@ -40,8 +40,8 @@
 
 선택형 `compose.observability.yaml`에 Prometheus, Grafana/Grafana Alerting, Node Exporter, PostgreSQL Exporter, Blackbox Exporter, H-Log collector를 둔다. Collector는 기존 Node/pg 런타임의 작은 별도 프로세스이며 공개 Next.js route가 아니다. 별도 Alertmanager/Loki/Tempo/OTel Collector/Pushgateway/cAdvisor는 추가하지 않는다.
 
-- monitoring_net은 internal이다. Prometheus/Grafana/Node exporter는 이 망만, DB exporter/H-Log collector는 추가로 data_net만 연결한다. Blackbox는 고정 HTTP 대상 접근망을 추가한다. Nginx는 monitoring_net에 연결하지 않는다. Grafana의 외부 알림 egress는 Step 7에서 승인 수신처에 한해 연다.
-- Grafana만 `127.0.0.1:3030:3000`을 기본값으로 publish하고 SSH 터널로 접속한다. 포트 충돌은 로컬 override로 기록한다. 익명 접근·가입·외부 공유를 끄고 Prometheus/exporter 포트는 publish하지 않는다. 공개/관리자 ingress 모두 metrics/probe를 제공하지 않는다.
+- monitoring_net은 internal이다. Prometheus/Node exporter는 이 망만, Grafana는 추가 internal grafana_access_net, DB exporter/H-Log collector는 추가 data_net만 연결한다. Blackbox는 고정 HTTP 대상 접근망을 추가한다. 공개 Nginx와 monitoring-gateway는 monitoring_net에 연결하지 않는다. Gateway만 grafana_access_net과 일반 monitoring_access_net에서 고정 Grafana upstream을 전달한다. Docker 29의 internal-only publish 미동작을 재현해 추가했으며 Prometheus/Grafana의 egress는 차단한다. Grafana 외부 알림 egress는 Step 7에서 승인 수신처에 한해 연다.
+- Grafana 진입점만 gateway의 `127.0.0.1:3030:8080`을 기본값으로 publish하고 SSH 터널로 접속한다. 포트 충돌은 로컬 override로 기록한다. 익명 접근·가입·외부 공유를 끄고 Prometheus/exporter 포트는 publish하지 않는다. 공개/관리자 ingress 모두 metrics/probe를 제공하지 않는다.
 - DB exporter LOGIN에는 CONNECT와 필요한 기본 통계 조회만 허용한다. 앱 테이블, pg_monitor, pg_read_all_stats, superuser, 쓰기·DDL 권한은 부여하지 않는다. pg_up와 stat_database의 연결 수만 수집 allowlist에 남기고 SQL 전문·사용자·client 주소·테이블별 통계는 제외한다.
 - H-Log collector LOGIN은 별도로 두고 migration 소유자가 만든 monitoring schema의 고정 집계 view에만 USAGE/SELECT를 부여한다. PUBLIC에는 view 권한을 주지 않는다. View는 count/시각/금액만 반환하며 원문 테이블·PDF bytea·Brain·키에 대한 직접 SELECT와 쓰기를 거부해야 한다. 읽기 전용 transaction과 timeout도 적용한다.
 - [PostgreSQL 통계 권한](https://www.postgresql.org/docs/16/monitoring-stats.html)과 exporter built-in collector를 사용한다. Deprecated custom query 기능에는 의존하지 않는다. 선택 버전의 옵션·출력·비특권 동작을 Step 2에서 검증하고 권한 부족을 superuser로 해결하지 않는다.
@@ -119,13 +119,14 @@ Expectation은 task별 enabled/enabled_at/유한 maintenance 구간이다. 변�
 | 서비스 | 메모리 limit | CPU limit |
 | --- | ---: | ---: |
 | Prometheus | 384 MiB | 0.35 vCPU |
-| Grafana | 320 MiB | 0.25 vCPU |
+| Grafana | 304 MiB | 0.20 vCPU |
+| localhost Nginx gateway | 16 MiB | 0.05 vCPU |
 | Node / PostgreSQL / Blackbox exporter | 각각 64 MiB | 각각 0.05 vCPU |
 | H-Log collector | 128 MiB | 0.25 vCPU |
 | 합계 | **1,024 MiB** | **1.00 vCPU** |
 
-- 모니터링 디스크 **3,072 MiB**: Prometheus 2,048(보관 1,024 + WAL/head/compaction 여유 1,024), Grafana 512, 로그 180(6개 × 10 MiB × 3개), state/임시 32, 추가 여유 300. Volume 예산 표기는 hard quota가 아니므로 실사용을 감시한다.
-- Retention은 7d와 1GB 중 먼저 도래하는 조건이다. [공식 storage 설명](https://prometheus.io/docs/prometheus/latest/storage/)상 WAL/head도 size 계산에 포함되나 삭제 대상은 persistent block뿐이다. 삭제·compaction도 즉시 끝나지 않으므로 retention.size를 전체 디스크 상한으로 보지 않는다. 이전 초안의 “WAL/head는 size 계산 밖” 설명을 수정했다. 선택 버전의 size 단위/bytes를 확인해 1,024 MiB 이하로 설정한다.
+- 모니터링 디스크 **3,072 MiB**: Prometheus 2,048(보관 1,024 + WAL/head/compaction 여유 1,024), Grafana 512, 로그 210(7개 × 10 MiB × 3개), state/임시 32, 추가 여유 270. Volume 예산 표기는 hard quota가 아니므로 실사용을 감시한다.
+- Retention은 7d와 1GB 중 먼저 도래하는 조건이다. [공식 storage 설명](https://prometheus.io/docs/prometheus/latest/storage/)상 WAL/head도 size 계산에 포함되나 삭제 대상은 persistent block뿐이다. 삭제·compaction도 즉시 끝나지 않으므로 retention.size를 전체 디스크 상한으로 보지 않는다. 이전 초안의 “WAL/head는 size 계산 밖” 설명을 수정했다. Step 1의 선택 버전은 `1GB`를 `1GiB`(1,073,741,824 bytes), `7d`를 `1w`로 반환하며 실제 flags로 검증했다.
 - 전체 active series 5,000 이하, 업무 series 500 이하를 목표로 한다. Job별 sample_limit 최대 2,000, label_limit 10, label 값 128자, scrape body 1 MiB. 초과를 일부만 정상 수집한 것으로 숨기지 않는다. CPU/fs/DB 수에 따른 실제 series와 오류를 Step 6에서 검증한다.
 - [A4 실측](../../../phases/admin-resume-pdf/step3.md): 합성 원본 100 MiB, DB 증가 113.80 MiB, dump 116.49 MiB, dump/restore 6,544/2,888 ms, 단일 업로드 web RSS 299.50 MiB, 동시 다운로드 최대 367.13 MiB. PDF 임시 공간은 별도 32 MiB tmpfs다. 전체 운영 peak로 일반화하지 않는다.
 - PDF의 기존 **3 GiB 백업/복구 예산은 모니터링 3 GiB와 별도**다. 앱/DB/WAL/OS·검사 프로세스 여유도 필요하다. Step 6은 최대 PDF 자료·기존 읽기 경로를 함께 확인한다. OOM/재시작/디스크 초과/앱 지연은 예산·배치를 재검토하고 재검증한다.
@@ -154,11 +155,11 @@ Expectation은 task별 enabled/enabled_at/유한 maintenance 구간이다. 변�
 
 ## 후속 구현 파일과 검증 인계
 
-아래 신규 파일·명령은 **예정이며 아직 구현/실행 결과가 아니다.** 경로는 앱 기준이다. Migration 번호는 선행 A2/A3 작업 이후 다음 빈 번호로 할당한다.
+Step 1 파일/검증은 완료했고 [로컬 실행 절차](../../../deploy/observability/README.md)를 따른다. 아래 Steps 2–7 신규 파일·명령은 **예정이며 아직 구현/실행 결과가 아니다.** 경로는 앱 기준이다. Migration 번호는 선행 A2/A3 작업 이후 다음 빈 번호로 할당한다.
 
 | Step | 예정 파일 / 재사용 파일 | 완료 검증 |
 | --- | --- | --- |
-| 1 | `compose.observability.yaml`, `deploy/observability/prometheus.yml`, `deploy/observability/grafana/provisioning/datasources/prometheus.yml`, `deploy/observability/README.md` | 기본/선택형 config·promtool·self scrape·datasource·접근/재기동 |
+| 1 | `compose.observability.yaml`, `deploy/observability/prometheus.yml`, `deploy/observability/grafana/provisioning/datasources/prometheus.yml`, `deploy/observability/README.md`, `deploy/observability/gateway.conf`, `scripts/observability-stack.test.mjs` | 완료: 기본/선택형 config·promtool·self scrape·datasource·접근/재생성 |
 | 2 | `deploy/observability/blackbox.yml`, `deploy/observability/database-roles.sql`, `lib/observability-collector.ts`, `scripts/observability-collector.mjs`, `lib/observability-collector.test.ts` | 비특권 SQL·권한 거부·timeout RED/GREEN·실제 host/DB/고정 HTTP·TLS scrape |
 | 3 | `lib/observability-publishing.ts`, `lib/observability-publishing.test.ts`, `lib/observability-publishing.integration.test.ts`, `scripts/observability-state.py`, `scripts/observability_state_test.py`; 기존 cycle/service/usage/repository·신규 migration | 6종 proof·빈 job·이전 버전·preflight/DB 이전 실패·kill·slot/UTC·비용 unknown·atomic 파일·재시작 |
 | 4 | `scripts/observability-backup.mjs`, `scripts/observability-backup.test.mjs`; 기존 backup runbook/PDF rehearsal·공통 state helper | 격리 dump/restore·hash/private·실패/never/stale·첫 deadline |
@@ -166,12 +167,15 @@ Expectation은 task별 enabled/enabled_at/유한 maintenance 구간이다. 변�
 | 6 | `scripts/observability-rehearsal.mjs`; 위 README·각 완료 기록 | 최소 24시간 격리 soak·DB/서비스 중단·host 재부팅·미실행·PDF 부하·자원 peak·복구 |
 | 7 | 위 구성·runbook·운영 적용 기록 | 승인된 host 예산·비공개 접근·외부 HTTP/heartbeat·rollback; timer OFF |
 
-예정 명령(앱 디렉터리, Git 제외 로컬 env 사용):
+Step별 명령(앱 디렉터리, Git 제외 로컬 env 사용; Step 1의 HLOG_GRAFANA_PASSWORD_FILE은 저장소 밖 파일 필수):
 
 ```bash
 docker compose -p hlog-observe-local -f compose.yaml config --quiet
 docker compose -p hlog-observe-local -f compose.yaml -f compose.observability.yaml --profile observability config --quiet
 docker compose -p hlog-observe-local -f compose.yaml -f compose.observability.yaml --profile observability run --rm --no-deps --entrypoint promtool prometheus check config /etc/prometheus/prometheus.yml
+# Step 1: HLOG_OBSERVABILITY_SMOKE=1 (PowerShell에서는 $env:... 사용)
+node --test scripts/observability-stack.test.mjs
+# 아래는 후속 구현 예정
 node --no-warnings --experimental-strip-types --test lib/observability-collector.test.ts
 node --no-warnings --experimental-strip-types --test lib/observability-publishing.test.ts
 node --no-warnings --experimental-strip-types --test lib/observability-publishing.integration.test.ts
