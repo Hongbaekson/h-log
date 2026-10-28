@@ -1,0 +1,21 @@
+import assert from "node:assert/strict";
+import { randomUUID } from "node:crypto";
+import test from "node:test";
+import { handleJobRetryRequest } from "./blog-job-retry-http.ts";
+test("job commands reject unauthenticated, cross-origin, malformed and oversized bodies; errors stay safe",async()=>{
+  const env={HLOG_ADMIN_ENABLED:"1",HLOG_ADMIN_OWNER_KEY:"a".repeat(64),HLOG_ADMIN_ORIGIN:"https://admin.example",NODE_ENV:"production"};
+  const headers={host:"admin.example",origin:"https://admin.example",authorization:`Basic ${Buffer.from(`owner:${env.HLOG_ADMIN_OWNER_KEY}`).toString("base64")}`,"content-type":"application/json"};
+  const c={commandId:randomUUID(),jobId:randomUUID(),expectedRetryCount:0,expectedPostRevision:0,expectedVersion:1,expectedHash:"a".repeat(64),reason:"실패 원인 확인",confirmed:true};
+  const req=(data:unknown,overrides={})=>new Request("https://admin.example/admin/jobs/retry",{method:"POST",headers:{...headers,...overrides},body:JSON.stringify(data)});
+  let calls=0; const execute=async()=>{calls++;return {jobId:c.jobId,retryCount:1,postStatus:"publishing" as const,status:"queued" as const};};
+  assert.equal((await handleJobRetryRequest(req(c,{authorization:"bad"}),execute,env)).status,401);
+  assert.equal((await handleJobRetryRequest(req(c,{origin:"https://sibling.example"}),execute,env)).status,403);
+  assert.equal((await handleJobRetryRequest(req({...c,confirmed:false}),execute,env)).status,400);
+  assert.equal((await handleJobRetryRequest(req({reason:"x".repeat(5000)}),execute,env)).status,413);
+  assert.equal(calls,0);
+  const ok=await handleJobRetryRequest(req(c),execute,env); assert.equal(ok.status,200);assert.match(ok.headers.get("cache-control")!,/private.*no-store/);
+  for(const code of ["state_conflict","version_conflict","command_conflict","lease_active"]) assert.equal((await handleJobRetryRequest(req(c),async()=>{throw Error(code);},env)).status,409);
+  for(const code of ["retry_limit","retry_not_supported","automation_paused","unsafe_reason"]) assert.equal((await handleJobRetryRequest(req(c),async()=>{throw Error(code);},env)).status,422);
+  const failed=await handleJobRetryRequest(req(c),async()=>{throw Error("SECRET-DB /internal/path");},env);
+  assert.equal(failed.status,503);assert.deepEqual(await failed.json(),{error:"storage_unavailable"});
+});

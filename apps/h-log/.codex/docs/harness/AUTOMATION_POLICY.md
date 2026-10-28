@@ -41,4 +41,8 @@ migration 010의 singleton blog_automation_policy는 generation/publication/jobs
 
 초기 worker 기본 OFF가 adapter 1회 실행되는 RED, 초안/수동 발행 정책 우회 RED, CLI의 중지 중 input file 접근 RED, cycle의 paused 오류 RED를 확인한 뒤 수정했다. 정책 OFF→ON→OFF/동시 revision/감사 rollback/DB 오류/새 pool 재조회, provider 응답 직후 중지/불명확 결과, 자동 공개와 품질 차단, worker 공개 직전 중지와 policy 실패 후 공개 보호를 격리 DB에서 검증했다. 실제 HTTP는 인증/공개 host 404/Origin/중복 receipt/409/정책 차단과 초안의 모든 공개 표면 제외를 확인했다. 빌드의 기존 썸네일 동적 파일 추적 경고 2건은 남아 있다.
 
-다음은 [A3 Step 0](../../../phases/admin-operations-control/step0.md)의 작업·감사 조회다.
+A3 Steps 0–1의 조회·제어도 완료했다. 다음은 [모니터링 Step 1](../../../phases/operations-observability/step1.md)이다.
+
+## 제한된 재시도·일시정지 구현 — 2026-10-28
+
+관리자 작업 화면에서 jobs 요청값만 바꾸는 모드를 제공한다. generation/publication 요청값과 기존 revision/감사를 그대로 사용한다. 명시적 failed 재시도는 현재 job/버전/hash/post revision·lease·상한과 정책을 검사하고 같은 row를 queued로 돌린다. 기존 3회 예산에 수동 요청 1회를 소비하며 reset/new job은 없다. 이미 수락한 명령의 receipt는 이후 pause 뒤에도 동일하게 반환한다. 공개 후 필수 실패·철회·구버전과 알림/유료/불명확 외부 작업은 이 재시도에서 제외한다. 자세한 허용 유형/복구 조건은 [A3 Step 1](../../../phases/admin-operations-control/step1.md)을 따른다.

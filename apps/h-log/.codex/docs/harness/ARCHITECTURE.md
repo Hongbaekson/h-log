@@ -38,7 +38,7 @@ npm run build
 
 `app/admin/posts/page.tsx`와 `lib/blog-admin-review-server.ts`는 page/DAL 양쪽에서 owner를 확인한다. `lib/blog-admin-review.ts`는 read-only repeatable-read transaction으로 20개 상태 필터 목록과 선택 버전, 글 단위 출처·버전별 검사/작업을 읽는다. 풀은 최대 2개, 읽기 statement 3초/쓰기 5초/query 6초, 본문/HTML 각 256 KiB, 출처/검사/작업 각 50개로 제한한다. 원시 오류와 검사 result는 조회하지 않는다. `components/blog/BlogContent.tsx`를 공개 상세/관리자 미리보기에서 공유하며 저장 원문/hash와 공개 current 포인터를 변경하지 않는다. 수정본 저장은 공개 current를 유지하며 명시적인 발행 요청만 후보 버전을 선택한다.
 
-2026-10-28 기준 A1/A4/A2 전체, A3 Step 0과 모니터링 Step 0 계약을 완료했다. 다음은 admin-operations-control Step 1이다. automation/jobs/audit는 구현됐고 monitoring 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
+2026-10-28 기준 A1/A4/A2 전체, A3 Steps 0–1과 모니터링 Step 0 계약을 완료했다. 다음은 operations-observability Step 1이다. automation/jobs/audit는 구현됐고 monitoring 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
 
 `app/admin/jobs/page.tsx`와 `app/admin/audit/page.tsx`는 `blog-admin-operations-server.ts`의 owner 확인 후 기존 풀과 `blog-admin-operations.ts`의 read-only repeatable-read를 사용한다. 최대 21행/20건 반환, 10,000 페이지 상한, 3초 statement timeout이며 원문/원시 오류/원시 식별자를 DTO에 넣지 않는다. 감사 receipt는 정책 revision/boolean만 표시한다. UTC 일/월 사용량은 기존 guard와 동일한 범위로 집계하며 NULL 금액과 현재 schema의 비용 근거 부재를 별도로 표시한다. `AdminObservation`은 조회 시각부터 180초가 지나면 stale 안내만 바꾸며 데이터 재조회나 워커 heartbeat를 만들지 않는다. 새 migration·collector·쓰기 경로는 없다.
 
@@ -506,3 +506,7 @@ npm run build
 2026-10-28 A2 Step 3 완료: 초안 생성·자동 공개·새 작업 처리를 기본 OFF의 DB 정책으로 분리했다. 요청한 설정/서버 상한을 반영한 실제 허용·차단 이유·확인 시각과 실행 예약 당시 revision을 표시한다. 정책 변경과 요청/lease admission을 같은 row lock으로 직렬화하고 관리자·CLI·일일 실행·worker에 적용했다. 자동 공개 OFF 또는 생성 중 중지 시 drafted/작업 0개로 저장하며 공개 전이를 재확인한다. 공개 후 필수 검증·실패 시 숨김·철회는 중지/정책 조회 실패에도 보존한다. 단위 252 pass/23 DB skip, 격리 integration 25/25, dev/prod draft·policy HTTP 각 1/1, production admin HTTP 4/4, lint/typecheck/build와 1440/390/320px 검수를 통과했다. A2 전체 완료, 관리자 completed 12·pending 4·blocked 1이며 다음은 **A3 Step 0: job-and-audit-inspection**다. 운영 migration·provider·배포·공개 발행·timer는 실행하지 않았다.
 
 [자동화 정책 계약](AUTOMATION_POLICY.md)에 환경 상한·admission·공개 보호·복구 제한을 기록했다.
+
+## 제한된 재시도·일시정지 구현 — 2026-10-28
+
+`blog-job-retry.ts`는 기존 worker의 3회 상수와 정책을 재사용하며 정책→post→job NOWAIT 잠금, 감사 command receipt와 정확한 버전/hash/retry_count/post revision 검사로 같은 작업만 재대기시킨다. migration 011의 unique admin_id UUID가 명령 대상을 식별하고 legacy ID는 DTO에 넣지 않는다. `blog-job-retry-http.ts`/`app/admin/jobs/retry/route.ts`는 owner/Origin/4 KiB 경계를 소유한다. `JobRetryForm`은 확인·사유와 응답 유실 시 동일 명령 재확인을 제공한다. 기존 정책 폼의 jobsOnly 모드가 새 작업 중지·재개를 담당하며 generation/publication 값과 공개 보호 경로를 보존한다. 새 broker/daemon/shell 제어는 없다.

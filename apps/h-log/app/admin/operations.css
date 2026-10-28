@@ -47,6 +47,16 @@
 .ops-error { border-left: 3px solid #e7aa69; padding: 12px 20px; }
 .ops-error h2 { font-size: 20px; font-weight: 650; }
 .ops-error p { color: #b8bdd3; font-size: 14px; line-height: 1.85; margin-top: 12px; }
+.ops-policy-control { border-block: 1px solid #303654; padding-bottom: 12px; }
+.ops-policy-control > summary { padding-block: 16px; cursor: pointer; color: #c7cbff; font-size: 14px; }
+.ops-retry form { border-left: 2px solid #5865f2; padding: 8px 16px; font-size: 13px; line-height: 1.8; color: #b8bdd3; }
+.ops-retry label { display: grid; gap: 8px; margin-block: 16px; }
+.ops-retry textarea { width: 100%; min-width: 0; background: #11152f; border: 1px solid #41486b; border-radius: 8px; padding: 10px; color: #e6e9ff; resize: vertical; }
+.ops-retry .ops-confirm { display: flex; align-items: start; gap: 10px; }
+.ops-confirm input { margin-top: 5px; flex-shrink: 0; width: 18px; height: 18px; accent-color: #5865f2; }
+.ops-retry button { background: #5865f2; color: white; min-height: 44px; padding: 10px 16px; border-radius: 8px; }
+.ops-retry button:disabled { opacity: .5; cursor: not-allowed; }
+.ops-retry :is(button,textarea,input):focus-visible { outline: 2px solid #b6bdff; outline-offset: 4px; }
 @media (max-width: 1000px) { .ops-facts { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (max-width: 480px) {
   .ops-filters label { flex: 1 1 100%; }

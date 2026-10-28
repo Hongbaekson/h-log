@@ -25,7 +25,7 @@ export default async function AdminPage() {
           <li><strong>글과 이력서 관리</strong><p><Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/posts" prefetch={false}>블로그 검토</Link>에서 글을 수정하고, 확인한 버전의 발행을 요청할 수 있습니다. <Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/resume" prefetch={false}>이력서 PDF 보관함</Link>에서는 파일을 등록·검토하고 공개본을 선택하거나 해제할 수 있습니다.</p></li>
           <li><strong>자동 작성과 작업 관리</strong><p><Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/automation" prefetch={false}>자동 작성</Link>에서 비공개 초안을 요청하고 작성·발행·새 작업 허용 여부를 설정할 수 있습니다. <Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/jobs" prefetch={false}>작업 원장</Link>에서 상태와 처리 기한을, <Link className="text-[#b6bdff] underline underline-offset-4" href="/admin/audit" prefetch={false}>변경 이력</Link>에서 명령과 기록된 비용을 확인합니다.</p></li>
         </ul>
-        <p className="admin-note">실패 작업 재시도와 모니터링은 준비 중입니다. 작업 조회만으로 워커의 생존 상태를 판단하지 않습니다.</p>
+        <p className="admin-note">작업 원장에서 허용된 실패 작업을 한 건씩 재시도하고 새 작업 처리를 중지·재개할 수 있습니다. 모니터링은 준비 중이며 작업 조회만으로 워커의 생존 상태를 판단하지 않습니다.</p>
       </section>
       <details className="admin-access-help"><summary>공용 기기에서 사용했다면</summary><p>브라우저가 인증 정보를 기억할 수 있습니다. 전용 프로필이나 비공개 창을 사용하고, 사용 후 창을 닫아 주세요. 접근 키가 노출됐다면 서버에서 키를 교체해야 합니다.</p></details>
     </div>

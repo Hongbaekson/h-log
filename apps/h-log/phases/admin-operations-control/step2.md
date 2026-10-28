@@ -23,6 +23,10 @@
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/phases/admin-operations-control/index.json`
 - `apps/h-log/phases/admin-operations-control/step1.md`
+- `apps/h-log/lib/blog-job-retry.ts`
+- `apps/h-log/lib/blog-job-retry.integration.test.ts`
+- `apps/h-log/migrations/011_publish_job_admin_id.sql`
+- `apps/h-log/phases/admin-operations-control/step1.md`
 - `apps/h-log/.codex/docs/harness/OBSERVABILITY_PLAN.md`
 - `apps/h-log/phases/operations-observability/index.json`
 - `apps/h-log/phases/operations-observability/step3.md`

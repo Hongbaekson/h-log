@@ -6,7 +6,7 @@ const labels: Record<keyof AutomationFlags, string> = { generation: "초안 생�
 const descriptions: Record<keyof AutomationFlags, string> = { generation: "초안 요청과 일일 작성에 적용해요.", publication: "일일 작성 결과가 검사를 통과하면 공개를 진행해요. 끄면 초안으로 남깁니다.", jobs: "끄면 새 생성과 발행, 선택 후처리를 시작하지 않아요. 공개된 글의 필수 검증과 철회는 계속할 수 있어요." };
 const blocked = { policy_off: "설정에서 꺼짐", server_disabled: "서버에서 허용하지 않음", jobs_paused: "새 작업 처리가 중지됨" };
 
-export function AutomationPolicyForm({ policy, observedAt }: { policy: AutomationPolicy; observedAt: string }) {
+export function AutomationPolicyForm({ policy, observedAt, jobsOnly = false }: { policy: AutomationPolicy; observedAt: string; jobsOnly?: boolean }) {
   const [requested, setRequested] = useState(policy.requested);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false), [uncertain, setUncertain] = useState(false), [message, setMessage] = useState("");
@@ -27,7 +27,7 @@ export function AutomationPolicyForm({ policy, observedAt }: { policy: Automatio
   }
   return <form className="review-editor automation-policy" onSubmit={save}>
     <p>저장된 설정 #{policy.revision} · <time dateTime={observedAt}>{new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Seoul" }).format(new Date(observedAt))}</time> 확인</p>
-    {(Object.keys(labels) as (keyof AutomationFlags)[]).map(key => <div className="automation-option" key={key}>
+    {(jobsOnly ? ["jobs" as const] : Object.keys(labels) as (keyof AutomationFlags)[]).map(key => <div className="automation-option" key={key}>
       <label><input type="checkbox" checked={requested[key]} disabled={busy || uncertain} onChange={e => setRequested({ ...requested, [key]: e.target.checked })} />{labels[key]}</label>
       <p>{descriptions[key]}</p>
       <p className="automation-effective">저장된 설정: {policy.requested[key] ? "ON" : "OFF"} · 실제 허용: {policy.effective[key] ? "ON" : "OFF"}{policy.reasons[key] && ` · ${blocked[policy.reasons[key]]}`}</p>

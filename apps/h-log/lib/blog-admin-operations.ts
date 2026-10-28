@@ -1,4 +1,5 @@
 import type { Pool, PoolClient } from "pg";
+import { readAutomationPolicy } from "./blog-automation-policy.ts";
 
 export const jobStatusLabels = { queued: "대기", running: "처리 중", retrying: "재시도 대기", failed: "실패", succeeded: "완료" };
 export const importanceLabels = { required: "필수 검증", retryable: "후속 작업" };
@@ -52,6 +53,7 @@ async function snapshot<T>(pool: Pool, read: (client: PoolClient, observedAt: st
 }
 
 export type AdminJob = {
+  adminId: string; postRevision: number; postStatus: string;
   ref: string; postRef: string; type: keyof typeof jobTypeLabels; status: keyof typeof jobStatusLabels;
   importance: keyof typeof importanceLabels; retryCount: number; policyRevision: number | null;
   targetVersion: number; currentVersion: number | null; publicVersion: number | null; isCurrentVersion: boolean;
@@ -62,7 +64,7 @@ export type AdminJob = {
 export function readAdminJobs(pool: Pool, query: JobsQuery) {
   return snapshot(pool, async (client, observedAt) => {
     const { rows } = await client.query(`select
-        md5(j.id) as ref, md5(p.id) as post_ref, j.type,j.status,j.importance,j.retry_count,j.policy_revision,
+        md5(j.admin_id::text) as ref, j.admin_id,p.command_revision,p.status as post_status,md5(p.id) as post_ref, j.type,j.status,j.importance,j.retry_count,j.policy_revision,
         v.version_no as target_version, cv.version_no as current_version,
         case when p.status='published' then cv.version_no end as public_version,
         j.post_version_id=p.current_version_id as is_current_version,
@@ -75,6 +77,7 @@ export function readAdminJobs(pool: Pool, query: JobsQuery) {
         and ($3='all' or (j.status='running' and j.lease_expires_at < $4::timestamptz))
       order by j.id limit 21 offset $5`, [query.status, query.importance, query.lease, observedAt, (query.page - 1) * 20]);
     const jobs: AdminJob[] = rows.slice(0,20).map(r => ({
+      adminId: r.admin_id, postRevision: r.command_revision, postStatus: r.post_status,
       ref: r.ref, postRef: r.post_ref, type: r.type, status: r.status, importance: r.importance,
       retryCount: r.retry_count, policyRevision: r.policy_revision,
       targetVersion: r.target_version, currentVersion: r.current_version, publicVersion: r.public_version,
@@ -84,7 +87,7 @@ export function readAdminJobs(pool: Pool, query: JobsQuery) {
       failure: r.status === "retrying" ? "retry_pending" : r.status === "failed" ? r.importance === "required" ? "required_failed" : "optional_failed" : "none",
       hasError: r.has_error,
     }));
-    return { observedAt, jobs, hasNext: rows.length > 20 };
+    return { observedAt, jobs, hasNext: rows.length > 20, policy: await readAutomationPolicy(client) };
   });
 }
 

@@ -405,7 +405,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **A2 Step 2 구현 (2026-10-27)**: 실제 웹 요청과 소비자를 함께 구현하면서 migration 009에 검증된 입력 snapshot/hash, 실행 상태와 staged 결과만 추가했다. 파일이 바뀌어도 이전 요청을 재현하고 같은 입력은 한 요청으로 합친다. 일반 queue/메시지 브로커는 추가하지 않았다. 외부 실행 exactly-once를 보장하지 않으며 시작 표시 후 실패/연결 유실은 needs_review로 멈춘다. 결과를 보관한 뒤 초안·완료 감사가 원자적으로 저장되므로 저장 실패는 provider 재호출 없이 복구한다. 모든 수동 결과는 drafted이며 jobs는 0개다. 기존 일일 실행과 공통 generation lock을 공유해 usage admission을 직렬화하고, 별도 Seoul daily lock/검증 ID를 보존한다. 운영 gate/한도/복구 제한은 [실행 계약](DRAFT_GENERATION_REQUESTS.md)을 따른다. 지속 정책은 Step 3이다.
 
-**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4/A2 전체와 A3 Step 0 completed 13개·pending 3개·운영 rollout blocked 1개다. 모니터링 Step 0 계약도 완료했으며 다음은 admin-operations-control Step 1이다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
+**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4/A2 전체와 A3 Steps 0–1 completed 14개·pending 2개·운영 rollout blocked 1개다. 모니터링 Step 0 계약도 완료했으며 다음은 operations-observability Step 1이다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
 
 ### ADR-039: 이력서 PDF는 비공개 버전에서 검토한 파일 하나만 공개한다
 
@@ -446,3 +446,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 ## 작업·감사 조회 구현 — 2026-10-28
 
 A3 Step 0은 기존 원장의 제한된 read-only 투영으로 구현한다. actor/target/job 원시 ID는 요약 hash로 바꾸고, 오류/사유는 존재 여부와 정해진 실패 범위만, 정책 receipt는 revision/boolean만 표시한다. 비용 근거가 없는 과거 행이나 워커 생존 상태를 추정하지 않는다. 새 schema/collector를 만들지 않고 관측 신호의 소유권은 operations-observability에 둔다. 화면의 180초 stale 표시는 조회값의 나이이며 프로세스 상태가 아니다.
+
+## 제한된 재시도·일시정지 구현 — 2026-10-28
+
+Legacy job ID에 private 정보가 있을 수 있어 명령용 admin_id UUID를 DB에서 발급한다. 표시 hash를 인증/명령 식별자로 쓰지 않는다. 재시도는 새 job이나 새 원고를 만들지 않고 기존 row와 idempotency key를 유지하며 횟수를 소비한다. worker와 같은 정책을 잠그고 job NOWAIT로 잠금 역전의 대기를 피한다. 공개 후 필수 검증 실패는 안전한 수정본 검토로 돌리고 결과가 불명확한 외부 호출은 자동 재실행하지 않는다. 중지·재개는 기존 정책을 재사용한다.

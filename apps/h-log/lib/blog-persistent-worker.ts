@@ -14,7 +14,7 @@ import {
   type Timestamp,
 } from "./blog-content-model.ts";
 
-const PERSISTENT_WORKER_RETRY_LIMIT = 3;
+export const PERSISTENT_WORKER_RETRY_LIMIT = 3;
 
 export type PersistentWorkerAdapterResult =
   | { status: "failed"; error: string }

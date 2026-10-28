@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "bounded-retry-and-pause",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-10-28: owner-confirmed single-job retry with durable UUID identity, idempotent audit receipt, exact version/hash/post revision/lease checks and shared 3-count budget. Required pre-publish failures restore only their private flow; safe derived follow-ups require published posts. Other external/unknown and post-publication failures require review. Existing policy pause/resume and public protection preserved. RED/GREEN, unit 257 pass/25 DB skip, isolated integration 27/27, dev HTTP 1/1, production HTTP 6/6, lint/typecheck/build and 1440/390/320px/keyboard/pause UI passed. Next: operations-observability Step 1, then Steps 2-6 before A3 Step 2. No production activation."
     },
     {
       "step": 2,
