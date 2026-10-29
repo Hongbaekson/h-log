@@ -16,6 +16,7 @@ import uuid
 
 RESULTS = {"running", "succeeded", "failed", "skipped", "budget_blocked", "interrupted", "unverified"}
 STAGES = {"preflight", "generation", "worker", "verification", "complete", "interrupted", "unknown"}
+TASKS = ("autopublish", "backup", "restore")
 
 
 def read_json(path):
@@ -55,9 +56,11 @@ def atomic_write(path, value):
 
 
 @contextmanager
-def locked(root):
+def locked(root, task="autopublish"):
+    if task not in TASKS:
+        raise ValueError("invalid task")
     root.mkdir(mode=0o750, exist_ok=True)
-    descriptor = os.open(root / "autopublish.lock", os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o640)
+    descriptor = os.open(root / f"{task}.lock", os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o640)
     try:
         fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
         yield
@@ -84,39 +87,40 @@ def scheduled_slot(root, now):
     return slot if slot <= now else 0
 
 
-def start(root, invocation, mode, now):
+def start(root, invocation, mode, now, task="autopublish"):
     if not re.fullmatch("[a-f0-9]{32}", invocation) or mode not in ("scheduled", "manual"):
         raise ValueError("invalid invocation")
-    with locked(root):
+    keys = ("last_success_at", "last_success_slot", "last_budget_block_at") if task == "autopublish" else ("last_success_at",)
+    with locked(root, task):
         try:
-            previous = read_json(root / "autopublish.json")
+            previous = read_json(root / f"{task}.json")
             if previous["invocation_id"] == invocation:
                 return
-            if previous["started_at"] >= now or previous["result"] not in RESULTS or not all(valid_number(previous[k]) and previous[k] <= now for k in ("last_success_at", "last_success_slot", "last_budget_block_at")):
+            if previous["started_at"] >= now or previous["result"] not in RESULTS or not all(valid_number(previous[k]) and previous[k] <= now for k in keys):
                 raise ValueError("invalid previous state")
         except FileNotFoundError:
-            previous = {"last_success_at": 0, "last_success_slot": 0, "last_budget_block_at": 0}
+            previous = {k: 0 for k in keys}
         evidence = root / "evidence"
         if not evidence.exists():
             evidence.mkdir(mode=0o2770)
             evidence.chmod(0o2770)
         slot = 0
-        if mode == "scheduled":
+        if mode == "scheduled" and task == "autopublish":
             try:
                 slot = scheduled_slot(root, now)
             except (OSError, ValueError, KeyError, TypeError):
                 # The independently collected expectation remains missing/invalid.
                 # Even without it, record that preflight was attempted.
                 pass
-        atomic_write(root / "autopublish.json", {"schema_version": 1, "invocation_id": invocation, "mode": mode,
+        atomic_write(root / f"{task}.json", {"schema_version": 1, "task": task, "invocation_id": invocation, "mode": mode,
                      "started_at": now, "completed_at": 0, "result": "running", "stage": "preflight",
                      "slot": slot,
-                     **{k: previous[k] for k in ("last_success_at", "last_success_slot", "last_budget_block_at")}})
+                     **{k: previous[k] for k in keys}})
 
 
-def finish(root, invocation, service_result, now):
-    with locked(root):
-        value = read_json(root / "autopublish.json")
+def finish(root, invocation, service_result, now, task="autopublish"):
+    with locked(root, task):
+        value = read_json(root / f"{task}.json")
         # A delayed or duplicate stop must not overwrite a newer invocation/result.
         if value["invocation_id"] != invocation or value["completed_at"] > 0:
             return
@@ -124,7 +128,7 @@ def finish(root, invocation, service_result, now):
             raise ValueError("clock moved backwards")
         evidence = None
         try:
-            candidate = read_json(root / "evidence" / "autopublish.json")
+            candidate = read_json(root / "evidence" / f"{task}.json")
             if candidate.get("invocation_id") == invocation and candidate.get("result") in RESULTS and candidate.get("stage") in STAGES and valid_number(candidate.get("checked_at")) and value["started_at"] <= candidate["checked_at"] <= now:
                 evidence = candidate
         except (OSError, ValueError, KeyError):
@@ -143,12 +147,12 @@ def finish(root, invocation, service_result, now):
                     result, stage = "unverified", "verification"
                 else:
                     value["last_success_at"] = evidence["checked_at"]
-                    if value["mode"] == "scheduled" and value["slot"] > 0:
+                    if task == "autopublish" and value["mode"] == "scheduled" and value["slot"] > 0:
                         value["last_success_slot"] = value["slot"]
-            if result == "budget_blocked":
+            if task == "autopublish" and result == "budget_blocked":
                 value["last_budget_block_at"] = evidence["checked_at"]
         value.update(completed_at=now, result=result, stage=stage)
-        atomic_write(root / "autopublish.json", value)
+        atomic_write(root / f"{task}.json", value)
 
 
 def best_effort(operation, *args):
@@ -161,30 +165,31 @@ def best_effort(operation, *args):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--directory", type=Path, default=Path("/var/lib/hlog-observability"))
+    parser.add_argument("--task", choices=TASKS, default="autopublish")
     parser.add_argument("action", choices=("start", "finish", "run"))
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args()
     invocation = os.environ.get("INVOCATION_ID", "")
     if args.action == "start":
-        best_effort(start, args.directory, invocation, "scheduled", time.time())
+        best_effort(start, args.directory, invocation, "scheduled", time.time(), args.task)
     elif args.action == "finish":
         result = os.environ.get("SERVICE_RESULT", "unknown")
         if result == "success" and (os.environ.get("EXIT_CODE") != "exited" or os.environ.get("EXIT_STATUS") != "0"):
             result = "unknown"
-        best_effort(finish, args.directory, invocation, result, time.time())
+        best_effort(finish, args.directory, invocation, result, time.time(), args.task)
     else:
         command = args.command[1:] if args.command[:1] == ["--"] else args.command
         if not command:
             parser.error("run requires a command after --")
         invocation = uuid.uuid4().hex
-        best_effort(start, args.directory, invocation, "manual", time.time())
-        environment = {**os.environ, "HLOG_OBSERVABILITY_INVOCATION_ID": invocation,
+        best_effort(start, args.directory, invocation, "manual", time.time(), args.task)
+        environment = {**os.environ, "HLOG_OBSERVABILITY_INVOCATION_ID": invocation, "HLOG_OBSERVABILITY_TASK": args.task,
                        "HLOG_OBSERVABILITY_EVIDENCE_DIR": str(args.directory / "evidence")}
         try:
             result = subprocess.run(command, env=environment, check=False).returncode
         except OSError:
             result = 127
-        best_effort(finish, args.directory, invocation, "success" if result == 0 else "signal" if result < 0 else "exit-code", time.time())
+        best_effort(finish, args.directory, invocation, "success" if result == 0 else "signal" if result < 0 else "exit-code", time.time(), args.task)
         return result if result >= 0 else 128 - result
     return 0
 

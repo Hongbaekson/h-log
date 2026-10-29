@@ -1,6 +1,6 @@
 # H-Log 통합 관리자 계획
 
-등록일: 2026-10-22. 2026-10-28 **A1/A4/A2 전체와 A3 Steps 0–1 완료. 4개 phase / 17개 step 중 completed 14개·pending 2개·blocked 1개**다. 모니터링 Steps 0–3도 완료했다. 다음은 [모니터링 Step 4](../../../phases/operations-observability/step4.md)의 백업·복구 신호다. 운영 활성화는 보류한다.
+등록일: 2026-10-22. 2026-10-28 **A1/A4/A2 전체와 A3 Steps 0–1 완료. 4개 phase / 17개 step 중 completed 14개·pending 2개·blocked 1개**다. 2026-10-29 모니터링 Steps 0–4도 완료했다. 다음은 [모니터링 Step 5](../../../phases/operations-observability/step5.md)의 대시보드·알림이다. 운영 활성화는 보류한다.
 
 ## 방향과 현재 근거
 

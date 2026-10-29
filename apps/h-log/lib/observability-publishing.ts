@@ -1,5 +1,6 @@
 import { open } from "node:fs/promises";
 import { constants } from "node:fs";
+import { dirname, join } from "node:path";
 import type { Pool } from "pg";
 import { createPostVersionContentHash, publishJobStatuses, requiredPublishJobTypes, retryablePublishJobTypes } from "./blog-content-model.ts";
 import { resolveUsageBudgetPolicy } from "./blog-usage-ledger.ts";
@@ -48,20 +49,35 @@ export function renderPublishingMetrics(snapshot: PublishingSnapshot, environmen
 }
 
 type Expectation = { enabled: boolean; enabled_at: number; maintenance_from: number; maintenance_until: number };
-export function publicationSchedule(expectation: Expectation, now: number) {
-  if (typeof expectation.enabled !== "boolean") throw invalid();
+function validateExpectation(expectation: Expectation, now: number) {
+  if (!expectation || typeof expectation.enabled !== "boolean" || [expectation.enabled_at, expectation.maintenance_from, expectation.maintenance_until].some(n => typeof n !== "number")) throw invalid();
   const enabled = number(expectation.enabled_at), from = number(expectation.maintenance_from), until = number(expectation.maintenance_until);
   if (enabled > now + 60 || (expectation.enabled && enabled === 0) || until < from || until - from > 86400 || (from === 0 && until !== 0)) throw invalid();
+  return { enabled, from, until };
+}
+export function publicationSchedule(expectation: Expectation, now: number) {
+  const { enabled, from, until } = validateExpectation(expectation, now);
   // 09:00 Asia/Seoul is 00:00 UTC. No catch-up loop for missed daily slots.
   let slot = Math.max(Math.ceil(enabled / 86400) * 86400, Math.floor(now / 86400) * 86400);
   if (now >= from && from > 0 && slot >= from && slot <= until) slot = (Math.floor(until / 86400) + 1) * 86400;
   return { slot, deadline: slot + 1800 };
 }
 
+export function batchDeadline(task: "backup" | "restore", expectation: Expectation, success: number, now: number): number | undefined {
+  const { enabled, from, until } = validateExpectation(expectation, now);
+  number(success);
+  if (success > now + 60) throw invalid();
+  if (!expectation.enabled) return undefined;
+  const first = (task === "backup" ? 26 : 24) * 3600;
+  let deadline = success >= enabled ? success + (task === "backup" ? first : 30 * 86400) : enabled + first;
+  if (from > 0 && now >= from && success <= until && deadline >= from) deadline = until + first;
+  return deadline;
+}
+
 export const batchResults = ["never", "running", "succeeded", "failed", "skipped", "budget_blocked", "interrupted", "unverified"] as const;
 export const batchStages = ["preflight", "generation", "worker", "verification", "complete", "interrupted", "unknown"] as const;
 
-export async function readFileMetrics(path: string, kind: "autopublish" | "expectations", now = Date.now() / 1000): Promise<string> {
+async function readStateFile(path: string) {
   const file = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
   let value;
   try {
@@ -73,32 +89,51 @@ export async function readFileMetrics(path: string, kind: "autopublish" | "expec
     try { value = JSON.parse(buffer.subarray(0, bytesRead).toString("utf8")); } catch { throw invalid(); }
   } finally { await file.close(); }
   if (!value || typeof value !== "object" || value.schema_version !== 1) throw invalid();
+  return value;
+}
+
+function parseSummary(value: Record<string, unknown>, task: string, now: number) {
+  if (!/^[a-f0-9]{32}$/.test(String(value.invocation_id)) || !["scheduled", "manual"].includes(String(value.mode)) || (value.task !== task && !(task === "autopublish" && value.task === undefined))) throw invalid();
+  const result = allowed(String(value.result), batchResults), stage = allowed(String(value.stage), batchStages);
+  if ([value.started_at, value.completed_at, value.last_success_at].some(n => typeof n !== "number")) throw invalid();
+  const start = number(value.started_at), end = number(value.completed_at), success = number(value.last_success_at);
+  if (start === 0 || [start,end,success].some(n => n > now+60) || (end > 0 && end < start) || success > (end || start) || (result !== "running" && end === 0)) throw invalid();
+  return { start, end, success, result, stage };
+}
+
+export async function readFileMetrics(path: string, kind: "autopublish" | "backup" | "restore" | "expectations", now = Date.now() / 1000): Promise<string> {
+  const value = await readStateFile(path);
   if (kind === "expectations") {
-    const e = value.autopublish;
-    if (!e) throw invalid();
-    if ([e.enabled_at, e.maintenance_from, e.maintenance_until].some(n => typeof n !== "number")) throw invalid();
-    const schedule = publicationSchedule(e, now);
-    return [
-      `hlog_schedule_expected_enabled{task="autopublish"} ${Number(e.enabled)}`,
-      `hlog_schedule_enabled_timestamp_seconds{task="autopublish"} ${e.enabled_at}`,
-      `hlog_schedule_maintenance_from_timestamp_seconds{task="autopublish"} ${e.maintenance_from}`,
-      `hlog_schedule_maintenance_until_timestamp_seconds{task="autopublish"} ${e.maintenance_until}`,
-      ...(e.enabled ? [`hlog_schedule_deadline_timestamp_seconds{task="autopublish"} ${schedule.deadline}`] : []),
-    ].join("\n") + "\n";
+    const lines: string[] = [];
+    for (const task of ["autopublish", "backup", "restore"] as const) {
+      const e = value[task];
+      validateExpectation(e, now);
+      let deadline: number | undefined;
+      if (task === "autopublish") deadline = e.enabled ? publicationSchedule(e, now).deadline : undefined;
+      else {
+        let success: number | undefined;
+        try { success = parseSummary(await readStateFile(join(dirname(path), `${task}.json`)), task, now).success; }
+        catch (error) { if ((error as { code?: string }).code === "ENOENT") success = 0; }
+        // An unreadable summary must not fabricate a new first-success deadline.
+        if (success !== undefined) deadline = batchDeadline(task, e, success, now);
+      }
+      lines.push(`hlog_schedule_expected_enabled{task="${task}"} ${Number(e.enabled)}`,
+        `hlog_schedule_enabled_timestamp_seconds{task="${task}"} ${e.enabled_at}`,
+        `hlog_schedule_maintenance_from_timestamp_seconds{task="${task}"} ${e.maintenance_from}`,
+        `hlog_schedule_maintenance_until_timestamp_seconds{task="${task}"} ${e.maintenance_until}`);
+      if (deadline !== undefined) lines.push(`hlog_schedule_deadline_timestamp_seconds{task="${task}"} ${deadline}`);
+    }
+    return lines.join("\n") + "\n";
   }
-  if (!/^[a-f0-9]{32}$/.test(value.invocation_id) || !["scheduled", "manual"].includes(value.mode)) throw invalid();
-  const result = allowed(value.result, batchResults), stage = allowed(value.stage, batchStages);
-  if ([value.started_at, value.completed_at, value.last_success_at, value.last_success_slot, value.last_budget_block_at].some(n => typeof n !== "number")) throw invalid();
-  const start = number(value.started_at), end = number(value.completed_at), success = number(value.last_success_at), slot = number(value.last_success_slot), budget = number(value.last_budget_block_at);
-  if (start === 0 || [start, end, success, budget].some(n => n > now + 60) || (end > 0 && end < start) || success > (end || start) || slot > success || budget > (end || start) || (result !== "running" && end === 0)) throw invalid();
-  return [
-    `hlog_autopublish_last_attempt_timestamp_seconds ${start}`,
-    `hlog_autopublish_last_success_timestamp_seconds ${success}`,
-    `hlog_autopublish_last_success_slot_timestamp_seconds ${slot}`,
-    `hlog_autopublish_last_budget_block_timestamp_seconds ${budget}`,
-    ...batchResults.map(r => `hlog_batch_result{task="autopublish",result="${r}"} ${Number(r === result)}`),
-    ...batchStages.map(s => `hlog_batch_stage{task="autopublish",stage="${s}"} ${Number(s === stage)}`),
-  ].join("\n") + "\n";
+  const { start, end, success, result, stage } = parseSummary(value, kind, now);
+  const lines = kind === "autopublish" ? [] : [`hlog_batch_last_attempt_timestamp_seconds{task="${kind}"} ${start}`, `hlog_batch_last_success_timestamp_seconds{task="${kind}"} ${success}`];
+  if (kind === "autopublish") {
+    if ([value.last_success_slot, value.last_budget_block_at].some(n => typeof n !== "number")) throw invalid();
+    const slot = number(value.last_success_slot), budget = number(value.last_budget_block_at);
+    if (slot > success || budget > (end || start) || budget > now+60) throw invalid();
+    lines.push(`hlog_autopublish_last_attempt_timestamp_seconds ${start}`, `hlog_autopublish_last_success_timestamp_seconds ${success}`, `hlog_autopublish_last_success_slot_timestamp_seconds ${slot}`, `hlog_autopublish_last_budget_block_timestamp_seconds ${budget}`);
+  }
+  return [...lines, ...batchResults.map(r => `hlog_batch_result{task="${kind}",result="${r}"} ${Number(r === result)}`), ...batchStages.map(s => `hlog_batch_stage{task="${kind}",stage="${s}"} ${Number(s === stage)}`)].join("\n") + "\n";
 }
 
 export async function verifyPublication(pool: Pool, candidate: { status: string; postId: string; versionId: string | null }): Promise<boolean> {

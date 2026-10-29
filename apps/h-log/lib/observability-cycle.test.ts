@@ -36,9 +36,11 @@ test("cycle evidence is replaced durably without content or leftover temporary f
     assert.deepEqual(JSON.parse(await readFile(join(dir, 'autopublish.json'), 'utf8')), { schema_version: 1, invocation_id: 'a'.repeat(32), ...evidence });
     assert.deepEqual(await readdir(dir), ['autopublish.json']);
     if (process.platform === 'linux') assert.equal(log.mock.callCount(), 0, 'file and directory fsync must both succeed on the deployed filesystem');
+    await writeCycleEvidence(evidence, environment, 'backup');
+    assert.deepEqual(JSON.parse(await readFile(join(dir, 'backup.json'), 'utf8')), { schema_version: 1, invocation_id: 'a'.repeat(32), ...evidence });
     await writeCycleEvidence(evidence, { ...environment, HLOG_OBSERVABILITY_INVOCATION_ID: 'PRIVATE invalid' });
     assert.ok(log.mock.calls.every(call => call.arguments[0] === 'monitoring evidence write failed'));
-    assert.deepEqual(await readdir(dir), ['autopublish.json']);
+    assert.deepEqual(await readdir(dir), ['autopublish.json', 'backup.json']);
   } finally { for (const file of await readdir(dir)) await unlink(join(dir, file)); await rmdir(dir); }
 });
 

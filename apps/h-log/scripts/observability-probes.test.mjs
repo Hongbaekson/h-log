@@ -12,6 +12,7 @@ import { readDatabaseMetrics } from "../lib/observability-collector.ts";
 import { runBlogMigrations } from "./blog-migrations.mjs";
 import { publishingFixture } from "./observability-publishing.fixture.mjs";
 import { runObservedPublishCycle } from "../lib/observability-cycle.ts";
+import { backupArchive } from "./observability-backup.mjs";
 
 const app = resolve(import.meta.dirname, "..");
 const project = "hlog-observe-probes-local";
@@ -48,6 +49,7 @@ test("isolated host/DB/HTTP probes enforce permissions, privacy and distinguish 
   let pool;
   let integration;
   let expectedSuccess;
+  let expectedBackup;
   try {
     for (const [key, name, content] of [
       [envKeys[0], "grafana-password", password],
@@ -63,7 +65,8 @@ test("isolated host/DB/HTTP probes enforce permissions, privacy and distinguish 
       process.env.HLOG_OBSERVABILITY_GID = "1000";
       process.env.HLOG_DAILY_ESTIMATED_COST_LIMIT = "1";
       process.env.HLOG_MONTHLY_ESTIMATED_COST_LIMIT = "10";
-      await writeFile(path("state/expectations.json"), JSON.stringify({ schema_version: 1, autopublish: { enabled: true, enabled_at: Math.floor(Date.now()/86400000)*86400-60, maintenance_from: 0, maintenance_until: 0 } }), { mode: 0o640 });
+      const off = { enabled: false, enabled_at: 0, maintenance_from: 0, maintenance_until: 0 };
+      await writeFile(path("state/expectations.json"), JSON.stringify({ schema_version: 1, autopublish: { ...off, enabled: true, enabled_at: Math.floor(Date.now()/86400000)*86400-60 }, backup: off, restore: off }), { mode: 0o640 });
     }
     const openssl = process.env.HLOG_TEST_OPENSSL || (process.platform === "win32" ? "C:/Program Files/Git/usr/bin/openssl.exe" : "openssl");
     await execute(openssl, ["req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "2", "-subj", "/CN=hlog-web", "-addext", "subjectAltName=DNS:hlog-web", "-keyout", path("key.pem"), "-out", path("cert.pem")]);
@@ -121,7 +124,7 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
     if (publishing) {
       await runBlogMigrations(localUrl);
       await admin.query(await readFile(resolve(app, "deploy/observability/publishing-views.sql"), "utf8"));
-      const hostState = (action, invocation) => docker(["run", "--rm", "--network", "none", "--read-only", "--user", "1000:1000", "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--mount", `type=bind,source=${resolve(app, 'scripts')},target=/scripts,readonly`, "--mount", `type=bind,source=${path('state')},target=/state`, "-e", `INVOCATION_ID=${invocation}`, "-e", "SERVICE_RESULT=success", "-e", "EXIT_CODE=exited", "-e", "EXIT_STATUS=0", "-e", "PYTHONDONTWRITEBYTECODE=1", "python:3.14-alpine@sha256:bc62fbcb684904b1bb81a6240041bb60e9c1ee19ddeaf17a6b4297e1cc9c95d2", "python", "/scripts/observability-state.py", "--directory", "/state", action]);
+      const hostState = (action, invocation, task='autopublish') => docker(["run", "--rm", "--network", "none", "--read-only", "--user", "1000:1000", "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--mount", `type=bind,source=${resolve(app, 'scripts')},target=/scripts,readonly`, "--mount", `type=bind,source=${path('state')},target=/state`, "-e", `INVOCATION_ID=${invocation}`, "-e", "SERVICE_RESULT=success", "-e", "EXIT_CODE=exited", "-e", "EXIT_STATUS=0", "-e", "PYTHONDONTWRITEBYTECODE=1", "python:3.14-alpine@sha256:bc62fbcb684904b1bb81a6240041bb60e9c1ee19ddeaf17a6b4297e1cc9c95d2", "python", "/scripts/observability-state.py", "--directory", "/state", '--task', task, action]);
       let invocation = 'a'.repeat(32);
       await hostState('start', invocation);
       const writer = evidence => writeFile(path('state/evidence/autopublish.json'), JSON.stringify({ schema_version: 1, invocation_id: invocation, ...evidence }), { mode: 0o640 });
@@ -138,6 +141,12 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
         const duplicate = JSON.parse(await readFile(path('state/autopublish.json'), 'utf8'));
         assert.equal(duplicate.result, 'skipped'); assert.equal(duplicate.last_success_at, expectedSuccess);
       } finally { await fixturePool.end(); }
+      const backupInvocation='c'.repeat(32);
+      await hostState('start',backupInvocation,'backup');
+      await backupArchive({container:db.Id,user:'postgres',database:'hlog',file:path('verified.dump'),write:evidence=>writeFile(path('state/evidence/backup.json'),JSON.stringify({schema_version:1,invocation_id:backupInvocation,...evidence}),{mode:0o640})});
+      await hostState('finish',backupInvocation,'backup');
+      expectedBackup=JSON.parse(await readFile(path('state/backup.json'),'utf8')).last_success_at;
+      assert(expectedBackup>0);
       console.log('PASS: fake provider, six real required checks, durable success and duplicate preservation');
     }
     for (const [role, secret] of [["hlog_metrics_exporter", exporterPassword], ["hlog_metrics_collector", collectorPassword]]) {
@@ -200,6 +209,11 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
     await value('count(probe_success == 1)', 2);
     if (publishing) {
       await value('hlog_metrics_collection_success{source="autopublish"}', 1);
+      await value('hlog_batch_last_success_timestamp_seconds{task="backup"}',expectedBackup);
+      await value('hlog_schedule_expected_enabled{task="backup"}',0);
+      await value('hlog_schedule_expected_enabled{task="restore"}',0);
+      await value('hlog_metrics_source_state{source="restore",state="missing"}',1);
+      assert.equal((await query('hlog_batch_last_success_timestamp_seconds{task="restore"}')).length,0);
       await value('hlog_autopublish_last_success_timestamp_seconds', expectedSuccess);
       await value('hlog_usage_included_events{window="day"}', 1);
       await value('hlog_batch_result{result="skipped"}', 1);
@@ -207,6 +221,7 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
       await docker([...compose, 'up', '-d', '--no-deps', '--force-recreate', 'hlog-metrics']);
       await value('hlog_autopublish_last_success_timestamp_seconds', expectedSuccess);
       const original = await readFile(path('state/autopublish.json'), 'utf8');
+      await value('hlog_batch_last_success_timestamp_seconds{task="backup"}',expectedBackup);
       await writeFile(path('state/autopublish.json'), '{');
       await docker([...compose, 'up', '-d', '--no-deps', '--force-recreate', 'hlog-metrics']);
       await value('hlog_metrics_source_state{source="autopublish",state="invalid"}', 1);

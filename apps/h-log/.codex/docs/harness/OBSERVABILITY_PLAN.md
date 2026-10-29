@@ -1,6 +1,6 @@
 # H-Log 운영 모니터링 계획
 
-등록일: 2026-10-06. **2026-10-28 Steps 0–3 완료: 계약·비공개 Prometheus/Grafana·host/DB/HTTP와 지속 발행/비용 신호를 격리 검증했다. 백업·복구 신호, 대시보드·알림은 후속 단계다.** 실행 상태는 [phase registry](../../../phases/operations-observability/index.json)를 따른다. 이 문서가 모니터링 계약의 단일 기준이다.
+등록일: 2026-10-06. **2026-10-29 Steps 0–4 완료: 계약·비공개 Prometheus/Grafana·host/DB/HTTP·발행/비용과 별도 백업/복구 신호를 격리 검증했다. 대시보드·알림은 다음 단계다.** 실행 상태는 [phase registry](../../../phases/operations-observability/index.json)를 따른다. 이 문서가 모니터링 계약의 단일 기준이다.
 
 ## 목적과 실행 순서
 
@@ -12,12 +12,12 @@
 | [1](../../../phases/operations-observability/step1.md) | private-metrics-stack | 완료: 격리 로컬 Prometheus/Grafana·접근 차단·재생성 보존 |
 | [2](../../../phases/operations-observability/step2.md) | host-database-http-probes | 완료: Linux VM CPU·메모리/Docker 저장소·최소 DB 계정/집계·고정 HTTP/TLS 장애 검증 |
 | [3](../../../phases/operations-observability/step3.md) | durable-publishing-signals | 완료: DB 독립 atomic 기록·필수 6종 성공 근거·현재 작업/UTC 비용·실제 scrape |
-| [4](../../../phases/operations-observability/step4.md) | backup-and-restore-signals | 백업과 복구 검증을 구분한 지속 신호 |
+| [4](../../../phases/operations-observability/step4.md) | backup-and-restore-signals | 완료: 실제 custom dump·격리 복구·무결성/공개 차단·별도 atomic 성공/실패 |
 | [5](../../../phases/operations-observability/step5.md) | dashboards-and-alert-routing | 대시보드·알림·복구 통지·대응 절차 |
 | [6](../../../phases/operations-observability/step6.md) | isolated-failure-rehearsal | 장애·수집 중단·재기동·자원 검증 |
 | [7](../../../phases/operations-observability/step7.md) | approved-production-rollout | OCI 보류로 blocked: 승인된 운영 설치와 외부 감시 |
 
-현재 4 completed / 3 pending / 1 blocked다. **일반 다음 작업은 [Step 4: backup-and-restore-signals](../../../phases/operations-observability/step4.md)**다. [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1/A4 → 모니터링 계약 → A2 Steps 0–3 → A3 Steps 0–1 → 모니터링 Steps 1–6 → A3 Steps 2–3 순서를 유지한다. A3 Steps 0–1도 완료했으며 이 phase의 Steps 4–6 이후 A3 Step 2로 돌아간다.
+현재 5 completed / 2 pending / 1 blocked다. **일반 다음 작업은 [Step 5: dashboards-and-alert-routing](../../../phases/operations-observability/step5.md)**다. [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1/A4 → 모니터링 계약 → A2 Steps 0–3 → A3 Steps 0–1 → 모니터링 Steps 1–6 → A3 Steps 2–3 순서를 유지한다. A3 Steps 0–1도 완료했으며 이 phase의 Steps 5–6 이후 A3 Step 2로 돌아간다.
 
 수집기·신호·대시보드·알림은 이 phase가 소유하고 관리자 화면은 그 결과를 소비한다. 승인된 모니터링 Step 7 → 관리자 rollout → 기존 auto-publish-ops-hardening Step 4의 timer 활성화 순서다. **모니터링 완료에 실제 반복 발행을 요구하지 않는다.** 비활성 scheduler와 로컬 누락 재현으로 먼저 검증하므로 순환 의존이 없다.
 
@@ -34,7 +34,7 @@
 | migrations 001–002 / worker | 최초 enqueue 시각 없음. started_at은 claim마다 변경, finished_at은 호출 시작 시각 runAt | Step 3에 최초 enqueued_at 추가. 기존 행 unknown, 실제 완료 시각은 별도 summary |
 | usage ledger / Hermes provider | estimated_cost nullable. 포함 구독의 0은 저장되지만 비용 근거 구분은 유실 | Step 3에 nullable cost_basis 추가. unknown/included/알려진 금액 분리 |
 | daily pipeline / systemd | 일부 budget 차단은 usage event 전 반환. auth는 ExecStartPre. DB 이전 실패·미실행 지속 신호 없음 | DB 독립 atomic summary 선택. 원장만으로 전체 차단 횟수를 표시하지 않음 |
-| backup runbook / A4 Step 3 | 격리 dump/restore 실측은 있으나 정기 backup/restore 신호 없음 | 활성화·첫 성공을 따로 기록. 문서 작성일을 성공으로 사용하지 않음 |
+| backup runbook / A4 Step 3 | Step 4 수동 dump/restore·독립 성공 신호 구현, 정기 schedule 비활성 | 활성화·첫 성공을 따로 기록. 문서 작성일을 성공으로 사용하지 않음 |
 
 ## 구성과 접근 권한
 
@@ -71,7 +71,7 @@
 | `hlog_publish_expired_leases` | gauge, jobs / importance | Q1. running이고 lease_expires_at이 DB 현재 시각보다 과거 |
 | `hlog_autopublish_last_attempt_timestamp_seconds`, `hlog_autopublish_last_success_timestamp_seconds`, `hlog_autopublish_last_success_slot_timestamp_seconds`, `hlog_autopublish_last_budget_block_timestamp_seconds` | gauge, Unix seconds / 없음 | 유효한 autopublish summary. success는 아래 증거와 실제 완료 시각; slot은 09:00 KST 예정 시각 |
 | `hlog_batch_last_attempt_timestamp_seconds`, `hlog_batch_last_success_timestamp_seconds` | gauge, Unix seconds / task | task=backup,restore의 summary. restore 성공은 복구 검증 완료 |
-| `hlog_batch_stage` | gauge, one-hot / task,stage | 현재 task=autopublish; stage=preflight,generation,worker,verification,complete,interrupted,unknown |
+| `hlog_batch_stage` | gauge, one-hot / task,stage | task=autopublish,backup,restore; stage=preflight,generation,worker,verification,complete,interrupted,unknown |
 | `hlog_batch_result` | gauge, one-hot / task,result | task=autopublish,backup,restore. result=never,running,succeeded,failed,skipped,budget_blocked,interrupted,unverified |
 | `hlog_schedule_expected_enabled`, `hlog_schedule_enabled_timestamp_seconds`, `hlog_schedule_deadline_timestamp_seconds`, `hlog_schedule_maintenance_from_timestamp_seconds`, `hlog_schedule_maintenance_until_timestamp_seconds` | gauge, 0/1 또는 Unix seconds / task | expectation과 일정 계산. 실제 systemd active를 추측하지 않음 |
 | `hlog_usage_known_cost_usd`, `hlog_usage_unknown_events`, `hlog_usage_included_events` | gauge, USD/events / window | Q2. window=day,month(UTC). known 합계는 알려진 금액의 하한, 구독료 총액이 아님 |
@@ -176,12 +176,13 @@ docker compose -p hlog-observe-local -f compose.yaml -f compose.observability.ya
 docker compose -p hlog-observe-local -f compose.yaml -f compose.observability.yaml --profile observability run --rm --no-deps --entrypoint promtool prometheus check config /etc/prometheus/prometheus.yml
 # Step 1: HLOG_OBSERVABILITY_SMOKE=1 (PowerShell에서는 $env:... 사용)
 node --test scripts/observability-stack.test.mjs
-# 아래는 후속 구현 예정
+# Steps 2–4: 격리 검증 구현 완료, 상세 opt-in은 각 runbook 참조
 node --no-warnings --experimental-strip-types --test lib/observability-collector.test.ts
 node --no-warnings --experimental-strip-types --test lib/observability-publishing.test.ts
 node --no-warnings --experimental-strip-types --test lib/observability-publishing.integration.test.ts
 python3 -m unittest discover -s scripts -p observability_state_test.py
-node --test scripts/observability-backup.test.mjs
+node --no-warnings --experimental-strip-types --test scripts/observability-backup.test.mjs
+# Step 6 후속 구현 예정
 node --no-warnings --experimental-strip-types scripts/observability-rehearsal.mjs
 ```
 
@@ -204,3 +205,11 @@ DB 테스트에는 격리 DATABASE_URL이 필수다. Host helper/systemd hook·�
 2026-10-28 모니터링 Step 3 완료: migration 012의 최초 대기 시각·비용 근거, 현재 버전의 읽기 전용 집계, DB 밖 atomic 실행 기록과 선택형 systemd hook을 구현했다. 이번 실행의 공개 버전·필수 6종·본문 hash를 확인한 경우만 성공으로 기록한다. 가짜 provider부터 실제 worker·host helper·Prometheus까지 연결하고 중복/재생성/손상/DB 중단을 검증했다. 단위 268 pass/26 DB skip, 전체 DB integration, Linux state 8개·파일 6개, lint/typecheck/build 통과. 모니터링 completed 4·pending 3·blocked 1이며 다음은 **operations-observability Step 4: backup-and-restore-signals**다. 관리자 14·2·1과 OCI·실제 provider·발행·timer 보류는 유지한다.
 
 `compose.observability-publishing.yaml`, `deploy/observability/publishing-views.sql`, `lib/observability-publishing.ts`, `lib/observability-cycle.ts`와 `scripts/observability-state.py`가 실제 구현이다. 파일 source와 DB source는 독립 수집하며 모니터링 실패가 provider 재호출이나 발행 상태 전이를 만들지 않는다. 10,000 usage/2,000 current-job fixture의 EXPLAIN과 권한 거부를 확인했다. 사용량은 새 created_at index를 사용하며 Q1에는 추가 index가 필요하지 않았다. 호스트 Python 설치와 systemd 동작 검수는 승인된 운영 Step 7에서 한다. Step 4는 이 파일 계약을 재사용하되 backup/restore 성공 증거를 각각 구현한다. 상세 실행·권한·수동/정기 실행 구분은 [runbook](../../../deploy/observability/README.md)을 따른다.
+
+## Step 4 구현 인계 — 2026-10-29
+
+백업·복구는 `scripts/observability-backup.mjs`의 수동 명령이며 scheduler는 설치·활성화하지 않았다. Host helper에 `--task backup|restore`를 주고 독립 summary/evidence를 기록한다. `expectations.json`에는 autopublish/backup/restore 세 항목이 모두 필요하며 누락을 disabled로 추정하지 않는다. 새 summary의 시각 지표는 `hlog_batch_last_attempt_timestamp_seconds`·`hlog_batch_last_success_timestamp_seconds`이고 task만 label로 쓴다. 고정 result/stage와 source freshness는 기존 수집기를 재사용한다.
+
+기대 상태와 같은 디렉터리의 성공 기록으로 첫 백업 26시간·복구 24시간, 이후 백업 26시간·복구 30일 deadline을 계산한다. 재활성화 전 성공은 첫 성공을 대신하지 않고, 최대 24시간 정비 후에는 새 성공이 필요하다. 정비 전에 이미 지난 deadline은 연장하지 않는다. 손상된 summary에는 새 deadline을 만들지 않으며 해당 source 오류를 함께 소비해야 한다.
+
+실제 성공/실패, 재생성·누락/손상과 DB 장애 수집을 검증했다. Step 5는 이 신호와 기존 60초 수집/180초 cache 정책으로 dashboard·NoData/Error·지연·복구 알림을 구현한다. 알림 자체는 아직 없다. [수동 실행](../../../deploy/observability/README.md)과 [백업 정책](../backup-restore-runbook.md)을 따른다.

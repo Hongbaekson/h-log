@@ -39,17 +39,15 @@ hlog-postgres-YYYYMMDDTHHMMSSZ-<git-sha>-pg16.dump
 
 파일명에는 서버 IP, 계정명, private host, DB password를 넣지 않는다.
 
-## 로컬 백업 명령 예시
+## 수동 백업·격리 복구 신호
 
-아래 명령은 `apps/h-log`에서 실행한다. 운영 DB가 아니라 로컬 Compose DB 기준이다.
+Step 4의 [수동 실행 절차](../../deploy/observability/README.md#step-4-수동-백업복구-검증)를 사용한다. `pg_dump` 종료·파일 fsync·크기/PGDMP 형식·목록 검사를 마쳐야 backup 성공이다. Restore 성공은 별도의 일회용 tmpfs DB에 복원하고 migration/vector·본문/PDF hash·실제 공개/비공개 HTTP와 PDF 새 epoch/reset을 모두 확인한 결과다. 기존 DB/volume을 복원 대상으로 지정할 수 없다.
 
-```bash
-mkdir -p ../.local/hlog-backups
-docker compose up -d hlog-postgres
-docker compose exec -T hlog-postgres sh -lc 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --format=custom --no-owner --no-acl' > ../.local/hlog-backups/hlog-postgres-local-$(date -u +%Y%m%dT%H%M%SZ)-pg16.dump
-```
+파일은 저장소 밖 제한된 디렉터리의 새 이름으로 생성한다. 기존 파일을 덮어쓰지 않으며 실패한 이번 파일만 제거한다. PowerShell 텍스트 redirection을 사용하지 않고 Node binary stream을 사용한다. 별도 백업 scheduler·보관 삭제 작업은 아직 없고 초기 기대 상태는 disabled다.
 
-PowerShell에서는 timestamp와 redirection 구문을 셸에 맞게 바꾼다. 백업 파일은 repo 밖 또는 git ignore 대상 경로에 둔다.
+승인된 schedule이 생기면 첫 백업 26시간·첫 복구 검증 24시간 안에 성공이 필요하다. 이후에는 최근 백업 성공+26시간, 최근 복구 성공+30일을 deadline으로 쓴다. 최대 24시간 정비 후에는 각각 26시간/24시간 안에 새 성공을 확인한다. 수집 실패/누락·never와 비활성은 구분하며 알림은 다음 Step 5에서 연결한다. 수동 성공이 있어도 schedule 활성화를 뜻하지 않는다.
+
+복구 명령의 label은 `hlog.restore-rehearsal=1`, 기본 PGDATA는 tmpfs, published DB port는 loopback이어야 한다. 전체 checkout의 의존성과 `npm run build` 결과가 필요하다. 새 DB만 생성/삭제하며 원본 DB에는 쓰지 않는다. SIGKILL/전원 차단 뒤에는 해당 실행의 `hlog_restore_` DB와 loopback Next 프로세스 소유 여부를 확인해 수동 정리한다. 기존 자원이나 운영 DB를 이름 패턴만으로 삭제하지 않는다.
 
 ## 운영 백업 절차
 

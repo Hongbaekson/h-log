@@ -294,9 +294,9 @@ The worker service is intentionally profile-gated and non-automatic. It must not
 
 Kubernetes is not required for the initial OCI deployment. If a later ADR adopts Kubernetes, the current service boundary maps directly to `Deployment`/`Service` for web and worker, `StatefulSet` or managed services for PostgreSQL, `Ingress` for Nginx edge behavior, and `Job`/`CronJob` for migration, backup, and worker tasks.
 
-## 운영 모니터링 구조 (로컬 기반 구현, 업무 수집은 예정)
+## 운영 모니터링 구조 (로컬 수집 구현, 대시보드·알림은 예정)
 
-2026-10-28 Steps 0–2 완료. `compose.observability.yaml`의 Prometheus/Grafana·datasource·volume·localhost gateway와 `compose.observability-probes.yaml`의 host/DB/HTTP 수집기를 격리 검증했다. 기본 앱 서비스/healthcheck와 공개 UI는 유지한다. 아래 업무 수집·알림·외부 감시는 후속 목표다.
+2026-10-29 Steps 0–4 완료. `compose.observability.yaml`의 Prometheus/Grafana·datasource·volume·localhost gateway와 `compose.observability-probes.yaml`의 host/DB/HTTP 수집기를 격리 검증했다. 기본 앱 서비스/healthcheck와 공개 UI는 유지한다. 업무·백업/복구 수집까지 구현했으며 알림·외부 감시는 후속 목표다.
 
 ```text
 Linux host / PostgreSQL / fixed HTTP-TLS targets
@@ -309,7 +309,7 @@ independent external monitor -> public HTTPS + monitoring heartbeat
 
 수집 경로는 read-only 집계와 최소 network/secret 권한을 사용한다. One-shot 결과는 종료 후에도 수집 가능해야 하며 cycle `completed`, worker idle, duplicate skip을 검증된 발행 성공으로 대체하지 않는다. 미수집·오류·never succeeded·stale·disabled를 구분한다. 공개 Nginx 내부 경로 차단, published-current 데이터와 발행/비용 상태 전이는 유지한다.
 
-모니터링 설정과 데이터 volume은 앱과 분리하며 Grafana는 localhost/SSH 터널을 기본안으로 둔다. 구현 파일은 `compose.observability.yaml`, `deploy/observability/`이며 재현 검증은 `scripts/observability-stack.test.mjs`다. Prometheus는 internal monitoring_net, Grafana는 monitoring_net/internal grafana_access_net, 고정 upstream gateway는 grafana_access_net/별도 access bridge를 사용한다. Loopback 포트는 gateway에만 있고 공개 Nginx·앱/DB는 연결하지 않는다. `lib/observability-collector.ts`와 `scripts/observability-collector.mjs`는 별도 private Node/pg 프로세스로 DB 연결·잠금·상한의 집계 view만 읽는다. DB 계정은 `deploy/observability/database-roles.sql`로 별도 준비한다. Host는 통계 파일 3개와 빈 Docker volume의 filesystem만 노출한다. 두 smoke가 권한/장애/비공개 경계를 확인한다. Host atomic JSON summary와 업무 집계 확장은 다음 Step 3다. 시작/종료 helper는 DB·Docker와 독립되며 ExecStartPre/ExecStopPost에 연결할 예정이다. DB 계정은 원문/쓰기 권한 없이 필요한 통계·집계만 읽는다. 상세 파일·지표·1 GiB/3 GiB 예산과 검증 명령은 단일 계획을 따른다. Steps 0–2 runtime만 구현됐으며 업무/백업/알림은 아직 존재하는 기능으로 간주하지 않는다. 로컬 계약·수집·알림·장애 검증은 Steps 0–6, 운영 적용·외부 감시는 Step 7에서 진행한다. 운영 모니터링을 확인한 뒤 별도 자동 발행 phase에서 timer를 재개하며 현재 OCI 보류는 유지된다.
+모니터링 설정과 데이터 volume은 앱과 분리하며 Grafana는 localhost/SSH 터널을 기본안으로 둔다. 구현 파일은 `compose.observability.yaml`, `deploy/observability/`이며 재현 검증은 `scripts/observability-stack.test.mjs`다. Prometheus는 internal monitoring_net, Grafana는 monitoring_net/internal grafana_access_net, 고정 upstream gateway는 grafana_access_net/별도 access bridge를 사용한다. Loopback 포트는 gateway에만 있고 공개 Nginx·앱/DB는 연결하지 않는다. `lib/observability-collector.ts`와 `scripts/observability-collector.mjs`는 별도 private Node/pg 프로세스로 DB 연결·잠금·상한의 집계 view만 읽는다. DB 계정은 `deploy/observability/database-roles.sql`로 별도 준비한다. Host는 통계 파일 3개와 빈 Docker volume의 filesystem만 노출한다. 두 smoke가 권한/장애/비공개 경계를 확인한다. Host atomic JSON summary·업무 집계와 선택형 ExecStartPre/ExecStopPost hook은 Step 3에서, 별도 백업/복구 신호는 Step 4에서 구현했다. 시작/종료 helper는 DB·Docker와 독립된다. DB 계정은 원문/쓰기 권한 없이 필요한 통계·집계만 읽는다. 상세 파일·지표·1 GiB/3 GiB 예산과 검증 명령은 단일 계획을 따른다. Steps 0–4 runtime을 격리 검증했고 대시보드/알림은 다음 Step 5다. 로컬 계약·수집·알림·장애 검증은 Steps 0–6, 운영 적용·외부 감시는 Step 7에서 진행한다. 운영 모니터링을 확인한 뒤 별도 자동 발행 phase에서 timer를 재개하며 현재 OCI 보류는 유지된다.
 
 ## Backup/Restore Boundary
 
@@ -515,4 +515,10 @@ npm run build
 
 Migration 012는 새 job의 enqueued_at과 nullable cost_basis/usage 시간 index를 추가한다. 이전 값은 소급하지 않는다. 앱 소유자가 설치하는 monitoring.publishing_jobs/queue/usage만 제한된 collector 계정이 읽는다. SQL 결과는 현재 버전·UTC 비용의 고정 집계이며 원문을 반환하지 않는다. Collector는 DB와 autopublish/expectations 파일을 따로 수집하고 60초/180초 freshness 계약을 공유한다.
 
-Cycle 관측 wrapper는 기존 generate/worker의 결과와 오류를 보존한다. 같은 실행의 신규 published/current version·required 6종·본문 hash가 확인될 때만 실제 확인 시각을 evidence에 쓴다. Host Python helper가 flock/fsync/atomic replace로 요약을 갱신한다. 선택형 systemd drop-in은 preflight 전 시작과 ExecStopPost 종료를 기록하며 nonzero hook을 발행 재시도로 연결하지 않는다. Collector는 host state read-only, cycle은 evidence만 writable이다. 공개 route나 관리자 UI는 추가하지 않았다. 백업/복구·dashboard/알림은 Steps 4–5다.
+Cycle 관측 wrapper는 기존 generate/worker의 결과와 오류를 보존한다. 같은 실행의 신규 published/current version·required 6종·본문 hash가 확인될 때만 실제 확인 시각을 evidence에 쓴다. Host Python helper가 flock/fsync/atomic replace로 요약을 갱신한다. 선택형 systemd drop-in은 preflight 전 시작과 ExecStopPost 종료를 기록하며 nonzero hook을 발행 재시도로 연결하지 않는다. Collector는 host state read-only, cycle은 evidence만 writable이다. 공개 route나 관리자 UI는 추가하지 않았다. 백업/복구 신호는 아래 Step 4, dashboard/알림은 다음 Step 5다.
+
+### 백업·복구 관측 — 모니터링 Step 4
+
+`scripts/observability-backup.mjs`는 외부 새 파일로 custom dump를 stream하고 형식을 검사한다. 별도 restore 명령은 opt-in tmpfs 컨테이너의 새 DB에만 복원하고 schema/vector·모든 본문/PDF 무결성·현재 공개 selector와 실제 Next HTTP를 검사한다. 새 publication epoch는 dump 밖에서 발급하며 복원된 PDF 공개 포인터는 404 확인 후 감사와 함께 reset한다. 검사 중의 웹 프로세스는 loopback에만 열고 생성 DB를 정리한다. 원본 DB는 읽기만 한다.
+
+Host helper가 `backup.json`/`restore.json`과 별도 evidence를 관리한다. Collector는 db/autopublish/backup/restore/expectations를 독립 수집하고 고정 task/result/stage만 내보낸다. 기대 상태와 성공 시각으로 첫 실행·재활성화·정비 후 deadline을 계산한다. 공개 앱/관리자 UI·schema 변경이나 자동 백업 timer는 없다.

@@ -34,7 +34,7 @@ export function createDatabaseCollector(read: () => Promise<DatabaseMetrics>, no
   }, now);
 }
 
-export function createSourceCollector(source: "db" | "autopublish" | "expectations", read: () => Promise<string>, now = Date.now) {
+export function createSourceCollector(source: "db" | "autopublish" | "backup" | "restore" | "expectations", read: () => Promise<string>, now = Date.now) {
   let state = "missing";
   let snapshot: string | undefined;
   let collectedAt: number | undefined;

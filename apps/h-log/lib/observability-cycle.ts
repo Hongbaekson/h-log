@@ -39,17 +39,17 @@ export async function runObservedPublishCycle({ generate, runRequiredWorkerOnce,
   return result;
 }
 
-export async function writeCycleEvidence(evidence: Evidence, environment: Record<string, string | undefined> = process.env): Promise<void> {
+export async function writeCycleEvidence(evidence: Evidence, environment: Record<string, string | undefined> = process.env, task: "autopublish" | "backup" | "restore" = "autopublish"): Promise<void> {
   const directory = environment.HLOG_OBSERVABILITY_EVIDENCE_DIR, invocation = environment.HLOG_OBSERVABILITY_INVOCATION_ID;
   if (!directory && !invocation) return;
   let temporary: string | undefined;
   try {
-    if (!directory || !invocation || !/^[a-f0-9]{32}$/.test(invocation)) throw Error("invalid observation configuration");
-    temporary = join(directory, `${invocation}.tmp`);
+    if (!directory || !invocation || !/^[a-f0-9]{32}$/.test(invocation) || !["autopublish", "backup", "restore"].includes(task)) throw Error("invalid observation configuration");
+    temporary = join(directory, `${task}-${invocation}.tmp`);
     const file = await open(temporary, "wx", 0o640);
     try { await file.writeFile(JSON.stringify({ schema_version: 1, invocation_id: invocation, ...evidence })); await file.sync(); }
     finally { await file.close(); }
-    await rename(temporary, join(directory, "autopublish.json"));
+    await rename(temporary, join(directory, `${task}.json`));
     const parent = await open(directory, "r");
     try { await parent.sync(); } finally { await parent.close(); }
   } catch { console.error("monitoring evidence write failed"); }

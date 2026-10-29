@@ -474,3 +474,11 @@ Collector는 요청마다 DB를 읽지 않고 60초 캐시를 제공한다. 실�
 DB 전에 실패할 수 있는 인증/생성을 DB 실행 이력만으로 관측할 수 없어 host Python 표준 라이브러리와 atomic JSON을 사용한다. 기본 service를 바꾸지 않고 선택형 drop-in/Compose overlay로 연결한다. Summary의 유일한 writer는 host helper이며 cycle은 제한된 evidence 경로만 쓴다. File source는 DB 장애 중에도 수집한다. Docker 그룹의 운영 권한을 파일 writer의 보안 격리로 설명하지 않는다.
 
 발행 성공은 worker idle/exit 0과 분리하고 이번 generation의 현재 공개 버전·필수 6종·content hash로 증명한다. 실제 검증 시각을 쓰며 중복·수동 slot·비용 차단·기록 실패는 성공으로 바꾸지 않는다. 기존 enqueued 시각/비용 근거는 추측하지 않고 unknown을 보존한다. Collector에는 원문 SELECT 대신 고정 집계 view만 부여한다. Linux 파일·강제 종료, 실제 DB 규모/권한과 synthetic provider-to-Prometheus 검증을 통과했으며 운영 설치는 아직 하지 않았다.
+
+## ADR-018 Step 4 구현 보완 — 2026-10-29
+
+별도 scheduler나 백업 서비스를 추가하지 않고 기존 Node/pg·Docker CLI·host atomic helper를 재사용한다. 백업은 외부 경로의 새 파일만 만들고 binary stream/fsync·PGDMP header·pg_restore list 검사 후 성공을 기록한다. 파일 생성만으로 복구 가능성을 주장하지 않는다.
+
+복구 명령은 명시적 rehearsal label과 기본 PGDATA tmpfs, localhost published port가 일치하는 컨테이너에만 새 무작위 DB를 만든다. URL query override는 거부하고 기존 DB를 복원 대상으로 받지 않는다. 정확한 migration 목록, vector 연산, 모든 본문 hash/PDF 바이트 hash·정책, 실제 Next 공개/비공개 HTTP와 새 PDF epoch의 404·감사 reset을 검증한다. 생성한 DB와 웹 프로세스를 정리한 뒤 복구 성공을 기록한다. 스크립트는 완전한 checkout의 Node 의존성과 production build를 요구하며 OCI 설치는 Step 7에서 검수한다.
+
+관측 실패는 작업 재시도나 종료 결과를 바꾸지 않는다. 실패한 시도는 이전 성공 시각을 보존하되 현재 result를 실패로 표시한다. Dump·원문·credential·경로는 summary/metrics/CLI 오류에 넣지 않는다. 실제 대상의 보관/용량/30일 리허설 운영과 강제 종료 잔여 자원 처리는 후속 검수 항목이다.

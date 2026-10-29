@@ -44,7 +44,8 @@
     "worker:once": "node --no-warnings --experimental-strip-types scripts/blog-worker.mjs --once",
     "typecheck": "tsc --noEmit",
     "test:observability:publishing": "node --no-warnings --experimental-strip-types --test lib/observability-publishing.integration.test.ts",
-    "test:observability:state": "node --test scripts/observability-state.test.mjs"
+    "test:observability:state": "node --test scripts/observability-state.test.mjs",
+    "test:observability:backup": "node --no-warnings --experimental-strip-types --test scripts/observability-backup.test.mjs"
   },
   "dependencies": {
     "d3-force-3d": "3.0.6",

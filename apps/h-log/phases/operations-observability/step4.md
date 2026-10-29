@@ -62,3 +62,16 @@ Steps 0–3 완료 후 백업 성공과 복구 검증 성공을 별도 지표로
 ## Step 3 구현 인계
 
 `compose.observability-publishing.yaml`, `lib/observability-publishing.ts`, `lib/observability-collector.ts`, `scripts/observability-state.py`, Linux state test와 `deploy/observability/README.md`를 먼저 확인한다. File source/atomic helper를 재사용하되 backup/restore의 성공 근거·일정은 이 Step에서 추가한다. 현재 helper는 autopublish 전용이며 backup/restore를 구현했다고 해석하지 않는다.
+
+## 완료 — 2026-10-29
+
+- `scripts/observability-backup.mjs`에 수동 backup/restore 명령을 구현했다. 백업은 외부 새 파일·binary stream·fsync·PGDMP/목록 검사 이후 성공이다. 복구는 명시적 label·기본 PGDATA tmpfs·loopback DB port가 일치하는 컨테이너의 새 DB만 허용한다. 기존 DB/volume에 복원하지 않는다.
+- 정확한 migration 목록·vector 연산·전체 본문/PDF hash·PDF 정책을 검사하고 새 Next 서버에서 공개 글/Markdown 200·비공개 글 404, 새 PDF epoch의 GET/HEAD·조건부/Range 404와 감사 reset을 확인했다. 생성 DB/웹 프로세스 정리 후에만 복구 성공을 기록한다. 원본 PDF 공개 포인터 보존도 검사했다.
+- Host helper/atomic evidence·collector에 backup/restore task를 추가했다. 현재 실패와 이전 성공 시각을 함께 유지하고 source missing/invalid/error·freshness와 disabled를 구분한다. 기대 상태 세 항목은 필수다. 첫 실행/재활성화/정비 후 deadline과 기존 지연 보존을 검증했다. 기록 실패가 정상 백업을 재시도하거나 실패로 바꾸지 않는다.
+- TDD RED: task 인자 미지원·별도 evidence 파일 누락·deadline export/백업 모듈 부재를 확인했다. GREEN: Linux state 9개, Linux 파일/cycle 8개, publishing focused 5/5. 실제 파일 스트림 종료 시 FileHandle 참조 문제와 2 MiB 비압축 합성 데이터의 목록 검사 조기 종료(EPIPE/Windows EOF)를 재현·수정했다. 목록 명령의 exit 0일 때만 조기 입력 종료를 허용하며 실제 restore 오류는 그대로 실패다.
+- 실제 `HLOG_OBSERVABILITY_BACKUP_SMOKE=1 npm run test:observability:backup` 1/1: 정상 복원, 덮어쓰기 거부, 깨진 dump, 변조 hash, 잘못된 복구 대상과 기록 실패를 재현했다. 실패 뒤 최근 성공 시각도 보존했다. 최신 build 재검증은 약 14초였다.
+- `HLOG_OBSERVABILITY_PROBES_SMOKE=1 HLOG_OBSERVABILITY_PUBLISHING_SMOKE=1 HLOG_OBSERVABILITY_FULL_INTEGRATION=1 npm run test:observability:probes` 1/1, 약 244초: 전체 DB integration과 실제 backup→helper→collector→Prometheus, 재생성 후 성공 시각 보존, restore 미실행/disabled·DB/HTTP/수집기 장애·권한/비공개 경계를 확인했다.
+- 기본 gate: `npm run test` 270 pass/26 DB 환경 skip, `npm run lint`, `npm run typecheck`, `npm run build` 통과. 기존 thumbnail 동적 파일 tracing 경고 2건은 그대로다. 문서/JSON/link/registry와 `git diff --check` 확인. UI 변경은 없다.
+- Synthetic 임시 dump/credential·테스트 project/volume/새 DB는 정리했다. 보관 자동화·운영 DB/OCI/외부 provider/알림·timer 활성화는 하지 않았다. 강제 종료 잔여 자원·최대 용량/24시간 soak는 Step 6/7 검수 항목이다.
+
+현재 5 completed / 2 pending / 1 blocked. 다음은 [Step 5: dashboards-and-alert-routing](step5.md)이며 관리자 14·2·1과 OCI 보류를 유지한다. 운영 절차는 [실행 runbook](../../deploy/observability/README.md#step-4-수동-백업복구-검증)을 따른다.

@@ -15,7 +15,7 @@ try {
   if (publishing) {
     const directory = process.env.HLOG_OBSERVABILITY_STATE_DIR;
     if (!directory) throw new Error("missing state directory");
-    for (const source of ["autopublish", "expectations"]) collectors.push(createSourceCollector(source, () => readFileMetrics(join(directory, `${source}.json`), source)));
+    for (const source of ["autopublish", "backup", "restore", "expectations"]) collectors.push(createSourceCollector(source, () => readFileMetrics(join(directory, `${source}.json`), source)));
   }
   const collect = () => Promise.all(collectors.map(c => c.collect()));
   await collect();

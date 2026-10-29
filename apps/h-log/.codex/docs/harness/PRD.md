@@ -139,13 +139,13 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 
 ### I-02: 운영 모니터링 계획
 
-2026-10-06 사용자 요청으로 [operations-observability](OBSERVABILITY_PLAN.md)를 8개 step으로 등록했다. 수집 환경, 서버·DB·HTTP 상태, 지속적인 발행/비용·백업 신호, 대시보드/알림, 장애 검증과 승인된 운영 적용을 순서대로 진행한다. 2026-10-28 Steps 0–1을 완료했다. 비공개 Prometheus/Grafana self-scrape·datasource·지속 volume은 로컬 검증했고 host/DB/HTTP 수집·업무 지표·대시보드·알림은 후속 단계다. 현재 버전 required 6종의 성공 증거, DB 독립 atomic summary, UTC 비용/09:00 KST 일정과 unknown·stale·disabled를 구분한다. 초기 모니터링 예산은 별도 메모리 1 GiB·디스크 3 GiB이며 PDF 백업 예산과 합산해 검증한다.
+2026-10-06 사용자 요청으로 [operations-observability](OBSERVABILITY_PLAN.md)를 8개 step으로 등록했다. 수집 환경, 서버·DB·HTTP 상태, 지속적인 발행/비용·백업 신호, 대시보드/알림, 장애 검증과 승인된 운영 적용을 순서대로 진행한다. 2026-10-29 Steps 0–4를 완료했다. 비공개 Prometheus/Grafana·host/DB/HTTP·발행/비용과 백업/복구 신호를 로컬 검증했다. 대시보드·알림은 다음 단계다. 현재 버전 required 6종의 성공 증거, DB 독립 atomic summary, UTC 비용/09:00 KST 일정과 unknown·stale·disabled를 구분한다. 초기 모니터링 예산은 별도 메모리 1 GiB·디스크 3 GiB이며 PDF 백업 예산과 합산해 검증한다.
 
 - 자동 발행 미실행·실패·정체, 백업/복구 검증 지연과 수집 자체의 오류를 감지한다.
 - 지표·대시보드는 비공개 운영 표면이며 콘텐츠·검색어·credential·내부 식별자를 노출하지 않는다. 기존 published-current/privacy와 비용 guard를 유지한다.
 - Steps 0–6은 격리 로컬에서 진행하고 Step 7은 기존 OCI 보류로 blocked다. 외부 HTTP/heartbeat 감시를 포함한 운영 검증을 반복 발행 timer 활성화 전에 완료한다.
 - 모니터링 완료에 실제 반복 발행을 요구하지 않는다. 비활성 상태를 구분한 뒤 timer 재개는 기존 자동 발행 phase에서 별도 승인으로 수행한다.
-- 2026-10-28 관리자 A1/A4/A2와 A3 Steps 0–1, 모니터링 Steps 0–2를 완료했다. 다음은 모니터링 Step 3다. 로컬 Steps 1–6은 A3 모니터링 화면보다 먼저, 운영 Step 7은 관리자 rollout·timer보다 먼저 완료한다. 운영 적용 보류는 유지한다.
+- 2026-10-28 관리자 A1/A4/A2와 A3 Steps 0–1, 2026-10-29 모니터링 Steps 0–4를 완료했다. 다음은 모니터링 Step 5다. 로컬 Steps 1–6은 A3 모니터링 화면보다 먼저, 운영 Step 7은 관리자 rollout·timer보다 먼저 완료한다. 운영 적용 보류는 유지한다.
 
 ### H-02: 파일 기반 블로그 호환 이력
 
@@ -270,3 +270,7 @@ A3 Step 1 완료: 소유자는 원인·버전/hash를 확인한 실패 작업 �
 ## 서버·DB·HTTP 상태 수집 — 2026-10-28
 
 2026-10-28 모니터링 Step 2 완료: 선택형 probes overlay와 고정 Node/PostgreSQL/Blackbox Exporter, 기존 Node/pg 기반 별도 collector를 구현했다. CPU·메모리 통계 파일 3개와 내용 없는 Docker volume만 읽고 host root는 연결하지 않는다. 최소 DB 계정·집계 view, 60초 수집/3초 statement·5초 transaction 제한, 실패 시 timestamp 보존과 180초 stale 생략을 검증했다. 고정 home/blog의 HTTP 실패·timeout·redirect·임박 TLS, 실제 잠금·권한 거부·DB/수집기 중단·label/log 경계를 격리 검증했다. 단위 260 pass/25 DB skip, 전체 DB integration, lint/typecheck/build 통과. 모니터링 completed 3·pending 4·blocked 1이며 다음은 **operations-observability Step 3: durable-publishing-signals**다. 관리자 상태 14·2·1, OCI·provider·발행·timer 보류는 유지한다.
+
+## 백업·복구 관측 구현 — 2026-10-29
+
+2026-10-29 모니터링 Step 4 완료: custom dump 생성·형식 검사와 격리 복구 검증의 성공을 분리했다. 새 tmpfs DB에서 migration/vector·본문/PDF hash·공개/비공개 HTTP·PDF 새 epoch와 감사 reset을 확인한 뒤에만 복구 성공을 기록한다. 실패 때 이전 성공 시각을 보존하고 disabled/누락/손상/오래된 신호를 구분한다. 단위 270 pass/26 DB skip, 전체 격리 DB integration, Linux state 9개·파일 8개, 실제 backup/restore와 Prometheus smoke, lint/typecheck/build 통과. 모니터링 completed 5·pending 2·blocked 1이며 다음은 **operations-observability Step 5: dashboards-and-alert-routing**다. 관리자 14·2·1과 OCI·실제 provider·발행·timer 보류는 유지한다.

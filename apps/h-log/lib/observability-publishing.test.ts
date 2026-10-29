@@ -3,7 +3,7 @@ import test from "node:test";
 import { mkdtemp, writeFile, unlink, rmdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { readFileMetrics, renderPublishingMetrics, publicationSchedule } from "./observability-publishing.ts";
+import { readFileMetrics, renderPublishingMetrics, publicationSchedule, batchDeadline } from "./observability-publishing.ts";
 
 test("job/usage metrics keep unknown age and costs separate from zero and invalid budget", () => {
   const snapshot = { jobs: [{ state: "queued", job_type: "render", importance: "required", count: 2 }],
@@ -16,6 +16,35 @@ test("job/usage metrics keep unknown age and costs separate from zero and invali
   assert.match(metrics, /oldest_pending_age_seconds\{importance="retryable"} 0/);
   assert.match(metrics, /hlog_usage_unknown_events\{window="day"} 2/);
   assert.throws(() => renderPublishingMetrics({ ...snapshot, jobs: [{ ...snapshot.jobs[0], state: "SECRET" }] }, {}));
+});
+
+test("backup/restore deadlines use first success, reactivation and finite maintenance", () => {
+  const now = 1793145600, hour = 3600;
+  const e = { enabled: true, enabled_at: now, maintenance_from: 0, maintenance_until: 0 };
+  assert.equal(batchDeadline('backup', e, 0, now), now+26*hour);
+  assert.equal(batchDeadline('restore', e, 0, now), now+24*hour);
+  assert.equal(batchDeadline('restore', e, now+hour, now+hour), now+hour+30*86400);
+  assert.equal(batchDeadline('restore', { ...e, enabled_at: now+2*hour }, now+hour, now+2*hour), now+26*hour);
+  const maintenance = { ...e, maintenance_from: now+hour, maintenance_until: now+2*hour };
+  assert.equal(batchDeadline('restore', maintenance, now, now+2*hour), now+26*hour);
+  assert.equal(batchDeadline('restore', maintenance, now+3*hour, now+3*hour), now+3*hour+30*86400);
+  assert.equal(batchDeadline('backup', { ...e, enabled_at: now-30*hour, maintenance_from: now-hour, maintenance_until: now+hour }, 0, now), now-4*hour);
+  assert.equal(batchDeadline('backup', { ...e, enabled: false }, 0, now), undefined);
+});
+
+test("backup and restore files emit independent results without dump paths or invented missing success", async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'hlog-batch-')), now = 1793145600;
+  try {
+    for (const task of ['backup', 'restore'] as const) {
+      const file = join(dir, task+'.json');
+      await assert.rejects(readFileMetrics(file, task, now), { code: 'ENOENT' });
+      await writeFile(file, JSON.stringify({ schema_version: 1, task, invocation_id: 'a'.repeat(32), mode: 'manual', started_at: now-2, completed_at: now, result: 'failed', stage: 'verification', last_success_at: now-100 }));
+      const text = await readFileMetrics(file, task, now);
+      assert.match(text, new RegExp(`hlog_batch_last_success_timestamp_seconds\\{task="${task}"} ${now-100}`));
+      assert.match(text, new RegExp(`hlog_batch_result\\{task="${task}",result="failed"} 1`));
+      assert.doesNotMatch(text, /dump|path|invocation|aaaa/);
+    }
+  } finally { for (const task of ['backup','restore']) await unlink(join(dir,task+'.json')).catch(()=>undefined); await rmdir(dir); }
 });
 
 test("KST slots respect activation, missed runs and finite maintenance without forging success", () => {
@@ -41,8 +70,17 @@ test("durable file reader rejects corrupt, future and mistyped state without emi
       await writeFile(path, content); await assert.rejects(readFileMetrics(path, "autopublish", now), { code: "INVALID_METRICS" });
     }
     await writeFile(path, JSON.stringify({ schema_version: 1, autopublish: { enabled: false, enabled_at: 0, maintenance_from: 0, maintenance_until: 0 } }));
+    await assert.rejects(readFileMetrics(path, "expectations", now), { code: "INVALID_METRICS" });
+    const off = { enabled: false, enabled_at: 0, maintenance_from: 0, maintenance_until: 0 };
+    await writeFile(path, JSON.stringify({ schema_version: 1, autopublish: off, backup: off, restore: off }));
     const disabled = await readFileMetrics(path, "expectations", now);
     assert.match(disabled, /expected_enabled\{task="autopublish"} 0/); assert.doesNotMatch(disabled, /deadline/);
+    await writeFile(path, JSON.stringify({ schema_version: 1, autopublish: off, backup: { ...off, enabled: true, enabled_at: now-1000 }, restore: off }));
+    assert.match(await readFileMetrics(path, "expectations", now), new RegExp(`deadline_timestamp_seconds\\{task="backup"} ${now-1000+26*3600}`));
+    await writeFile(join(dir,'backup.json'), JSON.stringify({ ...state, task:'backup' }));
+    assert.match(await readFileMetrics(path, "expectations", now), new RegExp(`deadline_timestamp_seconds\\{task="backup"} ${now-2+26*3600}`));
+    await writeFile(join(dir,'backup.json'), '{');
+    assert.doesNotMatch(await readFileMetrics(path, "expectations", now), /deadline_timestamp_seconds\{task="backup"}/);
     await unlink(path); await assert.rejects(readFileMetrics(path, "expectations", now), { code: "ENOENT" });
-  } finally { await unlink(path).catch(() => undefined); await rmdir(dir); }
+  } finally { await unlink(path).catch(() => undefined); await unlink(join(dir,'backup.json')).catch(() => undefined); await rmdir(dir); }
 });

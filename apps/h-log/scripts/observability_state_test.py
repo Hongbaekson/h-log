@@ -130,6 +130,22 @@ class StateTest(unittest.TestCase):
         self.assertEqual(self.summary()["last_budget_block_at"], self.now+10)
         self.assertEqual(self.summary()["last_success_at"], 0)
 
+    def test_backup_and_restore_require_separate_proof_and_preserve_last_success(self):
+        for task in ("backup", "restore"):
+            a, b = "a" * 32, "b" * 32
+            state.start(self.root, a, "manual", self.now, task)
+            state.finish(self.root, a, "success", self.now+1, task)
+            self.assertEqual(state.read_json(self.root / f"{task}.json")["result"], "unverified")
+            state.start(self.root, b, "manual", self.now+2, task)
+            state.atomic_write(self.root / "evidence" / f"{task}.json", {"schema_version": 1, "invocation_id": b, "result": "succeeded", "stage": "complete", "verified": True, "checked_at": self.now+3})
+            state.finish(self.root, b, "success", self.now+4, task)
+            state.start(self.root, a, "manual", self.now+5, task)
+            state.finish(self.root, a, "exit-code", self.now+6, task)
+            result = state.read_json(self.root / f"{task}.json")
+            self.assertEqual(result["result"], "failed")
+            self.assertEqual(result["last_success_at"], self.now+3)
+        self.assertFalse((self.root / "autopublish.json").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

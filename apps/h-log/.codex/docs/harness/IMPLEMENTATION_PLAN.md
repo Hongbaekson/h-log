@@ -1,5 +1,7 @@
 # Implementation Plan: H-Log Harness Baseline
 
+2026-10-29 모니터링 Step 4 완료: custom dump 생성·형식 검사와 격리 복구 검증의 성공을 분리했다. 새 tmpfs DB에서 migration/vector·본문/PDF hash·공개/비공개 HTTP·PDF 새 epoch와 감사 reset을 확인한 뒤에만 복구 성공을 기록한다. 실패 때 이전 성공 시각을 보존하고 disabled/누락/손상/오래된 신호를 구분한다. 단위 270 pass/26 DB skip, 전체 격리 DB integration, Linux state 9개·파일 8개, 실제 backup/restore와 Prometheus smoke, lint/typecheck/build 통과. 모니터링 completed 5·pending 2·blocked 1이며 다음은 **operations-observability Step 5: dashboards-and-alert-routing**다. 관리자 14·2·1과 OCI·실제 provider·발행·timer 보류는 유지한다.
+
 2026-10-28 모니터링 Step 3 완료: migration 012의 최초 대기 시각·비용 근거, 현재 버전의 읽기 전용 집계, DB 밖 atomic 실행 기록과 선택형 systemd hook을 구현했다. 이번 실행의 공개 버전·필수 6종·본문 hash를 확인한 경우만 성공으로 기록한다. 가짜 provider부터 실제 worker·host helper·Prometheus까지 연결하고 중복/재생성/손상/DB 중단을 검증했다. 단위 268 pass/26 DB skip, 전체 DB integration, Linux state 8개·파일 6개, lint/typecheck/build 통과. 모니터링 completed 4·pending 3·blocked 1이며 다음은 **operations-observability Step 4: backup-and-restore-signals**다. 관리자 14·2·1과 OCI·실제 provider·발행·timer 보류는 유지한다.
 
 2026-10-28 모니터링 Step 1 완료: 선택형 Compose에 고정 Prometheus 3.13.5/Grafana 12.4.13, self-scrape·datasource·별도 volume·자원 제한을 추가했다. Docker 29의 internal-only 포트 미생성 문제는 localhost 전용 Nginx 진입점으로 해결하고 Grafana/Prometheus의 egress 차단을 유지했다. 기본 서비스/profile 보존, promtool·실제 인증/수집/ingress·재생성 후 과거 지표/Grafana 저장 자료 보존을 격리 smoke 1/1로 확인했다. 설정·문서 범위이며 앱/DB/worker/UI는 변경하지 않았다. 모니터링은 completed 2·pending 5·blocked 1, 관리자 상태는 14·2·1 그대로다. **다음은 operations-observability Step 2: host-database-http-probes**다. 운영 적용·외부 알림·실제 provider·발행·timer는 실행하지 않았다.

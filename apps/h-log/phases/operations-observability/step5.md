@@ -55,3 +55,7 @@ Steps 0–4 완료 후 수집 지표를 운영 화면과 알림에 연결한다.
 ## Step 0 확정 계약 인계 — pending
 
 단일 계약의 고정 labels·알림 임계/그룹/24시간 reminder와 freshness를 적용한다. Keep Last State만으로 오류를 숨기지 않고 NoData/Error 별도 경보와 신선한 복구 증거를 mock에서 확인한다. [지표·권한·자원·예정 파일과 명령](../../.codex/docs/harness/OBSERVABILITY_PLAN.md)을 기준으로 하며 이번 인계 기록은 구현 완료가 아니다.
+
+## Step 4 구현 인계
+
+`lib/observability-publishing.ts`의 batch deadline, `scripts/observability-state.py`의 task별 요약, collector의 db/autopublish/backup/restore/expectations source와 Prometheus allowlist를 사용한다. 실제 백업/격리 복구를 검증했지만 schedule은 disabled다. 성공 시각만으로 정상 처리하지 말고 현재 result·source 수집 성공/freshness·기대 상태를 함께 판단한다. 복구 summary가 없을 때 임의 성공/0초 age를 만들지 않는다. 재활성화·최대 24시간 정비·기존 지연 보존 계약과 기록 실패 시 업무 실행 보존은 그대로 유지한다. 이번 Step에서 dashboard·mock 알림을 구현하며 실제 외부 알림은 보내지 않는다.
