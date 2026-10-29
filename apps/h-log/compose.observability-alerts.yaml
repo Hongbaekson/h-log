@@ -1,0 +1,12 @@
+# Add after the probes/publishing overlays. No receiver or external egress is enabled.
+services:
+  grafana:
+    # Datasource errors can contain raw query text. Use private rule health/API,
+    # not retained stdout, for diagnosis in this opt-in alerting profile.
+    logging:
+      driver: none
+      options: !reset {}
+    volumes:
+      - ./deploy/observability/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./deploy/observability/grafana/provisioning/alerting:/etc/grafana/provisioning/alerting:ro
+      - ./deploy/observability/grafana/dashboards:/var/lib/grafana/dashboards:ro

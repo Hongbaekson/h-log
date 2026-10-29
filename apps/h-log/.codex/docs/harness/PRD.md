@@ -139,13 +139,13 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 
 ### I-02: 운영 모니터링 계획
 
-2026-10-06 사용자 요청으로 [operations-observability](OBSERVABILITY_PLAN.md)를 8개 step으로 등록했다. 수집 환경, 서버·DB·HTTP 상태, 지속적인 발행/비용·백업 신호, 대시보드/알림, 장애 검증과 승인된 운영 적용을 순서대로 진행한다. 2026-10-29 Steps 0–4를 완료했다. 비공개 Prometheus/Grafana·host/DB/HTTP·발행/비용과 백업/복구 신호를 로컬 검증했다. 대시보드·알림은 다음 단계다. 현재 버전 required 6종의 성공 증거, DB 독립 atomic summary, UTC 비용/09:00 KST 일정과 unknown·stale·disabled를 구분한다. 초기 모니터링 예산은 별도 메모리 1 GiB·디스크 3 GiB이며 PDF 백업 예산과 합산해 검증한다.
+2026-10-06 사용자 요청으로 [operations-observability](OBSERVABILITY_PLAN.md)를 8개 step으로 등록했다. 수집 환경, 서버·DB·HTTP 상태, 지속적인 발행/비용·백업 신호, 대시보드/알림, 장애 검증과 승인된 운영 적용을 순서대로 진행한다. 2026-10-29 Steps 0–5를 완료했다. 비공개 Prometheus/Grafana·host/DB/HTTP·발행/비용·백업/복구 신호와 4영역 대시보드·43개 알림 규칙을 로컬 검증했다. 실제 외부 알림은 기본 음소거이며 통합 장애/자원 검수는 다음 단계다. 현재 버전 required 6종의 성공 증거, DB 독립 atomic summary, UTC 비용/09:00 KST 일정과 unknown·stale·disabled를 구분한다. 초기 모니터링 예산은 별도 메모리 1 GiB·디스크 3 GiB이며 PDF 백업 예산과 합산해 검증한다.
 
 - 자동 발행 미실행·실패·정체, 백업/복구 검증 지연과 수집 자체의 오류를 감지한다.
 - 지표·대시보드는 비공개 운영 표면이며 콘텐츠·검색어·credential·내부 식별자를 노출하지 않는다. 기존 published-current/privacy와 비용 guard를 유지한다.
 - Steps 0–6은 격리 로컬에서 진행하고 Step 7은 기존 OCI 보류로 blocked다. 외부 HTTP/heartbeat 감시를 포함한 운영 검증을 반복 발행 timer 활성화 전에 완료한다.
 - 모니터링 완료에 실제 반복 발행을 요구하지 않는다. 비활성 상태를 구분한 뒤 timer 재개는 기존 자동 발행 phase에서 별도 승인으로 수행한다.
-- 2026-10-28 관리자 A1/A4/A2와 A3 Steps 0–1, 2026-10-29 모니터링 Steps 0–4를 완료했다. 다음은 모니터링 Step 5다. 로컬 Steps 1–6은 A3 모니터링 화면보다 먼저, 운영 Step 7은 관리자 rollout·timer보다 먼저 완료한다. 운영 적용 보류는 유지한다.
+- 2026-10-28 관리자 A1/A4/A2와 A3 Steps 0–1, 2026-10-29 모니터링 Steps 0–5를 완료했다. 다음은 모니터링 Step 6다. 로컬 Steps 1–6은 A3 모니터링 화면보다 먼저, 운영 Step 7은 관리자 rollout·timer보다 먼저 완료한다. 운영 적용 보류는 유지한다.
 
 ### H-02: 파일 기반 블로그 호환 이력
 

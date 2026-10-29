@@ -52,6 +52,8 @@ Local development
 - Step 7은 기존 OCI 보류로 blocked다. 검증된 artifact·자원 측정·변경 서비스·secret·rollback을 준비한 뒤 명시적 재개/배포 범위에 따라 운영에 적용한다. 실제 알림 수신처와 독립 외부 HTTP/heartbeat 감시도 이때 검증한다.
 - 반복 발행 timer는 이 phase에서 켜지 않는다. 운영 모니터링 완료 후 `auto-publish-ops-hardening / Step 4`에서 HTTPS/privacy 등 기존 gate와 함께 활성화 여부를 판단한다. 운영 준비가 부족하면 로컬 완료 상태만 기록한다.
 
+2026-10-29 Step 5에서 선택형 `compose.observability-alerts.yaml`과 대시보드/규칙 file provisioning을 로컬 검증했다. 원본은 `scripts/observability-config.mjs`이며 regenerate 후 테스트한다. 외부 전송은 모든 route의 기본 mute·무 egress로 차단하고, 비공개 수신처 예제는 자동 mount하지 않는다. 원문 datasource 오류 로그는 보관하지 않는다. 기본 stack의 datasource 전용 mount와 인증/격리 회귀도 확인했다. 승인된 Step 7 전에 수신처·secret·payload 형식·egress·mute 해제·rollback과 Step 6의 24시간 자원 증거를 검수해야 한다.
+
 ## Terraform 전환 계획
 
 **현재 실행 경계 (2026-09-30): 사용자가 OCI 작업을 보류했다.** 준비 구성·계획은 보존하지만 앞선 승인으로 bucket 생성, 운영 backup/restore, remote backend 연결/import를 실행하지 않는다. 명시적인 재개 지시 전에는 [독립 로컬 블로그 검증](../../phases/local-blog-design-verification/step0.md)을 진행한다. 실제 운영 작업은 아직 실행하지 않았다.

@@ -1,0 +1,1415 @@
+{
+  "uid": "hlog-operations",
+  "title": "H-Log 운영",
+  "schemaVersion": 41,
+  "version": 1,
+  "editable": false,
+  "timezone": "Asia/Seoul",
+  "refresh": "1m",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "tags": [
+    "hlog",
+    "private"
+  ],
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "01 · 서비스와 수집 상태",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "접속 · DB",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시. 현재 probe 상태. 미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 0,
+        "y": 1,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(probe_success) and on() ((min(up{job=\"http\"}) == 1))",
+          "legendFormat": "{{target}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        },
+        {
+          "refId": "B",
+          "expr": "(pg_up) and on() ((min(up{job=\"database\"}) == 1))",
+          "legendFormat": "DB",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "미수집 / 오류",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "실패"
+                },
+                "1": {
+                  "text": "정상"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "수집 상태",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시. 0은 수집 실패, 1은 읽기 성공. 최근 업무 성공과 다릅니다. 미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 12,
+        "y": 1,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "hlog_metrics_collection_success",
+          "legendFormat": "{{source}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "미수집 / 오류",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "수집 실패"
+                },
+                "1": {
+                  "text": "수집 정상"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "수집 경과",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시. 180초 넘으면 stale. 업무 상태와 함께 확인합니다. 미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 0,
+        "y": 7,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "time() - hlog_metrics_collected_timestamp_seconds",
+          "legendFormat": "{{source}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "noValue": "미수집 / 오류",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "HTTP 응답 · TLS 남은 기간",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시. HTTP 방식의 TLS 부재는 해당 없음. 응답 시간은 synthetic probe입니다. 미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 12,
+        "y": 7,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "probe_duration_seconds",
+          "legendFormat": "{{target}} 응답",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        },
+        {
+          "refId": "B",
+          "expr": "probe_ssl_earliest_cert_expiry - time()",
+          "legendFormat": "{{target}} 인증서",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "noValue": "미수집 / 오류",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": "row",
+      "title": "02 · 서버와 DB",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 13,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "CPU · 가용 메모리",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시.  미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(1 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m]))) and on() ((min(up{job=\"host\"}) == 1))",
+          "legendFormat": "CPU 사용률 · 5분 rate",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        },
+        {
+          "refId": "B",
+          "expr": "(min(node_memory_MemAvailable_bytes) / min(node_memory_MemTotal_bytes)) and on() ((min(up{job=\"host\"}) == 1))",
+          "legendFormat": "가용 메모리",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "noValue": "미수집 / 오류",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "stat",
+      "title": "저장 공간 · inode",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시. Docker data filesystem만 측정합니다. 미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 12,
+        "y": 14,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(node_filesystem_avail_bytes / node_filesystem_size_bytes) and on() ((min(up{job=\"host\"}) == 1))",
+          "legendFormat": "{{mountpoint}} 공간",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        },
+        {
+          "refId": "B",
+          "expr": "(node_filesystem_files_free / node_filesystem_files) and on() ((min(up{job=\"host\"}) == 1))",
+          "legendFormat": "{{mountpoint}} inode",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "noValue": "미수집 / 오류",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 9,
+      "type": "stat",
+      "title": "DB 연결",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시.  미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(hlog_db_connections) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+          "legendFormat": "전체 연결",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        },
+        {
+          "refId": "B",
+          "expr": "(hlog_db_max_connections) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+          "legendFormat": "연결 상한",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "미수집 / 오류",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 10,
+      "type": "stat",
+      "title": "DB 잠금 대기",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시.  미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 12,
+        "y": 20,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(hlog_db_waiting_locks) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+          "legendFormat": "대기 lock",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "미수집 / 오류",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 11,
+      "type": "row",
+      "title": "03 · 발행과 비용",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 26,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 12,
+      "type": "stat",
+      "title": "현재 버전 작업",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시. 과거 버전 실패 합계가 아닙니다. 미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 0,
+        "y": 27,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(sum by (state) (hlog_publish_jobs)) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+          "legendFormat": "{{state}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "미수집 / 오류",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 13,
+      "type": "stat",
+      "title": "필수 작업 대기",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시. 시각 미상은 0초가 아닙니다. 미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 12,
+        "y": 27,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(hlog_publish_oldest_pending_age_seconds{importance=\"required\"}) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+          "legendFormat": "최초 대기 후",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "noValue": "미수집 / 오류",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 14,
+      "type": "stat",
+      "title": "알려진 비용 하한",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시. UTC day/month 집계. 구독료 총액이 아닙니다. 미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 0,
+        "y": 33,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(hlog_usage_known_cost_usd) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+          "legendFormat": "UTC {{window}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "noValue": "미수집 / 오류",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 15,
+      "type": "stat",
+      "title": "비용 미확인 · 구독 포함",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시. UTC day/month. Unknown과 known 금액은 겹칠 수 있습니다. 미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 12,
+        "y": 33,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(hlog_usage_unknown_events) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+          "legendFormat": "미확인 {{window}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        },
+        {
+          "refId": "B",
+          "expr": "(hlog_usage_included_events) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+          "legendFormat": "included {{window}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "미수집 / 오류",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 16,
+      "type": "stat",
+      "title": "비용 한도 비율",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시. 양수 유한 한도만 표시. zero/unlimited에서는 해당 없음. 미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 0,
+        "y": 39,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(hlog_usage_budget_ratio) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+          "legendFormat": "UTC {{window}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "noValue": "미수집 / 오류",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 17,
+      "type": "stat",
+      "title": "비용 정책",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시. zero=명시적 차단, unlimited=미설정, invalid=설정 오류. 미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 12,
+        "y": 39,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(hlog_usage_budget_state == 1) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+          "legendFormat": "{{window}} · {{state}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "미수집 / 오류",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "name",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "titleSize": 16,
+          "valueSize": 18
+        }
+      }
+    },
+    {
+      "id": 18,
+      "type": "stat",
+      "title": "일정 허용",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시. 실제 timer 프로세스 상태가 아닌 승인된 기대 상태. 미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 0,
+        "y": 45,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(hlog_schedule_expected_enabled) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"expectations\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"expectations\"}) <= 180)))",
+          "legendFormat": "{{task}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "미수집 / 오류",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "비활성"
+                },
+                "1": {
+                  "text": "활성"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 19,
+      "type": "stat",
+      "title": "최근 실행 결과",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시. summary가 없으면 아직 미실행/N/A. 각 source 수집 경과를 함께 확인합니다. 미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 12,
+        "y": 45,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(hlog_batch_result{task=\"autopublish\"} == 1) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"autopublish\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"autopublish\"}) <= 180)))",
+          "legendFormat": "{{task}} · {{result}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        },
+        {
+          "refId": "B",
+          "expr": "(hlog_batch_result{task=\"backup\"} == 1) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"backup\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"backup\"}) <= 180)))",
+          "legendFormat": "{{task}} · {{result}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        },
+        {
+          "refId": "C",
+          "expr": "(hlog_batch_result{task=\"restore\"} == 1) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"restore\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"restore\"}) <= 180)))",
+          "legendFormat": "{{task}} · {{result}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "미수집 / 오류",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "name",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "titleSize": 16,
+          "valueSize": 18
+        }
+      }
+    },
+    {
+      "id": 20,
+      "type": "stat",
+      "title": "성공 기한",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시. 발행 09:30 KST. 비활성 일정은 기한 없음. 정비 후 기한 반영. 미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 0,
+        "y": 51,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "((hlog_schedule_deadline_timestamp_seconds * 1000) or (hlog_schedule_expected_enabled == 0)) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"expectations\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"expectations\"}) <= 180)))",
+          "legendFormat": "{{task}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dateTimeAsIso",
+          "noValue": "미수집 / 오류",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "비활성"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 21,
+      "type": "stat",
+      "title": "정비 종료",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시. 최대 24시간. 정비가 과거 실패를 지우지 않습니다. 미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 12,
+        "y": 51,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(hlog_schedule_maintenance_until_timestamp_seconds * 1000 * (hlog_schedule_maintenance_until_timestamp_seconds > bool time())) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"expectations\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"expectations\"}) <= 180)))",
+          "legendFormat": "{{task}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dateTimeAsIso",
+          "noValue": "미수집 / 오류",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "정비 없음"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 22,
+      "type": "row",
+      "title": "04 · 백업과 복구",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 57,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 23,
+      "type": "stat",
+      "title": "최근 백업 성공",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시. 0=성공 이력 없음. 백업 파일 생성과 복구 검증은 별개. 미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 0,
+        "y": 58,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(hlog_batch_last_success_timestamp_seconds{task=\"backup\"} * 1000) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"backup\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"backup\"}) <= 180)))",
+          "legendFormat": "backup",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dateTimeAsIso",
+          "noValue": "미수집 / 오류",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "성공 이력 없음"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 24,
+      "type": "stat",
+      "title": "최근 복구 검증 성공",
+      "description": "60초 수집 · 현재 snapshot · Asia/Seoul 표시. 0=성공 이력 없음. 백업 파일 생성과 복구 검증은 별개. 미수집/오류는 No data, 180초 초과는 stale이며 정상값으로 대체하지 않습니다.",
+      "gridPos": {
+        "x": 12,
+        "y": 58,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hlog-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(hlog_batch_last_success_timestamp_seconds{task=\"restore\"} * 1000) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"restore\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"restore\"}) <= 180)))",
+          "legendFormat": "restore",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "hlog-prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dateTimeAsIso",
+          "noValue": "미수집 / 오류",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "성공 이력 없음"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    }
+  ]
+}

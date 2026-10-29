@@ -45,7 +45,10 @@
     "typecheck": "tsc --noEmit",
     "test:observability:publishing": "node --no-warnings --experimental-strip-types --test lib/observability-publishing.integration.test.ts",
     "test:observability:state": "node --test scripts/observability-state.test.mjs",
-    "test:observability:backup": "node --no-warnings --experimental-strip-types --test scripts/observability-backup.test.mjs"
+    "test:observability:backup": "node --no-warnings --experimental-strip-types --test scripts/observability-backup.test.mjs",
+    "observability:config": "node scripts/observability-config.mjs",
+    "test:observability:alerts": "node --test scripts/observability-alerts.test.mjs",
+    "test:observability:alerts:smoke": "node --test scripts/observability-alerts.smoke.mjs"
   },
   "dependencies": {
     "d3-force-3d": "3.0.6",

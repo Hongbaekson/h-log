@@ -1,0 +1,2550 @@
+{
+  "apiVersion": 1,
+  "groups": [
+    {
+      "orgId": 1,
+      "name": "hlog-operations",
+      "folder": "H-Log 운영",
+      "interval": "60s",
+      "rules": [
+        {
+          "uid": "hlog-query-health",
+          "title": "지표 조회 No Data / Error",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "NoData",
+          "execErrState": "Error",
+          "labels": {
+            "service": "monitoring",
+            "rule": "query-health",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "지표 조회 No Data / Error",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "1 - min(up{job=\"prometheus\"})",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-http-home",
+          "title": "home 접속 실패",
+          "condition": "B",
+          "for": "2m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "web",
+            "rule": "http-home",
+            "severity": "critical"
+          },
+          "annotations": {
+            "summary": "home 접속 실패",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(1 - min(probe_success{target=\"home\"})) and on() (min(up{job=\"http\",target=\"home\"}) == 1)",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-http-blog",
+          "title": "blog 접속 실패",
+          "condition": "B",
+          "for": "2m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "web",
+            "rule": "http-blog",
+            "severity": "critical"
+          },
+          "annotations": {
+            "summary": "blog 접속 실패",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(1 - min(probe_success{target=\"blog\"})) and on() (min(up{job=\"http\",target=\"blog\"}) == 1)",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-database",
+          "title": "DB 연결 실패",
+          "condition": "B",
+          "for": "2m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "database",
+            "rule": "database",
+            "severity": "critical"
+          },
+          "annotations": {
+            "summary": "DB 연결 실패",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(1 - min(pg_up)) and on() ((min(up{job=\"database\"}) == 1))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-scrape",
+          "title": "수집 대상 누락 / 실패",
+          "condition": "B",
+          "for": "3m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "monitoring",
+            "rule": "scrape",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "수집 대상 누락 / 실패",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "1 - (((min(up{job=\"host\"}) == bool 1) or vector(0)) * ((min(up{job=\"database\"}) == bool 1) or vector(0)) * ((min(up{job=\"hlog\"}) == bool 1) or vector(0)) * ((min(up{job=\"probe-exporter\"}) == bool 1) or vector(0)) * ((count(pg_up) > bool 0) or vector(0)) * (((min(up{job=\"http\",target=\"home\"}) == bool 1) * (count(probe_success{target=\"home\"}) > bool 0)) or vector(0)) * (1 - (((count(probe_ssl_earliest_cert_expiry{target=\"home\"}) or vector(0)) == bool 0) * ((count(max_over_time(probe_ssl_earliest_cert_expiry{target=\"home\"}[7d])) > bool 0) or vector(0)))) * (((min(up{job=\"http\",target=\"blog\"}) == bool 1) * (count(probe_success{target=\"blog\"}) > bool 0)) or vector(0)) * (1 - (((count(probe_ssl_earliest_cert_expiry{target=\"blog\"}) or vector(0)) == bool 0) * ((count(max_over_time(probe_ssl_earliest_cert_expiry{target=\"blog\"}[7d])) > bool 0) or vector(0)))))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-source-db",
+          "title": "db 수집 오류 / 누락",
+          "condition": "B",
+          "for": "3m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "monitoring",
+            "rule": "source-db",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "db 수집 오류 / 누락",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "1 - ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1))) or vector(0))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-stale-db",
+          "title": "db 수집 시각 180초 초과",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "monitoring",
+            "rule": "stale-db",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "db 수집 시각 180초 초과",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) > bool 180) and on() ((min(up{job=\"hlog\"}) == 1))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-source-expectations",
+          "title": "expectations 수집 오류 / 누락",
+          "condition": "B",
+          "for": "3m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "monitoring",
+            "rule": "source-expectations",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "expectations 수집 오류 / 누락",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "1 - ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"expectations\"}) == 1))) or vector(0))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-stale-expectations",
+          "title": "expectations 수집 시각 180초 초과",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "monitoring",
+            "rule": "stale-expectations",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "expectations 수집 시각 180초 초과",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(time() - max(hlog_metrics_collected_timestamp_seconds{source=\"expectations\"}) > bool 180) and on() ((min(up{job=\"hlog\"}) == 1))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-source-autopublish",
+          "title": "autopublish 수집 오류 / 누락",
+          "condition": "B",
+          "for": "3m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "monitoring",
+            "rule": "source-autopublish",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "autopublish 수집 오류 / 누락",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "1 - (((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"autopublish\"}) == 1)) or (((max(hlog_metrics_source_state{source=\"autopublish\",state=\"missing\"}) == 1) unless on() max(max_over_time(hlog_metrics_collected_timestamp_seconds{source=\"autopublish\"}[7d]))) and on() (((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"expectations\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"expectations\"}) <= 180))))) or vector(0))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-stale-autopublish",
+          "title": "autopublish 수집 시각 180초 초과",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "monitoring",
+            "rule": "stale-autopublish",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "autopublish 수집 시각 180초 초과",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(time() - max(hlog_metrics_collected_timestamp_seconds{source=\"autopublish\"}) > bool 180) and on() ((min(up{job=\"hlog\"}) == 1))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-source-backup",
+          "title": "backup 수집 오류 / 누락",
+          "condition": "B",
+          "for": "3m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "monitoring",
+            "rule": "source-backup",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "backup 수집 오류 / 누락",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "1 - (((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"backup\"}) == 1)) or (((max(hlog_metrics_source_state{source=\"backup\",state=\"missing\"}) == 1) unless on() max(max_over_time(hlog_metrics_collected_timestamp_seconds{source=\"backup\"}[7d]))) and on() (((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"expectations\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"expectations\"}) <= 180))))) or vector(0))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-stale-backup",
+          "title": "backup 수집 시각 180초 초과",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "monitoring",
+            "rule": "stale-backup",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "backup 수집 시각 180초 초과",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(time() - max(hlog_metrics_collected_timestamp_seconds{source=\"backup\"}) > bool 180) and on() ((min(up{job=\"hlog\"}) == 1))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-source-restore",
+          "title": "restore 수집 오류 / 누락",
+          "condition": "B",
+          "for": "3m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "monitoring",
+            "rule": "source-restore",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "restore 수집 오류 / 누락",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "1 - (((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"restore\"}) == 1)) or (((max(hlog_metrics_source_state{source=\"restore\",state=\"missing\"}) == 1) unless on() max(max_over_time(hlog_metrics_collected_timestamp_seconds{source=\"restore\"}[7d]))) and on() (((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"expectations\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"expectations\"}) <= 180))))) or vector(0))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-stale-restore",
+          "title": "restore 수집 시각 180초 초과",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "monitoring",
+            "rule": "stale-restore",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "restore 수집 시각 180초 초과",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(time() - max(hlog_metrics_collected_timestamp_seconds{source=\"restore\"}) > bool 180) and on() ((min(up{job=\"hlog\"}) == 1))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-cpu",
+          "title": "CPU 사용률 85% 초과",
+          "condition": "B",
+          "for": "15m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "host",
+            "rule": "cpu",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "CPU 사용률 85% 초과",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "((1 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m]))) > bool 0.85) and on() ((min(up{job=\"host\"}) == 1))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-memory",
+          "title": "가용 메모리 10% 미만",
+          "condition": "B",
+          "for": "10m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "host",
+            "rule": "memory",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "가용 메모리 10% 미만",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "((min(node_memory_MemAvailable_bytes) / min(node_memory_MemTotal_bytes)) < bool 0.1) and on() ((min(up{job=\"host\"}) == 1))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-disk-warning",
+          "title": "disk 가용 15% 미만",
+          "condition": "B",
+          "for": "10m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "host",
+            "rule": "disk-warning",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "disk 가용 15% 미만",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(min(node_filesystem_avail_bytes{mountpoint=\"docker-data\"} / node_filesystem_size_bytes{mountpoint=\"docker-data\"}) < bool 0.15) and on() ((min(up{job=\"host\"}) == 1))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-disk-critical",
+          "title": "disk 가용 5% 미만",
+          "condition": "B",
+          "for": "5m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "host",
+            "rule": "disk-critical",
+            "severity": "critical"
+          },
+          "annotations": {
+            "summary": "disk 가용 5% 미만",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(min(node_filesystem_avail_bytes{mountpoint=\"docker-data\"} / node_filesystem_size_bytes{mountpoint=\"docker-data\"}) < bool 0.05) and on() ((min(up{job=\"host\"}) == 1))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-inode-warning",
+          "title": "inode 가용 15% 미만",
+          "condition": "B",
+          "for": "10m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "host",
+            "rule": "inode-warning",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "inode 가용 15% 미만",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(min(node_filesystem_files_free{mountpoint=\"docker-data\"} / node_filesystem_files{mountpoint=\"docker-data\"}) < bool 0.15) and on() ((min(up{job=\"host\"}) == 1))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-inode-critical",
+          "title": "inode 가용 5% 미만",
+          "condition": "B",
+          "for": "5m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "host",
+            "rule": "inode-critical",
+            "severity": "critical"
+          },
+          "annotations": {
+            "summary": "inode 가용 5% 미만",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(min(node_filesystem_files_free{mountpoint=\"docker-data\"} / node_filesystem_files{mountpoint=\"docker-data\"}) < bool 0.05) and on() ((min(up{job=\"host\"}) == 1))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-tls-home-warning",
+          "title": "home TLS 만료 14일 미만",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "web",
+            "rule": "tls-home-warning",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "home TLS 만료 14일 미만",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "((min(probe_ssl_earliest_cert_expiry{target=\"home\"}) - time() < bool 1209600) or (vector(0) unless on() max(max_over_time(probe_ssl_earliest_cert_expiry{target=\"home\"}[7d])))) and on() (min(up{job=\"http\",target=\"home\"}) == 1 and on() min(probe_success{target=\"home\"}) == 1)",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-tls-home-critical",
+          "title": "home TLS 만료 3일 미만",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "web",
+            "rule": "tls-home-critical",
+            "severity": "critical"
+          },
+          "annotations": {
+            "summary": "home TLS 만료 3일 미만",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "((min(probe_ssl_earliest_cert_expiry{target=\"home\"}) - time() < bool 259200) or (vector(0) unless on() max(max_over_time(probe_ssl_earliest_cert_expiry{target=\"home\"}[7d])))) and on() (min(up{job=\"http\",target=\"home\"}) == 1 and on() min(probe_success{target=\"home\"}) == 1)",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-tls-blog-warning",
+          "title": "blog TLS 만료 14일 미만",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "web",
+            "rule": "tls-blog-warning",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "blog TLS 만료 14일 미만",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "((min(probe_ssl_earliest_cert_expiry{target=\"blog\"}) - time() < bool 1209600) or (vector(0) unless on() max(max_over_time(probe_ssl_earliest_cert_expiry{target=\"blog\"}[7d])))) and on() (min(up{job=\"http\",target=\"blog\"}) == 1 and on() min(probe_success{target=\"blog\"}) == 1)",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-tls-blog-critical",
+          "title": "blog TLS 만료 3일 미만",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "web",
+            "rule": "tls-blog-critical",
+            "severity": "critical"
+          },
+          "annotations": {
+            "summary": "blog TLS 만료 3일 미만",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "((min(probe_ssl_earliest_cert_expiry{target=\"blog\"}) - time() < bool 259200) or (vector(0) unless on() max(max_over_time(probe_ssl_earliest_cert_expiry{target=\"blog\"}[7d])))) and on() (min(up{job=\"http\",target=\"blog\"}) == 1 and on() min(probe_success{target=\"blog\"}) == 1)",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-connections",
+          "title": "DB 연결 한도 80% 초과",
+          "condition": "B",
+          "for": "10m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "database",
+            "rule": "connections",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "DB 연결 한도 80% 초과",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(max(hlog_db_connections) / max(hlog_db_max_connections) > bool 0.8) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-locks",
+          "title": "DB 잠금 대기",
+          "condition": "B",
+          "for": "5m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "database",
+            "rule": "locks",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "DB 잠금 대기",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(max(hlog_db_waiting_locks) > bool 0) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-required-failed",
+          "title": "현재 버전 필수 작업 실패",
+          "condition": "B",
+          "for": "1m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "hlog",
+            "rule": "required-failed",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "현재 버전 필수 작업 실패",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "((sum(hlog_publish_jobs{importance=\"required\",state=\"failed\"}) or vector(0)) > bool 0) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-pending",
+          "title": "필수 작업 대기 10분 초과",
+          "condition": "B",
+          "for": "5m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "hlog",
+            "rule": "pending",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "필수 작업 대기 10분 초과",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(max(hlog_publish_oldest_pending_age_seconds{importance=\"required\"}) > bool 600) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-unknown-age",
+          "title": "작업 대기 시각 미확인",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "hlog",
+            "rule": "unknown-age",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "작업 대기 시각 미확인",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(sum(hlog_publish_pending_age_unknown_jobs) > bool 0) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-expired-lease",
+          "title": "만료된 작업 lease",
+          "condition": "B",
+          "for": "1m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "hlog",
+            "rule": "expired-lease",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "만료된 작업 lease",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(sum(hlog_publish_expired_leases) > bool 0) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-autopublish-failure",
+          "title": "autopublish 최근 실행 실패",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "hlog",
+            "rule": "autopublish-failure",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "autopublish 최근 실행 실패",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "((sum(hlog_batch_result{task=\"autopublish\",result=~\"failed|interrupted|unverified|budget_blocked\"}) or vector(0)) > bool 0) and on() (((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"autopublish\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"autopublish\"}) <= 180)) or (((max(hlog_metrics_source_state{source=\"autopublish\",state=\"missing\"}) == 1) unless on() max(max_over_time(hlog_metrics_collected_timestamp_seconds{source=\"autopublish\"}[7d]))) and on() (((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"expectations\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"expectations\"}) <= 180)))))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-autopublish-running",
+          "title": "autopublish 실행 30분 초과",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "hlog",
+            "rule": "autopublish-running",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "autopublish 실행 30분 초과",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "((sum(hlog_batch_result{task=\"autopublish\",result=\"running\"}) or vector(0)) * ((time() - (max(hlog_autopublish_last_attempt_timestamp_seconds) or vector(time()))) > bool 1800)) and on() (((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"autopublish\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"autopublish\"}) <= 180)) or (((max(hlog_metrics_source_state{source=\"autopublish\",state=\"missing\"}) == 1) unless on() max(max_over_time(hlog_metrics_collected_timestamp_seconds{source=\"autopublish\"}[7d]))) and on() (((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"expectations\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"expectations\"}) <= 180)))))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-autopublish-deadline",
+          "title": "autopublish 예정 성공 누락",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "hlog",
+            "rule": "autopublish-deadline",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "autopublish 예정 성공 누락",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "((((((ceil(max(hlog_schedule_maintenance_from_timestamp_seconds{task=\"autopublish\"}) / 86400) - 1) * 86400 and on() ((max(hlog_schedule_maintenance_from_timestamp_seconds{task=\"autopublish\"}) > 0) and on() ((floor(vector((time() - 1800) / 86400)) * 86400) >= max(hlog_schedule_maintenance_from_timestamp_seconds{task=\"autopublish\"})) and on() ((floor(vector((time() - 1800) / 86400)) * 86400) <= max(hlog_schedule_maintenance_until_timestamp_seconds{task=\"autopublish\"})))) or ((floor(vector((time() - 1800) / 86400)) * 86400) unless on() ((max(hlog_schedule_maintenance_from_timestamp_seconds{task=\"autopublish\"}) > 0) and on() ((floor(vector((time() - 1800) / 86400)) * 86400) >= max(hlog_schedule_maintenance_from_timestamp_seconds{task=\"autopublish\"})) and on() ((floor(vector((time() - 1800) / 86400)) * 86400) <= max(hlog_schedule_maintenance_until_timestamp_seconds{task=\"autopublish\"}))))) >= bool (ceil(max(hlog_schedule_enabled_timestamp_seconds{task=\"autopublish\"}) / 86400) * 86400)) * ((((ceil(max(hlog_schedule_maintenance_from_timestamp_seconds{task=\"autopublish\"}) / 86400) - 1) * 86400 and on() ((max(hlog_schedule_maintenance_from_timestamp_seconds{task=\"autopublish\"}) > 0) and on() ((floor(vector((time() - 1800) / 86400)) * 86400) >= max(hlog_schedule_maintenance_from_timestamp_seconds{task=\"autopublish\"})) and on() ((floor(vector((time() - 1800) / 86400)) * 86400) <= max(hlog_schedule_maintenance_until_timestamp_seconds{task=\"autopublish\"})))) or ((floor(vector((time() - 1800) / 86400)) * 86400) unless on() ((max(hlog_schedule_maintenance_from_timestamp_seconds{task=\"autopublish\"}) > 0) and on() ((floor(vector((time() - 1800) / 86400)) * 86400) >= max(hlog_schedule_maintenance_from_timestamp_seconds{task=\"autopublish\"})) and on() ((floor(vector((time() - 1800) / 86400)) * 86400) <= max(hlog_schedule_maintenance_until_timestamp_seconds{task=\"autopublish\"}))))) > bool (max(hlog_autopublish_last_success_slot_timestamp_seconds) or vector(0))) * max(hlog_schedule_expected_enabled{task=\"autopublish\"})) or (max(hlog_schedule_expected_enabled{task=\"autopublish\"}) == 0)) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"expectations\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"expectations\"}) <= 180)) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"autopublish\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"autopublish\"}) <= 180)) or (((max(hlog_metrics_source_state{source=\"autopublish\",state=\"missing\"}) == 1) unless on() max(max_over_time(hlog_metrics_collected_timestamp_seconds{source=\"autopublish\"}[7d]))) and on() (((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"expectations\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"expectations\"}) <= 180)))))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-backup-failure",
+          "title": "backup 최근 실행 실패",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "hlog",
+            "rule": "backup-failure",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "backup 최근 실행 실패",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "((sum(hlog_batch_result{task=\"backup\",result=~\"failed|interrupted|unverified|budget_blocked\"}) or vector(0)) > bool 0) and on() (((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"backup\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"backup\"}) <= 180)) or (((max(hlog_metrics_source_state{source=\"backup\",state=\"missing\"}) == 1) unless on() max(max_over_time(hlog_metrics_collected_timestamp_seconds{source=\"backup\"}[7d]))) and on() (((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"expectations\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"expectations\"}) <= 180)))))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-backup-running",
+          "title": "backup 실행 30분 초과",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "hlog",
+            "rule": "backup-running",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "backup 실행 30분 초과",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "((sum(hlog_batch_result{task=\"backup\",result=\"running\"}) or vector(0)) * ((time() - (max(hlog_batch_last_attempt_timestamp_seconds{task=\"backup\"}) or vector(time()))) > bool 1800)) and on() (((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"backup\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"backup\"}) <= 180)) or (((max(hlog_metrics_source_state{source=\"backup\",state=\"missing\"}) == 1) unless on() max(max_over_time(hlog_metrics_collected_timestamp_seconds{source=\"backup\"}[7d]))) and on() (((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"expectations\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"expectations\"}) <= 180)))))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-backup-deadline",
+          "title": "backup 예정 성공 누락",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "hlog",
+            "rule": "backup-deadline",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "backup 예정 성공 누락",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(((time() > bool max(hlog_schedule_deadline_timestamp_seconds{task=\"backup\"})) * max(hlog_schedule_expected_enabled{task=\"backup\"})) or (max(hlog_schedule_expected_enabled{task=\"backup\"}) == 0)) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"expectations\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"expectations\"}) <= 180)) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"backup\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"backup\"}) <= 180)) or ((max(hlog_metrics_source_state{source=\"backup\",state=\"missing\"}) == 1) unless on() max(max_over_time(hlog_metrics_collected_timestamp_seconds{source=\"backup\"}[7d])))))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-restore-failure",
+          "title": "restore 최근 실행 실패",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "hlog",
+            "rule": "restore-failure",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "restore 최근 실행 실패",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "((sum(hlog_batch_result{task=\"restore\",result=~\"failed|interrupted|unverified|budget_blocked\"}) or vector(0)) > bool 0) and on() (((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"restore\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"restore\"}) <= 180)) or (((max(hlog_metrics_source_state{source=\"restore\",state=\"missing\"}) == 1) unless on() max(max_over_time(hlog_metrics_collected_timestamp_seconds{source=\"restore\"}[7d]))) and on() (((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"expectations\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"expectations\"}) <= 180)))))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-restore-running",
+          "title": "restore 실행 30분 초과",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "hlog",
+            "rule": "restore-running",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "restore 실행 30분 초과",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "((sum(hlog_batch_result{task=\"restore\",result=\"running\"}) or vector(0)) * ((time() - (max(hlog_batch_last_attempt_timestamp_seconds{task=\"restore\"}) or vector(time()))) > bool 1800)) and on() (((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"restore\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"restore\"}) <= 180)) or (((max(hlog_metrics_source_state{source=\"restore\",state=\"missing\"}) == 1) unless on() max(max_over_time(hlog_metrics_collected_timestamp_seconds{source=\"restore\"}[7d]))) and on() (((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"expectations\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"expectations\"}) <= 180)))))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-restore-deadline",
+          "title": "restore 예정 성공 누락",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "hlog",
+            "rule": "restore-deadline",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "restore 예정 성공 누락",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(((time() > bool max(hlog_schedule_deadline_timestamp_seconds{task=\"restore\"})) * max(hlog_schedule_expected_enabled{task=\"restore\"})) or (max(hlog_schedule_expected_enabled{task=\"restore\"}) == 0)) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"expectations\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"expectations\"}) <= 180)) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"restore\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"restore\"}) <= 180)) or ((max(hlog_metrics_source_state{source=\"restore\",state=\"missing\"}) == 1) unless on() max(max_over_time(hlog_metrics_collected_timestamp_seconds{source=\"restore\"}[7d])))))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-budget",
+          "title": "UTC 비용 한도 80% 이상",
+          "condition": "B",
+          "for": "1m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "hlog",
+            "rule": "budget",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "UTC 비용 한도 80% 이상",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "((sum(hlog_usage_budget_ratio >= 0.8) or vector(0)) > bool 0) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-unknown-cost",
+          "title": "UTC 비용 미확인 기록",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "hlog",
+            "rule": "unknown-cost",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "UTC 비용 미확인 기록",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "(sum(hlog_usage_unknown_events) > bool 0) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "uid": "hlog-invalid-budget",
+          "title": "비용 한도 설정 오류",
+          "condition": "B",
+          "for": "0s",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "labels": {
+            "service": "hlog",
+            "rule": "invalid-budget",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "비용 한도 설정 오류",
+            "runbook_url": "https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차"
+          },
+          "isPaused": false,
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "hlog-prometheus",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "refId": "A",
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "hlog-prometheus"
+                },
+                "expr": "((sum(hlog_usage_budget_state{state=\"invalid\"}) or vector(0)) > bool 0) and on() ((((min(up{job=\"hlog\"}) == 1) and on() (min(hlog_metrics_collection_success{source=\"db\"}) == 1)) and on() (time() - max(hlog_metrics_collected_timestamp_seconds{source=\"db\"}) <= 180)))",
+                "instant": true,
+                "range": false,
+                "intervalMs": 60000,
+                "maxDataPoints": 1
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "refId": "B",
+                "type": "math",
+                "expression": "$A > 0",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "contactPoints": [
+    {
+      "orgId": 1,
+      "name": "hlog-private",
+      "receivers": [
+        {
+          "uid": "hlog-private-webhook",
+          "type": "webhook",
+          "disableResolveMessage": false,
+          "settings": {
+            "url": "http://127.0.0.1:9/hlog-disabled",
+            "httpMethod": "POST",
+            "payload": {
+              "template": "{{ template \"hlog.safe\" . }}"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "muteTimes": [
+    {
+      "orgId": 1,
+      "name": "hlog-delivery-disabled",
+      "time_intervals": [
+        {
+          "times": [
+            {
+              "start_time": "00:00",
+              "end_time": "24:00"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "policies": [
+    {
+      "orgId": 1,
+      "receiver": "hlog-private",
+      "group_by": [
+        "service",
+        "rule",
+        "severity"
+      ],
+      "group_wait": "30s",
+      "group_interval": "5m",
+      "repeat_interval": "24h",
+      "routes": [
+        {
+          "receiver": "hlog-private",
+          "mute_time_intervals": [
+            "hlog-delivery-disabled"
+          ],
+          "routes": [
+            {
+              "receiver": "hlog-private",
+              "object_matchers": [
+                [
+                  "alertname",
+                  "=~",
+                  "DatasourceNoData|DatasourceError"
+                ]
+              ],
+              "group_by": [
+                "alertname"
+              ],
+              "group_wait": "30s",
+              "group_interval": "5m",
+              "repeat_interval": "24h",
+              "mute_time_intervals": [
+                "hlog-delivery-disabled"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "orgId": 1,
+      "name": "hlog-safe",
+      "template": "{{ define \"hlog.safe\" }}{\"service\":\"hlog\",\"severity\":{{ printf \"%q\" (or .CommonLabels.severity \"warning\") }},\"signal\":{{ if or (eq .CommonLabels.alertname \"DatasourceNoData\") (eq .CommonLabels.alertname \"DatasourceError\") }}{{ printf \"%q\" .CommonLabels.alertname }}{{ else }}{{ printf \"%q\" .CommonLabels.rule }}{{ end }},\"status\":{{ printf \"%q\" .Status }},\"observed_at\":\"{{ if eq .Status \"resolved\" }}{{ (index .Alerts 0).EndsAt.Format \"2006-01-02T15:04:05Z07:00\" }}{{ else }}{{ (index .Alerts 0).StartsAt.Format \"2006-01-02T15:04:05Z07:00\" }}{{ end }}\",\"runbook\":\"https://github.com/Hongbaekson/h-log/blob/main/apps/h-log/deploy/observability/README.md#대응-절차\"}{{ end }}"
+    }
+  ]
+}

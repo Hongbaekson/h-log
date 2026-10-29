@@ -405,7 +405,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **A2 Step 2 구현 (2026-10-27)**: 실제 웹 요청과 소비자를 함께 구현하면서 migration 009에 검증된 입력 snapshot/hash, 실행 상태와 staged 결과만 추가했다. 파일이 바뀌어도 이전 요청을 재현하고 같은 입력은 한 요청으로 합친다. 일반 queue/메시지 브로커는 추가하지 않았다. 외부 실행 exactly-once를 보장하지 않으며 시작 표시 후 실패/연결 유실은 needs_review로 멈춘다. 결과를 보관한 뒤 초안·완료 감사가 원자적으로 저장되므로 저장 실패는 provider 재호출 없이 복구한다. 모든 수동 결과는 drafted이며 jobs는 0개다. 기존 일일 실행과 공통 generation lock을 공유해 usage admission을 직렬화하고, 별도 Seoul daily lock/검증 ID를 보존한다. 운영 gate/한도/복구 제한은 [실행 계약](DRAFT_GENERATION_REQUESTS.md)을 따른다. 지속 정책은 Step 3이다.
 
-**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4/A2 전체와 A3 Steps 0–1 completed 14개·pending 2개·운영 rollout blocked 1개다. 모니터링 Steps 0–3도 완료했으며 다음은 operations-observability Step 4다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
+**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4/A2 전체와 A3 Steps 0–1 completed 14개·pending 2개·운영 rollout blocked 1개다. 모니터링 Steps 0–5도 완료했으며 다음은 operations-observability Step 6다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
 
 ### ADR-039: 이력서 PDF는 비공개 버전에서 검토한 파일 하나만 공개한다
 
@@ -482,3 +482,10 @@ DB 전에 실패할 수 있는 인증/생성을 DB 실행 이력만으로 관측
 복구 명령은 명시적 rehearsal label과 기본 PGDATA tmpfs, localhost published port가 일치하는 컨테이너에만 새 무작위 DB를 만든다. URL query override는 거부하고 기존 DB를 복원 대상으로 받지 않는다. 정확한 migration 목록, vector 연산, 모든 본문 hash/PDF 바이트 hash·정책, 실제 Next 공개/비공개 HTTP와 새 PDF epoch의 404·감사 reset을 검증한다. 생성한 DB와 웹 프로세스를 정리한 뒤 복구 성공을 기록한다. 스크립트는 완전한 checkout의 Node 의존성과 production build를 요구하며 OCI 설치는 Step 7에서 검수한다.
 
 관측 실패는 작업 재시도나 종료 결과를 바꾸지 않는다. 실패한 시도는 이전 성공 시각을 보존하되 현재 result를 실패로 표시한다. Dump·원문·credential·경로는 summary/metrics/CLI 오류에 넣지 않는다. 실제 대상의 보관/용량/30일 리허설 운영과 강제 종료 잔여 자원 처리는 후속 검수 항목이다.
+
+
+## ADR-018 Step 5 구현 보완 — 2026-10-29
+
+별도 Alertmanager나 notification proxy 없이 기존 Grafana의 file provisioning과 custom webhook payload를 사용한다. 4영역 dashboard와 43개 고정 집계 rule을 작은 생성기로 관리하고 생성 결과 drift를 검사한다. 새 overlay를 선택한 경우에만 rule을 올리며 기본 stack에는 datasource만 mount한다. 업무 rule은 KeepLast, query/source health는 별도 경보로 구분한다. 발행은 가장 최근 기한이 지난 slot을 계산해 다음 날의 유예 구간이 과거 미실행을 해소하지 않게 한다. 정비 구간 slot만 제외하고 이전 미실행은 보존한다.
+
+고정 Grafana 12.4.13의 file provisioner는 빈 contact point를 등록하지 않아 유효한 loopback placeholder와 모든 route의 하루 종일 mute로 전송을 차단한다. 외부 수신처 secret/형식/egress는 Step 7에서만 적용한다. Custom payload는 안전한 고정 필드 6개만 포함하며 원문 query/error/내부 URL은 제외한다. 실제 datasource 오류 원문이 stdout에 기록되는 것을 합성 오류로 확인했으므로 alerts overlay는 logging driver none으로 보관을 차단한다. 장애 진단은 private rule health/API와 source 상태를 사용한다. 운영 관측을 끄거나 평가를 일시정지한 것은 아니다.

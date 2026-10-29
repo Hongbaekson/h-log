@@ -58,3 +58,8 @@ Steps 0–5 완료 후 동일 격리 스택에서 장애 감지부터 복구 통
 ## Step 0 확정 계약 인계 — pending
 
 모니터링 메모리 1 GiB/디스크 3 GiB와 별도 PDF 백업 3 GiB를 구분한다. 최대 합성 PDF 부하·실제 host hook/재부팅·24시간 soak와 series/수집 지연을 측정하고 예산 초과를 성공으로 표시하지 않는다. [지표·권한·자원·예정 파일과 명령](../../.codex/docs/harness/OBSERVABILITY_PLAN.md)을 기준으로 하며 이번 인계 기록은 구현 완료가 아니다.
+
+
+## Step 5 구현 인계
+
+선택형 alerts overlay·43개 Grafana-managed rule과 4영역 dashboard, 기본 전체 mute·safe webhook을 사용한다. `scripts/observability-alerts.test.mjs`는 실제 PromQL 경계를, `scripts/observability-alerts.smoke.mjs`는 내부 synthetic metric/mock에서 알림 상태와 수신을 검증한다. 시간 가속 테스트이므로 24시간 reminder/soak를 대신하지 않는다. 이번 Step에서 실제 collector/exporter·fake provider·최대 PDF 부하를 결합해 자원/누락/복구를 검수한다. Grafana raw 오류 로그는 비보관이며 private API와 source-health를 읽는다. 첫 summary 소실 판별은 7일 history에 의존하므로 Prometheus 이력 상실/복원과 장기 누락의 운영 한계도 기록한다. 테스트 preview 자원을 남겼다면 private descriptor의 project·경로를 확인하고 해당 자원만 정리한다.

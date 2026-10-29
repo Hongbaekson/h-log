@@ -1,0 +1,19 @@
+{
+  "apiVersion": 1,
+  "contactPoints": [{
+    "orgId": 1,
+    "name": "hlog-private",
+    "receivers": [{
+      "uid": "hlog-private-webhook",
+      "type": "webhook",
+      "disableResolveMessage": false,
+      "settings": {
+        "url": "$HLOG_ALERT_WEBHOOK_URL",
+        "httpMethod": "POST",
+        "authorization_scheme": "Bearer",
+        "authorization_credentials": "$HLOG_ALERT_WEBHOOK_TOKEN",
+        "payload": {"template": "{{ template \"hlog.safe\" . }}"}
+      }
+    }]
+  }]
+}

@@ -191,3 +191,60 @@ npm run test:observability:backup
 ```
 
 이 검증은 독립 tmpfs PostgreSQL과 외부 임시 폴더만 사용한다. 실제 성공, 기존 파일 덮어쓰기 거부, 깨진 dump·본문 hash 변조·잘못된 복구 대상 거부, 기록 실패 시 정상 작업 종료와 실패 후 성공 시각 보존을 확인한다. 앞의 publishing smoke도 실제 backup→host helper→collector→Prometheus와 재생성 보존·restore 미실행/disabled를 확인한다. [Step 4 기록](../../phases/operations-observability/step4.md)에 검증 결과와 다음 단계를 남겼다.
+
+
+## Step 5: 비공개 대시보드와 알림
+
+기존 probes/publishing overlay 뒤에 `compose.observability-alerts.yaml`을 명시적으로 추가한다. 기본 stack은 datasource만 올리고, 이 overlay가 4개 영역의 `H-Log 운영` 대시보드와 43개 Grafana-managed rule을 설치한다. 로그인 후 Dashboards → H-Log 운영으로 이동한다. 공개 사이트·관리자 메뉴에는 아직 연결하지 않는다.
+
+```powershell
+npm run observability:config
+$env:HLOG_OBSERVABILITY_RULES_TEST = '1'
+npm run test:observability:alerts
+$env:HLOG_OBSERVABILITY_ALERTS_SMOKE = '1'
+npm run test:observability:alerts:smoke
+```
+
+`observability-config.mjs`가 JSON 원본 생성기다. 생성 결과와 원본의 일치는 테스트로 확인한다. Dashboard provider는 Grafana가 검색하는 `.yml` 확장자에 JSON 문법을 사용한다. Rule/dashboard JSON을 직접 편집하지 않는다. Compose 전체 기동 전 `config --quiet`로 조합과 secret 경로를 확인한다. 운영 대상에 `up`하는 절차는 아직 승인되지 않았다.
+
+| 영역 | 읽는 내용 |
+| --- | --- |
+| 서비스·수집 | home/blog probe, DB 연결, source별 수집 성공과 경과, HTTP 응답·TLS 잔여 기간 |
+| 서버·DB | CPU 5분 rate, 가용 메모리, Docker filesystem/inode, 연결 수·상한, lock 대기 |
+| 발행·비용 | 현재 버전 작업, 필수 대기, UTC day/month 비용 하한·unknown/included·한도 정책, 일정 활성화·결과·기한·정비 |
+| 백업·복구 | 독립된 최근 검증 성공 시각. 성공 이력 없음은 0 매핑, 미수집/오류는 별도 상태 |
+
+화면 시간대는 Asia/Seoul, 수집/평가는 60초다. 각 panel 설명에 단위·집계 범위·180초 freshness를 둔다. 수집 성공은 업무 성공과 다르다. 업무 panel은 source 오류/180초 초과 시 값을 숨기며 수집 상태와 경과에서 원인을 확인한다. HTTP fixture의 인증서 미존재는 N/A이며, 한 번 관측한 인증서가 사라지면 TLS rule은 마지막 상태를 유지하고 수집 경보가 난다.
+
+Rule 임계값은 [단일 계약](../../.codex/docs/harness/OBSERVABILITY_PLAN.md#알림과-대시보드)을 따른다. 업무 rule은 고정 label 한 개의 집계 결과를 사용하며 No Data/Error에 KeepLast를 적용한다. 별도 query-health와 source/scrape rule이 수집 문제를 알린다. 수집 오류/누락은 3분 지속 후, source timestamp가 180초를 넘으면 별도 stale rule이 추가 지속 시간 없이 경고한다. 전체 query 장애와 개별 series 소실을 모두 시험한다. 정상값으로 채우거나 누락을 복구 증거로 쓰지 않는다.
+
+발행 기한은 가장 최근 **09:30 KST를 지난 예정 slot**을 판단한다. 다음 날 09:00이 되어도 전날 미실행을 해소하지 않고, 검증된 slot 성공이 도착해야 해소한다. 최초 활성화 이전 slot은 제외하며 정비 구간 안의 slot만 건너뛴다. 정비 전 미실행은 남긴다. Backup/restore는 collector가 계산한 첫/후속/정비 기한을 소비한다. 비활성 전환은 운영자의 명시적인 기대 상태 변경으로 처리한다. 비용 reset은 UTC 집계가 소유하며 새 snapshot의 day/month 상태를 평가한다.
+
+첫 summary 없음과 한번 관측한 summary 소실은 수집 timestamp의 최근 7일 이력으로 구별한다. Prometheus 이력 자체를 잃거나 7일 넘게 누락되면 과거 존재 여부는 재구성할 수 없다. 이 경우 enabled deadline은 계속 별도로 판단한다. Prometheus 보존과 host 원본 상태의 복구 검증은 Step 6에서 다룬다.
+
+### 기본 음소거와 비공개 수신처
+
+배포 파일은 `hlog-delivery-disabled`의 하루 종일 mute로 **모든 외부 전송을 비활성화**한다. 유효한 contact point가 있어야 file provisioning이 성공하므로, 기본 URL은 loopback의 사용하지 않는 포트이며 모든 route에 mute가 적용된다. Rule 평가는 계속되어 비공개 상태 화면에서 볼 수 있다. Grafana/Prometheus의 egress 차단도 그대로다.
+
+승인된 Step 7에서만 저장소 밖의 비공개 provisioning 파일로 contact point의 같은 UID `hlog-private-webhook`을 교체한다. [미주입 예제](grafana/private-contact.example.json)는 자동 mount되지 않는다. URL/token은 secret 환경에서 주입하고 토큰 값을 Compose 출력·명령 인자·Git에 남기지 않는다. 기존 file receiver와 덧붙여 중복 등록하지 않도록 배포용 alerting 파일의 contact point 부분을 예제로 교체한다. 해당 환경의 허용된 egress와 수신처를 검수한 뒤 두 route의 mute를 해제한다. 일반 webhook JSON 계약이므로 Discord를 선택하면 Discord 전용 형식/어댑터와 비밀정보 검수를 먼저 확정해야 한다. 현재 외부 수신 채널은 미정이다.
+
+그룹은 service/rule/severity, 최초 대기 30초·그룹 갱신 5분·재알림 24시간이다. DatasourceNoData/Error는 고정 alertname으로 묶는다. Webhook에는 service/severity/signal/status/observed_at/runbook 6개 필드만 보낸다. 관측 시각은 장애 시작 또는 해소 시각이며 raw label·query·오류 본문·내부 URL을 보내지 않는다. 기본 Grafana webhook 전체 payload를 사용하지 않는다.
+
+Grafana는 datasource 오류 원문을 stdout에 기록하므로 알림 overlay에서는 Docker logging driver를 `none`으로 설정했다. 별도 로그 파일/원격 sink도 두지 않는다. 운영자는 인증된 rule health/API와 source 상태로 진단하고 provisioning은 먼저 로컬 smoke로 확인한다. 이 선택은 알림 평가/상태 저장을 끄지 않는다. 로그 보관이 필요해지면 민감값 제거 경로를 먼저 검증해야 한다.
+
+### 검증 범위
+
+Promtool은 43개 실제 식과 pending 지속 시간, TLS N/A/소실, stale, 첫 성공/누락, 최초 활성화·KST 자정·정비 경계를 검사한다. Grafana smoke는 별도 project와 synthetic metrics, 내부 mock 수신처만 사용하고 기본 mute 적용, 실제 provisioning/API, pending→firing, 중복 억제/재알림, NoData/Error·개별 series 소실 중 장애 유지, 신선한 정상 응답의 resolved, 6개 필드 제한과 재생성 보존을 확인한다.
+
+Smoke의 시간은 평가 10초·지속 20초·대기 1초·갱신 10초·재알림 30초로만 가속한다. 운영 60초/원래 지속 시간/24시간 reminder는 생성 설정·PromQL 테스트로 확인하며 24시간 실측을 대신하지 않는다. 24시간 soak와 모든 장애 조합/최대 PDF 부하·자원 실측은 Step 6이다. 테스트가 만든 컨테이너·volume·저장소 밖 임시 credential만 종료 시 정리한다. `HLOG_OBSERVABILITY_KEEP_PREVIEW=1`은 성공 후 UI 검수를 위해 테스트 자원을 남기며 `private/observe-step5/preview.json`에 정확한 cleanup 대상을 기록한다.
+
+### 대응 절차
+
+1. Query/source/scrape 경보가 함께 있으면 먼저 수집 경로와 180초 freshness를 확인한다. 업무 경보의 마지막 상태 유지가 서비스 복구를 뜻하지 않는다.
+2. HTTP/DB 경보는 해당 private probe와 DB 집계 상태를 확인한다. 재시작·운영 설정 변경은 별도 운영 절차를 따른다.
+3. 발행 경보는 `/admin/jobs`의 현재 버전 작업과 자동화 정책을 확인한다. 경보에서 provider 실행·작업 재시도·발행을 자동 수행하지 않는다.
+4. 비용은 UTC window와 known/unknown/included, zero/unlimited/invalid를 함께 읽는다. Unknown이 있다는 이유로 무료로 계산하지 않는다.
+5. Backup/restore 경보는 각 summary의 현재 result·독립 성공 시각과 기대 기한을 확인한 뒤 위 수동 검증 절차를 따른다. 복구 성공 파일을 임의 작성하지 않는다.
+6. 모니터링 host 전체가 멈추면 이 stack도 통지할 수 없다. 독립 외부 감시의 수신처·주기·비용 결정은 Step 7에서 다룬다.
+
+구현 참고: [Grafana file provisioning](https://grafana.com/docs/grafana/latest/alerting/set-up/provision-alerting-resources/file-provisioning/), [No Data/Error](https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/nodata-and-error-states/), [custom webhook payload](https://grafana.com/docs/grafana/latest/alerting/configure-notifications/manage-contact-points/integrations/webhook-notifier/). 최종 동작은 고정 Grafana 12.4.13에서 확인한다.

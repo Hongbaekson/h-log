@@ -55,7 +55,7 @@ services:
       GF_LOG_LEVEL: warn
     secrets: [grafana_admin_password]
     volumes:
-      - ./deploy/observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./deploy/observability/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
       - grafana_data:/var/lib/grafana
     tmpfs:
       - /tmp:size=16m,uid=472,gid=0,mode=0700,noexec,nosuid,nodev

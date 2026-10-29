@@ -1,5 +1,7 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
+2026-10-29 모니터링 Step 5 완료: 선택형 Grafana 대시보드 4개 영역과 43개 규칙, 기본 전체 음소거·비공개 수신처 예제·안전한 알림 payload를 추가했다. 실제 PromQL 3/3, Grafana mock smoke와 기본 stack 회귀 검증, 1440/390px 정상·미수집·오류·키보드 검수 및 형식/lint 검사를 통과했다. 데이터 소실 중 장애 상태 유지와 정상 증거 이후 복구, KST 자정·정비 경계를 확인했다. 모니터링 completed 6·pending 1·blocked 1이며 다음은 **operations-observability Step 6: isolated-failure-rehearsal**이다. 24시간 soak·자원 peak와 최대 PDF 부하는 Step 6에 남겼다. 관리자 14·2·1과 OCI·실제 provider·발행·timer·외부 알림 보류는 유지한다.
+
 2026-10-29 모니터링 Step 4 완료: custom dump 생성·형식 검사와 격리 복구 검증의 성공을 분리했다. 새 tmpfs DB에서 migration/vector·본문/PDF hash·공개/비공개 HTTP·PDF 새 epoch와 감사 reset을 확인한 뒤에만 복구 성공을 기록한다. 실패 때 이전 성공 시각을 보존하고 disabled/누락/손상/오래된 신호를 구분한다. 단위 270 pass/26 DB skip, 전체 격리 DB integration, Linux state 9개·파일 8개, 실제 backup/restore와 Prometheus smoke, lint/typecheck/build 통과. 모니터링 completed 5·pending 2·blocked 1이며 다음은 **operations-observability Step 5: dashboards-and-alert-routing**다. 관리자 14·2·1과 OCI·실제 provider·발행·timer 보류는 유지한다.
 
 2026-10-28 모니터링 Step 3 완료: migration 012의 최초 대기 시각·비용 근거, 현재 버전의 읽기 전용 집계, DB 밖 atomic 실행 기록과 선택형 systemd hook을 구현했다. 이번 실행의 공개 버전·필수 6종·본문 hash를 확인한 경우만 성공으로 기록한다. 가짜 provider부터 실제 worker·host helper·Prometheus까지 연결하고 중복/재생성/손상/DB 중단을 검증했다. 단위 268 pass/26 DB skip, 전체 DB integration, Linux state 8개·파일 6개, lint/typecheck/build 통과. 모니터링 completed 4·pending 3·blocked 1이며 다음은 **operations-observability Step 4: backup-and-restore-signals**다. 관리자 14·2·1과 OCI·실제 provider·발행·timer 보류는 유지한다.

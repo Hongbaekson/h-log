@@ -1,6 +1,6 @@
 # H-Log 운영 모니터링 계획
 
-등록일: 2026-10-06. **2026-10-29 Steps 0–4 완료: 계약·비공개 Prometheus/Grafana·host/DB/HTTP·발행/비용과 별도 백업/복구 신호를 격리 검증했다. 대시보드·알림은 다음 단계다.** 실행 상태는 [phase registry](../../../phases/operations-observability/index.json)를 따른다. 이 문서가 모니터링 계약의 단일 기준이다.
+등록일: 2026-10-06. **2026-10-29 Steps 0–5 완료: 계약·비공개 stack·host/DB/HTTP·발행/비용·백업/복구 신호와 대시보드/로컬 mock 알림을 검증했다. 다음은 통합 장애·자원/24시간 soak 검수다.** 실행 상태는 [phase registry](../../../phases/operations-observability/index.json)를 따른다. 이 문서가 모니터링 계약의 단일 기준이다.
 
 ## 목적과 실행 순서
 
@@ -13,11 +13,11 @@
 | [2](../../../phases/operations-observability/step2.md) | host-database-http-probes | 완료: Linux VM CPU·메모리/Docker 저장소·최소 DB 계정/집계·고정 HTTP/TLS 장애 검증 |
 | [3](../../../phases/operations-observability/step3.md) | durable-publishing-signals | 완료: DB 독립 atomic 기록·필수 6종 성공 근거·현재 작업/UTC 비용·실제 scrape |
 | [4](../../../phases/operations-observability/step4.md) | backup-and-restore-signals | 완료: 실제 custom dump·격리 복구·무결성/공개 차단·별도 atomic 성공/실패 |
-| [5](../../../phases/operations-observability/step5.md) | dashboards-and-alert-routing | 대시보드·알림·복구 통지·대응 절차 |
+| [5](../../../phases/operations-observability/step5.md) | dashboards-and-alert-routing | 완료: 4개 영역·43개 rule·기본 mute·mock 장애/누락/복구·대응 절차 |
 | [6](../../../phases/operations-observability/step6.md) | isolated-failure-rehearsal | 장애·수집 중단·재기동·자원 검증 |
 | [7](../../../phases/operations-observability/step7.md) | approved-production-rollout | OCI 보류로 blocked: 승인된 운영 설치와 외부 감시 |
 
-현재 5 completed / 2 pending / 1 blocked다. **일반 다음 작업은 [Step 5: dashboards-and-alert-routing](../../../phases/operations-observability/step5.md)**다. [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1/A4 → 모니터링 계약 → A2 Steps 0–3 → A3 Steps 0–1 → 모니터링 Steps 1–6 → A3 Steps 2–3 순서를 유지한다. A3 Steps 0–1도 완료했으며 이 phase의 Steps 5–6 이후 A3 Step 2로 돌아간다.
+현재 6 completed / 1 pending / 1 blocked다. **일반 다음 작업은 [Step 6: isolated-failure-rehearsal](../../../phases/operations-observability/step6.md)**다. [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1/A4 → 모니터링 계약 → A2 Steps 0–3 → A3 Steps 0–1 → 모니터링 Steps 1–6 → A3 Steps 2–3 순서를 유지한다. A3 Steps 0–1도 완료했으며 이 phase의 Step 6 이후 A3 Step 2로 돌아간다.
 
 수집기·신호·대시보드·알림은 이 phase가 소유하고 관리자 화면은 그 결과를 소비한다. 승인된 모니터링 Step 7 → 관리자 rollout → 기존 auto-publish-ops-hardening Step 4의 timer 활성화 순서다. **모니터링 완료에 실제 반복 발행을 요구하지 않는다.** 비활성 scheduler와 로컬 누락 재현으로 먼저 검증하므로 순환 의존이 없다.
 
@@ -38,7 +38,7 @@
 
 ## 구성과 접근 권한
 
-선택형 `compose.observability.yaml`에 Prometheus/Grafana를, 명시적으로 추가하는 `compose.observability-probes.yaml`에 Node/PostgreSQL/Blackbox Exporter와 H-Log collector를 둔다. Grafana Alerting 구성은 Step 5다. Collector는 기존 Node/pg 런타임의 작은 별도 프로세스이며 공개 Next.js route가 아니다. 별도 Alertmanager/Loki/Tempo/OTel Collector/Pushgateway/cAdvisor는 추가하지 않는다.
+선택형 `compose.observability.yaml`에 Prometheus/Grafana를, 명시적으로 추가하는 `compose.observability-probes.yaml`에 Node/PostgreSQL/Blackbox Exporter와 H-Log collector를 둔다. Grafana Alerting은 선택형 compose.observability-alerts.yaml이 연결한다. Collector는 기존 Node/pg 런타임의 작은 별도 프로세스이며 공개 Next.js route가 아니다. 별도 Alertmanager/Loki/Tempo/OTel Collector/Pushgateway/cAdvisor는 추가하지 않는다.
 
 - monitoring_net은 internal이다. Prometheus/Node exporter는 이 망만, Grafana는 추가 internal grafana_access_net, DB exporter/H-Log collector는 추가 data_net만 연결한다. Blackbox는 고정 HTTP 대상 접근망을 추가한다. 공개 Nginx와 monitoring-gateway는 monitoring_net에 연결하지 않는다. Gateway만 grafana_access_net과 일반 monitoring_access_net에서 고정 Grafana upstream을 전달한다. Docker 29의 internal-only publish 미동작을 재현해 추가했으며 Prometheus/Grafana의 egress는 차단한다. Grafana 외부 알림 egress는 Step 7에서 승인 수신처에 한해 연다.
 - Grafana 진입점만 gateway의 `127.0.0.1:3030:8080`을 기본값으로 publish하고 SSH 터널로 접속한다. 포트 충돌은 로컬 override로 기록한다. 익명 접근·가입·외부 공유를 끄고 Prometheus/exporter 포트는 publish하지 않는다. 공개/관리자 ingress 모두 metrics/probe를 제공하지 않는다.
@@ -164,7 +164,7 @@ Step 1 파일/검증은 완료했고 [로컬 실행 절차](../../../deploy/obse
 | 2 | `deploy/observability/blackbox.yml`, `deploy/observability/database-roles.sql`, `lib/observability-collector.ts`, `scripts/observability-collector.mjs`, `lib/observability-collector.test.ts` | 비특권 SQL·권한 거부·timeout RED/GREEN·실제 host/DB/고정 HTTP·TLS scrape |
 | 3 | `lib/observability-publishing.ts`, `lib/observability-publishing.test.ts`, `lib/observability-publishing.integration.test.ts`, `scripts/observability-state.py`, `scripts/observability_state_test.py`; 기존 cycle/service/usage/repository·신규 migration | 6종 proof·빈 job·이전 버전·preflight/DB 이전 실패·kill·slot/UTC·비용 unknown·atomic 파일·재시작 |
 | 4 | `scripts/observability-backup.mjs`, `scripts/observability-backup.test.mjs`; 기존 backup runbook/PDF rehearsal·공통 state helper | 격리 dump/restore·hash/private·실패/never/stale·첫 deadline |
-| 5 | `deploy/observability/grafana/provisioning/dashboards/hlog.yml`, `deploy/observability/grafana/dashboards/hlog.json`, `deploy/observability/grafana/provisioning/alerting/hlog.yml`; 위 README | 1440/390px·빈/오류·mock firing/group/repeat/resolved/NoData/Error/maintenance |
+| 5 | `deploy/observability/grafana/provisioning/dashboards/hlog.yml`, `deploy/observability/grafana/dashboards/hlog.json`, `deploy/observability/grafana/provisioning/alerting/hlog.json`; 위 README | 1440/390px·빈/오류·mock firing/group/repeat/resolved/NoData/Error/maintenance |
 | 6 | `scripts/observability-rehearsal.mjs`; 위 README·각 완료 기록 | 최소 24시간 격리 soak·DB/서비스 중단·host 재부팅·미실행·PDF 부하·자원 peak·복구 |
 | 7 | 위 구성·runbook·운영 적용 기록 | 승인된 host 예산·비공개 접근·외부 HTTP/heartbeat·rollback; timer OFF |
 
@@ -213,3 +213,10 @@ DB 테스트에는 격리 DATABASE_URL이 필수다. Host helper/systemd hook·�
 기대 상태와 같은 디렉터리의 성공 기록으로 첫 백업 26시간·복구 24시간, 이후 백업 26시간·복구 30일 deadline을 계산한다. 재활성화 전 성공은 첫 성공을 대신하지 않고, 최대 24시간 정비 후에는 새 성공이 필요하다. 정비 전에 이미 지난 deadline은 연장하지 않는다. 손상된 summary에는 새 deadline을 만들지 않으며 해당 source 오류를 함께 소비해야 한다.
 
 실제 성공/실패, 재생성·누락/손상과 DB 장애 수집을 검증했다. Step 5는 이 신호와 기존 60초 수집/180초 cache 정책으로 dashboard·NoData/Error·지연·복구 알림을 구현한다. 알림 자체는 아직 없다. [수동 실행](../../../deploy/observability/README.md)과 [백업 정책](../backup-restore-runbook.md)을 따른다.
+
+
+## Step 5 구현 인계 — 2026-10-29
+
+2026-10-29 모니터링 Step 5 완료: 선택형 Grafana 대시보드 4개 영역과 43개 규칙, 기본 전체 음소거·비공개 수신처 예제·안전한 알림 payload를 추가했다. 실제 PromQL 3/3, Grafana mock smoke와 기본 stack 회귀 검증, 1440/390px 정상·미수집·오류·키보드 검수 및 형식/lint 검사를 통과했다. 데이터 소실 중 장애 상태 유지와 정상 증거 이후 복구, KST 자정·정비 경계를 확인했다. 모니터링 completed 6·pending 1·blocked 1이며 다음은 **operations-observability Step 6: isolated-failure-rehearsal**이다. 24시간 soak·자원 peak와 최대 PDF 부하는 Step 6에 남겼다. 관리자 14·2·1과 OCI·실제 provider·발행·timer·외부 알림 보류는 유지한다.
+
+생성기 scripts/observability-config.mjs와 배포 JSON을 함께 관리한다. 기본 stack은 datasource만 연결하고 alerts overlay가 dashboard/rule/policy/template을 읽는다. 기본 webhook placeholder는 loopback이며 모든 route에 24시간 mute를 적용한다. 외부 수신은 승인된 Step 7의 secret·형식·egress 검수 뒤에만 연결한다. Grafana datasource 오류의 원문 로그는 logging:none으로 보관하지 않고 비공개 rule health/API로 확인한다. 실제 재알림 테스트는 30초 가속이며 운영 24시간 실측은 아니다. 첫 summary와 과거 소실은 최근 7일 Prometheus 이력으로 구별하므로 이력 상실/장기 누락의 한계와 복구 절차를 Step 6에 인계한다. 실행·검증·대응은 [runbook](../../../deploy/observability/README.md#step-5-비공개-대시보드와-알림)을 따른다.
