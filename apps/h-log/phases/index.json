@@ -213,7 +213,7 @@
     {
       "dir": "operations-observability",
       "status": "pending",
-      "summary": "2026-10-30 Step 6 in progress: ten real-stack signal/mock firing-dedup-resolution cases, Grafana recreation and seven bounded synthetic signal cases passed. Cold archives restored into new monitoring volumes with historical sample/dashboard/43-rule proof; maximum 20x5 MiB PDF workload passed with concurrent monitor sampling. Continuous 24h observation started 2026-10-30T01:42:17.001Z; not yet complete. Keep 6 completed/1 pending/1 blocked. Next: inspect Step 6 soak evidence after at least 24h; no production/provider/publication/timer/external delivery."
+      "summary": "2026-10-30 Step 6 pending: failure/mock delivery, new-volume recovery and maximum PDF workload passed. Fixed false acceptance of missing/malformed container evidence; focused 6/6, lint and typecheck passed. Rechecked 126 uninterrupted samples (124 min) through 2026-10-30T03:47:17.000Z: no failures; original soak start 2026-10-30T01:42:17.001Z preserved. Need >=24h before A3 Step 2; expected bounded end 2026-10-31 10:43 KST. No production/provider/publication/timer/external delivery."
     },
     {
       "dir": "second-brain-foundation",

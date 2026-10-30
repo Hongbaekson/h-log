@@ -66,7 +66,7 @@ npm run test:observability:soak
 
 장애 시험 뒤 scrape/evaluation 및 alert hold/reminder를 원래 설정으로 복구한다. 수신처만 외부 통신이 없는 mock을 유지한다. 일정 기대값은 비활성이다. 가짜 성공을 매일 쓰거나 실제 발행 timer를 켜지 않는다.
 
-- `samples.jsonl`은 순서·UTC 시각·단조 증가 경과 시간을 함께 남긴다. 90초 초과 공백, 5초 초과 시계 차이, 수집 실패, 컨테이너 교체/재시작/OOM은 실패다.
+- `samples.jsonl`은 순서·UTC 시각·단조 증가 경과 시간을 함께 남긴다. 90초 초과 공백, 5초 초과 시계 차이, 수집 실패, 컨테이너 교체/재시작/OOM은 실패다. `oom`과 `identityChanged`는 매 표본에서 명시적인 `false`여야 하며, 누락·null·숫자·문자열을 정상으로 인정하지 않는다.
 - 모니터링 7개 서비스 합산 메모리 1 GiB·CPU 1 core, 활성 series 5,000·업무 series 500, source age 180초·scrape 10초를 상한으로 검사한다. probe 실패나 예기치 않은 알림도 실패다.
 - 메모리는 Docker stats의 cache 제외 사용량이다. CPU·메모리의 **표본 최대치**이며 표본 사이 순간 최대치를 보장하지 않는다. 테스트 DB·HTTPS/mock fixture와 앱/PDF 부하는 모니터링 1 GiB 예산에 섞지 않는다. 전체 host 여유와 앱 부하는 별도 확인한다.
 - 디스크는 Prometheus WAL/head를 포함한 실제 `du`와 Grafana 자료에 로그 최대 할당 210 MiB·state/tmp 32 MiB를 더해 3 GiB와 비교한다. 로그 증가량은 구간 내 stdout/stderr의 byte 수이며 원문을 저장하지 않는다. 회전 파일의 실제 할당량은 아니므로 디스크 계산에는 고정 상한을 사용한다.
@@ -79,6 +79,8 @@ npm run test:observability:soak
 ## 종료와 정리
 
 먼저 result와 마지막 sample을 확인한다. 과정이 멈췄는데 마지막 자료만 정상이라면 완료가 아니다. 실행 중 강제 종료한 경우도 실패로 기록한다. 결과 검수 전에 volume을 지우지 않는다.
+
+최종 판정은 `npm run observability:soak status`로 원본 표본을 현재 검수 코드에서 다시 평가한다. 실행 중인 프로세스가 이전 코드로 작성한 `result.json`만 보고 완료 처리하지 않는다. `minimumDurationMs`는 필요한 24시간, `remainingMs`는 실제 관측이 더 필요한 시간(ms)이다. 실패나 수집 중단이면 남은 시간은 `null`이며 새 관측이 필요하다. 단순히 다음 날이 되었다고 남은 관측 시간을 줄이지 않는다. 검수 코드만 수정할 때에는 정상 관측 프로세스와 원본 기록을 유지한다.
 
 정리할 때 `stack.json`의 project가 정확히 `hlog-observe-probes-local`이고 현재 project의 전체 컨테이너 ID 집합이 기록된 ID와 같은지 확인한다. 환경값은 descriptor의 파일 경로만 복원하고 기록된 Compose 인자로 `down --volumes --timeout 15`를 실행한다. 다른 project나 새로 추가된 자원이 있으면 정리하지 말고 먼저 소유 범위를 확인한다. 외부 scratch 경로는 현재 사용자 임시 디렉터리 아래 `hlog-observe-probes-*`로 해석되는 절대 경로인지 확인한 뒤 PowerShell `Remove-Item -LiteralPath`로 해당 디렉터리만 정리한다. Git 제외 검수 자료는 따로 보관할 수 있다.
 

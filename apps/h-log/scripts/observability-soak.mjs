@@ -21,7 +21,7 @@ export function assessSoak(samples) {
   for (const [index, row] of samples.entries()) {
     if (row.error) failures.add('sample_failed');
     if (row.sequence !== index || !Number.isFinite(row.at) || !Number.isFinite(row.elapsedMs)) failures.add('sequence');
-    if (row.oom || row.identityChanged) failures.add('container_continuity');
+    if (row.oom !== false || row.identityChanged !== false) failures.add('container_continuity');
     const previous = samples[index - 1];
     if (previous) {
       const elapsed = row.elapsedMs - previous.elapsedMs, wall = row.at - previous.at;
@@ -35,7 +35,8 @@ export function assessSoak(samples) {
   }
   const elapsedMs = samples.length ? samples.at(-1).elapsedMs - samples[0].elapsedMs : 0;
   return { status: failures.size ? 'failed' : elapsedMs >= day ? 'passed' : 'pending',
-    samples: samples.length, elapsedMs, failures: [...failures], peaks,
+    samples: samples.length, elapsedMs, minimumDurationMs: day,
+    remainingMs: failures.size ? null : Math.max(0, day - elapsedMs), failures: [...failures], peaks,
     logGrowthBytes: samples.length ? samples.at(-1).logBytes - samples[0].logBytes : 0 };
 }
 
@@ -138,7 +139,7 @@ if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.m
       const samples = await readRows(), result = assessSoak(samples);
       const lastAt = samples.at(-1)?.at ?? (await stat(resolve(directory, 'run.lock'))).mtimeMs;
       if (result.status === 'pending' && Date.now() - lastAt > 90_000) {
-        result.status = 'failed'; result.failures.push('sampling_stopped');
+        result.status = 'failed'; result.remainingMs = null; result.failures.push('sampling_stopped');
       }
       console.log(JSON.stringify(result, null, 2));
     }

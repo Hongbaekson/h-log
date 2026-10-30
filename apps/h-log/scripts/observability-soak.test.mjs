@@ -16,6 +16,28 @@ test('only a continuous full day within the budgets is eligible; short runs rema
   assert.equal(assessSoak([healthy(0, 0), healthy(24 * hour, 1)]).status, 'failed');
 });
 
+test('missing or malformed container evidence cannot certify a full day', () => {
+  for (const key of ['oom', 'identityChanged']) {
+    for (const value of [undefined, null, 0, '']) {
+      const samples = day();
+      if (value === undefined) delete samples[100][key]; else samples[100][key] = value;
+      const result = assessSoak(samples);
+      assert.equal(result.status, 'failed', `${key}: ${String(value)}`);
+      assert(result.failures.includes('container_continuity'));
+    }
+  }
+});
+
+test('reports the remaining observation time without counting missing wall-clock time', () => {
+  const pending = assessSoak(day().slice(0, 121));
+  assert.equal(pending.minimumDurationMs, 24 * hour);
+  assert.equal(pending.remainingMs, 22 * hour);
+  assert.equal(assessSoak(day()).remainingMs, 0);
+  assert.equal(assessSoak([]).remainingMs, 24 * hour);
+  const broken = day(); delete broken[100].oom;
+  assert.equal(assessSoak(broken).remainingMs, null, 'failed observation needs a new run, not a countdown');
+});
+
 test('wall-clock jumps, missing samples, restarted containers and failed collection cannot pass', () => {
   for (const change of [
     row => { row.at += 600_000; }, row => { row.sequence++; }, row => { row.elapsedMs -= 600_000; },
