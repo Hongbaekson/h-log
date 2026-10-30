@@ -14,7 +14,7 @@
 | [3](../../../phases/operations-observability/step3.md) | durable-publishing-signals | 완료: DB 독립 atomic 기록·필수 6종 성공 근거·현재 작업/UTC 비용·실제 scrape |
 | [4](../../../phases/operations-observability/step4.md) | backup-and-restore-signals | 완료: 실제 custom dump·격리 복구·무결성/공개 차단·별도 atomic 성공/실패 |
 | [5](../../../phases/operations-observability/step5.md) | dashboards-and-alert-routing | 완료: 4개 영역·43개 rule·기본 mute·mock 장애/누락/복구·대응 절차 |
-| [6](../../../phases/operations-observability/step6.md) | isolated-failure-rehearsal | 장애·수집 중단·재기동·자원 검증 |
+| [6](../../../phases/operations-observability/step6.md) | isolated-failure-rehearsal | 진행: 장애·복구·최대 PDF 부하 검증, 24시간 연속 관측 판정 대기 |
 | [7](../../../phases/operations-observability/step7.md) | approved-production-rollout | OCI 보류로 blocked: 승인된 운영 설치와 외부 감시 |
 
 현재 6 completed / 1 pending / 1 blocked다. **일반 다음 작업은 [Step 6: isolated-failure-rehearsal](../../../phases/operations-observability/step6.md)**다. [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1/A4 → 모니터링 계약 → A2 Steps 0–3 → A3 Steps 0–1 → 모니터링 Steps 1–6 → A3 Steps 2–3 순서를 유지한다. A3 Steps 0–1도 완료했으며 이 phase의 Step 6 이후 A3 Step 2로 돌아간다.
@@ -220,3 +220,10 @@ DB 테스트에는 격리 DATABASE_URL이 필수다. Host helper/systemd hook·�
 2026-10-29 모니터링 Step 5 완료: 선택형 Grafana 대시보드 4개 영역과 43개 규칙, 기본 전체 음소거·비공개 수신처 예제·안전한 알림 payload를 추가했다. 실제 PromQL 3/3, Grafana mock smoke와 기본 stack 회귀 검증, 1440/390px 정상·미수집·오류·키보드 검수 및 형식/lint 검사를 통과했다. 데이터 소실 중 장애 상태 유지와 정상 증거 이후 복구, KST 자정·정비 경계를 확인했다. 모니터링 completed 6·pending 1·blocked 1이며 다음은 **operations-observability Step 6: isolated-failure-rehearsal**이다. 24시간 soak·자원 peak와 최대 PDF 부하는 Step 6에 남겼다. 관리자 14·2·1과 OCI·실제 provider·발행·timer·외부 알림 보류는 유지한다.
 
 생성기 scripts/observability-config.mjs와 배포 JSON을 함께 관리한다. 기본 stack은 datasource만 연결하고 alerts overlay가 dashboard/rule/policy/template을 읽는다. 기본 webhook placeholder는 loopback이며 모든 route에 24시간 mute를 적용한다. 외부 수신은 승인된 Step 7의 secret·형식·egress 검수 뒤에만 연결한다. Grafana datasource 오류의 원문 로그는 logging:none으로 보관하지 않고 비공개 rule health/API로 확인한다. 실제 재알림 테스트는 30초 가속이며 운영 24시간 실측은 아니다. 첫 summary와 과거 소실은 최근 7일 Prometheus 이력으로 구별하므로 이력 상실/장기 누락의 한계와 복구 절차를 Step 6에 인계한다. 실행·검증·대응은 [runbook](../../../deploy/observability/README.md#step-5-비공개-대시보드와-알림)을 따른다.
+
+
+## Step 6 진행 인계 — 2026-10-30
+
+2026-10-30 모니터링 Step 6 진행: 실제 probe/collector 스택의 장애·복구 알림 10건과 Grafana 재생성, 위험 지표 fixture 7건을 검증했다. 정상 중지한 Prometheus/Grafana archive를 새 volume에 복원해 과거 sample과 43개 rule을 확인했고, 최대 20 × 5 MiB PDF의 업로드·다운로드·dump/restore를 모니터링과 함께 검증했다. 24시간 연속 관측은 2026-10-30T01:42:17.001Z에 시작했으며 아직 완료가 아니다. 기본 관측 종료 예정은 2026-10-31 10:43 KST다. 단위 270 pass/26 DB skip, Linux state·실제 backup/restore·PromQL 4/4·soak 판정 4/4·추적 코드 lint/typecheck·Docker build 통과. 모니터링 completed 6·pending 1·blocked 1을 유지하며 다음은 **Step 6 관측 결과 검수**다. OCI·실제 provider·발행·timer·외부 전송은 실행하지 않았다.
+
+[격리 검증 runbook](../../../deploy/observability/rehearsal.md)의 준비 → 새 volume 복구 → 관측 → 최대 PDF 부하 → 결과 검수 순서를 따른다. 관측 결과의 실패/중단을 완료로 바꾸지 않는다. `.jsonl`의 순서·단조 경과·시각 차이·90초 공백과 컨테이너 ID/재시작/OOM, 자원/series/수집 지연·알림 노이즈를 함께 판정한다. 실제 운영 host 재부팅과 외부 독립 감시는 Step 7 범위다.

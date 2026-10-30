@@ -48,7 +48,11 @@
     "test:observability:backup": "node --no-warnings --experimental-strip-types --test scripts/observability-backup.test.mjs",
     "observability:config": "node scripts/observability-config.mjs",
     "test:observability:alerts": "node --test scripts/observability-alerts.test.mjs",
-    "test:observability:alerts:smoke": "node --test scripts/observability-alerts.smoke.mjs"
+    "test:observability:alerts:smoke": "node --test scripts/observability-alerts.smoke.mjs",
+    "test:observability:soak": "node --test scripts/observability-soak.test.mjs",
+    "observability:soak": "node scripts/observability-soak.mjs",
+    "test:observability:pdf": "node scripts/observability-pdf-load.mjs",
+    "test:observability:recovery": "node scripts/observability-recovery.mjs"
   },
   "dependencies": {
     "d3-force-3d": "3.0.6",

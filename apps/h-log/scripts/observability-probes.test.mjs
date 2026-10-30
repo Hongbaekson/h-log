@@ -13,6 +13,7 @@ import { runBlogMigrations } from "./blog-migrations.mjs";
 import { publishingFixture } from "./observability-publishing.fixture.mjs";
 import { runObservedPublishCycle } from "../lib/observability-cycle.ts";
 import { backupArchive } from "./observability-backup.mjs";
+import { prepareRehearsal, rehearse } from "./observability-rehearsal.mjs";
 
 const app = resolve(import.meta.dirname, "..");
 const project = "hlog-observe-probes-local";
@@ -29,7 +30,7 @@ async function eventually(check, timeout = 90_000) {
 }
 
 test("isolated host/DB/HTTP probes enforce permissions, privacy and distinguish failures", {
-  skip: process.env.HLOG_OBSERVABILITY_PROBES_SMOKE !== "1", timeout: 900_000,
+  skip: process.env.HLOG_OBSERVABILITY_PROBES_SMOKE !== "1", timeout: 2400_000,
 }, async () => {
   for (const kind of ["container", "volume", "network"]) assert.equal(await docker([kind, "ls", "-q", "--filter", `label=com.docker.compose.project=${project}`]), "", "must not adopt an existing project");
   const scratch = await mkdtemp(resolve(tmpdir(), "hlog-observe-probes-"));
@@ -42,7 +43,10 @@ test("isolated host/DB/HTTP probes enforce permissions, privacy and distinguish 
   const base = JSON.parse(await docker(["compose", "-f", "compose.yaml", "config", "--format", "json"]));
   const fixture = path("compose.json");
   const publishing = process.env.HLOG_OBSERVABILITY_PUBLISHING_SMOKE === "1";
-  const compose = ["compose", "-p", project, "-f", "compose.observability.yaml", "-f", "compose.observability-probes.yaml", ...(publishing ? ["-f", "compose.observability-publishing.yaml"] : []), "-f", fixture, "--profile", "observability"];
+  const rehearsal = process.env.HLOG_OBSERVABILITY_REHEARSAL === "1";
+  assert(!rehearsal || publishing, 'rehearsal requires publishing fixture');
+  let preserve = false;
+  const compose = ["compose", "-p", project, "-f", "compose.observability.yaml", "-f", "compose.observability-probes.yaml", ...(publishing ? ["-f", "compose.observability-publishing.yaml"] : []), ...(rehearsal ? ["-f", "compose.observability-alerts.yaml"] : []), "-f", fixture, "--profile", "observability"];
   const envKeys = ["HLOG_GRAFANA_PASSWORD_FILE", "HLOG_EXPORTER_URI_FILE", "HLOG_EXPORTER_PASSWORD_FILE", "HLOG_COLLECTOR_DSN_FILE", "HLOG_OBSERVABILITY_STATE_DIR", "HLOG_OBSERVABILITY_GID", "HLOG_DAILY_ESTIMATED_COST_LIMIT", "HLOG_MONTHLY_ESTIMATED_COST_LIMIT"];
   const oldEnv = envKeys.map(key => process.env[key]);
   let admin;
@@ -69,7 +73,7 @@ test("isolated host/DB/HTTP probes enforce permissions, privacy and distinguish 
       await writeFile(path("state/expectations.json"), JSON.stringify({ schema_version: 1, autopublish: { ...off, enabled: true, enabled_at: Math.floor(Date.now()/86400000)*86400-60 }, backup: off, restore: off }), { mode: 0o640 });
     }
     const openssl = process.env.HLOG_TEST_OPENSSL || (process.platform === "win32" ? "C:/Program Files/Git/usr/bin/openssl.exe" : "openssl");
-    await execute(openssl, ["req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "2", "-subj", "/CN=hlog-web", "-addext", "subjectAltName=DNS:hlog-web", "-keyout", path("key.pem"), "-out", path("cert.pem")]);
+    await execute(openssl, ["req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", rehearsal ? "30" : "2", "-subj", "/CN=hlog-web", "-addext", "subjectAltName=DNS:hlog-web", "-keyout", path("key.pem"), "-out", path("cert.pem")]);
     await chmod(path("key.pem"), 0o444);
     const blackbox = await readFile(resolve(app, "deploy/observability/blackbox.yml"), "utf8");
     await writeFile(path("blackbox.yml"), `${blackbox}\n      tls_config:\n        ca_file: /fixtures/cert.pem\n`);
@@ -98,11 +102,12 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
 `);
     const common = { read_only: true, cap_drop: ["ALL"], security_opt: ["no-new-privileges:true"] };
     await writeFile(fixture, JSON.stringify({ services: {
-      "hlog-postgres": { image: base.services["hlog-postgres"].image, environment: { POSTGRES_DB: "hlog", POSTGRES_PASSWORD_FILE: "/run/secrets/db_password" }, secrets: ["db_password"], networks: ["data_net", "test_access_net"], ports: ["127.0.0.1::5432"], tmpfs: ["/var/lib/postgresql/data"], healthcheck: { test: ["CMD-SHELL", "pg_isready -U postgres -d hlog"], interval: "1s", timeout: "2s", retries: 30 } },
+      ...(rehearsal ? await prepareRehearsal(app, scratch, path) : {}),
+      "hlog-postgres": { image: base.services["hlog-postgres"].image, environment: { POSTGRES_DB: "hlog", POSTGRES_PASSWORD_FILE: "/run/secrets/db_password" }, secrets: ["db_password"], networks: ["data_net", "test_access_net"], ports: ["127.0.0.1::5432"], ...(rehearsal ? { volumes: ['rehearsal_database:/var/lib/postgresql/data'] } : { tmpfs: ["/var/lib/postgresql/data"] }), healthcheck: { test: ["CMD-SHELL", "pg_isready -U postgres -d hlog"], interval: "1s", timeout: "2s", retries: 30 } },
       "hlog-web": { ...common, image: "hlog-metrics:local", user: "1000:1000", command: ["node", "/fixtures/fixture.mjs"], volumes: ["fixture.mjs", "key.pem", "cert.pem", "db-password", "mode"].map(name => `${path(name)}:/fixtures/${name}:ro`), networks: ["probe_net", "data_net"] },
       prometheus: { volumes: [`${path("prometheus.yml")}:/etc/prometheus/prometheus.yml:ro`, `${path("probes.yml")}:/etc/prometheus/probes/host-db-http.yml:ro`] },
       "blackbox-exporter": { volumes: [`${path("blackbox.yml")}:/etc/blackbox/config.yml:ro`, `${path("cert.pem")}:/fixtures/cert.pem:ro`] },
-    }, secrets: { db_password: { file: path("db-password") } }, networks: { test_access_net: {} } }));
+    }, secrets: { db_password: { file: path("db-password") } }, networks: { test_access_net: {} }, ...(rehearsal ? { volumes: { rehearsal_database: {} } } : {}) }));
     const config = JSON.parse(await docker([...compose, "config", "--format", "json"]));
     for (const service of ["node-exporter", "postgres-exporter", "blackbox-exporter", "hlog-metrics"]) {
       assert.equal(config.services[service].ports, undefined);
@@ -239,7 +244,7 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
     assert.deepEqual(nodeContainer.Mounts.filter(m => m.Type === "bind").map(m => m.Destination).sort(), ["/proc/cpuinfo", "/proc/meminfo", "/proc/stat"]);
     assert.ok((await query('pg_stat_database_numbackends{database="app"}')).length === 1);
     const expiry = Number((await query('probe_ssl_earliest_cert_expiry{target="home"}'))[0].value[1]);
-    assert.ok(expiry > Date.now() / 1000 && expiry < Date.now() / 1000 + 3 * 86400);
+    assert.ok(expiry > Date.now() / 1000 && expiry < Date.now() / 1000 + (rehearsal ? 31 : 3) * 86400);
     for (const mode of ["failure", "timeout", "redirect"]) {
       await writeFile(path("mode"), mode);
       await value('probe_success{target="blog"}', 0);
@@ -282,21 +287,33 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
     await value('up{job="http",target="home"}', 0);
     const logs = await docker([...compose, "logs", "--no-color", "postgres-exporter", "hlog-metrics", "blackbox-exporter"]);
     assert.doesNotMatch(logs, new RegExp(`${password}|${exporterPassword}|${collectorPassword}|PRIVATE_CANARY|postgresql://|hlog-postgres`));
-    console.log("PASS: host/DB/probe metrics, bounded queries, permission denial, locks, near TLS expiry, HTTP status/timeout/redirect, DB/exporter failure, label/log privacy, no egress/host ports");
+    console.log("PASS: host/DB/probe metrics, bounded queries, permission denial, locks, TLS bounds, HTTP status/timeout/redirect, DB/exporter failure, label/log privacy, no egress/host ports");
+    if (rehearsal) {
+      await rehearse({ app, path, docker, compose, origin, authorization, query, eventually });
+      if (process.env.HLOG_OBSERVABILITY_SOAK_START === '1') {
+        const ids = (await docker(['ps', '-aq', '--filter', `label=com.docker.compose.project=${project}`])).split(/\s+/).filter(Boolean);
+        const directory = resolve(app, 'private/observe-step6');
+        await writeFile(resolve(directory, 'stack.json'), JSON.stringify({ project, scratch, compose, origin, ids, passwordFile: path('grafana-password'), environment: Object.fromEntries(envKeys.map(key => [key, process.env[key]])), preparedAt: new Date().toISOString() }, null, 2));
+        preserve = true;
+        console.log('PASS: isolated stack retained; start bounded observation with observability:soak run');
+      }
+    }
   } finally {
     if (pool) await pool.end();
     if (admin) await admin.end();
-    await docker([...compose, "down", "--volumes", "--timeout", "15"]);
+    if (!preserve) await docker([...compose, "down", "--volumes", "--timeout", "15"]);
     envKeys.forEach((key, index) => { if (oldEnv[index] === undefined) delete process.env[key]; else process.env[key] = oldEnv[index]; });
     // Only files created in our unique scratch directory; no recursive deletion.
-    if (publishing) {
+    if (!preserve && publishing) {
       const evidence = path('state/evidence');
       for (const name of await readdir(evidence).catch(() => [])) await unlink(resolve(evidence, name));
       await rmdir(evidence).catch(() => undefined);
       for (const name of await readdir(path('state')).catch(() => [])) await unlink(path(`state/${name}`));
       await rmdir(path('state')).catch(() => undefined);
     }
-    for (const name of await readdir(scratch)) await unlink(resolve(scratch, name));
-    await rmdir(scratch);
+    if (!preserve) {
+      for (const name of await readdir(scratch)) await unlink(resolve(scratch, name));
+      await rmdir(scratch);
+    }
   }
 });

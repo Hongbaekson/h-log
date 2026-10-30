@@ -8,6 +8,15 @@ import { promisify } from 'node:util';
 import { buildProvisioning, buildDashboard } from './observability-config.mjs';
 import { fixtureMetrics } from './observability-alerts.fixture.mjs';
 
+test('bounded rehearsal signals cover capacity, expiry, deadlines, leases and broken batches', () => {
+  assert.equal(fixtureMetrics(200000, 'disk')['node_filesystem_avail_bytes{mountpoint="docker-data"}'], 1);
+  assert.equal(fixtureMetrics(200000, 'tls')['probe_ssl_earliest_cert_expiry{target="blog"}'], 200000 + 2 * 86400);
+  assert.equal(fixtureMetrics(200000, 'lease')['hlog_publish_expired_leases{importance="required"}'], 1);
+  assert.equal(fixtureMetrics(200000, 'stale')['hlog_metrics_collected_timestamp_seconds{source="db"}'], 199819);
+  assert.equal(fixtureMetrics(200000, 'never')['hlog_schedule_expected_enabled{task="autopublish"}'], 1);
+  for (const task of ['backup', 'restore']) assert.equal(fixtureMetrics(200000, task + '-broken')[`hlog_batch_result{task="${task}",result="failed"}`], 1);
+});
+
 test('provisioned rules preserve unknown states and use bounded private notification policy', () => {
   const config=buildProvisioning(), rules=config.groups[0].rules;
   assert.equal(config.groups[0].interval,'60s');

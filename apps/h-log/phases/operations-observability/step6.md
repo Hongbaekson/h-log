@@ -63,3 +63,22 @@ Steps 0–5 완료 후 동일 격리 스택에서 장애 감지부터 복구 통
 ## Step 5 구현 인계
 
 선택형 alerts overlay·43개 Grafana-managed rule과 4영역 dashboard, 기본 전체 mute·safe webhook을 사용한다. `scripts/observability-alerts.test.mjs`는 실제 PromQL 경계를, `scripts/observability-alerts.smoke.mjs`는 내부 synthetic metric/mock에서 알림 상태와 수신을 검증한다. 시간 가속 테스트이므로 24시간 reminder/soak를 대신하지 않는다. 이번 Step에서 실제 collector/exporter·fake provider·최대 PDF 부하를 결합해 자원/누락/복구를 검수한다. Grafana raw 오류 로그는 비보관이며 private API와 source-health를 읽는다. 첫 summary 소실 판별은 7일 history에 의존하므로 Prometheus 이력 상실/복원과 장기 누락의 운영 한계도 기록한다. 테스트 preview 자원을 남겼다면 private descriptor의 project·경로를 확인하고 해당 자원만 정리한다.
+
+
+## 2026-10-30 실행 기록 — 진행 중
+
+2026-10-30 모니터링 Step 6 진행: 실제 probe/collector 스택의 장애·복구 알림 10건과 Grafana 재생성, 위험 지표 fixture 7건을 검증했다. 정상 중지한 Prometheus/Grafana archive를 새 volume에 복원해 과거 sample과 43개 rule을 확인했고, 최대 20 × 5 MiB PDF의 업로드·다운로드·dump/restore를 모니터링과 함께 검증했다. 24시간 연속 관측은 2026-10-30T01:42:17.001Z에 시작했으며 아직 완료가 아니다. 기본 관측 종료 예정은 2026-10-31 10:43 KST다. 단위 270 pass/26 DB skip, Linux state·실제 backup/restore·PromQL 4/4·soak 판정 4/4·추적 코드 lint/typecheck·Docker build 통과. 모니터링 completed 6·pending 1·blocked 1을 유지하며 다음은 **Step 6 관측 결과 검수**다. OCI·실제 provider·발행·timer·외부 전송은 실행하지 않았다.
+
+- RED: 관측 판정 모듈 부재와 위험 지표 fixture 정상값을 먼저 실패로 확인했다. GREEN: 판정 4/4·실제 PromQL 4/4, 합성 Grafana matrix 1/1, 실제 probe 통합 1/1. Linux state 1/1(9개 내부 사례), 실제 backup/restore 1/1을 재검증했다.
+- 비용 근거가 없는 합성 source_fetch 기록 때문에 정상 전환이 차단되는 것을 확인했다. unknown 경보를 약화하지 않고 해당 1건의 알려진 0원 추정 근거를 명시한 뒤 실제 해소를 확인했다. 운영 데이터나 비용 정책은 변경하지 않았다.
+- 새 volume 복구: 고정 과거 timestamp query 일치, dashboard와 43개 rule 보존. 같은 volume의 단순 재시작과 구분한다.
+- PDF: 원본 104857600 bytes, DB 증가 119324672 bytes, dump 122154897 bytes, 업로드 RSS 증가 최대 42356 KiB. 동시 모니터링 메모리 표본 최대 202.81 MiB·CPU 0.021 core, host 최소 가용 12.28 GiB. 상세 artifact는 Git 제외 private/observe-step6에 둔다.
+- 전체 단위 테스트는 sandbox localhost/임시 파일 제약으로 2건 실패한 뒤 허용된 로컬 실행에서 270 pass/26 DB skip을 확인했다. 전체 lint는 이전 단계 Git 제외 private 파일 10건이 실패하므로 private/** 제외 검사와 변경 scripts 직접 lint를 사용했다. typecheck·현재 이미지 build 통과, production dependency audit 0. Build의 기존 tracing 경고와 개발 의존성 경고는 이번 수정 범위 밖이다.
+- 24시간 관측: 2026-10-30T01:42:17.001Z 시작. 완료 예정 2026-10-31 10:43 KST. 짧은 초기 표본을 24시간 성공이나 7일 retention 검증으로 표시하지 않았다. 상태 명령은 마지막 sample이 90초 넘게 멈춘 미완료 실행을 실패로 보고한다.
+
+### 다음 세션 판정
+
+1. [runbook](../../deploy/observability/rehearsal.md)에 따라 관측 상태와 실제 종료 시각을 확인한다. 24시간 이상·공백 없음·예산 이내·알림 노이즈 없음·컨테이너 연속성이 모두 필요하다.
+2. 실패·중단이면 원인을 확인하고 새 격리 관측으로 다시 시작한다. 기존 파일에 이어 붙이거나 시간을 소급하지 않는다.
+3. 성공 근거를 검수한 뒤에만 Step 6을 completed로 변경하고 admin-operations-control Step 2로 진행한다. Step 7은 OCI 보류로 blocked다.
+4. 검수 자료를 보관한 뒤 descriptor의 정확한 project/ID와 임시 경로를 대조해 테스트 자원만 정리한다.

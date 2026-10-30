@@ -1,5 +1,7 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
+2026-10-30 모니터링 Step 6 진행: 실제 probe/collector 스택의 장애·복구 알림 10건과 Grafana 재생성, 위험 지표 fixture 7건을 검증했다. 정상 중지한 Prometheus/Grafana archive를 새 volume에 복원해 과거 sample과 43개 rule을 확인했고, 최대 20 × 5 MiB PDF의 업로드·다운로드·dump/restore를 모니터링과 함께 검증했다. 24시간 연속 관측은 2026-10-30T01:42:17.001Z에 시작했으며 아직 완료가 아니다. 기본 관측 종료 예정은 2026-10-31 10:43 KST다. 단위 270 pass/26 DB skip, Linux state·실제 backup/restore·PromQL 4/4·soak 판정 4/4·추적 코드 lint/typecheck·Docker build 통과. 모니터링 completed 6·pending 1·blocked 1을 유지하며 다음은 **Step 6 관측 결과 검수**다. OCI·실제 provider·발행·timer·외부 전송은 실행하지 않았다.
+
 2026-10-29 모니터링 Step 5 완료: 선택형 Grafana 대시보드 4개 영역과 43개 규칙, 기본 전체 음소거·비공개 수신처 예제·안전한 알림 payload를 추가했다. 실제 PromQL 3/3, Grafana mock smoke와 기본 stack 회귀 검증, 1440/390px 정상·미수집·오류·키보드 검수 및 형식/lint 검사를 통과했다. 데이터 소실 중 장애 상태 유지와 정상 증거 이후 복구, KST 자정·정비 경계를 확인했다. 모니터링 completed 6·pending 1·blocked 1이며 다음은 **operations-observability Step 6: isolated-failure-rehearsal**이다. 24시간 soak·자원 peak와 최대 PDF 부하는 Step 6에 남겼다. 관리자 14·2·1과 OCI·실제 provider·발행·timer·외부 알림 보류는 유지한다.
 
 2026-10-29 모니터링 Step 4 완료: custom dump 생성·형식 검사와 격리 복구 검증의 성공을 분리했다. 새 tmpfs DB에서 migration/vector·본문/PDF hash·공개/비공개 HTTP·PDF 새 epoch와 감사 reset을 확인한 뒤에만 복구 성공을 기록한다. 실패 때 이전 성공 시각을 보존하고 disabled/누락/손상/오래된 신호를 구분한다. 단위 270 pass/26 DB skip, 전체 격리 DB integration, Linux state 9개·파일 8개, 실제 backup/restore와 Prometheus smoke, lint/typecheck/build 통과. 모니터링 completed 5·pending 2·blocked 1이며 다음은 **operations-observability Step 5: dashboards-and-alert-routing**다. 관리자 14·2·1과 OCI·실제 provider·발행·timer 보류는 유지한다.

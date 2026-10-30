@@ -79,6 +79,24 @@ test('real Grafana provisions, preserves firing on missing data and delivers onl
     assert.equal(await eventCount('http-blog','resolved'),0,'missing individual series must not evict and resolve the business alert');
     await mode('normal');
     await eventually(async()=>assert((await eventCount('http-blog','resolved'))>0));
+    if(process.env.HLOG_OBSERVABILITY_MATRIX==='1') {
+      const matrix=[];
+      for(const [fault,signal] of [['disk','disk-critical'],['tls','tls-blog-critical'],['lease','expired-lease'],['stale','stale-db'],['never','autopublish-deadline'],['backup-broken','backup-failure'],['restore-broken','restore-failure']]) {
+        const before=(await events()).length,started=Date.now();
+        const matching=async status=>(await events()).slice(before).filter(e=>e.signal===signal&&e.status===status);
+        await mode(fault);
+        await eventually(async()=>assert.equal((await state('hlog-'+signal)).state,'firing'));
+        await eventually(async()=>assert((await matching('firing')).length>0));
+        const firingMs=Date.now()-started,count=(await matching('firing')).length;
+        assert(firingMs<=120000,'firing and mock delivery exceeded the bound');
+        await delay(12000);assert.equal((await matching('firing')).length,count);
+        await mode('normal');await eventually(async()=>assert((await matching('resolved')).length>0));
+        matrix.push({fault,signal,input:'bounded synthetic metrics; real PromQL/Grafana/mock',firingBoundMs:120000,firingMs,mockFiring:true,duplicateSuppressed:true,mockResolved:true});
+        console.log(`PASS: bounded ${fault}, mock firing/dedup/resolution`);
+      }
+      await mkdir(resolve(app,'private/observe-step6'),{recursive:true});
+      await writeFile(resolve(app,'private/observe-step6/synthetic-failures.json'),JSON.stringify(matrix,null,2));
+    }
     for(const event of await events()) {
       assert.deepEqual(Object.keys(event).sort(),['observed_at','runbook','service','severity','signal','status']);
       assert.doesNotMatch(JSON.stringify(event),new RegExp(`${password}|PRIVATE_QUERY_ERROR|fixture:|prometheus:|generatorURL|datasource_uid`));

@@ -47,13 +47,27 @@ export function fixtureMetrics(now, mode='normal') {
     values[`hlog_usage_included_events{window="${window}"}`]=1;
     values[`hlog_usage_budget_state{window="${window}",state="limited"}`]=1;
   }
+  if(mode==='disk') values['node_filesystem_avail_bytes{mountpoint="docker-data"}']=1;
+  if(mode==='tls') values['probe_ssl_earliest_cert_expiry{target="blog"}']=now+2*86400;
+  if(mode==='lease') values['hlog_publish_expired_leases{importance="required"}']=1;
+  if(mode==='stale') values['hlog_metrics_collected_timestamp_seconds{source="db"}']=now-181;
+  if(mode==='never') {
+    values['hlog_schedule_expected_enabled{task="autopublish"}']=1;
+    values['hlog_schedule_enabled_timestamp_seconds{task="autopublish"}']=now-2*86400;
+    values.hlog_autopublish_last_success_timestamp_seconds=0;
+    values.hlog_autopublish_last_success_slot_timestamp_seconds=0;
+  }
+  for(const task of ['backup','restore']) if(mode===task+'-broken') {
+    values[`hlog_batch_result{task="${task}",result="succeeded"}`]=0;
+    values[`hlog_batch_result{task="${task}",result="failed"}`]=1;
+  }
   return values;
 }
 
 if(process.argv[1] && pathToFileURL(resolve(process.argv[1])).href===import.meta.url) {
   createServer(async(req,res)=>{
     try {
-      const mode=(await readFile('/fixture/mode','utf8')).trim();
+      const mode=(await readFile(process.env.HLOG_FIXTURE_MODE_FILE || '/fixture/mode','utf8')).trim();
       if(req.url==='/metrics') {
         res.setHeader('Content-Type','text/plain');
         res.end(Object.entries(fixtureMetrics(Date.now()/1000,mode)).map(([key,value])=>`${key} ${value}`).join('\n')+'\n');
