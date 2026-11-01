@@ -188,7 +188,7 @@
     {
       "dir": "admin-operations-control",
       "status": "pending",
-      "summary": "2026-10-28 Steps 0-1 completed: bounded private inspection and explicit audited single-job retry with stable admin UUID, exact version/hash/revision/lease and retry budget checks. Existing policy pause/resume reused. Steps 2-3 pending; Step 4 blocked by OCI hold. Next: operations-observability Steps 4-6 before Step 2 (monitoring Steps 1-3 completed). No shell/Docker web controls or provider/timer/production activation."
+      "summary": "2026-10-28 Steps 0-1 completed: bounded private inspection and explicit audited single-job retry with stable admin UUID, exact version/hash/revision/lease and retry budget checks. Existing policy pause/resume reused. Steps 2-3 pending; Step 4 blocked by OCI hold. 2026-11-02: monitoring Steps 0-6 completed; next is Step 2 monitoring-overview. No shell/Docker web controls or provider/timer/production activation."
     },
     {
       "dir": "admin-resume-pdf",
@@ -212,8 +212,9 @@
     },
     {
       "dir": "operations-observability",
-      "status": "pending",
-      "summary": "2026-10-30 Step 6 pending: failure/mock delivery, new-volume recovery and maximum PDF workload passed. Fixed false acceptance of missing/malformed container evidence; focused 6/6, lint and typecheck passed. Rechecked 126 uninterrupted samples (124 min) through 2026-10-30T03:47:17.000Z: no failures; original soak start 2026-10-30T01:42:17.001Z preserved. Need >=24h before A3 Step 2; expected bounded end 2026-10-31 10:43 KST. No production/provider/publication/timer/external delivery."
+      "status": "blocked",
+      "blocked_reason": "Local Steps 0-6 completed. Only Step 7 production rollout remains, blocked by the user-directed OCI hold. Continue with admin-operations-control Step 2.",
+      "summary": "2026-11-02 Step 6 completed after final review: 1,442 original samples from 2026-10-30T01:42:17.001Z to 2026-10-31T01:43:17.003Z cover 24h 1m with no gaps, OOM, restarts, probe failures or unexpected alerts. Sample peaks: 249.45 MiB memory, 0.0646 CPU core, 247.46 MiB budgeted storage, 358 total/110 business series. Verified 10 integrated and 7 synthetic alert cases, new-volume recovery and overlapping maximum PDF workload. Evidence retained; 10 containers, 4 volumes, 6 networks and scratch cleaned with unrelated IDs preserved. Soak tests 6/6 and documentation checks passed. Steps 0-6 completed; Step 7 blocked by OCI hold. Next: admin-operations-control Step 2. No production/provider/publication/timer/external delivery."
     },
     {
       "dir": "second-brain-foundation",

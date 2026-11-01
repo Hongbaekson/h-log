@@ -1,5 +1,7 @@
 # Step 6: isolated-failure-rehearsal
 
+상태: **completed — 2026-11-02 최종 검수**. 로컬 Steps 0–6 완료, 운영 Step 7은 blocked다. 다음은 [A3 Step 2: monitoring-overview](../admin-operations-control/step2.md)다.
+
 ## 개선 사항과 선행 조건
 
 Steps 0–5 완료 후 동일 격리 스택에서 장애 감지부터 복구 통지까지 종합 검증한다.
@@ -55,7 +57,7 @@ Steps 0–5 완료 후 동일 격리 스택에서 장애 감지부터 복구 통
 - Discord 스타일과 레이더 전체 영역을 변경하지 말 것. 이번 phase는 비공개 운영 모니터링 범위다.
 - OCI·DNS/TLS·운영 timer·실제 provider·외부 알림 전송을 실행하지 말 것. 현재 사용자 보류와 로컬 검증 범위를 유지한다.
 
-## Step 0 확정 계약 인계 — pending
+## Step 0 확정 계약 인계 — 당시 기록
 
 모니터링 메모리 1 GiB/디스크 3 GiB와 별도 PDF 백업 3 GiB를 구분한다. 최대 합성 PDF 부하·실제 host hook/재부팅·24시간 soak와 series/수집 지연을 측정하고 예산 초과를 성공으로 표시하지 않는다. [지표·권한·자원·예정 파일과 명령](../../.codex/docs/harness/OBSERVABILITY_PLAN.md)을 기준으로 하며 이번 인계 기록은 구현 완료가 아니다.
 
@@ -92,3 +94,36 @@ Steps 0–5 완료 후 동일 격리 스택에서 장애 감지부터 복구 통
 - 남은 시간은 표본의 단조 경과 시간으로 계산한다. 실패나 오래된 마지막 표본에는 카운트다운을 제공하지 않는다. 현재 실행의 cached result를 수정하지 않고 status에서 원본을 재판정한다.
 - 관측 checkpoint: 2026-10-30T03:47:17.000Z, 126개/124분, 메모리 228.43 MiB, CPU 0.0565 core, series 358/업무 110, 재시작·OOM·수집 공백·예기치 않은 알림 0건. 24시간 완료 근거로 사용하지 않는다.
 - 변경 범위는 로컬 검수 도구와 계획 문서다. 앱/DB/UI·현재 관측 스택은 변경하지 않았다. 검증은 npm run test:observability:soak (6/6), 두 변경 script의 eslint, npm run typecheck, 현재 원본의 status 재평가와 JSON/링크/diff 검사다.
+
+## 2026-11-02 최종 검수 — 완료
+
+2026-11-02 모니터링 Step 6 완료: 10월 30일 10:42:17부터 31일 10:43:17 KST까지 원본 1,442개 표본으로 24시간 1분 연속 관측을 확인했다. 수집 공백·OOM·재시작·예기치 않은 알림은 없었다. 메모리 표본 최대 249.45 MiB, CPU 0.0646 core, 로그/state 여유를 포함한 디스크 247.46 MiB로 예산 안이다. 장애 알림 17건·새 volume 복구·동시 최대 PDF 부하 근거를 대조하고 검수 자료를 보관한 뒤 전용 실험 자원을 정리했다. 판정 테스트 6/6·문서/JSON/링크 검사를 통과했다. 모니터링은 completed 7·pending 0·blocked 1이며 **다음은 admin-operations-control / A3 Step 2: monitoring-overview**다. 관리자 14·2·1과 운영 적용 보류는 유지한다.
+
+### 관측 결과와 예산
+
+| 항목 | 실제 관측 | 판정 기준 |
+| --- | --- | --- |
+| 시작 / 마지막 표본 (UTC) | 2026-10-30T01:42:17.001Z / 2026-10-31T01:43:17.003Z | 원래 시작과 동일, 연속 24시간 이상 |
+| 표본 / 단조 경과 시간 | 1,442개 / 86,460,002.3468 ms | 24시간 1분, 순서 누락 없음 |
+| 가장 긴 수집 간격 / 시계 차이 | 60,015.242 ms / 2.747 ms | 90,000 ms / 5,000 ms 이하 |
+| 모니터링 메모리 / CPU 표본 최대 | 249.45 MiB / 0.0646 core | 1,024 MiB / 1 core 이하 |
+| 디스크 계산 최대 | 247.46 MiB | 3,072 MiB 이하; WAL/head 실사용 + 로그/state/tmp 예약 242 MiB 포함 |
+| 전체 / 업무 series 최대 | 358 / 110 | 5,000 / 500 이하 |
+| source age / scrape 최대 | 90.715초 / 0.777초 | 180초 / 10초 이하 |
+| 실패 target / 비정상 rule / 새 mock 통지 | 모두 0 | 모두 0 |
+| OOM / 컨테이너 교체 / 재시작 | 모두 없음 | 모든 표본에 명시적 정상 근거 |
+| 관측 구간 stdout/stderr 증가 | 0 bytes | 원문 비보관; 디스크 계산은 최대 로그 할당량 포함 |
+
+### 종료·복구·부하 근거
+
+- 현재 판정 코드로 원본 전체를 재평가하고 cached result와 시작/종료·peak를 대조했다. 관측 시간은 다음 세션까지의 대기 시간이 아닌 실제 표본의 단조 시간이다. 원본을 수정하거나 이어 쓰지 않았다.
+- 마지막 표본 이후 01:43:20.962Z–01:43:31.004Z UTC에 정확히 같은 10개 컨테이너가 종료됐다. OOM과 재시작은 모두 없었다. 실험용 Node fixture 2개는 종료 유예 후 137, exporter 2개는 종료 시 2를 반환했으므로 모든 종료 코드가 0이었다고 기록하지 않는다. 관측 중 장애와 종료 후 상태를 구분한다.
+- 실제 서비스/collector/cycle 및 datasource 오류 10건, 위험 지표 합성 7건의 firing·mock 수신·중복 억제·resolved를 원본 receipt로 확인했다. 가장 긴 firing은 44,184 ms로 각 240초/120초 제한 안이다. Grafana 재생성 보존도 확인했다. 알림 검증의 가속 시간은 운영 시간 실측이 아니다.
+- 새 volume 복원에서 과거 Prometheus 표본, provisioning으로 재생성되지 않는 검증 dashboard와 43개 rule을 확인했다. 최대 PDF 부하는 관측 시작 이후 01:42:34.096Z–01:43:52.184Z UTC에 실행됐다. 합성 원본 100 MiB, DB 증가 119,324,672 bytes, dump 122,154,897 bytes와 전체 복구 assertion을 확인했다. 당시 host 최소 가용 메모리는 12.28 GiB다.
+- Git 제외 private/observe-step6에 원본과 final-review.json, cleanup-final.json을 보관했다. 원본 samples.jsonl SHA-256: 9c3ff00a0d2228c0c16067b09d5602e5a1a9a4361eeca36fddfea34275676385. Docker ID 집합과 경로를 확인한 뒤 해당 project의 컨테이너 10개·volume 4개·network 6개·전용 임시 폴더만 정리했고 다른 컨테이너 ID 집합은 유지됐다.
+
+### 검증과 다음 단계
+
+`npm run observability:soak status` passed, `npm run test:observability:soak` 6/6, 실제 종료 시각·ID·OOM/재시작 및 장애/복구/PDF receipt 대조, 48개 phase/172개 step JSON·상태·링크 검사와 `git diff --check`를 통과했다. 이번 변경은 완료 기록과 계획 동기화이며 앱 동작은 바꾸지 않았다. 이전 실행의 단위/integration/lint/typecheck/build 결과는 위 기록을 유지하며 이번에 재실행한 것으로 쓰지 않는다.
+
+다음은 **A3 Step 2 관리자 모니터링 요약 화면**이다. 모니터링은 7 completed / 0 pending / 1 blocked, 관리자 트랙은 14 / 2 / 1이다. 7일 retention·24시간 지속 장애 reminder·실제 Linux host hook/재부팅·독립 외부 감시·운영 예산/전송은 이번 로컬 관측으로 입증하지 않았다. 운영 검증은 Step 7의 별도 승인과 실제 근거가 필요하며 OCI·provider·발행·timer·외부 전송 보류는 유지한다.

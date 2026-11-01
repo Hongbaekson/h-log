@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-계획 등록 상태: pending — 미구현. operations-observability Steps 0–6과 A3 Steps 0–1 완료. 모니터링 Step 7/실제 timer는 선행 조건이 아니다.
+상태: pending — 미구현. 2026-11-02 [모니터링 Step 6 최종 검수](../operations-observability/step6.md)로 operations-observability Steps 0–6과 A3 Steps 0–1 선행 조건을 모두 충족했다. 다음 구현 대상으로 진행할 수 있다. 모니터링 Step 7/실제 timer는 선행 조건이 아니다.
 
 ## 읽을 파일
 

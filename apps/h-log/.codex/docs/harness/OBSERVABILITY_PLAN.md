@@ -1,6 +1,6 @@
 # H-Log 운영 모니터링 계획
 
-등록일: 2026-10-06. **2026-10-29 Steps 0–5 완료: 계약·비공개 stack·host/DB/HTTP·발행/비용·백업/복구 신호와 대시보드/로컬 mock 알림을 검증했다. 다음은 통합 장애·자원/24시간 soak 검수다.** 실행 상태는 [phase registry](../../../phases/operations-observability/index.json)를 따른다. 이 문서가 모니터링 계약의 단일 기준이다.
+등록일: 2026-10-06. **2026-11-02 로컬 Steps 0–6 완료: 통합 장애·새 volume 복구·최대 PDF 부하와 24시간 1분 관측의 최종 검수를 통과했다. 운영 Step 7은 OCI 보류로 blocked이며 다음은 A3 Step 2 관리자 모니터링 요약이다.** 실행 상태는 [phase registry](../../../phases/operations-observability/index.json)를 따른다. 이 문서가 모니터링 계약의 단일 기준이다.
 
 ## 목적과 실행 순서
 
@@ -14,10 +14,10 @@
 | [3](../../../phases/operations-observability/step3.md) | durable-publishing-signals | 완료: DB 독립 atomic 기록·필수 6종 성공 근거·현재 작업/UTC 비용·실제 scrape |
 | [4](../../../phases/operations-observability/step4.md) | backup-and-restore-signals | 완료: 실제 custom dump·격리 복구·무결성/공개 차단·별도 atomic 성공/실패 |
 | [5](../../../phases/operations-observability/step5.md) | dashboards-and-alert-routing | 완료: 4개 영역·43개 rule·기본 mute·mock 장애/누락/복구·대응 절차 |
-| [6](../../../phases/operations-observability/step6.md) | isolated-failure-rehearsal | 진행: 장애·복구·최대 PDF 부하 검증, 24시간 연속 관측 판정 대기 |
+| [6](../../../phases/operations-observability/step6.md) | isolated-failure-rehearsal | 완료: 장애·복구·최대 PDF 부하와 원본 1,442개 / 24시간 1분 연속 관측 검수 |
 | [7](../../../phases/operations-observability/step7.md) | approved-production-rollout | OCI 보류로 blocked: 승인된 운영 설치와 외부 감시 |
 
-현재 6 completed / 1 pending / 1 blocked다. **일반 다음 작업은 [Step 6: isolated-failure-rehearsal](../../../phases/operations-observability/step6.md)**다. [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1/A4 → 모니터링 계약 → A2 Steps 0–3 → A3 Steps 0–1 → 모니터링 Steps 1–6 → A3 Steps 2–3 순서를 유지한다. A3 Steps 0–1도 완료했으며 이 phase의 Step 6 이후 A3 Step 2로 돌아간다.
+현재 7 completed / 0 pending / 1 blocked다. **일반 다음 작업은 [A3 Step 2: monitoring-overview](../../../phases/admin-operations-control/step2.md)**다. [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1/A4 → 모니터링 계약 → A2 Steps 0–3 → A3 Steps 0–1 → 모니터링 Steps 1–6 → A3 Steps 2–3 순서를 유지한다. A3 Steps 0–1과 이 phase의 Step 6이 완료돼 A3 Step 2의 로컬 선행 조건을 충족했다.
 
 수집기·신호·대시보드·알림은 이 phase가 소유하고 관리자 화면은 그 결과를 소비한다. 승인된 모니터링 Step 7 → 관리자 rollout → 기존 auto-publish-ops-hardening Step 4의 timer 활성화 순서다. **모니터링 완료에 실제 반복 발행을 요구하지 않는다.** 비활성 scheduler와 로컬 누락 재현으로 먼저 검증하므로 순환 의존이 없다.
 
@@ -156,7 +156,7 @@ Expectation은 task별 enabled/enabled_at/유한 maintenance 구간이다. 변�
 
 ## 후속 구현 파일과 검증 인계
 
-Step 1 파일/검증은 완료했고 [로컬 실행 절차](../../../deploy/observability/README.md)를 따른다. 아래 Steps 2–7 신규 파일·명령은 **예정이며 아직 구현/실행 결과가 아니다.** 경로는 앱 기준이다. Migration 번호는 선행 A2/A3 작업 이후 다음 빈 번호로 할당한다.
+Steps 0–6의 로컬 구현·검증은 완료했다. [로컬 실행 절차](../../../deploy/observability/README.md)와 [Step 6 runbook](../../../deploy/observability/rehearsal.md)을 따르며 아래 경로는 앱 기준이다. Step 7만 운영 적용 예정이고, 실제 실행 결과는 각 step의 완료 기록을 따른다.
 
 | Step | 예정 파일 / 재사용 파일 | 완료 검증 |
 | --- | --- | --- |
@@ -165,7 +165,7 @@ Step 1 파일/검증은 완료했고 [로컬 실행 절차](../../../deploy/obse
 | 3 | `lib/observability-publishing.ts`, `lib/observability-publishing.test.ts`, `lib/observability-publishing.integration.test.ts`, `scripts/observability-state.py`, `scripts/observability_state_test.py`; 기존 cycle/service/usage/repository·신규 migration | 6종 proof·빈 job·이전 버전·preflight/DB 이전 실패·kill·slot/UTC·비용 unknown·atomic 파일·재시작 |
 | 4 | `scripts/observability-backup.mjs`, `scripts/observability-backup.test.mjs`; 기존 backup runbook/PDF rehearsal·공통 state helper | 격리 dump/restore·hash/private·실패/never/stale·첫 deadline |
 | 5 | `deploy/observability/grafana/provisioning/dashboards/hlog.yml`, `deploy/observability/grafana/dashboards/hlog.json`, `deploy/observability/grafana/provisioning/alerting/hlog.json`; 위 README | 1440/390px·빈/오류·mock firing/group/repeat/resolved/NoData/Error/maintenance |
-| 6 | `scripts/observability-rehearsal.mjs`; 위 README·각 완료 기록 | 최소 24시간 격리 soak·DB/서비스 중단·host 재부팅·미실행·PDF 부하·자원 peak·복구 |
+| 6 | `scripts/observability-rehearsal.mjs`, `scripts/observability-soak.mjs`, `scripts/observability-recovery.mjs`, `scripts/observability-pdf-load.mjs`; 격리 runbook·완료 기록 | 완료: 24시간 1분 관측·DB/서비스 중단·누락·PDF 부하·자원 표본 최대·새 volume 복구. 실제 host hook/재부팅은 Step 7 |
 | 7 | 위 구성·runbook·운영 적용 기록 | 승인된 host 예산·비공개 접근·외부 HTTP/heartbeat·rollback; timer OFF |
 
 Step별 명령(앱 디렉터리, Git 제외 로컬 env 사용; Step 1의 HLOG_GRAFANA_PASSWORD_FILE은 저장소 밖 파일 필수):
@@ -182,8 +182,9 @@ node --no-warnings --experimental-strip-types --test lib/observability-publishin
 node --no-warnings --experimental-strip-types --test lib/observability-publishing.integration.test.ts
 python3 -m unittest discover -s scripts -p observability_state_test.py
 node --no-warnings --experimental-strip-types --test scripts/observability-backup.test.mjs
-# Step 6 후속 구현 예정
-node --no-warnings --experimental-strip-types scripts/observability-rehearsal.mjs
+# Step 6: 전체 격리 스택 실행은 rehearsal.md의 opt-in 순서를 따른다
+npm run test:observability:soak
+npm run observability:soak status
 ```
 
 DB 테스트에는 격리 DATABASE_URL이 필수다. Host helper/systemd hook·재부팅은 격리 Linux에서 실제 재현하고 Docker Desktop만으로 통과했다고 하지 않는다. 이미지 공식 출처·version/digest/CPU architecture와 실제 명령을 해당 step에 기록한다. Production code는 focused RED→GREEN 후 npm run test/lint/typecheck/build, DB/worker/migration 변경은 전체 격리 npm run test:integration을 추가한다. 문서/JSON만 바꾼 Step 0은 파서·링크·읽을 파일·registry 상태와 git diff --check로 검증한다.
@@ -227,3 +228,10 @@ DB 테스트에는 격리 DATABASE_URL이 필수다. Host helper/systemd hook·�
 2026-10-30 모니터링 Step 6 진행: 실제 probe/collector 스택의 장애·복구 알림 10건과 Grafana 재생성, 위험 지표 fixture 7건을 검증했다. 정상 중지한 Prometheus/Grafana archive를 새 volume에 복원해 과거 sample과 43개 rule을 확인했고, 최대 20 × 5 MiB PDF의 업로드·다운로드·dump/restore를 모니터링과 함께 검증했다. 24시간 연속 관측은 2026-10-30T01:42:17.001Z에 시작했으며 아직 완료가 아니다. 기본 관측 종료 예정은 2026-10-31 10:43 KST다. 단위 270 pass/26 DB skip, Linux state·실제 backup/restore·PromQL 4/4·soak 판정 4/4·추적 코드 lint/typecheck·Docker build 통과. 모니터링 completed 6·pending 1·blocked 1을 유지하며 다음은 **Step 6 관측 결과 검수**다. OCI·실제 provider·발행·timer·외부 전송은 실행하지 않았다.
 
 [격리 검증 runbook](../../../deploy/observability/rehearsal.md)의 준비 → 새 volume 복구 → 관측 → 최대 PDF 부하 → 결과 검수 순서를 따른다. 관측 결과의 실패/중단을 완료로 바꾸지 않는다. `.jsonl`의 순서·단조 경과·시각 차이·90초 공백과 컨테이너 ID/재시작/OOM, 자원/series/수집 지연·알림 노이즈를 함께 판정한다. 실제 운영 host 재부팅과 외부 독립 감시는 Step 7 범위다.
+
+
+## Step 6 최종 인계 — 2026-11-02
+
+2026-11-02 모니터링 Step 6 완료: 10월 30일 10:42:17부터 31일 10:43:17 KST까지 원본 1,442개 표본으로 24시간 1분 연속 관측을 확인했다. 수집 공백·OOM·재시작·예기치 않은 알림은 없었다. 메모리 표본 최대 249.45 MiB, CPU 0.0646 core, 로그/state 여유를 포함한 디스크 247.46 MiB로 예산 안이다. 장애 알림 17건·새 volume 복구·동시 최대 PDF 부하 근거를 대조하고 검수 자료를 보관한 뒤 전용 실험 자원을 정리했다. 판정 테스트 6/6·문서/JSON/링크 검사를 통과했다. 모니터링은 completed 7·pending 0·blocked 1이며 **다음은 admin-operations-control / A3 Step 2: monitoring-overview**다. 관리자 14·2·1과 운영 적용 보류는 유지한다.
+
+[Step 6 완료 기록](../../../phases/operations-observability/step6.md)에 원본 hash·표본/시계 연속성·자원 예산·실제 종료 코드·정리 범위를 남겼다. [격리 runbook](../../../deploy/observability/rehearsal.md)의 7일 retention·지속 장애 reminder·운영 host/외부 감시 한계는 그대로 유지한다.

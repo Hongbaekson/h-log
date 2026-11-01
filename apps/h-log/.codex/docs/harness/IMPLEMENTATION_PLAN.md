@@ -1,5 +1,7 @@
 # Implementation Plan: H-Log Harness Baseline
 
+2026-11-02 모니터링 Step 6 완료: 10월 30일 10:42:17부터 31일 10:43:17 KST까지 원본 1,442개 표본으로 24시간 1분 연속 관측을 확인했다. 수집 공백·OOM·재시작·예기치 않은 알림은 없었다. 메모리 표본 최대 249.45 MiB, CPU 0.0646 core, 로그/state 여유를 포함한 디스크 247.46 MiB로 예산 안이다. 장애 알림 17건·새 volume 복구·동시 최대 PDF 부하 근거를 대조하고 검수 자료를 보관한 뒤 전용 실험 자원을 정리했다. 판정 테스트 6/6·문서/JSON/링크 검사를 통과했다. 모니터링은 completed 7·pending 0·blocked 1이며 **다음은 admin-operations-control / A3 Step 2: monitoring-overview**다. 관리자 14·2·1과 운영 적용 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.
+
 2026-10-30 Step 6 검수 보완: OOM·컨테이너 교체 여부가 누락되거나 올바른 boolean이 아니어도 통과하던 판정 오류를 RED/GREEN으로 수정했다. status에 최소 관측 시간과 실제 남은 시간을 추가했고 실패/중단 시에는 남은 시간을 null로 표시한다. 2026-10-30T03:47:17.000Z 기준 126개 표본·124분을 재검수했으며 실패 0건, 메모리 표본 최대 228.43 MiB다. 기존 24시간 관측은 재시작하지 않았다. 종료 예정은 2026-10-31 10:43 KST이며 Step 6 pending·다음 작업은 관측 결과 최종 검수다. Focused 6/6·변경 파일 lint·typecheck를 통과했다. A3 Step 2의 선행 조건과 운영 보류는 유지한다.
 
 2026-10-30 모니터링 Step 6 진행: 실제 probe/collector 스택의 장애·복구 알림 10건과 Grafana 재생성, 위험 지표 fixture 7건을 검증했다. 정상 중지한 Prometheus/Grafana archive를 새 volume에 복원해 과거 sample과 43개 rule을 확인했고, 최대 20 × 5 MiB PDF의 업로드·다운로드·dump/restore를 모니터링과 함께 검증했다. 24시간 연속 관측은 2026-10-30T01:42:17.001Z에 시작했으며 아직 완료가 아니다. 기본 관측 종료 예정은 2026-10-31 10:43 KST다. 단위 270 pass/26 DB skip, Linux state·실제 backup/restore·PromQL 4/4·soak 판정 4/4·추적 코드 lint/typecheck·Docker build 통과. 모니터링 completed 6·pending 1·blocked 1을 유지하며 다음은 **Step 6 관측 결과 검수**다. OCI·실제 provider·발행·timer·외부 전송은 실행하지 않았다.
