@@ -145,7 +145,7 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 - 지표·대시보드는 비공개 운영 표면이며 콘텐츠·검색어·credential·내부 식별자를 노출하지 않는다. 기존 published-current/privacy와 비용 guard를 유지한다.
 - Steps 0–6은 격리 로컬에서 진행하고 Step 7은 기존 OCI 보류로 blocked다. 외부 HTTP/heartbeat 감시를 포함한 운영 검증을 반복 발행 timer 활성화 전에 완료한다.
 - 모니터링 완료에 실제 반복 발행을 요구하지 않는다. 비활성 상태를 구분한 뒤 timer 재개는 기존 자동 발행 phase에서 별도 승인으로 수행한다.
-- 관리자 A1/A4/A2와 A3 Steps 0–2, 2026-11-02 모니터링 로컬 Steps 0–6을 완료했다. `/admin/monitoring`은 기존 신호의 누락·오류·stale, 예정 스케줄, 검증 성공과 UTC 비용을 소유자에게만 표시하며 Grafana는 별도 로그인한다. 다음은 A3 Step 3 전체 관리자 릴리스 검수다. 운영 Step 7은 관리자 rollout·timer보다 먼저 완료해야 하며 운영 적용 보류는 유지한다.
+- 관리자 A1/A4/A2와 A3 Steps 0–3, 2026-11-02 모니터링 로컬 Steps 0–6을 완료했다. `/admin/monitoring`은 기존 신호의 누락·오류·stale, 예정 스케줄, 검증 성공과 UTC 비용을 소유자에게만 표시하며 Grafana는 별도 로그인한다. A3 Step 3 전체 관리자 릴리스 검수도 완료했다. 다음 운영 Step 7은 관리자 rollout·timer보다 먼저 완료해야 하며 운영 적용 보류는 유지한다.
 
 ### H-02: 파일 기반 블로그 호환 이력
 

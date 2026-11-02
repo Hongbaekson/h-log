@@ -1,0 +1,50 @@
+# Opt-in example only; never mounted by the default Compose configuration.
+# Replace this authority and certificate files only during an approved rollout.
+server {
+  listen 443 ssl;
+  server_name admin.hlog.example.org;
+  ssl_certificate /etc/nginx/admin-tls/admin.crt;
+  ssl_certificate_key /etc/nginx/admin-tls/admin.key;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  server_tokens off;
+  if ($http_host != "admin.hlog.example.org:8443") { return 404; }
+
+  client_max_body_size 256k;
+  client_body_timeout 15s;
+  add_header Cache-Control "private, no-store" always;
+  add_header X-Robots-Tag "noindex, nofollow, noarchive" always;
+  add_header X-Frame-Options "DENY" always;
+  add_header X-Content-Type-Options "nosniff" always;
+  add_header Referrer-Policy "no-referrer" always;
+  add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+
+  proxy_http_version 1.1;
+  proxy_set_header Host admin.hlog.example.org:8443;
+  proxy_set_header Forwarded "";
+  proxy_set_header X-Forwarded-Host "";
+  proxy_set_header X-Forwarded-Proto https;
+  proxy_set_header X-Forwarded-For $remote_addr;
+  proxy_set_header X-Real-IP $remote_addr;
+  proxy_cache off;
+  proxy_hide_header Cache-Control;
+  proxy_hide_header X-Robots-Tag;
+  proxy_hide_header X-Frame-Options;
+  proxy_hide_header X-Content-Type-Options;
+  proxy_hide_header Referrer-Policy;
+  proxy_buffering off;
+  proxy_read_timeout 15s;
+  proxy_send_timeout 15s;
+
+  location = / { return 302 /admin; }
+  location = /admin/resume/files {
+    client_max_body_size 5m;
+    client_body_timeout 30s;
+    proxy_read_timeout 90s;
+    proxy_request_buffering off;
+    proxy_pass http://hlog-web:3000;
+  }
+  location ~ ^/admin(/|$) { proxy_pass http://hlog-web:3000; }
+  location /_next/static/ { proxy_pass http://hlog-web:3000; }
+  location = /favicon.ico { proxy_pass http://hlog-web:3000; }
+  location / { return 404; }
+}

@@ -24,7 +24,7 @@ test("owner HTTP capture keeps originals private and publishes only confirmed sn
   };
   const ownerPage = await fetch(`${origin}/admin/brain`, { headers: { authorization } });
   assert.equal(ownerPage.status, 200);
-  assert((await ownerPage.text()).includes(`href="${publicOrigin}/brain"`), "Public Brain links use the public origin, not the restricted admin host");
+  assert((await ownerPage.text()).includes(`href="${process.env.HLOG_PUBLIC_BASE_URL || publicOrigin}/brain"`), "Public Brain links use the public origin, not the restricted admin host");
   for (const path of ["/admin/brain", "/admin/brain?_rsc=test", "/admin/brain/records"]) {
     const denied = await fetch(`${origin}${path}`);
     assert.equal(denied.status, 401);

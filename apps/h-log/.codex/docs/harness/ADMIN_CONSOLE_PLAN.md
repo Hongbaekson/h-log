@@ -1,6 +1,6 @@
 # H-Log 통합 관리자 계획
 
-등록일: 2026-10-22. 2026-11-02 **A1/A4/A2 전체와 A3 Steps 0–2 완료. 4개 phase / 17개 step 중 completed 15개·pending 1개·blocked 1개**다. 모니터링 Steps 0–6과 관리자 요약의 로컬 검수를 완료했다. 다음은 [A3 Step 3](../../../phases/admin-operations-control/step3.md)의 전체 관리자 릴리스 검수다. 운영 활성화는 보류한다.
+등록일: 2026-10-22. 2026-11-02 **A1/A4/A2 전체와 A3 Steps 0–3 완료. 4개 phase / 17개 step 중 completed 16개·pending 0개·blocked 1개**다. 로컬 관리자 검수는 모두 완료했으며, 운영 모니터링 Step 7 → A3 Step 4는 OCI 보류 해제와 범위별 승인이 필요하다.
 
 ## 방향과 현재 근거
 
@@ -105,7 +105,7 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 | A3 [admin-operations-control](../../../phases/admin-operations-control/index.json) | [0: job-and-audit-inspection](../../../phases/admin-operations-control/step0.md) | 실제 작업/lease/실패·감사·비용 조회 |
 | A3 | [1: bounded-retry-and-pause](../../../phases/admin-operations-control/step1.md) | 단건 재시도·새 claim 중지·동시성/재시작 검증 |
 | A3 | [2: monitoring-overview](../../../phases/admin-operations-control/step2.md) | **완료**: 기존 신호·누락/오류/stale·검증 성공/비용과 비공개 Grafana 안내 |
-| A3 | [3: local-admin-release-rehearsal](../../../phases/admin-operations-control/step3.md) | 공개/관리 host·데이터 누출·실패/복구·모바일 종합 검수 |
+| A3 | [3: local-admin-release-rehearsal](../../../phases/admin-operations-control/step3.md) | **완료**: 공개/관리 host·데이터 경계·실패/복구·이전 artifact·모바일 종합 검수 |
 | A3 | [4: approved-admin-origin-rollout](../../../phases/admin-operations-control/step4.md) | 승인된 admin 도메인·TLS·접근 제한 적용/롤백 — OCI 보류로 blocked |
 | A4 [admin-resume-pdf](../../../phases/admin-resume-pdf/index.json) | [0: resume-file-and-visibility-contract](../../../phases/admin-resume-pdf/step0.md) | 저장·검사 도구/예산·공개/HTTP·복구 계약 확정 완료(기능 미구현) |
 | A4 | [1: private-upload-preview-and-versions](../../../phases/admin-resume-pdf/step1.md) | 비공개 등록·검증·전 페이지 미리보기·수정 파일 교체/이력 |
@@ -114,7 +114,7 @@ PDF 바이트와 공개 여부 응답은 `no-store`로 제공하고 CDN·프록�
 
 ## 실행 순서와 기존 계획
 
-1. 기본 다음 작업은 **admin-operations-control / A3 Step 3: local-admin-release-rehearsal**이다. A1/A4/A2와 A3 Steps 0–2, 모니터링 Steps 0–6의 로컬 검수를 완료했다. 공개/관리 host, 전체 사용자 경로와 실패/복구를 종합 검수한다. 운영 rollout은 보류한다.
+1. A1/A4/A2와 A3 Steps 0–3, 모니터링 Steps 0–6의 로컬 검수를 완료했다. 다음 운영 순서는 **operations-observability Step 7 → admin-operations-control Step 4**이며 OCI 보류 해제와 해당 범위의 승인이 선행한다. 준비된 설정 예시·재현 명령·키 회전/복구는 [릴리스 인계](../../../deploy/admin/README.md)를 따른다.
 2. A1 완료 뒤 독립적인 **A4 이력서 PDF Steps 0–3**을 진행한다. A4 번호는 기존 A1–A3의 참조를 보존하기 위한 것이며 운영 rollout 뒤로 미루는 뜻이 아니다. 이어 `operations-observability / Step 0`의 신호·권한·예산 계약까지 완료했다. A2 Steps 0–3과 A3 Steps 0–1은 이를 참고해 실제 저장·제어를 구현하며, 수집 스택 설치를 선행 조건으로 요구하지 않는다.
 3. observability Steps 1–6을 구현·로컬 검증한 뒤 A3 Steps 2–3을 완료한다. 관측 데이터의 생산자는 모니터링 phase, 관리자 화면은 소비자로 둔다.
 4. 운영은 기존 OCI 보류 해제 및 범위별 승인 후 진행한다. observability Step 7은 비활성 scheduler 상태에서도 완료할 수 있다. 이어 A3 Step 4에서 관리자 도메인과 A4의 비공개 파일 저장/migration을 적용한다. 관리자 rollout은 자동 발행 timer를 켜거나 실제 글/Brain 사본/PDF를 공개하지 않는다. 특정 PDF 공개는 관리자에서 검수한 파일을 선택하는 별도 행동이다.
@@ -201,3 +201,7 @@ Brain 저장·공개·해제에 내용 revision과 별도 명령 revision/UUID�
 ## A3 Step 2 완료 — 2026-11-02
 
 2026-11-02 A3 Step 2 완료: `/admin/monitoring`에 기존 Prometheus의 서비스·수집 상태, 예정 스케줄, 최근 시도/검증 성공, UTC 비용을 연결했다. 누락·오류·오래된 값·스케줄 비활성·성공 이력 없음을 구분하고 Grafana는 별도 로컬 터널 로그인으로 안내한다. 고정 조회와 3초/128 KiB 제한, 소유자 인증·HTML/RSC no-store를 적용했다. Focused 7/7, 실제 PromQL 1/1, 수집기/DB 장애·화면 대조 1/1, dev/운영 모드 HTTPS 접근 각 1/1, 단위 277 pass/26 DB skip, typecheck/build와 1440/390/320px·키보드·no-JS 검수를 통과했다. 추적 코드 lint는 통과했으며 기본 lint의 기존 private CJS 오류 10건은 별도 기록했다. 관리자 completed 15·pending 1·blocked 1, 모니터링 7·0·1이며 **다음은 A3 Step 3: local-admin-release-rehearsal**이다. 운영 적용·실제 provider·공개 발행·timer·외부 알림은 실행하지 않았다. 상세 계약·검증은 [Step 2](../../../phases/admin-operations-control/step2.md), 연결 설정은 [모니터링 runbook](../../../deploy/observability/admin-monitoring.md)을 따른다.
+
+## A3 Step 3 완료 — 2026-11-02
+
+2026-11-02 A3 Step 3 완료: 현재 Linux 앱 이미지와 합성 자료로 공개/관리 Nginx·직접 upstream, 모든 관리자 경로의 인증/Origin/HTML/RSC·비공개 캐시, Brain·PDF·초안·선택 버전 발행/철회를 검수했다. 정책 OFF·단건 재시도·별도 worker 프로세스, 감사 실패 rollback, 실제 DB 재시작, 키 회전·관리자 OFF, 전체 DB dump/restore와 이전 이미지 호환성도 확인했다. 검수 중 비용 상한의 밀리초 정밀도 손실을 재현해 DB transaction 시각으로 비교하도록 수정했고, Nginx 보안 헤더 중복을 제거했다. 단위 277 pass/26 DB skip, 전체 격리 DB·HTTP·최대 PDF 리허설, 추적 코드 lint/typecheck/빌드·1440/390/320px·키보드/no-JS 검수를 통과했다. 기본 lint의 기존 private CJS 오류 10건은 별도 기록했다. 관리자 completed 16·pending 0·blocked 1이며 로컬 단계는 모두 완료다. 다음은 승인 후 **operations-observability Step 7 → A3 Step 4**다. OCI·DNS/TLS·실제 provider·공개 발행·timer·외부 알림은 실행하지 않았다. 상세 근거는 [Step 3](../../../phases/admin-operations-control/step3.md)에 기록했다.

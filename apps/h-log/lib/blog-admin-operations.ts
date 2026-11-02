@@ -120,7 +120,7 @@ export function readAdminAudit(pool: Pool, query: AuditQuery, environment: Recor
         count(*) filter(where created_at >= $1)::int as day_events,
         coalesce(sum(estimated_cost) filter(where created_at >= $1),0) as day_cost,
         count(*) filter(where created_at >= $1 and estimated_cost is null)::int as day_unknown
-      from usage_events where created_at >= $2 and created_at <= $3`, [dayStart, monthStart, observedAt])).rows[0];
+      from usage_events where created_at >= $2 and created_at <= transaction_timestamp()`, [dayStart, monthStart])).rows[0];
     const window = (key: "day" | "month", setting: string): UsageWindow => ({
       events: usage[`${key}_events`], knownCost: Number(usage[`${key}_cost`]), unknownAmount: usage[`${key}_unknown`],
       unknownBasis: usage[`${key}_events`], limit: readCostLimit(environment[setting]),

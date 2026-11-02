@@ -1,5 +1,7 @@
 # Deployment and CI/CD
 
+2026-11-02 A3 Step 3에서 현재 앱 이미지의 로컬 관리자 릴리스 검수, 키 회전/차단, 합성 자료 backup/restore와 이전 artifact 호환성을 확인했다. 선택형 Nginx/Compose 예시와 실행·복구 절차는 [관리자 릴리스 인계](../../deploy/admin/README.md), 정확한 근거·한계는 [Step 3](../../phases/admin-operations-control/step3.md)에 있다. 운영 보류와 별도 승인 조건은 유지한다.
+
 이 문서는 배포 작업을 할 때만 읽는다.
 
 ## SEO 배포 검증 계획 — 아직 미적용

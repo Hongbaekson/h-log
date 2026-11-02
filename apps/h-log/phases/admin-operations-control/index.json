@@ -23,7 +23,8 @@
     {
       "step": 3,
       "name": "local-admin-release-rehearsal",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-02: local release rehearsal passed with current Linux artifact, public/admin Nginx and direct upstream, owner/Origin/RSC/cache boundaries, synthetic Brain/PDF/draft/editorial flows, audited retry/pause, separate worker processes, audit failure, DB restart, key rotation/admin OFF, full database restore and previous artifact compatibility. Fixed sub-millisecond usage cutoff with DB transaction time after RED; normalized ingress security headers. Unit 277 pass/26 DB skip, complete DB/HTTP/native maximum PDF/browser checks, tracked-source lint/typecheck/build passed; existing private lint errors recorded. Local admin steps complete; operations-observability Step 7 then Step 4 require explicit rollout approval."
     },
     {
       "step": 4,

@@ -407,7 +407,7 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **A3 Step 2 구현 (2026-11-02)**: 관리자 요약은 기존 Prometheus의 제한된 지표를 서버에서 고정 query로 읽는다. 180초 범위와 현재 instant series의 교집합으로 이름을 유지하고 오래되거나 stale 처리된 값을 배제한다. 읽기 제한과 안전한 DTO를 적용하며 별도 API·저장소·제어 경로는 추가하지 않는다. Grafana는 기존 localhost 터널과 별도 인증을 사용한다.
 
-**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4/A2 전체와 A3 Steps 0–2 completed 15개·pending 1개·운영 rollout blocked 1개다. 2026-11-02 모니터링 로컬 Steps 0–6도 완료했으며 다음은 A3 Step 3 local-admin-release-rehearsal이다. 운영 모니터링 Step 7은 계속 blocked다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
+**실행 경계**: [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 4개 phase/17개 step은 A1/A4/A2 전체와 A3 Steps 0–3 completed 16개·pending 0개·운영 rollout blocked 1개다. 2026-11-02 모니터링 로컬 Steps 0–6과 관리자 릴리스 검수도 완료했으며 다음은 승인된 모니터링 Step 7 → A3 Step 4다. 운영 모니터링 Step 7은 계속 blocked다. Prometheus/Grafana는 기존 observability phase가 소유한다. 로컬 구현 완료는 OCI/DNS/TLS·provider·공개 발행·timer 활성화 승인이 아니다.
 
 ### ADR-039: 이력서 PDF는 비공개 버전에서 검토한 파일 하나만 공개한다
 

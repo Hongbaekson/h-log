@@ -52,6 +52,15 @@ test("operations read bounded real ledgers, safe failures, exact versions and un
     }
     assert.deepEqual(audit.usage.day.limit, { state: "limited", amount: 0 });
     assert.doesNotMatch(JSON.stringify({ jobs, audit }), /SECRET|internal\/path/);
+    // Keep insert and observation on one DB instant to exercise sub-millisecond precision.
+    const anchored = await pool.connect();
+    try {
+      await anchored.query("begin isolation level repeatable read");
+      await anchored.query("insert into usage_events(id,run_id,event_type,estimated_cost,status,created_at) values ('same-instant','run','llm',0.75,'success',transaction_timestamp())");
+      const pinnedPool = { connect: async () => ({ query: anchored.query.bind(anchored), release() {} }) } as unknown as pg.Pool;
+      const pinned = await readAdminAudit(pinnedPool, parseAuditQuery({}), {});
+      assert.equal(pinned.usage.day.knownCost, 2, "usage at the exact DB snapshot time is included without millisecond truncation");
+    } finally { await anchored.query("rollback"); anchored.release(); }
     // Large ledgers must still return at most 20 items plus a hasNext flag.
     await pool.query("insert into publish_jobs(id,post_id,post_version_id,type,importance,idempotency_key,status) select 'z'||lpad(n::text,5,'0'),'post','v2','discord','retryable','bulk'||n,'queued' from generate_series(1,3000) n");
     await pool.query("insert into admin_actions(id,action_type,actor_type,actor_id,target_type,target_id,created_at) select 'z'||lpad(n::text,5,'0'),'save','admin','owner','post','post',now() from generate_series(1,3000) n");

@@ -1,5 +1,7 @@
 # H-Log PostgreSQL Backup/Restore Runbook
 
+2026-11-02 A3 Step 3에서 현재 앱 이미지의 로컬 관리자 릴리스 검수, 키 회전/차단, 합성 자료 backup/restore와 이전 artifact 호환성을 확인했다. 선택형 Nginx/Compose 예시와 실행·복구 절차는 [관리자 릴리스 인계](../../deploy/admin/README.md), 정확한 근거·한계는 [Step 3](../../phases/admin-operations-control/step3.md)에 있다. 운영 보류와 별도 승인 조건은 유지한다.
+
 이 문서는 OCI self-hosted PostgreSQL + pgvector 운영을 위한 백업/복구 기준이다. 저장소에는 PostgreSQL repository와 migration runner가 있다. 이 runbook은 운영 DB를 직접 조작하지 않고 로컬/테스트 DB 리허설을 먼저 요구한다.
 
 ## 범위

@@ -187,8 +187,9 @@
     },
     {
       "dir": "admin-operations-control",
-      "status": "pending",
-      "summary": "2026-11-02 Steps 0-2 completed: bounded job/audit reads, audited single-job retry and owner-only monitoring overview using existing Prometheus signals. Missing/error/stale/disabled/never-succeeded states are separate. Step 3 local-admin-release-rehearsal is next; Step 4 remains blocked by OCI hold. Unit 277 pass/26 DB skip, real collector/PromQL/HTTP, typecheck/build and responsive checks passed; tracked-source lint passed with preexisting private lint errors recorded. No shell/Docker web controls or production activation."
+      "status": "blocked",
+      "summary": "2026-11-02 Steps 0-3 completed, including isolated full admin release rehearsal, same-instant usage cutoff fix, validated ingress examples, key rotation, database recovery and previous artifact rollback. All 16 local admin steps completed. Only Step 4 remains blocked; operations-observability Step 7 and explicit OCI/admin rollout approval are required. No production activation.",
+      "blocked_reason": "All local admin steps are complete. Step 4 requires operations-observability Step 7 and explicit approval to lift the OCI hold, choose public/admin HTTPS origins and apply the reviewed backup/migration/network scope."
     },
     {
       "dir": "admin-resume-pdf",
@@ -213,8 +214,8 @@
     {
       "dir": "operations-observability",
       "status": "blocked",
-      "blocked_reason": "Local Steps 0-6 completed. Only Step 7 production rollout remains, blocked by the user-directed OCI hold. A3 Step 2 is complete; continue with admin-operations-control Step 3.",
-      "summary": "2026-11-02 Step 6 completed after final review: 1,442 original samples from 2026-10-30T01:42:17.001Z to 2026-10-31T01:43:17.003Z cover 24h 1m with no gaps, OOM, restarts, probe failures or unexpected alerts. Sample peaks: 249.45 MiB memory, 0.0646 CPU core, 247.46 MiB budgeted storage, 358 total/110 business series. Verified 10 integrated and 7 synthetic alert cases, new-volume recovery and overlapping maximum PDF workload. Evidence retained; 10 containers, 4 volumes, 6 networks and scratch cleaned with unrelated IDs preserved. Soak tests 6/6 and documentation checks passed. Steps 0-6 completed; Step 7 blocked by OCI hold. 2026-11-02 A3 Step 2 consumer completed; next: admin-operations-control Step 3. No production/provider/publication/timer/external delivery."
+      "blocked_reason": "Local Steps 0-6 and A3 Steps 0-3 are complete. Only Step 7 production rollout remains, blocked by the user-directed OCI hold and explicit scope approval.",
+      "summary": "2026-11-02 Step 6 completed after final review: 1,442 original samples from 2026-10-30T01:42:17.001Z to 2026-10-31T01:43:17.003Z cover 24h 1m with no gaps, OOM, restarts, probe failures or unexpected alerts. Sample peaks: 249.45 MiB memory, 0.0646 CPU core, 247.46 MiB budgeted storage, 358 total/110 business series. Verified 10 integrated and 7 synthetic alert cases, new-volume recovery and overlapping maximum PDF workload. Evidence retained; 10 containers, 4 volumes, 6 networks and scratch cleaned with unrelated IDs preserved. Soak tests 6/6 and documentation checks passed. Steps 0-6 completed; Step 7 blocked by OCI hold. 2026-11-02 A3 Step 3 local admin rehearsal completed; next is approved Step 7, then A3 Step 4. No production/provider/publication/timer/external delivery."
     },
     {
       "dir": "second-brain-foundation",

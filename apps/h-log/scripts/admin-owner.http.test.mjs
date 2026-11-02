@@ -58,7 +58,7 @@ test("shared admin HTML, API and RSC stay behind the owner boundary on two local
   assert.match(overview.headers["cache-control"], /private.*no-store/);
   assert.match(overview.headers["x-robots-tag"], /noindex/);
   assert.equal(overview.headers["x-frame-options"], "DENY");
-  for (const path of ["/admin/jobs", "/admin/audit"]) {
+  for (const path of ["/admin/jobs", "/admin/audit", "/admin/monitoring"]) {
     for (const headers of [{ authorization }, { authorization, RSC: "1", "Next-Router-Prefetch": "1" }]) {
       const page = await get(admin, path, headers);
       assert.equal(page.status, 200);

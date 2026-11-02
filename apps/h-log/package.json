@@ -29,6 +29,7 @@
     "test:brain": "node --no-warnings --test --experimental-strip-types lib/brain-postgres-repository.integration.test.ts",
     "test:brain:http": "node --test scripts/brain-capture.http.test.mjs",
     "test:admin:http": "node --test scripts/admin-owner.http.test.mjs",
+    "test:admin:release": "node --no-warnings --experimental-strip-types scripts/admin-release.rehearsal.mjs",
     "test:editorial": "node --no-warnings --test --experimental-strip-types lib/blog-editorial-actions.integration.test.ts",
     "test:editorial:http": "node --no-warnings --test --experimental-strip-types scripts/blog-editorial.http.test.mjs",
     "test:admin:posts": "node --no-warnings --test --experimental-strip-types lib/blog-admin-review.integration.test.ts",

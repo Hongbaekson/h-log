@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-상태: pending — 미구현. 2026-11-02 기준 A1/A2/A4, A3 Steps 0–2와 operations-observability Steps 0–6 선행 조건을 충족했다. 전체 관리자 릴리스 검수는 이 step에서 새로 수행한다.
+상태: completed — 2026-11-02 격리 관리자 릴리스 검수 완료. A1/A2/A4, A3 Steps 0–2와 operations-observability Steps 0–6 결과를 현재 artifact에서 대조했다. 운영 단계와 실제 파일 공개는 별도 승인 범위다.
 
 ## 읽을 파일
 
@@ -77,3 +77,49 @@ git diff --check
 ## A4 인계 — 2026-10-26
 
 A4 Steps 0–3의 합성 로컬 검증은 완료했다. [PDF Step 3](../admin-resume-pdf/step3.md)의 실제 최대 보관량 dump/restore·공개 초기화·의존성 패치 결과를 읽는다. 이 단계에서는 같은 artifact/schema·32 MiB tmpfs/UID·native sandbox·공개/관리 ingress와 새 epoch 복구·feature OFF rollback을 다시 대조하고 운영 자원 예산을 확인한다. A4 완료는 이 단계의 다른 선행 조건이나 운영 보류를 해제하지 않는다.
+
+## 완료 기록 — 2026-11-02
+
+### 변경과 재현
+
+- `scripts/admin-release.rehearsal.mjs`와 `npm run test:admin:release`로 새 DB·공개 HTTP/관리 HTTPS ingress·직접 upstream을 구성한다. 합성 자료, fake writer, 새 임시 키와 인증서만 사용한다. 로컬 재현 조건은 [관리자 릴리스 인계](../../deploy/admin/README.md)에 있다.
+- 선택형 Nginx/Compose 예시는 기본 배포에 연결하지 않았다. 정확한 port 포함 Host를 검증한 뒤 전달하며 관리 경로만 허용한다. 공개 Nginx와 기존 공개 UI는 변경하지 않았다.
+- 비용 조회의 `created_at <= $3`에 JavaScript ISO 시각을 넘기면 DB의 소수점 정밀도가 줄어 같은 밀리초의 사용량이 빠졌다. 격리 통합 테스트에서 기대값 1.25 / 실제 0을 두 번 재현한 뒤 같은 transaction의 `transaction_timestamp()`를 직접 비교하도록 한 줄 수정했다. DB 시각을 고정한 회귀 검사도 포함했다.
+- 실제 Nginx를 거친 기존 auth 검사에서 `X-Frame-Options: DENY, DENY` 중복을 발견했다. 예시 ingress에서 중복 upstream 헤더를 숨기고 하나만 설정한 뒤 같은 검사가 통과했다.
+
+### 검증 결과
+
+| 검증 | 실제 결과 |
+| --- | --- |
+| `npm run test` | 303개 중 277 pass, DB opt-in 26 skip, 실패 0 |
+| `npm run test:integration` | 새 격리 PostgreSQL에서 migration·repository·공개 읽기·worker·Brain·PDF·초안·발행·정책·비용·재시도·모니터링 전체 30 pass / skip 0 |
+| `npm run test:admin:release` | 실제 Nginx를 통한 auth/ingress/monitoring/Brain/PDF/draft/editorial HTTP 11 pass, 아래 상태·복구 검증 전부 통과 |
+| `npm run test:resume:processor` | native 처리 5개 + bounded/unbounded scratch 검사 2개, 총 7 pass |
+| `npm run test:resume:rehearsal` | 같은 Linux 앱 이미지에서 20 × 5 MiB, 각 10페이지 합성 PDF·동시 다운로드·dump/restore·공개 초기화·이전 이미지 복귀 통과 |
+| lint / typecheck / build | `eslint . --ignore-pattern 'private/**'`, `npm run typecheck`, Linux Docker build 안의 `npm run build` 통과 |
+| 기본 `npm run lint` | 기존 Git 제외 `private/observe-step4/{sync-docs,validate}.cjs`, `private/observe-step5/validate.cjs`의 `no-require-imports` 10건으로 실패. 기존 파일·lint 설정은 수정하지 않았고 추적 소스 검사로 분리했다. |
+| 설정 | base + opt-in Compose `config --quiet`, 격리 Nginx `nginx -t` 통과 |
+| 브라우저 | Edge에서 관리자 9개 화면 × 1440/390/320px 가로 넘침 없음, 키보드 이동, JavaScript OFF 9개 읽기 화면, 공개 4개 페이지의 관리 링크 비노출, pageerror 0 |
+
+통합 검수는 Node 24.22.1을 사용했다. 처음 사용한 호스트 Node 22.14.0이 로그 없이 종료한 실행은 통과 근거에서 제외하고, 해당 실행의 Docker 자원·임시 키를 소유 이름으로 확인해 정리했다. DB 재시작 검수의 저장소는 정지 시 사라지는 tmpfs에서 재시작 가능한 일회용 익명 volume으로 바로잡았다. 검수 완료 시 그 volume도 삭제한다.
+
+### 확인한 경계와 복구
+
+1. 공개 host는 관리자 HTML/API/RSC와 폐기된 Queue URL에 404, 익명 관리 요청은 401, 소유자 요청은 200이다. 직접 upstream의 잘못된 Host는 403, 관리 ingress의 잘못된 authority는 404다. forwarded header로 우회하지 못하며 private/no-store/noindex를 확인했다. sitemap/feed/search/공개 Portfolio에 관리 경로가 나오지 않는다.
+2. 관리 POST 7개 경로에서 Origin 없음/null/형제 origin 및 same-site/cross-site 입력을 거부했다. Brain의 원문과 공개 사본, PDF 검토·교체·철회, fake 초안, 선택 버전 발행·철회는 기존 HTTP 흐름으로 확인했다.
+3. 실패 작업의 단건 재시도와 동일 명령 중복 처리, 정책 OFF에서 worker 대기, 새 worker 프로세스의 처리·재시작 후 중복 방지를 확인했다. 감사 INSERT 실패는 503이고 전체 16개 테이블 hash/행 수가 변하지 않았다.
+4. DB 정지 시 안전한 오류가 나오고 재시작 뒤 자료가 유지된다. 키 교체 후 옛 키 401/새 키 200, 관리자 OFF 404에도 공개 글 200 및 DB hash가 유지된다.
+5. 16개 전체 테이블을 실제 `pg_dump -Fc` / 별도 DB `pg_restore --exit-on-error`로 복구해 행 수와 hash를 대조했다. 새 PDF epoch에서는 이전 공개 명령 409와 다운로드 404를 확인했다. Brain 공개 사본·블로그 Markdown은 읽힌다.
+6. 이전 이미지에서 admin/PDF OFF 상태로 공개 글을 읽고, offline PDF 공개 초기화 후 현재 이미지로 돌아와 보존된 자료를 확인했다. migration/schema를 삭제하지 않았다.
+
+검수 이미지 ID: `sha256:7b192e33c14228f48cc2e96f39980da2e78ac9a516620acc957f6ce91adee230` (`hlog-web:admin-release`). 이전 이미지: `sha256:07f639b9fb4cc7ac0f34dd94c78b50a25a62480fefdac8503aa41a8fafd0de3e` (`hlog-web:observe-step6`). 이 값은 로컬 Docker image ID이며 운영 registry에 push한 digest가 아니다.
+
+### PDF 자원 측정
+
+동일 이미지·UID 1001·32 MiB tmpfs에서 최대 보관량 원본은 104,857,600 bytes, 보고서는 10,007,960 bytes였다. 합성 PDF 20개 업로드는 각각 1,141–1,206 ms, 최대 임시 공간 5,406,720 bytes, 업로드 시 web RSS 최대 313,452 KiB였다. 동시 다운로드 시 RSS는 297,248 → 365,340 KiB, 임시 파일은 0이었다. DB 증가량 119,390,208 bytes, custom dump 122,156,211 bytes / 6,762 ms, restore 2,891 ms를 기록했다. 로컬 합성 자료의 측정이며 운영 용량이나 지연을 보장하지 않는다.
+
+내용 원문·키·env는 커밋하지 않았다. 원본 로그, 테이블 hash/행 수, 브라우저 결과와 스크린샷은 Git 제외 `private/admin-release`에 있다. 모니터링은 이번 통합 검수에서 인증/읽기 경계와 미설정 상태를 확인했으며 실제 Prometheus/alert/probe 연동 근거는 A3 Step 2 및 observability Step 6의 별도 기록을 따른다.
+
+### 남은 일
+
+관리자 로컬 구현·검수는 **completed 16 / pending 0 / blocked 1**이다. 모니터링은 **completed 7 / pending 0 / blocked 1**이다. 실제 운영 도메인·TLS·네트워크·자원 예산·외부 검사/알림 전달은 미검증으로 유지한다. OCI 보류를 해제하고 범위를 승인한 뒤 **operations-observability Step 7 → A3 Step 4**를 진행한다. 실제 PDF 공개, provider 호출·자동 발행·timer 활성화는 이번 검수에 포함하지 않았다.

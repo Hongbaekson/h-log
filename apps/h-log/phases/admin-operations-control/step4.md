@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-계획 등록 상태: blocked — OCI 보류. A1/A2/A4 및 A3 Steps 0–3와 operations-observability Step 7 완료. OCI 보류 해제·실제 공개/관리 origin·TLS·인증·migration/backup 범위의 명시 승인 필요.
+상태: blocked — OCI 보류. 2026-11-02 A1/A2/A4 및 A3 Steps 0–3 로컬 검수는 완료했다. operations-observability Step 7 완료와 OCI 보류 해제·실제 공개/관리 origin·TLS·인증·migration/backup 범위의 명시 승인이 필요하다. 검수한 설정 예시와 키 교체·복구 절차는 [관리자 릴리스 인계](../../deploy/admin/README.md), 실제 결과·이미지 ID·PDF 자원 측정은 [Step 3](step3.md)에 있다.
 
 ## 읽을 파일
 
@@ -23,6 +23,9 @@
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/phases/admin-operations-control/index.json`
 - `apps/h-log/phases/admin-operations-control/step3.md`
+- `apps/h-log/deploy/admin/README.md`
+- `apps/h-log/deploy/admin/admin.nginx.conf.example`
+- `apps/h-log/deploy/admin/compose.example.yaml`
 - `apps/h-log/.codex/docs/deployment-ci-cd.md`
 - `apps/h-log/.codex/docs/deploy-smoke-rollback-runbook.md`
 - `apps/h-log/.codex/docs/backup-restore-runbook.md`

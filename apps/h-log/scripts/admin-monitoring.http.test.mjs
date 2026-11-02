@@ -37,11 +37,11 @@ test('monitoring HTML and RSC are owner-only, uncached and contain no raw metric
     const request = (origin.protocol === 'https:' ? https : http).get(new URL(path, origin), { servername: '', checkServerIdentity: (_, cert) => checkServerIdentity(origin.hostname, cert), headers: { authorization, host: 'public.invalid', 'x-forwarded-host': origin.host } }, response => { response.resume(); response.on('end', () => resolve(response.statusCode)); });
     request.on('error', reject);
   });
-  assert.equal(wrongHost, 403);
+  assert.equal(wrongHost, Number(process.env.HLOG_MONITORING_HOST_DENIAL || 403));
   for (const endpoint of ['/admin/monitoring/api', '/api/monitoring', '/metrics']) {
     assert.equal((await fetch(new URL(endpoint, origin), { headers: { authorization } })).status, 404);
   }
-  const publicResponse = await fetch(origin);
+  const publicResponse = await fetch(process.env.HLOG_ADMIN_HTTP_PUBLIC_ORIGIN || origin);
   assert.equal(publicResponse.status, 200);
   const home = await publicResponse.text();
   assert.doesNotMatch(home, /href="\/admin\/monitoring|hlog_metrics_|SECRET-/);

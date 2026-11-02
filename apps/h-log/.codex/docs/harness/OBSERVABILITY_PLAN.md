@@ -1,6 +1,6 @@
 # H-Log 운영 모니터링 계획
 
-등록일: 2026-10-06. **2026-11-02 로컬 Steps 0–6 완료: 통합 장애·새 volume 복구·최대 PDF 부하와 24시간 1분 관측의 최종 검수를 통과했다. 운영 Step 7은 OCI 보류로 blocked다. A3 Step 2 관리자 요약도 완료했으며 다음은 A3 Step 3 전체 관리자 릴리스 검수다.** 실행 상태는 [phase registry](../../../phases/operations-observability/index.json)를 따른다. 이 문서가 모니터링 계약의 단일 기준이다.
+등록일: 2026-10-06. **2026-11-02 로컬 Steps 0–6 완료: 통합 장애·새 volume 복구·최대 PDF 부하와 24시간 1분 관측의 최종 검수를 통과했다. 운영 Step 7은 OCI 보류로 blocked다. A3 Step 3 전체 관리자 릴리스 검수도 완료했으며 다음은 승인된 운영 Step 7 → A3 Step 4다.** 실행 상태는 [phase registry](../../../phases/operations-observability/index.json)를 따른다. 이 문서가 모니터링 계약의 단일 기준이다.
 
 ## 목적과 실행 순서
 
@@ -17,7 +17,7 @@
 | [6](../../../phases/operations-observability/step6.md) | isolated-failure-rehearsal | 완료: 장애·복구·최대 PDF 부하와 원본 1,442개 / 24시간 1분 연속 관측 검수 |
 | [7](../../../phases/operations-observability/step7.md) | approved-production-rollout | OCI 보류로 blocked: 승인된 운영 설치와 외부 감시 |
 
-현재 7 completed / 0 pending / 1 blocked다. **일반 다음 작업은 [A3 Step 3: local-admin-release-rehearsal](../../../phases/admin-operations-control/step3.md)**이다. [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1/A4 → 모니터링 계약 → A2 Steps 0–3 → A3 Steps 0–1 → 모니터링 Steps 1–6 → A3 Steps 2–3 순서를 유지한다. A3 Step 2는 기존 관측 신호를 읽는 소유자 전용 요약으로 완료했다. 생산자와 규칙은 변경하지 않았으며 연결과 의미는 [관리자 모니터링 runbook](../../../deploy/observability/admin-monitoring.md)에 기록했다.
+현재 7 completed / 0 pending / 1 blocked다. **[A3 Step 3](../../../phases/admin-operations-control/step3.md)까지 로컬 검수가 완료됐으며 다음 운영 Step 7은 승인 전 blocked**다. [통합 관리자 계획](ADMIN_CONSOLE_PLAN.md)의 A1/A4 → 모니터링 계약 → A2 Steps 0–3 → A3 Steps 0–1 → 모니터링 Steps 1–6 → A3 Steps 2–3 순서를 유지한다. A3 Step 2는 기존 관측 신호를 읽는 소유자 전용 요약으로 완료했다. 생산자와 규칙은 변경하지 않았으며 연결과 의미는 [관리자 모니터링 runbook](../../../deploy/observability/admin-monitoring.md)에 기록했다.
 
 수집기·신호·대시보드·알림은 이 phase가 소유하고 관리자 화면은 그 결과를 소비한다. 승인된 모니터링 Step 7 → 관리자 rollout → 기존 auto-publish-ops-hardening Step 4의 timer 활성화 순서다. **모니터링 완료에 실제 반복 발행을 요구하지 않는다.** 비활성 scheduler와 로컬 누락 재현으로 먼저 검증하므로 순환 의존이 없다.
 
