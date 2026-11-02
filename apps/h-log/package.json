@@ -15,6 +15,8 @@
     "test:observability:probes": "node --no-warnings --experimental-strip-types --test scripts/observability-probes.test.mjs",
     "test:admin:operations": "node --no-warnings --experimental-strip-types --test lib/blog-admin-operations.integration.test.ts",
     "test:admin:operations:http": "node --test scripts/blog-admin-operations.http.test.mjs",
+    "test:admin:monitoring:http": "node --test scripts/admin-monitoring.http.test.mjs",
+    "test:admin:monitoring:promql": "node --no-warnings --experimental-strip-types --test scripts/admin-monitoring.promql.test.mjs",
     "test:automation": "node --no-warnings --experimental-strip-types --test lib/blog-automation-policy.integration.test.ts",
     "test:drafts": "node --no-warnings --experimental-strip-types --test lib/blog-draft-requests.integration.test.ts",
     "test:drafts:http": "node --no-warnings --experimental-strip-types --test scripts/blog-draft.http.test.mjs",

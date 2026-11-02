@@ -13,9 +13,7 @@ const items = [
   { label: "Second Brain", href: "/admin/brain", icon: Brain },
   { label: "이력서 PDF", href: "/admin/resume", icon: FileText },
   { label: "실험실", href: "/admin/lab/queue", icon: FlaskConical },
-];
-const upcoming = [
-  { label: "모니터링", icon: Activity },
+  { label: "모니터링", href: "/admin/monitoring", icon: Activity },
 ];
 
 export function AdminNavigation() {
@@ -31,14 +29,6 @@ export function AdminNavigation() {
           </li>
         ))}
       </ul>
-      <details className="admin-upcoming">
-        <summary>준비 중인 메뉴 <span>{upcoming.length}</span></summary>
-        <ul>
-          {upcoming.map(({ label, icon: Icon }) => (
-            <li key={label}><span className="admin-unavailable"><Icon size={17} aria-hidden="true" /><span>{label}</span><small>준비 중</small></span></li>
-          ))}
-        </ul>
-      </details>
     </nav>
   );
 }

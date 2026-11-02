@@ -38,7 +38,9 @@ npm run build
 
 `app/admin/posts/page.tsx`와 `lib/blog-admin-review-server.ts`는 page/DAL 양쪽에서 owner를 확인한다. `lib/blog-admin-review.ts`는 read-only repeatable-read transaction으로 20개 상태 필터 목록과 선택 버전, 글 단위 출처·버전별 검사/작업을 읽는다. 풀은 최대 2개, 읽기 statement 3초/쓰기 5초/query 6초, 본문/HTML 각 256 KiB, 출처/검사/작업 각 50개로 제한한다. 원시 오류와 검사 result는 조회하지 않는다. `components/blog/BlogContent.tsx`를 공개 상세/관리자 미리보기에서 공유하며 저장 원문/hash와 공개 current 포인터를 변경하지 않는다. 수정본 저장은 공개 current를 유지하며 명시적인 발행 요청만 후보 버전을 선택한다.
 
-2026-11-02 기준 A1/A4/A2 전체, A3 Steps 0–1과 모니터링 로컬 Steps 0–6을 완료했다. 다음은 A3 Step 2 monitoring-overview다. automation/jobs/audit는 구현됐고 monitoring 메뉴는 준비 상태이며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
+2026-11-02 기준 A1/A4/A2 전체, A3 Steps 0–2와 모니터링 로컬 Steps 0–6을 완료했다. 다음은 A3 Step 3 local-admin-release-rehearsal이다. monitoring까지 관리자 메뉴가 구현됐으며 별도 관리자 host 운영 적용은 A3 Step 4에 남아 있다.
+
+`app/admin/monitoring/page.tsx`는 owner 확인 후 `admin-monitoring-server.ts`를 통해 기존 Prometheus를 읽는다. `admin-monitoring.ts`는 서버의 선택적 `HLOG_ADMIN_PROMETHEUS_ORIGIN`만 사용하고 고정 query·전체 3초/128 KiB/512행으로 제한한다. 현재 series와 180초 range의 교집합을 안전한 서비스/원본/작업/비용 DTO로 투영한다. 수집기 중단·source 오류/누락/stale에는 과거 업무 값을 감추며 예정 스케줄·최근 시도·검증 성공·미확인 비용을 따로 표시한다. 수동 GET 재조회와 기존 관측 시각 안내를 재사용하고 공개 API·새 collector·DB/정책 변경은 없다. Grafana는 사용자 PC의 고정 localhost 터널 링크와 별도 로그인이다. 서버 연결/운영 경계는 [관리자 모니터링 runbook](../../../deploy/observability/admin-monitoring.md)을 따른다.
 
 `app/admin/jobs/page.tsx`와 `app/admin/audit/page.tsx`는 `blog-admin-operations-server.ts`의 owner 확인 후 기존 풀과 `blog-admin-operations.ts`의 read-only repeatable-read를 사용한다. 최대 21행/20건 반환, 10,000 페이지 상한, 3초 statement timeout이며 원문/원시 오류/원시 식별자를 DTO에 넣지 않는다. 감사 receipt는 정책 revision/boolean만 표시한다. UTC 일/월 사용량은 기존 guard와 동일한 범위로 집계하며 NULL 금액과 현재 schema의 비용 근거 부재를 별도로 표시한다. `AdminObservation`은 조회 시각부터 180초가 지나면 stale 안내만 바꾸며 데이터 재조회나 워커 heartbeat를 만들지 않는다. 새 migration·collector·쓰기 경로는 없다.
 

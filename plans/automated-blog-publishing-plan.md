@@ -1,5 +1,7 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
+2026-11-02 A3 Step 2 완료: `/admin/monitoring`에 기존 Prometheus의 서비스·수집 상태, 예정 스케줄, 최근 시도/검증 성공, UTC 비용을 연결했다. 누락·오류·오래된 값·스케줄 비활성·성공 이력 없음을 구분하고 Grafana는 별도 로컬 터널 로그인으로 안내한다. 고정 조회와 3초/128 KiB 제한, 소유자 인증·HTML/RSC no-store를 적용했다. Focused 7/7, 실제 PromQL 1/1, 수집기/DB 장애·화면 대조 1/1, dev/운영 모드 HTTPS 접근 각 1/1, 단위 277 pass/26 DB skip, typecheck/build와 1440/390/320px·키보드·no-JS 검수를 통과했다. 추적 코드 lint는 통과했으며 기본 lint의 기존 private CJS 오류 10건은 별도 기록했다. 관리자 completed 15·pending 1·blocked 1, 모니터링 7·0·1이며 **다음은 A3 Step 3: local-admin-release-rehearsal**이다. 운영 적용·실제 provider·공개 발행·timer·외부 알림은 실행하지 않았다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-02 모니터링 Step 6 완료: 10월 30일 10:42:17부터 31일 10:43:17 KST까지 원본 1,442개 표본으로 24시간 1분 연속 관측을 확인했다. 수집 공백·OOM·재시작·예기치 않은 알림은 없었다. 메모리 표본 최대 249.45 MiB, CPU 0.0646 core, 로그/state 여유를 포함한 디스크 247.46 MiB로 예산 안이다. 장애 알림 17건·새 volume 복구·동시 최대 PDF 부하 근거를 대조하고 검수 자료를 보관한 뒤 전용 실험 자원을 정리했다. 판정 테스트 6/6·문서/JSON/링크 검사를 통과했다. 모니터링은 completed 7·pending 0·blocked 1이며 **다음은 admin-operations-control / A3 Step 2: monitoring-overview**다. 관리자 14·2·1과 운영 적용 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.
 
 2026-10-30 Step 6 검수 보완: OOM·컨테이너 교체 여부가 누락되거나 올바른 boolean이 아니어도 통과하던 판정 오류를 RED/GREEN으로 수정했다. status에 최소 관측 시간과 실제 남은 시간을 추가했고 실패/중단 시에는 남은 시간을 null로 표시한다. 2026-10-30T03:47:17.000Z 기준 126개 표본·124분을 재검수했으며 실패 0건, 메모리 표본 최대 228.43 MiB다. 기존 24시간 관측은 재시작하지 않았다. 종료 예정은 2026-10-31 10:43 KST이며 Step 6 pending·다음 작업은 관측 결과 최종 검수다. Focused 6/6·변경 파일 lint·typecheck를 통과했다. A3 Step 2의 선행 조건과 운영 보류는 유지한다.

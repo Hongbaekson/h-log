@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-계획 등록 상태: pending — 미구현. A1/A2/A4, A3 Steps 0–2와 operations-observability Steps 0–6 완료.
+상태: pending — 미구현. 2026-11-02 기준 A1/A2/A4, A3 Steps 0–2와 operations-observability Steps 0–6 선행 조건을 충족했다. 전체 관리자 릴리스 검수는 이 step에서 새로 수행한다.
 
 ## 읽을 파일
 
@@ -23,6 +23,7 @@
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/phases/admin-operations-control/index.json`
 - `apps/h-log/phases/admin-operations-control/step2.md`
+- `apps/h-log/deploy/observability/admin-monitoring.md`
 - `apps/h-log/compose.yaml`
 - `apps/h-log/deploy/nginx/conf.d/hlog.conf`
 - `apps/h-log/.codex/docs/deployment-ci-cd.md`

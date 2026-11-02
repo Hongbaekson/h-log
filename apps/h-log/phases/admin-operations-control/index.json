@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "monitoring-overview",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-02: owner-only /admin/monitoring reads a bounded fixed Prometheus query with 180s freshness and stale-marker exclusion. Service/source status, schedule expectations, attempt/verified success and UTC cost evidence remain distinct; missing/error/stale values never become success or zero. Separate authenticated Grafana tunnel link, no public API or controls. Focused 7/7, real PromQL 1/1, collector/DB/HTML/RSC integration 1/1, dev and production HTTPS access tests 1/1 each, unit 277 pass/26 DB skip, typecheck/build and 1440/390/320px/keyboard/no-JS passed. Tracked-source lint passed; npm run lint retains 10 preexisting private CJS errors. Next: Step 3 local-admin-release-rehearsal. No production activation."
     },
     {
       "step": 3,

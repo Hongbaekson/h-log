@@ -5,16 +5,11 @@
 .admin-brand strong { font-size: 19px; }
 .admin-brand p { color: #a8aecb; font-size: 12px; margin-top: 2px; }
 .admin-navigation ul { list-style: none; padding: 0; display: grid; gap: 5px; }
-.admin-navigation a, .admin-unavailable { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 10px 12px; border-radius: 10px; font-size: 14px; overflow-wrap: anywhere; }
+.admin-navigation a { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 10px 12px; border-radius: 10px; font-size: 14px; overflow-wrap: anywhere; }
 .admin-navigation a { color: #b8bdd3; }
 .admin-navigation a:hover { background: #191d3a; color: white; }
 .admin-navigation a[aria-current] { color: #d2d5ff; background: rgb(88 101 242 / .18); }
 .admin-navigation svg { flex-shrink: 0; }
-.admin-unavailable { color: #a8aecb; font-size: 13px; }
-.admin-unavailable small { margin-left: auto; white-space: nowrap; font-size: 10px; color: #a8aecb; }
-.admin-upcoming { border-top: 1px solid var(--border); margin-top: 22px; padding-top: 10px; }
-.admin-upcoming summary { padding: 14px 8px; color: #a8aecb; font-size: 12px; cursor: pointer; }
-.admin-upcoming summary span { margin-left: 8px; color: #c3c8ff; }
 .admin-sidebar-bottom { margin-top: auto; padding: 0 12px; font-size: 12px; }
 .admin-sidebar-bottom p { display: flex; align-items: center; gap: 7px; color: #a8aecb; }
 .admin-sidebar-bottom a { display: inline-flex; align-items: center; min-height: 44px; gap: 12px; color: #c3c8ff; }
@@ -51,10 +46,6 @@
   .admin-sidebar { border-right: 0; border-bottom: 1px solid var(--border); padding: 20px 18px 14px; gap: 18px; }
   .admin-brand { padding: 0; }
   .admin-navigation > ul { grid-template-columns: 1fr 1fr; }
-  .admin-upcoming { margin-top: 12px; padding-top: 0; }
-  .admin-upcoming ul { grid-template-columns: 1fr 1fr; }
-  .admin-unavailable { padding-inline: 4px; gap: 6px; font-size: 12px; }
-  .admin-unavailable small { font-size: 9px; }
   .admin-sidebar-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding: 0; }
   .admin-topbar { padding: 12px 20px; min-height: 52px; }
   .admin-content { padding: 28px 20px 48px; }

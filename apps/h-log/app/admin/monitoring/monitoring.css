@@ -1,0 +1,17 @@
+.monitor-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-block: 20px; }
+.monitor-actions a, .monitor-grafana a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: #c7cbff; text-decoration: underline; text-underline-offset: 4px; font-size: 14px; }
+.monitor-actions span { color: #a8aecb; font-size: 12px; }
+.monitor-section { margin-top: 32px; min-width: 0; }
+.monitor-section > h2 { font-size: 19px; font-weight: 650; color: #eef0ff; }
+.monitor-services { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 16px; gap: 0 24px; }
+.monitor-services > div { padding: 16px 0; border-bottom: 1px solid #303654; }
+.monitor-services dt { color: #a8aecb; font-size: 13px; margin-bottom: 8px; }
+.monitor-services dd { font-size: 15px; }
+.monitor-ready { color: #a7d5cb; }
+.monitor-task-facts { margin-top: 18px; }
+.monitor-sources { margin-block: 28px; border-block: 1px solid #303654; padding-bottom: 16px; }
+.monitor-sources > summary { color: #c7cbff; font-size: 14px; cursor: pointer; padding-block: 16px; min-height: 44px; }
+.monitor-grafana > p { color: #b8bdd3; font-size: 13px; line-height: 1.85; margin-block: 12px; }
+.admin-monitoring :is(a,summary):focus-visible { outline: 2px solid #b6bdff; outline-offset: 4px; }
+@media (max-width: 1000px) { .monitor-services { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .monitor-services { grid-template-columns: minmax(0, 1fr); } }

@@ -14,6 +14,7 @@ import { publishingFixture } from "./observability-publishing.fixture.mjs";
 import { runObservedPublishCycle } from "../lib/observability-cycle.ts";
 import { backupArchive } from "./observability-backup.mjs";
 import { prepareRehearsal, rehearse } from "./observability-rehearsal.mjs";
+import { startAdminMonitoringFixture } from "./admin-monitoring.fixture.mjs";
 
 const app = resolve(import.meta.dirname, "..");
 const project = "hlog-observe-probes-local";
@@ -54,6 +55,7 @@ test("isolated host/DB/HTTP probes enforce permissions, privacy and distinguish 
   let integration;
   let expectedSuccess;
   let expectedBackup;
+  let monitoring;
   try {
     for (const [key, name, content] of [
       [envKeys[0], "grafana-password", password],
@@ -212,6 +214,10 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
     await value("pg_up", 1);
     await value('hlog_metrics_collection_success{source="db"}', 1);
     await value('count(probe_success == 1)', 2);
+    if (process.env.HLOG_ADMIN_MONITORING_HTTP_TEST === '1') {
+      assert(publishing, 'admin monitoring requires the existing publishing fixture');
+      monitoring = await startAdminMonitoringFixture({ origin, authorization });
+    }
     if (publishing) {
       await value('hlog_metrics_collection_success{source="autopublish"}', 1);
       await value('hlog_batch_last_success_timestamp_seconds{task="backup"}',expectedBackup);
@@ -223,8 +229,24 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
       await value('hlog_usage_included_events{window="day"}', 1);
       await value('hlog_batch_result{result="skipped"}', 1);
       await value('sum(hlog_publish_jobs{state="succeeded",importance="required"})', 6);
+      if (monitoring) {
+        await monitoring.check('ready', data => {
+          assert(data.services.every(service => service.state === 'ready'));
+          assert.equal(data.tasks[0].lastSuccessAt, new Date(expectedSuccess * 1000).toISOString());
+          assert.equal(data.tasks[1].schedule, 'disabled');
+          assert.equal(data.tasks[2].state, 'missing');
+          assert.equal(data.costs[0].includedEvents, 1);
+        }, '예정 스케줄 비활성');
+        await monitoring.check('stale', data => { assert.equal(data.costs[0].state, 'stale'); assert.equal(data.costs[0].knownCost, null); }, '오래된 수집값', true);
+        const backup = JSON.parse(await readFile(path('state/backup.json'), 'utf8'));
+        await writeFile(path('state/restore.json'), JSON.stringify({ ...backup, task: 'restore', result: 'failed', last_success_at: 0 }));
+      }
       await docker([...compose, 'up', '-d', '--no-deps', '--force-recreate', 'hlog-metrics']);
       await value('hlog_autopublish_last_success_timestamp_seconds', expectedSuccess);
+      if (monitoring) {
+        await value('hlog_metrics_collection_success{source="restore"}', 1);
+        await monitoring.check('never-succeeded', data => { assert.equal(data.tasks[2].state, 'ready'); assert.equal(data.tasks[2].lastSuccessAt, null); assert.equal(data.tasks[2].result, 'failed'); }, '성공 이력 없음');
+      }
       const original = await readFile(path('state/autopublish.json'), 'utf8');
       await value('hlog_batch_last_success_timestamp_seconds{task="backup"}',expectedBackup);
       await writeFile(path('state/autopublish.json'), '{');
@@ -232,6 +254,7 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
       await value('hlog_metrics_source_state{source="autopublish",state="invalid"}', 1);
       await value('hlog_metrics_collection_success{source="db"}', 1);
       await eventually(async () => assert.equal((await query('hlog_autopublish_last_success_timestamp_seconds')).length, 0));
+      if (monitoring) await monitoring.check('invalid-source', data => { assert.equal(data.tasks[0].state, 'invalid'); assert.equal(data.tasks[0].lastSuccessAt, null); }, '확인할 수 없는 값');
       await writeFile(path('state/autopublish.json'), original);
       await docker([...compose, 'up', '-d', '--no-deps', '--force-recreate', 'hlog-metrics']);
       await value('hlog_autopublish_last_success_timestamp_seconds', expectedSuccess);
@@ -275,6 +298,7 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
     await value("pg_up", 0);
     await value('up{job="database"}', 1);
     await value('hlog_metrics_collection_success{source="db"}', 0);
+    if (monitoring) await monitoring.check('database-error', data => { assert.equal(data.costs[0].state, 'error'); assert.equal(data.costs[0].knownCost, null); assert.equal(data.tasks[0].state, 'ready'); }, '수집 오류');
     if (publishing) {
       await value('hlog_metrics_collection_success{source="autopublish"}', 1);
       await value('hlog_autopublish_last_success_timestamp_seconds', expectedSuccess);
@@ -285,6 +309,11 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
     await value('up{job="database"}', 0);
     await value('up{job="probe-exporter"}', 0);
     await value('up{job="http",target="home"}', 0);
+    if (monitoring) {
+      await docker([...compose, 'stop', 'hlog-metrics']);
+      await value('up{job="hlog"}', 0);
+      await monitoring.check('collector-stopped', data => { assert(data.tasks.every(task => task.state === 'down' && task.result === null && task.schedule === null)); assert(data.costs.every(cost => cost.knownCost === null)); }, '수집 중단');
+    }
     const logs = await docker([...compose, "logs", "--no-color", "postgres-exporter", "hlog-metrics", "blackbox-exporter"]);
     assert.doesNotMatch(logs, new RegExp(`${password}|${exporterPassword}|${collectorPassword}|PRIVATE_CANARY|postgresql://|hlog-postgres`));
     console.log("PASS: host/DB/probe metrics, bounded queries, permission denial, locks, TLS bounds, HTTP status/timeout/redirect, DB/exporter failure, label/log privacy, no egress/host ports");
@@ -299,6 +328,7 @@ createServer({ key: readFileSync('/fixtures/key.pem'), cert: readFileSync('/fixt
       }
     }
   } finally {
+    if (monitoring) await monitoring.close();
     if (pool) await pool.end();
     if (admin) await admin.end();
     if (!preserve) await docker([...compose, "down", "--volumes", "--timeout", "15"]);
