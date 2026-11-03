@@ -4,13 +4,16 @@
 
 pending — 계획 등록이며 미구현/미실행.
 
-S1 Step 0의 Codex adapter가 호출 검증을 통과해야 한다.
+S1 Step 0의 Codex adapter는 2026-11-03 검색·수동 호출 범위 검수를 통과했다. 아래 실제 스킬과 검사 기준을 읽고 전체 HTTP/렌더링 감사는 이 step에서 새로 수행한다.
 
 ## 읽을 파일
 
 경로는 저장소 루트 기준이다. S1 이후 생성된 adapter·감사 보고서와 앞 단계의 완료 기록도 먼저 읽는다. 아래 목록은 계획 등록 시 존재하는 파일이다.
 
 - `AGENTS.md`
+- `.agents/skills/hlog-seo/SKILL.md`
+- `.agents/skills/hlog-seo/references/checks.md`
+- `.agents/skills/hlog-seo/references/upstream.md`
 - `apps/h-log/AGENTS.md`
 - `.codex/skills/harness/SKILL.md`
 - `.codex/skills/sync-repos/SKILL.md`
@@ -64,4 +67,4 @@ S1 Step 0의 Codex adapter가 호출 검증을 통과해야 한다.
 
 ## 다음 단계
 
-S2 Step 0. 기존 관리자 일반 다음 작업과 운영 보류는 유지한다.
+S2 Step 0. 운영 모니터링 Step 7 → A3 Step 4의 기존 보류는 유지한다.

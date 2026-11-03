@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "codex-skill-adapter",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-03: adapted seven pinned claude-seo 2.5.0 guidance files into repository hlog-seo instructions with verbatim MIT license, source paths/blob hashes and adaptation notes. Source/local/public and audit/fix boundaries exclude admin credentials/private content and automatic installs. Codex 0.166.0-alpha.5.1 skills/list discovered one enabled repo skill from root and app; official frontmatter validation, manual invocation/scope smoke and existing SEO 7/7 passed. No launcher, dependencies, app changes, full public audit or deployment. Next: Step 1 public-audit-baseline."
     },
     {
       "step": 1,

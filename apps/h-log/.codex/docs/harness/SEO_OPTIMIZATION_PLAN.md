@@ -1,14 +1,14 @@
 # H-Log SEO 개선과 claude-seo의 Codex 도입 계획
 
-등록일: 2026-10-26. 요청은 claude-seo를 Codex에서 활용할 방법과 H-Log SEO 개선 순서를 정리해 커밋·푸시하는 것이다. **이번 변경은 계획 등록이다. 스킬 설치, 전체 SEO 감사, 앱 수정, 실제 도메인 제출은 하지 않았다.** 새 트랙은 3개 phase / 10개 step(pending 9·blocked 1)이다.
+등록일: 2026-10-26. 2026-11-03 S1 Step 0의 Codex 스킬 이식·검색 검수를 완료했다. **3개 phase / 10개 step 중 completed 1·pending 8·blocked 1**이며 전체 SEO 감사·앱 최적화·실제 도메인 제출은 아직 수행하지 않았다.
 
-A4·모니터링 Step 0 계약과 A2 Steps 0–2 완료 후 일반 다음 작업은 `admin-operations-control / Step 0`이다. SEO를 지정해 진행하면 S1 Step 0부터 시작할 수 있고, 일반 관리자 작업과 독립적으로 진행한다. 운영 SEO 확인은 기존 OCI 보류 해제·공개 도메인 확정 뒤에만 가능하다. 이 계획은 관리자·모니터링·timer의 기존 실행 순서를 바꾸지 않는다.
+관리자 로컬 단계와 모니터링 로컬 검수는 완료했고 운영 적용은 기존 OCI 보류를 유지한다. 다음 로컬 작업은 **S1 Step 1 `public-audit-baseline`**이다. 운영 SEO 확인은 OCI 보류 해제·공개 도메인 확정 뒤에만 가능하며 기존 모니터링 → 관리자 → timer 운영 순서는 바꾸지 않는다.
 
 ## 1. 검토한 원본과 도입 결론
 
 기준은 [AgriciDaniel/claude-seo](https://github.com/AgriciDaniel/claude-seo)의 **2.5.0 / commit `6be93f45064ffbadced572b5d5c95f55fd263af0`**다. GitHub main의 commit 시각은 2026-10-22T16:47:38Z이고 2026-10-26에 API와 고정 commit의 소스를 확인했다. H-Log 비교 기준은 `4682e30`이다. 이후 도입할 때 변경된 main을 자동 설치하지 말고 이 기준과 차이를 먼저 확인한다.
 
-Codex용으로 **필요한 SEO 지침을 선별해 저장소 스킬 `hlog-seo`로 이식하는 방식**을 권한다. 원본의 설치 명령을 Codex 명령처럼 실행하지 않는다. [Codex 공식 문서](https://learn.chatgpt.com/docs/build-skills)는 `name`·`description`이 있는 SKILL.md와 저장소 `.agents/skills/` 검색을 설명한다. 기본 예정 경로는 루트 `.agents/skills/hlog-seo/`이며 S1에서 실제 앱의 검색·명시 호출까지 확인한다. 기존 `.codex/skills` 전체를 이동하거나 같은 스킬을 양쪽에 중복 설치하지 않는다.
+Codex용으로 **필요한 SEO 지침을 선별해 저장소 스킬 `hlog-seo`로 이식하는 방식**을 권한다. 원본의 설치 명령을 Codex 명령처럼 실행하지 않는다. [Codex 공식 문서](https://learn.chatgpt.com/docs/build-skills)는 `name`·`description`이 있는 SKILL.md와 저장소 `.agents/skills/` 검색을 설명한다. 실제 경로는 루트 [.agents/skills/hlog-seo/SKILL.md](../../../../../.agents/skills/hlog-seo/SKILL.md)이며 S1 Step 0에서 Codex 검색과 수동 호출 범위를 확인했다. 기존 `.codex/skills` 전체를 이동하거나 같은 스킬을 양쪽에 중복 설치하지 않는다.
 
 | 원본에서 확인한 항목 | H-Log의 적용 방식 |
 | --- | --- |
@@ -20,7 +20,7 @@ Codex용으로 **필요한 SEO 지침을 선별해 저장소 스킬 `hlog-seo`�
 | [URL 안전 검사](https://github.com/AgriciDaniel/claude-seo/blob/6be93f45064ffbadced572b5d5c95f55fd263af0/scripts/url_safety.py) | 사설 주소 차단을 유지. `CLAUDE_SEO_LOCAL_TARGETS`는 첫 URL의 host:port 예외일 뿐 redirect·subresource·브라우저 요청 전체 허용이 아님. 로컬 화면은 별도 loopback 검증으로 읽고 차단을 해제해 해결하지 않음 |
 | [MIT LICENSE](https://github.com/AgriciDaniel/claude-seo/blob/6be93f45064ffbadced572b5d5c95f55fd263af0/LICENSE) | 이식한 자료에 LICENSE·원저작자·원본 경로/commit·변경점을 보존. FLOW 등 별도 라이선스 자료와 상용 extension은 이번 기본 범위에서 제외 |
 
-이것은 소스 검토에 따른 이식 제안이며 Codex 호환 실행을 이미 증명한 결과는 아니다. S1 Step 0에서 자동 인식·명시 호출·경로·도구 누락·외부 행동 경계를 실제로 확인해야 한다. 원본의 AGENTS/설치 지침은 분석 자료이며 H-Log 지침을 대체하지 않는다.
+위 표는 계획 당시의 이식 방향이다. 2026-11-03 S1 Step 0에서 필요한 지침만 옮기고 실제 Codex 검색·수동 source 적용·비선택/범위 거부를 확인했다. 원본 실행 도구와 launcher는 포함하지 않았다. 원본의 AGENTS/설치 지침은 분석 자료이며 H-Log 지침을 대체하지 않는다.
 
 ## 2. H-Log에서 이미 있는 것과 확인할 것
 
@@ -39,7 +39,7 @@ SEO 기반을 다시 만드는 대신 아래 차이를 실제 응답으로 확�
 | `lib/site-seo.test.ts` | metadata 일부는 소스 정규식 검사 | 소스에 문자열이 있다는 검사와 실제 HTTP/DOM/JSON-LD 결과를 구분해 보강 |
 | PDF Step 1의 audit 기록 | 기존 Next.js 16.2.11 포함 production dependencies에 critical 경고 | 기존 보안 패치 작업의 완료 확인을 배포 전 필수 조건으로 유지. 이 계획 등록으로 패치했다고 표시하지 않음 |
 
-현 상태에서 실행한 가까운 기준선은 `site-seo.test.ts`, `blog-crawler-output.test.ts`, `public-site-origin.test.ts`의 **7/7 통과**다. 전체 crawler 감사·PageSpeed/CrUX·실제 색인/순위·Codex adapter는 아직 미검증이다.
+현 상태에서 실행한 가까운 기준선은 `site-seo.test.ts`, `blog-crawler-output.test.ts`, `public-site-origin.test.ts`의 **7/7 통과**다. 2026-11-03 adapter 검수에서도 7/7을 확인했다. 전체 crawler 감사·PageSpeed/CrUX·실제 색인/순위는 아직 미검증이다.
 
 ## 3. 적용할 범위와 목표
 
@@ -65,7 +65,7 @@ schema는 [Google 구조화 데이터 정책](https://developers.google.com/sear
 
 | Phase | Step | 이름 / 결과 | 상태 |
 | --- | --- | --- | --- |
-| S1 `seo-codex-foundation` | 0 | Codex용 선별 이식·출처/라이선스·명시 호출 검증 | pending |
+| S1 `seo-codex-foundation` | 0 | Codex용 선별 이식·출처/라이선스·실제 검색/수동 호출 검수 | completed |
 | S1 | 1 | 공개 route 표본과 실제 HTTP/HTML·JS/no-JS 감사 기준선, 우선순위 목록 | pending |
 | S2 `seo-public-surface-optimization` | 0 | 검색/태그/페이지·canonical·robots·sitemap 정책과 HTTP 검증 | pending |
 | S2 | 1 | no-JS 블로그 목록 재현/해결과 공개 콘텐츠 발견 경로 | pending |
@@ -98,3 +98,7 @@ schema는 [Google 구조화 데이터 정책](https://developers.google.com/sear
 - 앱 코드·패키지·배포 설정·스킬 설치 경로의 변경은 없다. 문서/JSON만 바뀌어 전체 build·브라우저 검증은 실행하지 않았다. 원본 조사 자료와 일회성 문서 검증 결과는 Git에서 제외한 `private/seo-plan-check/`에 남겼다.
 
 계획 등록과 검색 순위 개선, 로컬 통과와 실제 배포/색인은 각각 다른 완료 상태다.
+
+### S1 Step 0 완료 — 2026-11-03
+
+2026-11-03 SEO S1 Step 0 완료: claude-seo 2.5.0 고정 commit의 지침 7개를 `.agents/skills/hlog-seo`로 선별 이식하고 MIT·출처·원본 hash를 보존했다. Codex의 실제 repo skill 검색(루트/앱), frontmatter/링크·입력별 수동 검수와 기존 SEO 7개 테스트를 통과했다. 전체 HTTP/렌더링 감사·앱 최적화는 아직 진행하지 않았다. SEO completed 1·pending 8·blocked 1, **다음 로컬 작업은 seo-codex-foundation / S1 Step 1: public-audit-baseline**이다. 관리자 로컬 완료와 OCI 운영 보류는 유지한다. 상세 입력별 검수와 측정 한계는 [Step 0](../../../phases/seo-codex-foundation/step0.md), 이식 경로/hash와 변경점은 [출처](../../../../../.agents/skills/hlog-seo/references/upstream.md)에 기록했다.

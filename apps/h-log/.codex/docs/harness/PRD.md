@@ -120,9 +120,9 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 
 ### H-07: claude-seo를 활용한 SEO 개선 계획
 
-2026-10-26 [SEO 개선 계획](SEO_OPTIMIZATION_PLAN.md)을 3개 phase / 10개 step(pending 9·운영/계정 확인 blocked 1)으로 등록했다. claude-seo 2.5.0의 고정 commit에서 H-Log에 필요한 기술 SEO·schema·content·GEO 지침을 Codex용 `hlog-seo`로 선별 이식하고, 공개 HTTP/HTML 기준선 → URL/기본 읽기·metadata·성능·근거/링크 개선 → 회귀/실제 검색 성과 순서로 진행한다. 스킬 설치와 실제 최적화는 아직 수행하지 않았다.
+2026-10-26 [SEO 개선 계획](SEO_OPTIMIZATION_PLAN.md)을 3개 phase / 10개 step(pending 9·운영/계정 확인 blocked 1)으로 등록했다. claude-seo 2.5.0의 고정 commit에서 H-Log에 필요한 기술 SEO·schema·content·GEO 지침을 Codex용 `hlog-seo`로 선별 이식하고, 공개 HTTP/HTML 기준선 → URL/기본 읽기·metadata·성능·근거/링크 개선 → 회귀/실제 검색 성과 순서로 진행한다. 2026-11-03 S1 Step 0의 저장소 스킬 이식·검색 검수를 완료했다. 현재 completed 1·pending 8·blocked 1이며 전체 감사와 실제 최적화는 아직 수행하지 않았다.
 
-기존 canonical·sitemap·robots·JSON-LD·RSS/llms·공개 selector를 재사용한다. no-JS Blog 목록의 기존 후속 항목을 우선 재현하고 관리자/비공개 Brain/PDF는 감사 대상에서 제외한다. 검색 순위·AI 인용을 보장하지 않으며, 실제 도메인·GSC/CrUX와 배포는 운영 승인 이후다. 일반 다음 작업은 admin-operations-control Step 0이며 SEO를 지정하면 S1 Step 0부터 독립 진행한다.
+기존 canonical·sitemap·robots·JSON-LD·RSS/llms·공개 selector를 재사용한다. no-JS Blog 목록의 기존 후속 항목을 우선 재현하고 관리자/비공개 Brain/PDF는 감사 대상에서 제외한다. 검색 순위·AI 인용을 보장하지 않으며, 실제 도메인·GSC/CrUX와 배포는 운영 승인 이후다. 관리자 로컬 완료 후 다음 로컬 작업은 SEO S1 Step 1이다. 운영 모니터링·관리자 rollout·timer의 기존 보류는 유지한다.
 
 ### I-01: OCI self-hosted infrastructure
 

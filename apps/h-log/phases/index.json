@@ -199,7 +199,7 @@
     {
       "dir": "seo-codex-foundation",
       "status": "pending",
-      "summary": "2026-10-26 plan registered: selectively adapt pinned claude-seo 2.5.0 guidance for Codex, then establish a public-route SEO audit baseline. Two steps pending; no skill installation or full audit performed. Explicit SEO work starts at Step 0; the general admin next step remains admin-resume-pdf Step 3."
+      "summary": "2026-11-03 Step 0 completed: pinned MIT claude-seo guidance selectively adapted into .agents/skills/hlog-seo; actual Codex repo discovery, source-mode manual scope checks and SEO 7/7 verified. Step 1 public-audit-baseline is the next local task while admin/monitoring production rollout remains on hold. No full HTTP/DOM audit or application optimization yet."
     },
     {
       "dir": "seo-public-surface-optimization",

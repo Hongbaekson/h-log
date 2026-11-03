@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 계획 등록이며 미구현/미실행.
+completed — 2026-11-03 Codex용 선별 지침 이식·실제 스킬 검색·수동 호출 범위 검수 완료. 전체 SEO 감사는 Step 1에 남아 있다.
 
 없음. 이번 계획의 upstream 고정 자료와 현재 Codex 스킬 검색 경로를 다시 확인한다.
 
@@ -58,3 +58,28 @@ Codex가 `$hlog-seo`를 실제로 찾아 읽고 공개 URL 감사 지침을 올�
 ## 다음 단계
 
 S1 Step 1 `public-audit-baseline`.
+
+## 완료 기록 — 2026-11-03
+
+관리자 로컬 단계가 완료되고 OCI 운영 보류가 남아 있어 기존 SEO 계획의 첫 로컬 단계를 진행했다. 이 단계는 **Codex 지침 이식**이며 전체 SEO 감사나 앱 최적화 완료가 아니다.
+
+### 산출물
+
+- [hlog-seo/SKILL.md](../../../../.agents/skills/hlog-seo/SKILL.md): 감사/수정 구분, source/local/public 모드, 명시 공개 origin·redirect/subresource 범위, 비공개 경로·credential 제외, 안전한 결과 기록.
+- [검사 기준](../../../../.agents/skills/hlog-seo/references/checks.md): page/technical/schema/sitemap/content/images/GEO의 실제 점검 항목을 한국어 포트폴리오와 H-Log 공개 계약에 맞게 재작성했다. 단순 링크 모음이나 원본 installer 복제가 아니다.
+- [출처](../../../../.agents/skills/hlog-seo/references/upstream.md)와 [LICENSE](../../../../.agents/skills/hlog-seo/LICENSE): 고정 commit의 7개 지침 경로·Git blob hash·채택/제외 사항과 원본 MIT 저작권/허가를 보존했다.
+
+### 검증
+
+1. 원본 `6be93f45064ffbadced572b5d5c95f55fd263af0`에서 원문 7개와 LICENSE를 읽고 각각 `SHA1(blob <bytes>\0 + content)`가 고정 tree의 Git blob SHA와 일치함을 확인했다. 원격 설치 프로그램·Python requirements·hook·extension·병렬 agent는 실행하지 않았다.
+2. `python -X utf8 .../skill-creator/scripts/quick_validate.py .agents/skills/hlog-seo` 통과. 첫 검사에서 발견한 YAML 설명의 콜론 표기를 folded scalar로 고쳤다. 상대 링크·phase JSON·출처/라이선스의 실제 경로와 `git diff --check`도 확인했다.
+3. Codex **0.166.0-alpha.5.1**의 읽기 전용 app-server `skills/list`에 루트/앱 cwd와 `forceReload: true`를 전달했다. 두 위치 모두 `name=hlog-seo`, `scope=repo`, `enabled=true`, 동일 SKILL.md 경로 1개·해당 스킬 오류 0건을 반환했다. 새 채팅/모델 호출·전역 설정 변경은 없었다.
+4. `$hlog-seo source ... robots.txt ...` 입력을 현재 Codex에서 수동 적용해 실제 스킬·참고 파일·공개 route/origin 소스를 읽었다. **기존 SEO 3 suite / 7 tests 통과**. HTTP/JS/no-JS·실제 색인은 미측정으로 구분했다.
+5. 일반 관리자 버튼 간격 수정 입력은 SEO 감사 비선택, 명시적인 private admin URL+소유자 키 요청은 감사 범위 거부로 확인했다. 인증 자료와 관리자 URL을 읽거나 호출하지 않았다. 이 세 사례는 수동 경로 검수이며 별도 모델의 자동 선택률 측정은 아니다.
+6. `codex debug prompt-input`은 metadata·명시 호출 문구만 렌더링했다. 이 도구의 결과만으로 스킬 전문 자동 주입을 주장하지 않으며 전문 읽기/적용 근거는 위의 실제 파일 읽기와 source 검수다.
+
+원문·discovery JSON·입력 검수·기준선 로그는 Git 제외 `private/seo-adapter/`에 있다. 스킬에 실행 런처/새 패키지가 없어 설치·Windows 공백 경로의 실행기 테스트는 해당하지 않는다. 앱 코드·UI·DB·배포는 변경하지 않아 전체 앱 build나 브라우저 감사를 반복하지 않았다.
+
+### 남은 일
+
+SEO는 **completed 1 / pending 8 / blocked 1**. 다음 로컬 단계는 **S1 Step 1 `public-audit-baseline`**으로, 합성 공개 ingress에서 실제 HTTP/초기 HTML/JS/no-JS 기준선과 우선순위를 수집한다. 관리자 16/0/1과 모니터링 7/0/1, OCI·실제 발행·GSC 제출·timer 보류는 유지한다.
