@@ -1,5 +1,7 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
+2026-11-04 SEO S2 Step 1 완료: Step 0에서 복구한 일반 Blog의 no-JS 발견 경로를 검수했다. production HTTP 6/6, 공개 읽기·검색·crawler/SEO 테스트 61/61, 1440/390/320px의 JS ON/OFF 42표본과 탐색·검색 재시도를 확인했다. 정상 목록→상세→페이지 이동, 빈 목록/태그, JS 장애 안내·복구는 정상이다. no-JS DB 장애는 500이지만 화면이 비는 한계를 S3 Step 0에 남겼다. 앱 코드는 추가 변경하지 않았다. SEO completed 4·pending 6·blocked 1, **다음은 S2 Step 2: metadata-and-structured-data**다. OCI·공개 발행·timer 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-04 SEO S2 Step 0 완료: 일반 Blog 목록의 표시 페이지에 맞춘 canonical과 검색/태그 noindex 정책을 구현했다. 선행 로딩 경계를 제거해 DB 읽기 오류는 500, 정상 빈 목록은 200으로 구분한다. 일반 no-JS 목록 읽기도 함께 복구됐다. 실제 HTTP RED→GREEN, production/dev 각 6/6과 36화면·검색/태그/뒤로가기, 단위 277 pass/26 DB skip, source lint/typecheck/build·production audit 0을 확인했다. 기본 lint의 기존 private 오류 10건은 별도 기록했다. SEO completed 3·pending 7·blocked 1, **다음은 S2 Step 1: server-rendered-blog-discovery**다. OCI·공개 발행·timer 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.
 
 2026-11-03 SEO S1 Step 1 완료: 현재 production 이미지와 합성 DB에서 HTTP 70응답, JS/no-JS 144화면, 사이트맵 52주소의 반복 검수를 마쳤다. Blog page 2 canonical·no-JS Blog/Brain 발견·공유 metadata 상속·DB 오류 시 Blog 200 등을 확인하고 후속 단계에 연결했다. Brain 발견 문제는 UI를 보존하는 독립 S2 Step 5로 추가했다. SEO 3개 phase / 11개 step 중 completed 2·pending 8·blocked 1이며 **다음 로컬 작업은 seo-public-surface-optimization / S2 Step 0: crawl-and-index-policy**다. 감사 완료이며 앱 수정·운영 적용은 아직이다. 관리자/모니터링·OCI 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.

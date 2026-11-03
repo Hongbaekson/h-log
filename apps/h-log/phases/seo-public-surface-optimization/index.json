@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "server-rendered-blog-discovery",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-04: S2 Step 1 completed as an application clean-no-op after the Step 0 fix. Production HTTP 6/6 and focused public-read/search/crawler/SEO tests 61/61 passed. Observed 42 JS/no-JS viewport samples at 1440/390/320px, with detail, keyboard pagination/back, tags/reset, empty catalogs and JS search-error resubmission verified. DB failures remain 500; JS retry recovers, while no-JS errors have a blank body (recorded for S3 Step 0). Brain discovery remains Step 5. No application/data/deployment changes. Next: S2 Step 2."
     },
     {
       "step": 2,

@@ -101,3 +101,9 @@ node --no-warnings --experimental-strip-types private/seo-audit/run.mjs
 ## 후속 해결 기록 — 2026-11-04
 
 위 표는 `9abf275` 감사 당시 결과다. [S2 Step 0](../../../phases/seo-public-surface-optimization/step0.md)에서 **SEO-01/02/06**을 수정하고 production/dev HTTP 6/6으로 확인했다. SEO-03의 일반/2페이지/태그 no-JS 목록도 같은 로딩 경계 제거로 복구되어 두 환경의 36화면에서 공개 anchor를 확인했다. S2 Step 1에서 남은 발견 인수 조건을 검토한다. SEO-04 Brain, SEO-05 공유 metadata, SEO-07 Home 최근 글과 실제 성능/검색 성과는 이번 변경의 해결 범위가 아니다.
+
+## 2026-11-04 S2 Step 1 발견 경로 검수
+
+[Step 1](../../../phases/seo-public-surface-optimization/step1.md)은 `32abacd`와 Step 0 production 이미지를 재사용해 SEO-03의 일반 목록→상세→페이지 이동을 JS ON/OFF·1440/390/320에서 확인했다. 빈 태그/목록과 JS 검색 오류 재제출·DB 오류 재시도도 정상이다. HTTP 6/6, 가까운 회귀 61/61이며 앱 코드 추가 변경은 없다. SEO-03의 정상 발견 문제는 해결 확인으로 닫는다.
+
+새로 구분한 제한: DB 실패는 두 모드 모두 500이지만 no-JS 3표본의 본문은 비어 있다. JS 오류 안내/버튼과 구분하며 [S3 Step 0](../../../phases/seo-release-and-measurement/step0.md)에서 5xx를 유지하는 안내 방안의 필요성을 재검토한다. 총 42표본을 오류 안내까지 전부 정상인 것으로 해석하지 않는다. Brain 홈/상세 4표본은 기존 SEO-04를 재확인했으며 Step 5에 유지한다. 다음 작업은 S2 Step 2다.
