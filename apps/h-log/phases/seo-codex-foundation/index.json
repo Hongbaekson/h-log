@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "public-audit-baseline",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-03: completed isolated production SEO baseline at 9abf275: 70 HTTP responses, 144 JS/no-JS views at 1440/390/320px and 52 sitemap URLs checked twice. Confirmed pagination canonical, no-JS Blog/Brain discovery, inherited social metadata and Blog 200 on database-read failure; private/retracted/current-version boundary held. SEO tests 7/7, JSON-LD/XML parsing and cleanup passed. Findings in SEO_AUDIT_BASELINE.md; added independent S2 Step 5 for Brain discovery. Next: S2 Step 0 crawl-and-index-policy. No application optimization or production rollout."
     }
   ]
 }

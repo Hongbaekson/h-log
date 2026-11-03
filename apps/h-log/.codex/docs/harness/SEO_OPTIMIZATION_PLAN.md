@@ -1,8 +1,8 @@
 # H-Log SEO 개선과 claude-seo의 Codex 도입 계획
 
-등록일: 2026-10-26. 2026-11-03 S1 Step 0의 Codex 스킬 이식·검색 검수를 완료했다. **3개 phase / 10개 step 중 completed 1·pending 8·blocked 1**이며 전체 SEO 감사·앱 최적화·실제 도메인 제출은 아직 수행하지 않았다.
+등록일: 2026-10-26. 2026-11-03 S1 스킬 이식과 [공개 페이지 감사 기준선](SEO_AUDIT_BASELINE.md)을 완료했다. Brain 발견 경로를 독립 S2 Step 5로 추가해 **3개 phase / 11개 step 중 completed 2·pending 8·blocked 1**이다. 로컬 감사 완료이며 앱 최적화·실제 도메인 제출은 아직 수행하지 않았다.
 
-관리자 로컬 단계와 모니터링 로컬 검수는 완료했고 운영 적용은 기존 OCI 보류를 유지한다. 다음 로컬 작업은 **S1 Step 1 `public-audit-baseline`**이다. 운영 SEO 확인은 OCI 보류 해제·공개 도메인 확정 뒤에만 가능하며 기존 모니터링 → 관리자 → timer 운영 순서는 바꾸지 않는다.
+관리자 로컬 단계와 모니터링 로컬 검수는 완료했고 운영 적용은 기존 OCI 보류를 유지한다. 다음 로컬 작업은 **S2 Step 0 `crawl-and-index-policy`**다. 운영 SEO 확인은 OCI 보류 해제·공개 도메인 확정 뒤에만 가능하며 기존 모니터링 → 관리자 → timer 운영 순서는 바꾸지 않는다.
 
 ## 1. 검토한 원본과 도입 결론
 
@@ -30,7 +30,7 @@ SEO 기반을 다시 만드는 대신 아래 차이를 실제 응답으로 확�
 | --- | --- | --- |
 | `app/layout.tsx`, `lib/public-site-origin.ts` | 한국어 lang, title template, OG/Twitter, Person/WebSite, 명시적 production HTTPS origin | 각 페이지의 최종 head/본문과 public/admin origin 분리, title·description·OG URL 상속 확인 |
 | `app/blog/(index)/page.tsx` | 검색/태그/page는 URL 상태를 사용하지만 metadata canonical은 `/blog`로 고정 | 일반 페이지 2+의 self canonical, 검색/태그 조합의 index 정책을 구분. 전부 첫 페이지로 합치거나 전부 색인시키지 않음 |
-| `PUBLIC_EXPERIENCE_PLAN.md`, `backend-operations-lab/step1.md` | 2026-10-22 no-JS `/blog` 목록이 loading 안내에 머무른 기록 | S2 Step 1에서 production build로 재현 후 목록·페이지 링크의 기본 HTML 복구. 이번에는 재현/수정했다고 주장하지 않음 |
+| `PUBLIC_EXPERIENCE_PLAN.md`, `backend-operations-lab/step1.md` | 2026-10-22 no-JS `/blog` 목록이 loading 안내에 머무른 기록 | S1 Step 1 production build에서 재현. S2 Step 1에서 목록·페이지 링크의 기본 HTML 복구 |
 | `app/brain/page.tsx`, `app/brain/[slug]/page.tsx` | 그래프 화면과 독립 상세 route·canonical·404가 존재 | JS 없이 공개 목록→상세 발견, 그래프의 `?note=`와 상세 주소 관계 확인. 기존 Memory UI는 보존 |
 | `app/robots.txt/route.ts`, `app/sitemap.xml/route.ts` | 관리자/API Disallow, 정적·Portfolio·공개 Blog/Brain sitemap | 정상 200 canonical URL만 포함, 철회/404/장애·query 중복·lastmod 검증. robots는 인증 대체 수단이 아님 |
 | `app/blog/[slug]/page.tsx`, `components/seo/JsonLd.tsx` | BlogPosting·실제 공개일·명시적 수정일·안전한 직렬화 | 렌더된 JSON-LD의 파싱·본문/작성자/날짜/URL 정합성. 필요한 BreadcrumbList는 보이는 탐색과 함께 검토 |
@@ -39,7 +39,7 @@ SEO 기반을 다시 만드는 대신 아래 차이를 실제 응답으로 확�
 | `lib/site-seo.test.ts` | metadata 일부는 소스 정규식 검사 | 소스에 문자열이 있다는 검사와 실제 HTTP/DOM/JSON-LD 결과를 구분해 보강 |
 | PDF Step 1의 audit 기록 | 기존 Next.js 16.2.11 포함 production dependencies에 critical 경고 | 기존 보안 패치 작업의 완료 확인을 배포 전 필수 조건으로 유지. 이 계획 등록으로 패치했다고 표시하지 않음 |
 
-현 상태에서 실행한 가까운 기준선은 `site-seo.test.ts`, `blog-crawler-output.test.ts`, `public-site-origin.test.ts`의 **7/7 통과**다. 2026-11-03 adapter 검수에서도 7/7을 확인했다. 전체 crawler 감사·PageSpeed/CrUX·실제 색인/순위는 아직 미검증이다.
+현 상태에서 실행한 가까운 기준선은 `site-seo.test.ts`, `blog-crawler-output.test.ts`, `public-site-origin.test.ts`의 **7/7 통과**다. 2026-11-03 adapter와 공개 감사에서도 7/7을 확인했다. HTTP·JS/no-JS·사이트맵의 실제 결과는 [감사 기준선](SEO_AUDIT_BASELINE.md)에 기록했다. PageSpeed/CrUX·실제 색인/순위는 미검증이다.
 
 ## 3. 적용할 범위와 목표
 
@@ -66,12 +66,13 @@ schema는 [Google 구조화 데이터 정책](https://developers.google.com/sear
 | Phase | Step | 이름 / 결과 | 상태 |
 | --- | --- | --- | --- |
 | S1 `seo-codex-foundation` | 0 | Codex용 선별 이식·출처/라이선스·실제 검색/수동 호출 검수 | completed |
-| S1 | 1 | 공개 route 표본과 실제 HTTP/HTML·JS/no-JS 감사 기준선, 우선순위 목록 | pending |
+| S1 | 1 | 공개 route 표본과 실제 HTTP/HTML·JS/no-JS 감사 기준선, 우선순위 목록 | completed |
 | S2 `seo-public-surface-optimization` | 0 | 검색/태그/페이지·canonical·robots·sitemap 정책과 HTTP 검증 | pending |
 | S2 | 1 | no-JS 블로그 목록 재현/해결과 공개 콘텐츠 발견 경로 | pending |
 | S2 | 2 | 페이지별 metadata·OG·실제 JSON-LD와 보이는 내용 정합성 | pending |
 | S2 | 3 | production build의 이미지·폰트·JS 성능 측정과 확인된 병목 개선 | pending |
 | S2 | 4 | 기술 글의 검색 의도·근거·내부 링크·AI 읽기 일관성 | pending |
+| S2 | 5 | 감사에서 확인한 Brain 기본 읽기·상세 anchor 발견, 승인된 그래프 UI 보존 | pending |
 | S3 `seo-release-and-measurement` | 0 | 공개/비공개·철회/오류 회귀와 배포 전 SEO 확인 기록 | pending |
 | S3 | 1 | 승인된 실제 도메인·Search Console·sitemap/색인 검증 | blocked |
 | S3 | 2 | 데이터가 쌓인 뒤 전후 비교와 다음 개선 선정 | pending |
@@ -102,3 +103,9 @@ schema는 [Google 구조화 데이터 정책](https://developers.google.com/sear
 ### S1 Step 0 완료 — 2026-11-03
 
 2026-11-03 SEO S1 Step 0 완료: claude-seo 2.5.0 고정 commit의 지침 7개를 `.agents/skills/hlog-seo`로 선별 이식하고 MIT·출처·원본 hash를 보존했다. Codex의 실제 repo skill 검색(루트/앱), frontmatter/링크·입력별 수동 검수와 기존 SEO 7개 테스트를 통과했다. 전체 HTTP/렌더링 감사·앱 최적화는 아직 진행하지 않았다. SEO completed 1·pending 8·blocked 1, **다음 로컬 작업은 seo-codex-foundation / S1 Step 1: public-audit-baseline**이다. 관리자 로컬 완료와 OCI 운영 보류는 유지한다. 상세 입력별 검수와 측정 한계는 [Step 0](../../../phases/seo-codex-foundation/step0.md), 이식 경로/hash와 변경점은 [출처](../../../../../.agents/skills/hlog-seo/references/upstream.md)에 기록했다.
+
+### S1 Step 1 완료 — 2026-11-03
+
+2026-11-03 SEO S1 Step 1 완료: 현재 production 이미지와 합성 DB에서 HTTP 70응답, JS/no-JS 144화면, 사이트맵 52주소의 반복 검수를 마쳤다. Blog page 2 canonical·no-JS Blog/Brain 발견·공유 metadata 상속·DB 오류 시 Blog 200 등을 확인하고 후속 단계에 연결했다. Brain 발견 문제는 UI를 보존하는 독립 S2 Step 5로 추가했다. SEO 3개 phase / 11개 step 중 completed 2·pending 8·blocked 1이며 **다음 로컬 작업은 seo-public-surface-optimization / S2 Step 0: crawl-and-index-policy**다. 감사 완료이며 앱 수정·운영 적용은 아직이다. 관리자/모니터링·OCI 보류는 유지한다.
+
+[감사 기준선](SEO_AUDIT_BASELINE.md)에 실행 SHA·이미지·도구, 표본별 결과, 7개 발견, 반복 검증과 미측정 항목을 기록했다. 비공개 원자료는 `private/seo-audit/`에 보관한다.

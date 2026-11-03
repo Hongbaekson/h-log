@@ -2,7 +2,9 @@
 
 ## 상태와 선행 조건
 
-pending — 계획 등록이며 미구현/미실행.
+pending — 구현 전이다. S1 Step 1의 [감사 기준선](../../.codex/docs/harness/SEO_AUDIT_BASELINE.md)을 먼저 읽는다.
+
+SEO-05: Resume·Portfolio 목록·Blog 목록·Brain 홈/상세의 공유 metadata 상속을 확인했다.
 
 S1 baseline과 S2의 URL/기본 HTML 계약이 확정돼야 한다.
 
@@ -21,6 +23,7 @@ S1 baseline과 S2의 URL/기본 HTML 계약이 확정돼야 한다.
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/SEO_OPTIMIZATION_PLAN.md`
+- `apps/h-log/.codex/docs/harness/SEO_AUDIT_BASELINE.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/phases/seo-public-surface-optimization/index.json`

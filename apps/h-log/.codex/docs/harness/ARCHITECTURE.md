@@ -56,9 +56,9 @@ Blog 검토/수정본/발행/철회·draft-only 지속 요청과 공통 자동�
 
 ## SEO 개발용 Codex 지침
 
-[SEO 계획](SEO_OPTIMIZATION_PLAN.md)과 ADR-040은 claude-seo의 고정 자료를 Codex의 저장소 스킬로 선별 이식하는 개발 작업이다. 2026-11-03 루트 `.agents/skills/hlog-seo/`에 SKILL.md·선별 검사 기준·출처/hash·원본 MIT를 추가하고 실제 Codex의 루트/앱 검색과 source 수동 적용을 확인했다. 현재 단계에는 실행 launcher가 없으며 전체 HTTP/렌더링 baseline은 S1 Step 1의 대상이다. 참고 지침·출처/라이선스와 실제 감사 표본을 관리하며 Claude 전용 installer/hook이 Codex에서 자동 동작한다고 가정하지 않는다. 별도 SEO 서버·DB·worker나 production Python 의존성을 추가하지 않는다.
+[SEO 계획](SEO_OPTIMIZATION_PLAN.md)과 ADR-040은 claude-seo의 고정 자료를 Codex의 저장소 스킬로 선별 이식하는 개발 작업이다. 2026-11-03 루트 `.agents/skills/hlog-seo/`에 SKILL.md·선별 검사 기준·출처/hash·원본 MIT를 추가하고 실제 Codex의 루트/앱 검색과 source 수동 적용을 확인했다. 저장소 스킬에는 실행 launcher가 없다. S1 Step 1에서 별도 합성 DB·production image·공개 Nginx와 인증 없는 브라우저로 [감사 기준선](SEO_AUDIT_BASELINE.md)을 수집했다. 일회성 helper와 원자료는 Git 제외 `private/seo-audit/`에 보관하며 앱 런타임에 포함하지 않는다. Brain 기본 발견은 승인 UI를 유지하는 별도 S2 Step 5의 대상이다. 참고 지침·출처/라이선스와 실제 감사 표본을 관리하며 Claude 전용 installer/hook이 Codex에서 자동 동작한다고 가정하지 않는다. 별도 SEO 서버·DB·worker나 production Python 의존성을 추가하지 않는다.
 
-감사는 공개 selector/route의 source 확인 → 합성 DB/loopback public ingress의 HTTP·DOM·no-JS → 승인된 공개 origin/검색 계정 순서다. 원자료는 `private/seo/`, 검토된 요약은 Harness 문서에 둔다. 기존 `site-seo`의 소스 검사에 실제 head/JSON-LD·상태/색인·공개 경계 검증을 보완할 계획이며 현재 metadata/crawler runtime은 바꾸지 않았다. 성능 lab/field와 실제 검색 노출을 분리한다. 일반 다음 작업은 admin-operations-control Step 0이며 운영 보류는 유지한다.
+감사는 공개 selector/route의 source 확인 → 합성 DB/loopback public ingress의 HTTP·DOM·no-JS → 승인된 공개 origin/검색 계정 순서다. 원자료는 실행별 Git 제외 폴더(S1 기준선은 `private/seo-audit/`), 검토된 요약은 Harness 문서에 둔다. 기존 `site-seo`의 소스 검사에 실제 head/JSON-LD·상태/색인·공개 경계 검증을 보완할 계획이며 현재 metadata/crawler runtime은 바꾸지 않았다. 성능 lab/field와 실제 검색 노출을 분리한다. 다음 로컬 작업은 SEO S2 Step 0이며 운영 보류는 유지한다.
 
 ## Runtime 구성
 

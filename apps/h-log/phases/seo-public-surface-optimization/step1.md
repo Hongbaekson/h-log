@@ -2,7 +2,9 @@
 
 ## 상태와 선행 조건
 
-pending — 계획 등록이며 미구현/미실행.
+pending — 구현 전이다. S1 Step 1의 [감사 기준선](../../.codex/docs/harness/SEO_AUDIT_BASELINE.md)을 먼저 읽는다.
+
+SEO-03: 일반/2페이지/태그의 no-JS 목록이 로딩 상태에 머무르는 것을 재현했다. Brain 결함 SEO-04는 Step 5로 분리한다.
 
 S1의 no-JS 재현 결과와 S2 Step 0 URL 정책을 읽는다.
 
@@ -21,6 +23,7 @@ S1의 no-JS 재현 결과와 S2 Step 0 URL 정책을 읽는다.
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/SEO_OPTIMIZATION_PLAN.md`
+- `apps/h-log/.codex/docs/harness/SEO_AUDIT_BASELINE.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/phases/seo-public-surface-optimization/index.json`

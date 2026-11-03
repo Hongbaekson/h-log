@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 계획 등록이며 미구현/미실행.
+completed — 2026-11-03 실제 production HTTP/JS/no-JS 감사와 사이트맵 전수 확인을 완료했다. 상세 근거와 한계는 [SEO_AUDIT_BASELINE.md](../../.codex/docs/harness/SEO_AUDIT_BASELINE.md)에 있다. 앱 동작 수정은 후속 S2 단계다.
 
 S1 Step 0의 Codex adapter는 2026-11-03 검색·수동 호출 범위 검수를 통과했다. 아래 실제 스킬과 검사 기준을 읽고 전체 HTTP/렌더링 감사는 이 step에서 새로 수행한다.
 
@@ -68,3 +68,13 @@ S1 Step 0의 Codex adapter는 2026-11-03 검색·수동 호출 범위 검수를 
 ## 다음 단계
 
 S2 Step 0. 운영 모니터링 Step 7 → A3 Step 4의 기존 보류는 유지한다.
+
+## 완료 기록 — 2026-11-03
+
+- 앱 `9abf275`의 production image, 별도 합성 DB와 공개 Nginx에서 HTTP 70응답·12 URL × JS ON/OFF × 3 viewport × 2회 = 144화면을 비교했다.
+- 사이트맵 52개 URL을 두 번 전수 확인했다. 104응답 모두 200·self canonical·noindex 없음. 비공개/철회/미선택 버전 표식은 공개 출력에 없었다.
+- Blog page 2 canonical, Blog/Brain no-JS 발견, 공유 metadata 상속, DB 읽기 실패 시 Blog 200 등을 확인했다. 발견 7건의 우선순위와 담당 S2 step을 보고서에 연결했다. Brain 문제는 S2 Step 5로 분리했다.
+- 기존 SEO 7/7, 실제 JSON-LD/XML 파싱과 반복 비교를 통과했다. 문서/JSON/링크·단계 수·공개 보고서 검증과 diff check를 실행했다. source-only 테스트와 실제 UI 문제는 별개로 기록했다.
+- guard가 검색 API와 표본 밖 prefetch를 차단했으므로 검색 성공 기능은 미검증이다. 성능/GSC/CrUX·실제 순위는 미측정이다. 초기 Docker internal network 연결 실패는 도구 문제로 분리했으며 모든 감사 자원을 정리했다.
+- 변경은 문서/계획뿐이다. production build는 감사 대상 확인을 위해 실행했고 전체 앱 단위/lint/typecheck의 별도 재실행은 하지 않았다. 새로운 production behavior가 없으므로 RED/GREEN은 해당 없다.
+- SEO 3개 phase / 11개 step 중 completed 2·pending 8·blocked 1. 다음은 **S2 Step 0**이며 관리자·모니터링의 운영 보류는 유지한다.

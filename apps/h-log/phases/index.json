@@ -198,13 +198,13 @@
     },
     {
       "dir": "seo-codex-foundation",
-      "status": "pending",
-      "summary": "2026-11-03 Step 0 completed: pinned MIT claude-seo guidance selectively adapted into .agents/skills/hlog-seo; actual Codex repo discovery, source-mode manual scope checks and SEO 7/7 verified. Step 1 public-audit-baseline is the next local task while admin/monitoring production rollout remains on hold. No full HTTP/DOM audit or application optimization yet."
+      "status": "completed",
+      "summary": "2026-11-03: completed isolated production SEO baseline at 9abf275: 70 HTTP responses, 144 JS/no-JS views at 1440/390/320px and 52 sitemap URLs checked twice. Confirmed pagination canonical, no-JS Blog/Brain discovery, inherited social metadata and Blog 200 on database-read failure; private/retracted/current-version boundary held. SEO tests 7/7, JSON-LD/XML parsing and cleanup passed. Findings in SEO_AUDIT_BASELINE.md; added independent S2 Step 5 for Brain discovery. Next: S2 Step 0 crawl-and-index-policy. No application optimization or production rollout."
     },
     {
       "dir": "seo-public-surface-optimization",
       "status": "pending",
-      "summary": "2026-10-26 plan registered: five steps for crawl/index policy, no-JS Blog discovery, rendered metadata/schema, measured performance and evidence-based content/internal links. Depends on the SEO baseline; existing SEO, approved Brain UI, Home radar and public-content boundaries remain intact. No app changes implemented."
+      "summary": "2026-11-03: S1 audit recorded seven findings. Six pending steps cover crawl/index/error policy, no-JS Blog discovery, metadata/schema, measured performance, evidence/internal links and independently scoped Brain public discovery (new Step 5). Preserve approved Brain UI, Home radar and public-content boundaries. Next local task: Step 0. No app fixes implemented yet."
     },
     {
       "dir": "seo-release-and-measurement",

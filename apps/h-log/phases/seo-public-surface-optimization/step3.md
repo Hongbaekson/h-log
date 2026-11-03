@@ -2,7 +2,9 @@
 
 ## 상태와 선행 조건
 
-pending — 계획 등록이며 미구현/미실행.
+pending — 구현 전이다. S1 Step 1의 [감사 기준선](../../.codex/docs/harness/SEO_AUDIT_BASELINE.md)을 먼저 읽는다.
+
+성능은 아직 미측정이다. S1의 overflow/pageerror 없음으로 성능 통과를 대신하지 않는다.
 
 S1 성능 표본·안정된 local production build가 있어야 한다. 기존 보안 패치가 빌드를 바꾸면 기준선을 다시 잡는다.
 
@@ -21,6 +23,7 @@ S1 성능 표본·안정된 local production build가 있어야 한다. 기존 �
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/SEO_OPTIMIZATION_PLAN.md`
+- `apps/h-log/.codex/docs/harness/SEO_AUDIT_BASELINE.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/phases/seo-public-surface-optimization/index.json`

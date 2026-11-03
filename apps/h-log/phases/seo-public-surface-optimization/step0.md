@@ -2,7 +2,9 @@
 
 ## 상태와 선행 조건
 
-pending — 계획 등록이며 미구현/미실행.
+pending — 구현 전이다. S1 Step 1의 [감사 기준선](../../.codex/docs/harness/SEO_AUDIT_BASELINE.md)을 먼저 읽는다.
+
+SEO-01/02/06: 페이지·검색/필터 정책과 DB 읽기 실패 시 목록 200을 각각 확인하고 index/status 계약을 고정한다.
 
 S1 감사 기준선과 공개 URL 표본이 있어야 한다.
 
@@ -21,6 +23,7 @@ S1 감사 기준선과 공개 URL 표본이 있어야 한다.
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/SEO_OPTIMIZATION_PLAN.md`
+- `apps/h-log/.codex/docs/harness/SEO_AUDIT_BASELINE.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/phases/seo-public-surface-optimization/index.json`

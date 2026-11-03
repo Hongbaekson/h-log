@@ -26,6 +26,11 @@
       "step": 4,
       "name": "evidence-based-content-and-links",
       "status": "pending"
+    },
+    {
+      "step": 5,
+      "name": "server-rendered-brain-discovery",
+      "status": "pending"
     }
   ]
 }

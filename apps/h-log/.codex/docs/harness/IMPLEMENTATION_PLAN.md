@@ -1,5 +1,7 @@
 # Implementation Plan: H-Log Harness Baseline
 
+2026-11-03 SEO S1 Step 1 완료: 현재 production 이미지와 합성 DB에서 HTTP 70응답, JS/no-JS 144화면, 사이트맵 52주소의 반복 검수를 마쳤다. Blog page 2 canonical·no-JS Blog/Brain 발견·공유 metadata 상속·DB 오류 시 Blog 200 등을 확인하고 후속 단계에 연결했다. Brain 발견 문제는 UI를 보존하는 독립 S2 Step 5로 추가했다. SEO 3개 phase / 11개 step 중 completed 2·pending 8·blocked 1이며 **다음 로컬 작업은 seo-public-surface-optimization / S2 Step 0: crawl-and-index-policy**다. 감사 완료이며 앱 수정·운영 적용은 아직이다. 관리자/모니터링·OCI 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-03 SEO S1 Step 0 완료: claude-seo 2.5.0 고정 commit의 지침 7개를 `.agents/skills/hlog-seo`로 선별 이식하고 MIT·출처·원본 hash를 보존했다. Codex의 실제 repo skill 검색(루트/앱), frontmatter/링크·입력별 수동 검수와 기존 SEO 7개 테스트를 통과했다. 전체 HTTP/렌더링 감사·앱 최적화는 아직 진행하지 않았다. SEO completed 1·pending 8·blocked 1, **다음 로컬 작업은 seo-codex-foundation / S1 Step 1: public-audit-baseline**이다. 관리자 로컬 완료와 OCI 운영 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.
 
 2026-11-02 A3 Step 3 완료: 현재 Linux 앱 이미지와 합성 자료로 공개/관리 Nginx·직접 upstream, 모든 관리자 경로의 인증/Origin/HTML/RSC·비공개 캐시, Brain·PDF·초안·선택 버전 발행/철회를 검수했다. 정책 OFF·단건 재시도·별도 worker 프로세스, 감사 실패 rollback, 실제 DB 재시작, 키 회전·관리자 OFF, 전체 DB dump/restore와 이전 이미지 호환성도 확인했다. 검수 중 비용 상한의 밀리초 정밀도 손실을 재현해 DB transaction 시각으로 비교하도록 수정했고, Nginx 보안 헤더 중복을 제거했다. 단위 277 pass/26 DB skip, 전체 격리 DB·HTTP·최대 PDF 리허설, 추적 코드 lint/typecheck/빌드·1440/390/320px·키보드/no-JS 검수를 통과했다. 기본 lint의 기존 private CJS 오류 10건은 별도 기록했다. 관리자 completed 16·pending 0·blocked 1이며 로컬 단계는 모두 완료다. 다음은 승인 후 **operations-observability Step 7 → A3 Step 4**다. OCI·DNS/TLS·실제 provider·공개 발행·timer·외부 알림은 실행하지 않았다. 아래 날짜별 기록은 당시 상태다.
