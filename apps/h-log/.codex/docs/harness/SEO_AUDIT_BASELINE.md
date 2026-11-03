@@ -97,3 +97,7 @@ node --no-warnings --experimental-strip-types private/seo-audit/run.mjs
 원자료: `result.json`·`audit.json`(HTTP/DOM/차단 기록), `raw-*.txt`, `screen-*.png`, `summary.json`, `sweep/result.json`(사이트맵·반복 장애 확인). private 노트 ID/표식·응답 전체·credential은 이 보고서에 복사하지 않았다. 앱 UI·콘텐츠·패키지·배포 설정은 변경하지 않았다.
 
 **다음 작업: S2 Step 0 `crawl-and-index-policy`.** S1 전체 완료, Brain 기본 발견을 독립 Step 5로 추가해 SEO는 3개 phase / 11개 step, completed 2·pending 8·blocked 1이다. OCI 모니터링 Step 7 → 관리자 A3 Step 4 → timer의 운영 보류와 순서는 유지한다.
+
+## 후속 해결 기록 — 2026-11-04
+
+위 표는 `9abf275` 감사 당시 결과다. [S2 Step 0](../../../phases/seo-public-surface-optimization/step0.md)에서 **SEO-01/02/06**을 수정하고 production/dev HTTP 6/6으로 확인했다. SEO-03의 일반/2페이지/태그 no-JS 목록도 같은 로딩 경계 제거로 복구되어 두 환경의 36화면에서 공개 anchor를 확인했다. S2 Step 1에서 남은 발견 인수 조건을 검토한다. SEO-04 Brain, SEO-05 공유 metadata, SEO-07 Home 최근 글과 실제 성능/검색 성과는 이번 변경의 해결 범위가 아니다.

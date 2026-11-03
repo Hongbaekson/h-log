@@ -18,18 +18,25 @@ import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/blog",
-  },
-  description:
-    "개발하며 풀었던 문제와 운영하면서 배운 점을 정리합니다.",
-  title: "블로그",
-};
-
 type BlogPageProps = {
   searchParams?: Promise<BlogBrowseParams>;
 };
+
+export async function generateMetadata({ searchParams }: BlogPageProps): Promise<Metadata> {
+  const state = parseBlogBrowseParams((await searchParams) ?? {});
+  const metadata: Metadata = {
+    description: "개발하며 풀었던 문제와 운영하면서 배운 점을 정리합니다.",
+    title: "블로그",
+  };
+  if (state.query || state.tag) {
+    return { ...metadata, robots: { index: false, follow: true } };
+  }
+  const index = getPublicBlogIndex(await loadPublicBlogContentStore(), { page: state.page });
+  return {
+    ...metadata,
+    alternates: { canonical: buildBlogBrowseHref({ ...state, page: index.pagination.currentPage }) },
+  };
+}
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
   const params = (await searchParams) ?? {};

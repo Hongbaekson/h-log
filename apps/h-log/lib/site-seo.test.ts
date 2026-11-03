@@ -8,7 +8,7 @@ function readAppSource(path: string): string {
 }
 
 describe("site SEO metadata", () => {
-  it("defines root defaults and a canonical for every public page family", () => {
+  it("defines root defaults and static/detail canonicals", () => {
     const layoutSource = readAppSource("layout.tsx");
 
     assert.match(layoutSource, /metadataBase/);
@@ -21,7 +21,6 @@ describe("site SEO metadata", () => {
       ["resume/page.tsx", /canonical:\s*"\/resume"/],
       ["portfolio/page.tsx", /canonical:\s*"\/portfolio"/],
       ["portfolio/[slug]/page.tsx", /canonical:\s*`\/portfolio\/\$\{slug\}`/],
-      ["blog/(index)/page.tsx", /canonical:\s*"\/blog"/],
       ["blog/[slug]/page.tsx", /canonical:\s*post\.href/],
     ] as const;
 

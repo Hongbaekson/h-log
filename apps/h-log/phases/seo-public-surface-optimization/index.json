@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "crawl-and-index-policy",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-04: S2 Step 0 completed. Blog metadata now uses the displayed unfiltered page canonical; search/tag combinations return noindex, follow without canonical. Existing query normalization/clamping is preserved. Removed premature Blog loading boundary so database reads fail with HTTP 500, while empty lists stay 200; ordinary no-JS lists also render. Real HTTP RED reproduced 3 defects, production/dev GREEN 6/6 each; 36 viewport samples and search/tag/pagination/back checks passed. Unit 277 pass/26 DB skip, source lint, typecheck/build and production audit 0 passed; default lint retains 10 pre-existing private CJS errors. Next: S2 Step 1. No production rollout."
     },
     {
       "step": 1,

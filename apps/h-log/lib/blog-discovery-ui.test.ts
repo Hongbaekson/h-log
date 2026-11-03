@@ -64,14 +64,8 @@ describe("blog discovery UI", () => {
     assert.match(searchUiSource, /일치하는 공개 글이 없습니다/);
   });
 
-  it("provides explicit loading and retryable error boundaries for the DB-backed route", async () => {
-    const [loadingSource, errorSource] = await Promise.all([
-      readFile(new URL("../app/blog/(index)/loading.tsx", import.meta.url), "utf8"),
-      readFile(new URL("../app/blog/error.tsx", import.meta.url), "utf8"),
-    ]);
-
-    assert.match(loadingSource, /role="status"/);
-    assert.match(loadingSource, /블로그 글을 불러오는 중입니다/);
+  it("provides a retryable error boundary without exposing database errors", async () => {
+    const errorSource = await readFile(new URL("../app/blog/error.tsx", import.meta.url), "utf8");
     assert.match(errorSource, /"use client"/);
     assert.match(errorSource, /블로그를 불러오지 못했습니다/);
     assert.match(errorSource, /onClick=\{\(\) => window\.location\.reload\(\)\}/);

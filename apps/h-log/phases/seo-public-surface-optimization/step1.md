@@ -4,7 +4,7 @@
 
 pending — 구현 전이다. S1 Step 1의 [감사 기준선](../../.codex/docs/harness/SEO_AUDIT_BASELINE.md)을 먼저 읽는다.
 
-SEO-03: 일반/2페이지/태그의 no-JS 목록이 로딩 상태에 머무르는 것을 재현했다. Brain 결함 SEO-04는 Step 5로 분리한다.
+SEO-03: S1에서 재현한 일반/2페이지/태그 no-JS 로딩 문제는 2026-11-04 Step 0의 오류 응답 수정(loading 경계 제거)으로 복구됐고 production/dev에서 확인했다. 먼저 현재 결과와 아래 인수 조건을 비교하고, 이미 충족한 범위는 근거 있는 no-op로 남긴다. 남은 빈 목록/오류/기본 링크 회귀가 있으면 그 부분만 처리한다. Brain 결함 SEO-04는 Step 5로 분리한다.
 
 S1의 no-JS 재현 결과와 S2 Step 0 URL 정책을 읽는다.
 
@@ -28,7 +28,7 @@ S1의 no-JS 재현 결과와 S2 Step 0 URL 정책을 읽는다.
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/phases/seo-public-surface-optimization/index.json`
 - `apps/h-log/app/blog/(index)/page.tsx`
-- `apps/h-log/app/blog/(index)/loading.tsx`
+- `apps/h-log/scripts/blog-index-seo.http.test.mjs`
 - `apps/h-log/components/blog/BlogSearchPanel.tsx`
 - `apps/h-log/components/blog/BlogPagination.tsx`
 - `apps/h-log/app/brain/page.tsx`

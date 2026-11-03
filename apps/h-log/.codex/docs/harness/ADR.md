@@ -427,7 +427,9 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **이유와 범위**: H-Log의 기존 metadata/crawler/public selector가 이미 있어 새 SEO 프레임워크보다 실제 응답 감사와 확인된 결함의 작은 수정이 필요하다. source/local/public 모드를 분리하고 인증 자료/비공개 문서를 전달하지 않는다. 원본 Python helper는 필요한 경우에만 격리 도구로 검증하며 SSRF 경계를 유지한다. schema hook의 자동 실행을 가정하지 않고 렌더된 JSON-LD를 명시적으로 검사한다.
 
-**완료 판단**: [SEO 계획](SEO_OPTIMIZATION_PLAN.md)의 S1은 도입/기준선, S2는 공개 표면, S3는 회귀/승인된 운영 측정이다. 점수·llms 존재·GEO 평가를 실제 순위/인용으로 설명하지 않는다. 기존 경험/수치·공개 사본·레이더/Brain UI와 OCI 보류를 유지한다. 2026-11-03 S1 Step 0에서 실행 도구 없이 지침만 이식하고 실제 Codex 검색·수동 호출 범위를 검수했다. S1 Step 1에서 공개 HTTP/JS/no-JS·사이트맵을 실제 검사했다. [감사 기준선](SEO_AUDIT_BASELINE.md)의 Brain 발견 결함은 Blog step과 분리한 S2 Step 5로 다룬다. 초기 Docker 네트워크 오류와 scope guard의 검색 API 차단을 사이트 결함으로 계산하지 않는다. 앱 최적화·외부 제출은 아직 미실행이다.
+**완료 판단**: [SEO 계획](SEO_OPTIMIZATION_PLAN.md)의 S1은 도입/기준선, S2는 공개 표면, S3는 회귀/승인된 운영 측정이다. 점수·llms 존재·GEO 평가를 실제 순위/인용으로 설명하지 않는다. 기존 경험/수치·공개 사본·레이더/Brain UI와 OCI 보류를 유지한다. 2026-11-03 S1 Step 0에서 실행 도구 없이 지침만 이식하고 실제 Codex 검색·수동 호출 범위를 검수했다. S1 Step 1에서 공개 HTTP/JS/no-JS·사이트맵을 실제 검사했다. [감사 기준선](SEO_AUDIT_BASELINE.md)의 Brain 발견 결함은 Blog step과 분리한 S2 Step 5로 다룬다. 초기 Docker 네트워크 오류와 scope guard의 검색 API 차단을 사이트 결함으로 계산하지 않는다. 2026-11-04 S2 Step 0에서 Blog URL/색인·오류 응답을 수정했다. 실제 도메인 제출은 미실행이다.
+
+**S2 Step 0 구현 결정 (2026-11-04)**: 기존 query parser와 공개 index의 실제 currentPage로 일반 목록 canonical을 계산한다. 잘못된 page는 기존 첫 페이지, 범위 밖은 기존 마지막 페이지를 보여 주고 canonical도 그 내용에 맞춘다. 검색/태그는 고유 색인 문서로 준비되지 않아 `noindex, follow`를 사용하고 다른 문서를 대표로 지목하는 canonical은 생략한다. 강제 redirect와 새 proxy는 추가하지 않는다. 목록의 loading 경계가 DB 실패 전에 200을 보내는 것을 실제 HTTP로 재현해 해당 경계를 제거했다. 초기 목록 응답이 DB를 기다리는 대신 오류는 Next 기본 500이며 정상 빈 결과와 구분된다. 같은 변경으로 일반 no-JS 목록 읽기도 복구됐고 검색·태그·페이지/뒤로가기는 실제 브라우저로 확인했다.
 
 ## 공식/내부 기준
 
