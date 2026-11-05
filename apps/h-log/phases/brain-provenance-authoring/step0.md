@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-05 계획 등록. R1 / Brain 출처·질문 작성: 공개용 출처·질문 계약. 아직 구현/실행하지 않았다.
+completed — 2026-11-06 공개용 출처·질문 계약 확정. 저장/API/UI 구현은 Step 1/2에 남아 있다.
 
 S3 Step 0 완료. 운영 S3 Step 1은 선행 조건이 아니다.
 
@@ -30,6 +30,12 @@ S3 Step 0 완료. 운영 S3 Step 1은 선행 조건이 아니다.
 - `apps/h-log/components/brain/BrainNote.tsx`
 - `apps/h-log/components/brain/BrainExplorer.tsx`
 - `apps/h-log/lib/public-source-url.ts`
+- `apps/h-log/lib/brain-curation.ts`
+- `apps/h-log/lib/brain-capture.test.ts`
+- `apps/h-log/lib/brain-capture-http.test.ts`
+- `apps/h-log/lib/brain-postgres-repository.integration.test.ts`
+- `apps/h-log/migrations/004_brain_capture.sql`
+- `apps/h-log/migrations/006_brain_admin_commands.sql`
 
 ## 범위와 산출물
 
@@ -71,6 +77,15 @@ git diff --check
 - 회사 Wiki·내부 식별자·확인되지 않은 감정/성과를 자료 수집이나 공개 노드로 채우지 말 것. 출처와 본인 확인이 있는 범위만 다룬다.
 - 계획 등록을 운영 배포·실제 발행·DNS/TLS·provider·timer·외부 알림 승인으로 해석하지 말 것. 기존 운영 보류가 유지된다.
 - 방문자 AI·댓글·공개 통계·새 도메인·별도 그래프/서비스를 추가하지 말 것. 이번 개선 단위와 관계없다.
+
+## 완료 기록 — 2026-11-06
+
+- [기록·탐색 개선 계획](../../.codex/docs/harness/KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md)의 R1 계약에 입력→JSONB→명시 공개→DTO, 상한/URL/오류, 생략/빈 목록, legacy 사본/과거 명령 재확인, 수정/재공개/철회와 후속 테스트 위치를 확정했다.
+- 공개 두 reader에는 표시가 있고 draft/parser/공개 변환에 연결이 빠진 사실을 현재 코드로 확인했다. 기존 JSONB로 저장할 수 있어 새 migration 계획은 추가하지 않았다. 임의 과거 revision 공개를 새로 지원하지 않는다.
+- AI 질문·답변은 관리자 시험 운영까지 제외한다는 사용자 결정을 기록했다. 작성자가 직접 남긴 질문은 유지한다. R1 구현 2개 step과 내부 Blog 공개 연결(R3)은 미완료로 남긴다.
+- 변경 범위: R 계획, PRD/ADR/ARCHITECTURE, 구현·관리자·Brain·공개 경험·루트 계획, 전체/R1 index와 R1 step0–2. 앱 소스·콘텐츠·DB·배포·승인 UI·Home 레이더 변경 없음.
+- 검증: `node private/r1-contract-2026-11-06/validate-docs.mjs`로 변경 Markdown/JSON 파싱, 상대 링크·읽을 파일·npm script 존재, 53 phase/187 step과 R 1 completed/13 pending 및 기존 SEO/A/모니터링 상태 보존을 확인했다. `git diff --check` 통과. 검사기/영수증은 Git 제외 private 폴더에 두며 실행 시 checkout의 Node를 사용한다.
+- 문서 전용 단계라 앱 test/build·DB·브라우저 검증은 실행하지 않았다. 새 필드 동작 검증은 Step 1의 focused RED부터 진행한다. 운영 보류는 유지한다.
 
 ## 다음 단계
 

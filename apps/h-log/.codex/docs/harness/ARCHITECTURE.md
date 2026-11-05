@@ -527,9 +527,9 @@ Host helper가 `backup.json`/`restore.json`과 별도 evidence를 관리한다. 
 
 ## 기록·탐색 후속 구조 — 미구현 계획
 
-[R1–R5 계획](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md)은 기존 Next.js/PG·owner 인증·공개 selector와 snapshot을 확장하는 14개 pending step이다. 현재 `BrainDraft`에는 sources/questions가 없으며 공개 변환은 고정 출처와 빈 질문을 만든다. R1은 이 차이를 메우고, R3는 내부 Blog 출처를 published-current 판정에 연결한다. 공개 UI와 원문/이력은 유지한다.
+[R1–R5 계획](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md)은 14개 step 중 계약 completed 1·pending 13이다. R1 Step 0에서 선택형 출처·질문의 상한/URL/호환을 확정했으며 기존 JSONB·owner API·감사 transaction을 재사용한다. 런타임 변경은 아직 없다. 현재 `BrainDraft`에는 sources/questions가 없으며 공개 변환은 고정 출처와 빈 질문을 만든다. R1은 이 차이를 메우고, R3는 내부 Blog 출처를 published-current 판정에 연결한다. 공개 UI와 원문/이력은 유지한다.
 
-R2는 근거/현재성 대장과 원고·노드 후보 준비, R4는 기존 목록/검색의 태그 별칭과 링크 동작, R5는 admin 전용 버전별 수동 검토다. 상세 상한·저장 계약은 각 contract step에서 결정한다. 새 서비스·스케줄러·공개 원문 동기화는 없으며, 이 절은 실제 구현 현황이 아니다. SEO S3 Step 0의 로컬 검수는 완료했고 다음 로컬 작업은 R1 Step 0이다.
+R2는 근거/현재성 대장과 원고·노드 후보 준비, R4는 기존 목록/검색의 태그 별칭과 링크 동작, R5는 admin 전용 버전별 수동 검토다. R1 확정 계약은 위 계획을 따르며 R5 저장 계약은 해당 contract step에서 결정한다. 초안의 누락/입력 값을 보존해 과거 명령 fingerprint를 유지하고, 공개 투영에서만 기본값과 표시 정규화를 적용할 예정이다. 새 서비스·스케줄러·공개 원문 동기화·AI 질문 API는 추가하지 않는다. SEO S3 Step 0의 로컬 검수는 완료했고 다음 로컬 작업은 R1 Step 1이다.
 
 ## SEO S3 로컬 릴리스 검수 — 2026-11-05
 

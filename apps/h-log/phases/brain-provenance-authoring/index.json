@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "provenance-contract",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-06: Confirmed current draft/public readers and JSONB/command flow. Documented field limits, safe URLs, missing-vs-empty compatibility, immutable history and selected current-revision publication, errors/replay/rollback tests. AI Q&A excluded; author-written questions retained. Markdown/JSON, link/read-path/phase-state checks and git diff --check passed. Contract only; persistence/API/editor implementation remains Steps 1-2."
     },
     {
       "step": 1,

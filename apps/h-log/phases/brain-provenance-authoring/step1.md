@@ -39,6 +39,8 @@ R1 Step 0 완료.
 
 ## 작업
 
+2026-11-06 확정한 [R1 계약](../../.codex/docs/harness/KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md)의 입력/공개 정규화·생략/빈 배열·기존 명령 fingerprint 기준을 따른다. AI 질문·답변 기능은 관리자 시험 운영도 추가하지 않으며 작성자가 남긴 질문만 다룬다.
+
 1. 선택한 출처·질문이 저장/조회/공개 사본에 보존되지 않는 focused RED를 먼저 만든다.
 2. 기존 parser·repository·records handler와 snapshot 계약에 선택 필드를 연결한다. 기존 필드가 없는 레코드를 읽고 수정할 수 있게 하며 과거 JSONB/본문/hash는 다시 쓰지 않는다.
 3. 공개 필드만 privacy/URL 검증을 통과시켜 사본에 고정한다. 임시 수정은 현재 공개 사본에 반영하지 않는다. unknown field, 잘못된 URL·길이, 원문 경로, 인증/Origin 실패를 검증한다.

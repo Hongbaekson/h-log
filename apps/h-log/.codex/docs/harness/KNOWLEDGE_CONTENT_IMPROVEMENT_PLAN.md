@@ -1,6 +1,6 @@
 # H-Log 기록·탐색 개선 계획
 
-등록일: 2026-11-05. Zerry/Memory 재조사 후 사용자가 개선 방향의 phase/step 등록과 커밋·푸시를 요청했다. **R1–R5: 5개 phase / 14개 step, 모두 pending**이다. 계획 등록을 기능 구현이나 콘텐츠 발행 완료로 표시하지 않는다. 상태의 source of truth는 [전체 레지스트리](../../../phases/index.json)와 각 phase index다.
+등록일: 2026-11-05. Zerry/Memory 재조사 후 사용자가 개선 방향의 phase/step 등록과 커밋·푸시를 요청했다. **R1–R5: 5개 phase / 14개 step**이다. 2026-11-06 R1 Step 0 계약을 완료해 **completed 1·pending 13**이며 기능 구현은 아직이다. 계획 등록을 기능 구현이나 콘텐츠 발행 완료로 표시하지 않는다. 상태의 source of truth는 [전체 레지스트리](../../../phases/index.json)와 각 phase index다.
 
 ## 목적과 유지 조건
 
@@ -11,6 +11,7 @@
 - 기존 public selector, published-current/privacy, Brain의 원문/수정 이력/공개 사본, owner 인증·Origin·명령 revision·감사 계약을 재사용한다.
 - 실제 경험·코드 관찰·재구성한 회고·열린 질문을 구분한다. 회사 Wiki import나 추측한 감정/날짜/성과 작성은 포함하지 않는다.
 - 새 도메인, 방문자 AI/기억, 댓글, 공개 조회수, 별도 임베딩 지도, 임의 코드 실행, 외부 수집/예약 작업은 포함하지 않는다.
+- 사용자 결정: **Second Brain AI 질문·답변은 도입하지 않는다.** 관리자 전용 시험 운영·방문자 회원가입·질의 API·응답 스트리밍·AI 비용 제한 기능도 이 트랙에 추가하지 않는다. 아래 `questions`는 작성자가 기록에 직접 남긴 질문 목록이며 자동 답변이나 방문자 입력을 받지 않는다.
 
 ## 조사 근거와 한계
 
@@ -30,7 +31,7 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 
 ## 현재 구현과 실제 차이
 
-기준 앱 commit: `6063988`. 다음 표는 현재 구현이며 아래 R 단계는 후속 계획이다.
+R1 Step 0 확인 기준 commit: `e7c77ba` (앱 구현은 `6063988`과 동일). 다음 표는 현재 구현이며 아래 R 단계는 후속 계획이다.
 
 | 근거 | 이미 구현한 것 | 이번 개선 |
 | --- | --- | --- |
@@ -48,7 +49,7 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 
 | Phase | Step | 작업 | 상태 |
 | --- | --- | --- | --- |
-| R1 [brain-provenance-authoring](../../../phases/brain-provenance-authoring/index.json) | 0 | [공개용 출처·질문 계약](../../../phases/brain-provenance-authoring/step0.md) | pending |
+| R1 [brain-provenance-authoring](../../../phases/brain-provenance-authoring/index.json) | 0 | [공개용 출처·질문 계약](../../../phases/brain-provenance-authoring/step0.md) | completed |
 | R1 [brain-provenance-authoring](../../../phases/brain-provenance-authoring/index.json) | 1 | [비공개 저장과 공개 사본](../../../phases/brain-provenance-authoring/step1.md) | pending |
 | R1 [brain-provenance-authoring](../../../phases/brain-provenance-authoring/index.json) | 2 | [관리자 출처·질문 입력과 미리보기](../../../phases/brain-provenance-authoring/step2.md) | pending |
 | R2 [evidence-content-curation](../../../phases/evidence-content-curation/index.json) | 0 | [현재 주장과 근거의 연결 대장](../../../phases/evidence-content-curation/step0.md) | pending |
@@ -66,19 +67,82 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 ## 실행 순서와 다른 트랙
 
 1. 2026-11-05 기존 SEO S3 Step 0의 [로컬 SEO 릴리스 검수](SEO_RELEASE_REVIEW.md)를 완료했다. 새 R 트랙의 구현을 완료했다는 뜻은 아니다.
-2. **다음 로컬 작업은 R1 Step 0 `provenance-contract`**다. 기본 순서는 R1 → R2 → R3 → R4 → R5다.
+2. 2026-11-06 R1 Step 0 계약 완료. **다음 로컬 작업은 R1 Step 1 `private-provenance-snapshots`**다. 기본 순서는 R1 → R2 → R3 → R4 → R5다.
 3. R2 자료 정리와 R4는 R1 구현/개인 경험 확인에 기술적으로 종속되지 않는다. 필요한 자료가 없을 때 독립 작업을 진행할 수 있으며 실행한 step과 순서 변경 이유를 기록한다. R3는 R1의 출처 계약과 R2의 검수 후보를 사용한다.
 4. R5의 로컬 통합 검수는 새 트랙의 추가 회귀다. S3 Step 0의 기존 SEO 기준선을 취소하거나 완료된 단계를 다시 pending으로 만들지 않는다.
 5. S3 Step 1/2의 실제 도메인·계정·측정 조건은 그대로다. **운영 모니터링 Step 7 → 관리자 A3 Step 4 → timer** 순서와 OCI 보류를 유지한다. R 트랙은 운영 보류 해제를 기다리지 않고 격리 로컬에서 준비할 수 있다.
 
 새 14개 step을 더해 전체는 53개 phase / 187개 step이다. S3 Step 0 완료 후 SEO는 9 completed/1 pending/1 blocked다. 관리자 A 16/0/1, 모니터링 7/0/1의 상태는 바꾸지 않는다. R1/R5의 admin 후속은 별도 R 트랙이며 기존 A 트랙을 다시 열지 않는다.
 
-## R1 계약: 구현 전 확정할 항목
+## R1 계약 — 2026-11-06 확정, 구현은 Step 1/2
 
-- 최소 공개 필드: 출처 제목·선택 URL, 남겨 둘 질문. 선택적 입력과 이전 레코드 읽기 호환을 기본으로 한다. 구체적인 상한/오류/정규화는 R1 Step 0에서 현재 API 제한과 함께 확정한다.
-- 초안 저장은 공개 사본을 바꾸지 않는다. 선택한 공개 버전 안에만 필드를 고정하며 원문·기존 이력은 보존한다.
-- 기존 외부 URL validator와 내부 경로 허용을 재사용한다. 내부 Blog 연결의 공개 상태·철회 처리는 R3에서 명시적으로 확장한다. 비공개 제목/slug·로컬 경로·관리자 URL을 공개 응답에 싣지 않는다.
-- 공개 renderer 두 곳은 기존 출처·질문 영역을 사용한다. 입력 UI는 admin만 확장한다. schema/table 변경은 필요성이 확인된 최소 범위로 제한하고 새 서비스는 추가하지 않는다.
+`BrainDraft`와 `parseBrainDraft`에는 출처·질문이 없고, `toPublicBrainNode`는 고정 출처와 빈 질문을 만든다. 반면 `BrainNode`, `BrainNote`, `BrainExplorer`에는 이미 표시 영역이 있다. 저장은 `brain_note_versions.draft`, 공개 사본은 `brain_notes.public_node` JSONB이며 migration 004/006이 원문 이력과 명령 감사를 보호한다. 따라서 **새 테이블·열·migration 없이 기존 JSONB와 API를 확장**하는 것을 기본으로 한다. 아래는 후속 구현의 인수 계약이며 현재 동작으로 설명하지 않는다.
+
+### 입력과 표시
+
+`POST /admin/brain/records`의 `action: "save"` 안에 있는 `draft`에만 다음 선택 필드를 추가한다. 기존 필수 필드·명령 envelope·262,144바이트 요청 상한은 유지한다. 공개용으로 적는 값이지만 저장 시점에는 비공개다.
+
+| 필드 | 입력 계약 | 공개 사본/DTO |
+| --- | --- | --- |
+| `sources?` | `{ label: string; href?: string }[]`, 0–12개. 항목은 배열이 아닌 객체, 허용 키는 `label`, `href`뿐이며 `label` 필수 | 입력 순서대로 새 배열/객체를 복사. 추가 키나 내부 메타데이터는 내보내지 않음 |
+| `sources[].label` | 원래 문자열의 JS `length` 1–160, NUL 금지, `trim()` 후 빈 값 금지. trim한 제목이 같은 항목은 거부 | 양끝 공백을 제거한 일반 텍스트. 자동 제목 추출/HTML 렌더링 없음 |
+| `sources[].href?` | 생략 가능. 문자열이면 공백을 포함한 원래 JS `length` 2,048 이하, NUL 금지. trim 후 비면 링크 없는 출처, 아니면 아래 URL 계약 충족 | 양끝 공백 제거 후 허용 내부 경로 또는 기존 validator로 정규화한 HTTPS URL. 빈 값은 키 생략 |
+| `questions?` | `string[]`, 0–12개. 각 원래 문자열의 JS `length` 1–300, NUL 금지, trim 후 빈 값/동일 질문 중복 금지 | 순서대로 양끝 공백만 제거한 일반 텍스트. 질문 안의 줄바꿈·한글·기술 표기 보존, 자동 분할/답변 없음 |
+
+숫자·`null`·다른 자료형, 상한 초과, 알려지지 않은 키는 `400 invalid_draft`다. 중복 비교는 trim한 문자열의 정확한 일치만 사용하며 대소문자·Unicode 정규화·자동 병합은 하지 않는다. 서로 다른 제목이 같은 URL을 가리키는 것은 허용한다. 기존 reader의 React key가 출처 제목/질문 문자열이므로 중복을 입력 경계에서 막는다.
+
+**저장 parser는 값의 검증과 복사만 수행한다.** 입력 순서·공백·줄바꿈과 생략된 필드를 보존하고, 기본값을 저장용 draft에 주입하거나 URL을 다시 쓰지 않는다. 공개 사본을 만드는 단계에서만 위 표시 정규화를 한다. 기존 원문·태그 등 다른 필드의 처리도 바꾸지 않는다. 이 구분은 과거 명령 fingerprint와 동일 요청 재확인을 유지하기 위한 것이다.
+
+### URL 경계
+
+`lib/brain.ts`의 `publicSourceHref`와 `lib/public-source-url.ts`의 기존 정책을 함께 사용한다. 내부 경로 판정은 trim 후 정확한 `/resume` 또는 `^/portfolio/[a-z0-9]+(?:-[a-z0-9]+)*$`만 허용한다. 다른 상대 경로는 거부하며 외부 URL은 `normalizePublicSourceUrl`의 HTTPS·userinfo·내부 호스트 검사를 통과해야 한다. 새 입력의 거부된 URL은 저장 오류이며 조용히 제거하지 않는다. 기존 공개 카탈로그의 위험한 href를 제거하는 방어 동작은 유지한다.
+
+| 예시 입력 | 결과 |
+| --- | --- |
+| `{ "label": "공식 문서" }`, href가 빈 문자열/공백 | 제목만 있는 출처. 빈 목록 `[]`도 허용 |
+| ` https://example.com/guide#retry ` | 허용. private draft는 입력 보존, 공개 사본은 `https://example.com/guide#retry` |
+| `/resume`, `/portfolio/backend-notes` | 기존 내부 허용 형식. Portfolio slug 실존 판정을 새로 추가한다는 뜻은 아님 |
+| `/resume?download=1`, `/portfolio`, `/portfolio/backend-notes#detail` | 내부 허용 형식 밖이므로 거부 |
+| `/blog/example`, `/brain/example`, `/admin/brain`, `/api/search`, `//example.com/path` | R1에서는 거부. Blog 상세의 현재 공개 상태와 철회 처리는 R3 Step 0 담당 |
+| `http://example.com`, `javascript:alert(1)`, `data:text/plain,hi`, `file:///private/note` | HTTPS 외 scheme이므로 거부 |
+| `https://user:pass@example.com`, `https://localhost`, `https://127.0.0.1`, `https://10.0.0.1`, `https://service.internal`, `https://[::1]` | userinfo 또는 내부 목적지이므로 거부 |
+
+외부 URL은 **구문·공개용 정보 검사**이며 실제 접근 가능/공개 소유권/콘텐츠 안전성을 보증하지 않는다. DNS 조회·서버 fetch·미리보기 수집·본문 import는 없다. 절대 HTTPS URL을 내부 Blog 연결로 해석하지도 않는다. R3에서 내부 Blog selector와 철회 정책을 확정하기 전에는 이를 내부 링크의 우회 방식으로 사용하지 않는다. 관리자는 링크와 공개용 제목에 비공개 정보가 없는지 확인한다. 비공개 제목/slug·로컬 경로·관리자 URL을 공개 출처로 사용하지 않는다.
+
+### 저장 → 공개 → 조회와 이전 기록 호환
+
+| 경계 | 확정 동작 |
+| --- | --- |
+| 비공개 저장/조회 | 기존 전체 draft 저장 방식 유지. 새 버전 JSONB에 선택 필드를 보존하고 owner 상세/이력에서 그대로 반환. 공개 DTO·검색·HTML/RSC에는 아직 반영하지 않음 |
+| 필드 없는 이전 draft | 유효한 입력으로 읽고 재저장 가능. GET/parser에서 새 키를 주입하지 않음. 원래 저장본·원문·이력·기존 감사 fingerprint를 갱신하지 않음 |
+| 생략과 빈 배열 | `sources` 생략 시 공개 변환의 기존 기본값 `[{ label: "작성자가 직접 정리한 공개 메모" }]`, `questions` 생략 시 `[]`. 명시적 `sources: []`는 출처 없음. 기본 출처는 추가 근거나 경험 인증을 뜻하지 않음 |
+| 전체 draft 수정 | PATCH/이전 버전 merge가 아님. 새 저장에서 필드를 생략하면 위 생략 규칙으로 돌아가며 이전 값을 자동 복구하지 않음. 편집기는 불러온 draft의 필드를 보존하고 명시 삭제는 `[]`로 전송 |
+| 공개 명령 | 기존 `confirmed: true`, 현재 저장 revision·commandRevision 일치가 필요. 해당 저장본으로 사본 생성 후 모든 공개 필드의 privacy 검사. 과거 임의 revision을 선택해 발행하는 새 기능은 없음 |
+| 개인정보 검사 | 출처 label/href와 질문도 전체 공개 사본의 `assertSafeBrainPublication` 검사 대상. 비공개 경로·연락처·secret·제한어는 `422 public_copy_blocked`. draft 저장 자체는 원문과 같은 비공개 흐름을 유지하며 공개 차단 시 기존 사본을 보존 |
+| 공개 후 수정/재공개 | v1 공개 후 v2 저장은 v1 사본 유지. v2 명시 공개 성공 때만 출처·질문을 포함한 사본을 교체. 이전 v1 draft는 불변 |
+| 기존 공개 사본 | 이미 저장된 sources/questions는 그대로 사용. 키가 없는 이전 형식만 읽기 투영에서 개별 기본값 적용. DB를 다시 쓰거나 현재 draft에서 보충하지 않음. `[]`는 생략과 구분하고 `null`/잘못된 타입을 이전 형식으로 취급하지 않음 |
+| 공개 DTO/reader | `sources`, `questions`는 항상 배열. `selectPublicBrain`의 명시 DTO와 안전한 href 정책을 유지. `BrainNote`/`BrainExplorer` 기존 영역에만 표시. 빈 질문 숨김과 출처 영역의 정리일 유지 |
+| 공개 해제 | 기존 공개 포인터·사본을 해제하고 private 버전·원문·감사 이력은 보존. 공개 graph/독립 상세/HTML/RSC/sitemap에서 철회 기록 제외 |
+
+새 provenance 필드는 선택 필드지만 malformed 값을 정상 빈 값으로 바꾸지 않는다. 저장·공개·조회에서 지원하는 것은 **키 생략 호환**이다. 잘못된 레코드의 자동 수리나 오래된 스냅샷 전체 재생성은 이번 범위가 아니다.
+
+### 명령·오류와 후속 검증 위치
+
+기존 `commandId`·`commandRevision`·현재 revision의 transaction/감사 경계를 재사용한다. fingerprint는 정렬된 객체 키와 원래 draft 값으로 계산하고 배열 순서는 유지한다. 새 필드 값·순서·공백이 달라지면 다른 요청이다. 생략과 `[]`도 다른 요청이며 이들을 정규화해 같은 요청으로 만들지 않는다. 새 오류 envelope·별도 저장 API는 추가하지 않는다.
+
+| 사례 | 기대 결과 | 후속 테스트 위치 (`apps/h-log/` 기준) |
+| --- | --- | --- |
+| 한글/줄바꿈/양끝 공백/순서, 출처 12개·질문 12개·label 160·href 2,048·질문 300 경계 | private 값 그대로, public만 표시 정규화. 상한 +1/공백뿐인 항목/중복/null/unknown key는 400 | `lib/brain-capture.test.ts`, `lib/brain-capture-http.test.ts` |
+| 위 허용/거부 URL, plain text 마크업, 비공개 표식이 label/href/question에 있을 때 | URL 오류 400; privacy 차단 422와 원문 없는 오류. public DTO에 private 추가 키 없음 | `lib/brain-capture.test.ts`, `lib/brain.test.ts` |
+| 키 없는 legacy draft/기존 사본, 명시 `[]`, 재저장, v1→v2 수정/재공개 | 과거 JSONB/원문 보존, 기본값 구분, 미선택 필드는 public에 없음 | `lib/brain-postgres-repository.integration.test.ts`, `lib/brain-curation.test.ts` |
+| 같은 commandId와 같은 payload를 동시에/응답 유실 후 재전송 | 같은 receipt, 새 버전·감사 중복 없음. 이전 배포에서 기록한 키 없는 draft의 명령도 같은 결과 | `lib/brain-postgres-repository.integration.test.ts` |
+| 같은 commandId에 sources/questions만 변경 또는 배열 순서 변경 | `409 command_conflict`. object key 순서만 바뀌면 기존과 같은 요청 | `lib/brain-postgres-repository.integration.test.ts` |
+| 오래된 draft revision 또는 publish/unpublish 뒤 오래된 commandRevision | 각각 `409 revision_conflict` / `409 command_revision_conflict`. 현재 사본 유지 | `lib/brain-postgres-repository.integration.test.ts` |
+| 감사 쓰기/공개 검사 실패, 명시 공개 해제 | 전체 transaction rollback 또는 정상 철회. 불변 이력·현재 공개 사본 확인 | `lib/brain-postgres-repository.integration.test.ts` |
+| 인증·Origin·media type·body 상한 실패 | 기존 401/403/415/413, 오류 본문에 원문 없음, private no-store 유지 | `lib/brain-capture-http.test.ts`, `scripts/brain-capture.http.test.mjs` |
+| admin 작성→저장→재열기→공개→수정→철회, 오류 후 입력 보존 | 기존 공개 두 reader의 데이터 일치, 비공개 HTML/RSC/sitemap 노출 없음, 기존 Brain UI·Home 레이더 유지 | `scripts/brain-capture.http.test.mjs`와 Step 2 브라우저 검수 |
+
+Step 1은 parser/public projection 단위 RED부터 시작해 기존 `npm run test:brain`, `npm run test:brain:http`를 격리 합성 DB/loopback에서 실행한다. 실제 이전 payload의 fingerprint로 감사 행을 준비한 뒤 재요청해 배포 간 호환도 확인한다. 새 parser로 만든 두 요청만 비교하고 legacy 검증으로 간주하지 않는다. Step 2는 동일 계약으로 admin 입력·미리보기만 연결한다. R1 계약 확정은 이 테스트의 통과나 저장/API/UI 구현 완료를 뜻하지 않는다.
 
 ## R2/R3 콘텐츠 완료와 공개의 구분
 
