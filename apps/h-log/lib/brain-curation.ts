@@ -10,7 +10,12 @@ export function sortBrainNodes<T extends Pick<BrainNode, "id" | "recordedAt" | "
   });
 }
 export function mergePublishedBrain(base: BrainGraph, snapshots: BrainSnapshot[], policy: BlogPrivacyScanPolicy = {}): BrainGraph {
-  const safe = snapshots.filter(node => {
+  const safe = snapshots.map(node => {
+    const sources = node.sources === undefined ? [{ label: "작성자가 직접 정리한 공개 메모" }] : node.sources;
+    const questions = node.questions === undefined ? [] : node.questions;
+    if (!Array.isArray(sources) || !Array.isArray(questions)) throw new Error("invalid_public_snapshot");
+    return { ...node, sources, questions };
+  }).filter(node => {
     try { assertSafeBrainPublication(node, policy); return true; }
     catch (error) { if (error instanceof Error && error.message === "public_copy_blocked") return false; throw error; }
   });

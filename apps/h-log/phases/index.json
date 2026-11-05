@@ -214,7 +214,7 @@
     {
       "dir": "brain-provenance-authoring",
       "status": "pending",
-      "summary": "2026-11-06: R1 Step 0 provenance contract completed; Steps 1-2 pending. Defined bounded optional sources/questions, URL/privacy rules, legacy and command-fingerprint compatibility, JSONB snapshots and follow-up tests. Documentation only; no runtime/UI changes. AI Q&A excluded including owner pilot; author-written questions remain. Next: Step 1 private-provenance-snapshots. Operations hold unchanged."
+      "summary": "2026-11-06: R1 Steps 0-1 completed; Step 2 pending. Sources/questions validated and preserved in private revisions and explicit public snapshots with legacy/fingerprint compatibility. Unit 283 pass/27 DB skip, DB 3/3, production HTTP 1/1, source lint/typecheck/build passed; existing private-helper full lint errors remain. Approved Brain UI/radar and operations hold preserved. No AI Q&A. Next: owner-provenance-editor."
     },
     {
       "dir": "evidence-content-curation",

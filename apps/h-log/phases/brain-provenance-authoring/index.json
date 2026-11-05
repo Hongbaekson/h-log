@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "private-provenance-snapshots",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-06: Optional sources/questions now persist unchanged in private JSONB revisions and project into explicitly published current-revision snapshots. Bounded URL/privacy validation, missing-vs-empty compatibility and pre-provenance fingerprint replay verified. RED/GREEN, focused 21/21, unit 283 pass/27 DB skip, isolated DB 3/3, production HTTP 1/1 (30 public HTML/RSC/sitemap responses), source lint/typecheck/build passed. Full lint retains 10 pre-existing private-helper errors/6 warnings. No schema/UI/operations changes. Next: Step 2 owner editor."
     },
     {
       "step": 2,

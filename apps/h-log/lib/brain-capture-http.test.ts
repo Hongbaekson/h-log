@@ -6,6 +6,18 @@ const environment = { HLOG_ADMIN_ENABLED: "1", HLOG_BRAIN_DATABASE_ENABLED: "1",
 const headers = { host: "127.0.0.1:3013", authorization: `Basic ${Buffer.from(`owner:${environment.HLOG_ADMIN_OWNER_KEY}`).toString("base64")}`, origin: environment.HLOG_ADMIN_ORIGIN, "content-type": "application/json" };
 const url = `${environment.HLOG_ADMIN_ORIGIN}/admin/brain/records`;
 
+test("provenance validation returns bounded private errors before storage access", async () => {
+  const unavailable = () => { assert.fail("invalid provenance must not open storage"); };
+  const draft = { title: "개인 제목", originalText: "원문", publicTitle: "", publicSummary: "", publicBody: "", kind: "question", topic: "tools", basis: "question", tags: [] };
+  for (const patch of [{ sources: [{ label: "PRIVATE_BAD_SOURCE", href: "/admin/brain" }] }, { sources: null }, { questions: ["x".repeat(301)] }, { questions: null }]) {
+    const response = await handleBrainCaptureRequest(new Request(url, { method: "POST", headers, body: JSON.stringify({ action: "save", revision: 0,
+      commandId: "12345678-1234-1234-1234-123456789abc", commandRevision: 0, draft: { ...draft, ...patch } }) }), unavailable, environment);
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), { error: "invalid_draft" });
+    assert.match(response.headers.get("cache-control")!, /no-store/);
+  }
+});
+
 test("private HTTP rejects unauthenticated and cross-site requests before accessing records", async () => {
   const unavailable = () => { assert.fail("private repository must not be accessed"); };
   assert.equal((await handleBrainCaptureRequest(new Request(url, { headers: { host: "127.0.0.1:3013" } }), unavailable, environment)).status, 401);

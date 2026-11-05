@@ -445,6 +445,8 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **질문의 의미**: 사용자는 Second Brain AI 질문·답변을 도입하지 않기로 했다. 관리자 전용 시험 운영도 추가하지 않는다. `questions`는 작성자가 직접 기록한 열린 질문이며 방문자 입력·회원가입·LLM 호출·자동 답변과 관계없다. 이미 있는 reader로 표시하므로 승인된 Brain UI·Home 레이더는 유지한다. 구현은 R1 Step 1/2에 남아 있다.
 
+**R1 Step 1 구현 (2026-11-06)**: 선택 필드를 draft parser와 공개 사본에 연결하고 기존 `publicSourceHref`를 입력 검사에도 재사용했다. 저장 시 공백·순서·필드 생략을 유지해 이전 감사 fingerprint를 바꾸지 않는다. `brain-curation`은 이전 사본의 sources/questions가 생략된 경우만 기본값을 적용하고 잘못된 배열 타입을 정상 빈 목록으로 취급하지 않는다. 기존 repository/HTTP envelope·transaction·schema는 변경하지 않았으며 단위·격리 DB·production HTML/RSC 검증을 통과했다. 관리자 입력 UI는 Step 2에 남아 있다.
+
 ## 공식/내부 기준
 
 - Next.js docs

@@ -54,7 +54,7 @@ export const brainRelationLabels: Record<BrainRelation, string> = {
   supports: "생각을 뒷받침", extends: "생각을 확장", applies: "방법을 적용", questions: "다시 질문", revises: "이전 생각을 다시 봄",
 };
 
-function publicSourceHref(href: string | undefined): string | undefined {
+export function publicSourceHref(href: string | undefined): string | undefined {
   if (!href) return undefined;
   if (href === "/resume" || /^\/portfolio\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(href)) return href;
   return tryNormalizePublicSourceUrl(href);

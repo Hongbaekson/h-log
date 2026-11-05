@@ -277,6 +277,6 @@ A3 Step 1 완료: 소유자는 원인·버전/hash를 확인한 실패 작업 �
 
 ## 기록의 근거와 탐색 후속 — R1–R5 계획
 
-2026-11-06 R1 Step 0 `provenance-contract` 완료: 공개용 출처·작성자가 남겨 둔 질문의 필드, 상한, URL, 이전 기록 호환과 공개 사본 계약을 확정했다. 현재 저장/API/UI 구현은 그대로이며 **다음 로컬 작업은 R1 Step 1 `private-provenance-snapshots`**다. R 트랙은 5개 phase / 14개 step 중 completed 1·pending 13이다. 사용자 결정에 따라 Second Brain AI 질문·답변은 관리자 시험 운영까지 도입하지 않는다. 작성자가 직접 남기는 질문은 기록으로 유지한다. 승인된 Brain UI·Home 레이더, SEO 9/1/1, 관리자 16/0/1, 모니터링 7/0/1과 운영 보류는 유지한다. 상세 계약: [기록·탐색 개선 계획](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md).
+2026-11-06 R1 Step 1 `private-provenance-snapshots` 완료: 관리자 저장 API가 공개용 출처·작성자 질문을 비공개 버전에 보존하고, 현재 저장본의 명시 공개 때만 사본에 반영한다. 입력 상한/URL·개인정보 검사, 이전 기록/명령 호환, 미공개 수정 분리·재공개·철회를 검증했다. **다음 로컬 작업은 R1 Step 2 `owner-provenance-editor`**로 관리자 입력·미리보기를 연결한다. R 트랙은 completed 2·pending 12다. AI 질문·답변은 도입하지 않으며 승인된 Brain UI·Home 레이더를 유지한다. 단위 283 pass/27 DB skip, 관련 DB integration 3/3, production HTTP 1/1과 source lint/typecheck/build 통과. 전체 lint의 기존 private helper 오류 10건은 남아 있다. 운영 보류와 SEO/A/모니터링 상태는 그대로다. 상세: [기록·탐색 개선 계획](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md).
 
 관리자에서 공개용 출처·질문을 작성하고, 검수된 사례/후속 회고와 현재 공개 글을 기존 Brain reader에 연결하는 것이 목표다. 태그 표기 통일·기존 배지 탐색·주소 복사와 소유자의 버전별 수동 재검토를 작은 단위로 진행한다. 기존 목차·시리즈·회고·수정 기록을 재구현하지 않는다. 원고 준비와 실제 공개는 분리하며 확인하지 않은 경험·감정·성과는 채우지 않는다.

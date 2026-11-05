@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-05 계획 등록. R1 / Brain 출처·질문 작성: 비공개 저장과 공개 사본. 아직 구현/실행하지 않았다.
+completed — 2026-11-06 출처·질문의 비공개 저장과 명시 공개 사본 구현·검증 완료. 관리자 입력 UI는 Step 2에 남아 있다.
 
 R1 Step 0 완료.
 
@@ -29,6 +29,9 @@ R1 Step 0 완료.
 - `apps/h-log/lib/brain-postgres-repository.ts`
 - `apps/h-log/lib/brain-postgres-repository.integration.test.ts`
 - `apps/h-log/lib/brain.ts`
+- `apps/h-log/lib/brain-curation.ts`
+- `apps/h-log/lib/brain-curation.test.ts`
+- `apps/h-log/lib/public-source-url.ts`
 - `apps/h-log/lib/brain.test.ts`
 - `apps/h-log/scripts/brain-capture.http.test.mjs`
 - `.codex/skills/tdd/SKILL.md`
@@ -83,6 +86,18 @@ git diff --check
 - 회사 Wiki·내부 식별자·확인되지 않은 감정/성과를 자료 수집이나 공개 노드로 채우지 말 것. 출처와 본인 확인이 있는 범위만 다룬다.
 - 계획 등록을 운영 배포·실제 발행·DNS/TLS·provider·timer·외부 알림 승인으로 해석하지 말 것. 기존 운영 보류가 유지된다.
 - 방문자 AI·댓글·공개 통계·새 도메인·별도 그래프/서비스를 추가하지 말 것. 이번 개선 단위와 관계없다.
+
+## 완료 기록 — 2026-11-06
+
+- 변경 코드: `lib/brain-capture.ts`(선택 필드/입력 검사/사본), `lib/brain.ts`(기존 URL 정책 공유), `lib/brain-curation.ts`(이전 사본의 키 생략 호환). 기존 repository·records handler·migration·UI는 재사용한다.
+- 검증 파일: `lib/brain-capture.test.ts`, `lib/brain-capture-http.test.ts`, `lib/brain-curation.test.ts`, `lib/brain-postgres-repository.integration.test.ts`, `scripts/brain-capture.http.test.mjs`. R 계획·PRD/ADR/ARCHITECTURE·관련 계획·phase 상태도 동기화했다.
+- RED: 출처·질문 입력이 `invalid_draft`로 실패, 경계값 거부 누락, legacy 질문 배열 누락 실패를 각각 확인한 뒤 최소 구현으로 GREEN. 원문과 저장용 공백/순서/생략은 유지한다.
+- focused `node --no-warnings --experimental-strip-types --test lib/brain-capture.test.ts lib/brain-capture-http.test.ts lib/brain-curation.test.ts lib/brain.test.ts` **21/21**. `npm run test` **283 pass/27 DB skip**. 최초 sandbox의 기존 관측성 임시 경로 ENOENT는 일반 로컬 재실행으로 분리·통과했다.
+- `test:brain` 및 `test:public-read-path` 대상의 합성 PostgreSQL integration **3/3**. 과거 payload의 감사 행을 직접 준비해 이전 fingerprint 재확인, 동시 중복/충돌·privacy 및 감사 rollback·원문/이력·이전 사본 JSONB 보존·재공개/철회를 확인했다. 테스트 fixture의 생성 시각 누락을 보완한 뒤 통과했다.
+- `test:brain:http` 대상 production 검증 **1/1**, 6상태의 HTML/RSC/사이트맵 **30응답**에 비공개/미선택/철회 데이터 없음. Next 로컬 문서에 따라 RSC not-found의 200+`NEXT_HTTP_ERROR_FALLBACK;404`도 확인한다. 일반 상세 404와 no-store는 유지한다.
+- `npm run typecheck`, Docker runner의 `npm run build`, `npx eslint app components lib scripts proxy.ts next.config.ts` 통과. **전체 `npm run lint`는 기존 private helper 오류 10개/경고 6개로 실패**. 이번 앱 source 회귀와 구분했으며 무관한 helper는 고치지 않았다.
+- Markdown/JSON·상대 링크/읽을 경로·phase 상태 검사와 `git diff --check` 통과. 원자료: Git/Docker 제외 `private/r1-snapshots-2026-11-06/`. 마지막 격리 검수의 컨테이너 3개·network·임시 인증 파일 정리 완료.
+- 공개 UI·Home 레이더·schema·운영 환경은 변경하지 않았다. UI를 추가하는 Step 2에서 데스크톱/모바일 검수를 진행한다. AI 질문·답변 제외와 운영 보류는 유지한다.
 
 ## 다음 단계
 

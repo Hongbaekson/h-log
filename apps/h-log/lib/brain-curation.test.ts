@@ -5,6 +5,24 @@ import { selectPublicBrain } from "./brain.ts";
 import { mergePublishedBrain, sortBrainNodes } from "./brain-curation.ts";
 
 const base = selectPublicBrain(brainCatalog);
+test("legacy public snapshots receive missing provenance defaults without rewriting stored values", () => {
+  const legacy = JSON.parse(JSON.stringify(base.nodes[0]));
+  delete legacy.sources; delete legacy.questions;
+  const before = JSON.stringify(legacy);
+  const node = mergePublishedBrain({ nodes: [], edges: [] }, [legacy]).nodes[0];
+  assert.deepEqual(node.sources, [{ label: "작성자가 직접 정리한 공개 메모", href: undefined }]);
+  assert.deepEqual(node.questions, []);
+  assert.equal(JSON.stringify(legacy), before);
+  const empty = mergePublishedBrain({ nodes: [], edges: [] }, [{ ...legacy, sources: [], questions: [] }]).nodes[0];
+  assert.deepEqual(empty.sources, []); assert.deepEqual(empty.questions, []);
+  const partial = mergePublishedBrain({ nodes: [], edges: [] }, [{ ...legacy, questions: ["남겨 둔 질문"] }]).nodes[0];
+  assert.deepEqual(partial.questions, ["남겨 둔 질문"]);
+  assert.deepEqual(partial.sources, node.sources);
+  for (const patch of [{ sources: null }, { questions: null }, { sources: {} }, { questions: "malformed" }]) {
+    assert.throws(() => mergePublishedBrain({ nodes: [], edges: [] }, [{ ...legacy, ...patch }]));
+  }
+});
+
 test("public reflection edges survive only while both endpoints remain public", () => {
   const prior = { ...base.nodes[0], id: "prior", occurredOn: "2025-05-01" };
   const later = { ...base.nodes[1], id: "later", links: [

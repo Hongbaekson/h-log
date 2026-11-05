@@ -1,4 +1,4 @@
-import { brainBasisLabels, brainKindLabels, brainRelationLabels, brainTopics, type BrainBasis, type BrainKind, type BrainNode, type BrainRelation, type BrainTopic } from "./brain.ts";
+import { brainBasisLabels, brainKindLabels, brainRelationLabels, brainTopics, publicSourceHref, type BrainBasis, type BrainKind, type BrainNode, type BrainRelation, type BrainTopic } from "./brain.ts";
 import { scanBlogPrivacyText, type BlogPrivacyScanPolicy } from "./blog-privacy-scanner.ts";
 
 export type BrainLink = { target: string; relation: BrainRelation; reason: string };
@@ -7,6 +7,7 @@ export type BrainDraft = {
   title: string; originalText: string; publicTitle: string; publicSummary: string; publicBody: string;
   kind: BrainKind; topic: BrainTopic; basis: BrainBasis; tags: string[];
   occurredOn?: string; shareOccurredOn?: boolean; links?: BrainLink[];
+  sources?: BrainNode["sources"]; questions?: string[];
 };
 
 export function parseBrainDraft(input: unknown): BrainDraft {
@@ -14,8 +15,26 @@ export function parseBrainDraft(input: unknown): BrainDraft {
   if (!input || typeof input !== "object" || Array.isArray(input)) return invalid();
   const value = input as Record<string, unknown>;
   const fields = ["title", "originalText", "publicTitle", "publicSummary", "publicBody", "kind", "topic", "basis", "tags"];
-  const optional = ["occurredOn", "shareOccurredOn", "links"];
+  const optional = ["occurredOn", "shareOccurredOn", "links", "sources", "questions"];
   if (fields.some(key => !Object.hasOwn(value, key)) || Object.keys(value).some(key => !fields.includes(key) && !optional.includes(key))) return invalid();
+  if (value.sources !== undefined) {
+    if (!Array.isArray(value.sources) || value.sources.length > 12) return invalid();
+    const labels = new Set<string>();
+    for (const source of value.sources) {
+      if (!source || typeof source !== "object" || Array.isArray(source)
+        || Object.keys(source).some(key => key !== "label" && key !== "href")
+        || typeof source.label !== "string" || !source.label.trim() || source.label.length > 160 || source.label.includes("\0")
+        || labels.has(source.label.trim())) return invalid();
+      if (source.href !== undefined && (typeof source.href !== "string" || source.href.length > 2048 || source.href.includes("\0")
+        || (source.href.trim() && !publicSourceHref(source.href.trim())))) return invalid();
+      labels.add(source.label.trim());
+    }
+  }
+  if (value.questions !== undefined) {
+    if (!Array.isArray(value.questions) || value.questions.length > 12
+      || value.questions.some(question => typeof question !== "string" || !question.trim() || question.length > 300 || question.includes("\0"))
+      || new Set(value.questions.map(question => question.trim())).size !== value.questions.length) return invalid();
+  }
   if (value.occurredOn !== undefined && (typeof value.occurredOn !== "string" || (value.occurredOn !== "" &&
     (!/^\d{4}-\d{2}-\d{2}$/.test(value.occurredOn) || !Number.isFinite(Date.parse(value.occurredOn)) || new Date(value.occurredOn).toISOString().slice(0, 10) !== value.occurredOn)))) return invalid();
   if (value.shareOccurredOn !== undefined && typeof value.shareOccurredOn !== "boolean") return invalid();
@@ -51,7 +70,11 @@ export function toPublicBrainNode(draft: BrainDraft, id: string, recordedAt: str
     id, recordedAt, title: draft.publicTitle, summary: draft.publicSummary,
     kind: draft.kind, topic: draft.topic, basis: draft.basis, tags: [...draft.tags],
     sections: [{ heading: "기록", paragraphs: draft.publicBody.split(/\n\s*\n/).filter(text => text.trim()) }],
-    questions: [], sources: [{ label: "작성자가 직접 정리한 공개 메모" }],
+    questions: (draft.questions ?? []).map(question => question.trim()),
+    sources: (draft.sources ?? [{ label: "작성자가 직접 정리한 공개 메모" }]).map(source => {
+      const href = publicSourceHref(source.href?.trim());
+      return { label: source.label.trim(), ...(href ? { href } : {}) };
+    }),
     ...(draft.shareOccurredOn && draft.occurredOn ? { occurredOn: draft.occurredOn } : {}),
     ...(draft.links?.length ? { links: draft.links.map(link => ({ ...link })) } : {}),
   };
