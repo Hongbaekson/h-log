@@ -125,3 +125,9 @@ node --no-warnings --experimental-strip-types private/seo-audit/run.mjs
 [원고·링크 검수](SEO_CONTENT_LINK_REVIEW.md)에서 대표 원고 1편의 비공개 후보와 사실 보존 비교를 준비했다. 기존 프로젝트/시리즈 연결의 현재 제목·철회 제외, HTML/Markdown/feed/llms의 동일 공개 버전을 격리 DB에서 확인했다. Unit 66/66, production HTTP 21/21 및 추가 24응답, JS ON/OFF 24화면·6탐색을 통과했으며 앱 변경과 실제 발행은 없다.
 
 SEO-07은 **알려진 제한 유지, 수정하지 않음**으로 판단했다. Home 최근 글 직접 링크는 JS ON 3개/OFF 0개지만 Home → Blog → 상세의 실제 클릭은 두 모드 모두 성공했다. 해결 완료나 실제 색인 성과로 표현하지 않으며 S3 회귀에서 이 대체 경로를 확인한다. 실제 공개 목록/고립 글 수·검색량은 미확인이다. 다음은 SEO-04를 다루는 S2 Step 5다.
+
+## 2026-11-05 S2 Step 5 Brain 기본 발견 개선
+
+**SEO-04 해결.** 기존 기본 graph를 그대로 사용한 서버 fallback 목록과 JS 목록의 독립 상세 anchor를 추가했다. 승인된 그래프 UI·공개 사본·canonical 계약은 유지한다. 이전 production 이미지의 6표본에서 visible anchor 0개를 RED로 확인했고, 새 production의 DB/파일 모드와 개발 서버에서 1440/390/320px JS ON/OFF 18표본을 통과했다. 공개 사본의 최신 미선택 수정은 노출되지 않으며, 철회 시 HTML/RSC/sitemap 제외와 상세 404/no-store 경계를 확인했다. 상세 실행·이미지·명령·기존 lint 한계는 [Step 5](../../../phases/seo-public-surface-optimization/step5.md)에 남겼다.
+
+기본 탐색 개선이며 실제 색인/순위·field 성능 개선을 뜻하지 않는다. SEO-07 Home 직접 링크 제한은 그대로다. S2 전체 완료, 다음은 S3 Step 0이다.

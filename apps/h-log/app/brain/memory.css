@@ -22,6 +22,15 @@ body:has(.memory-page) > .site-header, body:has(.memory-page) > .site-footer { d
 :where(.memory-page) button, :where(.memory-page) input { font: inherit; }
 .memory-page button { cursor: pointer; }
 .memory-page :is(button, a, input):focus-visible { outline: 2px solid #929879; outline-offset: 4px; }
+.brain-index { height: 100dvh; overflow-y: auto; padding: clamp(24px, 4vw, 64px); }
+.brain-index > div { max-width: 720px; margin: 0 auto; }
+.brain-index h1 { font-size: 28px; font-weight: 600; }
+.brain-index p { margin-top: 12px; color: var(--mem-f2); }
+.brain-index ul { margin-top: 28px; padding: 0; list-style: none; }
+.brain-index li { border-top: 1px solid var(--mem-b1); }
+.brain-index li a { display: block; padding: 20px 0; overflow-wrap: anywhere; }
+.brain-index strong { display: block; font-size: 16px; font-weight: 500; }
+.brain-index span { display: block; margin-top: 8px; color: var(--mem-f2); }
 .mem-app { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 1px; height: 100dvh; background: #e0ded3; }
 .mem-side { position: relative; z-index: 7; overflow-y: auto; padding: 24px 20px; color-scheme: light; color: #1a1a17; background: #ecebe3; scrollbar-width: none; }
 .mem-side-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }

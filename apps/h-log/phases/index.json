@@ -203,8 +203,8 @@
     },
     {
       "dir": "seo-public-surface-optimization",
-      "status": "pending",
-      "summary": "2026-11-05: S2 Step 4 completed as manuscript preparation/local verification, not publication. Prepared one private Next.js/Suspense manuscript with clear title/intro, no-JS limits and stable project/list links; preserved historical evidence and Korean protected spans. Reused current project/series selectors. Unit 66/66, production HTTP 21/21 plus 24 content responses, 24 JS/no-JS views and 6 Home-to-article navigations passed. Withdrawal removes series/project/crawler links; all version bodies/hashes preserved. SEO-07 remains a documented no-JS Home direct-link limitation; Blog discovery works. No app change, live data access or publication. Next: S2 Step 5."
+      "status": "completed",
+      "summary": "2026-11-05: S2 Step 5 completed. Reused the public graph for a server-rendered Brain fallback catalog and independent detail anchors in the existing JS list; ordinary selection/history and the approved graph UI are preserved. Production RED failed all six JS/no-JS discovery samples; GREEN passed at 1440/390/320px in DB and file-catalog modes and development. Private originals, newer drafts and withdrawn notes stay absent from HTML/RSC/sitemap; withdrawal and 404/no-store boundaries passed. Unit 277 pass/26 DB skip, source lint/typecheck/production build passed. Default lint retains pre-existing private helper errors. S2 complete; next: S3 Step 0. No live publication, deployment or radar change."
     },
     {
       "dir": "seo-release-and-measurement",

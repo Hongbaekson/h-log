@@ -4,7 +4,7 @@
 
 pending — 계획 등록이며 미구현/미실행.
 
-S1 baseline과 S2 각 step의 결과/no-op 기록이 있어야 한다.
+S1 baseline과 S2 각 step의 결과/no-op 기록이 있어야 한다. 2026-11-05 S2 전체 완료. [Step 5](../seo-public-surface-optimization/step5.md)의 Brain 기본 목록·JS 선택/독립 상세·철회 경계를 릴리스 회귀에 포함한다. 실제 운영 적용은 아직 아니다.
 
 2026-11-04 [S2 Step 1 검수](../seo-public-surface-optimization/step1.md)의 남은 한계를 포함한다. DB 읽기 실패는 500이며 JS에서는 안내/재시도가 가능하지만 no-JS 본문은 비어 있었다. 같은 표본을 다시 확인하고, 5xx를 유지하는 오류 안내의 필요성과 최소 구현 범위를 판단한다. 이를 200 빈 목록으로 숨기거나 현재 상태를 no-JS 오류 안내까지 완료했다고 기록하지 않는다.
 

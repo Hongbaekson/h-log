@@ -35,7 +35,8 @@
     {
       "step": 5,
       "name": "server-rendered-brain-discovery",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-05: S2 Step 5 completed. Reused the public graph for a server-rendered Brain fallback catalog and independent detail anchors in the existing JS list; ordinary selection/history and the approved graph UI are preserved. Production RED failed all six JS/no-JS discovery samples; GREEN passed at 1440/390/320px in DB and file-catalog modes and development. Private originals, newer drafts and withdrawn notes stay absent from HTML/RSC/sitemap; withdrawal and 404/no-store boundaries passed. Unit 277 pass/26 DB skip, source lint/typecheck/production build passed. Default lint retains pre-existing private helper errors. S2 complete; next: S3 Step 0. No live publication, deployment or radar change."
     }
   ]
 }

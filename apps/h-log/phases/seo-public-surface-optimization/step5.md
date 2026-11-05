@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-03 S1 감사의 SEO-04를 독립 작업으로 등록했다. 기존 Blog 발견 step의 구현 범위를 Brain까지 넓히지 않는다. S2 Step 4 이후 진행한다.
+completed — 2026-11-05. SEO-04의 기본 목록·독립 링크를 개선하고 승인된 그래프 UI·공개 사본 정책을 보존했다.
 
 ## 읽을 파일
 
@@ -56,6 +56,17 @@ JS OFF 방문자가 Brain 홈에서 공개 기록의 제목과 기본 상세 링
 - 공개 사본 정책을 약화하지 말 것. SEO 발견 가능성보다 원문/비공개 경계가 우선한다.
 - 그래프 전면 재설계·새 서비스/SEO 라이브러리를 추가하지 말 것. 이번 범위는 기본 읽기와 링크다.
 - 운영 DB·실제 발행·DNS/TLS·GSC 제출을 실행하지 말 것. 운영 보류는 별도 승인 대상이다.
+
+## 완료 기록 — 2026-11-05
+
+- 변경: `app/brain/page.tsx`의 Suspense fallback이 같은 공개 graph의 제목·요약·상세 링크를 제공한다. `memory.css`에는 이 기본 목록의 스크롤/간격만 추가했다. 기존 JS 목록은 anchor를 사용하며 일반 클릭/Enter는 그래프 안에서 기록을 선택하고 Ctrl 클릭은 독립 상세를 연다. 그래프 renderer·배치·공개 selector·DB·sitemap·canonical·Home 레이더는 바꾸지 않았다.
+- RED: 이전 production 이미지 `8dff41b05f9347cd2c8a43a26beb16cd9dbf9248fcdecbc44dc53daf0734453f`에서 `scripts/brain-discovery.browser-check.mjs`의 1440/390/320px × JS ON/OFF 6표본 모두 공개 상세 anchor 0개로 실패했다. 기존 HTTP 회귀 21/21은 통과했다.
+- GREEN: 새 production 이미지 `294ef66be285a634985da3fbd93c192bd14f170f692a9c20e2522b206e1b4ff2`의 DB 모드 29개(기존 28개+합성 공개 사본), 파일 모드 28개, 개발 서버 DB 모드 29개를 검수했다. 총 18표본의 visible anchor·제목·요약·상세 본문·canonical·가로 넘침 검사를 통과했다. 같은 3환경의 9화면에서 Enter/검색/뒤로가기/Ctrl 새 탭/모바일 필터/배치 전환을 확인했다.
+- 공개 경계: 3환경에서 HTTP 회귀 각 21/21 및 추가 14/9/14응답을 확인했다. 비공개 원문·미선택 수정본·미공개·철회 기록은 HTML/RSC/공개 목록/sitemap에 나오지 않는다. DB 공개 사본은 수정만으로 바뀌지 않고 철회 뒤 새 요청의 목록·RSC·사이트맵에서 제거되며 상세는 404다. DB 모드 공개 응답은 no-store를 유지한다.
+- 필수 gate: 단위 277 pass/26 DB skip, source lint(`eslint . --ignore-pattern 'private/**'`), typecheck, Docker production build 통과. 최초 단위 실행의 sandbox 임시 파일 접근 실패는 정상 임시 폴더에서 재실행해 통과했다. 기본 lint는 기존 `private/observe-step4`, `private/observe-step5`의 require import 오류 10건이 남는다. 관련 없는 helper는 수정하지 않았다.
+- 원자료: Git 제외 `private/seo-brain/`의 `red`, `green`, `boundaries`, `file-catalog`, `dev-final`. Node 24.22.1, Next 16.4.3, 전용 Edge/Playwright를 사용했다. Production 표본 origin은 `http://127.0.0.1:3048`, 개발은 `http://127.0.0.1:3050`, canonical은 합성 `https://hlog.example.org`다. 매 실행의 전용 DB/container/network/임시 credential을 정리했다.
+- 재현: 별도 localhost 앱·합성 DB·브라우저를 준비한 harness에서 `verifyBrainDiscovery(browser, origin, publicGraph, outputDirectory)`를 호출한다. checker는 loopback origin만 허용하고 각 JS 모드의 실패를 `discovery.json`에 기록한다. 운영 DB나 사용자 브라우저를 재사용하지 않는다.
+- 한계: SEO-04의 기본 발견 결함을 해결한 것이다. 실제 검색 색인/순위·성능/INP 향상은 측정하지 않았다. SEO-07 Home 최근 글 no-JS 직접 링크 제한과 S3의 오류 안내·실제 콘텐츠 성능 후속 검수는 유지한다.
 
 ## 다음 단계
 
