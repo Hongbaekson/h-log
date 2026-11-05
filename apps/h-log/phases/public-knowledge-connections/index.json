@@ -1,0 +1,16 @@
+{
+  "project": "h-log",
+  "phase": "public-knowledge-connections",
+  "steps": [
+    {
+      "step": 0,
+      "name": "published-source-connections",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "curated-reading-paths",
+      "status": "pending"
+    }
+  ]
+}

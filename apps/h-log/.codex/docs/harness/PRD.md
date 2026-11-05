@@ -274,3 +274,9 @@ A3 Step 1 완료: 소유자는 원인·버전/hash를 확인한 실패 작업 �
 ## 백업·복구 관측 구현 — 2026-10-29
 
 2026-10-29 모니터링 Step 4 완료: custom dump 생성·형식 검사와 격리 복구 검증의 성공을 분리했다. 새 tmpfs DB에서 migration/vector·본문/PDF hash·공개/비공개 HTTP·PDF 새 epoch와 감사 reset을 확인한 뒤에만 복구 성공을 기록한다. 실패 때 이전 성공 시각을 보존하고 disabled/누락/손상/오래된 신호를 구분한다. 단위 270 pass/26 DB skip, 전체 격리 DB integration, Linux state 9개·파일 8개, 실제 backup/restore와 Prometheus smoke, lint/typecheck/build 통과. 모니터링 completed 5·pending 2·blocked 1이며 다음은 **operations-observability Step 5: dashboards-and-alert-routing**다. 관리자 14·2·1과 OCI·실제 provider·발행·timer 보류는 유지한다.
+
+## 기록의 근거와 탐색 후속 — R1–R5 계획
+
+2026-11-05 사용자 요청으로 [기록·탐색 개선 계획](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md)을 **R1–R5, 5개 phase / 14개 pending step**으로 추가했다. Brain 출처·질문 작성 → 실제 사례/회고 → 공개 연결 → 태그/공유 → admin 재검토 순서다. 승인된 Brain UI와 Home 레이더를 유지하며 이번에는 계획만 등록했다. **다음 전체 작업은 기존 SEO S3 Step 0**, 이후 새 트랙은 **R1 Step 0 `provenance-contract`**부터 시작한다. 기존 운영 보류와 SEO/A/모니터링 상태는 그대로다.
+
+관리자에서 공개용 출처·질문을 작성하고, 검수된 사례/후속 회고와 현재 공개 글을 기존 Brain reader에 연결하는 것이 목표다. 태그 표기 통일·기존 배지 탐색·주소 복사와 소유자의 버전별 수동 재검토를 작은 단위로 진행한다. 기존 목차·시리즈·회고·수정 기록을 재구현하지 않는다. 원고 준비와 실제 공개는 분리하며 확인하지 않은 경험·감정·성과는 채우지 않는다.

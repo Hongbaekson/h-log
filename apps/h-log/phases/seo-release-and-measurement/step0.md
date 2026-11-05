@@ -78,3 +78,7 @@ git diff --check
 ## 다음 단계
 
 S3 Step 1. OCI/도메인/계정 사용 조건이 없으면 blocked를 유지한다.
+
+## 등록된 후속 로컬 트랙 — 2026-11-05
+
+이 step 완료 후 [기록·탐색 개선 R1 Step 0](../brain-provenance-authoring/step0.md)을 진행할 수 있다. R1–R5는 14개 pending step이며 SEO S3 Step 1의 운영/계정 gate와 독립적이다. 새 계획 등록은 이번 S3 Step 0의 완료나 OCI 보류 해제를 뜻하지 않는다.

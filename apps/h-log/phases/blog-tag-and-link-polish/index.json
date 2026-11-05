@@ -1,0 +1,21 @@
+{
+  "project": "h-log",
+  "phase": "blog-tag-and-link-polish",
+  "steps": [
+    {
+      "step": 0,
+      "name": "tag-alias-contract-and-projection",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "navigable-tag-badges",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "article-and-section-link-copy",
+      "status": "pending"
+    }
+  ]
+}

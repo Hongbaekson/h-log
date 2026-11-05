@@ -1,0 +1,21 @@
+{
+  "project": "h-log",
+  "phase": "knowledge-review-workflow",
+  "steps": [
+    {
+      "step": 0,
+      "name": "manual-review-contract",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "owner-review-queue",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "local-knowledge-release-rehearsal",
+      "status": "pending"
+    }
+  ]
+}

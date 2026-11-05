@@ -212,6 +212,31 @@
       "summary": "2026-10-26 plan registered: local SEO release rehearsal, approved public-domain/Search Console verification and later measured search review. Steps 0 and 2 pending; Step 1 blocked by OCI hold and unresolved public-domain/account scope. No deployment, DNS, account submission, tracker or recurring audit was activated."
     },
     {
+      "dir": "brain-provenance-authoring",
+      "status": "pending",
+      "summary": "2026-11-05: R1 Brain 출처·질문 작성, 3 pending steps. Planning only; see KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md. Preserve the approved Brain UI, radar, public snapshot and operations hold."
+    },
+    {
+      "dir": "evidence-content-curation",
+      "status": "pending",
+      "summary": "2026-11-05: R2 실제 사례와 회고 정리, 3 pending steps. Planning only; see KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md. Preserve the approved Brain UI, radar, public snapshot and operations hold."
+    },
+    {
+      "dir": "public-knowledge-connections",
+      "status": "pending",
+      "summary": "2026-11-05: R3 공개 글과 기록 연결, 2 pending steps. Planning only; see KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md. Preserve the approved Brain UI, radar, public snapshot and operations hold."
+    },
+    {
+      "dir": "blog-tag-and-link-polish",
+      "status": "pending",
+      "summary": "2026-11-05: R4 태그와 공유 편의, 3 pending steps. Planning only; see KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md. Preserve the approved Brain UI, radar, public snapshot and operations hold."
+    },
+    {
+      "dir": "knowledge-review-workflow",
+      "status": "pending",
+      "summary": "2026-11-05: R5 관리자 재검토와 통합 검수, 3 pending steps. Planning only; see KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md. Preserve the approved Brain UI, radar, public snapshot and operations hold."
+    },
+    {
       "dir": "operations-observability",
       "status": "blocked",
       "blocked_reason": "Local Steps 0-6 and A3 Steps 0-3 are complete. Only Step 7 production rollout remains, blocked by the user-directed OCI hold and explicit scope approval.",

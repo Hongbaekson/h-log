@@ -524,3 +524,9 @@ Cycle 관측 wrapper는 기존 generate/worker의 결과와 오류를 보존한�
 `scripts/observability-backup.mjs`는 외부 새 파일로 custom dump를 stream하고 형식을 검사한다. 별도 restore 명령은 opt-in tmpfs 컨테이너의 새 DB에만 복원하고 schema/vector·모든 본문/PDF 무결성·현재 공개 selector와 실제 Next HTTP를 검사한다. 새 publication epoch는 dump 밖에서 발급하며 복원된 PDF 공개 포인터는 404 확인 후 감사와 함께 reset한다. 검사 중의 웹 프로세스는 loopback에만 열고 생성 DB를 정리한다. 원본 DB는 읽기만 한다.
 
 Host helper가 `backup.json`/`restore.json`과 별도 evidence를 관리한다. Collector는 db/autopublish/backup/restore/expectations를 독립 수집하고 고정 task/result/stage만 내보낸다. 기대 상태와 성공 시각으로 첫 실행·재활성화·정비 후 deadline을 계산한다. 공개 앱/관리자 UI·schema 변경이나 자동 백업 timer는 없다.
+
+## 기록·탐색 후속 구조 — 미구현 계획
+
+[R1–R5 계획](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md)은 기존 Next.js/PG·owner 인증·공개 selector와 snapshot을 확장하는 14개 pending step이다. 현재 `BrainDraft`에는 sources/questions가 없으며 공개 변환은 고정 출처와 빈 질문을 만든다. R1은 이 차이를 메우고, R3는 내부 Blog 출처를 published-current 판정에 연결한다. 공개 UI와 원문/이력은 유지한다.
+
+R2는 근거/현재성 대장과 원고·노드 후보 준비, R4는 기존 목록/검색의 태그 별칭과 링크 동작, R5는 admin 전용 버전별 수동 검토다. 상세 상한·저장 계약은 각 contract step에서 결정한다. 새 서비스·스케줄러·공개 원문 동기화는 없으며, 이 절은 실제 구현 현황이 아니다. 다음 로컬 작업은 SEO S3 Step 0 후 R1 Step 0이다.

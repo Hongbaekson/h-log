@@ -1,5 +1,7 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
+2026-11-05 사용자 요청으로 [기록·탐색 개선 계획](../apps/h-log/.codex/docs/harness/KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md)을 **R1–R5, 5개 phase / 14개 pending step**으로 추가했다. Brain 출처·질문 작성 → 실제 사례/회고 → 공개 연결 → 태그/공유 → admin 재검토 순서다. 승인된 Brain UI와 Home 레이더를 유지하며 이번에는 계획만 등록했다. **다음 전체 작업은 기존 SEO S3 Step 0**, 이후 새 트랙은 **R1 Step 0 `provenance-contract`**부터 시작한다. 기존 운영 보류와 SEO/A/모니터링 상태는 그대로다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-05 SEO S2 Step 5 완료: 기존 공개 graph로 서버 기본 목록과 독립 상세 링크를 제공한다. JS 목록의 일반 클릭은 기존 기록 선택을 유지하며 새 탭으로 상세를 열 수 있다. 승인된 그래프 UI와 Home 레이더는 유지했다. Production RED 6표본 실패 후 DB/파일 카탈로그·개발 서버의 1440/390/320px JS ON/OFF 검수 18표본, 검색·Enter·뒤로가기·새 탭·배치 전환 9표본을 통과했다. HTML/RSC/sitemap에서 비공개 원문·미선택 수정·철회 기록 제외와 404/no-store를 확인했다. 단위 277 pass/26 DB skip, source lint/typecheck/production build 통과. 기본 lint의 기존 private helper 오류는 별도 기록했다. SEO completed 8·pending 2·blocked 1, **다음은 S3 Step 0: local-seo-release-rehearsal**이다. OCI·실제 발행·timer 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.
 
 2026-11-05 SEO S2 Step 4 완료: 최근 글 조회 원고 1편의 Next.js/Suspense 제목·도입·no-JS 한계와 프로젝트/목록 링크 후보를 준비했다. 원고·diff는 비공개로 보관하고 실제 발행이나 앱 변경은 하지 않았다. 기존 프로젝트·시리즈 연결을 재사용해 현재 제목과 철회 후 제외를 확인했다. Unit 66/66, production HTTP 21/21과 추가 24응답, JS ON/OFF 24화면·6탐색, 원문/hash 보존을 통과했다. SEO-07은 Home 직접 링크의 알려진 제한으로 유지하고 Blog 대체 경로를 확인했다. SEO completed 7·pending 3·blocked 1, **다음은 S2 Step 5: server-rendered-brain-discovery**다. OCI·공개 발행·timer 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.

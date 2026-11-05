@@ -1,5 +1,7 @@
 # H-Log Second Brain
 
+2026-11-05 사용자 요청으로 [기록·탐색 개선 계획](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md)을 **R1–R5, 5개 phase / 14개 pending step**으로 추가했다. Brain 출처·질문 작성 → 실제 사례/회고 → 공개 연결 → 태그/공유 → admin 재검토 순서다. 승인된 Brain UI와 Home 레이더를 유지하며 이번에는 계획만 등록했다. **다음 전체 작업은 기존 SEO S3 Step 0**, 이후 새 트랙은 **R1 Step 0 `provenance-contract`**부터 시작한다. 기존 운영 보류와 SEO/A/모니터링 상태는 그대로다.
+
 등록일: 2026-10-06. 사용자 요청: 개인 경험과 생각을 연결하고, 지정한 저장소에서 일반화할 수 있는 기술적 문제를 선별해 초기 노드를 작성한다.
 
 ## 목적과 이번 범위
