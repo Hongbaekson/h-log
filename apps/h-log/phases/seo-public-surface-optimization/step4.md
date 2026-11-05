@@ -2,9 +2,9 @@
 
 ## 상태와 선행 조건
 
-pending — 구현 전이다. S1 Step 1의 [감사 기준선](../../.codex/docs/harness/SEO_AUDIT_BASELINE.md)을 먼저 읽는다.
+completed — 2026-11-05 원고 준비와 로컬 검수를 완료했다. [원고·링크 검수](../../.codex/docs/harness/SEO_CONTENT_LINK_REVIEW.md)에 후보·사실 보존·공개 승인 상태·검증 결과를 기록했다. 실제 발행과 앱 코드 변경은 하지 않았다.
 
-SEO-07: Home의 최근 글 anchor가 JS OFF에서 0개인 점을 별도 링크 보완 후보로 검토한다. Blog 목록 링크는 유지되며 레이더는 바꾸지 않는다.
+SEO-07: Home 최근 글의 JS OFF 직접 anchor 0개는 알려진 제한으로 유지한다. 이번 6회 실제 탐색에서 Home → Blog → 상세 경로를 확인해 별도 Home 변경은 하지 않았다. 해결 완료로 표시하지 않으며 소개·레이더는 유지한다.
 
 S1의 고립된 글/검색 의도 목록과 현재 공개 콘텐츠가 필요하다.
 
@@ -76,3 +76,11 @@ git diff --check
 ## 다음 단계
 
 S2 Step 5 `server-rendered-brain-discovery`.
+
+## 완료 기록 — 2026-11-05
+
+- 최근 글 조회 원고 1편의 제목·요약·도입을 구체화하고 no-JS 한계·프로젝트/목록 링크를 보완했다. 사실 보완본/문체 교정본/diff·출처 hash는 Git/Docker 제외 `private/seo-content/`에 보관했다. 기존 11개 claim과 과거 35/44개 검증 숫자·날짜·코드는 보존했다.
+- 공개된 H-Log 프로젝트와 기존 시리즈 정의를 확인했다. 실제 운영 발행 목록은 조회하지 않았으며, 새 고립 글이나 추가 mapping을 추정하지 않았다. slug는 기존 `home-recent-posts` 활용 제안이며 운영 URL 변경은 없다.
+- 같은 production 이미지에서 unit 66/66, HTTP 회귀 21/21 및 추가 24응답, JS ON/OFF·1440/390/320px 24화면과 실제 6탐색을 확인했다. 현재 제목/HTML/Markdown/feed/llms, 철회 후 링크 제외·404, version 본문/HTML/hash 불변과 publish job 0건이 통과했다.
+- TDD 예외는 원고·문서 준비이며 앱 동작 변경이 없다. 기존 lint/typecheck/build 결과를 이번의 새 검증으로 쓰지 않는다. JSON/Markdown·링크·phase 집계와 `git diff --check`를 확인했다.
+- SEO completed 7·pending 3·blocked 1. 상세 증거·환경·원고 승인 상태는 [검수 보고서](../../.codex/docs/harness/SEO_CONTENT_LINK_REVIEW.md)를 따른다. 다음은 S2 Step 5이며 OCI·실제 발행·timer는 보류 상태다.

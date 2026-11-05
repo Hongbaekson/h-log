@@ -119,3 +119,9 @@ node --no-warnings --experimental-strip-types private/seo-audit/run.mjs
 위 S1 시점의 성능 미측정과 별도로, [Step 3](../../../phases/seo-public-surface-optimization/step3.md)에서 `42eb458` production 빌드의 Home·Blog 목록·긴 글·Brain을 모바일/데스크톱 각 3회 측정했다. 모바일 LCP 중앙값 730–909ms, 전체 CLS 0, 모바일 TBT 중앙값 13–50ms였다. Brain 모바일 LCP 범위 798–2,409ms와 주 스레드 중앙값 1.40초도 기록했다. 단독 수정할 병목을 특정하지 못해 앱 코드 변경 없이 기준선으로 남겼다.
 
 이미지/웹폰트 전송은 합성 fixture에서 0B이며 실제 이미지가 있는 콘텐츠의 성능을 입증하지 않는다. Brain LCP는 검색창 문구여서 그래프 준비/상호작용 성능도 대체하지 않는다. 실제 콘텐츠와 Brain 편차 재확인은 S3 Step 0에, CrUX/INP·운영/검색 효과 미측정은 S3 Step 1/2에 유지한다. HTTP 21/21과 성능 실행 24/24를 확인했고 다음은 S2 Step 4다.
+
+## 2026-11-05 S2 Step 4 원고·링크 검수
+
+[원고·링크 검수](SEO_CONTENT_LINK_REVIEW.md)에서 대표 원고 1편의 비공개 후보와 사실 보존 비교를 준비했다. 기존 프로젝트/시리즈 연결의 현재 제목·철회 제외, HTML/Markdown/feed/llms의 동일 공개 버전을 격리 DB에서 확인했다. Unit 66/66, production HTTP 21/21 및 추가 24응답, JS ON/OFF 24화면·6탐색을 통과했으며 앱 변경과 실제 발행은 없다.
+
+SEO-07은 **알려진 제한 유지, 수정하지 않음**으로 판단했다. Home 최근 글 직접 링크는 JS ON 3개/OFF 0개지만 Home → Blog → 상세의 실제 클릭은 두 모드 모두 성공했다. 해결 완료나 실제 색인 성과로 표현하지 않으며 S3 회귀에서 이 대체 경로를 확인한다. 실제 공개 목록/고립 글 수·검색량은 미확인이다. 다음은 SEO-04를 다루는 S2 Step 5다.

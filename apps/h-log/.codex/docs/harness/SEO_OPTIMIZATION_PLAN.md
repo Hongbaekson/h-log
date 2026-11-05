@@ -1,8 +1,8 @@
 # H-Log SEO 개선과 claude-seo의 Codex 도입 계획
 
-등록일: 2026-10-26. 2026-11-03 S1 스킬 이식과 [공개 페이지 감사 기준선](SEO_AUDIT_BASELINE.md)을 완료했다. Brain 발견 경로를 독립 S2 Step 5로 추가해 **3개 phase / 11개 step 중 completed 6·pending 4·blocked 1**이다. 2026-11-04 S2 Step 0의 Blog canonical·색인·DB 오류 응답을 개선했다. 실제 도메인 제출은 수행하지 않았다.
+등록일: 2026-10-26. 2026-11-03 S1 스킬 이식과 [공개 페이지 감사 기준선](SEO_AUDIT_BASELINE.md)을 완료했다. Brain 발견 경로를 독립 S2 Step 5로 추가해 **3개 phase / 11개 step 중 completed 7·pending 3·blocked 1**이다. 2026-11-04 S2 Step 0의 Blog canonical·색인·DB 오류 응답을 개선했다. 실제 도메인 제출은 수행하지 않았다.
 
-관리자 로컬 단계와 모니터링 로컬 검수는 완료했고 운영 적용은 기존 OCI 보류를 유지한다. S2 Step 1의 일반 목록 발견 검수를 앱 코드 추가 변경 없이 완료했다. 2026-11-05 S2 Step 2의 페이지별 공유 정보 수정과 실제 JSON-LD 검수를 완료했다. S2 Step 3에서 24회 성능 기준선을 남기고 앱 코드 변경 없이 완료했다. 실제 이미지/field 지표와 Brain 상호작용은 미측정이다. 다음 로컬 작업은 **S2 Step 4 `evidence-based-content-and-links`**다. 운영 SEO 확인은 OCI 보류 해제·공개 도메인 확정 뒤에만 가능하며 기존 모니터링 → 관리자 → timer 운영 순서는 바꾸지 않는다.
+관리자 로컬 단계와 모니터링 로컬 검수는 완료했고 운영 적용은 기존 OCI 보류를 유지한다. S2 Step 1의 일반 목록 발견 검수를 앱 코드 추가 변경 없이 완료했다. 2026-11-05 S2 Step 2의 페이지별 공유 정보 수정과 실제 JSON-LD 검수를 완료했다. S2 Step 3에서 24회 성능 기준선을 남기고 앱 코드 변경 없이 완료했다. 실제 이미지/field 지표와 Brain 상호작용은 미측정이다. S2 Step 4에서 대표 원고의 비공개 수정 후보와 공개 연결 검수를 완료했다. 실제 발행은 하지 않았다. 다음 로컬 작업은 **S2 Step 5 `server-rendered-brain-discovery`**다. 운영 SEO 확인은 OCI 보류 해제·공개 도메인 확정 뒤에만 가능하며 기존 모니터링 → 관리자 → timer 운영 순서는 바꾸지 않는다.
 
 ## 1. 검토한 원본과 도입 결론
 
@@ -71,7 +71,7 @@ schema는 [Google 구조화 데이터 정책](https://developers.google.com/sear
 | S2 | 1 | 기존 수정의 no-JS 목록→상세/페이지와 JS 재시도 검수, 앱 구현 추가 없음 | completed |
 | S2 | 2 | 페이지별 OG/Twitter 상속 수정, 실제 JSON-LD·특수문자·날짜 정합성 검수 | completed |
 | S2 | 3 | production 24회 성능 기준선·편차/전송량 기록, 앱 변경 없음·실제 이미지/field 미측정 | completed |
-| S2 | 4 | 기술 글의 검색 의도·근거·내부 링크·AI 읽기 일관성 | pending |
+| S2 | 4 | 대표 원고 수정 후보·사실 보존, 기존 링크/철회·공개 버전 일관성 검수; 실제 미발행 | completed |
 | S2 | 5 | 감사에서 확인한 Brain 기본 읽기·상세 anchor 발견, 승인된 그래프 UI 보존 | pending |
 | S3 `seo-release-and-measurement` | 0 | 공개/비공개·철회/오류 회귀와 배포 전 SEO 확인 기록 | pending |
 | S3 | 1 | 승인된 실제 도메인·Search Console·sitemap/색인 검증 | blocked |
@@ -131,3 +131,9 @@ schema는 [Google 구조화 데이터 정책](https://developers.google.com/sear
 2026-11-05 SEO S2 Step 3 완료: 같은 production 빌드의 Home·Blog 목록·긴 글·Brain을 모바일/데스크톱 각 3회, 총 24회 측정했다. 모바일 LCP 중앙값은 730–909ms, 전체 CLS 0이며 Brain LCP의 798–2,409ms 편차도 보존했다. 이번 표본에서 단독 수정할 병목을 특정하지 못해 앱 코드는 변경하지 않았다. 이미지/폰트 전송 0B와 그래프 상호작용·field 지표 미측정의 한계를 기록했다. HTTP 21/21과 문서·phase 검증을 통과했고 전용 측정 자원을 정리했다. SEO completed 6·pending 4·blocked 1, **다음은 S2 Step 4: evidence-based-content-and-links**다. OCI·실제 공개 발행·timer 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.
 
 환경·수치·판단과 재현 조건은 [Step 3 완료 기록](../../../phases/seo-public-surface-optimization/step3.md)에 둔다.
+
+### S2 Step 4 완료 — 2026-11-05
+
+2026-11-05 SEO S2 Step 4 완료: 최근 글 조회 원고 1편의 Next.js/Suspense 제목·도입·no-JS 한계와 프로젝트/목록 링크 후보를 준비했다. 원고·diff는 비공개로 보관하고 실제 발행이나 앱 변경은 하지 않았다. 기존 프로젝트·시리즈 연결을 재사용해 현재 제목과 철회 후 제외를 확인했다. Unit 66/66, production HTTP 21/21과 추가 24응답, JS ON/OFF 24화면·6탐색, 원문/hash 보존을 통과했다. SEO-07은 Home 직접 링크의 알려진 제한으로 유지하고 Blog 대체 경로를 확인했다. SEO completed 7·pending 3·blocked 1, **다음은 S2 Step 5: server-rendered-brain-discovery**다. OCI·공개 발행·timer 보류는 유지한다.
+
+[원고·링크 검수](SEO_CONTENT_LINK_REVIEW.md)에 구체적인 후보와 승인 상태·검증 범위를 기록했다.

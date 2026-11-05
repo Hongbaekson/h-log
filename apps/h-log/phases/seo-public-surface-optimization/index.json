@@ -29,7 +29,8 @@
     {
       "step": 4,
       "name": "evidence-based-content-and-links",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-05: S2 Step 4 completed as manuscript preparation/local verification, not publication. Prepared one private Next.js/Suspense manuscript with clear title/intro, no-JS limits and stable project/list links; preserved historical evidence and Korean protected spans. Reused current project/series selectors. Unit 66/66, production HTTP 21/21 plus 24 content responses, 24 JS/no-JS views and 6 Home-to-article navigations passed. Withdrawal removes series/project/crawler links; all version bodies/hashes preserved. SEO-07 remains a documented no-JS Home direct-link limitation; Blog discovery works. No app change, live data access or publication. Next: S2 Step 5."
     },
     {
       "step": 5,

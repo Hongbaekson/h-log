@@ -204,7 +204,7 @@
     {
       "dir": "seo-public-surface-optimization",
       "status": "pending",
-      "summary": "2026-11-05: S2 Step 3 completed as an application clean-no-op. Lighthouse 13.6.0 measured four production routes at 390/1440px three times each (24 runs); HTTP regression 21/21 passed. Mobile median LCP 730-909ms, CLS 0 in all runs, median TBT 13-50ms. Brain mobile LCP range 798-2409ms retained; its LCP placeholder does not measure graph readiness or interaction. No isolated fix justified by this sample. No image/font transfers in the synthetic fixture; real-content performance and field CrUX/INP remain unmeasured. Recorded medians, ranges, bytes, cache conditions and follow-up in Step 3/S3 Step 0. No application, dependency or production changes. Next: S2 Step 4."
+      "summary": "2026-11-05: S2 Step 4 completed as manuscript preparation/local verification, not publication. Prepared one private Next.js/Suspense manuscript with clear title/intro, no-JS limits and stable project/list links; preserved historical evidence and Korean protected spans. Reused current project/series selectors. Unit 66/66, production HTTP 21/21 plus 24 content responses, 24 JS/no-JS views and 6 Home-to-article navigations passed. Withdrawal removes series/project/crawler links; all version bodies/hashes preserved. SEO-07 remains a documented no-JS Home direct-link limitation; Blog discovery works. No app change, live data access or publication. Next: S2 Step 5."
     },
     {
       "dir": "seo-release-and-measurement",
