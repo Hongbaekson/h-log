@@ -62,3 +62,7 @@ S3 Step 0 로컬 검증, 보안 패치와 실제 콘텐츠 검수, 사용자 운
 ## 다음 단계
 
 S3 Step 2는 데이터 축적 후 명시적으로 실행한다. 예약 작업을 자동 생성하지 않는다.
+
+## S3 Step 0 검수 인계 — 2026-11-05
+
+[로컬 SEO 릴리스 검수](../../.codex/docs/harness/SEO_RELEASE_REVIEW.md)를 먼저 확인한다. 의존성 audit 0건은 로컬 검수 시점 결과이므로 배포 시점에 다시 실행한다. Home no-JS 최근 글 직접 링크와 no-JS DB 오류의 빈 500 화면을 완료로 표시하지 않는다. 운영 전 서버/ingress 오류 안내의 처리 범위를 판단하고, 바꾸면 5xx·HTML/RSC·no-store·재시도를 함께 검증한다. 실제 원고·이미지·PDF 공개 검수와 실제 origin/privacy 확인은 아직 남아 있다. 이 인계는 Step 1의 blocked나 기존 OCI 보류를 해제하지 않는다.

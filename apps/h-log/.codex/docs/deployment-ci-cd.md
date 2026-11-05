@@ -1,5 +1,7 @@
 # Deployment and CI/CD
 
+2026-11-05 SEO S3 Step 0의 [로컬 릴리스 검수](harness/SEO_RELEASE_REVIEW.md)를 완료했다. 새 production 이미지·두 ingress·공개/철회/오류/이미지 실패와 Brain 상호작용을 확인했고 운영 의존성 audit는 0건이다. no-JS DB 장애의 빈 500 안내·Home 최근 글 직접 링크와 실제 이미지/field 미측정은 남은 한계다. S3 Step 1 진입 전 실제 origin/privacy·콘텐츠/PDF 검토와 오류 안내 처리 판단, 배포 시점 audit를 다시 확인한다. OCI/도메인/GSC·운영 모니터링 → 관리자 → timer 보류는 유지하며 다음 로컬 작업은 R1 Step 0이다.
+
 2026-11-02 A3 Step 3에서 현재 앱 이미지의 로컬 관리자 릴리스 검수, 키 회전/차단, 합성 자료 backup/restore와 이전 artifact 호환성을 확인했다. 선택형 Nginx/Compose 예시와 실행·복구 절차는 [관리자 릴리스 인계](../../deploy/admin/README.md), 정확한 근거·한계는 [Step 3](../../phases/admin-operations-control/step3.md)에 있다. 운영 보류와 별도 승인 조건은 유지한다.
 
 이 문서는 배포 작업을 할 때만 읽는다.

@@ -65,13 +65,13 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 
 ## 실행 순서와 다른 트랙
 
-1. **다음 전체 로컬 작업은 기존 SEO S3 Step 0 `local-seo-release-rehearsal`**이다. 이 계획 등록으로 실행/완료 처리하지 않는다.
-2. 그 다음 새 트랙의 **R1 Step 0 `provenance-contract`**부터 시작한다. 기본 순서는 R1 → R2 → R3 → R4 → R5다.
+1. 2026-11-05 기존 SEO S3 Step 0의 [로컬 SEO 릴리스 검수](SEO_RELEASE_REVIEW.md)를 완료했다. 새 R 트랙의 구현을 완료했다는 뜻은 아니다.
+2. **다음 로컬 작업은 R1 Step 0 `provenance-contract`**다. 기본 순서는 R1 → R2 → R3 → R4 → R5다.
 3. R2 자료 정리와 R4는 R1 구현/개인 경험 확인에 기술적으로 종속되지 않는다. 필요한 자료가 없을 때 독립 작업을 진행할 수 있으며 실행한 step과 순서 변경 이유를 기록한다. R3는 R1의 출처 계약과 R2의 검수 후보를 사용한다.
 4. R5의 로컬 통합 검수는 새 트랙의 추가 회귀다. S3 Step 0의 기존 SEO 기준선을 취소하거나 완료된 단계를 다시 pending으로 만들지 않는다.
 5. S3 Step 1/2의 실제 도메인·계정·측정 조건은 그대로다. **운영 모니터링 Step 7 → 관리자 A3 Step 4 → timer** 순서와 OCI 보류를 유지한다. R 트랙은 운영 보류 해제를 기다리지 않고 격리 로컬에서 준비할 수 있다.
 
-새 14개 step을 더해 전체는 53개 phase / 187개 step이다. 기존 SEO 8 completed/2 pending/1 blocked, 관리자 A 16/0/1, 모니터링 7/0/1의 상태는 바꾸지 않는다. R1/R5의 admin 후속은 별도 R 트랙이며 기존 A 트랙을 다시 열지 않는다.
+새 14개 step을 더해 전체는 53개 phase / 187개 step이다. S3 Step 0 완료 후 SEO는 9 completed/1 pending/1 blocked다. 관리자 A 16/0/1, 모니터링 7/0/1의 상태는 바꾸지 않는다. R1/R5의 admin 후속은 별도 R 트랙이며 기존 A 트랙을 다시 열지 않는다.
 
 ## R1 계약: 구현 전 확정할 항목
 

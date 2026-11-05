@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "local-seo-release-rehearsal",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-05 격리 production의 SEO/공개·관리자 경계, 144화면·52 URL×2회, 철회·오류/복구·이미지 실패와 Brain trace/모바일 3회 검수를 완료했다. 앱 변경 없음. Home no-JS 직접 링크와 no-JS 빈 500 안내·실제 이미지/field 측정은 한계로 남겼다. 다음 로컬 작업 R1 Step 0; 운영 보류 유지."
     },
     {
       "step": 1,

@@ -529,4 +529,8 @@ Host helper가 `backup.json`/`restore.json`과 별도 evidence를 관리한다. 
 
 [R1–R5 계획](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md)은 기존 Next.js/PG·owner 인증·공개 selector와 snapshot을 확장하는 14개 pending step이다. 현재 `BrainDraft`에는 sources/questions가 없으며 공개 변환은 고정 출처와 빈 질문을 만든다. R1은 이 차이를 메우고, R3는 내부 Blog 출처를 published-current 판정에 연결한다. 공개 UI와 원문/이력은 유지한다.
 
-R2는 근거/현재성 대장과 원고·노드 후보 준비, R4는 기존 목록/검색의 태그 별칭과 링크 동작, R5는 admin 전용 버전별 수동 검토다. 상세 상한·저장 계약은 각 contract step에서 결정한다. 새 서비스·스케줄러·공개 원문 동기화는 없으며, 이 절은 실제 구현 현황이 아니다. 다음 로컬 작업은 SEO S3 Step 0 후 R1 Step 0이다.
+R2는 근거/현재성 대장과 원고·노드 후보 준비, R4는 기존 목록/검색의 태그 별칭과 링크 동작, R5는 admin 전용 버전별 수동 검토다. 상세 상한·저장 계약은 각 contract step에서 결정한다. 새 서비스·스케줄러·공개 원문 동기화는 없으며, 이 절은 실제 구현 현황이 아니다. SEO S3 Step 0의 로컬 검수는 완료했고 다음 로컬 작업은 R1 Step 0이다.
+
+## SEO S3 로컬 릴리스 검수 — 2026-11-05
+
+[로컬 SEO 릴리스 검수](SEO_RELEASE_REVIEW.md)를 완료했다. 기존 runtime·schema·공개 selector·승인된 Brain UI·Home 레이더는 변경하지 않았다. 실제 HTML/RSC/crawler·검색·철회·오류/복구와 두 ingress 경계, Brain 검색/필터/드래그 trace·모바일 3회 측정을 확인했다. 원자료는 Git/Docker 제외 `private/seo-release/`에 둔다. no-JS DB 실패의 빈 500 화면과 Home 직접 최근 글 링크, 실제 이미지/field 지표는 남은 제한이다. source lint는 통과했지만 기존 private helper의 전체 lint 오류는 그대로이며 운영 보류를 해제하지 않는다.

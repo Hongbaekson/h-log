@@ -1,6 +1,6 @@
 # H-Log 통합 관리자 계획
 
-2026-11-05 사용자 요청으로 [기록·탐색 개선 계획](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md)을 **R1–R5, 5개 phase / 14개 pending step**으로 추가했다. Brain 출처·질문 작성 → 실제 사례/회고 → 공개 연결 → 태그/공유 → admin 재검토 순서다. 승인된 Brain UI와 Home 레이더를 유지하며 이번에는 계획만 등록했다. **다음 전체 작업은 기존 SEO S3 Step 0**, 이후 새 트랙은 **R1 Step 0 `provenance-contract`**부터 시작한다. 기존 운영 보류와 SEO/A/모니터링 상태는 그대로다.
+2026-11-05 사용자 요청으로 [기록·탐색 개선 계획](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md)을 **R1–R5, 5개 phase / 14개 pending step**으로 추가했다. Brain 출처·질문 작성 → 실제 사례/회고 → 공개 연결 → 태그/공유 → admin 재검토 순서다. 승인된 Brain UI와 Home 레이더를 유지하며 이번에는 계획만 등록했다. SEO S3 Step 0의 로컬 검수는 완료했으며 **다음 로컬 작업은 R1 Step 0 `provenance-contract`**다. 새 R 트랙 14개 step은 pending이고, SEO는 9/1/1이다. 기존 운영 보류와 A/모니터링 상태는 그대로다.
 
 등록일: 2026-10-22. 2026-11-02 **A1/A4/A2 전체와 A3 Steps 0–3 완료. 4개 phase / 17개 step 중 completed 16개·pending 0개·blocked 1개**다. 로컬 관리자 검수는 모두 완료했으며, 운영 모니터링 Step 7 → A3 Step 4는 OCI 보류 해제와 범위별 승인이 필요하다.
 

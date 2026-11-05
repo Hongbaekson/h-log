@@ -131,3 +131,7 @@ SEO-07은 **알려진 제한 유지, 수정하지 않음**으로 판단했다. H
 **SEO-04 해결.** 기존 기본 graph를 그대로 사용한 서버 fallback 목록과 JS 목록의 독립 상세 anchor를 추가했다. 승인된 그래프 UI·공개 사본·canonical 계약은 유지한다. 이전 production 이미지의 6표본에서 visible anchor 0개를 RED로 확인했고, 새 production의 DB/파일 모드와 개발 서버에서 1440/390/320px JS ON/OFF 18표본을 통과했다. 공개 사본의 최신 미선택 수정은 노출되지 않으며, 철회 시 HTML/RSC/sitemap 제외와 상세 404/no-store 경계를 확인했다. 상세 실행·이미지·명령·기존 lint 한계는 [Step 5](../../../phases/seo-public-surface-optimization/step5.md)에 남겼다.
 
 기본 탐색 개선이며 실제 색인/순위·field 성능 개선을 뜻하지 않는다. SEO-07 Home 직접 링크 제한은 그대로다. S2 전체 완료, 다음은 S3 Step 0이다.
+
+## S3 Step 0 현재 판정 — 2026-11-05
+
+[로컬 SEO 릴리스 검수](SEO_RELEASE_REVIEW.md)에서 새 이미지로 HTTP 70응답·144화면·사이트맵 104응답과 공개 경계를 다시 확인했다. SEO-01~06 해결 상태를 확인했고 SEO-07은 Home → Blog → 상세 대체 경로와 함께 남은 제한으로 유지했다. no-JS DB 장애는 500이지만 본문은 여전히 비며, 서버/ingress 오류 안내는 운영 전 개선 판단으로 남겼다. Brain 상호작용 trace와 모바일 3회를 확인했지만 실제 이미지·field/검색 성과는 미측정이다. S1 원본 표는 당시 증거로 보존한다.

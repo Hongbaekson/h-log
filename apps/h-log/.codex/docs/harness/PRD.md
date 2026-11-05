@@ -120,9 +120,9 @@ H-04 완료 (2026-10-07): foundation Steps 0–5와 memory-interface Steps 0–1
 
 ### H-07: claude-seo를 활용한 SEO 개선 계획
 
-2026-10-26 [SEO 개선 계획](SEO_OPTIMIZATION_PLAN.md)을 3개 phase / 10개 step(pending 9·운영/계정 확인 blocked 1)으로 등록했다. claude-seo 2.5.0의 고정 commit에서 H-Log에 필요한 기술 SEO·schema·content·GEO 지침을 Codex용 `hlog-seo`로 선별 이식하고, 공개 HTTP/HTML 기준선 → URL/기본 읽기·metadata·성능·근거/링크 개선 → 회귀/실제 검색 성과 순서로 진행한다. 2026-11-03 S1 스킬 이식·검색과 [공개 감사 기준선](SEO_AUDIT_BASELINE.md)을 완료했다. Brain 기본 발견은 독립 S2 Step 5로 추가했다. 2026-11-04 S2 Step 0에서 일반 Blog 페이지 canonical, 검색/태그 noindex, DB 오류 500 응답을 구현했다. S2 Step 1은 일반 no-JS 목록→상세/페이지 이동과 JS 검색·오류 재시도를 검수해 앱 코드 추가 변경 없이 완료했다. no-JS DB 장애의 빈 500 화면은 S3 Step 0 후속 확인에 남긴다. 2026-11-05 S2 Step 2에서 각 페이지의 OG/Twitter 상속을 수정하고 실제 HTML의 JSON-LD/날짜/특수문자 일치를 검수했다. S2 Step 3의 로컬 성능 24회 측정은 앱 코드 변경 없이 완료했고 실제 이미지·field/Brain 상호작용은 미측정으로 남겼다. S2 Step 4는 대표 원고 수정 후보와 프로젝트/시리즈·crawler 일관성 검수를 완료했다. 원고는 비공개 후보이며 실제 발행하지 않았다. S2 Step 5에서 기본 공개 기록 목록/상세 링크와 기존 그래프 탐색을 함께 검수했다. 현재 11개 step 중 completed 8·pending 2·blocked 1이다.
+2026-10-26 [SEO 개선 계획](SEO_OPTIMIZATION_PLAN.md)을 3개 phase / 10개 step(pending 9·운영/계정 확인 blocked 1)으로 등록했다. claude-seo 2.5.0의 고정 commit에서 H-Log에 필요한 기술 SEO·schema·content·GEO 지침을 Codex용 `hlog-seo`로 선별 이식하고, 공개 HTTP/HTML 기준선 → URL/기본 읽기·metadata·성능·근거/링크 개선 → 회귀/실제 검색 성과 순서로 진행한다. 2026-11-03 S1 스킬 이식·검색과 [공개 감사 기준선](SEO_AUDIT_BASELINE.md)을 완료했다. Brain 기본 발견은 독립 S2 Step 5로 추가했다. 2026-11-04 S2 Step 0에서 일반 Blog 페이지 canonical, 검색/태그 noindex, DB 오류 500 응답을 구현했다. S2 Step 1은 일반 no-JS 목록→상세/페이지 이동과 JS 검색·오류 재시도를 검수해 앱 코드 추가 변경 없이 완료했다. no-JS DB 장애의 빈 500 화면은 S3 Step 0 후속 확인에 남긴다. 2026-11-05 S2 Step 2에서 각 페이지의 OG/Twitter 상속을 수정하고 실제 HTML의 JSON-LD/날짜/특수문자 일치를 검수했다. S2 Step 3의 로컬 성능 24회 측정은 앱 코드 변경 없이 완료했고 실제 이미지·field/Brain 상호작용은 미측정으로 남겼다. S2 Step 4는 대표 원고 수정 후보와 프로젝트/시리즈·crawler 일관성 검수를 완료했다. 원고는 비공개 후보이며 실제 발행하지 않았다. S2 Step 5에서 기본 공개 기록 목록/상세 링크와 기존 그래프 탐색을 함께 검수했다. S3 Step 0의 로컬 회귀를 완료해 현재 11개 step 중 completed 9·pending 1·blocked 1이다. [로컬 SEO 릴리스 검수](SEO_RELEASE_REVIEW.md)에 남은 no-JS 오류/최근 글 한계와 Brain trace·모바일 재측정을 기록했다.
 
-기존 canonical·sitemap·robots·JSON-LD·RSS/llms·공개 selector를 재사용한다. 재현된 no-JS Blog 목록과 Brain 기본 발견을 각각 개선하고 관리자/비공개 Brain/PDF는 감사 대상에서 제외한다. 검색 순위·AI 인용을 보장하지 않으며, 실제 도메인·GSC/CrUX와 배포는 운영 승인 이후다. 다음 로컬 작업은 SEO S3 Step 0이다. 운영 모니터링·관리자 rollout·timer의 기존 보류는 유지한다.
+기존 canonical·sitemap·robots·JSON-LD·RSS/llms·공개 selector를 재사용한다. 재현된 no-JS Blog 목록과 Brain 기본 발견을 각각 개선하고 관리자/비공개 Brain/PDF는 감사 대상에서 제외한다. 검색 순위·AI 인용을 보장하지 않으며, 실제 도메인·GSC/CrUX와 배포는 운영 승인 이후다. 다음 로컬 작업은 R1 Step 0이다. 운영 모니터링·관리자 rollout·timer의 기존 보류는 유지한다.
 
 ### I-01: OCI self-hosted infrastructure
 
@@ -277,6 +277,6 @@ A3 Step 1 완료: 소유자는 원인·버전/hash를 확인한 실패 작업 �
 
 ## 기록의 근거와 탐색 후속 — R1–R5 계획
 
-2026-11-05 사용자 요청으로 [기록·탐색 개선 계획](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md)을 **R1–R5, 5개 phase / 14개 pending step**으로 추가했다. Brain 출처·질문 작성 → 실제 사례/회고 → 공개 연결 → 태그/공유 → admin 재검토 순서다. 승인된 Brain UI와 Home 레이더를 유지하며 이번에는 계획만 등록했다. **다음 전체 작업은 기존 SEO S3 Step 0**, 이후 새 트랙은 **R1 Step 0 `provenance-contract`**부터 시작한다. 기존 운영 보류와 SEO/A/모니터링 상태는 그대로다.
+2026-11-05 사용자 요청으로 [기록·탐색 개선 계획](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md)을 **R1–R5, 5개 phase / 14개 pending step**으로 추가했다. Brain 출처·질문 작성 → 실제 사례/회고 → 공개 연결 → 태그/공유 → admin 재검토 순서다. 승인된 Brain UI와 Home 레이더를 유지하며 이번에는 계획만 등록했다. SEO S3 Step 0의 로컬 검수는 완료했으며 **다음 로컬 작업은 R1 Step 0 `provenance-contract`**다. 새 R 트랙 14개 step은 pending이고, SEO는 9/1/1이다. 기존 운영 보류와 A/모니터링 상태는 그대로다.
 
 관리자에서 공개용 출처·질문을 작성하고, 검수된 사례/후속 회고와 현재 공개 글을 기존 Brain reader에 연결하는 것이 목표다. 태그 표기 통일·기존 배지 탐색·주소 복사와 소유자의 버전별 수동 재검토를 작은 단위로 진행한다. 기존 목차·시리즈·회고·수정 기록을 재구현하지 않는다. 원고 준비와 실제 공개는 분리하며 확인하지 않은 경험·감정·성과는 채우지 않는다.

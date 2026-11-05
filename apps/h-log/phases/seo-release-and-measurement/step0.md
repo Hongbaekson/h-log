@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 계획 등록이며 미구현/미실행.
+completed — 2026-11-05 로컬 회귀 검수 완료. 앱 코드 추가 변경 없음. 상세 증거와 남은 조건은 [SEO 릴리스 검수](../../.codex/docs/harness/SEO_RELEASE_REVIEW.md)를 따른다.
 
 S1 baseline과 S2 각 step의 결과/no-op 기록이 있어야 한다. 2026-11-05 S2 전체 완료. [Step 5](../seo-public-surface-optimization/step5.md)의 Brain 기본 목록·JS 선택/독립 상세·철회 경계를 릴리스 회귀에 포함한다. 실제 운영 적용은 아직 아니다.
 
@@ -77,8 +77,14 @@ git diff --check
 
 ## 다음 단계
 
-S3 Step 1. OCI/도메인/계정 사용 조건이 없으면 blocked를 유지한다.
+다음 로컬 작업은 [R1 Step 0 `provenance-contract`](../brain-provenance-authoring/step0.md)이다. SEO S3 Step 1은 OCI/도메인/계정 조건이 없어 blocked를 유지하고, Step 2는 실제 데이터가 쌓인 뒤 진행한다.
 
 ## 등록된 후속 로컬 트랙 — 2026-11-05
 
 이 step 완료 후 [기록·탐색 개선 R1 Step 0](../brain-provenance-authoring/step0.md)을 진행할 수 있다. R1–R5는 14개 pending step이며 SEO S3 Step 1의 운영/계정 gate와 독립적이다. 새 계획 등록은 이번 S3 Step 0의 완료나 OCI 보류 해제를 뜻하지 않는다.
+
+## 완료 기록 — 2026-11-05
+
+2026-11-05 SEO S3 Step 0 완료: 같은 production 이미지의 격리 합성 DB·공개/관리자 ingress에서 SEO HTTP 21/21, 관리자·Brain·PDF HTTP 7/7, 관련 DB integration 4/4를 통과했다. S1의 HTTP 70응답·144화면과 사이트맵 52 URL × 2회, 기본 읽기·검색·철회·오류·이미지 실패를 확인했다. Brain 검색/필터/드래그 trace와 모바일 성능 3회도 기록했다. 앱 코드·승인된 Brain UI·Home 레이더는 변경하지 않았다. 단위 277 pass/26 DB skip, source lint/typecheck/production build 통과, 운영 의존성 취약점 0건이다. 기본 lint의 기존 private helper 오류와 Home no-JS 최근 글 직접 링크·no-JS DB 장애의 빈 500 화면은 남은 한계로 구분했다. SEO completed 9·pending 1·blocked 1이며 **다음 로컬 작업은 R1 Step 0 `provenance-contract`**다. S3 Step 1과 OCI·실제 발행·timer 보류는 유지한다.
+
+이번 작업은 로컬 검수와 문서/상태 동기화다. production behavior 변경이 없어 RED/GREEN 구현 단계는 적용하지 않았다. 전체 lint의 기존 private 오류, no-JS 500/최근 글과 실제 이미지·field 미측정을 숨기지 않고 상세 검수에 남겼다.
