@@ -1,5 +1,7 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
+2026-11-05 SEO S2 Step 3 완료: 같은 production 빌드의 Home·Blog 목록·긴 글·Brain을 모바일/데스크톱 각 3회, 총 24회 측정했다. 모바일 LCP 중앙값은 730–909ms, 전체 CLS 0이며 Brain LCP의 798–2,409ms 편차도 보존했다. 이번 표본에서 단독 수정할 병목을 특정하지 못해 앱 코드는 변경하지 않았다. 이미지/폰트 전송 0B와 그래프 상호작용·field 지표 미측정의 한계를 기록했다. HTTP 21/21과 문서·phase 검증을 통과했고 전용 측정 자원을 정리했다. SEO completed 6·pending 4·blocked 1, **다음은 S2 Step 4: evidence-based-content-and-links**다. OCI·실제 공개 발행·timer 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-05 SEO S2 Step 2 완료: Resume·Portfolio·Blog·Brain이 홈의 공유 정보를 상속하던 문제를 수정했다. 공통 함수가 페이지 제목/설명·OG URL·Twitter 카드를 설정하며 기존 canonical/noindex·대표 이미지·JSON-LD는 유지한다. 실제 HTTP RED→GREEN, production/dev 각 21/21과 JS ON/OFF 120화면에서 특수문자·작성자·공개/수정일·공개 origin을 확인했다. 단위 277 pass/26 DB skip, source lint/typecheck/build 통과. 기본 lint의 기존 private 오류 10건은 남아 있다. SEO completed 5·pending 5·blocked 1, **다음은 S2 Step 3: measured-page-performance**다. OCI·실제 공개 발행·timer 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.
 
 2026-11-04 SEO S2 Step 1 완료: Step 0에서 복구한 일반 Blog의 no-JS 발견 경로를 검수했다. production HTTP 6/6, 공개 읽기·검색·crawler/SEO 테스트 61/61, 1440/390/320px의 JS ON/OFF 42표본과 탐색·검색 재시도를 확인했다. 정상 목록→상세→페이지 이동, 빈 목록/태그, JS 장애 안내·복구는 정상이다. no-JS DB 장애는 500이지만 화면이 비는 한계를 S3 Step 0에 남겼다. 앱 코드는 추가 변경하지 않았다. SEO completed 4·pending 6·blocked 1, **다음은 S2 Step 2: metadata-and-structured-data**다. OCI·공개 발행·timer 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.

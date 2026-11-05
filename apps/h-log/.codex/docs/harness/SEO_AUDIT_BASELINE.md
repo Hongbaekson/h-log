@@ -113,3 +113,9 @@ node --no-warnings --experimental-strip-types private/seo-audit/run.mjs
 [Step 2](../../../phases/seo-public-surface-optimization/step2.md)에서 SEO-05를 수정했다. Resume·Portfolio 목록·Blog 목록·Brain 홈/상세의 홈 OG 상속과 Blog/Portfolio 상세의 홈 Twitter 상속을 실제 HTTP RED로 재현했다. 페이지별 공유 정보로 바꾼 후 production/dev HTTP 각 21/21, JS ON/OFF 각 60화면을 확인했다. Person/WebSite/BlogPosting·특수문자·명시적 날짜·public origin과 대표 이미지도 실제 응답에서 검사했다. JSON-LD와 본문은 변경하지 않았다.
 
 기본 lint의 기존 private helper 오류 10건, dev Home 파일 기반 OG 이미지의 localhost 차이, no-JS Brain/DB 장애·Home 최근 글·실제 성능/검색 성과는 각각 기록된 제한 또는 후속 범위로 유지한다. 다음은 S2 Step 3이다.
+
+## 2026-11-05 S2 Step 3 성능 기준선
+
+위 S1 시점의 성능 미측정과 별도로, [Step 3](../../../phases/seo-public-surface-optimization/step3.md)에서 `42eb458` production 빌드의 Home·Blog 목록·긴 글·Brain을 모바일/데스크톱 각 3회 측정했다. 모바일 LCP 중앙값 730–909ms, 전체 CLS 0, 모바일 TBT 중앙값 13–50ms였다. Brain 모바일 LCP 범위 798–2,409ms와 주 스레드 중앙값 1.40초도 기록했다. 단독 수정할 병목을 특정하지 못해 앱 코드 변경 없이 기준선으로 남겼다.
+
+이미지/웹폰트 전송은 합성 fixture에서 0B이며 실제 이미지가 있는 콘텐츠의 성능을 입증하지 않는다. Brain LCP는 검색창 문구여서 그래프 준비/상호작용 성능도 대체하지 않는다. 실제 콘텐츠와 Brain 편차 재확인은 S3 Step 0에, CrUX/INP·운영/검색 효과 미측정은 S3 Step 1/2에 유지한다. HTTP 21/21과 성능 실행 24/24를 확인했고 다음은 S2 Step 4다.
