@@ -431,6 +431,8 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **S2 Step 0 구현 결정 (2026-11-04)**: 기존 query parser와 공개 index의 실제 currentPage로 일반 목록 canonical을 계산한다. 잘못된 page는 기존 첫 페이지, 범위 밖은 기존 마지막 페이지를 보여 주고 canonical도 그 내용에 맞춘다. 검색/태그는 고유 색인 문서로 준비되지 않아 `noindex, follow`를 사용하고 다른 문서를 대표로 지목하는 canonical은 생략한다. 강제 redirect와 새 proxy는 추가하지 않는다. 목록의 loading 경계가 DB 실패 전에 200을 보내는 것을 실제 HTTP로 재현해 해당 경계를 제거했다. 초기 목록 응답이 DB를 기다리는 대신 오류는 Next 기본 500이며 정상 빈 결과와 구분된다. 같은 변경으로 일반 no-JS 목록 읽기도 복구됐고 검색·태그·페이지/뒤로가기는 실제 브라우저로 확인했다.
 
+**S2 Step 2 구현 결정 (2026-11-05)**: 실제 HTTP에서 확인한 7개 route의 홈 공유 정보 상속을 `withPageSocialMetadata` 하나로 수정한다. Next의 중첩 metadata 교체 때문에 각 페이지의 OG/Twitter를 함께 지정하고 기존 기본 이미지와 article 유형을 보존한다. canonical/noindex 판단과 공개 데이터 선택은 기존 caller에 둔다. root/Home이나 모든 metadata를 새 체계로 전환하지 않으며 JSON-LD·본문·날짜와 탐색 UI는 검증된 기존 구현을 유지한다.
+
 ## 공식/내부 기준
 
 - Next.js docs

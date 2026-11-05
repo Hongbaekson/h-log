@@ -1,8 +1,8 @@
 # H-Log SEO 개선과 claude-seo의 Codex 도입 계획
 
-등록일: 2026-10-26. 2026-11-03 S1 스킬 이식과 [공개 페이지 감사 기준선](SEO_AUDIT_BASELINE.md)을 완료했다. Brain 발견 경로를 독립 S2 Step 5로 추가해 **3개 phase / 11개 step 중 completed 4·pending 6·blocked 1**이다. 2026-11-04 S2 Step 0의 Blog canonical·색인·DB 오류 응답을 개선했다. 실제 도메인 제출은 수행하지 않았다.
+등록일: 2026-10-26. 2026-11-03 S1 스킬 이식과 [공개 페이지 감사 기준선](SEO_AUDIT_BASELINE.md)을 완료했다. Brain 발견 경로를 독립 S2 Step 5로 추가해 **3개 phase / 11개 step 중 completed 5·pending 5·blocked 1**이다. 2026-11-04 S2 Step 0의 Blog canonical·색인·DB 오류 응답을 개선했다. 실제 도메인 제출은 수행하지 않았다.
 
-관리자 로컬 단계와 모니터링 로컬 검수는 완료했고 운영 적용은 기존 OCI 보류를 유지한다. S2 Step 1의 일반 목록 발견 검수를 앱 코드 추가 변경 없이 완료했다. 다음 로컬 작업은 **S2 Step 2 `metadata-and-structured-data`**다. 운영 SEO 확인은 OCI 보류 해제·공개 도메인 확정 뒤에만 가능하며 기존 모니터링 → 관리자 → timer 운영 순서는 바꾸지 않는다.
+관리자 로컬 단계와 모니터링 로컬 검수는 완료했고 운영 적용은 기존 OCI 보류를 유지한다. S2 Step 1의 일반 목록 발견 검수를 앱 코드 추가 변경 없이 완료했다. 2026-11-05 S2 Step 2의 페이지별 공유 정보 수정과 실제 JSON-LD 검수를 완료했다. 다음 로컬 작업은 **S2 Step 3 `measured-page-performance`**다. 운영 SEO 확인은 OCI 보류 해제·공개 도메인 확정 뒤에만 가능하며 기존 모니터링 → 관리자 → timer 운영 순서는 바꾸지 않는다.
 
 ## 1. 검토한 원본과 도입 결론
 
@@ -69,7 +69,7 @@ schema는 [Google 구조화 데이터 정책](https://developers.google.com/sear
 | S1 | 1 | 공개 route 표본과 실제 HTTP/HTML·JS/no-JS 감사 기준선, 우선순위 목록 | completed |
 | S2 `seo-public-surface-optimization` | 0 | 검색/태그/페이지·canonical·robots·sitemap 정책과 HTTP 검증 | completed |
 | S2 | 1 | 기존 수정의 no-JS 목록→상세/페이지와 JS 재시도 검수, 앱 구현 추가 없음 | completed |
-| S2 | 2 | 페이지별 metadata·OG·실제 JSON-LD와 보이는 내용 정합성 | pending |
+| S2 | 2 | 페이지별 OG/Twitter 상속 수정, 실제 JSON-LD·특수문자·날짜 정합성 검수 | completed |
 | S2 | 3 | production build의 이미지·폰트·JS 성능 측정과 확인된 병목 개선 | pending |
 | S2 | 4 | 기술 글의 검색 의도·근거·내부 링크·AI 읽기 일관성 | pending |
 | S2 | 5 | 감사에서 확인한 Brain 기본 읽기·상세 anchor 발견, 승인된 그래프 UI 보존 | pending |
@@ -119,3 +119,9 @@ schema는 [Google 구조화 데이터 정책](https://developers.google.com/sear
 2026-11-04 SEO S2 Step 1 완료: Step 0에서 복구한 일반 Blog의 no-JS 발견 경로를 검수했다. production HTTP 6/6, 공개 읽기·검색·crawler/SEO 테스트 61/61, 1440/390/320px의 JS ON/OFF 42표본과 탐색·검색 재시도를 확인했다. 정상 목록→상세→페이지 이동, 빈 목록/태그, JS 장애 안내·복구는 정상이다. no-JS DB 장애는 500이지만 화면이 비는 한계를 S3 Step 0에 남겼다. 앱 코드는 추가 변경하지 않았다. SEO completed 4·pending 6·blocked 1, **다음은 S2 Step 2: metadata-and-structured-data**다. OCI·공개 발행·timer 보류는 유지한다.
 
 [Step 1 검수 기록](../../../phases/seo-public-surface-optimization/step1.md)에 환경·42표본의 정상/제한 구분·명령·비공개 근거 위치를 남겼다. no-JS DB 오류의 빈 화면은 해결했다고 표현하지 않는다.
+
+### S2 Step 2 완료 — 2026-11-05
+
+2026-11-05 SEO S2 Step 2 완료: Resume·Portfolio·Blog·Brain이 홈의 공유 정보를 상속하던 문제를 수정했다. 공통 함수가 페이지 제목/설명·OG URL·Twitter 카드를 설정하며 기존 canonical/noindex·대표 이미지·JSON-LD는 유지한다. 실제 HTTP RED→GREEN, production/dev 각 21/21과 JS ON/OFF 120화면에서 특수문자·작성자·공개/수정일·공개 origin을 확인했다. 단위 277 pass/26 DB skip, source lint/typecheck/build 통과. 기본 lint의 기존 private 오류 10건은 남아 있다. SEO completed 5·pending 5·blocked 1, **다음은 S2 Step 3: measured-page-performance**다. OCI·실제 공개 발행·timer 보류는 유지한다.
+
+[Step 2](../../../phases/seo-public-surface-optimization/step2.md)에 RED→GREEN·실행 이미지·dev 전용 OG 이미지 차이·lint 제한·실제 검색 미측정을 기록했다.

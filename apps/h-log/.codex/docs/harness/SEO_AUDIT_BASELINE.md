@@ -107,3 +107,9 @@ node --no-warnings --experimental-strip-types private/seo-audit/run.mjs
 [Step 1](../../../phases/seo-public-surface-optimization/step1.md)은 `32abacd`와 Step 0 production 이미지를 재사용해 SEO-03의 일반 목록→상세→페이지 이동을 JS ON/OFF·1440/390/320에서 확인했다. 빈 태그/목록과 JS 검색 오류 재제출·DB 오류 재시도도 정상이다. HTTP 6/6, 가까운 회귀 61/61이며 앱 코드 추가 변경은 없다. SEO-03의 정상 발견 문제는 해결 확인으로 닫는다.
 
 새로 구분한 제한: DB 실패는 두 모드 모두 500이지만 no-JS 3표본의 본문은 비어 있다. JS 오류 안내/버튼과 구분하며 [S3 Step 0](../../../phases/seo-release-and-measurement/step0.md)에서 5xx를 유지하는 안내 방안의 필요성을 재검토한다. 총 42표본을 오류 안내까지 전부 정상인 것으로 해석하지 않는다. Brain 홈/상세 4표본은 기존 SEO-04를 재확인했으며 Step 5에 유지한다. 다음 작업은 S2 Step 2다.
+
+## 2026-11-05 S2 Step 2 공유 metadata 수정
+
+[Step 2](../../../phases/seo-public-surface-optimization/step2.md)에서 SEO-05를 수정했다. Resume·Portfolio 목록·Blog 목록·Brain 홈/상세의 홈 OG 상속과 Blog/Portfolio 상세의 홈 Twitter 상속을 실제 HTTP RED로 재현했다. 페이지별 공유 정보로 바꾼 후 production/dev HTTP 각 21/21, JS ON/OFF 각 60화면을 확인했다. Person/WebSite/BlogPosting·특수문자·명시적 날짜·public origin과 대표 이미지도 실제 응답에서 검사했다. JSON-LD와 본문은 변경하지 않았다.
+
+기본 lint의 기존 private helper 오류 10건, dev Home 파일 기반 OG 이미지의 localhost 차이, no-JS Brain/DB 장애·Home 최근 글·실제 성능/검색 성과는 각각 기록된 제한 또는 후속 범위로 유지한다. 다음은 S2 Step 3이다.

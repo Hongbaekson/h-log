@@ -31,17 +31,6 @@ describe("site SEO metadata", () => {
       assert.match(source, /title:/, `${path} should define a title`);
       assert.match(source, canonicalPattern, `${path} should define its canonical`);
     }
-
-    for (const path of [
-      "portfolio/[slug]/page.tsx",
-      "blog/[slug]/page.tsx",
-    ]) {
-      assert.match(
-        readAppSource(path),
-        /images:\s*\["\/opengraph-image"\]/,
-        `${path} should preserve the default social image`,
-      );
-    }
   });
 
   it("renders the required structured data through safe React data", () => {

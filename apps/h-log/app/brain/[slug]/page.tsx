@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { BrainNote } from "@/components/brain/BrainNote";
 import { findBrainNode } from "@/lib/brain";
 import { loadPublicBrain } from "@/lib/brain-server";
+import { withPageSocialMetadata } from "@/lib/page-social-metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const node = findBrainNode(await loadPublicBrain(), slug);
   if (!node) return { title: "기록을 찾을 수 없습니다", robots: { index: false, follow: false } };
-  return { title: `${node.title} · Second Brain`, description: node.summary, alternates: { canonical: `/brain/${node.id}` } };
+  return withPageSocialMetadata({ title: `${node.title} · Second Brain`, description: node.summary, alternates: { canonical: `/brain/${node.id}` } }, `/brain/${node.id}`);
 }
 
 export default async function BrainDetailPage({ params }: Props) {

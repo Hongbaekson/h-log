@@ -24,6 +24,7 @@ import {
 import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
 import { resolvePublicSiteOrigin } from "@/lib/public-site-origin";
 import { siteConfig } from "@/lib/site";
+import { withPageSocialMetadata } from "@/lib/page-social-metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -46,20 +47,13 @@ export async function generateMetadata({
     };
   }
 
-  return {
+  return withPageSocialMetadata({
     alternates: {
       canonical: post.href,
     },
     description: post.description,
-    openGraph: {
-      description: post.description,
-      images: ["/opengraph-image"],
-      title: post.title,
-      type: "article",
-      url: post.href,
-    },
     title: `${post.title} | 블로그`,
-  };
+  }, post.href, "article");
 }
 
 export default async function BlogDetailPage({ params }: BlogDetailPageProps) {

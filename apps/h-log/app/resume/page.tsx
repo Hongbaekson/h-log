@@ -5,17 +5,18 @@ import { GraduationCap, Layers3, Terminal } from "lucide-react";
 import { ResumeProfilePhoto } from "@/components/resume/ResumeProfilePhoto";
 import { ResumeDownload } from "@/components/resume/ResumeDownload";
 import { Badge, Card, Container } from "@/components/ui";
+import { withPageSocialMetadata } from "@/lib/page-social-metadata";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withPageSocialMetadata({
   alternates: {
     canonical: "/resume",
   },
   description:
     "Java/Spring 백엔드 개발자 손홍백의 경력, 기술 스택, 교육과 활동을 정리한 이력서입니다.",
   title: "이력서",
-};
+}, "/resume");
 
 const skillGroups = [
   {

@@ -5,15 +5,16 @@ import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui";
 import { createPortfolioCardModel } from "@/lib/portfolio-card";
 import { projects } from "@/lib/projects";
+import { withPageSocialMetadata } from "@/lib/page-social-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withPageSocialMetadata({
   alternates: {
     canonical: "/portfolio",
   },
   description:
     "백엔드 시스템, 운영 자동화, 데이터베이스 성능 개선 경험을 문제와 판단, 검증된 결과 중심으로 정리한 포트폴리오입니다.",
   title: "포트폴리오",
-};
+}, "/portfolio");
 
 const featuredProjects = projects.filter((project) => project.section === "featured");
 const careerProjects = projects.filter((project) => project.section === "career");

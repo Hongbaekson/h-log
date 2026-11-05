@@ -8,6 +8,7 @@ import { GithubWebhookArchitectureDiagram } from "@/components/portfolio/GithubW
 import { ProjectRelatedPosts } from "@/components/portfolio/ProjectRelatedPosts";
 import { Badge, Container } from "@/components/ui";
 import { getProjectBySlug, projects } from "@/lib/projects";
+import { withPageSocialMetadata } from "@/lib/page-social-metadata";
 
 type Project = NonNullable<ReturnType<typeof getProjectBySlug>>;
 
@@ -37,20 +38,13 @@ export async function generateMetadata({
     };
   }
 
-  return {
+  return withPageSocialMetadata({
     alternates: {
       canonical: `/portfolio/${slug}`,
     },
     description: project.summary,
-    openGraph: {
-      description: project.summary,
-      images: ["/opengraph-image"],
-      title: project.context,
-      type: "article",
-      url: `/portfolio/${slug}`,
-    },
     title: `${project.context} | 포트폴리오`,
-  };
+  }, `/portfolio/${slug}`, "article");
 }
 
 function SectionHeading({

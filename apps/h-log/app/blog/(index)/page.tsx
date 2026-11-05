@@ -15,6 +15,7 @@ import {
   formatPublicBlogDate,
 } from "@/lib/blog-public-presentation";
 import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
+import { withPageSocialMetadata } from "@/lib/page-social-metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -24,18 +25,19 @@ type BlogPageProps = {
 
 export async function generateMetadata({ searchParams }: BlogPageProps): Promise<Metadata> {
   const state = parseBlogBrowseParams((await searchParams) ?? {});
-  const metadata: Metadata = {
+  const metadata = {
     description: "개발하며 풀었던 문제와 운영하면서 배운 점을 정리합니다.",
     title: "블로그",
   };
   if (state.query || state.tag) {
-    return { ...metadata, robots: { index: false, follow: true } };
+    return withPageSocialMetadata({ ...metadata, robots: { index: false, follow: true } }, buildBlogBrowseHref(state));
   }
   const index = getPublicBlogIndex(await loadPublicBlogContentStore(), { page: state.page });
-  return {
+  const href = buildBlogBrowseHref({ ...state, page: index.pagination.currentPage });
+  return withPageSocialMetadata({
     ...metadata,
-    alternates: { canonical: buildBlogBrowseHref({ ...state, page: index.pagination.currentPage }) },
-  };
+    alternates: { canonical: href },
+  }, href);
 }
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {

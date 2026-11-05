@@ -6,6 +6,12 @@ import pg from "pg";
 import { createPostVersionContentFromMarkdown } from "../lib/blog-content-model.ts";
 import { createPostgresBlogRepository } from "../lib/blog-postgres-repository.ts";
 
+const decodeHtml = value => value.replace(/&(amp|quot|lt|gt|#x27|#39);/g, (_, entity) => ({ amp: "&", quot: '"', lt: "<", gt: ">", "#x27": "'", "#39": "'" })[entity]);
+const meta = (html, name) => [...html.matchAll(/<meta\b[^>]*>/g)]
+  .filter(([tag]) => tag.includes(`name="${name}"`) || tag.includes(`property="${name}"`))
+  .map(([tag]) => decodeHtml(tag.match(/\bcontent="([^"]*)"/)[1]));
+const structuredData = html => [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(match => JSON.parse(match[1]));
+
 test("public Blog URL, indexing and failure contracts", { skip: process.env.HLOG_SEO_HTTP_TEST !== "1" }, async t => {
   const origin = new URL(process.env.HLOG_SEO_HTTP_ORIGIN);
   const canonical = new URL(process.env.HLOG_PUBLIC_BASE_URL);
@@ -21,10 +27,10 @@ test("public Blog URL, indexing and failure contracts", { skip: process.env.HLOG
   const pool = new pg.Pool({ connectionString: database.href });
   const repository = createPostgresBlogRepository(pool);
   const marker = "UNPUBLISHED_SEO_FIXTURE_BODY";
-  const get = async path => {
+  const get = async (path, headers = {}) => {
     const url = new URL(path, origin);
     assert.equal(url.origin, origin.origin);
-    const response = await fetch(url, { redirect: "manual", signal: AbortSignal.timeout(20000) });
+    const response = await fetch(url, { headers, redirect: "manual", signal: AbortSignal.timeout(20000) });
     const body = await response.text();
     assert(!body.includes(marker), "non-public content leaked");
     return { status: response.status, headers: response.headers, body,
@@ -93,6 +99,95 @@ test("public Blog URL, indexing and failure contracts", { skip: process.env.HLOG
         assert.doesNotMatch(result.robots, /noindex/);
       }
       await pool.query("update posts set status='published' where slug like 'seo-public-%'");
+    });
+    for (const [path, sharedPath] of [
+      ["/", "/"], ["/resume", "/resume"], ["/portfolio", "/portfolio"],
+      ["/portfolio/ai-backend-workflow-standardization", "/portfolio/ai-backend-workflow-standardization"],
+      ["/portfolio/redisson-async-processing-recovery", "/portfolio/redisson-async-processing-recovery"],
+      ["/brain", "/brain"], ["/brain/operable-backend", "/brain/operable-backend"],
+      ["/blog", "/blog"], ["/blog?page=2", "/blog?page=2"], ["/blog?page=99&utm_source=test", "/blog?page=2"],
+      ["/blog?q=%20PostgreSQL%20&tag=PostgreSQL&page=2&utm_source=test", "/blog?q=PostgreSQL&tag=PostgreSQL&page=2"],
+      ["/blog/seo-public-1", "/blog/seo-public-1"], ["/blog/seo-public-2", "/blog/seo-public-2"],
+    ]) await t.test(`page-specific social metadata: ${path}`, async () => {
+      for (const userAgent of ["Mozilla/5.0", "Twitterbot/1.0"]) {
+        const { body, status } = await get(path, { "user-agent": userAgent });
+        assert.equal(status, 200);
+        assert.match(body, /<html[^>]*lang="ko"/);
+        const title = decodeHtml(body.match(/<title>([^<]*)<\/title>/)[1]);
+        const description = meta(body, "description");
+        assert.equal(description.length, 1);
+        for (const field of ["og:title", "twitter:title"]) {
+          const actual = meta(body, field);
+          assert.equal(actual.length, 1, field);
+          assert([title, title.replace(/ \| 손홍백$/, ""), title.replace(/ \| (?:블로그|포트폴리오) \| 손홍백$/, "")].includes(actual[0]), `${field} must describe the page: ${actual[0]}`);
+        }
+        assert.deepEqual(meta(body, "og:description"), description);
+        assert.deepEqual(meta(body, "twitter:description"), description);
+        assert.deepEqual(meta(body, "og:url").map(url => new URL(url).href), [new URL(sharedPath, canonical).href]);
+        assert.deepEqual(meta(body, "twitter:card"), ["summary_large_image"]);
+        assert.deepEqual(meta(body, "og:type"), [/^\/(?:blog|portfolio)\//.test(path) ? "article" : "website"]);
+        for (const field of ["og:image", "twitter:image"]) {
+          const images = meta(body, field);
+          assert.equal(images.length, 1);
+          const image = new URL(images[0]);
+          // Next's file-convention Home OG image uses localhost in development.
+          // Production and explicitly defined page images must use the public origin.
+          const developmentHomeImage = process.env.HLOG_SEO_HTTP_DEVELOPMENT === "1" && path === "/" && field === "og:image";
+          assert.equal(image.origin, developmentHomeImage ? `http://localhost:${origin.port}` : canonical.origin);
+          assert.equal(image.pathname, "/opengraph-image");
+        }
+        if (userAgent === "Twitterbot/1.0") assert.deepEqual(meta(body.split("</head>")[0], "og:url"), meta(body, "og:url"));
+        const schemas = structuredData(body);
+        const person = schemas.find(item => item["@type"] === "Person");
+        const website = schemas.find(item => item["@type"] === "WebSite");
+        assert.equal(person.name, "손홍백");assert.equal(person.url, canonical.origin);
+        assert.equal(website.url, canonical.origin);assert.equal(website.inLanguage, "ko-KR");
+      }
+    });
+    await t.test("rendered BlogPosting preserves special characters and explicit publication/revision dates", async () => {
+      for (const number of [1, 2]) {
+        const title = `PostgreSQL <태그> & "합성 글 ${number}"`;
+        const description = "</script><script>globalThis.__seoInjected=1</script> & '한글' \u2028\u2029";
+        const content = createPostVersionContentFromMarkdown(`## 확인한 범위\n\n${title}의 합성 자료입니다.\n`);
+        const editorial = number === 1 ? { verification: null, revisions: [{ revisedOn: "2026-11-03", summary: "합성 검수 문장을 정리했습니다." }] } : null;
+        await pool.query("update post_versions set title=$1, description=$2, content_markdown=$3, content_html=$4, content_hash=$5, public_editorial=$6 where id=$7", [title, description, content.contentMarkdown, content.contentHtml, content.contentHash, editorial, `version-seo-public-${number}`]);
+        await pool.query("update posts set updated_at='2026-11-04T00:00:00Z' where slug=$1", [`seo-public-${number}`]);
+        for (const userAgent of ["Mozilla/5.0", "Twitterbot/1.0"]) {
+          const { body, status } = await get(`/blog/seo-public-${number}`, { "user-agent": userAgent });
+          assert.equal(status, 200);
+          const schemas = structuredData(body);
+          assert.equal(schemas.length, 3);
+          const article = schemas.find(item => item["@type"] === "BlogPosting");
+          assert.equal(article.headline, title);assert.equal(article.description, description);
+          assert.equal(article.author.name, "손홍백");assert.equal(article.author.url, canonical.origin);
+          assert.equal(article.url, `${canonical.origin}/blog/seo-public-${number}`);
+          assert.equal(article.mainEntityOfPage, article.url);
+          assert.equal(article.datePublished, "2026-11-01T00:00:00.000Z");
+          assert.equal(article.dateModified, number === 1 ? "2026-11-03" : undefined);
+          const visibleDates = [...body.matchAll(/<time\b[^>]*datetime="([^"]*)"/gi)].map(match => match[1]);
+          assert(visibleDates.includes(article.datePublished));
+          if (article.dateModified) assert(visibleDates.includes(article.dateModified));
+          assert.equal(decodeHtml(body.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)[1]), title);
+          assert.deepEqual(meta(body, "og:description"), [description]);
+          assert.deepEqual(meta(body, "twitter:description"), [description]);
+          assert.doesNotMatch(body, /<script>globalThis\.__seoInjected/);
+        }
+      }
+    });
+    await t.test("missing and withdrawn documents expose no article or private metadata", async () => {
+      for (const path of ["/blog/seo-draft", "/blog/seo-withdrawn", "/blog/seo-missing", "/brain/seo-missing", "/portfolio/seo-missing"]) {
+        const result = await get(path, { "user-agent": "Twitterbot/1.0" });
+        assert.equal(result.status, 404);assert.match(result.robots, /noindex/);
+        assert.equal(structuredData(result.body).filter(item => item["@type"] === "BlogPosting").length, 0);
+        assert.deepEqual(result.canonical, []);
+      }
+      const result = await get("/resume", { "x-forwarded-host": "admin.hlog.example.org", "x-forwarded-proto": "https" });
+      assert.deepEqual(meta(result.body, "og:url"), [`${canonical.origin}/resume`]);
+      assert.doesNotMatch(result.body, /https:\/\/admin\.hlog\.example\.org/);
+      const image = await fetch(new URL("/opengraph-image", origin), { redirect: "manual", signal: AbortSignal.timeout(20000) });
+      assert.equal(image.status, 200);assert.match(image.headers.get("content-type"), /image\/png/);
+      const png = Buffer.from(await image.arrayBuffer());
+      assert.equal(png.readUInt32BE(16), 1200);assert.equal(png.readUInt32BE(20), 630);
     });
   } finally { await pool.end(); }
 });

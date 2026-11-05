@@ -2,14 +2,15 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { BrainExplorer } from "@/components/brain/BrainExplorer";
 import { loadPublicBrain } from "@/lib/brain-server";
+import { withPageSocialMetadata } from "@/lib/page-social-metadata";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withPageSocialMetadata({
   title: "Second Brain",
   description: "손홍백의 경험, 해결 방법, 생각과 질문을 연결한 개인 기록 공간입니다.",
   alternates: { canonical: "/brain" },
-};
+}, "/brain");
 
 export default async function BrainPage() {
   const graph = await loadPublicBrain();

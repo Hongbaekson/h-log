@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "metadata-and-structured-data",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-05: S2 Step 2 completed. Fixed inherited Home OG/Twitter metadata on Resume, Portfolio, Blog and Brain with a shared page social-card function; current canonical/noindex and JSON-LD contracts remain intact. Real HTTP RED reproduced 14 failing subtests; production/dev GREEN 21/21 each and 120 JS/no-JS viewport samples passed. Rendered Person/WebSite/BlogPosting, special characters, explicit dates, image dimensions and public-origin boundaries verified. Unit 277 pass/26 DB skip, source lint, typecheck/build passed. Default lint retains 10 pre-existing private helper errors. Next: S2 Step 3. No production rollout."
     },
     {
       "step": 3,

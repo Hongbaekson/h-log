@@ -1,5 +1,7 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
+2026-11-05 SEO S2 Step 2 완료: Resume·Portfolio·Blog·Brain이 홈의 공유 정보를 상속하던 문제를 수정했다. 공통 함수가 페이지 제목/설명·OG URL·Twitter 카드를 설정하며 기존 canonical/noindex·대표 이미지·JSON-LD는 유지한다. 실제 HTTP RED→GREEN, production/dev 각 21/21과 JS ON/OFF 120화면에서 특수문자·작성자·공개/수정일·공개 origin을 확인했다. 단위 277 pass/26 DB skip, source lint/typecheck/build 통과. 기본 lint의 기존 private 오류 10건은 남아 있다. SEO completed 5·pending 5·blocked 1, **다음은 S2 Step 3: measured-page-performance**다. OCI·실제 공개 발행·timer 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-04 SEO S2 Step 1 완료: Step 0에서 복구한 일반 Blog의 no-JS 발견 경로를 검수했다. production HTTP 6/6, 공개 읽기·검색·crawler/SEO 테스트 61/61, 1440/390/320px의 JS ON/OFF 42표본과 탐색·검색 재시도를 확인했다. 정상 목록→상세→페이지 이동, 빈 목록/태그, JS 장애 안내·복구는 정상이다. no-JS DB 장애는 500이지만 화면이 비는 한계를 S3 Step 0에 남겼다. 앱 코드는 추가 변경하지 않았다. SEO completed 4·pending 6·blocked 1, **다음은 S2 Step 2: metadata-and-structured-data**다. OCI·공개 발행·timer 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.
 
 2026-11-04 SEO S2 Step 0 완료: 일반 Blog 목록의 표시 페이지에 맞춘 canonical과 검색/태그 noindex 정책을 구현했다. 선행 로딩 경계를 제거해 DB 읽기 오류는 500, 정상 빈 목록은 200으로 구분한다. 일반 no-JS 목록 읽기도 함께 복구됐다. 실제 HTTP RED→GREEN, production/dev 각 6/6과 36화면·검색/태그/뒤로가기, 단위 277 pass/26 DB skip, source lint/typecheck/build·production audit 0을 확인했다. 기본 lint의 기존 private 오류 10건은 별도 기록했다. SEO completed 3·pending 7·blocked 1, **다음은 S2 Step 1: server-rendered-blog-discovery**다. OCI·공개 발행·timer 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.
