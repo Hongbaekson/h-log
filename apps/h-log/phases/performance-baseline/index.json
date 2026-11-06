@@ -1,0 +1,11 @@
+{
+  "project": "h-log",
+  "phase": "performance-baseline",
+  "steps": [
+    {
+      "step": 0,
+      "name": "reproducible-performance-baseline",
+      "status": "pending"
+    }
+  ]
+}

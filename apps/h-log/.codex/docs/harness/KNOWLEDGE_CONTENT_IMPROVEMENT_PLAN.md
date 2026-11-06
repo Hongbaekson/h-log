@@ -72,7 +72,7 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 4. R5의 로컬 통합 검수는 새 트랙의 추가 회귀다. S3 Step 0의 기존 SEO 기준선을 취소하거나 완료된 단계를 다시 pending으로 만들지 않는다.
 5. S3 Step 1/2의 실제 도메인·계정·측정 조건은 그대로다. **운영 모니터링 Step 7 → 관리자 A3 Step 4 → timer** 순서와 OCI 보류를 유지한다. R 트랙은 운영 보류 해제를 기다리지 않고 격리 로컬에서 준비할 수 있다.
 
-새 14개 step을 더해 전체는 53개 phase / 187개 step이다. S3 Step 0 완료 후 SEO는 9 completed/1 pending/1 blocked다. 관리자 A 16/0/1, 모니터링 7/0/1의 상태는 바꾸지 않는다. R1/R5의 admin 후속은 별도 R 트랙이며 기존 A 트랙을 다시 열지 않는다.
+R 등록 당시 전체는 53개 phase / 187개 step이었다. 2026-11-06 [성능 F1–F7](PERFORMANCE_REBUILD_PLAN.md)의 pending 22개 step을 더해 전체는 60개 phase / 209개 step이다. 기존 콘텐츠 트랙의 다음은 R2 Step 0이고 성능 트랙의 시작은 F1 Step 0이다. S3 Step 0 완료 후 SEO는 9 completed/1 pending/1 blocked다. 관리자 A 16/0/1, 모니터링 7/0/1의 상태는 바꾸지 않는다. R1/R5의 admin 후속은 별도 R 트랙이며 기존 A 트랙을 다시 열지 않는다.
 
 ## R1 계약 — 2026-11-06 Step 0–2 완료
 

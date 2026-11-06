@@ -1,0 +1,26 @@
+{
+  "project": "h-log",
+  "phase": "owner-asset-performance",
+  "steps": [
+    {
+      "step": 0,
+      "name": "paged-owner-history",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "responsive-owner-preview",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "versioned-asset-validation",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "rebuildable-thumbnail-variants",
+      "status": "pending"
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 # H-Log Second Brain
 
+2026-11-06 [성능 F5/F6 계획](PERFORMANCE_REBUILD_PLAN.md)을 등록했다. 좌표/검색 자료 재사용, Web Worker, 프레임 비용, 요약/본문 전송, 관리자 이력/입력 응답이 pending 후속이다. 승인된 화면·다섯 배치·검색 범위·reader/history와 공개 사본을 결과 동등성 기준으로 사용한다.
+
 2026-11-06 R1 Step 2 `owner-provenance-editor` 완료: `/admin/brain`에서 출처·작성자 질문을 추가·수정·삭제하고 공개 사본과 같은 내용으로 미리 볼 수 있다. 오류 뒤 입력 보존·응답 유실 재확인·이전 기록 편집·공개/철회를 production/dev 1440/390/320px와 JS ON/OFF로 검수했다. **R1 3개 step 완료**, R 트랙은 completed 3·pending 11이다. **다음은 R2 Step 0 `current-claims-inventory`**다. 단위 283 pass/27 DB skip, 관련 DB 3/3·HTTP 1/1, source lint/typecheck/build 통과. 전체 lint의 기존 private helper 오류 10건은 남아 있다. 공개 Brain UI·Home 레이더, AI 질문·답변 제외, 운영 보류와 SEO/A/모니터링 상태는 유지한다. 상세: [기록·탐색 개선 계획](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md).
 
 등록일: 2026-10-06. 사용자 요청: 개인 경험과 생각을 연결하고, 지정한 저장소에서 일반화할 수 있는 기술적 문제를 선별해 초기 노드를 작성한다.

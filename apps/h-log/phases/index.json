@@ -267,6 +267,41 @@
       "dir": "feedback-and-persona-learning",
       "status": "completed",
       "summary": "Steps 0-2 established local contracts; all three unwired feedback modules were later removed in code-pruning Steps 4-6 after confirming no live caller or production persistence. Real signal collection and learning contracts remain deferred until HTTPS/privacy/consent runtime requirements exist."
+    },
+    {
+      "dir": "performance-baseline",
+      "status": "pending",
+      "summary": "2026-11-06: F1 plan registered with 1 pending step for 성능 기준선과 회귀 예산. Execution starts from its documented prerequisites in PERFORMANCE_REBUILD_PLAN.md. Original data, selected public versions, privacy and measured recovery are acceptance criteria."
+    },
+    {
+      "dir": "blog-read-efficiency",
+      "status": "pending",
+      "summary": "2026-11-06: F2 plan registered with 2 pending steps for 블로그 조회와 반복 가공 절감. Execution starts from its documented prerequisites in PERFORMANCE_REBUILD_PLAN.md. Original data, selected public versions, privacy and measured recovery are acceptance criteria."
+    },
+    {
+      "dir": "rebuildable-public-read-models",
+      "status": "pending",
+      "summary": "2026-11-06: F3 plan registered with 6 pending steps for 원본에서 재생성하는 조회용 데이터. Execution starts from its documented prerequisites in PERFORMANCE_REBUILD_PLAN.md. Original data, selected public versions, privacy and measured recovery are acceptance criteria."
+    },
+    {
+      "dir": "indexed-blog-search",
+      "status": "pending",
+      "summary": "2026-11-06: F4 plan registered with 2 pending steps for 미리 생성한 검색 데이터와 단일 조회. Execution starts from its documented prerequisites in PERFORMANCE_REBUILD_PLAN.md. Original data, selected public versions, privacy and measured recovery are acceptance criteria."
+    },
+    {
+      "dir": "brain-performance",
+      "status": "pending",
+      "summary": "2026-11-06: F5 plan registered with 4 pending steps for Brain 계산과 초기 전송량. Execution starts from its documented prerequisites in PERFORMANCE_REBUILD_PLAN.md. Original data, selected public versions, privacy and measured recovery are acceptance criteria."
+    },
+    {
+      "dir": "owner-asset-performance",
+      "status": "pending",
+      "summary": "2026-11-06: F6 plan registered with 4 pending steps for 관리자 이력과 이미지 처리. Execution starts from its documented prerequisites in PERFORMANCE_REBUILD_PLAN.md. Original data, selected public versions, privacy and measured recovery are acceptance criteria."
+    },
+    {
+      "dir": "performance-observation-rehearsal",
+      "status": "pending",
+      "summary": "2026-11-06: F7 plan registered with 3 pending steps for DB 대기 제한과 성능·복구 통합 검수. Execution starts from its documented prerequisites in PERFORMANCE_REBUILD_PLAN.md. Original data, selected public versions, privacy and measured recovery are acceptance criteria."
     }
   ]
 }

@@ -1,0 +1,16 @@
+{
+  "project": "h-log",
+  "phase": "indexed-blog-search",
+  "steps": [
+    {
+      "step": 0,
+      "name": "search-document-and-index",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "single-read-search-flow",
+      "status": "pending"
+    }
+  ]
+}

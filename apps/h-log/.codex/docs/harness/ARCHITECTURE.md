@@ -534,3 +534,9 @@ Host helper가 `backup.json`/`restore.json`과 별도 evidence를 관리한다. 
 ## SEO S3 로컬 릴리스 검수 — 2026-11-05
 
 [로컬 SEO 릴리스 검수](SEO_RELEASE_REVIEW.md)를 완료했다. 기존 runtime·schema·공개 selector·승인된 Brain UI·Home 레이더는 변경하지 않았다. 실제 HTML/RSC/crawler·검색·철회·오류/복구와 두 ingress 경계, Brain 검색/필터/드래그 trace·모바일 3회 측정을 확인했다. 원자료는 Git/Docker 제외 `private/seo-release/`에 둔다. no-JS DB 실패의 빈 500 화면과 Home 직접 최근 글 링크, 실제 이미지/field 지표는 남은 제한이다. source lint는 통과했지만 기존 private helper의 전체 lint 오류는 그대로이며 운영 보류를 해제하지 않는다.
+
+## 성능 읽기 모델의 계획 구조
+
+2026-11-06 [F1–F7 계획](PERFORMANCE_REBUILD_PLAN.md)을 등록했고 22개 step은 pending이다. 현재 public loader의 전체 조회·요청별 검증/썸네일 hash·목록 본문 변환과 Brain의 동기 layout이 개선 대상이다. 예정 구조는 원본/공개 선택 → PG projection 생성/검증 → 현재 공개 버전 join을 통한 목록·상세·검색이며, 누락 시 제한된 원본 읽기/재생성과 generation 활성화 계약을 둔다. 본문/목차·검색 문자열·좌표·이미지 variant는 입력 및 도구/정책 버전에 묶는다.
+
+F2는 기존 read path의 불필요 계산을 먼저 줄이고 F3는 재생성 저장·쓰기 일치·표면별 읽기를 나눈다. F4 검색, F5 Worker/전송량, F6 owner 이력/자산, F7 timeout·비공개 성능 신호·cold 복구를 잇는다. 정확한 schema와 실패/rollback 인터페이스는 F3 Step 0에서 정하며 승인된 공개 UI와 원본/사본의 결과 동등성을 인수 기준으로 둔다.

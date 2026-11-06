@@ -1,0 +1,26 @@
+{
+  "project": "h-log",
+  "phase": "brain-performance",
+  "steps": [
+    {
+      "step": 0,
+      "name": "reusable-graph-layouts",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "worker-layout-computation",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "bounded-frame-work",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "bounded-brain-payload",
+      "status": "pending"
+    }
+  ]
+}

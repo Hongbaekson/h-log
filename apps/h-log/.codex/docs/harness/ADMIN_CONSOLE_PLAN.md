@@ -1,5 +1,7 @@
 # H-Log 통합 관리자 계획
 
+2026-11-06 [성능 F6/F7 계획](PERFORMANCE_REBUILD_PLAN.md)을 등록했다. 관리자 Brain 목록/이력의 제한 조회, 긴 입력의 미리보기 계산 분리, 자산 검증과 파생 이미지, DB 대기/비공개 성능 관측을 pending 후속으로 다룬다. 기존 A 단계의 운영 인계 순서는 본문의 gate를 따른다.
+
 2026-11-06 R1 Step 2 `owner-provenance-editor` 완료: `/admin/brain`에서 출처·작성자 질문을 추가·수정·삭제하고 공개 사본과 같은 내용으로 미리 볼 수 있다. 오류 뒤 입력 보존·응답 유실 재확인·이전 기록 편집·공개/철회를 production/dev 1440/390/320px와 JS ON/OFF로 검수했다. **R1 3개 step 완료**, R 트랙은 completed 3·pending 11이다. **다음은 R2 Step 0 `current-claims-inventory`**다. 단위 283 pass/27 DB skip, 관련 DB 3/3·HTTP 1/1, source lint/typecheck/build 통과. 전체 lint의 기존 private helper 오류 10건은 남아 있다. 공개 Brain UI·Home 레이더, AI 질문·답변 제외, 운영 보류와 SEO/A/모니터링 상태는 유지한다. 상세: [기록·탐색 개선 계획](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md).
 
 등록일: 2026-10-22. 2026-11-02 **A1/A4/A2 전체와 A3 Steps 0–3 완료. 4개 phase / 17개 step 중 completed 16개·pending 0개·blocked 1개**다. 로컬 관리자 검수는 모두 완료했으며, 운영 모니터링 Step 7 → A3 Step 4는 OCI 보류 해제와 범위별 승인이 필요하다.

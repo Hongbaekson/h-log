@@ -449,6 +449,14 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **R1 Step 2 구현 (2026-11-06)**: 별도 편집기·미리보기 API 없이 `BrainCapture`에서 출처·질문의 작성/삭제와 기존 parser/public projection을 사용한 미리보기를 제공한다. 이전 필드 생략과 명시 빈 배열을 구분하고 저장 실패 때 입력을 유지한다. 응답 유실은 기존 commandId로 재확인하며 공개 확인에는 출처·질문도 포함한다. 내부 출처의 미리보기 링크는 admin host가 아닌 public origin을 사용한다. 공개 reader·그래프·Home 레이더와 AI 질문 기능 제외는 유지한다. R1 전체 완료, 다음은 R2 근거 대장이다.
 
+### ADR-042 원본에서 재생성 가능한 조회용 데이터를 단계적으로 도입한다
+
+2026-11-06 계획 결정이다. [성능 계획](PERFORMANCE_REBUILD_PLAN.md)의 F1–F7 22개 step은 pending이다. 합성 글 1,000개에서 목록 함수의 반복 본문 가공과 전체 조회, 노드 증가 시 동기 layout 계산 비용을 확인해 조회 범위와 재사용 단위를 먼저 정리한다.
+
+원본 bytes/버전·검수/공개 선택을 기준으로 두고 동일 PostgreSQL의 조회용 테이블과 결정적 projector/rebuild 명령을 기본안으로 한다. 현재 public status/선택 버전 join과 metadata/renderer/privacy/search fingerprint를 사용하고 원본 갱신과 파생 변경 또는 durable 표식을 같은 transaction에 묶는다. 현재 본문 hash의 Markdown+HTML 계약과 Brain의 검수된 공개 사본을 복구 기준에 포함한다. 삭제·손상·중단/재개·동시 수정/철회·늦은 작업과 rollback은 필수 검수다.
+
+요청 내 memoization과 요청 간 캐시의 생명주기를 구분한다. F3 Step 0에서 schema·최신성·fallback·HTTP 캐시 경계를 확정하고 구현 step에서 검증한다. Redis는 공유 재사용과 잔여 병목의 측정 결과를 근거로 후속 선정한다. 운영 migration·배포·timer는 기존 승인 절차를 따른다.
+
 ## 공식/내부 기준
 
 - Next.js docs

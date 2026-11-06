@@ -1,0 +1,36 @@
+{
+  "project": "h-log",
+  "phase": "rebuildable-public-read-models",
+  "steps": [
+    {
+      "step": 0,
+      "name": "source-and-projection-contract",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "projection-storage-and-rebuild",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "transactional-projection-freshness",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "projected-blog-list",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "name": "projected-detail-navigation",
+      "status": "pending"
+    },
+    {
+      "step": 5,
+      "name": "versioned-crawler-outputs",
+      "status": "pending"
+    }
+  ]
+}

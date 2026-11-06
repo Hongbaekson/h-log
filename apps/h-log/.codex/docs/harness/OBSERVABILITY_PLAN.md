@@ -1,5 +1,7 @@
 # H-Log 운영 모니터링 계획
 
+2026-11-06 [성능 F7 계획](PERFORMANCE_REBUILD_PLAN.md)을 등록했다. 실제 route 지연·pool 대기·변환/캐시·rebuild 상태의 비공개 신호와 복구 부하 검수는 pending 후속이다. 기존 collector allowlist·freshness·series/저장 예산 및 운영 Step 7 → A3 Step 4의 실행 조건을 적용한다.
+
 등록일: 2026-10-06. **2026-11-02 로컬 Steps 0–6 완료: 통합 장애·새 volume 복구·최대 PDF 부하와 24시간 1분 관측의 최종 검수를 통과했다. 운영 Step 7은 OCI 보류로 blocked다. A3 Step 3 전체 관리자 릴리스 검수도 완료했으며 다음은 승인된 운영 Step 7 → A3 Step 4다.** 실행 상태는 [phase registry](../../../phases/operations-observability/index.json)를 따른다. 이 문서가 모니터링 계약의 단일 기준이다.
 
 ## 목적과 실행 순서

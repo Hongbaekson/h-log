@@ -1,0 +1,16 @@
+{
+  "project": "h-log",
+  "phase": "blog-read-efficiency",
+  "steps": [
+    {
+      "step": 0,
+      "name": "lightweight-list-model",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "scoped-markdown-read",
+      "status": "pending"
+    }
+  ]
+}
