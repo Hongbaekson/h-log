@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-05 계획 등록. R1 / Brain 출처·질문 작성: 관리자 출처·질문 입력과 미리보기. 아직 구현/실행하지 않았다.
+completed — 2026-11-06 관리자 출처·질문 입력과 미리보기 구현·검증 완료. R1의 전체 3개 step을 마쳤다.
 
 R1 Step 1 완료.
 
@@ -81,6 +81,17 @@ git diff --check
 - 회사 Wiki·내부 식별자·확인되지 않은 감정/성과를 자료 수집이나 공개 노드로 채우지 말 것. 출처와 본인 확인이 있는 범위만 다룬다.
 - 계획 등록을 운영 배포·실제 발행·DNS/TLS·provider·timer·외부 알림 승인으로 해석하지 말 것. 기존 운영 보류가 유지된다.
 - 방문자 AI·댓글·공개 통계·새 도메인·별도 그래프/서비스를 추가하지 말 것. 이번 개선 단위와 관계없다.
+
+## 완료 기록 — 2026-11-06
+
+- 코드: `components/brain/BrainCapture.tsx`, `app/admin/brain/capture.css`. 공개용 출처·질문 입력/삭제, 개수·길이 상한과 중복/URL 안내, 공유 parser/public projection 기반 미리보기, JS 비활성 안내와 공개 확인 문구를 연결했다. 새 API·schema·공개 UI 변경은 없다.
+- 테스트: `scripts/brain-editor.browser-check.mjs`의 `verifyBrainEditor(browser, { adminOrigin, publicOrigin, ownerKey, output, mode })`. 독립 loopback DB/서버·빈 프로필 브라우저에서 호출한다. 기존 production 이미지의 출처 작성 실패 RED 뒤 구현한 화면에서 GREEN을 확인했다.
+- production/dev **1440/390/320px × JS ON/OFF = 12표본**. JS ON 6흐름에서 작성·오류·키보드·순서/줄바꿈·응답 유실 후 중복 없는 재확인·재열기·공개/수정/빈 목록 재공개/철회·legacy 생략 보존을 확인했다. 1440px에서는 개수·길이 상한도 확인했다. JS OFF 안내는 noscript DOM으로 검사했다. Next route announcer와 noscript의 텍스트 선택 차이는 테스트 선택자를 보완했다.
+- 공개 독립 상세·Memory reader의 데이터 일치, 뒤로가기와 가로 넘침 없음, pageerror 0. 데스크톱/모바일 스크린샷을 확인했다. 기존 승인된 그래프·검색/필터·reader 코드와 Home 레이더는 변경하지 않았다.
+- `npm run test` **283 pass/27 DB skip**. 기존 Brain/public-read-path integration **3/3**, `test:brain:http` 대상 **1/1**(공개 상태별 HTML/RSC/sitemap 30응답) 재검수 통과. `npm run typecheck`, Docker runner의 `npm run build`, `npx eslint app components lib scripts proxy.ts next.config.ts` 통과.
+- **전체 `npm run lint`는 기존 Git 제외 private helper 오류 10개/경고 6개로 실패**. 이번 source 검증과 구분하고 무관한 파일을 수정하지 않았다.
+- R 계획·PRD/ADR/ARCHITECTURE·UI_GUIDE·관련 계획·루트 계획·phase를 동기화하고 Markdown/JSON·경로·상태 검사와 `git diff --check`를 통과했다. 검사 자료는 Git/Docker 제외 `private/r1-editor-2026-11-06/`에 둔다.
+- 마지막 production 컨테이너 3개·network, dev DB 컨테이너 1개·network·직접 띄운 dev 프로세스·임시 인증 파일 정리 완료. 운영 환경·provider·실제 콘텐츠 공개·timer는 변경하지 않았다. AI 질문·답변 제외 결정 유지.
 
 ## 다음 단계
 

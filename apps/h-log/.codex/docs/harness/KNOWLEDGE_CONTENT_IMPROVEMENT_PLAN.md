@@ -1,6 +1,6 @@
 # H-Log 기록·탐색 개선 계획
 
-등록일: 2026-11-05. Zerry/Memory 재조사 후 사용자가 개선 방향의 phase/step 등록과 커밋·푸시를 요청했다. **R1–R5: 5개 phase / 14개 step**이다. 2026-11-06 R1 Step 0 계약과 Step 1 저장·공개 사본을 완료해 **completed 2·pending 12**다. 관리자 입력·미리보기는 Step 2에 남아 있다. 계획 등록을 기능 구현이나 콘텐츠 발행 완료로 표시하지 않는다. 상태의 source of truth는 [전체 레지스트리](../../../phases/index.json)와 각 phase index다.
+등록일: 2026-11-05. Zerry/Memory 재조사 후 사용자가 개선 방향의 phase/step 등록과 커밋·푸시를 요청했다. **R1–R5: 5개 phase / 14개 step**이다. 2026-11-06 R1 Step 0–2를 완료해 **completed 3·pending 11**이다. R1의 계약·저장·관리자 입력과 미리보기를 마쳤으며 다음은 R2 근거 대장이다. 계획 등록을 기능 구현이나 콘텐츠 발행 완료로 표시하지 않는다. 상태의 source of truth는 [전체 레지스트리](../../../phases/index.json)와 각 phase index다.
 
 ## 목적과 유지 조건
 
@@ -31,19 +31,19 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 
 ## 현재 구현과 실제 차이
 
-2026-11-06 R1 Step 1에서 현재 저장·공개 경로를 검증했다. 아래 표는 이번 변경을 포함한 구현이며 남은 상태는 phase 레지스트리를 따른다.
+2026-11-06 R1 Step 1/2에서 저장·공개 경로와 관리자 작성 흐름을 검증했다. 아래 표는 이번 변경을 포함한 구현이며 남은 상태는 phase 레지스트리를 따른다.
 
 | 근거 | 이미 구현한 것 | 이번 개선 |
 | --- | --- | --- |
 | `lib/brain.ts`, `BrainNote`, `BrainExplorer` | 공개 출처·질문 표시, 검색·목록·관계·독립 상세, S2 Step 5 기본 발견 | 공개 UI 유지 |
-| `lib/brain-capture.ts`, `brain-curation.ts` | 선택형 sources/questions의 비공개 저장·공개 사본·이전 형식 호환. 원문/관계/날짜 보존 | R1 Step 1 완료, Step 2 admin 입력·미리보기 |
+| `lib/brain-capture.ts`, `brain-curation.ts` | 선택형 sources/questions의 비공개 저장·공개 사본·이전 형식 호환. 원문/관계/날짜 보존 | R1 저장·공개 사본 완료 |
 | `brain-curation`, `brain-suggestions`, `BrainCapture` | 후속 회고·revises·제목/태그 기반 후보 | R2 실제 기록 채우기; 기존 기능 재구현 금지 |
 | `lib/brain-catalog.ts` | 정적 28개 노드/42개 연결. 경험 1개·사건일 0개·revises 0개 | 운영 DB 전체 통계가 아님. 확인된 사례/날짜만 보강 |
 | `blog-series`, `portfolio-posts`, `blog-editorial` | 시리즈·프로젝트 연결·검증 범위·수정 기록 | R2/R3 내용과 현재성 정리 |
 | `brain.ts` 내부 출처 allowlist | Resume/Portfolio 중심. Blog 상세의 현재 공개 연결 계약 없음 | R3 공개 selector 기반 출처 연결 |
 | `blog-public`, `blog-search`, `blog-search-ui` | 목록·검색·필터·개수·URL 복원, 태그 표기 정리는 trim 수준 | R4 작은 별칭 사전·동일 결과 집합 |
 | `BlogPostRow`, Blog 상세, `BlogContent` | 태그 배지, 목차와 고유 heading # anchor, 코드 복사 | R4 태그 탐색·주소 복사만 보완 |
-| admin Brain | 검색·정렬·회고 가능 | R5 버전에 묶인 수동 검토와 다시 찾기 |
+| admin Brain | 검색·정렬·회고 및 출처·질문 작성/미리보기 가능. R1 완료 | R5 버전에 묶인 수동 검토와 다시 찾기 |
 
 ## Phase / Step
 
@@ -51,7 +51,7 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 | --- | --- | --- | --- |
 | R1 [brain-provenance-authoring](../../../phases/brain-provenance-authoring/index.json) | 0 | [공개용 출처·질문 계약](../../../phases/brain-provenance-authoring/step0.md) | completed |
 | R1 [brain-provenance-authoring](../../../phases/brain-provenance-authoring/index.json) | 1 | [비공개 저장과 공개 사본](../../../phases/brain-provenance-authoring/step1.md) | completed |
-| R1 [brain-provenance-authoring](../../../phases/brain-provenance-authoring/index.json) | 2 | [관리자 출처·질문 입력과 미리보기](../../../phases/brain-provenance-authoring/step2.md) | pending |
+| R1 [brain-provenance-authoring](../../../phases/brain-provenance-authoring/index.json) | 2 | [관리자 출처·질문 입력과 미리보기](../../../phases/brain-provenance-authoring/step2.md) | completed |
 | R2 [evidence-content-curation](../../../phases/evidence-content-curation/index.json) | 0 | [현재 주장과 근거의 연결 대장](../../../phases/evidence-content-curation/step0.md) | pending |
 | R2 [evidence-content-curation](../../../phases/evidence-content-curation/index.json) | 1 | [재현 근거가 있는 기술 글 한 편](../../../phases/evidence-content-curation/step1.md) | pending |
 | R2 [evidence-content-curation](../../../phases/evidence-content-curation/index.json) | 2 | [기준 노드와 후속 회고 후보](../../../phases/evidence-content-curation/step2.md) | pending |
@@ -67,16 +67,16 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 ## 실행 순서와 다른 트랙
 
 1. 2026-11-05 기존 SEO S3 Step 0의 [로컬 SEO 릴리스 검수](SEO_RELEASE_REVIEW.md)를 완료했다. 새 R 트랙의 구현을 완료했다는 뜻은 아니다.
-2. 2026-11-06 R1 Step 0/1 완료. **다음 로컬 작업은 R1 Step 2 `owner-provenance-editor`**다. 기본 순서는 R1 → R2 → R3 → R4 → R5다.
+2. 2026-11-06 R1 Step 0–2 완료. **다음 로컬 작업은 R2 Step 0 `current-claims-inventory`**다. 기본 순서는 R1 → R2 → R3 → R4 → R5다.
 3. R2 자료 정리와 R4는 R1 구현/개인 경험 확인에 기술적으로 종속되지 않는다. 필요한 자료가 없을 때 독립 작업을 진행할 수 있으며 실행한 step과 순서 변경 이유를 기록한다. R3는 R1의 출처 계약과 R2의 검수 후보를 사용한다.
 4. R5의 로컬 통합 검수는 새 트랙의 추가 회귀다. S3 Step 0의 기존 SEO 기준선을 취소하거나 완료된 단계를 다시 pending으로 만들지 않는다.
 5. S3 Step 1/2의 실제 도메인·계정·측정 조건은 그대로다. **운영 모니터링 Step 7 → 관리자 A3 Step 4 → timer** 순서와 OCI 보류를 유지한다. R 트랙은 운영 보류 해제를 기다리지 않고 격리 로컬에서 준비할 수 있다.
 
 새 14개 step을 더해 전체는 53개 phase / 187개 step이다. S3 Step 0 완료 후 SEO는 9 completed/1 pending/1 blocked다. 관리자 A 16/0/1, 모니터링 7/0/1의 상태는 바꾸지 않는다. R1/R5의 admin 후속은 별도 R 트랙이며 기존 A 트랙을 다시 열지 않는다.
 
-## R1 계약 — 2026-11-06 Step 1 구현 완료, Step 2 입력 UI 대기
+## R1 계약 — 2026-11-06 Step 0–2 완료
 
-`BrainDraft`/`parseBrainDraft`가 선택형 출처·질문을 검증·보존하고 `toPublicBrainNode`가 공개용 사본으로 변환한다. `brain-curation`은 기존 공개 사본의 키 생략만 읽기 기본값으로 처리한다. 저장은 `brain_note_versions.draft`, 공개 사본은 `brain_notes.public_node` JSONB이며 migration 004/006과 명령 감사는 그대로다. **새 테이블·열·migration 없이 기존 API로 구현**했다. 아래 저장/API 계약은 Step 1에서 검증했고 `BrainNote`/`BrainExplorer`는 기존 표시 영역을 유지한다. 관리자 입력·미리보기만 Step 2에서 연결한다.
+`BrainDraft`/`parseBrainDraft`가 선택형 출처·질문을 검증·보존하고 `toPublicBrainNode`가 공개용 사본으로 변환한다. `brain-curation`은 기존 공개 사본의 키 생략만 읽기 기본값으로 처리한다. 저장은 `brain_note_versions.draft`, 공개 사본은 `brain_notes.public_node` JSONB이며 migration 004/006과 명령 감사는 그대로다. **새 테이블·열·migration 없이 기존 API로 구현**했다. 아래 저장/API 계약은 Step 1에서 검증했고 `BrainNote`/`BrainExplorer`는 기존 표시 영역을 유지한다. Step 2는 같은 parser/public projection으로 관리자 입력·미리보기를 연결했다.
 
 ### 입력과 표시
 
@@ -142,7 +142,7 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 | 인증·Origin·media type·body 상한 실패 | 기존 401/403/415/413, 오류 본문에 원문 없음, private no-store 유지 | `lib/brain-capture-http.test.ts`, `scripts/brain-capture.http.test.mjs` |
 | admin 작성→저장→재열기→공개→수정→철회, 오류 후 입력 보존 | 기존 공개 두 reader의 데이터 일치, 비공개 HTML/RSC/sitemap 노출 없음, 기존 Brain UI·Home 레이더 유지 | `scripts/brain-capture.http.test.mjs`와 Step 2 브라우저 검수 |
 
-Step 1은 parser/public projection 단위 RED부터 시작해 기존 `npm run test:brain`, `npm run test:brain:http`를 격리 합성 DB/loopback에서 실행한다. 실제 이전 payload의 fingerprint로 감사 행을 준비한 뒤 재요청해 배포 간 호환도 확인한다. 새 parser로 만든 두 요청만 비교하고 legacy 검증으로 간주하지 않는다. Step 2는 동일 계약으로 admin 입력·미리보기만 연결한다. Step 1 저장/API 검증은 아래 완료 기록을 따르며 Step 2 관리자 UI 완료를 뜻하지 않는다.
+Step 1은 parser/public projection 단위 RED부터 시작해 기존 `npm run test:brain`, `npm run test:brain:http`를 격리 합성 DB/loopback에서 실행한다. 실제 이전 payload의 fingerprint로 감사 행을 준비한 뒤 재요청해 배포 간 호환도 확인한다. 새 parser로 만든 두 요청만 비교하고 legacy 검증으로 간주하지 않는다. Step 2는 동일 계약으로 admin 입력·미리보기만 연결한다. Step 1 저장/API와 Step 2 관리자 UI 검증은 아래 각 완료 기록을 따른다.
 
 ## R2/R3 콘텐츠 완료와 공개의 구분
 
@@ -180,3 +180,13 @@ Step 1은 parser/public projection 단위 RED부터 시작해 기존 `npm run te
 - production 공개/관리자 ingress HTTP **1/1**: 공개 전·v1 공개·v2 비공개 수정·v2 공개·차단된 v3·철회의 6상태 × HTML/RSC/사이트맵 5응답 = **30개 공개 응답**에서 선택 사본과 비공개 미노출을 확인했다. 일반 상세는 404, 이미 시작된 RSC는 HTTP 200일 수 있어 Next의 `NEXT_HTTP_ERROR_FALLBACK;404`·no-store와 내용 미노출을 함께 검사한다.
 - `npm run typecheck`, Docker runner의 `npm run build`, 앱 source lint 통과. `npm run lint`는 기존 Git 제외 private helper의 오류 10개/경고 6개로 실패했다. 검사 범위를 좁힌 source lint 결과로 전체 lint 성공을 주장하지 않는다.
 - 검수용 컨테이너 3개·network·임시 인증 파일을 정리했다. 원자료는 Git/Docker 제외 `private/r1-snapshots-2026-11-06/`. 앱 UI·Home 레이더·migration·배포 설정·운영 상태는 변경하지 않았고 브라우저 화면 검수는 입력 UI를 추가하는 Step 2에서 진행한다.
+
+## R1 Step 2 완료 검증 — 2026-11-06
+
+`BrainCapture`의 공개용 메모에 출처/질문 입력과 개수·길이 제한, 빈 값/중복/주소 오류를 연결했다. 미리보기는 `parseBrainDraft`와 `toPublicBrainNode`를 재사용하며 내부 출처는 공개 사이트로 연다. 원문은 미리보기에 넣지 않고 새 입력이나 삭제는 명시 저장·공개 전까지 기존 사본을 바꾸지 않는다. 필드 없는 이전 기록을 단순 편집할 때 기본값을 저장하지 않으며, 출처를 표시하지 않을 때는 명시적 빈 배열로 저장한다.
+
+- TDD RED: 기존 production 이미지에서 작성 도중 `출처 추가` 버튼을 찾지 못해 실패. 구현 후 같은 작성 흐름의 GREEN과 확장 검수를 확인했다. 브라우저 테스트는 문자열 유무만 검사하지 않고 입력→API→재열기→공개 페이지의 값을 비교한다.
+- `scripts/brain-editor.browser-check.mjs`: production/dev 각각 1440/390/320px × JS ON/OFF = **12표본**. JS ON 6회에서 두 출처/질문의 순서·줄바꿈, 중복/안전하지 않은 URL, 키보드 추가, 응답 유실 후 같은 명령 재확인, 재열기, 공개/미선택 수정, 빈 목록 재공개/철회, legacy 필드 생략 유지까지 확인했다. 1440px에서는 12개/160·300자 상한과 URL maxlength 2,048도 확인했다. JS OFF는 안내와 가로 넘침을 확인했다.
+- 공개 독립 상세와 기존 Memory reader에서 출처·질문이 같고 뒤로가기로 목록에 복귀한다. 별도 HTTP **1/1**의 30개 HTML/RSC/사이트맵 응답에서도 비공개/미선택/철회 값 미노출을 재확인했다. 공개 reader·graph·검색/필터 코드와 Home 레이더 변경은 0건이다.
+- 단위 **283 pass/27 DB skip**, 관련 DB integration **3/3**, source lint·typecheck·Docker production build 통과. 전체 lint는 기존 private helper 오류 10개/경고 6개로 실패했으며 이번 앱 source 검증과 구분한다.
+- 마지막 production 검수 컨테이너 3개와 network, dev 검수 DB 컨테이너 1개·network·본 작업의 dev 프로세스와 임시 인증 파일을 정리했다. 스크린샷·로그·원자료는 Git/Docker 제외 `private/r1-editor-2026-11-06/`에 둔다. 운영 적용·실제 콘텐츠 발행은 실행하지 않았다.

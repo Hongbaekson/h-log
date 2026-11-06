@@ -33,6 +33,14 @@
 .capture-preview { margin-top: 28px; border-left: 2px solid #5865f2; padding-left: 18px; overflow-wrap: anywhere; }
 .capture-preview h3 { font-size: 21px; margin: 14px 0; font-weight: 650; }
 .capture-preview p { color: var(--text-muted); margin-bottom: 14px; }
+.capture-provenance { margin-top: 28px; border-top: 1px solid var(--border); padding-top: 20px; }
+.capture-provenance h2 { font-size: 18px; font-weight: 650; }
+.capture-provenance h2 small { color: var(--text-muted); font-size: 12px; font-weight: 400; }
+.capture-provenance-item { border-left: 2px solid var(--border); padding-left: 16px; margin: 16px 0 24px; }
+.capture-provenance-item .capture-error { margin: 8px 0; font-size: 13px; }
+.capture-preview h4 { font-weight: 650; margin: 20px 0 8px; }
+.capture-preview ul { padding-left: 20px; line-height: 1.8; }
+.capture-preview li { white-space: pre-wrap; overflow-wrap: anywhere; }
 .capture-preview div, .capture-history pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; line-height: 1.8; }
 .capture-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
 .brain-capture .capture-check { display: flex; align-items: flex-start; gap: 10px; line-height: 1.7; }

@@ -213,8 +213,8 @@
     },
     {
       "dir": "brain-provenance-authoring",
-      "status": "pending",
-      "summary": "2026-11-06: R1 Steps 0-1 completed; Step 2 pending. Sources/questions validated and preserved in private revisions and explicit public snapshots with legacy/fingerprint compatibility. Unit 283 pass/27 DB skip, DB 3/3, production HTTP 1/1, source lint/typecheck/build passed; existing private-helper full lint errors remain. Approved Brain UI/radar and operations hold preserved. No AI Q&A. Next: owner-provenance-editor."
+      "status": "completed",
+      "summary": "2026-11-06: R1 Steps 0-2 complete. Bounded sources/questions contract, private versions/public snapshots, and admin editing/preview verified. Production/dev browser 12 JS ON/OFF samples at 1440/390/320px, unit 283 pass/27 DB skip, DB 3/3, HTTP 1/1 and source lint/typecheck/build passed. Existing private-helper full lint errors remain. Public Brain UI/radar and operations hold preserved; no AI Q&A. Next: R2 Step 0 current-claims-inventory."
     },
     {
       "dir": "evidence-content-curation",

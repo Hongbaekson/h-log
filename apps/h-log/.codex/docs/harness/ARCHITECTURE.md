@@ -525,11 +525,11 @@ Cycle 관측 wrapper는 기존 generate/worker의 결과와 오류를 보존한�
 
 Host helper가 `backup.json`/`restore.json`과 별도 evidence를 관리한다. Collector는 db/autopublish/backup/restore/expectations를 독립 수집하고 고정 task/result/stage만 내보낸다. 기대 상태와 성공 시각으로 첫 실행·재활성화·정비 후 deadline을 계산한다. 공개 앱/관리자 UI·schema 변경이나 자동 백업 timer는 없다.
 
-## 기록·탐색 후속 구조 — R1 Step 1 완료
+## 기록·탐색 후속 구조 — R1 완료
 
-[R1–R5 계획](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md)은 14개 step 중 completed 2·pending 12다. `brain-capture.ts`의 선택형 sources/questions를 기존 owner API와 JSONB 저장 경로가 보존한다. `toPublicBrainNode`는 현재 저장 revision의 명시 공개에서만 출처/질문을 사본으로 복사해 privacy 검사를 적용한다. `brain.ts`의 기존 href 정책을 parser와 public selector가 함께 사용한다. 원문·이력·명령 fingerprint와 기존 공개 사본의 경계는 유지한다.
+[R1–R5 계획](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md)은 R1 3개 step 완료, 전체 completed 3·pending 11이다. `brain-capture.ts`의 선택형 sources/questions를 기존 owner API와 JSONB 저장 경로가 보존한다. `toPublicBrainNode`는 현재 저장 revision의 명시 공개에서만 출처/질문을 사본으로 복사해 privacy 검사를 적용한다. `brain.ts`의 기존 href 정책을 parser와 public selector가 함께 사용한다. 원문·이력·명령 fingerprint와 기존 공개 사본의 경계는 유지한다.
 
-`brain-curation.ts`는 공개 JSONB에 sources/questions 키가 없는 경우만 읽기 기본값을 적용하며 원래 DB 값은 다시 쓰지 않는다. 기존 공개 두 reader와 Home 레이더는 변경하지 않았다. 다음 로컬 작업은 **R1 Step 2 관리자 입력·미리보기**다. R3의 내부 Blog 공개 상태/철회 연결, R2 콘텐츠 후보, R4 태그/공유, R5 버전별 수동 검토는 후속이다. 새 서비스·스케줄러·AI 질문 API와 migration은 추가하지 않았다.
+`brain-curation.ts`는 공개 JSONB에 sources/questions 키가 없는 경우만 읽기 기본값을 적용하며 원래 DB 값은 다시 쓰지 않는다. 기존 공개 두 reader와 Home 레이더는 변경하지 않았다. `BrainCapture.tsx`는 기존 저장 API를 이용해 출처·질문을 추가/수정/삭제하고 동일 parser/public projection으로 미리본다. 오류 시 입력을 유지하며 공개 확인은 저장된 사본에만 적용한다. 스타일은 admin 전용 `capture.css`에 둔다. 다음 로컬 작업은 **R2 Step 0 근거 대장**이다. R3의 내부 Blog 공개 상태/철회 연결, R2 콘텐츠 후보, R4 태그/공유, R5 버전별 수동 검토는 후속이다. 새 서비스·스케줄러·AI 질문 API와 migration은 추가하지 않았다.
 
 ## SEO S3 로컬 릴리스 검수 — 2026-11-05
 

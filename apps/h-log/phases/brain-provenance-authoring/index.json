@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "owner-provenance-editor",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-06: Admin sources/questions add/edit/remove, validation and shared-projection preview implemented. Production browser RED then GREEN; production/dev 1440/390/320px JS ON/OFF (12 samples), keyboard, caps, lost-response replay, reopen/publish/edit/clear/withdraw and legacy omission passed. Unit 283 pass/27 DB skip, DB 3/3, HTTP 1/1, source lint/typecheck/build passed; full lint retains 10 existing private-helper errors/6 warnings. Public Brain UI/radar, schema and operations unchanged. R1 complete; next R2 Step 0."
     }
   ]
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { brainBasisLabels, brainKindLabels, brainRelationLabels, brainTopics, type BrainBasis, type BrainGraph, type BrainKind, type BrainRelation, type BrainTopic } from "@/lib/brain";
-import type { BrainCommand, BrainDraft, BrainNoteSummary, BrainOwnerNote } from "@/lib/brain-capture";
+import { brainBasisLabels, brainKindLabels, brainRelationLabels, brainTopics, publicSourceHref, type BrainBasis, type BrainGraph, type BrainKind, type BrainRelation, type BrainTopic } from "@/lib/brain";
+import { parseBrainDraft, toPublicBrainNode, type BrainCommand, type BrainDraft, type BrainNoteSummary, type BrainOwnerNote, type BrainSnapshot } from "@/lib/brain-capture";
 import { sortBrainNodes, type BrainOrder } from "@/lib/brain-curation";
 import { suggestBrainLinks, type BrainSuggestions } from "@/lib/brain-suggestions";
 
@@ -11,7 +11,7 @@ const emptyDraft: BrainDraft = {
   kind: "reflection", topic: "principles", basis: "profile", tags: [], occurredOn: "", shareOccurredOn: false, links: [],
 };
 const messages: Record<string, string> = {
-  invalid_draft: "제목과 원문, 각 항목의 길이를 확인해 주세요.",
+  invalid_draft: "제목과 원문, 출처·질문의 빈 값이나 중복, 각 항목의 길이를 확인해 주세요.",
   invalid_link: "자기 자신이나 없는 기록에는 연결할 수 없습니다. 연결 대상을 다시 골라 주세요.",
   public_copy_required: "공개용 제목·요약·본문을 모두 적어 주세요.",
   public_copy_blocked: "공개용 내용에 연락처, 내부 주소나 비공개 식별자가 있는지 확인해 주세요.",
@@ -59,6 +59,22 @@ export function BrainCapture({ initialNotes, catalog, publicOrigin }: { initialN
   const visibleNotes = sortBrainNodes(notes.map(item => ({ ...item, recordedAt: item.createdAt })), order).filter(item =>
     `${item.title} ${item.tags.join(" ")}`.normalize("NFKC").toLowerCase().includes(query.normalize("NFKC").trim().toLowerCase()));
   const laterReflections = notes.filter(item => item.links?.some(link => link.target === note?.id && link.relation === "revises"));
+  const sourceErrors = (draft.sources ?? []).map((source, index) => {
+    if (!source.label.trim()) return "출처 제목을 적어 주세요.";
+    if (draft.sources!.some((item, i) => i !== index && item.label.trim() === source.label.trim())) return "같은 출처 제목이 있습니다. 구분해서 적어 주세요.";
+    if (source.href?.trim() && !publicSourceHref(source.href.trim())) return "공개 HTTPS 주소나 /resume, /portfolio/항목 주소를 적어 주세요.";
+    return "";
+  });
+  const questionErrors = (draft.questions ?? []).map((question, index) => !question.trim() ? "남겨 둘 질문을 적어 주세요."
+    : draft.questions!.some((item, i) => i !== index && item.trim() === question.trim()) ? "같은 질문이 있습니다. 하나만 남겨 주세요." : "");
+  let preview: BrainSnapshot | null = null;
+  let previewError = "";
+  try {
+    preview = toPublicBrainNode(parseBrainDraft({ ...draft, tags: currentTags }), note?.id ?? "preview",
+      note ? new Date(note.createdAt).toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" }) : "");
+  } catch (cause) {
+    previewError = cause instanceof Error ? messages[cause.message] ?? "공개용 내용을 확인해 주세요." : "공개용 내용을 확인해 주세요.";
+  }
 
   useEffect(() => {
     if (!dirty && !pendingCommand) return;
@@ -68,10 +84,10 @@ export function BrainCapture({ initialNotes, catalog, publicOrigin }: { initialN
   }, [dirty, pendingCommand]);
 
   function change<K extends keyof BrainDraft>(key: K, value: BrainDraft[K]) {
-    setDraft(current => ({ ...current, [key]: value })); setDirty(true); setConfirmed(false); setMessage(""); setSuggestions(null);
+    setDraft(current => ({ ...current, [key]: value })); setDirty(true); setConfirmed(false); setMessage(""); setError(""); setSuggestions(null);
   }
   function changeTags(value: string) {
-    setTagText(value); setDirty(true); setConfirmed(false); setMessage(""); setSuggestions(null);
+    setTagText(value); setDirty(true); setConfirmed(false); setMessage(""); setError(""); setSuggestions(null);
   }
   async function load(id: string) {
     const [current, list] = await Promise.all([
@@ -92,6 +108,10 @@ export function BrainCapture({ initialNotes, catalog, publicOrigin }: { initialN
   async function act(action: "save" | "publish" | "unpublish", event?: FormEvent) {
     event?.preventDefault();
     if (pendingCommand || inFlight.current) return;
+    if (action === "save") {
+      try { parseBrainDraft({ ...draft, tags: currentTags }); }
+      catch { setError(messages.invalid_draft); return; }
+    }
     const metadata = { commandId: crypto.randomUUID(), commandRevision: note?.commandRevision ?? 0 };
     const command: CaptureCommand = action === "save"
       ? { ...metadata, action, ...(note ? { id: note.id } : {}), revision: note?.revision ?? 0, draft: { ...draft, tags: currentTags } }
@@ -117,6 +137,7 @@ export function BrainCapture({ initialNotes, catalog, publicOrigin }: { initialN
   }
 
   return <div className="brain-capture">
+    <noscript><p className="capture-help">기록 작성과 저장에는 JavaScript가 필요합니다. 브라우저 설정에서 JavaScript를 켜 주세요.</p></noscript>
     <header className="capture-header"><div><p className="capture-eyebrow">PRIVATE NOTES</p><h1>나만 보는 기록</h1><p>그때 있었던 일과 생각을 편하게 적어 두세요.</p></div><a href={`${publicOrigin}/brain`} target="_blank" rel="noreferrer">Second Brain 열기 ↗</a></header>
     <p className="capture-help">여기서는 직접 저장한 기록을 관리합니다. 기본 카탈로그의 기록 {catalog.nodes.length}개와 연결 {catalog.edges.length}개는 코드로 관리합니다.</p>
     <div className="capture-layout">
@@ -173,7 +194,36 @@ export function BrainCapture({ initialNotes, catalog, publicOrigin }: { initialN
               </div>
               <p className="capture-help">{brainBasisLabels[draft.basis].description}</p>
               <label htmlFor="capture-tags">태그 <small>쉼표로 구분 · 최대 12개</small></label><input id="capture-tags" value={tagText} onChange={event => changeTags(event.target.value)} />
-              <section className="capture-preview" aria-label="공개 미리보기"><h2>공개 미리보기</h2><h3>{draft.publicTitle || "공개 제목"}</h3><p>{draft.publicSummary || "공개 요약을 적어 주세요."}</p>{draft.shareOccurredOn && draft.occurredOn && <p>사건 날짜 {draft.occurredOn}</p>}<div>{draft.publicBody || "다른 사람에게 보여 줄 본문이 여기에 표시됩니다."}</div>{draft.links?.length ? <p>연결 {draft.links.length}개 · 양쪽 기록이 공개된 연결만 표시됩니다.</p> : null}</section>
+              <section className="capture-provenance" aria-label="공개용 출처"><h2>참고한 기록 <small>{draft.sources?.length ?? 0}/12</small></h2>
+                <p className="capture-help">공개할 수 있는 출처만 적어 주세요. 주소는 비워도 됩니다.</p>
+                {draft.sources === undefined && <p className="capture-help">따로 적지 않으면 ‘작성자가 직접 정리한 공개 메모’로 표시됩니다. <button type="button" onClick={() => change("sources", [])}>출처 없이 공개</button></p>}
+                {draft.sources?.length === 0 && <p className="capture-help">출처를 표시하지 않습니다.</p>}
+                {(draft.sources ?? []).map((source, index) => <div className="capture-provenance-item" key={index}>
+                  <label htmlFor={`capture-source-label-${index}`}>출처 {index + 1} 제목</label><input id={`capture-source-label-${index}`} required maxLength={160} value={source.label} aria-describedby={`capture-source-error-${index}`} aria-invalid={Boolean(sourceErrors[index])} onChange={event => change("sources", draft.sources!.map((item, i) => i === index ? { ...item, label: event.target.value } : item))} />
+                  <label htmlFor={`capture-source-href-${index}`}>출처 {index + 1} 주소</label><input id={`capture-source-href-${index}`} inputMode="url" spellCheck={false} maxLength={2048} value={source.href ?? ""} aria-describedby={`capture-source-error-${index}`} aria-invalid={Boolean(sourceErrors[index])} onChange={event => change("sources", draft.sources!.map((item, i) => i === index ? { ...item, href: event.target.value } : item))} placeholder="https://… 또는 /resume" />
+                  <p id={`capture-source-error-${index}`} className="capture-error">{sourceErrors[index]}</p>
+                  <button type="button" onClick={() => change("sources", draft.sources!.filter((_, i) => i !== index))}>출처 {index + 1} 빼기</button>
+                </div>)}
+                <button type="button" disabled={(draft.sources?.length ?? 0) >= 12} onClick={() => change("sources", [...(draft.sources ?? []), { label: "" }])}>출처 추가</button>
+              </section>
+              <section className="capture-provenance" aria-label="공개용 질문"><h2>남겨 둔 질문 <small>{draft.questions?.length ?? 0}/12</small></h2>
+                <p className="capture-help">이 기록을 다시 볼 때 생각해 보고 싶은 질문을 적어 주세요. 한 항목에 한 질문씩, 최대 300자까지 남길 수 있습니다.</p>
+                {(draft.questions ?? []).map((question, index) => <div className="capture-provenance-item" key={index}>
+                  <label htmlFor={`capture-question-${index}`}>질문 {index + 1}</label><textarea id={`capture-question-${index}`} required maxLength={300} rows={2} value={question} aria-describedby={`capture-question-error-${index}`} aria-invalid={Boolean(questionErrors[index])} onChange={event => change("questions", draft.questions!.map((item, i) => i === index ? event.target.value : item))} />
+                  <p id={`capture-question-error-${index}`} className="capture-error">{questionErrors[index]}</p>
+                  <button type="button" onClick={() => change("questions", draft.questions!.filter((_, i) => i !== index))}>질문 {index + 1} 빼기</button>
+                </div>)}
+                <button type="button" disabled={(draft.questions?.length ?? 0) >= 12} onClick={() => change("questions", [...(draft.questions ?? []), ""])}>질문 추가</button>
+              </section>
+              <section className="capture-preview" aria-label="공개 미리보기"><h2>공개 미리보기</h2>
+                <p className="capture-help">{dirty || !note ? "작성 중인 내용의 미리보기입니다. 공개 중인 사본은 바뀌지 않습니다." : "저장된 공개용 메모입니다. 아래에서 확인한 사본을 공개할 수 있습니다."}</p>
+                {preview ? <><h3>{preview.title}</h3><p>{preview.summary}</p>{preview.occurredOn && <p>사건 날짜 {preview.occurredOn}</p>}
+                  {preview.sections.flatMap(section => section.paragraphs).map((paragraph, index) => <div key={index}>{paragraph}</div>)}
+                  {preview.questions.length > 0 && <><h4>남겨 둔 질문</h4><ul>{preview.questions.map(question => <li key={question}>{question}</li>)}</ul></>}
+                  <h4>참고한 기록</h4><ul>{preview.sources.map(source => <li key={source.label}>{source.href ? <a href={source.href.startsWith("/") ? `${publicOrigin}${source.href}` : source.href} target="_blank" rel="noreferrer">{source.label}</a> : source.label}</li>)}</ul>
+                  {preview.links?.length ? <p>연결 {preview.links.length}개 · 양쪽 기록이 공개된 연결만 표시됩니다.</p> : null}
+                </> : <p className="capture-help">{previewError}</p>}
+              </section>
             </details>
             <div className="capture-actions"><button className="capture-primary" type="submit">{busy ? "저장하는 중…" : "비공개로 저장"}</button></div>
           </fieldset>
@@ -181,8 +231,8 @@ export function BrainCapture({ initialNotes, catalog, publicOrigin }: { initialN
         <fieldset className="capture-publish" disabled={locked || !note || dirty}>
           <legend>공개 여부</legend><p className="capture-help">저장한 공개용 메모만 방문자에게 보여 줍니다. 공개 후 수정한 내용은 다시 공개하기 전까지 비공개로 남습니다.</p>
           {(!note || dirty) && <p className="capture-help">공개 여부를 바꾸려면 먼저 저장해 주세요.</p>}
-          <label className="capture-check"><input type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)} />공개용 제목·요약·본문을 확인했습니다.</label>
-          <div className="capture-actions"><button type="button" disabled={!confirmed || !draft.publicTitle.trim() || !draft.publicSummary.trim() || !draft.publicBody.trim()} onClick={() => act("publish")}>확인한 사본 공개</button>{note?.publishedRevision && <button type="button" onClick={() => act("unpublish")}>공개 해제</button>}</div>
+          <label className="capture-check"><input type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)} />공개용 제목·요약·본문과 출처·질문을 확인했습니다.</label>
+          <div className="capture-actions"><button type="button" disabled={!confirmed || !preview} onClick={() => act("publish")}>확인한 사본 공개</button>{note?.publishedRevision && <button type="button" onClick={() => act("unpublish")}>공개 해제</button>}</div>
         </fieldset>
         <p role="status" className="capture-message">{message}</p>{error && <p role="alert" className="capture-error">{error}</p>}
         {pendingCommand && !busy && <div className="capture-actions"><p className="capture-help">이미 처리됐을 수 있어요. 중복 저장을 막기 위해 같은 요청의 결과를 먼저 확인합니다. 화면을 닫기 전까지 이 요청을 유지합니다.</p><button type="button" onClick={() => execute(pendingCommand)}>같은 요청 다시 확인</button></div>}
