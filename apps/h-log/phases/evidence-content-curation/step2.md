@@ -4,7 +4,7 @@
 
 pending — 2026-11-05 계획 등록. R2 / 실제 사례와 회고 정리: 기준 노드와 후속 회고 후보. 아직 구현/실행하지 않았다.
 
-R2 Step 1 완료. admin 저장 검수가 필요하면 R1 Step 2도 완료.
+R2 Step 1은 2026-11-09 완료했다. [원고 검수 결과](../../.codex/docs/harness/EVIDENCE_CASE_MANUSCRIPT_REVIEW.md)의 H-Log 사례와 근거 대장을 사용한다. admin 저장 검수가 필요하면 R1 Step 2도 완료된 상태다.
 
 ## 읽을 파일
 
@@ -22,6 +22,8 @@ R2 Step 1 완료. admin 저장 검수가 필요하면 R1 Step 2도 완료.
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md`
+- `apps/h-log/.codex/docs/harness/CURRENT_CLAIMS_INVENTORY.md`
+- `apps/h-log/.codex/docs/harness/EVIDENCE_CASE_MANUSCRIPT_REVIEW.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `apps/h-log/lib/brain-catalog.ts`
 - `apps/h-log/lib/brain.ts`

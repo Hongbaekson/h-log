@@ -2,9 +2,9 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-05 계획 등록. R2 / 실제 사례와 회고 정리: 재현 근거가 있는 기술 글 한 편. 아직 구현/실행하지 않았다.
+completed — 2026-11-09. 기존 Home/Suspense 원고를 재사용해 재현 명령·근거·현재성을 보완하고 검수했다. [원고 검수 결과](../../.codex/docs/harness/EVIDENCE_CASE_MANUSCRIPT_REVIEW.md)에 범위와 인계를 남겼다.
 
-R2 Step 0은 2026-11-09 완료했다. [근거 대장](../../.codex/docs/harness/CURRENT_CLAIMS_INVENTORY.md)의 R2-C01을 사용하고 S2 Step 4에서 검수한 Home/Suspense 원고를 재사용한다. 이 step의 원고 재검수는 pending이다.
+R2 Step 0은 2026-11-09 완료했다. [근거 대장](../../.codex/docs/harness/CURRENT_CLAIMS_INVENTORY.md)의 R2-C01을 사용하고 S2 Step 4에서 검수한 Home/Suspense 원고를 재사용한다. 이 step의 원고 재검수를 완료했고 실제 발행은 별도다.
 
 ## 읽을 파일
 
@@ -77,6 +77,16 @@ git diff --check
 - 회사 Wiki·내부 식별자·확인되지 않은 감정/성과를 자료 수집이나 공개 노드로 채우지 말 것. 출처와 본인 확인이 있는 범위만 다룬다.
 - 계획 등록을 운영 배포·실제 발행·DNS/TLS·provider·timer·외부 알림 승인으로 해석하지 말 것. 기존 운영 보류가 유지된다.
 - 방문자 AI·댓글·공개 통계·새 도메인·별도 그래프/서비스를 추가하지 말 것. 이번 개선 단위와 관계없다.
+
+## 완료 기록 — 2026-11-09
+
+같은 원고 한 편의 후속 검토본을 준비했다. 과거 44개 테스트·대안 분석 날짜를 명확히 하고, 요청 단위 React cache와 공유 요약 캐시를 구분했다. commit·Node/Next/React 버전과 재현 명령, 이번 47개 단위 결과, 합성 성능 관찰과 미구현 계획의 경계를 추가했다. Korean 스킬로 산문 2곳을 교정하고 protected span을 비교했다.
+
+주장 16개·출처 25개를 검수했고 외부 공식 문서 2개를 재확인했다. 원본·이전 manifest와 기존 자료 시각은 보존했다. 사실 보완본·교정본·claim·editorial 제안·diff·검증은 Git/Docker 제외 `private/r2-manuscript-2026-11-09/`에 있다. 원고 전체는 공개 데이터나 앱 코드에 추가하지 않았다.
+
+공개 읽기/개인정보 **47/47**, 원고·editorial 파싱/기본 privacy/출처/문체 보존/현재 제목·메모리 공개 경계와 문서/JSON/링크/경로/diff 검수를 통과했다. 메모리 drafted 후보는 공개 0건이며 DB/HTTP/브라우저와 전체 앱 gate는 이번 실행에 포함하지 않는다. 로컬 helper의 URL 정규식·CRLF 가정을 수정한 뒤 검수를 통과했다. 자세한 명령·hash·한계는 위 검수 결과를 따른다.
+
+R2는 2/3 완료, R은 completed 5·pending 9다. 변경 파일은 원고 검수 요약, 이전 근거 대장의 후속 링크, 이 step과 Step 2 읽을 파일, R2/전체 index, 기록 개선/성능/구현 계획과 루트 자동 블로그 계획이다. 다음은 R2 Step 2의 기록 후보 준비다.
 
 ## 다음 단계
 

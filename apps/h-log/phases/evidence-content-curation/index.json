@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "evidence-case-manuscript",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-09: Reused the S2 Home/Suspense manuscript; added pinned reproduction commands, explicit historical dates, request-cache scope and synthetic-performance followup limits. Reviewed 16 claims/25 sources and two official docs; focused public/privacy tests 47/47, manuscript/editorial parsing, privacy, protected spans, immutable prior hashes and in-memory publication boundaries passed. Private candidate only; no DB/HTTP/browser rerun or publication. Next: R2 Step 2 principle-and-revisit-drafts."
     },
     {
       "step": 2,

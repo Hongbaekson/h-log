@@ -1,5 +1,7 @@
 # Implementation Plan: H-Log Harness Baseline
 
+2026-11-09 R2 Step 1 `evidence-case-manuscript` 완료. 기존 Home/Suspense 원고에 재현 명령·검증 시점·캐시와 후속 성능 계획의 범위를 보완했다. [검수 결과](EVIDENCE_CASE_MANUSCRIPT_REVIEW.md)에 주장 16개·출처 25개, 공개 읽기/개인정보 47/47, 원고·editorial·privacy·문체/원본 보존과 메모리 공개 경계를 기록했다. **R completed 5·pending 9, 다음은 R2 Step 2 `principle-and-revisit-drafts`**다. 원고는 비공개 후보이며 실제 발행·앱 코드 변경·DB/브라우저 재실행은 없다. F 22개 pending, SEO/A/모니터링과 운영 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-09 R2 Step 0 `current-claims-inventory` 완료. 대표 주장 5건의 Portfolio·Resume·Blog 후보·Brain 연결과 현재성·근거·추가 확인을 [대장](CURRENT_CLAIMS_INVENTORY.md)에 정리했다. 다음 원고는 기존 S2 Home/Suspense 검토본을 재사용하며 원본/hash·근거 11개 파일을 보존했다. **R completed 4·pending 10, 다음은 R2 Step 1 `evidence-case-manuscript`**다. 성능 트랙 F1–F7은 22개 pending이며 F1 Step 0부터 시작한다. 문서/JSON·링크·경로·상태·diff 검수를 통과했다. 실제 원고 발행·앱 코드 변경·운영 작업은 없다. 아래 날짜별 기록은 당시 상태다.
 
 2026-11-06 성능 F1–F7 계획을 등록했다. 7개 phase / 22개 step은 모두 pending이며 전체는 60개 phase / 209개 step이다. 목록/상세 가공 절감, 원본에서 재생성하는 PostgreSQL 조회용 모델, 검색·Brain·관리자/이미지·성능 관측을 단계별로 다룬다. 성능 트랙은 F1 Step 0 `reproducible-performance-baseline`, 기존 콘텐츠 트랙은 R2 Step 0 `current-claims-inventory`부터 이어간다. 일반 다음 단계 요청의 기본 순서는 R이며 성능 작업 지정 시 F 순서를 따른다. [성능 및 재생성 계획](PERFORMANCE_REBUILD_PLAN.md)에 범위·의존성·검증을 정리했다. 아래 날짜별 기록은 당시 상태다.

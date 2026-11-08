@@ -91,3 +91,7 @@ R2 Step 1은 R2-C01을 사용한다. 기존 후보의 파일 SHA-256은 `40cb9b4
 문서·JSON 전용 단계다. 대표 5건의 화면별 일치/차이와 현재성, 기존 원고·과거 원본 보존, S2 근거 11개 파일의 hash 일치를 확인했다. 전체 phase/step과 Markdown 파싱, 상대 링크·읽을 파일 경로, 다른 트랙 상태 보존, private의 Git/Docker 제외 및 `git diff --check`를 검사했다. 검사 명령과 결과는 [Step 0 완료 기록](../../../phases/evidence-content-curation/step0.md)에 둔다.
 
 새 DB/HTTP/브라우저 검증과 외부 문서 확인은 실행하지 않았다. 이 단계는 연결 대장 준비 완료이며 원고 재검수·새 Brain 노드·공개 발행 완료가 아니다. 다음은 **R2 Step 1 `evidence-case-manuscript`**다.
+
+## R2 Step 1 후속 검수 — 2026-11-09
+
+위 대장 확인 당시의 원고/hash와 판단은 보존했다. [원고 검수 결과](EVIDENCE_CASE_MANUSCRIPT_REVIEW.md)에서 같은 S2 원고를 별도 후보로 보완했다. 재현 명령·현재 단위 47/47·캐시 설명·후속 성능 관찰을 구분하고 주장 16개와 출처 25개를 검수했다. 실제 발행은 하지 않았으며 다음은 R2 Step 2의 기준 노드·기록 후보 준비다.

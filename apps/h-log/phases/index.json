@@ -219,7 +219,7 @@
     {
       "dir": "evidence-content-curation",
       "status": "pending",
-      "summary": "2026-11-09: Inventoried five representative claims across Portfolio, Resume, private Blog candidates and the static Brain catalog. Distinguished current H-Log source, historical career/local-review evidence, inference and open questions; selected the existing S2 Home/Suspense manuscript for reuse. Candidate/original hashes and all 11 S2 source hashes match. Documentation/JSON/link/path/privacy-boundary checks passed. No runtime or publication change. Next: R2 Step 1 evidence-case-manuscript. Steps 1-2 remain pending."
+      "summary": "2026-11-09: Steps 0-1 completed: five-claim cross-surface inventory and evidence-backed Home/Suspense manuscript review. 2026-11-09: Reused the S2 Home/Suspense manuscript; added pinned reproduction commands, explicit historical dates, request-cache scope and synthetic-performance followup limits. Reviewed 16 claims/25 sources and two official docs; focused public/privacy tests 47/47, manuscript/editorial parsing, privacy, protected spans, immutable prior hashes and in-memory publication boundaries passed. Private candidate only; no DB/HTTP/browser rerun or publication. Next: R2 Step 2 principle-and-revisit-drafts. Step 2 remains pending."
     },
     {
       "dir": "public-knowledge-connections",

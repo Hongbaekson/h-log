@@ -1,6 +1,6 @@
 # H-Log 기록·탐색 개선 계획
 
-등록일: 2026-11-05. Zerry/Memory 재조사 후 사용자가 개선 방향의 phase/step 등록과 커밋·푸시를 요청했다. **R1–R5: 5개 phase / 14개 step**이다. 2026-11-09 R2 Step 0까지 완료해 **completed 4·pending 10**이다. R1의 계약·저장·관리자 입력과 R2의 [근거 연결 대장](CURRENT_CLAIMS_INVENTORY.md)을 마쳤으며 다음은 R2 Step 1의 기존 원고 재검수다. 계획 등록을 기능 구현이나 콘텐츠 발행 완료로 표시하지 않는다. 상태의 source of truth는 [전체 레지스트리](../../../phases/index.json)와 각 phase index다.
+등록일: 2026-11-05. Zerry/Memory 재조사 후 사용자가 개선 방향의 phase/step 등록과 커밋·푸시를 요청했다. **R1–R5: 5개 phase / 14개 step**이다. 2026-11-09 R2 Step 1까지 완료해 **completed 5·pending 9**다. R1의 계약·저장·관리자 입력, R2의 [근거 대장](CURRENT_CLAIMS_INVENTORY.md)과 [원고 재검수](EVIDENCE_CASE_MANUSCRIPT_REVIEW.md)를 마쳤으며 다음은 R2 Step 2의 기준 노드·기록 후보 준비다. 계획 등록을 기능 구현이나 콘텐츠 발행 완료로 표시하지 않는다. 상태의 source of truth는 [전체 레지스트리](../../../phases/index.json)와 각 phase index다.
 
 ## 목적과 유지 조건
 
@@ -53,7 +53,7 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 | R1 [brain-provenance-authoring](../../../phases/brain-provenance-authoring/index.json) | 1 | [비공개 저장과 공개 사본](../../../phases/brain-provenance-authoring/step1.md) | completed |
 | R1 [brain-provenance-authoring](../../../phases/brain-provenance-authoring/index.json) | 2 | [관리자 출처·질문 입력과 미리보기](../../../phases/brain-provenance-authoring/step2.md) | completed |
 | R2 [evidence-content-curation](../../../phases/evidence-content-curation/index.json) | 0 | [현재 주장과 근거의 연결 대장](../../../phases/evidence-content-curation/step0.md) | completed |
-| R2 [evidence-content-curation](../../../phases/evidence-content-curation/index.json) | 1 | [재현 근거가 있는 기술 글 한 편](../../../phases/evidence-content-curation/step1.md) | pending |
+| R2 [evidence-content-curation](../../../phases/evidence-content-curation/index.json) | 1 | [재현 근거가 있는 기술 글 한 편](../../../phases/evidence-content-curation/step1.md) | completed |
 | R2 [evidence-content-curation](../../../phases/evidence-content-curation/index.json) | 2 | [기준 노드와 후속 회고 후보](../../../phases/evidence-content-curation/step2.md) | pending |
 | R3 [public-knowledge-connections](../../../phases/public-knowledge-connections/index.json) | 0 | [현재 공개된 글을 Brain 출처로 연결](../../../phases/public-knowledge-connections/step0.md) | pending |
 | R3 [public-knowledge-connections](../../../phases/public-knowledge-connections/index.json) | 1 | [한 사례를 잇는 편집된 읽기 경로](../../../phases/public-knowledge-connections/step1.md) | pending |
@@ -67,12 +67,12 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 ## 실행 순서와 다른 트랙
 
 1. 2026-11-05 기존 SEO S3 Step 0의 [로컬 SEO 릴리스 검수](SEO_RELEASE_REVIEW.md)를 완료했다. 새 R 트랙의 구현을 완료했다는 뜻은 아니다.
-2. 2026-11-09 R2 Step 0 완료. **다음 로컬 작업은 R2 Step 1 `evidence-case-manuscript`**다. 기본 순서는 R1 → R2 → R3 → R4 → R5다.
+2. 2026-11-09 R2 Step 1 완료. **다음 로컬 작업은 R2 Step 2 `principle-and-revisit-drafts`**다. 기본 순서는 R1 → R2 → R3 → R4 → R5다.
 3. R2 자료 정리와 R4는 R1 구현/개인 경험 확인에 기술적으로 종속되지 않는다. 필요한 자료가 없을 때 독립 작업을 진행할 수 있으며 실행한 step과 순서 변경 이유를 기록한다. R3는 R1의 출처 계약과 R2의 검수 후보를 사용한다.
 4. R5의 로컬 통합 검수는 새 트랙의 추가 회귀다. S3 Step 0의 기존 SEO 기준선을 취소하거나 완료된 단계를 다시 pending으로 만들지 않는다.
 5. S3 Step 1/2의 실제 도메인·계정·측정 조건은 그대로다. **운영 모니터링 Step 7 → 관리자 A3 Step 4 → timer** 순서와 OCI 보류를 유지한다. R 트랙은 운영 보류 해제를 기다리지 않고 격리 로컬에서 준비할 수 있다.
 
-R 등록 당시 전체는 53개 phase / 187개 step이었다. 2026-11-06 [성능 F1–F7](PERFORMANCE_REBUILD_PLAN.md)의 pending 22개 step을 더해 전체는 60개 phase / 209개 step이다. 기존 콘텐츠 트랙의 다음은 R2 Step 1이고 성능 트랙의 시작은 F1 Step 0이다. S3 Step 0 완료 후 SEO는 9 completed/1 pending/1 blocked다. 관리자 A 16/0/1, 모니터링 7/0/1의 상태는 바꾸지 않는다. R1/R5의 admin 후속은 별도 R 트랙이며 기존 A 트랙을 다시 열지 않는다.
+R 등록 당시 전체는 53개 phase / 187개 step이었다. 2026-11-06 [성능 F1–F7](PERFORMANCE_REBUILD_PLAN.md)의 pending 22개 step을 더해 전체는 60개 phase / 209개 step이다. 기존 콘텐츠 트랙의 다음은 R2 Step 2이고 성능 트랙의 시작은 F1 Step 0이다. S3 Step 0 완료 후 SEO는 9 completed/1 pending/1 blocked다. 관리자 A 16/0/1, 모니터링 7/0/1의 상태는 바꾸지 않는다. R1/R5의 admin 후속은 별도 R 트랙이며 기존 A 트랙을 다시 열지 않는다.
 
 ## R1 계약 — 2026-11-06 Step 0–2 완료
 
@@ -196,3 +196,7 @@ Step 1은 parser/public projection 단위 RED부터 시작해 기존 `npm run te
 [현재 주장과 근거의 연결 대장](CURRENT_CLAIMS_INVENTORY.md)에 대표 5건을 정리했다. Portfolio·Resume·Blog 후보·정적 Brain의 대응을 확인하고 현재 코드, 과거 경력/로컬 검증, 추론과 질문을 분리했다. 원고 후보는 S2 Step 4의 Home/Suspense 글을 재사용한다. 기존 원고·과거 원본과 S2 근거 11개 파일의 hash가 같으며 새 글로 중복 계산하지 않는다.
 
 문서/JSON·링크·읽을 경로·상태 개수·private 제외·diff 검수를 통과했다. 본인 확인이 필요한 측정 조건은 질문으로 남겼고 새 운영 관측이나 개인 감정을 만들지 않았다. R 트랙은 4 completed/10 pending, 다음은 R2 Step 1이다. 원고 재검수·Brain 후보 준비·공개 연결은 각 후속 step에서 진행한다.
+
+## R2 Step 1 완료 — 2026-11-09
+
+기존 Home/Suspense 원고에 재현 환경·명령, 과거/현재 검증 구분과 요청 cache·후속 성능 계획 설명을 보완했다. [검수 결과](EVIDENCE_CASE_MANUSCRIPT_REVIEW.md)에 주장 16개·출처 25개·47/47 단위, 파싱·privacy·문체 protected span·editorial 후보·원본/hash 보존과 메모리 공개 경계를 기록했다. DB/HTTP/브라우저·운영 성과는 이번에 재실행하지 않았다. 원고는 비공개 후보이며 다음은 R2 Step 2다. R completed 5·pending 9, F 22개 pending과 SEO/A/모니터링 상태는 유지한다.
