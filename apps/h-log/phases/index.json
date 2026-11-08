@@ -219,7 +219,7 @@
     {
       "dir": "evidence-content-curation",
       "status": "pending",
-      "summary": "2026-11-05: R2 실제 사례와 회고 정리, 3 pending steps. Planning only; see KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md. Preserve the approved Brain UI, radar, public snapshot and operations hold."
+      "summary": "2026-11-09: Inventoried five representative claims across Portfolio, Resume, private Blog candidates and the static Brain catalog. Distinguished current H-Log source, historical career/local-review evidence, inference and open questions; selected the existing S2 Home/Suspense manuscript for reuse. Candidate/original hashes and all 11 S2 source hashes match. Documentation/JSON/link/path/privacy-boundary checks passed. No runtime or publication change. Next: R2 Step 1 evidence-case-manuscript. Steps 1-2 remain pending."
     },
     {
       "dir": "public-knowledge-connections",

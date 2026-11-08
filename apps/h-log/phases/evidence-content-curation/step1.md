@@ -4,7 +4,7 @@
 
 pending — 2026-11-05 계획 등록. R2 / 실제 사례와 회고 정리: 재현 근거가 있는 기술 글 한 편. 아직 구현/실행하지 않았다.
 
-R2 Step 0 완료. 근거가 있는 사례 한 건이 필요하다. 기존 검수 원고를 재사용할 수 있다.
+R2 Step 0은 2026-11-09 완료했다. [근거 대장](../../.codex/docs/harness/CURRENT_CLAIMS_INVENTORY.md)의 R2-C01을 사용하고 S2 Step 4에서 검수한 Home/Suspense 원고를 재사용한다. 이 step의 원고 재검수는 pending이다.
 
 ## 읽을 파일
 
@@ -25,6 +25,8 @@ R2 Step 0 완료. 근거가 있는 사례 한 건이 필요하다. 기존 검수
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `apps/h-log/.codex/docs/harness/BLOG_WRITING_GUIDE.md`
 - `apps/h-log/.codex/docs/harness/SEO_CONTENT_LINK_REVIEW.md`
+- `apps/h-log/.codex/docs/harness/CURRENT_CLAIMS_INVENTORY.md`
+- `apps/h-log/.codex/docs/harness/PERFORMANCE_REBUILD_PLAN.md`
 - `apps/h-log/lib/blog-editorial.ts`
 - `apps/h-log/lib/blog-public.ts`
 - `apps/h-log/lib/blog-privacy-scanner.ts`

@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "current-claims-inventory",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-09: Inventoried five representative claims across Portfolio, Resume, private Blog candidates and the static Brain catalog. Distinguished current H-Log source, historical career/local-review evidence, inference and open questions; selected the existing S2 Home/Suspense manuscript for reuse. Candidate/original hashes and all 11 S2 source hashes match. Documentation/JSON/link/path/privacy-boundary checks passed. No runtime or publication change. Next: R2 Step 1 evidence-case-manuscript."
     },
     {
       "step": 1,

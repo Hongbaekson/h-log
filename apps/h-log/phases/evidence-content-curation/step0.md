@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-05 계획 등록. R2 / 실제 사례와 회고 정리: 현재 주장과 근거의 연결 대장. 아직 구현/실행하지 않았다.
+completed — 2026-11-09. 대표 주장 5건의 근거·현재성과 화면별 연결을 정리했다. [연결 대장](../../.codex/docs/harness/CURRENT_CLAIMS_INVENTORY.md)에 공개 가능한 요약과 다음 원고를 남겼다.
 
 S3 Step 0 완료. 기본 순서는 R1 이후이나 자료 정리는 R1 구현과 독립적이다.
 
@@ -25,6 +25,8 @@ S3 Step 0 완료. 기본 순서는 R1 이후이나 자료 정리는 R1 구현과
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `apps/h-log/lib/projects.ts`
 - `apps/h-log/lib/resume-profile.ts`
+- `apps/h-log/app/resume/page.tsx`
+- `apps/h-log/lib/blog-series.ts`
 - `apps/h-log/lib/portfolio-posts.ts`
 - `apps/h-log/lib/brain-catalog.ts`
 - `apps/h-log/.codex/docs/harness/BLOG_CASE_STUDY_REVIEW.md`
@@ -70,6 +72,24 @@ git diff --check
 - 회사 Wiki·내부 식별자·확인되지 않은 감정/성과를 자료 수집이나 공개 노드로 채우지 말 것. 출처와 본인 확인이 있는 범위만 다룬다.
 - 계획 등록을 운영 배포·실제 발행·DNS/TLS·provider·timer·외부 알림 승인으로 해석하지 말 것. 기존 운영 보류가 유지된다.
 - 방문자 AI·댓글·공개 통계·새 도메인·별도 그래프/서비스를 추가하지 말 것. 이번 개선 단위와 관계없다.
+
+## 완료 기록 — 2026-11-09
+
+대표 5건은 H-Log 최근 글 조회, Redisson Queue/DLQ, Redis 예열, 명세 기반 AI 워크플로우, OpenTelemetry 원인 식별이다. 현재 코드·과거 경력/실행 기록·추론·질문을 분리하고 실제 교체가 확인되지 않은 판단은 대체됨으로 표시하지 않았다. Resume 주장은 사진 정보 파일이 아닌 page의 timelineItems에서 확인했다.
+
+R2 Step 1은 기존 S2 Step 4 Home/Suspense 원고를 재사용한다. 후보·과거 원본 hash와 S2 근거 11개 파일이 모두 같다. 새 원고/성과 수는 0이며 대표 주장별 추가 확인 질문과 근거 22개 파일의 hash는 Git/Docker 제외 `private/r2-claims-2026-11-09/`에 보관했다. 외부 기술 자료나 회사 원본은 새로 열지 않았다.
+
+변경 파일은 연결 대장, 이 step·R2 index·전체 registry, 후속 Step 1의 읽을 파일, 기록 개선/성능/구현 계획과 루트 자동 블로그 계획이다. R은 **completed 4·pending 10**, R2는 **1/3 완료**다. F 22개 pending과 SEO/A/모니터링 상태는 유지한다.
+
+앱 디렉터리에서 실행한 문서 전용 명령은 다음과 같다. 검사기는 로컬 검수 묶음에 있으며 앱 runtime 의존성이 아니다.
+
+```powershell
+python private/r2-claims-2026-11-09/prepare.py
+node private/r2-claims-2026-11-09/validate.mjs
+git diff --check
+```
+
+Markdown/JSON 파싱, 상대 링크·step 읽을 경로, 60개 phase/209개 step과 대상 하나의 상태 변경, 기존 원고/근거 hash 보존, private 제외·문서 전용 변경 범위를 통과했다. 원고의 과거 DB/HTTP/브라우저 실행은 재실행하지 않았으며 이번 결과로 계산하지 않는다. 공개 데이터·UI·배포 상태 변경은 없다.
 
 ## 다음 단계
 

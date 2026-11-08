@@ -1,5 +1,7 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
+2026-11-09 R2 Step 0 `current-claims-inventory` 완료. 대표 주장 5건의 Portfolio·Resume·Blog 후보·Brain 연결과 현재성·근거·추가 확인을 [대장](../apps/h-log/.codex/docs/harness/CURRENT_CLAIMS_INVENTORY.md)에 정리했다. 다음 원고는 기존 S2 Home/Suspense 검토본을 재사용하며 원본/hash·근거 11개 파일을 보존했다. **R completed 4·pending 10, 다음은 R2 Step 1 `evidence-case-manuscript`**다. 성능 트랙 F1–F7은 22개 pending이며 F1 Step 0부터 시작한다. 문서/JSON·링크·경로·상태·diff 검수를 통과했다. 실제 원고 발행·앱 코드 변경·운영 작업은 없다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-06 성능 F1–F7 계획을 등록했다. 7개 phase / 22개 step은 모두 pending이며 전체는 60개 phase / 209개 step이다. 목록/상세 가공 절감, 원본에서 재생성하는 PostgreSQL 조회용 모델, 검색·Brain·관리자/이미지·성능 관측을 단계별로 다룬다. 성능 트랙은 F1 Step 0 `reproducible-performance-baseline`, 기존 콘텐츠 트랙은 R2 Step 0 `current-claims-inventory`부터 이어간다. 일반 다음 단계 요청의 기본 순서는 R이며 성능 작업 지정 시 F 순서를 따른다. [성능 및 재생성 계획](../apps/h-log/.codex/docs/harness/PERFORMANCE_REBUILD_PLAN.md)에 범위·의존성·검증을 정리했다. 아래 날짜별 기록은 당시 상태다.
 
 2026-11-06 R1 Step 2 `owner-provenance-editor` 완료: `/admin/brain`에서 출처·작성자 질문을 추가·수정·삭제하고 공개 사본과 같은 내용으로 미리 볼 수 있다. 오류 뒤 입력 보존·응답 유실 재확인·이전 기록 편집·공개/철회를 production/dev 1440/390/320px와 JS ON/OFF로 검수했다. **R1 3개 step 완료**, R 트랙은 completed 3·pending 11이다. **다음은 R2 Step 0 `current-claims-inventory`**다. 단위 283 pass/27 DB skip, 관련 DB 3/3·HTTP 1/1, source lint/typecheck/build 통과. 전체 lint의 기존 private helper 오류 10건은 남아 있다. 공개 Brain UI·Home 레이더, AI 질문·답변 제외, 운영 보류와 SEO/A/모니터링 상태는 유지한다. 상세: [기록·탐색 개선 계획](../apps/h-log/.codex/docs/harness/KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md). 아래 날짜별 기록은 당시 상태다.
