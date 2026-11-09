@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, ExternalLink, FileText } from "lucide-react";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { BlogContent } from "@/components/blog/BlogContent";
 import { BlogSeries } from "@/components/blog/BlogSeries";
+import { BlogBrainLinks } from "@/components/blog/BlogBrainLinks";
 import { getPublicBlogPostSeries } from "@/lib/blog-series";
 import { ProjectPostLinks } from "@/components/portfolio/ProjectPostLinks";
 import { getPublicProjectPostConnections } from "@/lib/portfolio-posts";
@@ -218,6 +219,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                   </ul>
                 </section>
               )}
+              <BlogBrainLinks slug={slug} store={store} />
               {(adjacent.previous || adjacent.next) && (
                 <nav aria-label={series ? "시리즈 이전·다음 글" : "이전·다음 글"} className="mt-10 grid gap-4 sm:grid-cols-2">
                   {([

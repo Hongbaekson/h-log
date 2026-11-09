@@ -224,7 +224,7 @@
     {
       "dir": "public-knowledge-connections",
       "status": "pending",
-      "summary": "2026-11-05: R3 공개 글과 기록 연결, 2 pending steps. Planning only; see KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md. Preserve the approved Brain UI, radar, public snapshot and operations hold."
+      "summary": "2026-11-10: Step 0 completed: current public Blog references, safe response projection, withdrawal/error boundaries and reverse Brain links. Unit, isolated DB, production/dev HTML/RSC and desktop/mobile JS ON/OFF verified. Step 1 curated-reading-paths remains pending; R completed 7/pending 7. No actual content publication or deployment."
     },
     {
       "dir": "blog-tag-and-link-polish",

@@ -67,7 +67,7 @@ function MemoryNote({ node, graph, select, onClose }: { node: BrainNode; graph: 
       const other = graph.nodes.find(item => item.id === (edge.from === node.id ? edge.to : edge.from))!;
       return <button className="mem-row" type="button" key={`${edge.from}-${edge.to}-${edge.relation}`} onClick={() => select(other.id)}><strong>{other.title}</strong><small>{edge.relation === "revises" && edge.to === node.id ? "이후 회고" : brainRelationLabels[edge.relation]} · {edge.reason}</small></button>;
     })}</div></section>}
-    <section className="mem-detail-section" aria-label="기록의 출처"><h3 className="mem-detail-title">참고한 기록</h3><div className="mem-body">{node.sources.map(source => <p key={source.label}>{source.href ? <a href={source.href} {...(source.href.startsWith("https:") ? {target:"_blank",rel:"noreferrer","aria-label":`${source.label} (새 창)`} : {})}>{source.label}</a> : source.label}</p>)}<p>정리일 <time dateTime={node.recordedAt}>{node.recordedAt}</time></p></div></section>
+    <section className="mem-detail-section" aria-label="기록의 출처"><h3 className="mem-detail-title">참고한 기록</h3><div className="mem-body">{node.sources.map((source, index) => <p key={index}>{source.href ? <a href={source.href} {...(source.href.startsWith("https:") ? {target:"_blank",rel:"noreferrer","aria-label":`${source.label} (새 창)`} : {})}>{source.label}</a> : source.label}</p>)}{node.sourcesUnavailable && <p role="status">블로그 출처를 확인하지 못했습니다. 잠시 후 <a href={`/brain?note=${node.id}`}>다시 확인해 주세요.</a></p>}<p>정리일 <time dateTime={node.recordedAt}>{node.recordedAt}</time></p></div></section>
     </div>
   </article>;
 }

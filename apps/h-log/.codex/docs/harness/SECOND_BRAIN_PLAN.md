@@ -1,5 +1,7 @@
 # H-Log Second Brain
 
+2026-11-10 R3 Step 0 `published-source-connections` 완료. Brain 출처의 Blog 상대 경로와 확정된 공개 origin의 절대 URL을 현재 published-current/privacy 결과로 확인한다. 비공개·철회·누락 대상의 제목/주소는 공개 응답에서 제거하고, Blog 상세에는 현재 공개 Brain으로 가는 ‘연결된 생각’을 제공한다. 조회 실패는 연결 영역에서 안내하며 기존 원문·공개 사본을 바꾸지 않는다. [검수 결과](PUBLISHED_BRAIN_SOURCE_REVIEW.md)에 RED/GREEN, 단위 288 pass/28 DB skip·관련 DB 4/4·production/dev HTML/RSC·1440/390/320px JS ON/OFF 검증과 기존 lint 오류를 기록했다. **R completed 7·pending 7, 다음은 R3 Step 1 `curated-reading-paths`**다. 실제 콘텐츠 발행·배포는 없으며 F 22개 pending과 운영 조건은 유지한다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-10 R2 Step 2 `principle-and-revisit-drafts` 완료. 기준 노드 3개와 관련 관계 13개를 점검하고 H-Log 기록 후보 3개·연결 6개를 비공개 검토본으로 준비했다. [검수 결과](BRAIN_PRINCIPLE_DRAFT_REVIEW.md)에 읽기 순서·근거·실제 저장 ID/날짜 인계를 기록했다. 단위 9/9, 후보 파싱/privacy·문체/기존 자료 보존·8개 메모리 공개 부분집합과 문서 검수를 통과했다. **R2 전체 완료, R completed 6·pending 8, 다음은 R3 Step 0 `published-source-connections`**다. 실제 DB 등록·발행·UI 변경은 없다. F 22개 pending과 기존 운영 조건은 유지한다. 아래 날짜별 기록은 당시 상태다.
 
 2026-11-06 [성능 F5/F6 계획](PERFORMANCE_REBUILD_PLAN.md)을 등록했다. 좌표/검색 자료 재사용, Web Worker, 프레임 비용, 요약/본문 전송, 관리자 이력/입력 응답이 pending 후속이다. 승인된 화면·다섯 배치·검색 범위·reader/history와 공개 사본을 결과 동등성 기준으로 사용한다.

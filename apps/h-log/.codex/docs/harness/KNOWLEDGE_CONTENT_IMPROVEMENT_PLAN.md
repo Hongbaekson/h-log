@@ -1,6 +1,6 @@
 # H-Log 기록·탐색 개선 계획
 
-등록일: 2026-11-05. Zerry/Memory 재조사 후 사용자가 개선 방향의 phase/step 등록과 커밋·푸시를 요청했다. **R1–R5: 5개 phase / 14개 step**이다. 2026-11-10 R2 전체를 완료해 **completed 6·pending 8**이다. R1의 계약·저장·관리자 입력, R2의 [근거 대장](CURRENT_CLAIMS_INVENTORY.md)·[원고 검수](EVIDENCE_CASE_MANUSCRIPT_REVIEW.md)·[기록 후보](BRAIN_PRINCIPLE_DRAFT_REVIEW.md)를 준비했으며 다음은 R3 Step 0의 공개 글 출처 연결이다. 계획 등록을 기능 구현이나 콘텐츠 발행 완료로 표시하지 않는다. 상태의 source of truth는 [전체 레지스트리](../../../phases/index.json)와 각 phase index다.
+등록일: 2026-11-05. Zerry/Memory 재조사 후 사용자가 개선 방향의 phase/step 등록과 커밋·푸시를 요청했다. **R1–R5: 5개 phase / 14개 step**이다. 2026-11-10 R3 Step 0까지 완료해 **completed 7·pending 7**이다. R1의 계약·저장·관리자 입력, R2의 [근거 대장](CURRENT_CLAIMS_INVENTORY.md)·[원고 검수](EVIDENCE_CASE_MANUSCRIPT_REVIEW.md)·[기록 후보](BRAIN_PRINCIPLE_DRAFT_REVIEW.md)를 준비했으며 [현재 공개 출처 연결](PUBLISHED_BRAIN_SOURCE_REVIEW.md)도 구현했다. 다음은 R3 Step 1의 편집된 읽기 경로다. 계획 등록을 기능 구현이나 콘텐츠 발행 완료로 표시하지 않는다. 상태의 source of truth는 [전체 레지스트리](../../../phases/index.json)와 각 phase index다.
 
 ## 목적과 유지 조건
 
@@ -40,7 +40,7 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 | `brain-curation`, `brain-suggestions`, `BrainCapture` | 후속 회고·revises·제목/태그 기반 후보 | R2 실제 기록 채우기; 기존 기능 재구현 금지 |
 | `lib/brain-catalog.ts` | 정적 28개 노드/42개 연결. 경험 1개·사건일 0개·revises 0개 | 운영 DB 전체 통계가 아님. 확인된 사례/날짜만 보강 |
 | `blog-series`, `portfolio-posts`, `blog-editorial` | 시리즈·프로젝트 연결·검증 범위·수정 기록 | R2/R3 내용과 현재성 정리 |
-| `brain.ts` 내부 출처 allowlist | Resume/Portfolio 중심. Blog 상세의 현재 공개 연결 계약 없음 | R3 공개 selector 기반 출처 연결 |
+| `brain.ts` / `brain-blog-sources.ts` | Resume/Portfolio 및 현재 공개 Blog 참조, 서버 공개 응답 투영과 역방향 연결 | R3 Step 0 완료. Step 1에서 실제 읽기 경로 편집 |
 | `blog-public`, `blog-search`, `blog-search-ui` | 목록·검색·필터·개수·URL 복원, 태그 표기 정리는 trim 수준 | R4 작은 별칭 사전·동일 결과 집합 |
 | `BlogPostRow`, Blog 상세, `BlogContent` | 태그 배지, 목차와 고유 heading # anchor, 코드 복사 | R4 태그 탐색·주소 복사만 보완 |
 | admin Brain | 검색·정렬·회고 및 출처·질문 작성/미리보기 가능. R1 완료 | R5 버전에 묶인 수동 검토와 다시 찾기 |
@@ -55,7 +55,7 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 | R2 [evidence-content-curation](../../../phases/evidence-content-curation/index.json) | 0 | [현재 주장과 근거의 연결 대장](../../../phases/evidence-content-curation/step0.md) | completed |
 | R2 [evidence-content-curation](../../../phases/evidence-content-curation/index.json) | 1 | [재현 근거가 있는 기술 글 한 편](../../../phases/evidence-content-curation/step1.md) | completed |
 | R2 [evidence-content-curation](../../../phases/evidence-content-curation/index.json) | 2 | [기준 노드와 후속 회고 후보](../../../phases/evidence-content-curation/step2.md) | completed |
-| R3 [public-knowledge-connections](../../../phases/public-knowledge-connections/index.json) | 0 | [현재 공개된 글을 Brain 출처로 연결](../../../phases/public-knowledge-connections/step0.md) | pending |
+| R3 [public-knowledge-connections](../../../phases/public-knowledge-connections/index.json) | 0 | [현재 공개된 글을 Brain 출처로 연결](../../../phases/public-knowledge-connections/step0.md) | completed |
 | R3 [public-knowledge-connections](../../../phases/public-knowledge-connections/index.json) | 1 | [한 사례를 잇는 편집된 읽기 경로](../../../phases/public-knowledge-connections/step1.md) | pending |
 | R4 [blog-tag-and-link-polish](../../../phases/blog-tag-and-link-polish/index.json) | 0 | [태그 대표 표기와 별칭](../../../phases/blog-tag-and-link-polish/step0.md) | pending |
 | R4 [blog-tag-and-link-polish](../../../phases/blog-tag-and-link-polish/index.json) | 1 | [기존 태그 배지를 탐색 링크로](../../../phases/blog-tag-and-link-polish/step1.md) | pending |
@@ -67,12 +67,12 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 ## 실행 순서와 다른 트랙
 
 1. 2026-11-05 기존 SEO S3 Step 0의 [로컬 SEO 릴리스 검수](SEO_RELEASE_REVIEW.md)를 완료했다. 새 R 트랙의 구현을 완료했다는 뜻은 아니다.
-2. 2026-11-10 R2 전체 완료. **다음 로컬 작업은 R3 Step 0 `published-source-connections`**다. 기본 순서는 R1 → R2 → R3 → R4 → R5다.
+2. 2026-11-10 R3 Step 0 완료. **다음 로컬 작업은 R3 Step 1 `curated-reading-paths`**다. 기본 순서는 R1 → R2 → R3 → R4 → R5다.
 3. R2 자료 정리와 R4는 R1 구현/개인 경험 확인에 기술적으로 종속되지 않는다. 필요한 자료가 없을 때 독립 작업을 진행할 수 있으며 실행한 step과 순서 변경 이유를 기록한다. R3는 R1의 출처 계약과 R2의 검수 후보를 사용한다.
 4. R5의 로컬 통합 검수는 새 트랙의 추가 회귀다. S3 Step 0의 기존 SEO 기준선을 취소하거나 완료된 단계를 다시 pending으로 만들지 않는다.
 5. S3 Step 1/2의 실제 도메인·계정·측정 조건은 그대로다. **운영 모니터링 Step 7 → 관리자 A3 Step 4 → timer** 순서와 OCI 보류를 유지한다. R 트랙은 운영 보류 해제를 기다리지 않고 격리 로컬에서 준비할 수 있다.
 
-R 등록 당시 전체는 53개 phase / 187개 step이었다. 2026-11-06 [성능 F1–F7](PERFORMANCE_REBUILD_PLAN.md)의 pending 22개 step을 더해 전체는 60개 phase / 209개 step이다. 기존 콘텐츠 트랙의 다음은 R3 Step 0이고 성능 트랙의 시작은 F1 Step 0이다. S3 Step 0 완료 후 SEO는 9 completed/1 pending/1 blocked다. 관리자 A 16/0/1, 모니터링 7/0/1의 상태는 바꾸지 않는다. R1/R5의 admin 후속은 별도 R 트랙이며 기존 A 트랙을 다시 열지 않는다.
+R 등록 당시 전체는 53개 phase / 187개 step이었다. 2026-11-06 [성능 F1–F7](PERFORMANCE_REBUILD_PLAN.md)의 pending 22개 step을 더해 전체는 60개 phase / 209개 step이다. 기존 콘텐츠 트랙의 다음은 R3 Step 1이고 성능 트랙의 시작은 F1 Step 0이다. S3 Step 0 완료 후 SEO는 9 completed/1 pending/1 blocked다. 관리자 A 16/0/1, 모니터링 7/0/1의 상태는 바꾸지 않는다. R1/R5의 admin 후속은 별도 R 트랙이며 기존 A 트랙을 다시 열지 않는다.
 
 ## R1 계약 — 2026-11-06 Step 0–2 완료
 
@@ -93,7 +93,9 @@ R 등록 당시 전체는 53개 phase / 187개 step이었다. 2026-11-06 [성능
 
 **저장 parser는 값의 검증과 복사만 수행한다.** 입력 순서·공백·줄바꿈과 생략된 필드를 보존하고, 기본값을 저장용 draft에 주입하거나 URL을 다시 쓰지 않는다. 공개 사본을 만드는 단계에서만 위 표시 정규화를 한다. 기존 원문·태그 등 다른 필드의 처리도 바꾸지 않는다. 이 구분은 과거 명령 fingerprint와 동일 요청 재확인을 유지하기 위한 것이다.
 
-### URL 경계
+### URL 경계 — R1 당시 계약
+
+아래는 R1 완료 시점의 계약이다. 2026-11-10 R3 Step 0부터 `/blog/[slug]`와 공개 origin의 절대 Blog URL도 지원하며 현재 공개 상태를 서버에서 확인한다. [R3 검수 결과](PUBLISHED_BRAIN_SOURCE_REVIEW.md)의 계약을 우선한다.
 
 `lib/brain.ts`의 `publicSourceHref`와 `lib/public-source-url.ts`의 기존 정책을 함께 사용한다. 내부 경로 판정은 trim 후 정확한 `/resume` 또는 `^/portfolio/[a-z0-9]+(?:-[a-z0-9]+)*$`만 허용한다. 다른 상대 경로는 거부하며 외부 URL은 `normalizePublicSourceUrl`의 HTTPS·userinfo·내부 호스트 검사를 통과해야 한다. 새 입력의 거부된 URL은 저장 오류이며 조용히 제거하지 않는다. 기존 공개 카탈로그의 위험한 href를 제거하는 방어 동작은 유지한다.
 
@@ -204,3 +206,7 @@ Step 1은 parser/public projection 단위 RED부터 시작해 기존 `npm run te
 ## R2 Step 2 완료 — 2026-11-10
 
 [검수 결과](BRAIN_PRINCIPLE_DRAFT_REVIEW.md)에 기준 노드 3개·기존 관계 13개와 비공개 기록 후보 3개·연결 6개를 정리했다. 기존 단위 9/9, parser/privacy·근거/문체/hash·8개 공개 부분집합·실제 ID 매핑과 문서 검수를 통과했다. 사건일·감정·revises는 추가하지 않았다. R2 3/3 완료, R completed 6·pending 8이며 다음은 R3 Step 0이다. 실제 DB 등록·공개 적용과 UI 변경은 수행하지 않았다.
+
+## R3 Step 0 완료 — 2026-11-10
+
+2026-11-10 R3 Step 0 `published-source-connections` 완료. Brain 출처의 Blog 상대 경로와 확정된 공개 origin의 절대 URL을 현재 published-current/privacy 결과로 확인한다. 비공개·철회·누락 대상의 제목/주소는 공개 응답에서 제거하고, Blog 상세에는 현재 공개 Brain으로 가는 ‘연결된 생각’을 제공한다. 조회 실패는 연결 영역에서 안내하며 기존 원문·공개 사본을 바꾸지 않는다. [검수 결과](PUBLISHED_BRAIN_SOURCE_REVIEW.md)에 RED/GREEN, 단위 288 pass/28 DB skip·관련 DB 4/4·production/dev HTML/RSC·1440/390/320px JS ON/OFF 검증과 기존 lint 오류를 기록했다. **R completed 7·pending 7, 다음은 R3 Step 1 `curated-reading-paths`**다. 실제 콘텐츠 발행·배포는 없으며 F 22개 pending과 운영 조건은 유지한다.

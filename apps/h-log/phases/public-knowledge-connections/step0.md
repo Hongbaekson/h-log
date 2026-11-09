@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-05 계획 등록. R3 / 공개 글과 기록 연결: 현재 공개된 글을 Brain 출처로 연결. 아직 구현/실행하지 않았다.
+completed — 2026-11-10. 현재 공개 Blog 출처와 역방향 Brain 연결을 구현했다. [검수 결과](../../.codex/docs/harness/PUBLISHED_BRAIN_SOURCE_REVIEW.md)에 계약·실행 근거·한계를 기록했다.
 
 R1과 R2는 완료했다. [R2 원고 검수](../../.codex/docs/harness/EVIDENCE_CASE_MANUSCRIPT_REVIEW.md)와 [기록 후보 검수](../../.codex/docs/harness/BRAIN_PRINCIPLE_DRAFT_REVIEW.md)를 입력으로 사용한다. 후보는 비공개 검토 자료이며 실제 공개 여부와 구분한다.
 
@@ -90,6 +90,14 @@ git diff --check
 - 회사 Wiki·내부 식별자·확인되지 않은 감정/성과를 자료 수집이나 공개 노드로 채우지 말 것. 출처와 본인 확인이 있는 범위만 다룬다.
 - 계획 등록을 운영 배포·실제 발행·DNS/TLS·provider·timer·외부 알림 승인으로 해석하지 말 것. 기존 운영 보류가 유지된다.
 - 방문자 AI·댓글·공개 통계·새 도메인·별도 그래프/서비스를 추가하지 말 것. 이번 개선 단위와 관계없다.
+
+## 완료 기록 — 2026-11-10
+
+기존 parser에 Blog 상대 상세 주소를 허용하고 서버 응답에서 현재 공개 상태와 canonical origin의 절대 주소까지 검사한다. 저장한 과거 label도 비공개 제목일 수 있어 사용할 수 없는 대상은 ‘블로그 기록’만 남긴다. `sourcesUnavailable`은 실패를 빈 결과와 구분하는 응답 전용 값이다. Blog 상세의 ‘연결된 생각’은 현재 공개 사본에서만 도출한다. 기존 카탈로그·schema·repository 명령·원문/사본·Home 레이더/Brain 배치와 실제 콘텐츠 공개 상태는 변경하지 않았다.
+
+RED→GREEN focused 61/61, 전체 단위 288 pass/28 DB skip, 관련 DB 4/4, 타입/build·앱 소스 lint와 production/dev HTML/RSC·1440/390/320px JS ON/OFF 검수를 통과했다. 원래 `npm run lint`는 기존 private helper 오류 10건으로 실패하고 build의 기존 thumbnail tracing 경고 2건도 남아 있다. 새 응답의 철회·404·독립 저장소 장애·복구·비공개 수정·사본 보존을 확인했다. flag OFF는 개발 서버에서 확인했다.
+
+변경 파일은 출처 parser/서버 projection과 관련 단위/DB 테스트, Brain 두 reader·관리자 도움말, Blog 상세의 역방향 연결, 계획/ADR/architecture/UI 안내와 phase 상태다. 상세 실행 로그·합성 fixture·화면은 Git/Docker 제외 `private/r3-sources-2026-11-10/`에 있다. 문서/JSON·링크/경로·다른 phase 상태 보존·diff를 검수한다. R completed 7·pending 7, R3 1/2 완료이며 다음은 Step 1이다.
 
 ## 다음 단계
 

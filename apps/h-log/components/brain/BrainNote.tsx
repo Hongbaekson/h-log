@@ -55,9 +55,10 @@ export function BrainNote({ node, graph, asPage = false, onSelect }: {
       )}
       <section className="brain-note-sources" aria-label="기록의 출처">
         <h3>참고한 기록</h3>
-        <ul>{node.sources.map(source => <li key={source.label}>
+        <ul>{node.sources.map((source, index) => <li key={index}>
           {source.href ? <a href={source.href} {...(source.href.startsWith("https:") ? { target: "_blank", rel: "noreferrer", "aria-label": `${source.label} (새 창)` } : {})}>{source.label}<ArrowUpRight size={13} aria-hidden="true" /></a> : <span>{source.label}</span>}
         </li>)}</ul>
+        {node.sourcesUnavailable && <p role="status">블로그 출처를 확인하지 못했습니다. 잠시 후 <a href={`/brain/${node.id}`}>다시 확인해 주세요.</a></p>}
         <p className="brain-recorded-date">정리일 <time dateTime={node.recordedAt}>{node.recordedAt.replaceAll("-", ".")}</time></p>
       </section>
     </article>

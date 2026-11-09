@@ -162,3 +162,7 @@ A2 Step 2의 `/admin/automation`은 기존 Discord shell 안에서 준비된 자
 ### 관리자 모니터링 — 2026-11-02
 
 `/admin/monitoring`은 기존 Discord 관리자 shell의 실제 메뉴다. 준비 메뉴 접기를 제거하고 서비스 응답, 최근 시도/검증 성공, UTC 비용, 접힌 수집 시각과 Grafana 안내를 배치했다. 누락·오류·stale·연결 미설정과 실제 0/성공 이력 없음을 문자로 구분한다. 예정 스케줄은 실제 timer/worker 생존과 구별한다. 재조회는 native 링크, 수집 시각은 details로 제공하며 자동 polling은 없다. 1440/390/320px 가로 넘침, 키보드/focus, no-JS 조회와 실패 상태를 검수했다. 공개 메뉴·Home/레이더·Brain UI는 유지한다.
+
+## Blog와 Brain 출처 연결 — 2026-11-10
+
+Blog 상세의 기존 탐색 영역에 현재 공개된 ‘연결된 생각’을 구분선 목록으로 제공한다. 관계가 없으면 영역을 생략하고 조회 실패는 이 영역에서 안내·native form 재시도로 처리한다. Brain의 기존 두 출처 영역은 현재 공개 글 제목과 상대 링크를 표시하며 비공개 대상은 ‘블로그 기록’만 남긴다. 관리자 도움말은 이 표시 차이를 설명한다. sidebar·canvas·reader 배치·검색/필터·Home 레이더는 유지했다. production/dev 1440/390/320px·JS ON/OFF·키보드/뒤로가기·가로 넘침을 검수했다. 상세: [검수 결과](PUBLISHED_BRAIN_SOURCE_REVIEW.md).

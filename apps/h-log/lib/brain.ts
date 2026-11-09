@@ -18,6 +18,7 @@ export type BrainNode = {
   questions: string[];
   tags: string[];
   sources: { label: string; href?: string }[];
+  sourcesUnavailable?: true;
 };
 
 export type BrainRecord = BrainNode & { visibility: "public" | "private"; privateEvidence?: string };
@@ -56,7 +57,7 @@ export const brainRelationLabels: Record<BrainRelation, string> = {
 
 export function publicSourceHref(href: string | undefined): string | undefined {
   if (!href) return undefined;
-  if (href === "/resume" || /^\/portfolio\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(href)) return href;
+  if (href === "/resume" || /^\/(?:portfolio|blog)\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(href)) return href;
   return tryNormalizePublicSourceUrl(href);
 }
 

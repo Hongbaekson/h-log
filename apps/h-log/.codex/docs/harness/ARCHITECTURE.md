@@ -540,3 +540,7 @@ Host helper가 `backup.json`/`restore.json`과 별도 evidence를 관리한다. 
 2026-11-06 [F1–F7 계획](PERFORMANCE_REBUILD_PLAN.md)을 등록했고 22개 step은 pending이다. 현재 public loader의 전체 조회·요청별 검증/썸네일 hash·목록 본문 변환과 Brain의 동기 layout이 개선 대상이다. 예정 구조는 원본/공개 선택 → PG projection 생성/검증 → 현재 공개 버전 join을 통한 목록·상세·검색이며, 누락 시 제한된 원본 읽기/재생성과 generation 활성화 계약을 둔다. 본문/목차·검색 문자열·좌표·이미지 variant는 입력 및 도구/정책 버전에 묶는다.
 
 F2는 기존 read path의 불필요 계산을 먼저 줄이고 F3는 재생성 저장·쓰기 일치·표면별 읽기를 나눈다. F4 검색, F5 Worker/전송량, F6 owner 이력/자산, F7 timeout·비공개 성능 신호·cold 복구를 잇는다. 정확한 schema와 실패/rollback 인터페이스는 F3 Step 0에서 정하며 승인된 공개 UI와 원본/사본의 결과 동등성을 인수 기준으로 둔다.
+
+## R3 공개 출처 응답 투영 — 2026-11-10
+
+`brain-blog-sources.ts`는 명시적 공개 Brain DTO의 내부 Blog 출처를 기존 공개 Blog store와 `selectPublicBlogRouteEntries`로 검증한다. `brain-server.ts`의 request-cached `loadPublicBrain`이 파일/DB 공개 graph를 얻은 뒤 이 투영을 적용하므로 상세·graph·RSC에 저장된 비공개 대상 label/href가 전달되지 않는다. 내부 출처가 없으면 Blog 조회를 생략한다. `sourcesUnavailable`은 조회 실패 시의 응답 전용 필드이며 DB에는 저장하지 않는다. `BlogBrainLinks`는 현재 Blog store와 이 공개 graph로 역방향 링크를 만든다. loader 재귀·HTTP 자체 호출·새 SQL·요청 간 캐시는 없다. 기존 reader 출처 영역과 Blog 상세 탐색 영역만 변경했다. 상세: [검수 결과](PUBLISHED_BRAIN_SOURCE_REVIEW.md).

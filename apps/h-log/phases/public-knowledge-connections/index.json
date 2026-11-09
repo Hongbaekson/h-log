@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "published-source-connections",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-10: Current published Blog references and reverse public Brain links implemented. Canonical absolute/relative URLs share selectors; hidden targets lose saved labels and hrefs in response projection only. Focused 61/61, unit 288 pass/28 DB skip, isolated DB 4/4, type/build/source lint, production/dev HTML/RSC and 12 viewport/JS cases passed. Existing private lint errors and thumbnail tracing warnings remain. No live publication; next R3 Step 1 curated-reading-paths."
     },
     {
       "step": 1,

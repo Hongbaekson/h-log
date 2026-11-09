@@ -7,6 +7,13 @@ const draft = {
   publicTitle: "다시 살펴볼 질문", publicSummary: "공개해도 되는 요약", publicBody: "공개용으로 따로 적은 내용\n\n다음 문단",
   kind: "question", topic: "reliability", basis: "question", tags: ["복구"],
 };
+test("accepts an explicitly selected blog detail reference without publishing or rewriting the draft", () => {
+  const input = { ...draft, sources: [{ label: "공개 글에서 확인할 기준", href: " /blog/home-recent-posts " }] };
+  const saved = parseBrainDraft(input);
+  assert.deepEqual(saved, input);
+  assert.deepEqual(toPublicBrainNode(saved, "note-example", "2026-11-10").sources,
+    [{ label: "공개 글에서 확인할 기준", href: "/blog/home-recent-posts" }]);
+});
 test("provenance survives private capture and is normalized only in the selected public copy", () => {
   const input = { ...draft, sources: [
     { label: "  공식 문서  ", href: " https://example.com/guide#retry " },
@@ -28,7 +35,7 @@ test("provenance survives private capture and is normalized only in the selected
 
 test("provenance rejects malformed fields, duplicate display keys and unsafe URLs", () => {
   const source = { label: "공식 문서", href: "https://example.com/guide" };
-  const badUrls = ["/resume?download=1", "/portfolio", "/portfolio/backend-notes#detail", "/blog/example",
+  const badUrls = ["/resume?download=1", "/portfolio", "/portfolio/backend-notes#detail", "/blog", "/blog/example?draft=1", "/blog/example.md",
     "/brain/example", "/admin/brain", "/api/search", "//example.com/path", "http://example.com",
     "javascript:alert(1)", "data:text/plain,hi", "file:///private/note", "https://user:pass@example.com",
     "https://localhost", "https://127.0.0.1", "https://10.0.0.1", "https://service.internal", "https://[::1]"];

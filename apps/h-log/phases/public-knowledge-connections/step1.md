@@ -4,7 +4,7 @@
 
 pending — 2026-11-05 계획 등록. R3 / 공개 글과 기록 연결: 한 사례를 잇는 편집된 읽기 경로. 아직 구현/실행하지 않았다.
 
-R2 후보 검수 및 R3 Step 0 완료.
+R2 후보 검수 및 R3 Step 0은 완료했다. [현재 공개 출처 검수](../../.codex/docs/harness/PUBLISHED_BRAIN_SOURCE_REVIEW.md)의 응답 투영·철회 경계를 재사용한다.
 
 ## 읽을 파일
 

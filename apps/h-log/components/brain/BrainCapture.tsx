@@ -62,7 +62,7 @@ export function BrainCapture({ initialNotes, catalog, publicOrigin }: { initialN
   const sourceErrors = (draft.sources ?? []).map((source, index) => {
     if (!source.label.trim()) return "출처 제목을 적어 주세요.";
     if (draft.sources!.some((item, i) => i !== index && item.label.trim() === source.label.trim())) return "같은 출처 제목이 있습니다. 구분해서 적어 주세요.";
-    if (source.href?.trim() && !publicSourceHref(source.href.trim())) return "공개 HTTPS 주소나 /resume, /portfolio/항목 주소를 적어 주세요.";
+    if (source.href?.trim() && !publicSourceHref(source.href.trim())) return "공개 HTTPS 주소나 /resume, /portfolio/항목, /blog/글 주소를 적어 주세요.";
     return "";
   });
   const questionErrors = (draft.questions ?? []).map((question, index) => !question.trim() ? "남겨 둘 질문을 적어 주세요."
@@ -195,7 +195,7 @@ export function BrainCapture({ initialNotes, catalog, publicOrigin }: { initialN
               <p className="capture-help">{brainBasisLabels[draft.basis].description}</p>
               <label htmlFor="capture-tags">태그 <small>쉼표로 구분 · 최대 12개</small></label><input id="capture-tags" value={tagText} onChange={event => changeTags(event.target.value)} />
               <section className="capture-provenance" aria-label="공개용 출처"><h2>참고한 기록 <small>{draft.sources?.length ?? 0}/12</small></h2>
-                <p className="capture-help">공개할 수 있는 출처만 적어 주세요. 주소는 비워도 됩니다.</p>
+                <p className="capture-help">공개할 수 있는 출처만 적어 주세요. 주소는 비워도 됩니다. 블로그 출처는 독자에게 현재 공개된 글의 제목으로 표시합니다. 비공개 글은 제목과 링크를 숨깁니다.</p>
                 {draft.sources === undefined && <p className="capture-help">따로 적지 않으면 ‘작성자가 직접 정리한 공개 메모’로 표시됩니다. <button type="button" onClick={() => change("sources", [])}>출처 없이 공개</button></p>}
                 {draft.sources?.length === 0 && <p className="capture-help">출처를 표시하지 않습니다.</p>}
                 {(draft.sources ?? []).map((source, index) => <div className="capture-provenance-item" key={index}>

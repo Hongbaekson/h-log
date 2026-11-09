@@ -1,6 +1,6 @@
 # H-Log 성능 개선과 재생성 가능한 조회용 데이터 계획
 
-등록일 2026-11-06. 사용자가 코드 성능 분석 결과와 원본에서 보조 저장소를 복구하는 원칙을 phase/step으로 등록하도록 요청했다. **F1–F7은 7개 phase / 22개 step이며 전부 pending**이다. 전체 레지스트리는 60개 phase / 209개 step이다. [전체 상태](../../../phases/index.json)를 기준으로 실행하며 성능 트랙은 **F1 Step 0 `reproducible-performance-baseline`**부터 시작한다. 2026-11-10 R2 기록 후보 준비를 완료해 기존 콘텐츠 트랙의 다음 단계는 **R3 Step 0 `published-source-connections`**다. 일반적인 다음 단계 요청은 기존 R 순서를 따르고, 성능 작업을 지정하면 F 순서를 따른다.
+등록일 2026-11-06. 사용자가 코드 성능 분석 결과와 원본에서 보조 저장소를 복구하는 원칙을 phase/step으로 등록하도록 요청했다. **F1–F7은 7개 phase / 22개 step이며 전부 pending**이다. 전체 레지스트리는 60개 phase / 209개 step이다. [전체 상태](../../../phases/index.json)를 기준으로 실행하며 성능 트랙은 **F1 Step 0 `reproducible-performance-baseline`**부터 시작한다. 2026-11-10 R3 공개 출처 연결을 완료해 기존 콘텐츠 트랙의 다음 단계는 **R3 Step 1 `curated-reading-paths`**다. 일반적인 다음 단계 요청은 기존 R 순서를 따르고, 성능 작업을 지정하면 F 순서를 따른다.
 
 ## 목표
 

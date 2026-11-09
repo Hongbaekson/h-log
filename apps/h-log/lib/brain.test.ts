@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { buildPublicSitemapXml } from "./blog-crawler-output.ts";
+import { createPostVersionContentFromMarkdown, type PostRecord } from "./blog-content-model.ts";
+import type { BlogContentStore } from "./blog-public.ts";
+import { resolveBrainBlogSources, getPublicPostBrainLinks } from "./brain-blog-sources.ts";
 
 import {
   findBrainNode,
@@ -75,6 +78,94 @@ describe("Second Brain public boundary", () => {
       "/resume", "/portfolio/redisson-async-processing-recovery", "https://redis.io/docs/latest/develop/pubsub/",
     ]);
     assert.doesNotMatch(JSON.stringify(graph), /file:|wiki\.corp|javascript:|\/admin|password/);
+  });
+});
+
+describe("current public Blog and Brain connections", () => {
+  const origin = "https://hlog.example.org";
+  function store(): BlogContentStore {
+    const date = "2026-11-10T00:00:00Z";
+    return {
+      posts: ["current", "hidden"].map(slug => ({
+        id: slug, slug, title: "Old title", description: "공개 설명", articleMode: "document_analysis",
+        currentVersionId: `v-${slug}`, status: slug === "current" ? "published" : "drafted",
+        createdAt: date, updatedAt: date, publishedAt: date, unpublishedAt: null, retractedAt: null,
+      })),
+      versions: ["current", "hidden"].map(slug => ({
+        ...createPostVersionContentFromMarkdown("# 공개 글\n\n검토한 내용입니다."),
+        id: `v-${slug}`, postId: slug, title: slug === "current" ? "현재 공개 제목" : "PRIVATE_TITLE",
+        description: "공개 설명", versionNo: 1, createdBy: "admin", createdAt: date, personaVersionId: null, researchPackId: null,
+      })), sources: [], tags: [],
+    };
+  }
+  const references = () => selectPublicBrain({ nodes: [record("connected", { sources: [
+    { label: "OLD_TITLE", href: "/blog/current" },
+    { label: "ABSOLUTE_OLD", href: `${origin}/blog/current?old=1#section` },
+    { label: "PRIVATE_TITLE", href: `${origin}/blog/hidden` },
+    { label: "MISSING_TITLE", href: "/blog/missing" },
+    { label: "공식 문서", href: "https://external.example.org/blog/hidden" },
+  ] }), record("private-note", { visibility: "private", title: "PRIVATE_NOTE_TITLE" })], edges: [] });
+
+  it("resolves relative and canonical absolute references using current public versions without mutating either source", async () => {
+    const graph = references(), content = store();
+    const before = JSON.stringify({ graph, content });
+    let reads = 0;
+    const result = await resolveBrainBlogSources(graph, async () => { reads++; return content; }, origin);
+    assert.equal(reads, 1);
+    assert.deepEqual(result.nodes[0].sources, [
+      { label: "현재 공개 제목", href: "/blog/current" },
+      { label: "현재 공개 제목", href: "/blog/current" },
+      { label: "블로그 기록" }, { label: "블로그 기록" },
+      { label: "공식 문서", href: "https://external.example.org/blog/hidden" },
+    ]);
+    assert.deepEqual(getPublicPostBrainLinks("current", content, result), [{ href: "/brain/connected", title: graph.nodes[0].title }]);
+    assert.deepEqual(getPublicPostBrainLinks("hidden", content, result), []);
+    assert.deepEqual(getPublicPostBrainLinks("current", content, { nodes: [], edges: [] }), []);
+    assert.doesNotMatch(JSON.stringify(result), /PRIVATE_|MISSING_TITLE|OLD_TITLE|ABSOLUTE_OLD/);
+    assert.equal(JSON.stringify({ graph, content }), before);
+  });
+
+  it("removes managed titles and URLs for all non-public, missing, foreign and privacy-blocked current versions on each read", async () => {
+    const content = store(), graph = references();
+    for (const status of ["drafted", "unpublished", "retracted", "correction_pending", "verifying"] satisfies PostRecord["status"][]) {
+      const changed = { ...content, posts: content.posts.map(post => ({ ...post, status })) };
+      const result = await resolveBrainBlogSources(graph, async () => changed, origin);
+      assert.equal(result.nodes[0].sources[0].href, undefined, status);
+      assert.doesNotMatch(JSON.stringify(result), /current|OLD_TITLE|PRIVATE_/);
+      assert.deepEqual(getPublicPostBrainLinks("current", changed, result), []);
+    }
+    for (const changed of [
+      { ...content, posts: [] }, { ...content, versions: [] },
+      { ...content, versions: content.versions.map(version => ({ ...version, postId: "foreign" })) },
+      { ...content, versions: content.versions.map(version => ({ ...version, contentMarkdown: "secret@example.com" })) },
+    ]) {
+      const result = await resolveBrainBlogSources(graph, async () => changed, origin);
+      assert.deepEqual(result.nodes[0].sources[0], { label: "블로그 기록" });
+      assert.deepEqual(getPublicPostBrainLinks("current", changed, result), []);
+    }
+    assert.equal((await resolveBrainBlogSources(graph, async () => content, origin)).nodes[0].sources[0].href, "/blog/current");
+  });
+
+  it("contains lookup failures to managed sources and distinguishes an error from an empty result", async () => {
+    const graph = references();
+    const failed = await resolveBrainBlogSources(graph, async () => { throw Error("PRIVATE_DATABASE_ERROR"); }, origin);
+    assert.equal(failed.nodes[0].sourcesUnavailable, true);
+    assert.equal(failed.nodes[0].title, graph.nodes[0].title);
+    assert.deepEqual(failed.nodes[0].sources[0], { label: "블로그 기록" });
+    assert.doesNotMatch(JSON.stringify(failed), /PRIVATE_|MISSING_TITLE|\/blog\/current/);
+    const empty = await resolveBrainBlogSources(graph, async () => ({ posts: [], versions: [], sources: [], tags: [] }), origin);
+    assert.equal(empty.nodes[0].sourcesUnavailable, undefined);
+    const unconnected = selectPublicBrain({ nodes: [record("external")], edges: [] });
+    assert.strictEqual(await resolveBrainBlogSources(unconnected, async () => { throw Error("must not read Blog"); }, origin), unconnected);
+  });
+
+  it("canonicalizes same-origin encoded, slash, query and fragment variants before checking publication", async () => {
+    const hrefs = ["/blog/current", `${origin}/blog/current/`, `${origin}/%62log/%63urrent?x=1#s`,
+      `${origin}/blog/hidden/`, `${origin}/blog/hidden.md`, `${origin}/blog/hidden%2Fextra`, `${origin}/blog/%zz`];
+    const graph = selectPublicBrain({ nodes: [record("variants", { sources: hrefs.map((href, i) => ({ label: `PRIVATE_LABEL_${i}`, href })) })], edges: [] });
+    const result = await resolveBrainBlogSources(graph, async () => store(), origin);
+    assert.deepEqual(result.nodes[0].sources.flatMap(source => source.href ?? []), Array(3).fill("/blog/current"));
+    assert.doesNotMatch(JSON.stringify(result), /PRIVATE_|hidden|%zz/);
   });
 });
 

@@ -449,6 +449,8 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 **R1 Step 2 구현 (2026-11-06)**: 별도 편집기·미리보기 API 없이 `BrainCapture`에서 출처·질문의 작성/삭제와 기존 parser/public projection을 사용한 미리보기를 제공한다. 이전 필드 생략과 명시 빈 배열을 구분하고 저장 실패 때 입력을 유지한다. 응답 유실은 기존 commandId로 재확인하며 공개 확인에는 출처·질문도 포함한다. 내부 출처의 미리보기 링크는 admin host가 아닌 public origin을 사용한다. 공개 reader·그래프·Home 레이더와 AI 질문 기능 제외는 유지한다. R1 전체 완료, 다음은 R2 근거 대장이다.
 
+**R3 Step 0 구현 (2026-11-10)**: 내부 `/blog/[slug]`와 확정 public origin의 절대 URL을 서버 공개 응답에서 같은 참조로 검사한다. 기존 published-current/privacy selector를 사용하며 외부 HTTPS fetch는 없다. 현재 공개 제목으로 표시하고 대상이 비공개·철회·누락이면 저장 label까지 숨겨 고정 설명 ‘블로그 기록’만 남긴다. Blog 조회 오류는 출처 영역의 오류 상태로 구분하고, 역방향 Blog→Brain 연결은 현재 공개 사본만 사용한다. 원문·불변 사본을 수정하거나 요청 간 캐시를 추가하지 않는다. [검수 결과](PUBLISHED_BRAIN_SOURCE_REVIEW.md)에 형식·철회·장애·DB flag·HTML/RSC 경계와 한계를 기록했다.
+
 ### ADR-042 원본에서 재생성 가능한 조회용 데이터를 단계적으로 도입한다
 
 2026-11-06 계획 결정이다. [성능 계획](PERFORMANCE_REBUILD_PLAN.md)의 F1–F7 22개 step은 pending이다. 합성 글 1,000개에서 목록 함수의 반복 본문 가공과 전체 조회, 노드 증가 시 동기 layout 계산 비용을 확인해 조회 범위와 재사용 단위를 먼저 정리한다.
