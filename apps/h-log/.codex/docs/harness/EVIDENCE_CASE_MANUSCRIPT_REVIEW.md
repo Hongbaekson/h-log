@@ -83,3 +83,7 @@ editorial은 **제안값**이다. `verification.method=local_test`, `checkedOn=2
 **R2 Step 1 완료, 다음은 R2 Step 2 `principle-and-revisit-drafts`**다. 이 원고와 근거 대장을 바탕으로 기존 기준 노드의 읽기 순서와 H-Log 사례를 잇는 기록 2~3개를 검토한다. 사실로 확인한 구현과 아직 답하지 못한 질문을 구분하고 원고 본문을 그대로 복제하지 않는다.
 
 R 트랙은 **completed 5·pending 9**, R2는 **2/3 완료**다. F 22개 step은 pending이며 이번의 후속 관찰 정리가 F1 재현 기준선 구현을 대신하지 않는다.
+
+## R2 Step 2 후속 — 2026-11-10
+
+[기준 노드·기록 후보 검수](BRAIN_PRINCIPLE_DRAFT_REVIEW.md)에서 이 원고를 근거로 세 개의 비공개 Brain 후보를 준비했다. 본문 복제 없이 대기 경계·조회 비용·복구 조건을 다시 사용할 기준과 질문으로 정리했고 기존 원고/hash는 보존했다. R2 전체 완료, 다음은 R3 Step 0이다.

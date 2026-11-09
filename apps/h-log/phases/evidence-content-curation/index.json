@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "principle-and-revisit-drafts",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-10: Reviewed the three principle nodes and 13 incident edges; prepared three private H-Log note candidates with six reasoned directional links. Reused existing draft/public projection and curation contracts; no invented event dates, emotions or revises. Focused 9/9, candidate/privacy/provenance/prose checks, eight in-memory publication subsets and alias remapping passed. Catalog and prior manuscript hashes preserved; no DB or publication. Next: R3 Step 0 published-source-connections."
     }
   ]
 }

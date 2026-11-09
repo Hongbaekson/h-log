@@ -4,7 +4,7 @@
 
 pending — 2026-11-05 계획 등록. R3 / 공개 글과 기록 연결: 현재 공개된 글을 Brain 출처로 연결. 아직 구현/실행하지 않았다.
 
-R1 완료. R2 후보는 검수 자료이며 실제 공개 여부와 구분한다.
+R1과 R2는 완료했다. [R2 원고 검수](../../.codex/docs/harness/EVIDENCE_CASE_MANUSCRIPT_REVIEW.md)와 [기록 후보 검수](../../.codex/docs/harness/BRAIN_PRINCIPLE_DRAFT_REVIEW.md)를 입력으로 사용한다. 후보는 비공개 검토 자료이며 실제 공개 여부와 구분한다.
 
 ## 읽을 파일
 
@@ -21,6 +21,8 @@ R1 완료. R2 후보는 검수 자료이며 실제 공개 여부와 구분한다
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md`
+- `apps/h-log/.codex/docs/harness/EVIDENCE_CASE_MANUSCRIPT_REVIEW.md`
+- `apps/h-log/.codex/docs/harness/BRAIN_PRINCIPLE_DRAFT_REVIEW.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `apps/h-log/lib/brain.ts`
 - `apps/h-log/lib/brain-server.ts`
