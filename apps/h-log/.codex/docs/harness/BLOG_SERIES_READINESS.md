@@ -2,7 +2,11 @@
 
 확인일: 2026-10-21. [Phase 5 Step 1](../../../phases/editorial-trust-and-series/step1.md)의 콘텐츠 준비 여부를 확인했다. 후속 시리즈 구현은 2026-10-22 완료했다.
 
-## 현재 판정
+## 후속 읽기 경로 — 2026-11-10
+
+[R3 Step 1 검수](CURATED_READING_PATH_REVIEW.md)에서 기존 3편과 Portfolio·Brain 후보의 왕복을 확인했다. 첫 글의 현재 검토본 제목은 **Next.js Suspense로 최근 글 조회와 홈 렌더링 분리하기**다. 원고 본문과 이전 근거는 유지하고, 등록용 제목/본문만 분리했다. 단위 55/55·64개 공개 조합·격리 DB 4/4·브라우저 6조합 통과. 실제 발행은 하지 않았다. R3 전체 완료 후 다음은 R4 Step 0이다. 아래 내용은 준비 당시 기록이다.
+
+## 준비 당시 판정
 
 같은 주제로 공개 가능한 원고 3편을 준비했다. Step 2에서 검토한 첫 글에 공개 현재 버전 조회와 검증·수정 날짜를 다룬 원고 2편을 더했다. [신규 원고 검수 결과](BLOG_SERIES_MANUSCRIPT_REVIEW.md)에 내용 근거와 읽기 순서를 기록했다. 원고 준비 후 2026-10-22 시리즈 기능·검증을 완료해 Step 1과 Phase 5 전체가 `completed`다. 이후 Queue 실험과 사례 연결까지 완료해 전체 공개 경험 개선은 **19/19개 step 완료, 0개 blocked, 0개 pending**이다. 다음은 `operations-observability / Step 0`이다.
 

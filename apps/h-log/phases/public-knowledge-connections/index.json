@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "curated-reading-paths",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-10: Curated one Portfolio/Blog/Brain reading route using three reviewed manuscripts, existing series and three private Brain candidates. Two source links updated; six relations and prior evidence preserved. Unit 55/55, 64 publication subsets, isolated DB 4/4 and HTML/RSC plus six viewport/JS round trips passed. Private title/body handoff prepared. No app/UI changes or actual publication; next R4 Step 0 tag-alias-contract-and-projection."
     }
   ]
 }

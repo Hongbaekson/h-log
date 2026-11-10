@@ -1,5 +1,7 @@
 # Implementation Plan: H-Log Harness Baseline
 
+2026-11-10 R3 Step 1 `curated-reading-paths` 완료. 기존 Portfolio 사례·원고 3편의 시리즈와 Brain 후보 3개를 하나의 읽기 순서로 묶었다. Brain 출처 2곳을 원고에 연결하고 기존 본문·질문·관계 6개·검토일을 보존했다. 등록용 제목/본문 사본은 원본과 분리해 준비했다. [검수 결과](CURATED_READING_PATH_REVIEW.md)에 단위 55/55·공개 조합 64개·격리 DB 4/4·HTML/RSC·1440/390/320px JS ON/OFF 왕복 검증을 기록했다. **R3 전체 완료, R completed 8·pending 6, 다음은 R4 Step 0 `tag-alias-contract-and-projection`**이다. 실제 발행·운영 DB 등록·앱 코드/UI 변경은 없으며 F 22개 pending과 운영 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-10 R3 Step 0 `published-source-connections` 완료. Brain 출처의 Blog 상대 경로와 확정된 공개 origin의 절대 URL을 현재 published-current/privacy 결과로 확인한다. 비공개·철회·누락 대상의 제목/주소는 공개 응답에서 제거하고, Blog 상세에는 현재 공개 Brain으로 가는 ‘연결된 생각’을 제공한다. 조회 실패는 연결 영역에서 안내하며 기존 원문·공개 사본을 바꾸지 않는다. [검수 결과](PUBLISHED_BRAIN_SOURCE_REVIEW.md)에 RED/GREEN, 단위 288 pass/28 DB skip·관련 DB 4/4·production/dev HTML/RSC·1440/390/320px JS ON/OFF 검증과 기존 lint 오류를 기록했다. **R completed 7·pending 7, 다음은 R3 Step 1 `curated-reading-paths`**다. 실제 콘텐츠 발행·배포는 없으며 F 22개 pending과 운영 조건은 유지한다. 아래 날짜별 기록은 당시 상태다.
 
 2026-11-10 R2 Step 2 `principle-and-revisit-drafts` 완료. 기준 노드 3개와 관련 관계 13개를 점검하고 H-Log 기록 후보 3개·연결 6개를 비공개 검토본으로 준비했다. [검수 결과](BRAIN_PRINCIPLE_DRAFT_REVIEW.md)에 읽기 순서·근거·실제 저장 ID/날짜 인계를 기록했다. 단위 9/9, 후보 파싱/privacy·문체/기존 자료 보존·8개 메모리 공개 부분집합과 문서 검수를 통과했다. **R2 전체 완료, R completed 6·pending 8, 다음은 R3 Step 0 `published-source-connections`**다. 실제 DB 등록·발행·UI 변경은 없다. F 22개 pending과 기존 운영 조건은 유지한다. 아래 날짜별 기록은 당시 상태다.

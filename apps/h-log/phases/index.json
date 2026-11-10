@@ -223,8 +223,8 @@
     },
     {
       "dir": "public-knowledge-connections",
-      "status": "pending",
-      "summary": "2026-11-10: Step 0 completed: current public Blog references, safe response projection, withdrawal/error boundaries and reverse Brain links. Unit, isolated DB, production/dev HTML/RSC and desktop/mobile JS ON/OFF verified. Step 1 curated-reading-paths remains pending; R completed 7/pending 7. No actual content publication or deployment."
+      "status": "completed",
+      "summary": "2026-11-10: R3 Steps 0-1 complete. Current-public Blog sources and reverse Brain links plus one curated Portfolio/Blog/Brain reading route verified. Step 1 reuses three manuscripts and three private candidates; unit 55/55, 64 subsets, isolated DB 4/4 and six viewport/JS round trips passed. R completed 8/pending 6; next R4 Step 0. No actual publication, deployment or approved UI changes."
     },
     {
       "dir": "blog-tag-and-link-polish",
