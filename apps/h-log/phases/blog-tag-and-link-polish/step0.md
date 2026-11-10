@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-05 계획 등록. R4 / 태그와 공유 편의: 태그 대표 표기와 별칭. 아직 구현/실행하지 않았다.
+completed — 2026-11-11. 명시 별칭 사전을 공개 읽기·검색·URL과 새 관리자 초안 저장에 적용했다. [검수 결과](../../.codex/docs/harness/BLOG_TAG_ALIAS_REVIEW.md).
 
 S3 Step 0 및 R3 Step 1 완료. [읽기 경로 검수](../../.codex/docs/harness/CURATED_READING_PATH_REVIEW.md) 이후의 다음 로컬 단계다. R2/R3 후보의 실제 발행과 독립적으로 실행 가능하다.
 
@@ -78,6 +78,15 @@ git diff --check
 - 회사 Wiki·내부 식별자·확인되지 않은 감정/성과를 자료 수집이나 공개 노드로 채우지 말 것. 출처와 본인 확인이 있는 범위만 다룬다.
 - 계획 등록을 운영 배포·실제 발행·DNS/TLS·provider·timer·외부 알림 승인으로 해석하지 말 것. 기존 운영 보류가 유지된다.
 - 방문자 AI·댓글·공개 통계·새 도메인·별도 그래프/서비스를 추가하지 말 것. 이번 개선 단위와 관계없다.
+
+## 완료 기록 — 2026-11-11
+
+- 기존 원고의 태그를 조사해 Next.js/nextjs와 PostgreSQL/postgres만 사전에 등록했다. 사전 밖 값의 대소문자·구두점을 합치지 않고 양끝 공백만 제거한다.
+- `blog-tags.ts`를 `blog-public`, `blog-search`, `blog-search-ui`, `blog-article-generation`이 공유한다. 글당 중복 개수·별칭 URL·검색/관련 태그·새 초안 저장이 같은 대표 표기를 사용한다.
+- 관리자 본문 편집에는 태그 필드가 없어 해당 API를 확장하지 않았다. 관리자 초안 생성/저장은 기존 공통 출력 검증 경로로 정규화하고, 기존 저장 태그·post_versions·원문/hash는 일괄 변경하지 않는다.
+- focused RED 5개→GREEN 76/76, 전체 293 pass/28 DB skip, 격리 public-read/초안/편집 DB 4/4, production/dev의 동일 결과·noindex·cache 뒤 철회 확인. 1440/390/320px JS ON/OFF 6조합에서 선택 태그·집계·페이지·키보드·뒤로가기·초기화를 검수했다.
+- typecheck/build·source lint 통과. 기본 lint의 기존 private 오류 10개/경고 6개, 기존 build tracing 경고 2개는 별도 기록했다. 초기 DB 연결 종료는 순차 재실행 후 통과했고 제품 원인으로 확정하지 않았다.
+- 변경 파일·호출 경로·한계는 검수 문서와 ADR-043에 정리했다. DB schema·UI 배치·Brain·레이더·원고·운영 상태는 바꾸지 않았다. 문서/JSON·링크·상태·diff를 최종 검사한다.
 
 ## 다음 단계
 

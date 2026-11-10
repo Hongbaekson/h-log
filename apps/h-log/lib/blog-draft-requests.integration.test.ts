@@ -26,7 +26,7 @@ test("durable manual drafts deduplicate, recover saved results and stop uncertai
   let calls = 0;
   const generateArticle = async (i: GenerateArticleInput): Promise<GenerateArticleResult> => {
     calls++;
-    return { output: { title: "런타임 변경과 워커 적용 조건", description: "공식 문서를 읽고 적용 조건을 정리해요.", slug: i.postId, articleMode: "applied_analysis", contentMarkdown: "## 변경 내용\n\nAPI 동작이 바뀌었습니다.\n", tags: ["운영"], claims: [{ id: "claim", text: "API 동작이 바뀌었습니다.", type: "api", sourceId: "source" }], sources: [source.url], evidencePaths: [], personalContextIds: ["context"], publishDecision: "publish", blockReason: null }, usage: { estimatedCost: 0.01, inputTokens: 100, outputTokens: 100, provider: "fake", model: "fake" } };
+    return { output: { title: "런타임 변경과 워커 적용 조건", description: "공식 문서를 읽고 적용 조건을 정리해요.", slug: i.postId, articleMode: "applied_analysis", contentMarkdown: "## 변경 내용\n\nAPI 동작이 바뀌었습니다.\n", tags: ["운영", "nextjs", "Next.js", "postgres", "PostgreSQL"], claims: [{ id: "claim", text: "API 동작이 바뀌었습니다.", type: "api", sourceId: "source" }], sources: [source.url], evidencePaths: [], personalContextIds: ["context"], publishDecision: "publish", blockReason: null }, usage: { estimatedCost: 0.01, inputTokens: 100, outputTokens: 100, provider: "fake", model: "fake" } };
   };
   try {
     await runBlogMigrations(url);
@@ -53,6 +53,7 @@ test("durable manual drafts deduplicate, recover saved results and stop uncertai
     assert.equal(calls, 1);
     assert.equal((await runDraftRequestOnce(opts)).status, "idle");
     assert.equal((await pool.query("select status from posts")).rows[0].status, "drafted");
+    assert.deepEqual((await pool.query("select tag from post_tags")).rows.map(r => r.tag).sort(), ["Next.js", "PostgreSQL", "운영"].sort());
     assert.equal((await pool.query("select count(*)::int n from publish_jobs")).rows[0].n, 0);
     assert.equal((await createPostgresBlogRepository(pool).findPublicBlogContent()).posts.length, 0);
     assert.equal((await pool.query("select count(*)::int n from admin_actions where action_type='draft_completed'")).rows[0].n, 1);

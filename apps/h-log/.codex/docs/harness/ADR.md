@@ -521,3 +521,11 @@ DB 전에 실패할 수 있는 인증/생성을 DB 실행 이력만으로 관측
 별도 Alertmanager나 notification proxy 없이 기존 Grafana의 file provisioning과 custom webhook payload를 사용한다. 4영역 dashboard와 43개 고정 집계 rule을 작은 생성기로 관리하고 생성 결과 drift를 검사한다. 새 overlay를 선택한 경우에만 rule을 올리며 기본 stack에는 datasource만 mount한다. 업무 rule은 KeepLast, query/source health는 별도 경보로 구분한다. 발행은 가장 최근 기한이 지난 slot을 계산해 다음 날의 유예 구간이 과거 미실행을 해소하지 않게 한다. 정비 구간 slot만 제외하고 이전 미실행은 보존한다.
 
 고정 Grafana 12.4.13의 file provisioner는 빈 contact point를 등록하지 않아 유효한 loopback placeholder와 모든 route의 하루 종일 mute로 전송을 차단한다. 외부 수신처 secret/형식/egress는 Step 7에서만 적용한다. Custom payload는 안전한 고정 필드 6개만 포함하며 원문 query/error/내부 URL은 제외한다. 실제 datasource 오류 원문이 stdout에 기록되는 것을 합성 오류로 확인했으므로 alerts overlay는 logging driver none으로 보관을 차단한다. 장애 진단은 private rule health/API와 source 상태를 사용한다. 운영 관측을 끄거나 평가를 일시정지한 것은 아니다.
+
+## ADR-043: 블로그 태그의 작은 명시 사전과 읽기 투영
+
+2026-11-11 R4 Step 0에서 기존 원고의 Next.js·PostgreSQL을 근거로 별칭 네 키를 `blog-tags.ts` Map에 둔다. 사전 밖 값은 trim만 하고 대소문자·구두점·내부 공백을 보존한다. 저장 순서의 첫 대표 태그를 유지하며 중복 제거한다. 새 dependency·DB 사전·migration은 추가하지 않는다.
+
+공개 목록/상세·검색/관련 태그·개수·URL parser/builder와 새 초안 출력 검증이 같은 함수를 사용한다. 원래 입력의 privacy 검사와 현재 공개 버전 선택은 유지한다. 과거 태그 행·post_versions·원문/hash는 변경하지 않는다. 관리자 본문 편집에는 태그 입력이 없으므로 필드를 추가하지 않고 새 초안 생성/저장에서 정규화한다.
+
+태그 별칭 URL은 같은 결과를 읽고 새 링크는 대표 표기를 사용한다. 검색/태그의 noindex와 q/page 복원, 필터 후 페이지 계산을 유지한다. 별도 redirect·색인 route·전역 본문 동의어 검색은 만들지 않는다. 사전 확장은 실제 자료와 결과/개수 동등성 검증을 요구한다. [계약·검수](BLOG_TAG_ALIAS_REVIEW.md).

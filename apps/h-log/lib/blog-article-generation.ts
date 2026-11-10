@@ -1,3 +1,4 @@
+import { normalizeBlogTags } from "./blog-tags.ts";
 import {
   articleClaimTypes,
   blogArticleModes,
@@ -251,7 +252,7 @@ function normalizeArticleWriterOutput(
     personalContextIds: uniqueTrimmedStrings(output.personalContextIds),
     slug: output.slug.trim(),
     sources,
-    tags: uniqueTrimmedStrings(output.tags),
+    tags: normalizeBlogTags(output.tags),
     title: output.title.trim(),
   };
 }

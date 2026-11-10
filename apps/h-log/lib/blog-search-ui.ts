@@ -5,6 +5,7 @@ import type {
 } from "./blog-search.ts";
 import { formatPublicBlogDate } from "./blog-public-presentation.ts";
 import type { PublicBlogPagination } from "./blog-public.ts";
+import { normalizeBlogTag } from "./blog-tags.ts";
 
 export type BlogBrowseState = { query: string; tag: string | null; page: number };
 export type BlogBrowseParams = { q?: string | string[]; tag?: string | string[]; page?: string | string[] };
@@ -15,7 +16,7 @@ export function parseBlogBrowseParams(params: BlogBrowseParams): BlogBrowseState
   const page = /^\d+$/.test(rawPage) ? Number(rawPage) : 1;
   return {
     query: first(params.q).trim().replace(/\s+/g, " "),
-    tag: first(params.tag).trim() || null,
+    tag: normalizeBlogTag(first(params.tag)) || null,
     page: Number.isSafeInteger(page) && page > 0 ? page : 1,
   };
 }
@@ -23,7 +24,8 @@ export function parseBlogBrowseParams(params: BlogBrowseParams): BlogBrowseState
 export function buildBlogBrowseHref(state: BlogBrowseState): string {
   const params = new URLSearchParams();
   if (state.query) params.set("q", state.query);
-  if (state.tag) params.set("tag", state.tag);
+  const tag = normalizeBlogTag(state.tag ?? "");
+  if (tag) params.set("tag", tag);
   if (state.page > 1) params.set("page", String(state.page));
   return params.size ? `/blog?${params}` : "/blog";
 }
@@ -177,7 +179,8 @@ function getBlogSearchMatchReasonLabel(
 ): string {
   const tokens = [...new Set(query.toLocaleLowerCase("ko-KR").split(/\s+/).filter(Boolean))];
   for (const [label, text] of [["제목", result.title], ["요약", result.description], ["태그", result.tags.join(" ")]]) {
-    const matches = tokens.filter((token) => text.toLocaleLowerCase("ko-KR").includes(token));
+    const matches = tokens.filter((token) => text.toLocaleLowerCase("ko-KR").includes(token)
+      || label === "태그" && result.tags.some(tag => normalizeBlogTag(tag).toLocaleLowerCase("ko-KR") === normalizeBlogTag(token).toLocaleLowerCase("ko-KR")));
     if (matches.length) return `${label}에서 일치: ${matches.join(" · ")}`;
   }
   return "검색어와 관련된 내용이 있는 글입니다.";

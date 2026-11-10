@@ -5,6 +5,7 @@ import {
 } from "./blog-content-model.ts";
 import type { BlogContentStore, PublicBlogPagination } from "./blog-public.ts";
 import { selectPublicBlogThumbnail, type PublicBlogThumbnail } from "./blog-thumbnails.ts";
+import { normalizeBlogTag, normalizeBlogTags } from "./blog-tags.ts";
 import {
   createBlogUsageEvent,
   isUsageBudgetExceeded,
@@ -512,9 +513,10 @@ function buildSearchPage(
   limit: number,
   vectorScores: readonly BlogSearchVectorScore[],
 ): Pick<BlogSearchApiResponse, "results" | "pagination"> {
+  const tag = normalizeBlogTag(input.tag ?? "");
   const matches = searchPublishedBlogPosts(store, {
     query: input.query, vectorScores, limit: store.posts.length,
-  }).filter((result) => !input.tag || result.tags.includes(input.tag));
+  }).filter((result) => !tag || result.tags.includes(tag));
   const pageSize = normalizeLimit(limit);
   const totalPages = Math.max(1, Math.ceil(matches.length / pageSize));
   const currentPage = Math.min(
@@ -814,16 +816,7 @@ function scoreTagFallback(
 }
 
 function getPostTags(postId: string, store: BlogContentStore): string[] {
-  const seen = new Set<string>();
-
-  return store.tags.flatMap((tagRecord) => {
-    if (tagRecord.postId !== postId || seen.has(tagRecord.tag)) {
-      return [];
-    }
-
-    seen.add(tagRecord.tag);
-    return [tagRecord.tag];
-  });
+  return normalizeBlogTags(store.tags.filter(tag => tag.postId === postId).map(tag => tag.tag));
 }
 
 function getSharedTags(
@@ -867,8 +860,7 @@ function scoreKeywordMatch(
 
   const tags = store.tags
     .filter((tag) => tag.postId === entry.post.id)
-    .map((tag) => tag.tag)
-    .join(" ");
+    .map((tag) => tag.tag);
   const haystack = normalizeSearchQuery(
     [
       entry.post.title,
@@ -876,10 +868,12 @@ function scoreKeywordMatch(
       entry.version.title,
       entry.version.description,
       entry.version.contentMarkdown,
-      tags,
+      tags.join(" "),
     ].join(" "),
   );
-  const matchedTokenCount = tokens.filter((token) => haystack.includes(token)).length;
+  const canonicalTags = normalizeBlogTags(tags).map(normalizeSearchQuery);
+  const matchedTokenCount = tokens.filter((token) => haystack.includes(token)
+    || canonicalTags.includes(normalizeSearchQuery(normalizeBlogTag(token)))).length;
 
   return matchedTokenCount === 0 ? 0 : matchedTokenCount / tokens.length;
 }

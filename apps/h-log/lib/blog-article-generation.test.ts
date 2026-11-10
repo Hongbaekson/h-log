@@ -45,6 +45,16 @@ function createWriterOutput(
 }
 
 describe("blog article generation output schema", () => {
+  it("normalizes reviewed tag aliases for new drafts without changing the input", () => {
+    const output = createWriterOutput({ tags: [" nextjs ", "Next.js", "POSTGRES", "PostgreSQL", "C++", "C#", "custom", "Custom"] });
+    const before = JSON.stringify(output);
+    const result = validateArticleWriterOutput({ generatedAt, output, postId: "post-alias", postVersionId: "version-alias" });
+    assert.equal(result.status, "passed");
+    assert.ok(result.normalizedOutput);
+    assert.deepEqual(result.normalizedOutput.tags, ["Next.js", "PostgreSQL", "C++", "C#", "custom", "Custom"]);
+    assert.equal(JSON.stringify(output), before);
+  });
+
   it("blocks missing required writer fields before creating a post version", () => {
     const result = validateArticleWriterOutput({
       generatedAt,

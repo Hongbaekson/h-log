@@ -176,6 +176,44 @@ function createChunk(
 }
 
 describe("blog search contract", () => {
+  it("uses tag aliases for keyword matches and related tags without merging unknown concepts", () => {
+    const slugs = ["one", "two", "hidden"];
+    const store: BlogContentStore = {
+      posts: slugs.map(slug => createPost(slug, { status: slug === "hidden" ? "drafted" : "published" })),
+      versions: slugs.map(slug => createVersion(slug)), sources: [],
+      tags: [createTag("one", "nextjs"), createTag("one", "Next.js"), createTag("two", "NEXT.JS"), createTag("hidden", "Next.js")],
+    };
+    const before = JSON.stringify(store);
+    for (const query of ["nextjs", "Next.js"]) {
+      const results = searchPublishedBlogPosts(store, { query });
+      assert.deepEqual(results.map(r => r.slug), ["one", "two"]);
+      assert(results.every(r => JSON.stringify(r.tags) === '["Next.js"]'));
+    }
+    assert.deepEqual(selectPublishedRelatedPostsBySimilarity(store, { sourcePostId: "post-one", chunks: [] }).map(r => r.sharedTags), [["Next.js"]]);
+    assert.deepEqual(searchPublishedBlogPosts(store, { query: "next-js" }), []);
+    assert.equal(JSON.stringify(store), before);
+  });
+
+  it("filters alias tags before paging and rechecks cached results after withdrawal", async () => {
+    const slugs = Array.from({ length: 8 }, (_, i) => `alias-${i}`);
+    let store: BlogContentStore = {
+      posts: slugs.map(slug => createPost(slug)),
+      versions: slugs.map(slug => createVersion(slug, { title: "shared article" })), sources: [],
+      tags: slugs.map((slug, i) => createTag(slug, i % 2 ? "Next.js" : "nextjs")),
+    };
+    const request = { clientId: "alias-reader", query: "shared", state: createBlogSearchRuntimeState(), loadStore: () => store, policy: { resultLimit: 6 } };
+    for (const tag of ["nextjs", "Next.js", " NEXT.JS "]) {
+      const result = await handleBlogSearchApiRequest({ ...request, tag, page: 2 });
+      assert.deepEqual(result.results.map(r => r.slug), slugs.slice(6));
+      assert.deepEqual(result.pagination, { currentPage: 2, totalPages: 2, pageSize: 6, totalItems: 8 });
+    }
+    store = { ...store, posts: store.posts.map((post, i) => i >= 6 ? { ...post, status: "retracted" } : post) };
+    const after = await handleBlogSearchApiRequest({ ...request, tag: "nextjs", page: 2 });
+    assert.equal(after.cached, true);
+    assert.deepEqual(after.pagination, { currentPage: 1, totalPages: 1, pageSize: 6, totalItems: 6 });
+    assert.equal((await handleBlogSearchApiRequest({ ...request, tag: "next-js" })).results.length, 0);
+  });
+
   it("filters before paging and rebuilds cached pages from the current public versions", async () => {
     const slugs = Array.from({ length: 15 }, (_, i) => `entry-${String(i).padStart(2, "0")}`);
     let store: BlogContentStore = {

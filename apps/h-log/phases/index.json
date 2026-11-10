@@ -229,7 +229,7 @@
     {
       "dir": "blog-tag-and-link-polish",
       "status": "pending",
-      "summary": "2026-11-05: R4 태그와 공유 편의, 3 pending steps. Planning only; see KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md. Preserve the approved Brain UI, radar, public snapshot and operations hold."
+      "summary": "2026-11-11: R4 Step 0 complete: explicit tag aliases across public projections, URL filters/search and new manual draft storage. Unit 293 pass/28 DB skip, DB 4/4, production/dev HTTP and desktop/mobile checks passed. Steps 1-2 pending; next navigable-tag-badges. R completed 9/pending 5. Approved Brain UI/radar and operations hold preserved."
     },
     {
       "dir": "knowledge-review-workflow",

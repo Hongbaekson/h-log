@@ -27,6 +27,17 @@ const baseResult = {
 } as const;
 
 describe("blog search UI snapshot", () => {
+  it("restores alias URLs to representative tags while preserving query and page", () => {
+    const state = parseBlogBrowseParams({ q: "nextjs cache", tag: [" nextjs ", "ignored"], page: "2" });
+    assert.deepEqual(state, { query: "nextjs cache", tag: "Next.js", page: 2 });
+    assert.equal(new URL(buildBlogBrowseHref({ ...state, tag: "NEXTJS" }), "https://example.com").searchParams.get("tag"), "Next.js");
+    for (const tag of ["C", "C++", "C#", "custom", "Custom", "next-js"]) assert.equal(parseBlogBrowseParams({ tag }).tag, tag);
+    assert.equal(parseBlogBrowseParams({ tag: "  " }).tag, null);
+    const snapshot = createBlogSearchUiSnapshot({ query: "nextjs", response: { cached: false, reason: "search_ready", status: "ok",
+      pagination: { currentPage: 1, pageSize: 6, totalItems: 1, totalPages: 1 }, results: [{ ...baseResult, tags: ["Next.js"] }] } });
+    assert.equal(snapshot.items[0].matchReasonLabel, "태그에서 일치: nextjs");
+  });
+
   it("normalizes URL state and preserves query/tag when changing pages", () => {
     const state = parseBlogBrowseParams({ q: ["  Redis   Pub/Sub ", "ignored"], tag: " DB ", page: "2" });
     assert.deepEqual(state, { query: "Redis Pub/Sub", tag: "DB", page: 2 });

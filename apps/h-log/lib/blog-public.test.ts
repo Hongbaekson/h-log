@@ -30,6 +30,28 @@ import { parseBlogEditorialNote, type BlogEditorialNote } from "./blog-editorial
 const baseTimestamp = "2026-06-25T00:00:00.000Z";
 const diagramAssetHash = "a".repeat(64);
 
+describe("public tag aliases", () => {
+  it("projects reviewed spellings once per post, filters aliases and preserves stored versions", () => {
+    const store: BlogContentStore = {
+      posts: [createPost(), createPost({ id: "hidden", slug: "hidden", currentVersionId: "v-hidden", status: "retracted" })],
+      versions: [createVersion(), createVersion({ id: "v-hidden", postId: "hidden" })], sources: [],
+      tags: [" Next.js ", "nextjs", "NEXT.JS", "postgres", "PostgreSQL", "C", "C++", "C#", "Spring", "Spring Boot", "custom", "Custom"].map(tag => createTag("post-public-one", tag))
+        .concat(createTag("hidden", "nextjs")),
+    };
+    const before = JSON.stringify(store);
+    const index = getPublicBlogIndex(store, { tag: " nextjs ", page: 99, pageSize: 1 });
+    assert.equal(index.selectedTag, "Next.js");
+    assert.equal(index.pagination.totalItems, 1);
+    assert.equal(index.pagination.currentPage, 1);
+    assert.deepEqual(index.posts[0].tags, ["Next.js", "PostgreSQL", "C", "C++", "C#", "Spring", "Spring Boot", "custom", "Custom"]);
+    assert.equal(index.tagCounts.find(t => t.tag === "Next.js")?.count, 1);
+    for (const tag of ["NEXTJS", "Next.js", "postgres", "PostgreSQL"]) assert.equal(getPublicBlogIndex(store, { tag }).pagination.totalItems, 1);
+    assert.equal(getPublicBlogIndex(store, { tag: "next-js" }).pagination.totalItems, 0);
+    assert.deepEqual(getPublicBlogPostBySlug("public-one", store)?.tags, index.posts[0].tags);
+    assert.equal(JSON.stringify(store), before);
+  });
+});
+
 describe("public editorial notes", () => {
   const note: BlogEditorialNote = {
     verification: {

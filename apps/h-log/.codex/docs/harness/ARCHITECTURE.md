@@ -544,3 +544,9 @@ F2는 기존 read path의 불필요 계산을 먼저 줄이고 F3는 재생성 �
 ## R3 공개 출처 응답 투영 — 2026-11-10
 
 `brain-blog-sources.ts`는 명시적 공개 Brain DTO의 내부 Blog 출처를 기존 공개 Blog store와 `selectPublicBlogRouteEntries`로 검증한다. `brain-server.ts`의 request-cached `loadPublicBrain`이 파일/DB 공개 graph를 얻은 뒤 이 투영을 적용하므로 상세·graph·RSC에 저장된 비공개 대상 label/href가 전달되지 않는다. 내부 출처가 없으면 Blog 조회를 생략한다. `sourcesUnavailable`은 조회 실패 시의 응답 전용 필드이며 DB에는 저장하지 않는다. `BlogBrainLinks`는 현재 Blog store와 이 공개 graph로 역방향 링크를 만든다. loader 재귀·HTTP 자체 호출·새 SQL·요청 간 캐시는 없다. 기존 reader 출처 영역과 Blog 상세 탐색 영역만 변경했다. 상세: [검수 결과](PUBLISHED_BRAIN_SOURCE_REVIEW.md).
+
+## 블로그 태그 투영 — R4 Step 0
+
+`lib/blog-tags.ts`의 명시 사전/배열 정규화를 `blog-public.ts`, `blog-search.ts`, `blog-search-ui.ts`, `blog-article-generation.ts`가 공유한다(ADR-043). 공개 읽기와 관련 글은 대표 태그를 중복 없이 제공하고 검색 API는 정규화한 태그로 필터링한 뒤 페이지를 계산한다. q는 보존하며 태그에 해당하는 검색 token만 별칭 비교를 추가한다.
+
+새 관리자 초안은 기존 `runDraftRequestOnce` → article validation → `saveBlogAggregate` 경로에서 대표 태그를 저장한다. 기존 본문 편집/검토 repository는 바뀌지 않는다. 과거 DB 태그와 버전은 읽기 투영만 적용하므로 migration이 없다. 태그 배지 링크·별도 편집 CMS·Brain 태그 변경은 포함하지 않는다. [검수 결과](BLOG_TAG_ALIAS_REVIEW.md).

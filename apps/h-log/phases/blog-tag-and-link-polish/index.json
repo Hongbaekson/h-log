@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "tag-alias-contract-and-projection",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-11: Explicit Next.js/nextjs and PostgreSQL/postgres aliases shared by public tags/counts, search/related tags, URL state and new manual draft persistence. Unknown concepts and legacy versions/hashes retained. RED 5 to GREEN 76/76; unit 293 pass/28 DB skip, isolated DB 4/4, production/dev HTTP and six viewport/JS cases passed; source lint/typecheck/build passed. Existing private lint errors/build warnings remain. Next R4 Step 1 navigable-tag-badges; no live publication."
     },
     {
       "step": 1,

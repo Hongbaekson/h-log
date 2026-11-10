@@ -17,6 +17,7 @@ import { selectPublicBlogThumbnail, type PublicBlogThumbnail } from "./blog-thum
 import { selectPublishedRelatedPostsBySimilarity } from "./blog-search.ts";
 import { tryNormalizePublicSourceUrl } from "./public-source-url.ts";
 import { parseBlogEditorialNote, type BlogEditorialNote } from "./blog-editorial.ts";
+import { normalizeBlogTag, normalizeBlogTags } from "./blog-tags.ts";
 
 export type BlogContentStore = {
   assets?: readonly PostAssetRecord[];
@@ -454,16 +455,7 @@ function pushTextContent(
 }
 
 function getTagsForPost(postId: string, tags: readonly PostTagRecord[]): string[] {
-  const seen = new Set<string>();
-
-  return tags.flatMap((tagRecord) => {
-    if (tagRecord.postId !== postId || seen.has(tagRecord.tag)) {
-      return [];
-    }
-
-    seen.add(tagRecord.tag);
-    return [tagRecord.tag];
-  });
+  return normalizeBlogTags(tags.filter(tag => tag.postId === postId).map(tag => tag.tag));
 }
 
 function getSourceLinksForPost(
@@ -517,7 +509,7 @@ function normalizePositiveInteger(value: number | undefined, fallback: number): 
 }
 
 function normalizeSelectedTag(tag: string | undefined): string | null {
-  const normalized = tag?.trim();
+  const normalized = normalizeBlogTag(tag ?? "");
 
   return normalized ? normalized : null;
 }
