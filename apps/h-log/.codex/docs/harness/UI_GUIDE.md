@@ -170,3 +170,7 @@ Blog 상세의 기존 탐색 영역에 현재 공개된 ‘연결된 생각’�
 ## 블로그 태그 링크 — 2026-11-11
 
 R4 Step 1에서 기존 행·배지 스타일을 유지하고 태그를 실제 anchor로 연결했다. 긴 태그는 줄바꿈하고 lavender focus outline과 hover border를 제공한다. 검색 결과에서는 제출 검색어를 유지하며 새 태그 선택은 1페이지다. 상세 배지는 검색어 없는 태그 목록으로 이동한다. 키보드 Enter·새 탭·뒤로가기와 일반 목록/상세의 JS OFF 이동을 production/dev 세 폭에서 확인했다. [검수 결과](BLOG_TAG_NAVIGATION_REVIEW.md).
+
+## 블로그 글·소제목 주소 복사 — R4 Step 2
+
+글 상단의 발행 정보 아래에 `글 주소` 링크와 작은 복사 아이콘을 둔다. H2/H3는 기존 # 이동 옆에 같은 아이콘을 사용한다. 40px 조작 영역, 기존 Blurple hover/focus와 한국어 live status를 사용한다. 성공 때 주소 복사를 알리고 실패 때 직접 복사 링크와 길게 누르기/우클릭 안내를 제공한다. 버튼 초점을 유지하고 JS OFF에서는 일반 링크만 남긴다. production/dev 1440/390/320px의 실제 클립보드·권한 거부/미지원·직접 hash/새로고침·가로 넘침과 기존 Home/Brain을 검수했다. [검수 결과](BLOG_LINK_COPY_REVIEW.md).

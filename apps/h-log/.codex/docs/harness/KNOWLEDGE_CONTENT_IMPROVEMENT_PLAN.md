@@ -1,6 +1,6 @@
 # H-Log 기록·탐색 개선 계획
 
-등록일: 2026-11-05. Zerry/Memory 재조사 후 사용자가 개선 방향의 phase/step 등록과 커밋·푸시를 요청했다. **R1–R5: 5개 phase / 14개 step**이다. 2026-11-11 R4 Step 1까지 완료해 **completed 10·pending 4**이다. R1의 계약·저장·관리자 입력, R2의 [근거 대장](CURRENT_CLAIMS_INVENTORY.md)·[원고 검수](EVIDENCE_CASE_MANUSCRIPT_REVIEW.md)·[기록 후보](BRAIN_PRINCIPLE_DRAFT_REVIEW.md)를 준비했으며 [현재 공개 출처 연결](PUBLISHED_BRAIN_SOURCE_REVIEW.md)도 구현했다. [편집된 읽기 경로](CURATED_READING_PATH_REVIEW.md)의 준비·격리 검수도 완료했으며 [태그 대표 표기와 별칭](BLOG_TAG_ALIAS_REVIEW.md)도 적용했다. [태그 배지 탐색](BLOG_TAG_NAVIGATION_REVIEW.md)도 완료했으며 다음은 R4 Step 2의 글·소제목 주소 복사다. 계획 등록을 기능 구현이나 콘텐츠 발행 완료로 표시하지 않는다. 상태의 source of truth는 [전체 레지스트리](../../../phases/index.json)와 각 phase index다.
+등록일: 2026-11-05. Zerry/Memory 재조사 후 사용자가 개선 방향의 phase/step 등록과 커밋·푸시를 요청했다. **R1–R5: 5개 phase / 14개 step**이다. 2026-11-11 R4 Step 2까지 완료해 **completed 11·pending 3**이다. R1의 계약·저장·관리자 입력, R2의 [근거 대장](CURRENT_CLAIMS_INVENTORY.md)·[원고 검수](EVIDENCE_CASE_MANUSCRIPT_REVIEW.md)·[기록 후보](BRAIN_PRINCIPLE_DRAFT_REVIEW.md)를 준비했으며 [현재 공개 출처 연결](PUBLISHED_BRAIN_SOURCE_REVIEW.md)도 구현했다. [편집된 읽기 경로](CURATED_READING_PATH_REVIEW.md)의 준비·격리 검수도 완료했으며 [태그 대표 표기와 별칭](BLOG_TAG_ALIAS_REVIEW.md)도 적용했다. [태그 배지 탐색](BLOG_TAG_NAVIGATION_REVIEW.md)과 [글·소제목 주소 복사](BLOG_LINK_COPY_REVIEW.md)까지 완료했으며 다음은 R5 Step 0의 수동 재검토 계약이다. 계획 등록을 기능 구현이나 콘텐츠 발행 완료로 표시하지 않는다. 상태의 source of truth는 [전체 레지스트리](../../../phases/index.json)와 각 phase index다.
 
 ## 목적과 유지 조건
 
@@ -41,8 +41,8 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 | `lib/brain-catalog.ts` | 정적 28개 노드/42개 연결. 경험 1개·사건일 0개·revises 0개 | 운영 DB 전체 통계가 아님. 확인된 사례/날짜만 보강 |
 | `blog-series`, `portfolio-posts`, `blog-editorial` | 시리즈·프로젝트 연결·검증 범위·수정 기록 | R2/R3 내용과 현재성 정리 |
 | `brain.ts` / `brain-blog-sources.ts` | Resume/Portfolio 및 현재 공개 Blog 참조, 서버 공개 응답 투영과 역방향 연결 | R3 Step 0/1 완료. 후보 읽기 경로·격리 검수 완료, 실제 발행 별도 |
-| `blog-public`, `blog-search`, `blog-search-ui` | 목록·검색·필터·개수·URL 복원, 명시 태그 별칭·공통 투영 | R4 Step 0/1 완료, 글·소제목 주소 복사 후속 |
-| `BlogPostRow`, Blog 상세, `BlogContent` | 태그 배지, 목차와 고유 heading # anchor, 코드 복사 | R4 태그 탐색·주소 복사만 보완 |
+| `blog-public`, `blog-search`, `blog-search-ui` | 목록·검색·필터·개수·URL 복원, 명시 태그 별칭·공통 투영 | R4 Step 0–2 완료 |
+| `BlogPostRow`, Blog 상세, `BlogContent` | 태그 배지, 목차와 고유 heading # anchor, 코드 복사 | R4 태그 탐색·canonical 주소 복사 완료 |
 | admin Brain | 검색·정렬·회고 및 출처·질문 작성/미리보기 가능. R1 완료 | R5 버전에 묶인 수동 검토와 다시 찾기 |
 
 ## Phase / Step
@@ -59,7 +59,7 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 | R3 [public-knowledge-connections](../../../phases/public-knowledge-connections/index.json) | 1 | [한 사례를 잇는 편집된 읽기 경로](../../../phases/public-knowledge-connections/step1.md) | completed |
 | R4 [blog-tag-and-link-polish](../../../phases/blog-tag-and-link-polish/index.json) | 0 | [태그 대표 표기와 별칭](../../../phases/blog-tag-and-link-polish/step0.md) | completed |
 | R4 [blog-tag-and-link-polish](../../../phases/blog-tag-and-link-polish/index.json) | 1 | [기존 태그 배지를 탐색 링크로](../../../phases/blog-tag-and-link-polish/step1.md) | completed |
-| R4 [blog-tag-and-link-polish](../../../phases/blog-tag-and-link-polish/index.json) | 2 | [글·소제목 주소 복사](../../../phases/blog-tag-and-link-polish/step2.md) | pending |
+| R4 [blog-tag-and-link-polish](../../../phases/blog-tag-and-link-polish/index.json) | 2 | [글·소제목 주소 복사](../../../phases/blog-tag-and-link-polish/step2.md) | completed |
 | R5 [knowledge-review-workflow](../../../phases/knowledge-review-workflow/index.json) | 0 | [재검토 대상과 확인 기록 계약](../../../phases/knowledge-review-workflow/step0.md) | pending |
 | R5 [knowledge-review-workflow](../../../phases/knowledge-review-workflow/index.json) | 1 | [소유자 재검토 목록](../../../phases/knowledge-review-workflow/step1.md) | pending |
 | R5 [knowledge-review-workflow](../../../phases/knowledge-review-workflow/index.json) | 2 | [연결·공개 경계 로컬 통합 검수](../../../phases/knowledge-review-workflow/step2.md) | pending |
@@ -67,12 +67,12 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 ## 실행 순서와 다른 트랙
 
 1. 2026-11-05 기존 SEO S3 Step 0의 [로컬 SEO 릴리스 검수](SEO_RELEASE_REVIEW.md)를 완료했다. 새 R 트랙의 구현을 완료했다는 뜻은 아니다.
-2. 2026-11-11 R4 Step 1 완료. **다음 로컬 작업은 R4 Step 2 `article-and-section-link-copy`**다. 기본 순서는 R1 → R2 → R3 → R4 → R5다.
+2. 2026-11-11 R4 전체 완료. **다음 로컬 작업은 R5 Step 0 `manual-review-contract`**다. 기본 순서는 R1 → R2 → R3 → R4 → R5다.
 3. R2 자료 정리와 R4는 R1 구현/개인 경험 확인에 기술적으로 종속되지 않는다. 필요한 자료가 없을 때 독립 작업을 진행할 수 있으며 실행한 step과 순서 변경 이유를 기록한다. R3는 R1의 출처 계약과 R2의 검수 후보를 사용한다.
 4. R5의 로컬 통합 검수는 새 트랙의 추가 회귀다. S3 Step 0의 기존 SEO 기준선을 취소하거나 완료된 단계를 다시 pending으로 만들지 않는다.
 5. S3 Step 1/2의 실제 도메인·계정·측정 조건은 그대로다. **운영 모니터링 Step 7 → 관리자 A3 Step 4 → timer** 순서와 OCI 보류를 유지한다. R 트랙은 운영 보류 해제를 기다리지 않고 격리 로컬에서 준비할 수 있다.
 
-R 등록 당시 전체는 53개 phase / 187개 step이었다. 2026-11-06 [성능 F1–F7](PERFORMANCE_REBUILD_PLAN.md)의 pending 22개 step을 더해 전체는 60개 phase / 209개 step이다. 기존 콘텐츠 트랙의 다음은 R4 Step 2이고 성능 트랙의 시작은 F1 Step 0이다. S3 Step 0 완료 후 SEO는 9 completed/1 pending/1 blocked다. 관리자 A 16/0/1, 모니터링 7/0/1의 상태는 바꾸지 않는다. R1/R5의 admin 후속은 별도 R 트랙이며 기존 A 트랙을 다시 열지 않는다.
+R 등록 당시 전체는 53개 phase / 187개 step이었다. 2026-11-06 [성능 F1–F7](PERFORMANCE_REBUILD_PLAN.md)의 pending 22개 step을 더해 전체는 60개 phase / 209개 step이다. 기존 콘텐츠 트랙의 다음은 R5 Step 0이고 성능 트랙의 시작은 F1 Step 0이다. S3 Step 0 완료 후 SEO는 9 completed/1 pending/1 blocked다. 관리자 A 16/0/1, 모니터링 7/0/1의 상태는 바꾸지 않는다. R1/R5의 admin 후속은 별도 R 트랙이며 기존 A 트랙을 다시 열지 않는다.
 
 ## R1 계약 — 2026-11-06 Step 0–2 완료
 
@@ -222,3 +222,7 @@ Step 1은 parser/public projection 단위 RED부터 시작해 기존 `npm run te
 ## R4 Step 1 완료 — 2026-11-11
 
 2026-11-11 R4 Step 1 `navigable-tag-badges` 완료. 일반 목록·검색 결과·상세의 태그 배지를 기존 필터 URL로 연결했다. 검색 결과는 제출한 검색어를 유지하고 1페이지로 이동하며 상세는 태그 일반 목록으로 이동한다. [검수 결과](BLOG_TAG_NAVIGATION_REVIEW.md)에 실제 브라우저 RED 15표본→production/dev GREEN 30표본, 단위 294 pass/28 DB skip·DB 2/2·source lint/typecheck/build를 기록했다. 기본 lint의 기존 private 오류 10개와 build 경고 2개는 남아 있다. **R completed 10·pending 4, 다음은 R4 Step 2 `article-and-section-link-copy`**다. F 22개 pending·승인된 Brain UI·Home 레이더·운영 보류는 유지한다.
+
+## R4 Step 2 완료 — 2026-11-11
+
+글 주소와 기존 소제목 주소를 서버 canonical 기준으로 복사한다. 실패/미지원 때는 직접 복사 링크를 제공하며 기존 # 탐색과 관리자 미리보기, 목차·원문을 보존했다. 실제 클립보드 및 실패 처리·JS ON/OFF·세 폭의 production/dev 24표본과 단위/격리 DB 검증을 통과했다. [검수 결과](BLOG_LINK_COPY_REVIEW.md). R4 전체 완료, R completed 11/pending 3이며 다음은 R5 Step 0이다.

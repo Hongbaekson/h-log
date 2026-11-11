@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "article-and-section-link-copy",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-11: Article and H2/H3 copy controls share the server public canonical URL plus existing encoded heading IDs. Clipboard success/error, manual-link fallback and focus retained; no-JS native anchors preserved. Browser RED 12 to production/dev GREEN 24 cases, focused 49/49, unit 294 pass/28 DB skip, isolated DB 2/2 and source lint/typecheck/build passed. Existing private lint errors/build warnings remain. R4 complete; next R5 Step 0 manual-review-contract. No live publication."
     }
   ]
 }

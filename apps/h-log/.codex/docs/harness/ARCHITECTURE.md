@@ -554,3 +554,7 @@ F2는 기존 read path의 불필요 계산을 먼저 줄이고 F3는 재생성 �
 ## 블로그 태그 탐색 — R4 Step 1
 
 `components/blog/BlogTagLink.tsx`는 기존 Badge·Next Link·`buildBlogBrowseHref`를 조합한다. `BlogPostRow`와 상세 페이지가 이를 사용하고 검색 결과는 `BlogSearchPanel`의 `snapshot.query`를 전달한다. native href가 태그 인코딩과 페이지 초기화를 담으며 별도 onClick/상태/API는 없다. 공통 Badge, DB/repository, Brain/Home은 변경하지 않는다. 실제 DOM·키보드·새 탭·JS OFF·history 검사는 `scripts/blog-tag-badges.browser-check.mjs`에 둔다. [검수 결과](BLOG_TAG_NAVIGATION_REVIEW.md).
+
+## 블로그 글·소제목 주소 복사 — R4 Step 2
+
+`app/blog/[slug]/page.tsx`의 기존 `postUrl`을 `BlogLinkCopy`와 `BlogContent.articleUrl`로 전달한다. `BlogContent`는 서버 렌더러를 유지하고 중첩 블록에도 URL을 넘긴다. 각 H2/H3는 기존 ID를 encodeURIComponent해 붙이며 # 이동 anchor를 보존한다. `BlogLinkCopy`만 Clipboard API·상태를 가진 client component다. 기존 hydration 패턴으로 JS OFF에는 버튼을 숨기고 오류 시 canonical 링크를 제공한다. 관리자 caller는 articleUrl을 전달하지 않아 공유 UI를 추가하지 않는다. 별도 URL builder·의존성·SDK·API·DB 변경은 없다. `scripts/blog-link-copy.browser-check.mjs`에서 실제 UI와 클립보드·오류·hash 동작을 검사한다. [검수 결과](BLOG_LINK_COPY_REVIEW.md).

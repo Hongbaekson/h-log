@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-05 계획 등록. R4 / 태그와 공유 편의: 글·소제목 주소 복사. 아직 구현/실행하지 않았다.
+completed — 2026-11-11 글·소제목 주소 복사 구현과 격리 검수를 완료했다. [검수 결과](../../.codex/docs/harness/BLOG_LINK_COPY_REVIEW.md).
 
 2026-11-11 R4 Step 1 완료. 기존 heading anchor/목차 구현을 먼저 확인한다. [태그 탐색 검수](../../.codex/docs/harness/BLOG_TAG_NAVIGATION_REVIEW.md)에서 기존 URL builder·키보드·history 경계를 확인했다.
 
@@ -77,6 +77,14 @@ git diff --check
 - 회사 Wiki·내부 식별자·확인되지 않은 감정/성과를 자료 수집이나 공개 노드로 채우지 말 것. 출처와 본인 확인이 있는 범위만 다룬다.
 - 계획 등록을 운영 배포·실제 발행·DNS/TLS·provider·timer·외부 알림 승인으로 해석하지 말 것. 기존 운영 보류가 유지된다.
 - 방문자 AI·댓글·공개 통계·새 도메인·별도 그래프/서비스를 추가하지 말 것. 이번 개선 단위와 관계없다.
+
+## 완료 기록 — 2026-11-11
+
+- `BlogLinkCopy`가 공개 페이지의 서버 canonical URL을 복사한다. `BlogContent`는 선택적인 `articleUrl`을 H2/H3와 중첩 블록에 전달하고 기존 ID·# anchor·목차·관리자 미리보기를 유지한다.
+- Clipboard 성공 후에만 성공을 표시하며 거부/미지원은 실패 안내와 canonical 일반 링크로 처리한다. 버튼 초점은 유지하고 JS OFF에는 복사 버튼 없이 기존 링크를 제공한다.
+- 브라우저 RED 12표본의 예상 실패 후 development/production 각 12표본, 총 24표본 통과. 실제 클립보드 값, query/관리자 경로 제외, 한글·중복·중첩 heading, 직접 hash 접근·새로고침·뒤로가기, 1440/390/320px와 기존 Home/Brain 화면을 검수했다.
+- 가까운 단위 49/49, 전체 294 pass/28 DB skip, 격리 DB 2/2, source lint/typecheck/build와 문서 형식·링크·diff 검사를 통과했다. 기본 lint의 기존 private 오류 10개/경고 6개와 build tracing 경고 2개는 남아 있다.
+- 원문 Markdown/HTML/hash는 보존했고 운영 DB·배포·실제 발행은 실행하지 않았다. R4 전체 완료, R completed 11/pending 3. 검증 자료는 Git/Docker 제외 `private/r4-copy-2026-11-11/`에 있다.
 
 ## 다음 단계
 

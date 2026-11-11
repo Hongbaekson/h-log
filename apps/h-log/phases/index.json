@@ -228,8 +228,8 @@
     },
     {
       "dir": "blog-tag-and-link-polish",
-      "status": "pending",
-      "summary": "2026-11-11: R4 Steps 0-1 complete: explicit tag aliases and native tag navigation on list/search/detail. Step 1 unit 294 pass/28 DB skip, DB 2/2, production/dev 30 browser cases and source lint/typecheck/build passed. Step 2 article-and-section-link-copy remains pending. R completed 10/pending 4; approved Brain UI/radar and operations hold preserved."
+      "status": "completed",
+      "summary": "2026-11-11: R4 Steps 0-2 complete: explicit tag aliases, native tag navigation and canonical article/section copy with manual fallback. Step 2 focused 49/49, unit 294 pass/28 DB skip, DB 2/2, production/dev 24 browser cases and source lint/typecheck/build passed. Existing private lint errors/build warnings remain. R completed 11/pending 3; next R5 Step 0 manual-review-contract. Approved Brain UI/radar and operations hold preserved."
     },
     {
       "dir": "knowledge-review-workflow",

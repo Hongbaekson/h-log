@@ -2,13 +2,14 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import { ExternalLink } from "lucide-react";
 import { CodeBlock } from "./CodeBlock";
+import { BlogLinkCopy } from "./BlogLinkCopy";
 import type { PublicBlogContentBlock, PublicBlogInlineContent } from "@/lib/blog-public";
 
-export function BlogContent({ blocks }: { blocks: readonly PublicBlogContentBlock[] }) {
-  return <>{blocks.map(renderContentBlock)}</>;
+export function BlogContent({ blocks, articleUrl }: { blocks: readonly PublicBlogContentBlock[]; articleUrl?: string }) {
+  return <>{blocks.map((block, index) => renderContentBlock(block, index, articleUrl))}</>;
 }
 
-function renderContentBlock(block: PublicBlogContentBlock, index: number): ReactNode {
+function renderContentBlock(block: PublicBlogContentBlock, index: number, articleUrl?: string): ReactNode {
   if (block.type === "diagram") {
     return (
       <figure
@@ -45,7 +46,7 @@ function renderContentBlock(block: PublicBlogContentBlock, index: number): React
       >
         {block.items.map((item, itemIndex) => (
           <li className="min-w-0 wrap-anywhere [&>ol]:mt-2 [&>ul]:mt-2 [&>:first-child]:mt-0" key={itemIndex}>
-            {item.map(renderContentBlock)}
+            {item.map((child, childIndex) => renderContentBlock(child, childIndex, articleUrl))}
           </li>
         ))}
       </List>
@@ -58,7 +59,7 @@ function renderContentBlock(block: PublicBlogContentBlock, index: number): React
         className="mt-5 min-w-0 border-l-2 border-[#5865f2] pl-4 wrap-anywhere [&>:first-child]:mt-0"
         key={index}
       >
-        {block.children.map(renderContentBlock)}
+        {block.children.map((child, childIndex) => renderContentBlock(child, childIndex, articleUrl))}
       </blockquote>
     );
   }
@@ -129,6 +130,7 @@ function renderContentBlock(block: PublicBlogContentBlock, index: number): React
         >
           <span aria-hidden="true">#</span>
         </a>
+        {articleUrl && <BlogLinkCopy href={`${articleUrl}#${encodeURIComponent(block.id)}`} label="소제목 주소 복사" />}
       </Heading>
     );
   }

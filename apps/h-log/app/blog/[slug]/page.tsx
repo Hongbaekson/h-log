@@ -13,6 +13,7 @@ import { ProjectPostLinks } from "@/components/portfolio/ProjectPostLinks";
 import { getPublicProjectPostConnections } from "@/lib/portfolio-posts";
 import { Container } from "@/components/ui";
 import { BlogTagLink } from "@/components/blog/BlogTagLink";
+import { BlogLinkCopy } from "@/components/blog/BlogLinkCopy";
 import {
   getPublicBlogPostBySlug,
   getPublicBlogPostNavigation,
@@ -121,6 +122,10 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
               {publicationDate ? <>발행 <time dateTime={publicationDate}>{formatPublicBlogDate(publicationDate)}</time></> : "발행일 미기록"} ·{" "}
               {formatPublicBlogArticleMode(post.articleMode)}
             </p>
+            <div className="mt-3 text-sm text-slate-400">
+              <a className="rounded-sm underline underline-offset-4 hover:text-[#b6bdff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b6bdff]" href={postUrl}>글 주소</a>
+              <BlogLinkCopy href={postUrl} label="글 주소 복사" />
+            </div>
           </div>
         </Container>
       </section>
@@ -147,7 +152,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
               <article
                 className="min-w-0 border-y border-slate-700/80 py-8 text-[17px] leading-8 text-slate-300 wrap-anywhere [&_code]:rounded-md [&_code]:bg-slate-950/70 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-cyan-100 [&_figure]:my-8 [&>h1]:sr-only [&_h2]:mt-12 [&_h2]:text-2xl [&_h2]:leading-snug [&_h2]:font-bold [&_h2]:tracking-normal [&_h2]:text-white md:[&_h2]:text-[28px] [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:leading-snug [&_h3]:font-bold [&_h3]:text-white [&_p]:mt-5 [&>:first-child]:mt-0 [&>h1:first-child+*]:mt-0"
               >
-                <BlogContent blocks={post.contentBlocks} />
+                <BlogContent blocks={post.contentBlocks} articleUrl={postUrl} />
               </article>
 
               {post.editorial && <EditorialNotes note={post.editorial} />}
