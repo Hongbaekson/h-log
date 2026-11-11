@@ -4,7 +4,7 @@
 
 pending — 2026-11-05 계획 등록. R5 / 관리자 재검토와 통합 검수: 소유자 재검토 목록. 아직 구현/실행하지 않았다.
 
-R5 Step 0 완료.
+2026-11-12 R5 Step 0 완료. [수동 재검토 계약](../../.codex/docs/harness/KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md#r5-manual-review-contract)과 [ADR-044](../../.codex/docs/harness/ADR.md#adr-044)를 구현 기준으로 사용한다.
 
 ## 읽을 파일
 
@@ -32,6 +32,16 @@ R5 Step 0 완료.
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/.codex/rules/frontend.md`
 - `apps/h-log/.codex/docs/harness/UI_GUIDE.md`
+- `apps/h-log/migrations/004_brain_capture.sql`
+- `apps/h-log/migrations/006_brain_admin_commands.sql`
+- `apps/h-log/migrations/010_blog_automation_policy.sql`
+- `apps/h-log/scripts/blog-migrations.mjs`
+- `apps/h-log/scripts/blog-migrations.integration.test.mjs`
+- `apps/h-log/lib/brain-postgres-repository.integration.test.ts`
+- `apps/h-log/lib/blog-admin-operations.ts`
+- `apps/h-log/lib/brain-server.ts`
+- `apps/h-log/lib/blog-editorial.ts`
+- `apps/h-log/.codex/docs/harness/CURRENT_CLAIMS_INVENTORY.md`
 
 ## 범위와 산출물
 
@@ -43,6 +53,14 @@ R5 Step 0 완료.
 2. 검토 확인은 해당 버전에만 적용하고 내용 수정 시 재확인 대상으로 돌아오게 한다. 명령 revision·감사 transaction·같은 명령 재확인과 충돌 안내를 기존 패턴에 맞춘다.
 3. 조회 실패·정상 빈 목록·미검토를 구분하고 페이지 크기/조회량을 제한한다. 공개 화면·검색·사이트맵에는 admin 상태·메모가 나오지 않게 한다.
 4. R2 대장의 현재성 불일치 후보를 수동 검수해 원고/Portfolio/Resume의 변경 필요 목록을 갱신한다. 확인 버튼은 원문 수정이나 공개/철회 명령을 수행하지 않는다.
+
+## Step 0에서 확정한 구현 경계
+
+- 새 테이블 `brain_note_reviews`와 `review` 명령은 이 단계에서 처음 구현한다. 현재 immutable `(note_id, revision)`만 확인하며 원문/공개 사본·updated_at은 바꾸지 않는다. 기존 UUID fingerprint/receipt는 보존한다.
+- 기존 records GET의 `view=review` 분기를 서버 필터·id cursor·20개/다음 cursor·3초 timeout으로 구현한다. 기존 전체 목록/원문 history의 제한 조회는 F6를 다시 완료 처리하지 않는다.
+- 새 action CHECK는 기존 enum을 보존하며 확장한다. Brain action 타입/이력·공통 감사 한국어 label과 migration inventory/upgrade/복구 검증을 함께 수정한다. 원문·메모는 공통 감사/공개 응답에 넣지 않는다.
+- 미저장/결과 미확인 잠금, 같은 명령 재확인, 과거 revision·확인 날짜 구분과 공개 불변을 구현한다. 추가 페이지·서비스·AI·자동 만료/알림은 만들지 않는다.
+- R2-C01–C05 변경 필요 목록은 근거를 읽은 범위에서만 갱신한다. 관리자의 확인 버튼을 공개 검증일이나 실제 사건/운영 확인의 증거로 쓰지 않는다.
 
 ## 인수 기준
 

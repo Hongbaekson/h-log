@@ -558,3 +558,7 @@ F2는 기존 read path의 불필요 계산을 먼저 줄이고 F3는 재생성 �
 ## 블로그 글·소제목 주소 복사 — R4 Step 2
 
 `app/blog/[slug]/page.tsx`의 기존 `postUrl`을 `BlogLinkCopy`와 `BlogContent.articleUrl`로 전달한다. `BlogContent`는 서버 렌더러를 유지하고 중첩 블록에도 URL을 넘긴다. 각 H2/H3는 기존 ID를 encodeURIComponent해 붙이며 # 이동 anchor를 보존한다. `BlogLinkCopy`만 Clipboard API·상태를 가진 client component다. 기존 hydration 패턴으로 JS OFF에는 버튼을 숨기고 오류 시 canonical 링크를 제공한다. 관리자 caller는 articleUrl을 전달하지 않아 공유 UI를 추가하지 않는다. 별도 URL builder·의존성·SDK·API·DB 변경은 없다. `scripts/blog-link-copy.browser-check.mjs`에서 실제 UI와 클립보드·오류·hash 동작을 검사한다. [검수 결과](BLOG_LINK_COPY_REVIEW.md).
+
+## 수동 재검토 예정 구조 — R5 Step 0 계약, 미구현
+
+2026-11-12 [ADR-044](ADR.md#adr-044)와 [R5 계약](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md#r5-manual-review-contract)을 확정했다. 후속 Step 1은 기존 `/admin/brain`·`brain-capture-http`·`createBrainRepository`를 재사용해 `review` 명령과 제한 조회 분기를 넣는다. 기존 PostgreSQL에 버전 FK를 가진 `brain_note_reviews`만 추가하며 commandRevision·admin_actions와 한 transaction으로 쓴다. 조회 상태는 불변 원문과 확인 이력에서 계산한다. 공개 loader/DTO·Blog editorial은 바꾸지 않는다. 새 migration·action label·inventory/upgrade/복구 검증과 UI는 후속 구현 대상이며 현재 runtime에 존재한다고 표시하지 않는다.

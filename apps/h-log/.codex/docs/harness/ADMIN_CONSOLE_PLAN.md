@@ -1,5 +1,7 @@
 # H-Log 통합 관리자 계획
 
+2026-11-12 R5 Step 0 `manual-review-contract` 완료. [수동 재검토 계약](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md#r5-manual-review-contract)과 ADR-044에 DB 현재 revision의 대상·질문/관계/수동 지정·미검토/확인 필요/확인 완료, 날짜 분리, append-only 확인 이력, UUID/감사 원자성·기존 fingerprint 호환과 20개 제한 조회를 확정했다. 문서/JSON과 경로·링크·상태만 검증했으며 앱·UI·migration·DB는 변경하지 않았다. **R completed 12·pending 2, 다음은 R5 Step 1 `owner-review-queue`**다. F 22개 pending, 기존 Brain UI·Home 레이더·운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-06 [성능 F6/F7 계획](PERFORMANCE_REBUILD_PLAN.md)을 등록했다. 관리자 Brain 목록/이력의 제한 조회, 긴 입력의 미리보기 계산 분리, 자산 검증과 파생 이미지, DB 대기/비공개 성능 관측을 pending 후속으로 다룬다. 기존 A 단계의 운영 인계 순서는 본문의 gate를 따른다.
 
 2026-11-06 R1 Step 2 `owner-provenance-editor` 완료: `/admin/brain`에서 출처·작성자 질문을 추가·수정·삭제하고 공개 사본과 같은 내용으로 미리 볼 수 있다. 오류 뒤 입력 보존·응답 유실 재확인·이전 기록 편집·공개/철회를 production/dev 1440/390/320px와 JS ON/OFF로 검수했다. **R1 3개 step 완료**, R 트랙은 completed 3·pending 11이다. **다음은 R2 Step 0 `current-claims-inventory`**다. 단위 283 pass/27 DB skip, 관련 DB 3/3·HTTP 1/1, source lint/typecheck/build 통과. 전체 lint의 기존 private helper 오류 10건은 남아 있다. 공개 Brain UI·Home 레이더, AI 질문·답변 제외, 운영 보류와 SEO/A/모니터링 상태는 유지한다. 상세: [기록·탐색 개선 계획](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md).

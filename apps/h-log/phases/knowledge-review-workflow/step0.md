@@ -2,9 +2,9 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-05 계획 등록. R5 / 관리자 재검토와 통합 검수: 재검토 대상과 확인 기록 계약. 아직 구현/실행하지 않았다.
+completed — 2026-11-12 [수동 재검토 계약](../../.codex/docs/harness/KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md#r5-manual-review-contract)과 [ADR-044](../../.codex/docs/harness/ADR.md#adr-044)를 확정했다. 문서/JSON 전용이며 runtime 구현은 Step 1이다.
 
-2026-11-11 R1–R4 완료. R2의 근거 대장과 R3 연결 계약, [R4 링크 복사 검수](../../.codex/docs/harness/BLOG_LINK_COPY_REVIEW.md)를 참고한다. 다음 작업은 이 Step 0의 수동 재검토 계약이다.
+2026-11-11 R1–R4 완료. R2의 근거 대장과 R3 연결 계약, [R4 링크 복사 검수](../../.codex/docs/harness/BLOG_LINK_COPY_REVIEW.md)를 참고한다. Step 0은 이 계약을 확정했고 다음은 Step 1의 구현이다.
 
 ## 읽을 파일
 
@@ -70,6 +70,14 @@ git diff --check
 - 회사 Wiki·내부 식별자·확인되지 않은 감정/성과를 자료 수집이나 공개 노드로 채우지 말 것. 출처와 본인 확인이 있는 범위만 다룬다.
 - 계획 등록을 운영 배포·실제 발행·DNS/TLS·provider·timer·외부 알림 승인으로 해석하지 말 것. 기존 운영 보류가 유지된다.
 - 방문자 AI·댓글·공개 통계·새 도메인·별도 그래프/서비스를 추가하지 말 것. 이번 개선 단위와 관계없다.
+
+## 완료 기록 — 2026-11-12
+
+- 기준 commit `b9db296307665cdabf6aa24ccbab361b8f74184a`의 Brain draft/curation/repository/HTTP/편집기, owner 인증, Blog editorial/검토, migrations 003/004/006/010/012와 migration runner·공통 감사 조회를 대조했다.
+- 대상은 DB 현재 원문 revision이며 정적 카탈로그/Blog/Portfolio/Resume는 기존 R2 대장을 사용한다. 질문·양방향 관계 없음·직접 지정·버전 변경을 이유로 구분하고 날짜만으로 만료시키지 않는다.
+- 비공개 append-only 확인 이력, 새 버전 확인 미승계, 날짜 의미, review 명령의 원자적 감사/중복 receipt·기존 fingerprint 호환, 20개 서버 제한 조회·3초 timeout·공개 경계를 확정했다.
+- 문서 11개와 phase JSON 61개를 파싱하고 변경 링크·읽을 파일 존재·다른 phase 상태·문서 전용 범위·`git diff --check`를 검사했다. 결과와 명령은 Git/Docker 제외 `private/r5-contract-2026-11-12/`에 남겼다.
+- 앱 코드·schema·DB·UI·원문·실제 발행은 변경하지 않았다. 문서 전용이므로 TDD/runtime test·build·브라우저·migration 실행은 이번 단계의 검증에 포함하지 않았다. R completed 12/pending 2, F 22개 pending과 운영 보류를 유지한다.
 
 ## 다음 단계
 

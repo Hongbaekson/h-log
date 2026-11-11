@@ -1,5 +1,7 @@
 # H-Log Second Brain
 
+2026-11-12 R5 Step 0 `manual-review-contract` 완료. [수동 재검토 계약](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md#r5-manual-review-contract)과 ADR-044에 DB 현재 revision의 대상·질문/관계/수동 지정·미검토/확인 필요/확인 완료, 날짜 분리, append-only 확인 이력, UUID/감사 원자성·기존 fingerprint 호환과 20개 제한 조회를 확정했다. 문서/JSON과 경로·링크·상태만 검증했으며 앱·UI·migration·DB는 변경하지 않았다. **R completed 12·pending 2, 다음은 R5 Step 1 `owner-review-queue`**다. F 22개 pending, 기존 Brain UI·Home 레이더·운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-11 R4 Step 2 `article-and-section-link-copy` 완료. 글 상단과 기존 H2/H3에 공개 canonical 주소 복사를 추가했다. 검색 query·관리자 주소를 제외하고 기존 한글/중복 heading ID와 # 이동을 보존한다. 복사 성공·실패를 한국어로 알리며 실패 시 일반 링크를 직접 복사할 수 있다. [검수 결과](BLOG_LINK_COPY_REVIEW.md)에 브라우저 RED 12표본→production/dev GREEN 24표본, 가까운 단위 49/49·전체 294 pass/28 DB skip·DB 2/2·source lint/typecheck/build를 기록했다. 기본 lint의 기존 private 오류 10개와 build 경고 2개는 남아 있다. **R4 전체 완료, R completed 11·pending 3, 다음은 R5 Step 0 `manual-review-contract`**다. F 22개 pending·승인된 Brain UI·Home 레이더·운영 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.
 
 2026-11-11 R4 Step 1 `navigable-tag-badges` 완료. 일반 목록·검색 결과·상세의 태그 배지를 기존 필터 URL로 연결했다. 검색 결과는 제출한 검색어를 유지하고 1페이지로 이동하며 상세는 태그 일반 목록으로 이동한다. [검수 결과](BLOG_TAG_NAVIGATION_REVIEW.md)에 실제 브라우저 RED 15표본→production/dev GREEN 30표본, 단위 294 pass/28 DB skip·DB 2/2·source lint/typecheck/build를 기록했다. 기본 lint의 기존 private 오류 10개와 build 경고 2개는 남아 있다. **R completed 10·pending 4, 다음은 R4 Step 2 `article-and-section-link-copy`**다. F 22개 pending·승인된 Brain UI·Home 레이더·운영 보류는 유지한다. 아래 날짜별 기록은 당시 상태다.

@@ -1,6 +1,6 @@
 # H-Log 기록·탐색 개선 계획
 
-등록일: 2026-11-05. Zerry/Memory 재조사 후 사용자가 개선 방향의 phase/step 등록과 커밋·푸시를 요청했다. **R1–R5: 5개 phase / 14개 step**이다. 2026-11-11 R4 Step 2까지 완료해 **completed 11·pending 3**이다. R1의 계약·저장·관리자 입력, R2의 [근거 대장](CURRENT_CLAIMS_INVENTORY.md)·[원고 검수](EVIDENCE_CASE_MANUSCRIPT_REVIEW.md)·[기록 후보](BRAIN_PRINCIPLE_DRAFT_REVIEW.md)를 준비했으며 [현재 공개 출처 연결](PUBLISHED_BRAIN_SOURCE_REVIEW.md)도 구현했다. [편집된 읽기 경로](CURATED_READING_PATH_REVIEW.md)의 준비·격리 검수도 완료했으며 [태그 대표 표기와 별칭](BLOG_TAG_ALIAS_REVIEW.md)도 적용했다. [태그 배지 탐색](BLOG_TAG_NAVIGATION_REVIEW.md)과 [글·소제목 주소 복사](BLOG_LINK_COPY_REVIEW.md)까지 완료했으며 다음은 R5 Step 0의 수동 재검토 계약이다. 계획 등록을 기능 구현이나 콘텐츠 발행 완료로 표시하지 않는다. 상태의 source of truth는 [전체 레지스트리](../../../phases/index.json)와 각 phase index다.
+등록일: 2026-11-05. Zerry/Memory 재조사 후 사용자가 개선 방향의 phase/step 등록과 커밋·푸시를 요청했다. **R1–R5: 5개 phase / 14개 step**이다. 2026-11-12 R5 Step 0까지 완료해 **completed 12·pending 2**이다. R1의 계약·저장·관리자 입력, R2의 [근거 대장](CURRENT_CLAIMS_INVENTORY.md)·[원고 검수](EVIDENCE_CASE_MANUSCRIPT_REVIEW.md)·[기록 후보](BRAIN_PRINCIPLE_DRAFT_REVIEW.md)를 준비했으며 [현재 공개 출처 연결](PUBLISHED_BRAIN_SOURCE_REVIEW.md)도 구현했다. [편집된 읽기 경로](CURATED_READING_PATH_REVIEW.md)의 준비·격리 검수도 완료했으며 [태그 대표 표기와 별칭](BLOG_TAG_ALIAS_REVIEW.md)도 적용했다. [태그 배지 탐색](BLOG_TAG_NAVIGATION_REVIEW.md)과 [글·소제목 주소 복사](BLOG_LINK_COPY_REVIEW.md)까지 구현했다. [R5 수동 재검토 계약](#r5-manual-review-contract)을 확정했으며 다음은 R5 Step 1의 관리자 목록·확인 구현이다. 계획 등록을 기능 구현이나 콘텐츠 발행 완료로 표시하지 않는다. 상태의 source of truth는 [전체 레지스트리](../../../phases/index.json)와 각 phase index다.
 
 ## 목적과 유지 조건
 
@@ -43,7 +43,7 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 | `brain.ts` / `brain-blog-sources.ts` | Resume/Portfolio 및 현재 공개 Blog 참조, 서버 공개 응답 투영과 역방향 연결 | R3 Step 0/1 완료. 후보 읽기 경로·격리 검수 완료, 실제 발행 별도 |
 | `blog-public`, `blog-search`, `blog-search-ui` | 목록·검색·필터·개수·URL 복원, 명시 태그 별칭·공통 투영 | R4 Step 0–2 완료 |
 | `BlogPostRow`, Blog 상세, `BlogContent` | 태그 배지, 목차와 고유 heading # anchor, 코드 복사 | R4 태그 탐색·canonical 주소 복사 완료 |
-| admin Brain | 검색·정렬·회고 및 출처·질문 작성/미리보기 가능. R1 완료 | R5 버전에 묶인 수동 검토와 다시 찾기 |
+| admin Brain | 검색·정렬·회고 및 출처·질문 작성/미리보기 가능. R1 완료 | R5 Step 0 계약 확정. 목록·확인은 Step 1에서 구현 |
 
 ## Phase / Step
 
@@ -60,19 +60,19 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 | R4 [blog-tag-and-link-polish](../../../phases/blog-tag-and-link-polish/index.json) | 0 | [태그 대표 표기와 별칭](../../../phases/blog-tag-and-link-polish/step0.md) | completed |
 | R4 [blog-tag-and-link-polish](../../../phases/blog-tag-and-link-polish/index.json) | 1 | [기존 태그 배지를 탐색 링크로](../../../phases/blog-tag-and-link-polish/step1.md) | completed |
 | R4 [blog-tag-and-link-polish](../../../phases/blog-tag-and-link-polish/index.json) | 2 | [글·소제목 주소 복사](../../../phases/blog-tag-and-link-polish/step2.md) | completed |
-| R5 [knowledge-review-workflow](../../../phases/knowledge-review-workflow/index.json) | 0 | [재검토 대상과 확인 기록 계약](../../../phases/knowledge-review-workflow/step0.md) | pending |
+| R5 [knowledge-review-workflow](../../../phases/knowledge-review-workflow/index.json) | 0 | [재검토 대상과 확인 기록 계약](../../../phases/knowledge-review-workflow/step0.md) | completed |
 | R5 [knowledge-review-workflow](../../../phases/knowledge-review-workflow/index.json) | 1 | [소유자 재검토 목록](../../../phases/knowledge-review-workflow/step1.md) | pending |
 | R5 [knowledge-review-workflow](../../../phases/knowledge-review-workflow/index.json) | 2 | [연결·공개 경계 로컬 통합 검수](../../../phases/knowledge-review-workflow/step2.md) | pending |
 
 ## 실행 순서와 다른 트랙
 
 1. 2026-11-05 기존 SEO S3 Step 0의 [로컬 SEO 릴리스 검수](SEO_RELEASE_REVIEW.md)를 완료했다. 새 R 트랙의 구현을 완료했다는 뜻은 아니다.
-2. 2026-11-11 R4 전체 완료. **다음 로컬 작업은 R5 Step 0 `manual-review-contract`**다. 기본 순서는 R1 → R2 → R3 → R4 → R5다.
+2. 2026-11-12 R5 Step 0 계약 완료. **다음 로컬 작업은 R5 Step 1 `owner-review-queue`**다. 기본 순서는 R1 → R2 → R3 → R4 → R5다.
 3. R2 자료 정리와 R4는 R1 구현/개인 경험 확인에 기술적으로 종속되지 않는다. 필요한 자료가 없을 때 독립 작업을 진행할 수 있으며 실행한 step과 순서 변경 이유를 기록한다. R3는 R1의 출처 계약과 R2의 검수 후보를 사용한다.
 4. R5의 로컬 통합 검수는 새 트랙의 추가 회귀다. S3 Step 0의 기존 SEO 기준선을 취소하거나 완료된 단계를 다시 pending으로 만들지 않는다.
 5. S3 Step 1/2의 실제 도메인·계정·측정 조건은 그대로다. **운영 모니터링 Step 7 → 관리자 A3 Step 4 → timer** 순서와 OCI 보류를 유지한다. R 트랙은 운영 보류 해제를 기다리지 않고 격리 로컬에서 준비할 수 있다.
 
-R 등록 당시 전체는 53개 phase / 187개 step이었다. 2026-11-06 [성능 F1–F7](PERFORMANCE_REBUILD_PLAN.md)의 pending 22개 step을 더해 전체는 60개 phase / 209개 step이다. 기존 콘텐츠 트랙의 다음은 R5 Step 0이고 성능 트랙의 시작은 F1 Step 0이다. S3 Step 0 완료 후 SEO는 9 completed/1 pending/1 blocked다. 관리자 A 16/0/1, 모니터링 7/0/1의 상태는 바꾸지 않는다. R1/R5의 admin 후속은 별도 R 트랙이며 기존 A 트랙을 다시 열지 않는다.
+R 등록 당시 전체는 53개 phase / 187개 step이었다. 2026-11-06 [성능 F1–F7](PERFORMANCE_REBUILD_PLAN.md)의 pending 22개 step을 더해 전체는 60개 phase / 209개 step이다. 기존 콘텐츠 트랙의 다음은 R5 Step 1이고 성능 트랙의 시작은 F1 Step 0이다. S3 Step 0 완료 후 SEO는 9 completed/1 pending/1 blocked다. 관리자 A 16/0/1, 모니터링 7/0/1의 상태는 바꾸지 않는다. R1/R5의 admin 후속은 별도 R 트랙이며 기존 A 트랙을 다시 열지 않는다.
 
 ## R1 계약 — 2026-11-06 Step 0–2 완료
 
@@ -226,3 +226,114 @@ Step 1은 parser/public projection 단위 RED부터 시작해 기존 `npm run te
 ## R4 Step 2 완료 — 2026-11-11
 
 글 주소와 기존 소제목 주소를 서버 canonical 기준으로 복사한다. 실패/미지원 때는 직접 복사 링크를 제공하며 기존 # 탐색과 관리자 미리보기, 목차·원문을 보존했다. 실제 클립보드 및 실패 처리·JS ON/OFF·세 폭의 production/dev 24표본과 단위/격리 DB 검증을 통과했다. [검수 결과](BLOG_LINK_COPY_REVIEW.md). R4 전체 완료, R completed 11/pending 3이며 다음은 R5 Step 0이다.
+
+<a id="r5-manual-review-contract"></a>
+
+## R5 수동 재검토 계약 — 2026-11-12 Step 0
+
+**계약 확정이며 아직 구현하지 않았다.** 아래 저장·조회·명령은 R5 Step 1의 구현 기준이다. 기준 commit은 `b9db296307665cdabf6aa24ccbab361b8f74184a`다. 앱 코드·schema·운영 데이터는 이 단계에서 변경하지 않는다. 결정 근거는 [ADR-044](ADR.md#adr-044)와 다음 실제 호출 경로다.
+
+| 현재 코드 | 확인한 경계와 후속 변경 |
+| --- | --- |
+| [Brain 입력](../../../lib/brain-capture.ts), [공개 사본](../../../lib/brain-curation.ts) | `sources/questions`는 draft의 선택 필드다. 질문별 해결 상태·자료 날짜·수동 확인 기록은 없다. 공개 DTO에 재검토 필드를 넣지 않는다 |
+| [저장소](../../../lib/brain-postgres-repository.ts), [004](../../../migrations/004_brain_capture.sql)·[006](../../../migrations/006_brain_admin_commands.sql) | `(note_id, revision)`의 원문 이력은 불변이다. 명령 UUID 예약→note 잠금→revision/commandRevision 비교→상태와 감사 commit을 재사용한다 |
+| [관리자 페이지](../../../app/admin/brain/page.tsx), [편집기](../../../components/brain/BrainCapture.tsx), [HTTP](../../../lib/brain-capture-http.ts) | 기존 목록·원문 이력은 전체 조회, 감사 이력은 최근 20개다. 새 재검토 목록만 제한 조회로 추가하며 기존 전체 목록/이력 개선은 [F6 Step 0](../../../phases/owner-asset-performance/step0.md)로 남긴다 |
+| [owner 인증](../../../lib/admin-owner.ts), [Brain 인증](../../../lib/brain-owner.ts) | 관리자 flag·키·Host/Origin·Brain DB flag와 private/no-store 헤더를 그대로 사용한다 |
+| [Blog editorial](../../../lib/blog-editorial.ts), [Blog 검토](../../../lib/blog-admin-review.ts) | 공개 검증일/수정일은 작성자가 정한 메타데이터다. 관리자 검토의 버전/hash 및 자료 수집 시각과 같은 의미가 아니다 |
+| [감사 조회](../../../lib/blog-admin-operations.ts), [migration runner](../../../scripts/blog-migrations.mjs) | 새 `review` action의 한국어 label과 테이블 inventory를 후속 구현에서 함께 갱신한다. 감사 화면에 짧은 비공개 메모를 복제하지 않는다 |
+
+### 대상과 다시 찾는 이유
+
+쓰기 대상은 기존 `/admin/brain`에서 저장한 **DB 기록의 현재 revision**이다. 공개 여부와 무관하다. 미저장 입력·과거 revision·현재와 다른 공개 revision에는 확인 명령을 실행하지 않는다. 정적 카탈로그와 Blog/Portfolio/Resume를 일반화한 통합 CMS는 만들지 않는다. 이 자료들의 현재성 문제는 [R2 대장](CURRENT_CLAIMS_INVENTORY.md)의 ID와 파일/commit·기존 hash를 기준으로 수동 인계한다.
+
+| 이유 코드 | 조건 | 의미와 한계 |
+| --- | --- | --- |
+| `questions` | 현재 draft의 `questions`가 비어 있지 않음 | 기존 문자열은 모두 ‘남겨 둔 질문’이다. 확인 클릭이 질문을 해결/삭제하지 않으며, 해결 내용을 적거나 질문을 정리할 때는 기존 편집/새 버전을 사용한다 |
+| `unlinked` | 현재 기록에 유효한 Brain 관계가 하나도 없음 | 현재 DB draft와 서버의 공개 정적 카탈로그를 기준으로 **들어오는 관계와 나가는 관계 모두** 검사한다. 존재하는 다른 기록을 향한 `links`/catalog edge만 센다. 과거 버전의 관계·자기 자신·없는 대상은 제외하며 `sources`의 외부/Blog URL은 그래프 관계로 세지 않는다 |
+| `manual` | 현재 revision의 마지막 확인 결과가 `needs_review` | 작성자가 특정 출처·주장 등을 다시 보기로 지정했다. 짧은 메모로 대상을 적으며 변동 가능한 sources 배열 index를 별도 식별자로 저장하지 않는다 |
+| `version_changed` | 이전 revision에 확인 이력이 있지만 현재 revision에는 없음 | 같은 텍스트를 새로 저장한 경우도 별도 버전이다. 제목·질문·출처·관계 등을 포함한 새 저장에 과거 확인을 승계하지 않는다 |
+
+이유는 중복될 수 있고 오류/정확도 점수가 아니다. 날짜가 오래됐거나 공개되지 않았다는 이유만으로 후보를 만들지 않는다. 다른 기록의 관계나 외부 출처 내용이 바뀌었다고 현재 기록의 확인을 자동 취소하지 않는다. 외부 사실의 현재성을 보장하는 기능이 아니므로 필요한 재확인은 작성자가 지정한다.
+
+### 상태와 버전 경계
+
+| 상태 | 현재 revision의 해석 |
+| --- | --- |
+| `unreviewed` / 미검토 | 이 기록의 어느 revision에도 확인 이력이 없음. 기존 레코드와 새 기록의 기본값 |
+| `needs_review` / 확인 필요 | 현재 revision의 마지막 결과가 `needs_review`, 또는 이전 revision의 이력만 있음 |
+| `confirmed` / 확인 완료 | 현재 revision의 마지막 결과가 `confirmed` |
+
+‘마지막’은 기록별 `command_revision` 순서다. 시계·자료 날짜로 순서를 정하지 않는다. `confirmed`는 이 버전을 사람이 확인했다는 기록이며 공개 승인·정확성 인증·실험 재현을 뜻하지 않는다. 확인 후 질문이 남아 있어도 기본 확인 대기 목록에서 제외하고 질문/확인 완료 필터에서는 찾을 수 있다. 같은 버전에 다시 `needs_review`를 남기면 확인 필요로 돌아오며 앞선 확인은 이력에 남는다.
+
+`publish/unpublish`는 commandRevision만 바꾸므로 같은 내용 버전의 확인 결과를 유지한다. 새 `save`는 current revision을 올려 과거 확인을 승계하지 않는다. 공개 v1을 둔 채 비공개 v2를 저장/확인해도 v1 사본이나 공개 날짜는 변하지 않는다. 내용·질문·관계를 고치거나 회고를 잇는 것은 기존 저장 흐름이며 확인 버튼이 대신 실행하지 않는다.
+
+### 날짜는 서로 바꾸어 쓰지 않는다
+
+| 값 | 출처와 의미 |
+| --- | --- |
+| 정리일 `recordedAt` | DB 기록의 최초 `created_at`을 Seoul 날짜로 표시하는 기존 규칙. 새 확인일로 덮어쓰지 않음 |
+| 사건일 `occurredOn` | 작성자가 아는 사건 날짜. 없으면 미상이며 생성/저장/확인 시각에서 추정하지 않음 |
+| 자료 날짜 | 출처가 명시한 발행/수정/측정 날짜. 현 sources에는 구조화된 날짜 필드가 없으므로 이번 기능에서 파싱하거나 채우지 않음. Blog `fetchedAt`은 수집 시각일 뿐 |
+| 확인 이력 시각 `recorded_at` | 서버 DB transaction 시각으로 저장하는 명령 처리 시각. 클라이언트가 보내지 못하며 표시만 Asia/Seoul로 변환 |
+| 실제 확인 표시 `checkedAt` | 결과가 `confirmed`인 해당 이력의 `recorded_at`. `needs_review`를 지정한 시각을 실제 확인일로 표시하지 않음. 사람이 검토를 시작한 시각이나 외부 검증일을 추정하지 않음 |
+| Blog 공개 `verification.checkedOn` / `revisions[].revisedOn` | 공개용 작성 계약 유지. Brain 재검토 클릭으로 생성·갱신하거나 새로운 근거로 간주하지 않음 |
+
+### 최소 저장 계약
+
+R5 Step 1에서 기존 PostgreSQL에 **append-only `brain_note_reviews` 한 테이블**을 추가한다. 현재 마지막 migration은 012이며 다음 순번은 구현 시 live 목록에서 확인한다. 기존 draft JSON·공개 사본·원문 이력에 검토 상태를 섞지 않는다.
+
+| 열 | 계약 |
+| --- | --- |
+| `note_id`, `revision` | `brain_note_versions(note_id, revision)`을 참조하는 복합 FK. 해당 버전을 특정하므로 추가 content hash를 생성하지 않음 |
+| `command_revision` | 확인 명령 성공 후의 기록별 command revision. `(note_id, command_revision)`을 PK로 사용 |
+| `command_id` | 기존 owner command UUID, unique. 같은 transaction의 `admin_actions`와 대조할 식별자. 별도 FK로 공통 감사 정리 흐름을 결합하지 않음 |
+| `result` | `needs_review` 또는 `confirmed` |
+| `memo` | 비공개 plain text, 원래 입력 최대 500 UTF-16 code units, NUL 금지. `needs_review`는 공백 아닌 이유 필수, `confirmed`는 빈 문자열 허용. parser는 원래 입력을 보존해 fingerprint를 만든다 |
+| `recorded_at` | 서버 transaction 시각, 동일 명령 재확인 때 새 시각을 만들지 않음 |
+
+DB도 result enum·`char_length(memo) <= 500`·비어 있는 지정 사유를 제한한다. UTF-16 단위 상한과 NUL 거부는 입력 parser에서 적용하며 PostgreSQL text의 문자 수와 같은 단위라고 가정하지 않는다. 기존 원문과 같은 방식으로 UPDATE/DELETE를 막고, 취소/재확인은 새 행으로 추가한다. `revision > 0`, `command_revision > 0`, FK·unique와 기존 명령 metadata 검증을 적용한다. 최신 행 조회는 PK의 note prefix와 역순 command revision으로 가능하며, 과거 이력의 내용을 갱신하는 projection을 원본으로 삼지 않는다.
+
+`brain_note_versions`와 `brain_note_reviews`가 원본이며 화면의 상태/후보/최신 확인 요약은 그 값에서 다시 계산한다. 별도 Redis·검색 저장소·스케줄러를 추가하지 않는다. 확인 이력이 없으면 원문 날짜나 감사 성공만으로 confirmed를 복원하지 않는다. 기존 행에는 확인 이력을 backfill하지 않는다. 이력은 기존 DB backup/restore에 함께 포함하고 자동 만료/삭제를 하지 않는다. 조회량 제한과 원본 보존 기간은 별개다.
+
+### 명령과 동시성
+
+기존 `POST /admin/brain/records`에 `action: "review"` 하나를 추가한다. 입력은 `action`, `id`, 현재 `revision`, `commandId`, 현재 `commandRevision`, `review: { result, memo }`뿐이다. 알 수 없는 키·잘못된 타입·범위·NUL은 400으로 거부한다. `draft`, `confirmed`, 사용자 시각, publish 지시는 받지 않는다. 성공 receipt는 기존 `{ id, revision, commandRevision }`를 유지하며 revision은 같고 commandRevision만 1 증가한다.
+
+1. repository 접근 전에 기존 owner 인증과 Brain flag를 검사한다. POST의 정확한 Host/Origin·JSON 본문/256 KiB 상한·no-store와 고정 오류 envelope를 유지한다.
+2. `admin_actions`의 owner UUID 고유 키로 예약한다. 새 review fingerprint는 action/id/revision/commandRevision/review의 정렬된 객체 키와 원래 메모를 포함한다. **기존 save/publish/unpublish fingerprint의 키·값·직렬화는 변경하지 않는다.** 배포 전 명령의 재전송도 같은 receipt를 받아야 한다.
+3. 중복 UUID와 같은 fingerprint는 저장된 receipt로 종료한다. 서로 다른 내용/대상/작업이면 `command_conflict`(409)다. 중복 확인은 현재 revision 검사보다 먼저 처리하되 UI는 receipt를 현재 상태로 오해하지 않고 기록/목록을 다시 읽는다.
+4. 새로운 명령은 `brain_notes FOR UPDATE` 뒤 현재 revision과 commandRevision을 비교한다. 다른 저장/공개/확인과 경합하면 기존 `revision_conflict` 또는 `command_revision_conflict`(409)로 종료한다. 없는 대상은 404다.
+5. 확인 행 추가·명령 revision 증가·감사를 한 transaction으로 commit한다. 감사 action은 `review`, target은 기존 `brain_note`다. reason은 `manual_review_requested` 또는 `manual_review_confirmed` 고정 코드이며 원문·출처 전문·메모는 감사/receipt에 넣지 않는다. 어느 한 쓰기라도 실패하면 UUID 예약을 포함해 전부 rollback한다.
+
+확인 명령은 `current_revision`, `published_revision`, `public_node`, 원문/버전, `brain_notes.updated_at`을 변경하지 않는다. 따라서 기존 저장/공개 정렬 시각도 확인 클릭으로 흔들리지 않는다. 새 action은 migration의 기존 action CHECK 목록을 **보존하며 확장**하고 Brain actions 타입·이력 한국어 label·공통 감사 action label에도 반영한다.
+
+UI는 미저장 변경·미저장 새 기록·다른 진행/결과 미확인 명령이 있을 때 확인 명령을 잠근다. 결과 유실/503은 같은 payload와 UUID로 재확인하고, 충돌 뒤 자동으로 새 revision을 승인하지 않는다. 기존 pendingCommand·중복 클릭 잠금·미저장 이탈 안내를 재사용한다. 메모 수정과 확인 결과 변경도 명시적 새 명령이다.
+
+### 제한 조회와 공개 경계
+
+`GET /admin/brain/records?view=review` 분기를 추가한다. 기존 `GET` 전체 목록과 `?id=...` 상세 응답의 의미는 유지한다. 새 분기에서 `status=attention|unreviewed|needs_review|confirmed|all`, `reason=all|questions|unlinked|manual|version_changed`, `after=<note id>`만 받는다. 기본은 attention/all/첫 페이지이며 중복·알 수 없는 query key, 혼용한 id, 잘못된 enum/cursor는 `invalid_review_query`(400)다.
+
+- attention은 **이유가 1개 이상이고 confirmed가 아닌 기록**이다. 나머지 status는 이름 그대로 전체 현재 기록에서 필터링한다. reason은 그 결과와 교집합이다. 전체/확인 완료 필터로 이전 확인도 다시 찾을 수 있다.
+- SQL에서 이유/상태를 필터링한 뒤 `note_id ASC`, `id > after`, `LIMIT 21`을 적용한다. 응답은 최대 20개와 `nextCursor`이며 전체 count·원문·질문/출처 전문·관계 전체를 보내지 않는다. 제목은 기존 160자 상한, 항목은 id/revision/commandRevision/publishedRevision/이유/상태/최근 확인 시각만 갖는다.
+- current draft·확인 이력·관계의 한 read-only repeatable-read snapshot으로 계산하고 `statement_timeout=3s`를 사용한다. 관계 판정의 scan 비용이 없어지는 것은 아니며 반환량 제한을 DB 작업량의 절대 상한으로 주장하지 않는다. 이유가 있는 행을 메모리로 전부 읽어 slice하는 방식은 쓰지 않는다.
+- 정적 카탈로그는 이미 서버가 가지고 있는 graph만 전달한다. DB 목록 전체를 새 queue 계산용으로 클라이언트에 추가 전송하지 않는다. 안정적인 id cursor를 쓰지만 페이지 사이 수정으로 결과는 바뀔 수 있으므로 새로 조회할 때 cursor를 초기화한다.
+- owner 상세에는 현재 상태와 **최근 확인 이력 20개 + 더 있음 표시**만 추가한다. 원래 원문 history 전체 조회는 F6로 남기며 이미 있던 전체 목록/상세가 제한 조회로 바뀌었다고 주장하지 않는다.
+- 정상 0건, 미검토 기록, 기능 미설정, 저장소/timeout 오류를 구분한다. DB 오류를 빈 목록이나 미검토 성공으로 바꾸지 않는다. error는 기존 `storage_unavailable`(503)로 일반화한다.
+- 공개 `findPublicGraph`는 기존 `public_node`만 읽는다. HTML/RSC·graph·독립 상세·Blog 연결·검색·sitemap에 검토 상태/시각/메모가 나오지 않아야 한다. 메모는 owner 상세에서 escaped text로만 읽으며 일반 감사 화면·console에도 넣지 않는다. no-JS에서는 조회와 기본 탐색만 제공하고 쓰기는 기존 안내를 유지한다.
+
+### R5 Step 1 검증 행렬과 인계
+
+| 검증 | 확인할 결과 |
+| --- | --- |
+| 이전 형식·질문 없음·출처만 있음·단방향 incoming/outgoing·없는 대상 | 기존 payload 보존, 미검토 기본값, 관계 양방향/현재 버전 판정, 질문 이유와 확인 상태 분리 |
+| v1 확인→동일 텍스트 v2 저장→v2 확인→재확인 지정 | v1 이력 불변, v2 확인 필요, 명령 순서에 맞는 결과, 지정 이유 필수 |
+| 공개 v1 + private v2, 공개/철회 후 확인 | 공개 사본·원문·공개 날짜 불변, 같은 내용 revision의 확인 유지, review 명령으로 발행/철회하지 않음 |
+| 중복/동시 동일 UUID, 같은 UUID의 payload 변경, save/publish/review 경합 | 한 이력·한 감사·한 command revision, 기존 receipt, 409, 감사/이력 실패 시 원자적 rollback |
+| 기존 명령 fingerprint·legacy migration·dump/restore | 이전 요청 재확인 호환, 새 테이블/enum 추가 외 원문·사본·감사 보존, 복구 뒤 동일 상태와 이력 |
+| 20개 경계·필터 후 21번째·cursor·조회 실패 | 서버 제한/계속 읽기, 빈 결과와 503 구분, 고정 query timeout, 전체 자료 선로딩 없음 |
+| 인증 OFF/키/Host/Origin/직접 endpoint와 no-store | 조회 전 차단, 쓰기 CSRF 경계, private sentinel이 공개 응답에 없음 |
+| dev/production 1440/390/320px·키보드·JS ON/OFF | 이유→기록→확인→수정 후 다시 확인, 미저장/유실 응답 복구, 기존 Brain UI·Home 레이더 유지 |
+
+구현은 입력/선정 단위 RED에서 시작하고, 기존 Brain repository integration·HTTP·공통 감사 label·migration inventory/upgrade·필요한 복구 검증을 추가한다. 쓰기 대상이 다른 서비스로 확장되는 추상화나 새 AI·예약 알림은 만들지 않는다. R2-C01–C05는 Step 1에서 기존 근거와 현재 코드 범위를 수동 대조해 ‘수정 필요/추가 확인/유지’를 기록한다. 회사 자료나 실제 운영을 확인하지 않고 미확인을 해소하지 않으며, 공개 변경은 별도 검수/선택에 따른다.
+
+Step 0에서는 위 계약과 읽을 파일/상태/링크만 검증했다. runtime 검증·migration 파일 작성/실행·버튼 구현·콘텐츠 확인 완료는 다음 단계다. R completed 12/pending 2, 다음은 **R5 Step 1 `owner-review-queue`**다.

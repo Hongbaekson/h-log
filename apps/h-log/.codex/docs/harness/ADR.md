@@ -529,3 +529,17 @@ DB 전에 실패할 수 있는 인증/생성을 DB 실행 이력만으로 관측
 공개 목록/상세·검색/관련 태그·개수·URL parser/builder와 새 초안 출력 검증이 같은 함수를 사용한다. 원래 입력의 privacy 검사와 현재 공개 버전 선택은 유지한다. 과거 태그 행·post_versions·원문/hash는 변경하지 않는다. 관리자 본문 편집에는 태그 입력이 없으므로 필드를 추가하지 않고 새 초안 생성/저장에서 정규화한다.
 
 태그 별칭 URL은 같은 결과를 읽고 새 링크는 대표 표기를 사용한다. 검색/태그의 noindex와 q/page 복원, 필터 후 페이지 계산을 유지한다. 별도 redirect·색인 route·전역 본문 동의어 검색은 만들지 않는다. 사전 확장은 실제 자료와 결과/개수 동등성 검증을 요구한다. [계약·검수](BLOG_TAG_ALIAS_REVIEW.md).
+
+<a id="adr-044"></a>
+
+## ADR-044: 수동 재검토는 현재 원문 버전에 묶인 비공개 이력으로 둔다
+
+**결정 (2026-11-12, R5 Step 0 계약 / 미구현)**: [R5 계약](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md#r5-manual-review-contract)에 따라 기존 owner·PostgreSQL·Brain 명령 경로를 재사용한다. DB 기록의 현재 `(note_id, revision)`을 대상으로 `needs_review/confirmed` 결과·짧은 비공개 메모·서버 시각을 append-only `brain_note_reviews`에 남긴다. 이 tuple은 불변 원문을 특정하므로 별도 content hash나 범용 다중 콘텐츠 식별자를 추가하지 않는다.
+
+상태와 목록은 원문 버전과 확인 이력에서 계산한다. 원문 JSON/공개 사본에 검토 상태를 저장하거나 공개 Blog 검증일을 확인 클릭으로 갱신하지 않는다. 새 버전에는 이전 확인을 승계하지 않고, 단순히 오래됐다는 이유로 틀렸다고 판단하지 않는다. 질문·현재 양방향 관계 없음·직접 재확인 지정·버전 변경만 수동 탐색의 이유로 쓴다.
+
+새 `review` action은 UUID 예약·note 잠금·내용/명령 revision 비교·확인 행·감사를 같은 transaction으로 처리한다. 기존 action fingerprint와 과거 receipt는 보존한다. 공통 감사에는 고정 reason과 기존 receipt만 남기며 원문/메모를 복제하지 않는다. 새 queue는 서버 필터 후 20개와 id cursor·3초 statement timeout을 사용한다. 기존 전체 목록/원문 history의 제한 조회는 F6이며 완료로 간주하지 않는다.
+
+**선택 이유**: 확인 이력을 draft에 넣으면 단순 검토가 원문 버전을 만들고 공개 가능 필드와 섞인다. 공통 감사 JSON에 메모를 겸용하면 버전 FK·원문 보존·조회 경계가 모호해진다. 전용 작은 이력을 쓰면 과거 확인과 공개 상태를 보존하며 목록을 재계산할 수 있다. 테이블과 action enum·label·backup inventory/upgrade 검증이 추가되는 비용은 R5 Step 1에서 다룬다.
+
+**범위**: 정적 카탈로그·Blog/Portfolio/Resume는 기존 R2 대장으로 수동 인계한다. 범용 CMS·별도 서비스·추가 AI·자동 만료·점수·알림·일정을 만들지 않는다. 이 결정은 migration 작성/적용·화면 구현·실제 검토/발행·운영 보류 해제 완료가 아니다.

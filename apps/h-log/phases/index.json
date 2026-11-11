@@ -234,7 +234,7 @@
     {
       "dir": "knowledge-review-workflow",
       "status": "pending",
-      "summary": "2026-11-05: R5 관리자 재검토와 통합 검수, 3 pending steps. Planning only; see KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md. Preserve the approved Brain UI, radar, public snapshot and operations hold."
+      "summary": "2026-11-12: R5 Step 0 manual-review-contract complete; current-revision targets, reasons/states/dates, private immutable review records, owner command/audit compatibility and bounded queue specified in the R5 plan and ADR-044. Documentation-only verification; Steps 1-2 pending. R completed 12/pending 2; next R5 Step 1 owner-review-queue. No runtime/schema/publication changes; F22, approved Brain UI/radar and operations hold preserved."
     },
     {
       "dir": "operations-observability",

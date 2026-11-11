@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "manual-review-contract",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-12: Manual review contract and ADR-044 defined against live Brain/owner/audit schema: current immutable revision, candidate reasons and date semantics, private append-only review history, legacy command fingerprints, atomic receipts, bounded server queue and public isolation. Documentation/JSON/link/read-path/phase checks passed. No code, schema, DB or UI change; implementation remains R5 Step 1 owner-review-queue. R completed 12/pending 2; F22 and operations hold preserved."
     },
     {
       "step": 1,
