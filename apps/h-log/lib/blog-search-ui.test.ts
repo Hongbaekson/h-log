@@ -27,6 +27,18 @@ const baseResult = {
 } as const;
 
 describe("blog search UI snapshot", () => {
+  it("builds tag destinations with a submitted query, encoded punctuation and a reset page", () => {
+    const submitted = parseBlogBrowseParams({ q: "  공개  조회 + 캐시 ", page: "2" });
+    for (const tag of ["nextjs", "C++ # &?", "조회 경계와 복구를 함께 확인하는 긴 태그".repeat(3)]) {
+      const url = new URL(buildBlogBrowseHref({ ...submitted, tag, page: 1 }), "https://example.com");
+      assert.equal(url.pathname, "/blog");
+      assert.equal(url.searchParams.get("q"), "공개 조회 + 캐시");
+      assert.equal(url.searchParams.get("tag"), tag === "nextjs" ? "Next.js" : tag);
+      assert.equal(url.searchParams.get("page"), null);
+      assert.equal(url.hash, "");
+    }
+  });
+
   it("restores alias URLs to representative tags while preserving query and page", () => {
     const state = parseBlogBrowseParams({ q: "nextjs cache", tag: [" nextjs ", "ignored"], page: "2" });
     assert.deepEqual(state, { query: "nextjs cache", tag: "Next.js", page: 2 });

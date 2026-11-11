@@ -11,7 +11,8 @@ import { BlogBrainLinks } from "@/components/blog/BlogBrainLinks";
 import { getPublicBlogPostSeries } from "@/lib/blog-series";
 import { ProjectPostLinks } from "@/components/portfolio/ProjectPostLinks";
 import { getPublicProjectPostConnections } from "@/lib/portfolio-posts";
-import { Badge, Container } from "@/components/ui";
+import { Container } from "@/components/ui";
+import { BlogTagLink } from "@/components/blog/BlogTagLink";
 import {
   getPublicBlogPostBySlug,
   getPublicBlogPostNavigation,
@@ -107,9 +108,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
           <div className="mt-8 max-w-[46rem]">
             <div className="flex flex-wrap gap-2">
               {post.tags.map((tag) => (
-                <Badge key={tag} tone={tag === "DB" || tag === "OCI" ? "cyan" : "slate"}>
-                  {tag}
-                </Badge>
+                <BlogTagLink key={tag} tag={tag} tone={tag === "DB" || tag === "OCI" ? "cyan" : "slate"} />
               ))}
             </div>
             <h1 className="hero-heading mt-6 break-words text-4xl leading-tight tracking-normal text-white md:text-5xl">

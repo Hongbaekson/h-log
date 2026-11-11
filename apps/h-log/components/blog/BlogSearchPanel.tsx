@@ -186,6 +186,7 @@ function SearchSnapshotView({ snapshot }: { snapshot: BlogSearchUiSnapshot }) {
             publishedDateLabel={item.publishedDateLabel}
             metadataLabel={item.matchReasonLabel}
             tags={item.tags}
+            query={snapshot.query}
             thumbnail={item.thumbnail}
           />
         ))}

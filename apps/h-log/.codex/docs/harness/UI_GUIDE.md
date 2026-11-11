@@ -166,3 +166,7 @@ A2 Step 2의 `/admin/automation`은 기존 Discord shell 안에서 준비된 자
 ## Blog와 Brain 출처 연결 — 2026-11-10
 
 Blog 상세의 기존 탐색 영역에 현재 공개된 ‘연결된 생각’을 구분선 목록으로 제공한다. 관계가 없으면 영역을 생략하고 조회 실패는 이 영역에서 안내·native form 재시도로 처리한다. Brain의 기존 두 출처 영역은 현재 공개 글 제목과 상대 링크를 표시하며 비공개 대상은 ‘블로그 기록’만 남긴다. 관리자 도움말은 이 표시 차이를 설명한다. sidebar·canvas·reader 배치·검색/필터·Home 레이더는 유지했다. production/dev 1440/390/320px·JS ON/OFF·키보드/뒤로가기·가로 넘침을 검수했다. 상세: [검수 결과](PUBLISHED_BRAIN_SOURCE_REVIEW.md).
+
+## 블로그 태그 링크 — 2026-11-11
+
+R4 Step 1에서 기존 행·배지 스타일을 유지하고 태그를 실제 anchor로 연결했다. 긴 태그는 줄바꿈하고 lavender focus outline과 hover border를 제공한다. 검색 결과에서는 제출 검색어를 유지하며 새 태그 선택은 1페이지다. 상세 배지는 검색어 없는 태그 목록으로 이동한다. 키보드 Enter·새 탭·뒤로가기와 일반 목록/상세의 JS OFF 이동을 production/dev 세 폭에서 확인했다. [검수 결과](BLOG_TAG_NAVIGATION_REVIEW.md).

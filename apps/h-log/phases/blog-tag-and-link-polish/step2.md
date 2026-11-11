@@ -4,7 +4,7 @@
 
 pending — 2026-11-05 계획 등록. R4 / 태그와 공유 편의: 글·소제목 주소 복사. 아직 구현/실행하지 않았다.
 
-R4 Step 1 완료. 기존 heading anchor/목차 구현을 먼저 확인한다.
+2026-11-11 R4 Step 1 완료. 기존 heading anchor/목차 구현을 먼저 확인한다. [태그 탐색 검수](../../.codex/docs/harness/BLOG_TAG_NAVIGATION_REVIEW.md)에서 기존 URL builder·키보드·history 경계를 확인했다.
 
 ## 읽을 파일
 

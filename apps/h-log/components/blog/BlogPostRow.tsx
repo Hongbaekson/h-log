@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Badge } from "@/components/ui";
+import { BlogTagLink } from "./BlogTagLink";
 import { BlogPostThumbnail } from "./BlogPostThumbnail";
 import type { PublicBlogThumbnail } from "@/lib/blog-thumbnails";
 
@@ -12,6 +12,7 @@ type BlogPostRowProps = {
   publishedDateLabel: string;
   metadataLabel: string;
   tags: string[];
+  query?: string;
   thumbnail?: PublicBlogThumbnail;
 };
 
@@ -23,6 +24,7 @@ export function BlogPostRow({
   publishedDateLabel,
   metadataLabel,
   tags,
+  query = "",
   thumbnail,
 }: BlogPostRowProps) {
   return (
@@ -46,9 +48,7 @@ export function BlogPostRow({
         {tags.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
             {tags.map((tag) => (
-              <Badge className="max-w-full wrap-anywhere" key={tag} tone="slate">
-                {tag}
-              </Badge>
+              <BlogTagLink key={tag} tag={tag} query={query} />
             ))}
           </div>
         )}

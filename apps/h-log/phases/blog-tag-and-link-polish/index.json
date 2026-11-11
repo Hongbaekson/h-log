@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "navigable-tag-badges",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-11: Shared native tag links on list/search/detail reuse the alias-aware URL builder. Submitted query retained on search rows; page resets to 1. Browser RED 15 to production/dev GREEN 30 cases across three widths, keyboard/new tab/JS off/history/long tags verified. Unit 294 pass/28 DB skip, DB 2/2 and source lint/typecheck/build passed; existing private lint errors/build warnings remain. Next R4 Step 2 article-and-section-link-copy; no live publication."
     },
     {
       "step": 2,

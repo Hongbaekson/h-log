@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-05 계획 등록. R4 / 태그와 공유 편의: 기존 태그 배지를 탐색 링크로. 아직 구현/실행하지 않았다.
+completed — 2026-11-11. 일반 목록·검색 결과·상세의 태그 배지에 기존 필터 URL과 키보드 초점을 연결했다. [검수 결과](../../.codex/docs/harness/BLOG_TAG_NAVIGATION_REVIEW.md).
 
 2026-11-11 R4 Step 0 완료. [태그 별칭 검수](../../.codex/docs/harness/BLOG_TAG_ALIAS_REVIEW.md)의 공통 정규화와 URL 생성 함수를 재사용한다.
 
@@ -77,6 +77,15 @@ git diff --check
 - 회사 Wiki·내부 식별자·확인되지 않은 감정/성과를 자료 수집이나 공개 노드로 채우지 말 것. 출처와 본인 확인이 있는 범위만 다룬다.
 - 계획 등록을 운영 배포·실제 발행·DNS/TLS·provider·timer·외부 알림 승인으로 해석하지 말 것. 기존 운영 보류가 유지된다.
 - 방문자 AI·댓글·공개 통계·새 도메인·별도 그래프/서비스를 추가하지 말 것. 이번 개선 단위와 관계없다.
+
+## 완료 기록 — 2026-11-11
+
+- `BlogTagLink`가 기존 `Badge`와 URL builder를 재사용한다. `BlogPostRow`와 상세에서 같은 실제 anchor를 사용하고 검색은 `snapshot.query`를 전달한다. 입력 중인 미제출 검색어는 링크에 섞이지 않는다.
+- 기존 production의 브라우저 RED 15표본에서 native anchor 누락을 확인한 뒤 구현했다. 최종 production/dev 30표본에서 4종 태그·선택 상태·검색/페이지·focus·키보드·새 탭·뒤로가기·가로 넘침을 검수했다. 일반 목록/상세는 JS ON/OFF, 검색은 JS ON에서 확인했다.
+- 가까운 테스트 16/16, 전체 294 pass/28 DB skip, 격리 public-read DB 2/2와 source lint/typecheck/build 통과. 기본 lint의 기존 private 오류 10개/경고 6개와 build tracing 경고 2개는 남음.
+- 공개/철회 결과·본문/hash 보존, Home 레이더와 Brain canvas의 세 폭 표시를 확인했다. DB·별칭 사전·배지 기본 스타일·Brain/Home 파일은 변경하지 않았다.
+- 변경은 새 공통 링크, 행/검색/상세 호출부, URL 회귀 테스트와 브라우저 검사, 관련 계획/검수 문서다. 재현 API·명령과 JS OFF 검색의 기존 한계는 검수 문서에 기록했다. 비공개 evidence는 Git/Docker에서 제외한다.
+- R completed 10·pending 4. 실제 발행·배포·운영 활성화와 F 22개 pending은 실행하지 않았다.
 
 ## 다음 단계
 

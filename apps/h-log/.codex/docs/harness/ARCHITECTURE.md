@@ -550,3 +550,7 @@ F2는 기존 read path의 불필요 계산을 먼저 줄이고 F3는 재생성 �
 `lib/blog-tags.ts`의 명시 사전/배열 정규화를 `blog-public.ts`, `blog-search.ts`, `blog-search-ui.ts`, `blog-article-generation.ts`가 공유한다(ADR-043). 공개 읽기와 관련 글은 대표 태그를 중복 없이 제공하고 검색 API는 정규화한 태그로 필터링한 뒤 페이지를 계산한다. q는 보존하며 태그에 해당하는 검색 token만 별칭 비교를 추가한다.
 
 새 관리자 초안은 기존 `runDraftRequestOnce` → article validation → `saveBlogAggregate` 경로에서 대표 태그를 저장한다. 기존 본문 편집/검토 repository는 바뀌지 않는다. 과거 DB 태그와 버전은 읽기 투영만 적용하므로 migration이 없다. 태그 배지 링크·별도 편집 CMS·Brain 태그 변경은 포함하지 않는다. [검수 결과](BLOG_TAG_ALIAS_REVIEW.md).
+
+## 블로그 태그 탐색 — R4 Step 1
+
+`components/blog/BlogTagLink.tsx`는 기존 Badge·Next Link·`buildBlogBrowseHref`를 조합한다. `BlogPostRow`와 상세 페이지가 이를 사용하고 검색 결과는 `BlogSearchPanel`의 `snapshot.query`를 전달한다. native href가 태그 인코딩과 페이지 초기화를 담으며 별도 onClick/상태/API는 없다. 공통 Badge, DB/repository, Brain/Home은 변경하지 않는다. 실제 DOM·키보드·새 탭·JS OFF·history 검사는 `scripts/blog-tag-badges.browser-check.mjs`에 둔다. [검수 결과](BLOG_TAG_NAVIGATION_REVIEW.md).
