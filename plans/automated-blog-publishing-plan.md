@@ -1,5 +1,7 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
+2026-11-13 R5 Step 2 `local-knowledge-release-rehearsal` 완료. 현재 production/dev에서 격리 DB 8/8, SEO HTTP 42/42·Brain HTTP 2/2, 브라우저 126표본과 검토 이력 20건·원문 24버전 복원을 검증했다. 제품 코드 변경 없이 [통합 검수 결과](../apps/h-log/.codex/docs/harness/KNOWLEDGE_RELEASE_REVIEW.md)와 현재성·후보·잔여 작업을 인계했다. **R completed 14·pending 0**이다. SEO S3 Step 1/2와 운영 보류는 유지하며, 다음 독립 로컬 작업은 **F1 Step 0 `reproducible-performance-baseline`**다. F 22개는 아직 pending이다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-12 R5 Step 1 `owner-review-queue` 완료. 기존 관리자 Brain에 이유·상태별 20개 조회와 버전별 확인·재확인 지정, 비공개 메모·최근 확인 이력을 추가했다. 확인 명령은 원문과 공개 사본을 바꾸지 않으며 새 버전은 다시 확인한다. [검수 결과](../apps/h-log/.codex/docs/harness/BRAIN_MANUAL_REVIEW_REVIEW.md)에 단위 300 pass/29 DB skip, 격리 DB 8/8, production/dev HTTP 2/2·브라우저 12표본, 합성 이력 20건·원문 24버전 dump/restore를 기록했다. source lint/typecheck/build는 통과했고 기본 lint의 기존 private 오류 10개·경고 6개와 build 경고 2개는 남아 있다. R2-C01–C05의 유지·추가 확인 사항도 갱신했다. **R completed 13·pending 1, 다음은 R5 Step 2 `local-knowledge-release-rehearsal`**다. F 22개 pending과 운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.
 
 2026-11-12 R5 Step 0 `manual-review-contract` 완료. [수동 재검토 계약](../apps/h-log/.codex/docs/harness/KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md#r5-manual-review-contract)과 ADR-044에 DB 현재 revision의 대상·질문/관계/수동 지정·미검토/확인 필요/확인 완료, 날짜 분리, append-only 확인 이력, UUID/감사 원자성·기존 fingerprint 호환과 20개 제한 조회를 확정했다. 문서/JSON과 경로·링크·상태만 검증했으며 앱·UI·migration·DB는 변경하지 않았다. **R completed 12·pending 2, 다음은 R5 Step 1 `owner-review-queue`**다. F 22개 pending, 기존 Brain UI·Home 레이더·운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.

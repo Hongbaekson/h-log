@@ -209,7 +209,7 @@
     {
       "dir": "seo-release-and-measurement",
       "status": "pending",
-      "summary": "2026-10-26 plan registered: local SEO release rehearsal, approved public-domain/Search Console verification and later measured search review. Steps 0 and 2 pending; Step 1 blocked by OCI hold and unresolved public-domain/account scope. No deployment, DNS, account submission, tracker or recurring audit was activated."
+      "summary": "2026-11-13 status reconciliation: Step 0 local SEO release rehearsal completed on 2026-11-05; Step 1 remains blocked by OCI hold and unresolved public-domain/Search Console scope; Step 2 pending. R5 integrated local regression completed without deployment, DNS/account changes, publication or search-performance claims. See the phase index for unchanged step states."
     },
     {
       "dir": "brain-provenance-authoring",
@@ -233,8 +233,8 @@
     },
     {
       "dir": "knowledge-review-workflow",
-      "status": "pending",
-      "summary": "2026-11-12: R5 Step 0 manual-review-contract complete; current-revision targets, reasons/states/dates, private immutable review records, owner command/audit compatibility and bounded queue specified in the R5 plan and ADR-044. Documentation-only verification; Steps 1-2 pending. R completed 12/pending 2; next R5 Step 1 owner-review-queue. No runtime/schema/publication changes; F22, approved Brain UI/radar and operations hold preserved."
+      "status": "completed",
+      "summary": "2026-11-13: R5 Steps 0-2 complete: version-bound private reviews and integrated local rehearsal. DB 8/8, SEO HTTP 42/42, Brain HTTP 2/2, 126 browser scenarios and 20-review/24-original dump/restore passed on current production/dev. No product code or publication change in Step 2; R14 complete/F22 pending. Next independent local step F1 Step 0; SEO and operations hold preserved."
     },
     {
       "dir": "operations-observability",

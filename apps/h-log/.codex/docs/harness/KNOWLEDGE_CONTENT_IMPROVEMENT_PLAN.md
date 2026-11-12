@@ -1,6 +1,6 @@
 # H-Log 기록·탐색 개선 계획
 
-등록일: 2026-11-05. Zerry/Memory 재조사 후 사용자가 개선 방향의 phase/step 등록과 커밋·푸시를 요청했다. **R1–R5: 5개 phase / 14개 step**이다. 2026-11-12 R5 Step 1까지 완료해 **completed 13·pending 1**이다. R1의 계약·저장·관리자 입력, R2의 [근거 대장](CURRENT_CLAIMS_INVENTORY.md)·[원고 검수](EVIDENCE_CASE_MANUSCRIPT_REVIEW.md)·[기록 후보](BRAIN_PRINCIPLE_DRAFT_REVIEW.md)를 준비했으며 [현재 공개 출처 연결](PUBLISHED_BRAIN_SOURCE_REVIEW.md)도 구현했다. [편집된 읽기 경로](CURATED_READING_PATH_REVIEW.md)의 준비·격리 검수도 완료했으며 [태그 대표 표기와 별칭](BLOG_TAG_ALIAS_REVIEW.md)도 적용했다. [태그 배지 탐색](BLOG_TAG_NAVIGATION_REVIEW.md)과 [글·소제목 주소 복사](BLOG_LINK_COPY_REVIEW.md)까지 구현했다. [R5 수동 재검토 계약](#r5-manual-review-contract)에 따른 [관리자 목록·버전별 확인](BRAIN_MANUAL_REVIEW_REVIEW.md)을 구현했다. 다음은 R5 Step 2의 로컬 통합 검수다. 계획 등록을 기능 구현이나 콘텐츠 발행 완료로 표시하지 않는다. 상태의 source of truth는 [전체 레지스트리](../../../phases/index.json)와 각 phase index다.
+등록일: 2026-11-05. Zerry/Memory 재조사 후 사용자가 개선 방향의 phase/step 등록과 커밋·푸시를 요청했다. **R1–R5: 5개 phase / 14개 step**이다. 2026-11-13 R5 Step 2까지 완료해 **completed 14·pending 0**이다. R1의 계약·저장·관리자 입력, R2의 [근거 대장](CURRENT_CLAIMS_INVENTORY.md)·[원고 검수](EVIDENCE_CASE_MANUSCRIPT_REVIEW.md)·[기록 후보](BRAIN_PRINCIPLE_DRAFT_REVIEW.md)를 준비했으며 [현재 공개 출처 연결](PUBLISHED_BRAIN_SOURCE_REVIEW.md)도 구현했다. [편집된 읽기 경로](CURATED_READING_PATH_REVIEW.md)의 준비·격리 검수도 완료했으며 [태그 대표 표기와 별칭](BLOG_TAG_ALIAS_REVIEW.md)도 적용했다. [태그 배지 탐색](BLOG_TAG_NAVIGATION_REVIEW.md)과 [글·소제목 주소 복사](BLOG_LINK_COPY_REVIEW.md)까지 구현했다. [R5 수동 재검토 계약](#r5-manual-review-contract)에 따른 [관리자 목록·버전별 확인](BRAIN_MANUAL_REVIEW_REVIEW.md)을 구현했다. [로컬 통합 검수](KNOWLEDGE_RELEASE_REVIEW.md)까지 완료했다. 다음 독립 로컬 작업은 F1 Step 0이며 기존 SEO 운영 조건과 보류를 유지한다. 계획 등록을 기능 구현이나 콘텐츠 발행 완료로 표시하지 않는다. 상태의 source of truth는 [전체 레지스트리](../../../phases/index.json)와 각 phase index다.
 
 ## 목적과 유지 조건
 
@@ -62,17 +62,17 @@ REA 증거: Zerry 목록 화면 `ev_415dd46d84d55f469a014f1492db3a32e80e0bf43c22
 | R4 [blog-tag-and-link-polish](../../../phases/blog-tag-and-link-polish/index.json) | 2 | [글·소제목 주소 복사](../../../phases/blog-tag-and-link-polish/step2.md) | completed |
 | R5 [knowledge-review-workflow](../../../phases/knowledge-review-workflow/index.json) | 0 | [재검토 대상과 확인 기록 계약](../../../phases/knowledge-review-workflow/step0.md) | completed |
 | R5 [knowledge-review-workflow](../../../phases/knowledge-review-workflow/index.json) | 1 | [소유자 재검토 목록](../../../phases/knowledge-review-workflow/step1.md) | completed |
-| R5 [knowledge-review-workflow](../../../phases/knowledge-review-workflow/index.json) | 2 | [연결·공개 경계 로컬 통합 검수](../../../phases/knowledge-review-workflow/step2.md) | pending |
+| R5 [knowledge-review-workflow](../../../phases/knowledge-review-workflow/index.json) | 2 | [연결·공개 경계 로컬 통합 검수](../../../phases/knowledge-review-workflow/step2.md) | completed |
 
 ## 실행 순서와 다른 트랙
 
 1. 2026-11-05 기존 SEO S3 Step 0의 [로컬 SEO 릴리스 검수](SEO_RELEASE_REVIEW.md)를 완료했다. 새 R 트랙의 구현을 완료했다는 뜻은 아니다.
-2. 2026-11-12 R5 Step 1 구현 완료. **다음 로컬 작업은 R5 Step 2 `local-knowledge-release-rehearsal`**다. 기본 순서는 R1 → R2 → R3 → R4 → R5다.
+2. 2026-11-13 R5 Step 2 로컬 통합 검수로 R1 → R2 → R3 → R4 → R5를 완료했다. **다음 독립 로컬 작업은 F1 Step 0 `reproducible-performance-baseline`**이다. SEO 운영 작업은 아래 조건을 따른다.
 3. R2 자료 정리와 R4는 R1 구현/개인 경험 확인에 기술적으로 종속되지 않는다. 필요한 자료가 없을 때 독립 작업을 진행할 수 있으며 실행한 step과 순서 변경 이유를 기록한다. R3는 R1의 출처 계약과 R2의 검수 후보를 사용한다.
 4. R5의 로컬 통합 검수는 새 트랙의 추가 회귀다. S3 Step 0의 기존 SEO 기준선을 취소하거나 완료된 단계를 다시 pending으로 만들지 않는다.
 5. S3 Step 1/2의 실제 도메인·계정·측정 조건은 그대로다. **운영 모니터링 Step 7 → 관리자 A3 Step 4 → timer** 순서와 OCI 보류를 유지한다. R 트랙은 운영 보류 해제를 기다리지 않고 격리 로컬에서 준비할 수 있다.
 
-R 등록 당시 전체는 53개 phase / 187개 step이었다. 2026-11-06 [성능 F1–F7](PERFORMANCE_REBUILD_PLAN.md)의 pending 22개 step을 더해 전체는 60개 phase / 209개 step이다. 기존 콘텐츠 트랙의 다음은 R5 Step 2이고 성능 트랙의 시작은 F1 Step 0이다. S3 Step 0 완료 후 SEO는 9 completed/1 pending/1 blocked다. 관리자 A 16/0/1, 모니터링 7/0/1의 상태는 바꾸지 않는다. R1/R5의 admin 후속은 별도 R 트랙이며 기존 A 트랙을 다시 열지 않는다.
+R 등록 당시 전체는 53개 phase / 187개 step이었다. 2026-11-06 [성능 F1–F7](PERFORMANCE_REBUILD_PLAN.md)의 pending 22개 step을 더해 전체는 60개 phase / 209개 step이다. 기존 콘텐츠 R 트랙은 14개 step 모두 완료했고 성능 트랙의 시작은 F1 Step 0이다. S3 Step 0 완료 후 SEO는 9 completed/1 pending/1 blocked다. 관리자 A 16/0/1, 모니터링 7/0/1의 상태는 바꾸지 않는다. R1/R5의 admin 후속은 별도 R 트랙이며 기존 A 트랙을 다시 열지 않는다.
 
 ## R1 계약 — 2026-11-06 Step 0–2 완료
 
@@ -341,3 +341,7 @@ Step 0에서는 위 계약과 읽을 파일/상태/링크만 검증했다. runti
 ## R5 Step 1 완료 — 2026-11-12
 
 2026-11-12 R5 Step 1 `owner-review-queue` 완료. 기존 관리자 Brain에 이유·상태별 20개 조회와 버전별 확인·재확인 지정, 비공개 메모·최근 확인 이력을 추가했다. 확인 명령은 원문과 공개 사본을 바꾸지 않으며 새 버전은 다시 확인한다. [검수 결과](BRAIN_MANUAL_REVIEW_REVIEW.md)에 단위 300 pass/29 DB skip, 격리 DB 8/8, production/dev HTTP 2/2·브라우저 12표본, 합성 이력 20건·원문 24버전 dump/restore를 기록했다. source lint/typecheck/build는 통과했고 기본 lint의 기존 private 오류 10개·경고 6개와 build 경고 2개는 남아 있다. R2-C01–C05의 유지·추가 확인 사항도 갱신했다. **R completed 13·pending 1, 다음은 R5 Step 2 `local-knowledge-release-rehearsal`**다. F 22개 pending과 운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.
+
+## R5 Step 2 완료 — 2026-11-13
+
+2026-11-13 R5 Step 2 `local-knowledge-release-rehearsal` 완료. 현재 production/dev에서 격리 DB 8/8, SEO HTTP 42/42·Brain HTTP 2/2, 브라우저 126표본과 검토 이력 20건·원문 24버전 복원을 검증했다. 제품 코드 변경 없이 [통합 검수 결과](KNOWLEDGE_RELEASE_REVIEW.md)와 현재성·후보·잔여 작업을 인계했다. **R completed 14·pending 0**이다. SEO S3 Step 1/2와 운영 보류는 유지하며, 다음 독립 로컬 작업은 **F1 Step 0 `reproducible-performance-baseline`**다. F 22개는 아직 pending이다. 아래 날짜별 기록은 당시 상태다.

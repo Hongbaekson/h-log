@@ -2,9 +2,9 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-05 계획 등록. R5 / 관리자 재검토와 통합 검수: 연결·공개 경계 로컬 통합 검수. 아직 구현/실행하지 않았다.
+completed — 2026-11-13 로컬 통합 검수 완료. 제품 코드 변경 없이 현재 production/dev의 연결·공개 경계를 검증했다.
 
-2026-11-12 R1–R4와 R5 Step 1 완료. [관리자 재검토 검수](../../.codex/docs/harness/BRAIN_MANUAL_REVIEW_REVIEW.md)와 R2 대장의 후속 확인을 읽는다. 원고는 후보이며 실제 발행과 운영 migration은 수행하지 않았다. 이 단계의 전체 연결·공개 경계 통합 검수는 아직 pending이다.
+2026-11-12 R1–R4와 R5 Step 1 완료. [관리자 재검토 검수](../../.codex/docs/harness/BRAIN_MANUAL_REVIEW_REVIEW.md)와 R2 대장의 후속 확인을 읽는다. 원고는 후보이며 실제 발행과 운영 migration은 수행하지 않았다. 2026-11-13 전체 연결·공개 경계 통합 검수를 완료했다. 결과는 [통합 검수 기록](../../.codex/docs/harness/KNOWLEDGE_RELEASE_REVIEW.md)을 따른다.
 
 ## 읽을 파일
 
@@ -84,4 +84,12 @@ git diff --check
 
 ## 다음 단계
 
-현재 운영 보류와 SEO S3 Step 1/2 조건을 확인한다. 승인 없이 운영 작업을 재개하지 않는다.
+SEO S3 Step 1은 OCI 보류·실제 도메인과 Search Console 계정/범위 미확정으로 blocked, Step 2는 pending임을 확인했다. 운영 모니터링 Step 7 → 관리자 A3 Step 4 → timer 순서를 유지한다. 다음 독립 로컬 작업은 [F1 Step 0](../performance-baseline/step0.md)이다.
+
+## 완료 기록 — 2026-11-13
+
+- 기준 `a6041b5583dd9a2893464604954f8d6a45453c9b`, build `cmICMLHnDDQ9ps3NHIPsH`. DB 8/8, SEO HTTP 42/42, Brain HTTP 2/2, 브라우저 126/126. 검토 이력 20건·원문 24버전 dump/restore 동일.
+- 파일/DB 모드·이전 기록·HTML/RSC/목록/sitemap 비공개 경계, 태그/공유/재검토, 1440/390/320px·JS ON/OFF·키보드·뒤로가기와 기존 Brain UI/Home 레이더를 확인했다. 제품 코드 결함은 발견하지 않아 TDD 수정은 하지 않았다.
+- sandbox build 대기와 과거 R3 코드 hash 불일치는 [실행 기록](../../.codex/docs/harness/KNOWLEDGE_RELEASE_REVIEW.md)에 원인·재실행·보존 기준을 남겼다. production build는 통과했으며 기존 tracing 경고 2개를 유지한다. 전체 lint는 재실행하지 않았다.
+- 원고/노드 후보·현재성 대장·다음 로컬 작업과 R 14 completed/F 22 pending을 문서·레지스트리에 반영했다. Markdown/JSON·상대 링크·60 phase/209 step·다른 트랙 상태·private 제외·diff 형식을 검사했다.
+- 새 임시 컨테이너 8개와 앱/proxy·임시 자격 증명을 정리했다. 실제 콘텐츠 발행·운영 migration·배포·provider·timer는 실행하지 않았다.
