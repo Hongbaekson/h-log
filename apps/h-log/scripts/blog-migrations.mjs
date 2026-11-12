@@ -23,6 +23,7 @@ export const BLOG_MIGRATION_TABLES = [
   "admin_actions",
   "brain_notes",
   "brain_note_versions",
+  "brain_note_reviews",
   "resume_pdf_versions",
   "resume_pdf_state",
   "blog_draft_requests",

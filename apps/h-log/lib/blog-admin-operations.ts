@@ -5,7 +5,7 @@ export const jobStatusLabels = { queued: "대기", running: "처리 중", retryi
 export const importanceLabels = { required: "필수 검증", retryable: "후속 작업" };
 export const actorLabels = { admin: "관리자", system: "시스템", discord: "Discord", cli: "CLI" };
 export const targetLabels = { post: "글", post_version: "글 버전", publish_job: "작업", topic_candidate: "주제", brain_note: "Second Brain", resume_pdf_version: "이력서 버전", resume_pdf: "이력서", draft_request: "초안 요청", automation_policy: "자동 작성 정책" };
-export const actionLabels = { preview: "미리보기", save: "저장", publish: "공개 요청", retry: "재시도 요청", unpublish: "공개 해제", retract: "철회", correct: "정정", block_topic: "주제 차단", approve_preview: "검토 승인", draft_requested: "초안 요청", draft_completed: "초안 저장", automation_policy_changed: "정책 변경", automation_admitted: "자동 작성 시작 승인" };
+export const actionLabels = { review: "수동 재검토", preview: "미리보기", save: "저장", publish: "공개 요청", retry: "재시도 요청", unpublish: "공개 해제", retract: "철회", correct: "정정", block_topic: "주제 차단", approve_preview: "검토 승인", draft_requested: "초안 요청", draft_completed: "초안 저장", automation_policy_changed: "정책 변경", automation_admitted: "자동 작성 시작 승인" };
 export const jobTypeLabels = { public_url: "공개 URL", md_url: "Markdown URL", render: "렌더링", privacy_scan: "개인정보 검사", sitemap: "사이트맵", content_version_match: "공개 버전 일치", embedding: "임베딩", search_index: "검색 색인", related_posts: "관련 글", llms: "LLMs 문서", feed: "피드", indexnow: "IndexNow", discord: "Discord 알림", og: "OG 이미지", diagram: "다이어그램" };
 
 type Search = Record<string, string | string[] | undefined>;

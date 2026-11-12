@@ -52,6 +52,7 @@ test(
         "010_blog_automation_policy",
         "011_publish_job_admin_id",
         "012_observability_signals",
+        "013_brain_note_reviews",
       ]);
 
       const extension = await database.query(
@@ -82,7 +83,7 @@ test(
 
       const secondRun = await runBlogMigrations(testUrl.toString());
       assert.deepEqual(secondRun.appliedVersions, []);
-      assert.equal(secondRun.currentVersion, "012_observability_signals");
+      assert.equal(secondRun.currentVersion, "013_brain_note_reviews");
 
       const versions = await database.query(
         "select version from schema_migrations order by version",
@@ -100,6 +101,7 @@ test(
         { version: "010_blog_automation_policy" },
         { version: "011_publish_job_admin_id" },
         { version: "012_observability_signals" },
+        { version: "013_brain_note_reviews" },
       ]);
     } finally {
       await database.end();
@@ -151,7 +153,7 @@ test("Brain command migration preserves legacy versions, public snapshots and au
     [id, randomUUID(), "b".repeat(64), JSON.stringify({ action: "save", noteId: id, commandRevision: 2 })]);
     const beforePdfNotes = await database.query("select * from brain_notes");
     const beforePdfAudit = await database.query("select * from admin_actions order by id");
-    assert.deepEqual((await runBlogMigrations(url.toString())).appliedVersions, ["007_resume_pdf_storage", "008_blog_editorial_commands", "009_blog_draft_requests", "010_blog_automation_policy", "011_publish_job_admin_id", "012_observability_signals"]);
+    assert.deepEqual((await runBlogMigrations(url.toString())).appliedVersions, ["007_resume_pdf_storage", "008_blog_editorial_commands", "009_blog_draft_requests", "010_blog_automation_policy", "011_publish_job_admin_id", "012_observability_signals", "013_brain_note_reviews"]);
     assert.deepEqual((await database.query("select * from brain_note_versions")).rows, versions.rows);
     assert.deepEqual((await database.query("select * from brain_notes")).rows, beforePdfNotes.rows);
     assert.deepEqual((await database.query("select * from admin_actions order by id")).rows, beforePdfAudit.rows);

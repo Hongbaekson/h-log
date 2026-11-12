@@ -1,5 +1,6 @@
 import { brainBasisLabels, brainKindLabels, brainRelationLabels, brainTopics, publicSourceHref, type BrainBasis, type BrainKind, type BrainNode, type BrainRelation, type BrainTopic } from "./brain.ts";
 import { scanBlogPrivacyText, type BlogPrivacyScanPolicy } from "./blog-privacy-scanner.ts";
+import type { BrainReviewDetail } from "./brain-review.ts";
 
 export type BrainLink = { target: string; relation: BrainRelation; reason: string };
 export type BrainSnapshot = BrainNode & { links?: BrainLink[] };
@@ -91,10 +92,10 @@ export function assertSafeBrainPublication(node: BrainNode, policy: BlogPrivacyS
 
 export type BrainCommand = { commandId: string; commandRevision: number };
 export type BrainCommandReceipt = { id: string; revision: number; commandRevision: number };
-export type BrainAction = { action: "save" | "publish" | "unpublish"; revision: number; commandRevision: number; createdAt: string };
+export type BrainAction = { action: "save" | "publish" | "unpublish" | "review"; revision: number; commandRevision: number; createdAt: string };
 export type BrainNoteSummary = { id: string; title: string; revision: number; commandRevision: number; publishedRevision: number | null; createdAt: string; occurredOn?: string; tags: string[]; topic: BrainTopic; links?: BrainLink[] };
 export type BrainRevision = { revision: number; draft: BrainDraft; createdAt: string };
-export type BrainOwnerNote = BrainNoteSummary & { draft: BrainDraft; history: BrainRevision[]; actions: BrainAction[] };
+export type BrainOwnerNote = BrainNoteSummary & { draft: BrainDraft; history: BrainRevision[]; actions: BrainAction[]; review: BrainReviewDetail };
 
 export function parseBrainCommand(input: { commandId?: unknown; commandRevision?: unknown }): BrainCommand {
   if (input.commandId === undefined || input.commandRevision === undefined) throw new Error("command_metadata_required");

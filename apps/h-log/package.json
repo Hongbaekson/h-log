@@ -27,7 +27,7 @@
     "test:public-read-path": "node --no-warnings --test --experimental-strip-types lib/blog-public-read-path.integration.test.ts",
     "test:worker": "node --no-warnings --test --experimental-strip-types lib/blog-persistent-worker.integration.test.ts",
     "test:dry-run": "node --no-warnings --test --experimental-strip-types lib/blog-local-dry-run.integration.test.ts",
-    "test:brain": "node --no-warnings --test --experimental-strip-types lib/brain-postgres-repository.integration.test.ts",
+    "test:brain": "node --no-warnings --test --experimental-strip-types lib/brain-postgres-repository.integration.test.ts lib/brain-review.integration.test.ts",
     "test:brain:http": "node --test scripts/brain-capture.http.test.mjs",
     "test:admin:http": "node --test scripts/admin-owner.http.test.mjs",
     "test:admin:release": "node --no-warnings --experimental-strip-types scripts/admin-release.rehearsal.mjs",

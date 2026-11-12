@@ -102,6 +102,20 @@ test("owner HTTP capture keeps originals private and publishes only confirmed sn
     const blocked = await post({ action: "publish", id, revision: 3, confirmed: true, ...meta(5) });
     assert.equal(blocked.status, 422); assert.deepEqual(await blocked.json(), { error: "public_copy_blocked" });
     await checkPublic(true, publicFields(pending), [...publicFields(draft), risky.questions[0], risky.sources[0].label]);
+    const reviewMemo = `HTTP_PRIVATE_REVIEW_${marker}`;
+    const reviewCommand = { action: "review", id, revision: 3, ...meta(5), review: { result: "confirmed", memo: reviewMemo } };
+    const reviewResponse = await post(reviewCommand);
+    assert.equal(reviewResponse.status, 200);
+    const reviewReceipt = await reviewResponse.json();
+    assert.deepEqual(await (await post(reviewCommand)).json(), reviewReceipt);
+    const { note: reviewed } = await (await fetch(`${api}?id=${id}`, { headers: { authorization } })).json();
+    assert.equal(reviewed.review.status, "confirmed"); assert.equal(reviewed.review.history.length, 1);
+    assert.equal(reviewed.publishedRevision, 2); assert.equal(reviewed.revision, 3);
+    await checkPublic(true, publicFields(pending), [...publicFields(draft), risky.questions[0], risky.sources[0].label, reviewMemo, '"checkedAt"', '"review"']);
+    const queue = await fetch(`${api}?view=review&status=confirmed`, { headers: { authorization } });
+    assert.equal(queue.status, 200); assert.match(queue.headers.get("cache-control"), /no-store/);
+    const listed = await queue.json();
+    assert(listed.notes.some(item => item.id === id)); assert(!JSON.stringify(listed).includes(reviewMemo));
   } finally {
     const { note } = await (await fetch(`${api}?id=${id}`, { headers: { authorization } })).json();
     assert.equal((await post({ action: "unpublish", id, revision: note.revision, ...meta(note.commandRevision) })).status, 200);

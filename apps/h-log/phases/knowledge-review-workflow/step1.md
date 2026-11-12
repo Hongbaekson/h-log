@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-05 계획 등록. R5 / 관리자 재검토와 통합 검수: 소유자 재검토 목록. 아직 구현/실행하지 않았다.
+completed — 2026-11-12 소유자 재검토 목록·버전별 확인을 구현하고 격리 DB·HTTP·브라우저·복구 검수를 완료했다.
 
 2026-11-12 R5 Step 0 완료. [수동 재검토 계약](../../.codex/docs/harness/KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md#r5-manual-review-contract)과 [ADR-044](../../.codex/docs/harness/ADR.md#adr-044)를 구현 기준으로 사용한다.
 
@@ -105,3 +105,7 @@ git diff --check
 ## 다음 단계
 
 R5 Step 2 `local-knowledge-release-rehearsal`.
+
+## 구현·검증 결과 — 2026-11-12
+
+[검수 기록](../../.codex/docs/harness/BRAIN_MANUAL_REVIEW_REVIEW.md)에 변경 파일, RED/GREEN, 실제 명령과 결과·환경 문제를 기록했다. queue와 확인 이력만 제한 조회하며 기존 전체 기록/원문 이력 비용은 F6에 남긴다. R2 대장의 다섯 주장도 현재 코드 범위에서 대조했다. 운영 migration·발행은 수행하지 않았다. R completed 13/pending 1이며 다음은 R5 Step 2다.

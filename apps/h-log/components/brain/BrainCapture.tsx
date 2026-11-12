@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type FormEvent, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { brainReviewStatusLabels, parseBrainReview, type BrainReviewInput } from "@/lib/brain-review";
 import { brainBasisLabels, brainKindLabels, brainRelationLabels, brainTopics, publicSourceHref, type BrainBasis, type BrainGraph, type BrainKind, type BrainRelation, type BrainTopic } from "@/lib/brain";
 import { parseBrainDraft, toPublicBrainNode, type BrainCommand, type BrainDraft, type BrainNoteSummary, type BrainOwnerNote, type BrainSnapshot } from "@/lib/brain-capture";
 import { sortBrainNodes, type BrainOrder } from "@/lib/brain-curation";
@@ -11,6 +13,7 @@ const emptyDraft: BrainDraft = {
   kind: "reflection", topic: "principles", basis: "profile", tags: [], occurredOn: "", shareOccurredOn: false, links: [],
 };
 const messages: Record<string, string> = {
+  invalid_review: "다시 확인할 이유와 메모 길이(500자 이내)를 확인해 주세요.",
   invalid_draft: "제목과 원문, 출처·질문의 빈 값이나 중복, 각 항목의 길이를 확인해 주세요.",
   invalid_link: "자기 자신이나 없는 기록에는 연결할 수 없습니다. 연결 대상을 다시 골라 주세요.",
   public_copy_required: "공개용 제목·요약·본문을 모두 적어 주세요.",
@@ -23,7 +26,8 @@ const messages: Record<string, string> = {
   command_revision_conflict: "다른 창에서 저장하거나 공개 여부를 바꿨습니다. 입력한 내용을 따로 보관한 뒤 기록을 다시 열어 주세요.",
   command_conflict: "같은 요청으로 다른 내용을 보낼 수 없습니다. 입력한 내용을 따로 보관한 뒤 기록을 다시 열어 주세요.",
 };
-type CaptureCommand = BrainCommand & { action: "save" | "publish" | "unpublish"; id?: string; revision: number; draft?: BrainDraft; confirmed?: boolean };
+type CaptureCommand = BrainCommand & { action: "save" | "publish" | "unpublish" | "review"; id?: string; revision: number; draft?: BrainDraft; confirmed?: boolean; review?: BrainReviewInput };
+const subscribe = () => () => {};
 class RequestError extends Error {
   constructor(message: string, readonly status: number) { super(message); }
 }
@@ -38,11 +42,14 @@ async function request<T>(path = "", command?: object): Promise<T> {
   return result as T;
 }
 
-export function BrainCapture({ initialNotes, catalog, publicOrigin }: { initialNotes: BrainNoteSummary[]; catalog: BrainGraph; publicOrigin: string }) {
+export function BrainCapture({ initialNotes, initialNote, reviewQueue, catalog, publicOrigin }: { initialNotes: BrainNoteSummary[]; initialNote: BrainOwnerNote | null; reviewQueue: ReactNode; catalog: BrainGraph; publicOrigin: string }) {
+  const router = useRouter();
+  const hydrated = useSyncExternalStore(subscribe, () => true, () => false);
+  const [reviewMemo, setReviewMemo] = useState("");
   const [notes, setNotes] = useState(initialNotes);
-  const [note, setNote] = useState<BrainOwnerNote | null>(null);
-  const [draft, setDraft] = useState<BrainDraft>({ ...emptyDraft });
-  const [tagText, setTagText] = useState("");
+  const [note, setNote] = useState<BrainOwnerNote | null>(initialNote);
+  const [draft, setDraft] = useState<BrainDraft>(initialNote?.draft ?? { ...emptyDraft });
+  const [tagText, setTagText] = useState(initialNote?.draft.tags.join(", ") ?? "");
   const [dirty, setDirty] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -77,11 +84,11 @@ export function BrainCapture({ initialNotes, catalog, publicOrigin }: { initialN
   }
 
   useEffect(() => {
-    if (!dirty && !pendingCommand) return;
+    if (!dirty && !pendingCommand && !reviewMemo) return;
     const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
-  }, [dirty, pendingCommand]);
+  }, [dirty, pendingCommand, reviewMemo]);
 
   function change<K extends keyof BrainDraft>(key: K, value: BrainDraft[K]) {
     setDraft(current => ({ ...current, [key]: value })); setDirty(true); setConfirmed(false); setMessage(""); setError(""); setSuggestions(null);
@@ -94,14 +101,14 @@ export function BrainCapture({ initialNotes, catalog, publicOrigin }: { initialN
       request<{ note: BrainOwnerNote }>(`?id=${encodeURIComponent(id)}`), request<{ notes: BrainNoteSummary[] }>(),
     ]);
     setNote(current.note); setDraft(current.note.draft); setTagText(current.note.draft.tags.join(", "));
-    setNotes(list.notes); setDirty(false); setConfirmed(false); setSuggestions(null);
+    setNotes(list.notes); setDirty(false); setConfirmed(false); setSuggestions(null); setReviewMemo("");
   }
   async function open(id?: string, previous?: BrainNoteSummary) {
-    if (dirty && !window.confirm("저장하지 않은 내용을 닫을까요?")) return;
+    if ((dirty || reviewMemo) && !window.confirm("저장하지 않은 내용을 닫을까요?")) return;
     setBusy(true); setError(""); setMessage(""); setSuggestions(null);
     try {
       if (id) await load(id);
-      else { setNote(null); setDraft({ ...emptyDraft, ...(previous ? { topic: previous.topic, links: [{ target: previous.id, relation: "revises", reason: "" }] } : {}) }); setTagText(""); setDirty(Boolean(previous)); setConfirmed(false); }
+      else { setNote(null); setDraft({ ...emptyDraft, ...(previous ? { topic: previous.topic, links: [{ target: previous.id, relation: "revises", reason: "" }] } : {}) }); setTagText(""); setDirty(Boolean(previous)); setConfirmed(false); setReviewMemo(""); }
     } catch (cause) { setError(cause instanceof Error ? cause.message : "기록을 열지 못했습니다."); }
     finally { setBusy(false); }
   }
@@ -129,17 +136,27 @@ export function BrainCapture({ initialNotes, catalog, publicOrigin }: { initialN
       accepted = true;
       await load(result.id);
       setPendingCommand(null);
-      setMessage(command.action === "save" ? "비공개로 저장했습니다." : command.action === "publish" ? "확인한 사본을 공개했습니다." : "공개를 해제했습니다. 원문과 수정 이력은 남아 있습니다.");
+      setMessage(command.action === "review" ? "검토 결과를 기록했습니다." : command.action === "save" ? "비공개로 저장했습니다." : command.action === "publish" ? "확인한 사본을 공개했습니다." : "공개를 해제했습니다. 원문과 수정 이력은 남아 있습니다.");
+      router.refresh();
     } catch (cause) {
       if (!accepted && cause instanceof RequestError && cause.status >= 400 && cause.status < 500 && ![408, 429].includes(cause.status)) setPendingCommand(null);
       setError(cause instanceof RequestError ? cause.message : "처리 결과를 확인하지 못했습니다. 같은 요청으로 다시 확인해 주세요.");
     } finally { inFlight.current = false; setBusy(false); }
   }
 
+  async function review(result: BrainReviewInput["result"]) {
+    if (!note || dirty || locked || inFlight.current) return;
+    let input: BrainReviewInput;
+    try { input = parseBrainReview({ result, memo: reviewMemo }); }
+    catch { setError(messages.invalid_review); return; }
+    await execute({ action: "review", id: note.id, revision: note.revision, commandId: crypto.randomUUID(), commandRevision: note.commandRevision, review: input });
+  }
+
   return <div className="brain-capture">
     <noscript><p className="capture-help">기록 작성과 저장에는 JavaScript가 필요합니다. 브라우저 설정에서 JavaScript를 켜 주세요.</p></noscript>
     <header className="capture-header"><div><p className="capture-eyebrow">PRIVATE NOTES</p><h1>나만 보는 기록</h1><p>그때 있었던 일과 생각을 편하게 적어 두세요.</p></div><a href={`${publicOrigin}/brain`} target="_blank" rel="noreferrer">Second Brain 열기 ↗</a></header>
     <p className="capture-help">여기서는 직접 저장한 기록을 관리합니다. 기본 카탈로그의 기록 {catalog.nodes.length}개와 연결 {catalog.edges.length}개는 코드로 관리합니다.</p>
+    {reviewQueue}
     <div className="capture-layout">
       <aside className="capture-sidebar" aria-label="내 기록"><button type="button" className="capture-primary" disabled={locked} onClick={() => open()}>새 기록 쓰기</button><h2>저장한 기록 <small>{notes.length}</small></h2>
         <label htmlFor="capture-search">내 기록 검색</label><input id="capture-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="제목이나 태그" />
@@ -234,9 +251,26 @@ export function BrainCapture({ initialNotes, catalog, publicOrigin }: { initialN
           <label className="capture-check"><input type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)} />공개용 제목·요약·본문과 출처·질문을 확인했습니다.</label>
           <div className="capture-actions"><button type="button" disabled={!confirmed || !preview} onClick={() => act("publish")}>확인한 사본 공개</button>{note?.publishedRevision && <button type="button" onClick={() => act("unpublish")}>공개 해제</button>}</div>
         </fieldset>
+        {note && <section className="capture-review" aria-label="버전별 재검토">
+          <h2>저장한 버전 다시 확인</h2>
+          <p>v{note.revision} · 상태: {brainReviewStatusLabels[note.review.status]}</p>
+          <p className="capture-help">이 버전을 확인했다는 비공개 기록입니다. 공개 승인과는 별개이며 내용을 수정하면 다시 확인해야 합니다.</p>
+          {note.review.checkedAt && <p className="capture-help">확인 시각 {new Date(note.review.checkedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}</p>}
+          <fieldset disabled={!hydrated || locked || dirty}>
+            <label htmlFor="capture-review-memo">검토 메모</label><textarea id="capture-review-memo" maxLength={500} rows={3} value={reviewMemo} onChange={event => setReviewMemo(event.target.value)} />
+            <p className="capture-help">다시 볼 출처나 조건을 짧게 적어 주세요. 재확인 지정에는 이유가 필요합니다.</p>
+            <div className="capture-actions"><button type="button" onClick={() => review("confirmed")}>이 버전 확인 완료</button><button type="button" disabled={!reviewMemo.trim()} onClick={() => review("needs_review")}>다시 확인할 항목으로 지정</button></div>
+          </fieldset>
+          {dirty && <p className="capture-help">작성 중인 내용을 먼저 저장한 뒤 확인해 주세요.</p>}
+          <details className="capture-history"><summary>확인 이력 · 최근 {note.review.history.length}개</summary>
+            {!note.review.history.length && <p>아직 확인 이력이 없습니다.</p>}
+            <ul>{note.review.history.map(item => <li key={item.commandRevision}>v{item.revision} · {brainReviewStatusLabels[item.result]} · {new Date(item.recordedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}<p>{item.memo}</p></li>)}</ul>
+            {note.review.hasMore && <p className="capture-help">더 이전 이력은 저장소에 보존돼 있습니다.</p>}
+          </details>
+        </section>}
         <p role="status" className="capture-message">{message}</p>{error && <p role="alert" className="capture-error">{error}</p>}
         {pendingCommand && !busy && <div className="capture-actions"><p className="capture-help">이미 처리됐을 수 있어요. 중복 저장을 막기 위해 같은 요청의 결과를 먼저 확인합니다. 화면을 닫기 전까지 이 요청을 유지합니다.</p><button type="button" onClick={() => execute(pendingCommand)}>같은 요청 다시 확인</button></div>}
-        {note && <details className="capture-history"><summary>저장·공개 변경 이력 · 최근 {note.actions.length}개</summary><p className="capture-help">변경 이력 기능 도입 후 완료된 요청만 표시합니다. 원문 수정 이력은 아래에서 볼 수 있습니다.</p><ul>{note.actions.map(action => <li key={action.commandRevision}>{new Date(action.createdAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} · {{ save: "비공개 저장", publish: "사본 공개", unpublish: "공개 해제" }[action.action]} · v{action.revision}</li>)}</ul></details>}
+        {note && <details className="capture-history"><summary>저장·공개·검토 이력 · 최근 {note.actions.length}개</summary><p className="capture-help">변경 이력 기능 도입 후 완료된 요청만 표시합니다. 원문 수정 이력은 아래에서 볼 수 있습니다.</p><ul>{note.actions.map(action => <li key={action.commandRevision}>{new Date(action.createdAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} · {{ save: "비공개 저장", publish: "사본 공개", unpublish: "공개 해제", review: "수동 재검토" }[action.action]} · v{action.revision}</li>)}</ul></details>}
         {note && <details className="capture-history"><summary>수정 이력 · {note.history.length}개</summary><p className="capture-help">이전에 저장한 원문입니다. 여기서 과거 기록을 덮어쓰지 않습니다.</p>{note.history.map(version => <details key={version.revision}><summary>v{version.revision} · {new Date(version.createdAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}</summary><h3>{version.draft.title}</h3><pre>{version.draft.originalText}</pre></details>)}</details>}
       </section>
     </div>

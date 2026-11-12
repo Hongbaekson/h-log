@@ -1,6 +1,7 @@
 import { assertBrainNoteId, type createBrainRepository } from "./brain-postgres-repository.ts";
 import { parseBrainCommand, parseBrainDraft } from "./brain-capture.ts";
 import { authorizeBrainOwner, brainPrivateHeaders } from "./brain-owner.ts";
+import { parseBrainReview, parseBrainReviewQuery } from "./brain-review.ts";
 
 async function readCommand(request: Request): Promise<Record<string, unknown>> {
   if (!request.headers.get("content-type")?.toLowerCase().startsWith("application/json")) throw new Error("unsupported_media_type");
@@ -34,7 +35,12 @@ export async function handleBrainCaptureRequest(
   const json = (value: unknown, status = 200) => Response.json(value, { status, headers: brainPrivateHeaders });
   try {
     if (request.method === "GET") {
-      const id = new URL(request.url).searchParams.get("id");
+      const params = new URL(request.url).searchParams;
+      if (params.has("view")) {
+        const query = parseBrainReviewQuery(params);
+        return json(await repository().listReviewNotes(query));
+      }
+      const id = params.get("id");
       if (id === null) return json({ notes: await repository().listOwnerNotes() });
       assertBrainNoteId(id);
       const note = await repository().getOwnerNote(id);
@@ -43,13 +49,17 @@ export async function handleBrainCaptureRequest(
     if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
     const command = await readCommand(request);
     const { action, id, revision } = command;
-    if (!["save", "publish", "unpublish"].includes(action as string)) throw new Error("invalid_request");
-    const keys = action === "save" ? ["action", "id", "revision", "draft"] : action === "publish" ? ["action", "id", "revision", "confirmed"] : ["action", "id", "revision"];
+    if (!["save", "publish", "unpublish", "review"].includes(action as string)) throw new Error("invalid_request");
+    const keys = action === "save" ? ["action", "id", "revision", "draft"] : action === "publish" ? ["action", "id", "revision", "confirmed"] : action === "review" ? ["action", "id", "revision", "review"] : ["action", "id", "revision"];
     keys.push("commandId", "commandRevision");
     if (Object.keys(command).some(key => !keys.includes(key))) throw new Error("invalid_request");
     if (id !== undefined || action !== "save") assertBrainNoteId(id);
     if (!Number.isSafeInteger(revision) || (id ? (revision as number) < 1 : revision !== 0)) throw new Error("invalid_revision");
     const metadata = parseBrainCommand(command);
+    if (action === "review") {
+      const review = parseBrainReview(command.review);
+      return json(await repository().reviewNote(id as string, revision as number, review, metadata));
+    }
     if (action === "save") {
       const draft = parseBrainDraft(command.draft);
       return json(await repository().saveDraft(draft, id as string | undefined, revision as number, metadata));
@@ -65,6 +75,7 @@ export async function handleBrainCaptureRequest(
       public_copy_required: 400, public_copy_blocked: 422, publication_confirmation_required: 400,
       revision_conflict: 409, note_not_found: 404, request_too_large: 413, unsupported_media_type: 415,
       command_metadata_required: 400, invalid_command_metadata: 400, command_conflict: 409, command_revision_conflict: 409,
+      invalid_review: 400, invalid_review_query: 400,
     };
     const code = error instanceof Error && Object.hasOwn(statuses, error.message) ? error.message : "storage_unavailable";
     return json({ error: code, ...(code === "command_metadata_required" ? { message: "입력한 내용을 따로 보관한 뒤 화면을 새로고침해 주세요." } : {}) }, statuses[code] ?? 503);

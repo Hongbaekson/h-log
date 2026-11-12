@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "owner-review-queue",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-12: Implemented private version-bound review queue, status/reason filters and 20-row keyset reads, append-only review history with atomic owner commands and legacy fingerprint compatibility. Unit 300 pass/29 DB skip; isolated integration 8/8; production/dev HTTP 2/2 and browser 12/12; dump/restore preserved 20 reviews and 24 originals. Source lint/typecheck/build passed; default lint retains baseline private 10 errors/6 warnings and build 2 warnings. R2-C01–C05 follow-up recorded; no production migration/publication. R13 completed/1 pending, next R5 Step 2; F22 pending."
     },
     {
       "step": 2,

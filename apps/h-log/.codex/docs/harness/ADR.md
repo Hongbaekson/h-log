@@ -543,3 +543,5 @@ DB 전에 실패할 수 있는 인증/생성을 DB 실행 이력만으로 관측
 **선택 이유**: 확인 이력을 draft에 넣으면 단순 검토가 원문 버전을 만들고 공개 가능 필드와 섞인다. 공통 감사 JSON에 메모를 겸용하면 버전 FK·원문 보존·조회 경계가 모호해진다. 전용 작은 이력을 쓰면 과거 확인과 공개 상태를 보존하며 목록을 재계산할 수 있다. 테이블과 action enum·label·backup inventory/upgrade 검증이 추가되는 비용은 R5 Step 1에서 다룬다.
 
 **범위**: 정적 카탈로그·Blog/Portfolio/Resume는 기존 R2 대장으로 수동 인계한다. 범용 CMS·별도 서비스·추가 AI·자동 만료·점수·알림·일정을 만들지 않는다. 이 결정은 migration 작성/적용·화면 구현·실제 검토/발행·운영 보류 해제 완료가 아니다.
+
+**R5 Step 1 구현 (2026-11-12)**: migration 013, `brain-review.ts`, 기존 repository/HTTP·편집기에 위 계약을 적용했다. 기존 명령 fingerprint·중복 receipt, 감사/확인 이력 실패 rollback, 공개 사본 불변과 dump/restore를 격리 DB에서 검증했다. 서버 queue는 필터 후 LIMIT 21로 최대 20개를 반환하고 최근 확인 이력도 20개로 제한한다. 기존 전체 목록·원문 history의 비용은 F6에 남는다. [검수 결과](BRAIN_MANUAL_REVIEW_REVIEW.md). 위 미구현 표기는 Step 0 결정 당시 상태다.

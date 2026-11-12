@@ -562,3 +562,9 @@ F2는 기존 read path의 불필요 계산을 먼저 줄이고 F3는 재생성 �
 ## 수동 재검토 예정 구조 — R5 Step 0 계약, 미구현
 
 2026-11-12 [ADR-044](ADR.md#adr-044)와 [R5 계약](KNOWLEDGE_CONTENT_IMPROVEMENT_PLAN.md#r5-manual-review-contract)을 확정했다. 후속 Step 1은 기존 `/admin/brain`·`brain-capture-http`·`createBrainRepository`를 재사용해 `review` 명령과 제한 조회 분기를 넣는다. 기존 PostgreSQL에 버전 FK를 가진 `brain_note_reviews`만 추가하며 commandRevision·admin_actions와 한 transaction으로 쓴다. 조회 상태는 불변 원문과 확인 이력에서 계산한다. 공개 loader/DTO·Blog editorial은 바꾸지 않는다. 새 migration·action label·inventory/upgrade/복구 검증과 UI는 후속 구현 대상이며 현재 runtime에 존재한다고 표시하지 않는다.
+
+## 수동 재검토 구현 — R5 Step 1
+
+2026-11-12 `lib/brain-review.ts`가 메모/필터 검증과 버전별 상태를 정의한다. migration 013의 `brain_note_reviews`는 불변 버전 FK·명령 UUID·서버 시각을 가지며 UPDATE/DELETE를 막는다. `brain-postgres-repository.ts`는 기존 명령 transaction 안에서 이력과 감사·command revision을 기록한다. 기존 `records?view=review`는 read-only repeatable-read·3초 timeout·서버 필터·id cursor로 최대 20개를 반환한다. 과거 확인은 현재 새 버전의 확인 완료가 되지 않는다.
+
+`BrainReviewQueue.tsx`는 서버 GET 필터·native 링크를 제공하고 `BrainCapture.tsx`는 현재 기록의 확인/메모·최근 20개 이력을 기존 편집기에 더한다. 새 명령 뒤 router.refresh로 서버 목록을 갱신하며 기존 pending command·재시도 잠금을 재사용한다. JS OFF에는 목록과 기록 조회만 가능하다. 확인 명령은 current_revision·updated_at·public_node·published_revision을 바꾸지 않는다. 공개 renderer/DTO와 기본 카탈로그는 그대로다. 기존 전체 목록·원문 history는 F6 대상이다. [검수 결과](BRAIN_MANUAL_REVIEW_REVIEW.md).

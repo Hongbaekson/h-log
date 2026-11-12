@@ -6,6 +6,45 @@ const environment = { HLOG_ADMIN_ENABLED: "1", HLOG_BRAIN_DATABASE_ENABLED: "1",
 const headers = { host: "127.0.0.1:3013", authorization: `Basic ${Buffer.from(`owner:${environment.HLOG_ADMIN_OWNER_KEY}`).toString("base64")}`, origin: environment.HLOG_ADMIN_ORIGIN, "content-type": "application/json" };
 const url = `${environment.HLOG_ADMIN_ORIGIN}/admin/brain/records`;
 
+test("manual review dispatches a valid version-bound command and returns its receipt", async () => {
+  const command = { action: "review", id: "note-12345678-1234-1234-1234-123456789abc", revision: 1,
+    commandId: "12345678-1234-1234-1234-123456789abc", commandRevision: 1, review: { result: "confirmed", memo: "확인한 범위" } };
+  let called = false;
+  const repository = { async reviewNote(id: string, revision: number, review: unknown, metadata: unknown) {
+    assert.equal(id, command.id); assert.equal(revision, 1); assert.deepEqual(review, command.review);
+    assert.deepEqual(metadata, { commandId: command.commandId, commandRevision: 1 }); called = true;
+    return { id, revision, commandRevision: 2 };
+  } };
+  const response = await handleBrainCaptureRequest(new Request(url, { method: "POST", headers, body: JSON.stringify(command) }),
+    () => repository as unknown as ReturnType<Parameters<typeof handleBrainCaptureRequest>[1]>, environment);
+  assert.equal(response.status, 200); assert(called);
+  assert.deepEqual(await response.json(), { id: command.id, revision: 1, commandRevision: 2 });
+});
+
+test("manual review queue rejects invalid query before storage access", async () => {
+  for (const query of ["view=review&status=expired", "view=review&status=all&status=attention", "view=review&id=note-x", "view=review&after=bad", "view=review&extra=1"]) {
+    let accessed = false;
+    const response = await handleBrainCaptureRequest(new Request(url + "?" + query, { headers }), () => {
+      accessed = true; throw new Error("must not open storage");
+    }, environment);
+    assert.equal(response.status, 400); assert.equal(accessed, false);
+    assert.deepEqual(await response.json(), { error: "invalid_review_query" });
+  }
+});
+
+test("invalid review input never accesses storage or echoes the memo", async () => {
+  for (const review of [{ result: "confirmed", memo: "x".repeat(501) }, { result: "needs_review", memo: " " },
+    { result: "confirmed", memo: "PRIVATE_BAD_MEMO\0" }, { result: "expired", memo: "PRIVATE_BAD_MEMO" }]) {
+    const response = await handleBrainCaptureRequest(new Request(url, { method: "POST", headers, body: JSON.stringify({
+      action: "review", id: "note-12345678-1234-1234-1234-123456789abc", revision: 1,
+      commandId: "12345678-1234-1234-1234-123456789abc", commandRevision: 1, review,
+    }) }), () => { assert.fail("invalid review must not open storage"); }, environment);
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), { error: "invalid_review" });
+    assert.match(response.headers.get("cache-control")!, /no-store/);
+  }
+});
+
 test("provenance validation returns bounded private errors before storage access", async () => {
   const unavailable = () => { assert.fail("invalid provenance must not open storage"); };
   const draft = { title: "개인 제목", originalText: "원문", publicTitle: "", publicSummary: "", publicBody: "", kind: "question", topic: "tools", basis: "question", tags: [] };
