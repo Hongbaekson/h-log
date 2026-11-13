@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "lightweight-list-model",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-13: Step 0 completed. Added list-only cards without Markdown block/TOC work, per-snapshot relation indexes and React render-scoped list sharing for metadata/page and Home. RED/GREEN, 301 unit passes, real RSC cache check, isolated public DB/HTTP/UI and F1 list CPU/HTTP comparison passed; initial detail/search tail spikes were not reproduced in two HTTP rechecks; a later Markdown p95 exceedance and one unexplained exit 139 remain documented for follow-up; old private lint errors remain documented. Source/public versions and UI preserved; no cross-request cache/schema/operations change. Step 1 scoped-markdown-read remains pending; F 2 completed/20 pending."
     },
     {
       "step": 1,

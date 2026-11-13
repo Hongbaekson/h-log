@@ -1,0 +1,1381 @@
+{
+  "baseline": "performance-baseline-2026-11-13.json",
+  "run": "hlog-perf-dddeb6d0",
+  "startedAt": "2026-11-13T03:25:26.795Z",
+  "completedAt": "2026-11-13T03:34:55.730Z",
+  "environment": {
+    "commit": "57faf932959e3b635eee71c625ae9e93ec3c67ca",
+    "sourceHash": "6d249124ca5dfd7eea79fb4bf36dd89f3dcf9ea54a318eec78b0976191a46fbf",
+    "harnessHash": "2bca2941605b9e43b46054a88da6c24b1dfb02fff12e8983ee6f1bcf9abd04d4",
+    "node": "v22.14.0",
+    "next": "16.4.3",
+    "playwright": "1.62.1",
+    "platform": "win32",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-13700K",
+    "logicalCpus": 24,
+    "memoryBytes": 34088296448,
+    "docker": "29.6.1",
+    "dbImage": "pgvector/pgvector:pg16@sha256:a36250871de0833b8757561c72f2477ef1ddd1101afa4e617fb552e0de514c6b",
+    "appLimits": {
+      "cpus": 2,
+      "memory": "2g"
+    },
+    "dbLimits": {
+      "cpus": 1,
+      "memory": "1g"
+    },
+    "imageId": "sha256:bc0438764d2c852b88a53e40dc6f9c7f2f8adc92e1ab625ba6e6b90e8d6c4cf7",
+    "browser": "157.0.4341.46",
+    "appNode": "v24.19.0"
+  },
+  "equivalentListCases": 28,
+  "fullModelsEquivalent": true,
+  "originalsPreserved": true,
+  "fixtureHashes": [
+    {
+      "kind": "blog",
+      "count": 10,
+      "sha256": "8001052a4b88d28de13b4601d7d091a60b7d35eda5050b756da53601cfb3528b"
+    },
+    {
+      "kind": "blog",
+      "count": 100,
+      "sha256": "a4d029292188baf4c0fb11b316969d666693bd9cfbf1e87428ec2b4d23ccdd55"
+    },
+    {
+      "kind": "blog",
+      "count": 500,
+      "sha256": "48c21b367cba2cdadda7ba5b510f66e733d0a8cececbcaa1fc7023557b1e355d"
+    },
+    {
+      "kind": "blog",
+      "count": 1000,
+      "sha256": "f4f82e4988a8f94c9baf9308204bda939de14fc0d19a469071162dcafa84377b"
+    },
+    {
+      "kind": "brain",
+      "count": 28,
+      "sha256": "016164883f492f78a31c4c41b97b5e39d82420ad948c2c48094ca380907eee31"
+    },
+    {
+      "kind": "brain",
+      "count": 100,
+      "sha256": "ba092d18653f4d4eed608c3a6bf392975b341f661f99fa707fd3e87e0c5b88fa"
+    },
+    {
+      "kind": "brain",
+      "count": 300,
+      "sha256": "c9fedcc4e7c60a581d47273ee1303d69887be107617c86e6df705ae9769eb9c4"
+    },
+    {
+      "kind": "brain",
+      "count": 1000,
+      "sha256": "259c4a595ab2020527945024316e8561fa6d97dfb15e73502ce771f591e485d2"
+    }
+  ],
+  "method": {
+    "cpu": "Host pure functions, 2 warmups/5 samples; median only.",
+    "http": "32 warm requests per route/concurrency 1 or 8; 1 warmup. First route request recorded separately; DB/OS caches not flushed.",
+    "browser": "Fresh context cold navigation then same-context warm navigation; 1440/390 x CPU 1/4 x 3 pairs; reduced motion, DPR1, no network throttling.",
+    "interaction": "Keyboard click dispatch to second animation frame after layout DOM changes (brain to topics); not field INP.",
+    "heap": "Runtime.getHeapUsage usedSize after forced GC and one brain/topics/brain roundtrip; not a leak proof.",
+    "p95": "Sorted sample at ceil(0.95*n)-1; p50 is middle value or mean of two middle values.",
+    "comparison": "Same fixture/source-independent harness hash, hardware, image build/tool versions, resource limits and conditions. Regression limit = larger baseline run median * ratio + allowance; HTTP p95 compares larger run p95. Never pool different conditions."
+  },
+  "rows": [
+    {
+      "metric": "list_model_cpu_ms",
+      "condition": "10",
+      "baseline": [
+        7.49,
+        7.42
+      ],
+      "candidate": 1.0569999999970605,
+      "limit": 10.988,
+      "passed": true
+    },
+    {
+      "metric": "list_model_cpu_ms",
+      "condition": "100",
+      "baseline": [
+        22.98,
+        22.86
+      ],
+      "candidate": 5.334800000000541,
+      "limit": 29.576,
+      "passed": true
+    },
+    {
+      "metric": "list_model_cpu_ms",
+      "condition": "500",
+      "baseline": [
+        120.78,
+        117.23
+      ],
+      "candidate": 25.402600000001257,
+      "limit": 146.936,
+      "passed": true
+    },
+    {
+      "metric": "list_model_cpu_ms",
+      "condition": "1000",
+      "baseline": [
+        242.4,
+        237.68
+      ],
+      "candidate": 53.08030000000144,
+      "limit": 292.88,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "10//blog/1",
+      "baseline": [
+        17.33,
+        16.94
+      ],
+      "candidate": 14.90349999999853,
+      "limit": 40.79599999999999,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "10//blog/1",
+      "baseline": [
+        34.73,
+        22.73
+      ],
+      "candidate": 25.841700000000856,
+      "limit": 93.4125,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "10//blog/8",
+      "baseline": [
+        98.28,
+        102.94
+      ],
+      "candidate": 65.44174999999996,
+      "limit": 143.528,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "10//blog/8",
+      "baseline": [
+        163.51,
+        179.64
+      ],
+      "candidate": 125.31290000000081,
+      "limit": 274.54999999999995,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "10//blog/perf-0000/1",
+      "baseline": [
+        15.87,
+        13.65
+      ],
+      "candidate": 13.481550000000425,
+      "limit": 39.044,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "10//blog/perf-0000/1",
+      "baseline": [
+        21.64,
+        15.63
+      ],
+      "candidate": 16.84780000000319,
+      "limit": 77.05,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "10//blog/perf-0000/8",
+      "baseline": [
+        101.45,
+        90.82
+      ],
+      "candidate": 95.36525000000074,
+      "limit": 141.74,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "10//blog/perf-0000/8",
+      "baseline": [
+        145.83,
+        136.9
+      ],
+      "candidate": 128.6398999999983,
+      "limit": 232.28750000000002,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "10//blog/perf-0000.md/1",
+      "baseline": [
+        4.93,
+        4.51
+      ],
+      "candidate": 4.383850000000166,
+      "limit": 25.916,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "10//blog/perf-0000.md/1",
+      "baseline": [
+        6.75,
+        5.8
+      ],
+      "candidate": 5.368700000002718,
+      "limit": 58.4375,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "10//blog/perf-0000.md/8",
+      "baseline": [
+        28.7,
+        26.6
+      ],
+      "candidate": 26.942650000000867,
+      "limit": 54.44,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "10//blog/perf-0000.md/8",
+      "baseline": [
+        33.74,
+        32.88
+      ],
+      "candidate": 31.373199999998178,
+      "limit": 92.17500000000001,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "10//api/search?q=Redis/1",
+      "baseline": [
+        5.42,
+        5
+      ],
+      "candidate": 4.783449999998993,
+      "limit": 26.503999999999998,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "10//api/search?q=Redis/1",
+      "baseline": [
+        6.54,
+        6.36
+      ],
+      "candidate": 7.744599999998172,
+      "limit": 58.175,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "10//api/search?q=Redis/8",
+      "baseline": [
+        30.25,
+        29.02
+      ],
+      "candidate": 29.868599999999788,
+      "limit": 56.3,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "10//api/search?q=Redis/8",
+      "baseline": [
+        37.27,
+        35
+      ],
+      "candidate": 33.279200000000856,
+      "limit": 96.5875,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "100//blog/1",
+      "baseline": [
+        76.99,
+        74.93
+      ],
+      "candidate": 31.92529999999897,
+      "limit": 112.38799999999999,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "100//blog/1",
+      "baseline": [
+        86.78,
+        87.56
+      ],
+      "candidate": 41.073599999999715,
+      "limit": 159.45,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "100//blog/8",
+      "baseline": [
+        587.11,
+        577.25
+      ],
+      "candidate": 253.7138500000019,
+      "limit": 724.532,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "100//blog/8",
+      "baseline": [
+        909.09,
+        974.71
+      ],
+      "candidate": 393.8116999999984,
+      "limit": 1268.3875,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "100//blog/perf-0000/1",
+      "baseline": [
+        40.32,
+        39.35
+      ],
+      "candidate": 42.84935000000041,
+      "limit": 68.384,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "100//blog/perf-0000/1",
+      "baseline": [
+        46.42,
+        43.26
+      ],
+      "candidate": 48.9406999999992,
+      "limit": 108.025,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "100//blog/perf-0000/8",
+      "baseline": [
+        298.42,
+        289.86
+      ],
+      "candidate": 309.8451499999974,
+      "limit": 378.104,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "100//blog/perf-0000/8",
+      "baseline": [
+        423.67,
+        419.02
+      ],
+      "candidate": 458.8455999999969,
+      "limit": 579.5875,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "100//blog/perf-0000.md/1",
+      "baseline": [
+        21.08,
+        20.86
+      ],
+      "candidate": 21.561100000000806,
+      "limit": 45.29599999999999,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "100//blog/perf-0000.md/1",
+      "baseline": [
+        23.9,
+        23.08
+      ],
+      "candidate": 23.57589999999982,
+      "limit": 79.875,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "100//blog/perf-0000.md/8",
+      "baseline": [
+        147.04,
+        143.05
+      ],
+      "candidate": 152.18990000000122,
+      "limit": 196.44799999999998,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "100//blog/perf-0000.md/8",
+      "baseline": [
+        161.37,
+        164.17
+      ],
+      "candidate": 168.78859999999986,
+      "limit": 255.21249999999998,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "100//api/search?q=Redis/1",
+      "baseline": [
+        25.57,
+        26.37
+      ],
+      "candidate": 28.02824999999939,
+      "limit": 51.644,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "100//api/search?q=Redis/1",
+      "baseline": [
+        31.07,
+        28.61
+      ],
+      "candidate": 30.963800000001356,
+      "limit": 88.8375,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "100//api/search?q=Redis/8",
+      "baseline": [
+        196.65,
+        196.94
+      ],
+      "candidate": 197.36085000000094,
+      "limit": 256.328,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "100//api/search?q=Redis/8",
+      "baseline": [
+        218.17,
+        218.06
+      ],
+      "candidate": 233.22350000000006,
+      "limit": 322.7125,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "500//blog/1",
+      "baseline": [
+        362.6,
+        353.64
+      ],
+      "candidate": 136.9216499999966,
+      "limit": 455.12,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "500//blog/1",
+      "baseline": [
+        384.04,
+        366.21
+      ],
+      "candidate": 164.09850000000006,
+      "limit": 530.05,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "500//blog/8",
+      "baseline": [
+        2785.73,
+        2674.33
+      ],
+      "candidate": 1048.6273500000025,
+      "limit": 3362.8759999999997,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "500//blog/8",
+      "baseline": [
+        3588.11,
+        3491.51
+      ],
+      "candidate": 1418.2247999999963,
+      "limit": 4535.1375,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "500//blog/perf-0000/1",
+      "baseline": [
+        170.48,
+        162.4
+      ],
+      "candidate": 163.48369999999704,
+      "limit": 224.576,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "500//blog/perf-0000/1",
+      "baseline": [
+        187.26,
+        168.9
+      ],
+      "candidate": 174.06429999999818,
+      "limit": 284.075,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "500//blog/perf-0000/8",
+      "baseline": [
+        1292.84,
+        1257.02
+      ],
+      "candidate": 1323.9406500000005,
+      "limit": 1571.408,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "500//blog/perf-0000/8",
+      "baseline": [
+        1800.45,
+        1718.75
+      ],
+      "candidate": 2328.9686999999976,
+      "limit": 2300.5625,
+      "passed": false
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "500//blog/perf-0000.md/1",
+      "baseline": [
+        96.87,
+        94.21
+      ],
+      "candidate": 94.84120000000621,
+      "limit": 136.244,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "500//blog/perf-0000.md/1",
+      "baseline": [
+        106.03,
+        99.73
+      ],
+      "candidate": 102.67190000000119,
+      "limit": 182.5375,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "500//blog/perf-0000.md/8",
+      "baseline": [
+        756.6,
+        724.45
+      ],
+      "candidate": 748.7412000000004,
+      "limit": 927.92,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "500//blog/perf-0000.md/8",
+      "baseline": [
+        903.96,
+        841.73
+      ],
+      "candidate": 857.6827000000048,
+      "limit": 1179.95,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "500//api/search?q=Redis/1",
+      "baseline": [
+        135.86,
+        130.34
+      ],
+      "candidate": 137.3648499999981,
+      "limit": 183.032,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "500//api/search?q=Redis/1",
+      "baseline": [
+        153.75,
+        136.06
+      ],
+      "candidate": 150.8859000000084,
+      "limit": 242.1875,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "500//api/search?q=Redis/8",
+      "baseline": [
+        1058.41,
+        1017.78
+      ],
+      "candidate": 1039.640449999999,
+      "limit": 1290.092,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "500//api/search?q=Redis/8",
+      "baseline": [
+        1220.44,
+        1171.09
+      ],
+      "candidate": 1313.907400000011,
+      "limit": 1575.5500000000002,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "1000//blog/1",
+      "baseline": [
+        747.79,
+        724.84
+      ],
+      "candidate": 261.36765000000014,
+      "limit": 917.348,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "1000//blog/1",
+      "baseline": [
+        773.38,
+        752.01
+      ],
+      "candidate": 281.29150000000664,
+      "limit": 1016.725,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "1000//blog/8",
+      "baseline": [
+        5706.73,
+        5645.73
+      ],
+      "candidate": 2062.2474500000026,
+      "limit": 6868.075999999999,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "1000//blog/8",
+      "baseline": [
+        7362.7,
+        7122.58
+      ],
+      "candidate": 2536.8413999999902,
+      "limit": 9253.375,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "1000//blog/perf-0000/1",
+      "baseline": [
+        332.16,
+        339.81
+      ],
+      "candidate": 332.123599999999,
+      "limit": 427.772,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "1000//blog/perf-0000/1",
+      "baseline": [
+        361.29,
+        356.55
+      ],
+      "candidate": 354.18559999999707,
+      "limit": 501.6125,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "1000//blog/perf-0000/8",
+      "baseline": [
+        2626.66,
+        2588.82
+      ],
+      "candidate": 2617.779450000002,
+      "limit": 3171.9919999999997,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "1000//blog/perf-0000/8",
+      "baseline": [
+        3653.48,
+        3301.57
+      ],
+      "candidate": 3362.3680999999924,
+      "limit": 4616.85,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "1000//blog/perf-0000.md/1",
+      "baseline": [
+        193.61,
+        192.86
+      ],
+      "candidate": 205.33140000001004,
+      "limit": 252.332,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "1000//blog/perf-0000.md/1",
+      "baseline": [
+        206.19,
+        207.81
+      ],
+      "candidate": 219.6490999999951,
+      "limit": 309.7625,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "1000//blog/perf-0000.md/8",
+      "baseline": [
+        1384.9,
+        1361.9
+      ],
+      "candidate": 1436.3381500000105,
+      "limit": 1681.88,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "1000//blog/perf-0000.md/8",
+      "baseline": [
+        1879.95,
+        1877.42
+      ],
+      "candidate": 1957.4141999999993,
+      "limit": 2399.9375,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "1000//api/search?q=Redis/1",
+      "baseline": [
+        294.06,
+        288.75
+      ],
+      "candidate": 293.93420000000333,
+      "limit": 372.872,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "1000//api/search?q=Redis/1",
+      "baseline": [
+        332.68,
+        301.81
+      ],
+      "candidate": 329.62079999997513,
+      "limit": 465.85,
+      "passed": true
+    },
+    {
+      "metric": "request_p50_ms",
+      "condition": "1000//api/search?q=Redis/8",
+      "baseline": [
+        2309.45,
+        2299.27
+      ],
+      "candidate": 1817.1917499999981,
+      "limit": 2791.3399999999997,
+      "passed": true
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "1000//api/search?q=Redis/8",
+      "baseline": [
+        2820.66,
+        2906.15
+      ],
+      "candidate": 6327.191200000001,
+      "limit": 3682.6875,
+      "passed": false
+    }
+  ],
+  "failures": [
+    {
+      "metric": "request_p95_ms",
+      "condition": "500//blog/perf-0000/8",
+      "baseline": [
+        1800.45,
+        1718.75
+      ],
+      "candidate": 2328.9686999999976,
+      "limit": 2300.5625,
+      "passed": false
+    },
+    {
+      "metric": "request_p95_ms",
+      "condition": "1000//api/search?q=Redis/8",
+      "baseline": [
+        2820.66,
+        2906.15
+      ],
+      "candidate": 6327.191200000001,
+      "limit": 3682.6875,
+      "passed": false
+    }
+  ],
+  "samples": {
+    "cpu": 80,
+    "http": 1024,
+    "browser": 96,
+    "discovery": 6
+  },
+  "cleanup": {
+    "complete": true,
+    "errors": []
+  },
+  "ui": {
+    "discoverySamples": 6,
+    "layouts": 5,
+    "widths": [
+      1440,
+      390,
+      320
+    ],
+    "radar": true,
+    "readerAndHistory": true
+  },
+  "scope": "One candidate run versus the two F1 runs. Blog CPU/HTTP are compared; Brain rendering is a functional regression check, not a performance improvement claim. The list DTO intentionally omits detail-only fields; list field equality and full detail equality are verified against the previous source.",
+  "confirmation": {
+    "scope": "Two additional local runs: Blog 500/1000, same four HTTP routes/order, two warmup/first requests and 32 measured requests per concurrency 1/8. Other sizes and browser measurements are omitted. The original complete-run tail exceedances are preserved in failures/rows.",
+    "runs": [
+      {
+        "run": "hlog-perf-a03f7623",
+        "startedAt": "2026-11-13T03:45:40.380Z",
+        "completedAt": "2026-11-13T03:48:00.464Z",
+        "imageId": "sha256:799277964175265cd220a78b9d04062d8c28d45d22cd7de00dca2390229b9d58",
+        "probeHash": "0350d600695077747f8fd6d7c567ad8a1b9f48df16d1e55015ebcad21a24b71b",
+        "httpRequests": 512,
+        "cleanup": true,
+        "checks": [
+          {
+            "metric": "request_p50_ms",
+            "condition": "500//blog/1",
+            "value": 132.90140000000065,
+            "limit": 455.12,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "500//blog/1",
+            "value": 141.33710000000065,
+            "limit": 530.05,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "500//blog/8",
+            "value": 1030.8116499999996,
+            "limit": 3362.8759999999997,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "500//blog/8",
+            "value": 1246.4555,
+            "limit": 4535.1375,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "500//blog/perf-0000/1",
+            "value": 164.01625000000058,
+            "limit": 224.576,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "500//blog/perf-0000/1",
+            "value": 175.18619999999646,
+            "limit": 284.075,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "500//blog/perf-0000/8",
+            "value": 1275.427050000002,
+            "limit": 1571.408,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "500//blog/perf-0000/8",
+            "value": 1647.5472999999984,
+            "limit": 2300.5625,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "500//blog/perf-0000.md/1",
+            "value": 95.95430000000124,
+            "limit": 136.244,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "500//blog/perf-0000.md/1",
+            "value": 102.3752999999997,
+            "limit": 182.5375,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "500//blog/perf-0000.md/8",
+            "value": 749.5938500000011,
+            "limit": 927.92,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "500//blog/perf-0000.md/8",
+            "value": 880.9447,
+            "limit": 1179.95,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "500//api/search?q=Redis/1",
+            "value": 132.55040000000008,
+            "limit": 183.032,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "500//api/search?q=Redis/1",
+            "value": 141.89020000000164,
+            "limit": 242.1875,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "500//api/search?q=Redis/8",
+            "value": 1055.933000000001,
+            "limit": 1290.092,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "500//api/search?q=Redis/8",
+            "value": 1199.1578000000009,
+            "limit": 1575.5500000000002,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "1000//blog/1",
+            "value": 261.2050999999992,
+            "limit": 917.348,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "1000//blog/1",
+            "value": 278.46050000000105,
+            "limit": 1016.725,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "1000//blog/8",
+            "value": 2068.2196500000064,
+            "limit": 6868.075999999999,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "1000//blog/8",
+            "value": 2391.426299999992,
+            "limit": 9253.375,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "1000//blog/perf-0000/1",
+            "value": 336.1704000000027,
+            "limit": 427.772,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "1000//blog/perf-0000/1",
+            "value": 351.39109999999346,
+            "limit": 501.6125,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "1000//blog/perf-0000/8",
+            "value": 2650.135700000006,
+            "limit": 3171.9919999999997,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "1000//blog/perf-0000/8",
+            "value": 3346.429099999994,
+            "limit": 4616.85,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "1000//blog/perf-0000.md/1",
+            "value": 201.7957499999975,
+            "limit": 252.332,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "1000//blog/perf-0000.md/1",
+            "value": 249.70810000000347,
+            "limit": 309.7625,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "1000//blog/perf-0000.md/8",
+            "value": 1622.6252499999973,
+            "limit": 1681.88,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "1000//blog/perf-0000.md/8",
+            "value": 1842.236499999999,
+            "limit": 2399.9375,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "1000//api/search?q=Redis/1",
+            "value": 296.95849999999336,
+            "limit": 372.872,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "1000//api/search?q=Redis/1",
+            "value": 337.4953999999998,
+            "limit": 465.85,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "1000//api/search?q=Redis/8",
+            "value": 2403.98030000001,
+            "limit": 2791.3399999999997,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "1000//api/search?q=Redis/8",
+            "value": 2986.141800000012,
+            "limit": 3682.6875,
+            "passed": true
+          }
+        ]
+      },
+      {
+        "run": "hlog-perf-5e3f71b5",
+        "startedAt": "2026-11-13T03:48:02.072Z",
+        "completedAt": "2026-11-13T03:50:13.409Z",
+        "imageId": "sha256:8696feb7cf0a6ac15a21f6e6f9a6328ccb5fa08f9e8127bdc2985918f23c4e9a",
+        "probeHash": "0350d600695077747f8fd6d7c567ad8a1b9f48df16d1e55015ebcad21a24b71b",
+        "httpRequests": 512,
+        "cleanup": true,
+        "checks": [
+          {
+            "metric": "request_p50_ms",
+            "condition": "500//blog/1",
+            "value": 130.72639999999956,
+            "limit": 455.12,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "500//blog/1",
+            "value": 138.48149999999987,
+            "limit": 530.05,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "500//blog/8",
+            "value": 1006.5123999999996,
+            "limit": 3362.8759999999997,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "500//blog/8",
+            "value": 1429.514299999999,
+            "limit": 4535.1375,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "500//blog/perf-0000/1",
+            "value": 170.3416500000003,
+            "limit": 224.576,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "500//blog/perf-0000/1",
+            "value": 184.28499999999985,
+            "limit": 284.075,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "500//blog/perf-0000/8",
+            "value": 1301.7819000000018,
+            "limit": 1571.408,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "500//blog/perf-0000/8",
+            "value": 1793.4771999999975,
+            "limit": 2300.5625,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "500//blog/perf-0000.md/1",
+            "value": 95.93405000000166,
+            "limit": 136.244,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "500//blog/perf-0000.md/1",
+            "value": 115.54820000000109,
+            "limit": 182.5375,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "500//blog/perf-0000.md/8",
+            "value": 714.6722999999984,
+            "limit": 927.92,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "500//blog/perf-0000.md/8",
+            "value": 813.1440999999977,
+            "limit": 1179.95,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "500//api/search?q=Redis/1",
+            "value": 130.5048999999999,
+            "limit": 183.032,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "500//api/search?q=Redis/1",
+            "value": 141.7797999999966,
+            "limit": 242.1875,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "500//api/search?q=Redis/8",
+            "value": 1027.7114000000001,
+            "limit": 1290.092,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "500//api/search?q=Redis/8",
+            "value": 1184.2402000000002,
+            "limit": 1575.5500000000002,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "1000//blog/1",
+            "value": 267.27994999999646,
+            "limit": 917.348,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "1000//blog/1",
+            "value": 291.4589999999953,
+            "limit": 1016.725,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "1000//blog/8",
+            "value": 2144.4663,
+            "limit": 6868.075999999999,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "1000//blog/8",
+            "value": 2509.5887999999977,
+            "limit": 9253.375,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "1000//blog/perf-0000/1",
+            "value": 331.2256500000003,
+            "limit": 427.772,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "1000//blog/perf-0000/1",
+            "value": 364.5085000000108,
+            "limit": 501.6125,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "1000//blog/perf-0000/8",
+            "value": 2688.393450000003,
+            "limit": 3171.9919999999997,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "1000//blog/perf-0000/8",
+            "value": 3360.3747000000003,
+            "limit": 4616.85,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "1000//blog/perf-0000.md/1",
+            "value": 205.29789999999775,
+            "limit": 252.332,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "1000//blog/perf-0000.md/1",
+            "value": 230.61699999999837,
+            "limit": 309.7625,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "1000//blog/perf-0000.md/8",
+            "value": 1533.758799999996,
+            "limit": 1681.88,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "1000//blog/perf-0000.md/8",
+            "value": 2597.6034000000072,
+            "limit": 2399.9375,
+            "passed": false
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "1000//api/search?q=Redis/1",
+            "value": 304.6933999999965,
+            "limit": 372.872,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "1000//api/search?q=Redis/1",
+            "value": 375.7948999999935,
+            "limit": 465.85,
+            "passed": true
+          },
+          {
+            "metric": "request_p50_ms",
+            "condition": "1000//api/search?q=Redis/8",
+            "value": 2514.8875000000044,
+            "limit": 2791.3399999999997,
+            "passed": true
+          },
+          {
+            "metric": "request_p95_ms",
+            "condition": "1000//api/search?q=Redis/8",
+            "value": 2980.7736000000004,
+            "limit": 3682.6875,
+            "passed": true
+          }
+        ]
+      }
+    ],
+    "interruptedRuns": [
+      {
+        "run": "hlog-perf-1dfbeb4d",
+        "failure": {
+          "stage": "blog-1000",
+          "type": "TypeError",
+          "cleanupProbe": false
+        },
+        "cleanup": true,
+        "completedHttpConditions": 13
+      }
+    ],
+    "interruptionEvidence": "hlog-perf-1dfbeb4d ended during the 1000-post Markdown concurrency-8 condition after 13 complete HTTP conditions. Docker events recorded web exitCode 139, without an oom event; exact cause not established. Resources were cleaned and this incomplete run is excluded from timing comparison.",
+    "unresolved": [
+      {
+        "run": "hlog-perf-5e3f71b5",
+        "metric": "request_p95_ms",
+        "condition": "1000//blog/perf-0000.md/8",
+        "value": 2597.6034000000072,
+        "limit": 2399.9375,
+        "passed": false
+      }
+    ]
+  },
+  "status": "list_passed_with_tail_variance",
+  "acceptance": "F2 Step 0 list CPU/HTTP budgets and functional contracts passed. Initial detail/search exceedances did not recur in either completed confirmation. A later Markdown tail exceedance and one unexplained exit 139 remain recorded for F2 Step 1 / load validation; this is not an all-route performance or release-readiness pass."
+}

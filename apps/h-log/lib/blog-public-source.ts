@@ -11,6 +11,7 @@ import {
 } from "./blog-usage-ledger.ts";
 import { createBlogPrivacyScanPolicyFromEnvironment } from "./blog-privacy-scanner.ts";
 import { verifyBlogThumbnailFiles } from "./blog-thumbnails.ts";
+import { getPublicBlogIndex } from "./blog-public.ts";
 
 const { Pool } = pg;
 
@@ -23,6 +24,11 @@ export const loadPublicBlogContentStore = cache(async () => {
 
   return verifyBlogThumbnailFiles(await repository.findPublicBlogContent());
 });
+
+// Primitive arguments let metadata and page share the same result within one render.
+export const loadPublicBlogIndex = cache(async (page: number, tag?: string, pageSize = 6) =>
+  getPublicBlogIndex(await loadPublicBlogContentStore(), { page, tag, pageSize }),
+);
 
 export const loadPublicBlogContentStoreBySlug = cache(async (slug: string) => {
   const repository = createPublicBlogRepository();

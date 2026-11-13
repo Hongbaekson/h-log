@@ -308,3 +308,7 @@ Next.js/nextjs와 PostgreSQL/postgres는 같은 블로그 태그로 표시·조�
 ## 성능 기준선 완료 — F1 Step 0
 
 2026-11-13 [격리 성능 기준선](PERFORMANCE_BASELINE_REVIEW.md)을 두 번 측정하고 비교 예산을 정했다. 앱 동작·UI·공개 정책은 바꾸지 않았다. 글/노드 증가·동시 요청·감속/캐시 조건별 수치이며 운영 효과나 field INP가 아니다. F 1 completed/21 pending, 다음은 F2 Step 0이다. 원본 보존과 SEO/운영 보류를 유지한다.
+
+## 목록 조회 경량화 — F2 Step 0
+
+2026-11-13 공개 목록·Home 최근 글의 화면 필드와 공개 조건을 유지하면서 본문/목차 가공을 상세 경로에 한정했다. metadata/page는 요청 내부의 같은 목록 결과를 사용하며 다음 요청에서는 공개/철회 상태를 다시 읽는다. [검수 기록](BLOG_LIST_EFFICIENCY_REVIEW.md)의 로컬 성능은 합성 조건에 한정한다. F completed 2/pending 20, 다음은 F2 Step 1이다.

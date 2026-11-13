@@ -276,7 +276,7 @@
     {
       "dir": "blog-read-efficiency",
       "status": "pending",
-      "summary": "2026-11-06: F2 plan registered with 2 pending steps for 블로그 조회와 반복 가공 절감. Execution starts from its documented prerequisites in PERFORMANCE_REBUILD_PLAN.md. Original data, selected public versions, privacy and measured recovery are acceptance criteria."
+      "summary": "2026-11-13: Step 0 completed. Added list-only cards without Markdown block/TOC work, per-snapshot relation indexes and React render-scoped list sharing for metadata/page and Home. RED/GREEN, 301 unit passes, real RSC cache check, isolated public DB/HTTP/UI and F1 list CPU/HTTP comparison passed; initial detail/search tail spikes were not reproduced in two HTTP rechecks; a later Markdown p95 exceedance and one unexplained exit 139 remain documented for follow-up; old private lint errors remain documented. Source/public versions and UI preserved; no cross-request cache/schema/operations change. Step 1 scoped-markdown-read remains pending; F 2 completed/20 pending."
     },
     {
       "dir": "rebuildable-public-read-models",

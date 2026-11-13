@@ -9,12 +9,11 @@ import { BlogSeries } from "@/components/blog/BlogSeries";
 import { getPublicBlogSeries } from "@/lib/blog-series";
 import { buildBlogBrowseHref, parseBlogBrowseParams, type BlogBrowseParams } from "@/lib/blog-search-ui";
 import { Container } from "@/components/ui";
-import { getPublicBlogIndex } from "@/lib/blog-public";
 import {
   formatPublicBlogArticleMode,
   formatPublicBlogDate,
 } from "@/lib/blog-public-presentation";
-import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
+import { loadPublicBlogContentStore, loadPublicBlogIndex } from "@/lib/blog-public-source";
 import { withPageSocialMetadata } from "@/lib/page-social-metadata";
 
 export const dynamic = "force-dynamic";
@@ -32,7 +31,7 @@ export async function generateMetadata({ searchParams }: BlogPageProps): Promise
   if (state.query || state.tag) {
     return withPageSocialMetadata({ ...metadata, robots: { index: false, follow: true } }, buildBlogBrowseHref(state));
   }
-  const index = getPublicBlogIndex(await loadPublicBlogContentStore(), { page: state.page });
+  const index = await loadPublicBlogIndex(state.page, state.tag ?? undefined);
   const href = buildBlogBrowseHref({ ...state, page: index.pagination.currentPage });
   return withPageSocialMetadata({
     ...metadata,
@@ -43,13 +42,9 @@ export async function generateMetadata({ searchParams }: BlogPageProps): Promise
 export default async function BlogPage({ searchParams }: BlogPageProps) {
   const params = (await searchParams) ?? {};
   const state = parseBlogBrowseParams(params);
-  const store = await loadPublicBlogContentStore();
-  const index = getPublicBlogIndex(store, {
-    page: state.page,
-    pageSize: 6,
-    tag: state.tag ?? undefined,
-  });
-  const series = !state.query && !state.tag && index.pagination.currentPage === 1 ? getPublicBlogSeries(store) : [];
+  const index = await loadPublicBlogIndex(state.page, state.tag ?? undefined);
+  const series = !state.query && !state.tag && index.pagination.currentPage === 1
+    ? getPublicBlogSeries(await loadPublicBlogContentStore()) : [];
 
   return (
     <>

@@ -115,6 +115,10 @@ export type PublicBlogTagCount = {
   tag: string;
 };
 
+export type PublicBlogListItem = Pick<PublicBlogPost,
+  "articleMode" | "description" | "href" | "publishedAt" | "slug" | "tags" | "title" | "thumbnail" | "updatedAt"
+>;
+
 type PublicBlogNavigationLink = Pick<PublicBlogPost, "href" | "title" | "publishedAt">;
 
 export type PublicBlogPostNavigation = {
@@ -167,14 +171,15 @@ export type PublicBlogIndexOptions = {
 
 export type PublicBlogIndex = {
   pagination: PublicBlogPagination;
-  posts: PublicBlogPost[];
+  posts: PublicBlogListItem[];
   selectedTag: string | null;
   tagCounts: PublicBlogTagCount[];
 };
 
 export function getPublicBlogPosts(store: BlogContentStore): PublicBlogPost[] {
+  const relations = indexPostRelations(store);
   return selectPublicBlogRouteEntries(store.posts, store.versions)
-    .map((entry) => toPublicBlogPost(entry, store))
+    .map((entry) => toPublicBlogPost(entry, relations))
     .sort(compareNewestFirst);
 }
 
@@ -184,7 +189,7 @@ export function getPublicBlogPostBySlug(
 ): PublicBlogPost | undefined {
   const entry = selectPublicBlogRouteEntryBySlug(slug, store.posts, store.versions);
 
-  return entry ? toPublicBlogPost(entry, store) : undefined;
+  return entry ? toPublicBlogPost(entry, indexPostRelations(store)) : undefined;
 }
 
 export function getPublicBlogPostMarkdown(
@@ -202,7 +207,10 @@ export function getPublicBlogIndex(
 ): PublicBlogIndex {
   const pageSize = normalizePositiveInteger(options.pageSize, 6);
   const selectedTag = normalizeSelectedTag(options.tag);
-  const publicPosts = getPublicBlogPosts(store);
+  const relations = indexPostRelations(store);
+  const publicPosts = selectPublicBlogRouteEntries(store.posts, store.versions)
+    .map((entry) => toPublicBlogListItem(entry, relations))
+    .sort(compareNewestFirst);
   const postsForPage = selectedTag
     ? publicPosts.filter((post) => post.tags.includes(selectedTag))
     : publicPosts;
@@ -224,37 +232,55 @@ export function getPublicBlogIndex(
   };
 }
 
+function indexPostRelations(store: BlogContentStore) {
+  return {
+    tags: Map.groupBy(store.tags, (tag) => tag.postId),
+    sources: Map.groupBy(store.sources, (source) => source.postId),
+    assets: Map.groupBy(store.assets ?? [], (asset) => asset.postId),
+  };
+}
+
+function toPublicBlogListItem(
+  entry: PublicBlogRouteEntry,
+  relations: ReturnType<typeof indexPostRelations>,
+): PublicBlogListItem {
+  assertPostVersionContentHashMatches(entry.version);
+  return {
+    articleMode: entry.post.articleMode,
+    description: entry.version.description,
+    href: `/blog/${entry.post.slug}`,
+    publishedAt: entry.post.publishedAt ?? entry.post.updatedAt,
+    slug: entry.post.slug,
+    tags: normalizeBlogTags((relations.tags.get(entry.post.id) ?? []).map((tag) => tag.tag)),
+    title: entry.version.title,
+    thumbnail: selectPublicBlogThumbnail(entry, relations.assets.get(entry.post.id) ?? []),
+    updatedAt: entry.post.updatedAt,
+  };
+}
+
 function toPublicBlogPost(
   entry: PublicBlogRouteEntry,
-  store: BlogContentStore,
+  relations: ReturnType<typeof indexPostRelations>,
 ): PublicBlogPost {
-  assertPostVersionContentHashMatches(entry.version);
+  const item = toPublicBlogListItem(entry, relations);
   const contentBlocks = buildPublicBlogContentBlocks(
     entry.version.contentMarkdown,
-    selectRenderableDiagram(entry, store.assets ?? []),
+    selectRenderableDiagram(entry, relations.assets.get(entry.post.id) ?? []),
   );
 
   return {
-    articleMode: entry.post.articleMode,
+    ...item,
     editorial: parseBlogEditorialNote(entry.version.publicEditorial),
     contentBlocks,
     contentHtml: entry.version.contentHtml,
-    description: entry.version.description,
-    href: `/blog/${entry.post.slug}`,
     markdown: entry.version.contentMarkdown,
     markdownHref: `/blog/${entry.post.slug}.md`,
-    publishedAt: entry.post.publishedAt ?? entry.post.updatedAt,
-    slug: entry.post.slug,
-    sourceLinks: getSourceLinksForPost(entry.post.id, store.sources),
+    sourceLinks: getSourceLinksForPost(relations.sources.get(entry.post.id) ?? []),
     tableOfContents: contentBlocks.flatMap((block) =>
       block.type === "heading" && (block.level === 2 || block.level === 3)
         ? [{ id: block.id, level: block.level, text: inlineText(block.children) }]
         : [],
     ),
-    tags: getTagsForPost(entry.post.id, store.tags),
-    title: entry.version.title,
-    thumbnail: selectPublicBlogThumbnail(entry, store.assets ?? []),
-    updatedAt: entry.post.updatedAt,
   };
 }
 
@@ -454,16 +480,10 @@ function pushTextContent(
   }
 }
 
-function getTagsForPost(postId: string, tags: readonly PostTagRecord[]): string[] {
-  return normalizeBlogTags(tags.filter(tag => tag.postId === postId).map(tag => tag.tag));
-}
-
 function getSourceLinksForPost(
-  postId: string,
   sources: readonly PostSourceRecord[],
 ): PublicBlogSourceLink[] {
   return sources
-    .filter((source) => source.postId === postId)
     .flatMap((source) => {
       const url = tryNormalizePublicSourceUrl(source.url);
 
@@ -482,7 +502,7 @@ function getSourceLinksForPost(
     });
 }
 
-function buildPublishedTagCounts(posts: readonly PublicBlogPost[]): PublicBlogTagCount[] {
+function buildPublishedTagCounts(posts: readonly PublicBlogListItem[]): PublicBlogTagCount[] {
   const counts = new Map<string, number>();
 
   for (const post of posts) {
@@ -496,7 +516,7 @@ function buildPublishedTagCounts(posts: readonly PublicBlogPost[]): PublicBlogTa
     .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag, "ko"));
 }
 
-function compareNewestFirst(a: PublicBlogPost, b: PublicBlogPost): number {
+function compareNewestFirst(a: PublicBlogListItem, b: PublicBlogListItem): number {
   return Date.parse(b.publishedAt) - Date.parse(a.publishedAt);
 }
 

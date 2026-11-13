@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { Lexer } from "marked";
 import * as thumbnails from "./blog-thumbnails.ts";
 
 import {
@@ -17,6 +18,7 @@ import {
 } from "./blog-content-model.ts";
 import {
   getPublicBlogIndex,
+  getPublicBlogPosts,
   getPublicBlogPostNavigation,
   getPublicBlogPostBySlug,
   getPublicBlogPostMarkdown,
@@ -320,6 +322,29 @@ function textParagraph(text: string) {
 }
 
 describe("DB-backed public blog routes", () => {
+  it("builds list cards without parsing bodies and preserves public browsing results", (context) => {
+    const store = createStore();
+    store.assets = [createAsset({ type: "image", path: `/blog-assets/thumbnails/${diagramAssetHash}.png` })];
+    const before = JSON.stringify(store);
+    const cards = getPublicBlogPosts(store).map(({ articleMode, description, href, publishedAt, slug, tags, title, thumbnail, updatedAt }) =>
+      ({ articleMode, description, href, publishedAt, slug, tags, title, thumbnail, updatedAt }));
+    const lex = context.mock.method(Lexer.prototype, "lex");
+    for (const [options, expected, page] of [
+      [{}, cards, 1],
+      [{ page: 99, pageSize: 1, tag: " DB " }, cards.slice(1), 2],
+      [{ page: -1, pageSize: 0 }, cards, 1],
+      [{ tag: "missing", page: 99 }, [], 1],
+      [{ pageSize: 3 }, cards, 1],
+    ] as const) {
+      const index = getPublicBlogIndex(store, options);
+      assert.equal(lex.mock.callCount(), 0, "List requests must not build body blocks or headings");
+      assert.deepEqual(index.posts, expected);
+      assert.equal(index.pagination.currentPage, page);
+      assert.deepEqual(index.tagCounts, [{ count: 2, tag: "DB" }, { count: 1, tag: "운영" }]);
+    }
+    assert.equal(JSON.stringify(store), before);
+  });
+
   it("withholds thumbnails when the current version content hash is invalid", () => {
     const store = createStore();
     store.assets = [createAsset({ type: "image", path: `/blog-assets/thumbnails/${diagramAssetHash}.png` })];

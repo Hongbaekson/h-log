@@ -572,3 +572,7 @@ F2는 기존 read path의 불필요 계산을 먼저 줄이고 F3는 재생성 �
 ## 로컬 성능 측정 도구 — F1 Step 0
 
 2026-11-13 `scripts/performance-baseline.mjs`가 소유한 Docker DB/production 앱과 loopback 브라우저에서 합성 측정을 수행한다. `performance-fixtures.mjs`는 결정적 자료·통계·예산, `performance-browser.mjs`는 캐시·배치 상호작용·GC 후 heap과 기존 UI 검수를 맡는다. 운영 route/loader/schema와 의존성은 변경하지 않았다. Playwright는 별도 로컬 도구이며 원격 Docker/임의 DB URL을 받지 않는다. [실행·기준선](PERFORMANCE_BASELINE_REVIEW.md)의 원본과 공개 결과 동등성을 후속 F2 검수에 사용한다.
+
+## 목록 모델과 요청 내 공유 — F2 Step 0
+
+2026-11-13 `blog-public.ts`의 `PublicBlogListItem`은 목록 필드만 가진다. `getPublicBlogIndex`는 기존 published/current/privacy/hash 판정을 유지하고 ID별 tags/sources/assets 인덱스로 관계를 읽으며 본문/목차를 생성하지 않는다. 상세 모델도 같은 관계 인덱스를 재사용한다. `blog-public-source.ts`의 `loadPublicBlogIndex(page, tag, pageSize)`는 primitive 인자를 받는 React `cache`로 metadata/page를 공유하고 Home은 pageSize 3을 사용한다. 저장소 읽기 cache와 마찬가지로 render 범위이며 영속/요청 간 cache나 schema 변경은 없다. [검수](BLOG_LIST_EFFICIENCY_REVIEW.md).

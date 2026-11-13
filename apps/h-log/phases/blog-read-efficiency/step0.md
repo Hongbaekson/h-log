@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-06 등록한 F2의 목록 전용 모델과 요청 내 계산 공유 단계다. 구현 완료 판정은 이 파일의 인수 기준과 검증 결과로 한다.
+completed — 2026-11-13 목록 전용 모델·요청 내 공유와 공개 결과/성능 회귀를 검증했다. [검수 기록](../../.codex/docs/harness/BLOG_LIST_EFFICIENCY_REVIEW.md)을 따른다.
 
 F1 Step 0 완료.
 
@@ -89,3 +89,11 @@ git diff --check
 ## 다음 단계
 
 F2 Step 1 `scoped-markdown-read`.
+
+## 완료 기록 — 2026-11-13
+
+- 본문 파싱 2회→0회 RED/GREEN, 공유 loader 부재→실제 React RSC render cache 검증을 완료했다. 기본 단위 301 pass/29 DB skip, 별도 cache 테스트 1/1과 source lint/typecheck/build를 통과했다. 전체 lint는 기존 private helper 오류 10개·경고 6개로 실패하며 이번 소스 오류는 없다.
+- 격리 DB 공개 읽기와 production/dev SEO HTTP, JS ON/OFF 1440/390/320px 목록·태그·페이지·키보드·history·빈 결과·오류 복구와 Home 소개 스트리밍/최근 3개·Brain UI를 검수했다.
+- [F1 대비 수치](../../.codex/docs/harness/blog-list-performance-2026-11-13.json)와 [조건·한계·명령](../../.codex/docs/harness/BLOG_LIST_EFFICIENCY_REVIEW.md)을 남겼다. 목록 표시 28조건과 전체 상세 모델은 이전 소스와 동등하고 원본을 보존했다.
+- 목록 CPU/HTTP 예산은 모두 통과했다. 최초 상세·검색 p95 초과는 두 번의 추가 확인에서 재현되지 않았지만, 마지막 확인의 Markdown p95 초과와 한 차례의 원인 미확정 앱 종료 139는 남아 있다. 전체 경로 성능 통과로 판정하지 않으며 Step 1 부하 검수에 인계한다.
+- F 2 completed/20 pending, 이 phase의 Step 1은 pending이다. 운영 적용과 요청 간 cache는 포함하지 않았다.

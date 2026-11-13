@@ -1,5 +1,7 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
+2026-11-13 F2 Step 0 `lightweight-list-model` 완료. 목록 전용 DTO로 본문/목차 생성을 없애고 metadata/page가 React 요청 cache로 같은 목록 결과를 공유한다. Home 최근 3개와 ID별 관계 인덱스를 연결했다. [검수·성능 비교](../apps/h-log/.codex/docs/harness/BLOG_LIST_EFFICIENCY_REVIEW.md)에 공개 결과 동등성, 로컬 DB·HTTP·브라우저 검수와 F1 비교를 기록했다. **F completed 2·pending 20, 다음은 F2 Step 1 `scoped-markdown-read`**다. R 14 completed와 운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-13 F1 Step 0 `reproducible-performance-baseline` 완료. 저장소의 합성 fixture·격리 실행기로 전체 측정을 두 번 수행했다. CPU 160표본·warm HTTP 2,048요청·브라우저 192표본의 조건과 공개 결과가 일치했고 자원을 정리했다. [성능 기준선·예산](../apps/h-log/.codex/docs/harness/PERFORMANCE_BASELINE_REVIEW.md)과 비교용 JSON을 등록했다. 앱 동작·공개 UI·원본 저장 계약은 변경하지 않았다. **F completed 1·pending 21, 다음은 F2 Step 0 `lightweight-list-model`**이다. R 14 completed와 SEO/운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.
 
 2026-11-13 R5 Step 2 `local-knowledge-release-rehearsal` 완료. 현재 production/dev에서 격리 DB 8/8, SEO HTTP 42/42·Brain HTTP 2/2, 브라우저 126표본과 검토 이력 20건·원문 24버전 복원을 검증했다. 제품 코드 변경 없이 [통합 검수 결과](../apps/h-log/.codex/docs/harness/KNOWLEDGE_RELEASE_REVIEW.md)와 현재성·후보·잔여 작업을 인계했다. **R completed 14·pending 0**이다. SEO S3 Step 1/2와 운영 보류는 유지하며, 다음 독립 로컬 작업은 **F1 Step 0 `reproducible-performance-baseline`**다. F 22개는 아직 pending이다. 아래 날짜별 기록은 당시 상태다.

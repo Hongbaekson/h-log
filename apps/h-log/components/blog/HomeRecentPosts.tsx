@@ -2,15 +2,14 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { Container } from "@/components/ui";
-import { getPublicBlogIndex, type PublicBlogPost } from "@/lib/blog-public";
+import type { PublicBlogListItem } from "@/lib/blog-public";
 import { formatPublicBlogArticleMode, formatPublicBlogDate } from "@/lib/blog-public-presentation";
-import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
+import { loadPublicBlogIndex } from "@/lib/blog-public-source";
 
 export async function HomeRecentPosts() {
-  let posts: PublicBlogPost[] | null;
+  let posts: PublicBlogListItem[] | null;
   try {
-    const store = await loadPublicBlogContentStore();
-    posts = getPublicBlogIndex(store, { pageSize: 3 }).posts;
+    posts = (await loadPublicBlogIndex(1, undefined, 3)).posts;
   } catch {
     console.error("home_recent_posts_unavailable");
     posts = null;

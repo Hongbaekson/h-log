@@ -21,6 +21,8 @@ F2 Step 0 완료.
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/PERFORMANCE_REBUILD_PLAN.md`
+- `apps/h-log/.codex/docs/harness/BLOG_LIST_EFFICIENCY_REVIEW.md`
+- `apps/h-log/.codex/docs/harness/blog-list-performance-2026-11-13.json`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/app/blog-markdown/[slug]/route.ts`
@@ -69,6 +71,8 @@ git diff --check
 ```
 
 전체 lint에 기존 Git 제외 private helper 오류가 있으면 실패 내역과 source lint를 따로 기록한다. 실패를 숨기거나 무관한 파일을 수정해 통과시키지 않는다.
+
+Step 0에서 남은 1,000글 Markdown/동시 8요청 p95 초과(2,597.60ms, 예산 2,399.94ms)와 한 차례의 원인 미확정 앱 종료 139를 함께 재확인한다. 원래 예산과 자원 제한을 유지하고, 중단이 발생하면 컨테이너 상태·로그·이벤트를 보존한다. 재현되지 않아도 원인이 해결됐다고 단정하지 않는다.
 
 ## 경계
 
