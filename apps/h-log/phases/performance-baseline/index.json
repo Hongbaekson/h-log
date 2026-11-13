@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "reproducible-performance-baseline",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-13: Added a portable local-only synthetic benchmark, deterministic fixtures and regression budgets. Two full runs preserved fixture/source/harness hashes and public results: 160 CPU samples, 2048 warm HTTP requests and 192 browser samples; 12 discovery samples, 5 layouts and radar/reader/history verified. Five tool tests, syntax/lint, production builds and failure/success cleanup passed. Three graph interaction conditions have high variance and need remeasurement before performance judgments. Rebuild is unimplemented/null; no app/schema/dependency/UI or production change. F1 complete/21 pending; next F2 Step 0; R14 and operations hold preserved."
     }
   ]
 }

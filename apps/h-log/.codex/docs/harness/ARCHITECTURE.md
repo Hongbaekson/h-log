@@ -568,3 +568,7 @@ F2는 기존 read path의 불필요 계산을 먼저 줄이고 F3는 재생성 �
 2026-11-12 `lib/brain-review.ts`가 메모/필터 검증과 버전별 상태를 정의한다. migration 013의 `brain_note_reviews`는 불변 버전 FK·명령 UUID·서버 시각을 가지며 UPDATE/DELETE를 막는다. `brain-postgres-repository.ts`는 기존 명령 transaction 안에서 이력과 감사·command revision을 기록한다. 기존 `records?view=review`는 read-only repeatable-read·3초 timeout·서버 필터·id cursor로 최대 20개를 반환한다. 과거 확인은 현재 새 버전의 확인 완료가 되지 않는다.
 
 `BrainReviewQueue.tsx`는 서버 GET 필터·native 링크를 제공하고 `BrainCapture.tsx`는 현재 기록의 확인/메모·최근 20개 이력을 기존 편집기에 더한다. 새 명령 뒤 router.refresh로 서버 목록을 갱신하며 기존 pending command·재시도 잠금을 재사용한다. JS OFF에는 목록과 기록 조회만 가능하다. 확인 명령은 current_revision·updated_at·public_node·published_revision을 바꾸지 않는다. 공개 renderer/DTO와 기본 카탈로그는 그대로다. 기존 전체 목록·원문 history는 F6 대상이다. [검수 결과](BRAIN_MANUAL_REVIEW_REVIEW.md).
+
+## 로컬 성능 측정 도구 — F1 Step 0
+
+2026-11-13 `scripts/performance-baseline.mjs`가 소유한 Docker DB/production 앱과 loopback 브라우저에서 합성 측정을 수행한다. `performance-fixtures.mjs`는 결정적 자료·통계·예산, `performance-browser.mjs`는 캐시·배치 상호작용·GC 후 heap과 기존 UI 검수를 맡는다. 운영 route/loader/schema와 의존성은 변경하지 않았다. Playwright는 별도 로컬 도구이며 원격 Docker/임의 DB URL을 받지 않는다. [실행·기준선](PERFORMANCE_BASELINE_REVIEW.md)의 원본과 공개 결과 동등성을 후속 F2 검수에 사용한다.

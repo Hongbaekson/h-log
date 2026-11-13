@@ -21,6 +21,9 @@ F1 Step 0 완료.
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/PERFORMANCE_REBUILD_PLAN.md`
+- `apps/h-log/.codex/docs/harness/PERFORMANCE_BASELINE_REVIEW.md`
+- `apps/h-log/.codex/docs/harness/performance-baseline-2026-11-13.json`
+- `apps/h-log/scripts/performance-baseline.mjs`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/.codex/rules/frontend.md`

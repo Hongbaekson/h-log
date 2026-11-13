@@ -1,0 +1,1176 @@
+{
+  "runs": [
+    {
+      "folder": "hlog-perf-51575102",
+      "startedAt": "2026-11-13T00:28:41.724Z",
+      "completedAt": "2026-11-13T00:38:38.016Z",
+      "imageId": "sha256:c369d16d94dbcd9125ef69661c398fbe5aa0391d30f08164552d1f2044a62410"
+    },
+    {
+      "folder": "hlog-perf-a17fc9f5",
+      "startedAt": "2026-11-13T00:38:39.803Z",
+      "completedAt": "2026-11-13T00:48:33.523Z",
+      "imageId": "sha256:38ff4a9cb0e72593fac22d87b77b3d1c9db0b251307d519beb01fa2e1439623d"
+    }
+  ],
+  "environment": {
+    "commit": "bcabf2c37aed2303a7e5a95639251b330739047f",
+    "sourceHash": "6dc327f6827b3f1370a8cf4ee9f35cc4ac061ef40dbaeb1efe91924801f9958a",
+    "harnessHash": "2bca2941605b9e43b46054a88da6c24b1dfb02fff12e8983ee6f1bcf9abd04d4",
+    "node": "v22.14.0",
+    "next": "16.4.3",
+    "playwright": "1.62.1",
+    "platform": "win32",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-13700K",
+    "logicalCpus": 24,
+    "memoryBytes": 34088296448,
+    "docker": "29.6.1",
+    "dbImage": "pgvector/pgvector:pg16@sha256:a36250871de0833b8757561c72f2477ef1ddd1101afa4e617fb552e0de514c6b",
+    "appLimits": {
+      "cpus": 2,
+      "memory": "2g"
+    },
+    "dbLimits": {
+      "cpus": 1,
+      "memory": "1g"
+    },
+    "imageId": "sha256:c369d16d94dbcd9125ef69661c398fbe5aa0391d30f08164552d1f2044a62410",
+    "browser": "157.0.4341.46",
+    "appNode": "v24.19.0"
+  },
+  "fixtureHashes": [
+    {
+      "kind": "blog",
+      "count": 10,
+      "sha256": "8001052a4b88d28de13b4601d7d091a60b7d35eda5050b756da53601cfb3528b"
+    },
+    {
+      "kind": "blog",
+      "count": 100,
+      "sha256": "a4d029292188baf4c0fb11b316969d666693bd9cfbf1e87428ec2b4d23ccdd55"
+    },
+    {
+      "kind": "blog",
+      "count": 500,
+      "sha256": "48c21b367cba2cdadda7ba5b510f66e733d0a8cececbcaa1fc7023557b1e355d"
+    },
+    {
+      "kind": "blog",
+      "count": 1000,
+      "sha256": "f4f82e4988a8f94c9baf9308204bda939de14fc0d19a469071162dcafa84377b"
+    },
+    {
+      "kind": "brain",
+      "count": 28,
+      "sha256": "016164883f492f78a31c4c41b97b5e39d82420ad948c2c48094ca380907eee31"
+    },
+    {
+      "kind": "brain",
+      "count": 100,
+      "sha256": "ba092d18653f4d4eed608c3a6bf392975b341f661f99fa707fd3e87e0c5b88fa"
+    },
+    {
+      "kind": "brain",
+      "count": 300,
+      "sha256": "c9fedcc4e7c60a581d47273ee1303d69887be107617c86e6df705ae9769eb9c4"
+    },
+    {
+      "kind": "brain",
+      "count": 1000,
+      "sha256": "259c4a595ab2020527945024316e8561fa6d97dfb15e73502ce771f591e485d2"
+    }
+  ],
+  "cpu": [
+    {
+      "kind": "blog",
+      "count": 10,
+      "metric": "list_model_cpu_ms",
+      "medians": [
+        7.49,
+        7.42
+      ]
+    },
+    {
+      "kind": "blog",
+      "count": 100,
+      "metric": "list_model_cpu_ms",
+      "medians": [
+        22.98,
+        22.86
+      ]
+    },
+    {
+      "kind": "blog",
+      "count": 500,
+      "metric": "list_model_cpu_ms",
+      "medians": [
+        120.78,
+        117.23
+      ]
+    },
+    {
+      "kind": "blog",
+      "count": 1000,
+      "metric": "list_model_cpu_ms",
+      "medians": [
+        242.4,
+        237.68
+      ]
+    },
+    {
+      "kind": "brain",
+      "count": 28,
+      "metric": "layout_cpu_ms",
+      "medians": [
+        11.96,
+        13.74
+      ]
+    },
+    {
+      "kind": "brain",
+      "count": 100,
+      "metric": "layout_cpu_ms",
+      "medians": [
+        67.63,
+        66.73
+      ]
+    },
+    {
+      "kind": "brain",
+      "count": 300,
+      "metric": "layout_cpu_ms",
+      "medians": [
+        283.25,
+        288.64
+      ]
+    },
+    {
+      "kind": "brain",
+      "count": 1000,
+      "metric": "layout_cpu_ms",
+      "medians": [
+        1334.35,
+        1341.04
+      ]
+    }
+  ],
+  "http": [
+    {
+      "count": 10,
+      "path": "/blog",
+      "concurrency": 1,
+      "p50": [
+        17.33,
+        16.94
+      ],
+      "p95": [
+        34.73,
+        22.73
+      ]
+    },
+    {
+      "count": 10,
+      "path": "/blog",
+      "concurrency": 8,
+      "p50": [
+        98.28,
+        102.94
+      ],
+      "p95": [
+        163.51,
+        179.64
+      ]
+    },
+    {
+      "count": 10,
+      "path": "/blog/perf-0000",
+      "concurrency": 1,
+      "p50": [
+        15.87,
+        13.65
+      ],
+      "p95": [
+        21.64,
+        15.63
+      ]
+    },
+    {
+      "count": 10,
+      "path": "/blog/perf-0000",
+      "concurrency": 8,
+      "p50": [
+        101.45,
+        90.82
+      ],
+      "p95": [
+        145.83,
+        136.9
+      ]
+    },
+    {
+      "count": 10,
+      "path": "/blog/perf-0000.md",
+      "concurrency": 1,
+      "p50": [
+        4.93,
+        4.51
+      ],
+      "p95": [
+        6.75,
+        5.8
+      ]
+    },
+    {
+      "count": 10,
+      "path": "/blog/perf-0000.md",
+      "concurrency": 8,
+      "p50": [
+        28.7,
+        26.6
+      ],
+      "p95": [
+        33.74,
+        32.88
+      ]
+    },
+    {
+      "count": 10,
+      "path": "/api/search?q=Redis",
+      "concurrency": 1,
+      "p50": [
+        5.42,
+        5
+      ],
+      "p95": [
+        6.54,
+        6.36
+      ]
+    },
+    {
+      "count": 10,
+      "path": "/api/search?q=Redis",
+      "concurrency": 8,
+      "p50": [
+        30.25,
+        29.02
+      ],
+      "p95": [
+        37.27,
+        35
+      ]
+    },
+    {
+      "count": 100,
+      "path": "/blog",
+      "concurrency": 1,
+      "p50": [
+        76.99,
+        74.93
+      ],
+      "p95": [
+        86.78,
+        87.56
+      ]
+    },
+    {
+      "count": 100,
+      "path": "/blog",
+      "concurrency": 8,
+      "p50": [
+        587.11,
+        577.25
+      ],
+      "p95": [
+        909.09,
+        974.71
+      ]
+    },
+    {
+      "count": 100,
+      "path": "/blog/perf-0000",
+      "concurrency": 1,
+      "p50": [
+        40.32,
+        39.35
+      ],
+      "p95": [
+        46.42,
+        43.26
+      ]
+    },
+    {
+      "count": 100,
+      "path": "/blog/perf-0000",
+      "concurrency": 8,
+      "p50": [
+        298.42,
+        289.86
+      ],
+      "p95": [
+        423.67,
+        419.02
+      ]
+    },
+    {
+      "count": 100,
+      "path": "/blog/perf-0000.md",
+      "concurrency": 1,
+      "p50": [
+        21.08,
+        20.86
+      ],
+      "p95": [
+        23.9,
+        23.08
+      ]
+    },
+    {
+      "count": 100,
+      "path": "/blog/perf-0000.md",
+      "concurrency": 8,
+      "p50": [
+        147.04,
+        143.05
+      ],
+      "p95": [
+        161.37,
+        164.17
+      ]
+    },
+    {
+      "count": 100,
+      "path": "/api/search?q=Redis",
+      "concurrency": 1,
+      "p50": [
+        25.57,
+        26.37
+      ],
+      "p95": [
+        31.07,
+        28.61
+      ]
+    },
+    {
+      "count": 100,
+      "path": "/api/search?q=Redis",
+      "concurrency": 8,
+      "p50": [
+        196.65,
+        196.94
+      ],
+      "p95": [
+        218.17,
+        218.06
+      ]
+    },
+    {
+      "count": 500,
+      "path": "/blog",
+      "concurrency": 1,
+      "p50": [
+        362.6,
+        353.64
+      ],
+      "p95": [
+        384.04,
+        366.21
+      ]
+    },
+    {
+      "count": 500,
+      "path": "/blog",
+      "concurrency": 8,
+      "p50": [
+        2785.73,
+        2674.33
+      ],
+      "p95": [
+        3588.11,
+        3491.51
+      ]
+    },
+    {
+      "count": 500,
+      "path": "/blog/perf-0000",
+      "concurrency": 1,
+      "p50": [
+        170.48,
+        162.4
+      ],
+      "p95": [
+        187.26,
+        168.9
+      ]
+    },
+    {
+      "count": 500,
+      "path": "/blog/perf-0000",
+      "concurrency": 8,
+      "p50": [
+        1292.84,
+        1257.02
+      ],
+      "p95": [
+        1800.45,
+        1718.75
+      ]
+    },
+    {
+      "count": 500,
+      "path": "/blog/perf-0000.md",
+      "concurrency": 1,
+      "p50": [
+        96.87,
+        94.21
+      ],
+      "p95": [
+        106.03,
+        99.73
+      ]
+    },
+    {
+      "count": 500,
+      "path": "/blog/perf-0000.md",
+      "concurrency": 8,
+      "p50": [
+        756.6,
+        724.45
+      ],
+      "p95": [
+        903.96,
+        841.73
+      ]
+    },
+    {
+      "count": 500,
+      "path": "/api/search?q=Redis",
+      "concurrency": 1,
+      "p50": [
+        135.86,
+        130.34
+      ],
+      "p95": [
+        153.75,
+        136.06
+      ]
+    },
+    {
+      "count": 500,
+      "path": "/api/search?q=Redis",
+      "concurrency": 8,
+      "p50": [
+        1058.41,
+        1017.78
+      ],
+      "p95": [
+        1220.44,
+        1171.09
+      ]
+    },
+    {
+      "count": 1000,
+      "path": "/blog",
+      "concurrency": 1,
+      "p50": [
+        747.79,
+        724.84
+      ],
+      "p95": [
+        773.38,
+        752.01
+      ]
+    },
+    {
+      "count": 1000,
+      "path": "/blog",
+      "concurrency": 8,
+      "p50": [
+        5706.73,
+        5645.73
+      ],
+      "p95": [
+        7362.7,
+        7122.58
+      ]
+    },
+    {
+      "count": 1000,
+      "path": "/blog/perf-0000",
+      "concurrency": 1,
+      "p50": [
+        332.16,
+        339.81
+      ],
+      "p95": [
+        361.29,
+        356.55
+      ]
+    },
+    {
+      "count": 1000,
+      "path": "/blog/perf-0000",
+      "concurrency": 8,
+      "p50": [
+        2626.66,
+        2588.82
+      ],
+      "p95": [
+        3653.48,
+        3301.57
+      ]
+    },
+    {
+      "count": 1000,
+      "path": "/blog/perf-0000.md",
+      "concurrency": 1,
+      "p50": [
+        193.61,
+        192.86
+      ],
+      "p95": [
+        206.19,
+        207.81
+      ]
+    },
+    {
+      "count": 1000,
+      "path": "/blog/perf-0000.md",
+      "concurrency": 8,
+      "p50": [
+        1384.9,
+        1361.9
+      ],
+      "p95": [
+        1879.95,
+        1877.42
+      ]
+    },
+    {
+      "count": 1000,
+      "path": "/api/search?q=Redis",
+      "concurrency": 1,
+      "p50": [
+        294.06,
+        288.75
+      ],
+      "p95": [
+        332.68,
+        301.81
+      ]
+    },
+    {
+      "count": 1000,
+      "path": "/api/search?q=Redis",
+      "concurrency": 8,
+      "p50": [
+        2309.45,
+        2299.27
+      ],
+      "p95": [
+        2820.66,
+        2906.15
+      ]
+    }
+  ],
+  "browser": [
+    {
+      "condition": "28/1440/1/cold",
+      "graph_interaction_ms": [
+        44.1,
+        43.1
+      ],
+      "retained_heap_bytes": [
+        5005820,
+        5003892
+      ]
+    },
+    {
+      "condition": "28/1440/1/warm",
+      "graph_interaction_ms": [
+        41.2,
+        38.7
+      ],
+      "retained_heap_bytes": [
+        4988644,
+        4992408
+      ]
+    },
+    {
+      "condition": "28/1440/4/cold",
+      "graph_interaction_ms": [
+        123.9,
+        113.3
+      ],
+      "retained_heap_bytes": [
+        5008504,
+        5000436
+      ]
+    },
+    {
+      "condition": "28/1440/4/warm",
+      "graph_interaction_ms": [
+        87.2,
+        88.4
+      ],
+      "retained_heap_bytes": [
+        4991628,
+        4991620
+      ]
+    },
+    {
+      "condition": "28/390/1/cold",
+      "graph_interaction_ms": [
+        43,
+        42.4
+      ],
+      "retained_heap_bytes": [
+        5276580,
+        5272908
+      ]
+    },
+    {
+      "condition": "28/390/1/warm",
+      "graph_interaction_ms": [
+        37.7,
+        38.6
+      ],
+      "retained_heap_bytes": [
+        5243820,
+        5242536
+      ]
+    },
+    {
+      "condition": "28/390/4/cold",
+      "graph_interaction_ms": [
+        33.7,
+        108.5
+      ],
+      "retained_heap_bytes": [
+        5615636,
+        5617248
+      ]
+    },
+    {
+      "condition": "28/390/4/warm",
+      "graph_interaction_ms": [
+        92.6,
+        89.2
+      ],
+      "retained_heap_bytes": [
+        5616396,
+        5625448
+      ]
+    },
+    {
+      "condition": "100/1440/1/cold",
+      "graph_interaction_ms": [
+        87.8,
+        91.5
+      ],
+      "retained_heap_bytes": [
+        5242076,
+        5243208
+      ]
+    },
+    {
+      "condition": "100/1440/1/warm",
+      "graph_interaction_ms": [
+        79.9,
+        87.6
+      ],
+      "retained_heap_bytes": [
+        5225092,
+        5219428
+      ]
+    },
+    {
+      "condition": "100/1440/4/cold",
+      "graph_interaction_ms": [
+        304.8,
+        313.1
+      ],
+      "retained_heap_bytes": [
+        5229364,
+        5231792
+      ]
+    },
+    {
+      "condition": "100/1440/4/warm",
+      "graph_interaction_ms": [
+        275.6,
+        271.8
+      ],
+      "retained_heap_bytes": [
+        5219444,
+        5221132
+      ]
+    },
+    {
+      "condition": "100/390/1/cold",
+      "graph_interaction_ms": [
+        82.2,
+        37.2
+      ],
+      "retained_heap_bytes": [
+        5497780,
+        5495948
+      ]
+    },
+    {
+      "condition": "100/390/1/warm",
+      "graph_interaction_ms": [
+        77.1,
+        77.1
+      ],
+      "retained_heap_bytes": [
+        5409436,
+        5408976
+      ]
+    },
+    {
+      "condition": "100/390/4/cold",
+      "graph_interaction_ms": [
+        299.3,
+        303.1
+      ],
+      "retained_heap_bytes": [
+        5623808,
+        5658572
+      ]
+    },
+    {
+      "condition": "100/390/4/warm",
+      "graph_interaction_ms": [
+        286,
+        282.6
+      ],
+      "retained_heap_bytes": [
+        5452848,
+        5453768
+      ]
+    },
+    {
+      "condition": "300/1440/1/cold",
+      "graph_interaction_ms": [
+        241,
+        230.5
+      ],
+      "retained_heap_bytes": [
+        5652968,
+        5651824
+      ]
+    },
+    {
+      "condition": "300/1440/1/warm",
+      "graph_interaction_ms": [
+        232.2,
+        236.8
+      ],
+      "retained_heap_bytes": [
+        5643816,
+        5638680
+      ]
+    },
+    {
+      "condition": "300/1440/4/cold",
+      "graph_interaction_ms": [
+        967.3,
+        963.7
+      ],
+      "retained_heap_bytes": [
+        5643536,
+        5643776
+      ]
+    },
+    {
+      "condition": "300/1440/4/warm",
+      "graph_interaction_ms": [
+        940.8,
+        951.9
+      ],
+      "retained_heap_bytes": [
+        5651948,
+        5651592
+      ]
+    },
+    {
+      "condition": "300/390/1/cold",
+      "graph_interaction_ms": [
+        225.7,
+        226.3
+      ],
+      "retained_heap_bytes": [
+        6351560,
+        6318024
+      ]
+    },
+    {
+      "condition": "300/390/1/warm",
+      "graph_interaction_ms": [
+        227.1,
+        225.2
+      ],
+      "retained_heap_bytes": [
+        6254220,
+        5794860
+      ]
+    },
+    {
+      "condition": "300/390/4/cold",
+      "graph_interaction_ms": [
+        947.7,
+        949.4
+      ],
+      "retained_heap_bytes": [
+        5864236,
+        5863408
+      ]
+    },
+    {
+      "condition": "300/390/4/warm",
+      "graph_interaction_ms": [
+        929.6,
+        41
+      ],
+      "retained_heap_bytes": [
+        5878660,
+        5870576
+      ]
+    },
+    {
+      "condition": "1000/1440/1/cold",
+      "graph_interaction_ms": [
+        843.5,
+        858.4
+      ],
+      "retained_heap_bytes": [
+        6950796,
+        6946856
+      ]
+    },
+    {
+      "condition": "1000/1440/1/warm",
+      "graph_interaction_ms": [
+        849.8,
+        858.9
+      ],
+      "retained_heap_bytes": [
+        7041368,
+        7046396
+      ]
+    },
+    {
+      "condition": "1000/1440/4/cold",
+      "graph_interaction_ms": [
+        3560.2,
+        3547.4
+      ],
+      "retained_heap_bytes": [
+        6942216,
+        6946216
+      ]
+    },
+    {
+      "condition": "1000/1440/4/warm",
+      "graph_interaction_ms": [
+        3524.1,
+        3608
+      ],
+      "retained_heap_bytes": [
+        7040540,
+        7035732
+      ]
+    },
+    {
+      "condition": "1000/390/1/cold",
+      "graph_interaction_ms": [
+        842.8,
+        862.5
+      ],
+      "retained_heap_bytes": [
+        9204660,
+        9218828
+      ]
+    },
+    {
+      "condition": "1000/390/1/warm",
+      "graph_interaction_ms": [
+        833.8,
+        845.8
+      ],
+      "retained_heap_bytes": [
+        9271024,
+        9168420
+      ]
+    },
+    {
+      "condition": "1000/390/4/cold",
+      "graph_interaction_ms": [
+        3508.5,
+        3536.5
+      ],
+      "retained_heap_bytes": [
+        7159528,
+        7159536
+      ]
+    },
+    {
+      "condition": "1000/390/4/warm",
+      "graph_interaction_ms": [
+        70.8,
+        68.1
+      ],
+      "retained_heap_bytes": [
+        7249320,
+        7255892
+      ]
+    }
+  ],
+  "varianceBeyondBudget": [
+    {
+      "metric": "graph_interaction_ms",
+      "condition": "28/390/4/cold",
+      "values": [
+        33.7,
+        108.5
+      ]
+    },
+    {
+      "metric": "graph_interaction_ms",
+      "condition": "100/390/1/cold",
+      "values": [
+        82.2,
+        37.2
+      ]
+    },
+    {
+      "metric": "graph_interaction_ms",
+      "condition": "300/390/4/warm",
+      "values": [
+        929.6,
+        41
+      ]
+    }
+  ],
+  "total": {
+    "cpuMeasuredSamples": 160,
+    "httpMeasuredRequests": 2048,
+    "browserSamples": 192,
+    "discoverySamples": 12
+  },
+  "cleanup": true,
+  "budgets": {
+    "list_model_cpu_ms": {
+      "ratio": 1.2,
+      "allowance": 2
+    },
+    "request_p50_ms": {
+      "ratio": 1.2,
+      "allowance": 20
+    },
+    "request_p95_ms": {
+      "ratio": 1.25,
+      "allowance": 50
+    },
+    "graph_interaction_ms": {
+      "ratio": 1.2,
+      "allowance": 16
+    },
+    "retained_heap_bytes": {
+      "ratio": 1.15,
+      "allowance": 1048576
+    },
+    "rebuild_duration_ms": {
+      "status": "not_implemented",
+      "target_ms": 60000,
+      "posts": 1000,
+      "ratio": 1.2,
+      "allowance": 100
+    }
+  },
+  "method": {
+    "cpu": "Host pure functions, 2 warmups/5 samples; median only.",
+    "http": "32 warm requests per route/concurrency 1 or 8; 1 warmup. First route request recorded separately; DB/OS caches not flushed.",
+    "browser": "Fresh context cold navigation then same-context warm navigation; 1440/390 x CPU 1/4 x 3 pairs; reduced motion, DPR1, no network throttling.",
+    "interaction": "Keyboard click dispatch to second animation frame after layout DOM changes (brain to topics); not field INP.",
+    "heap": "Runtime.getHeapUsage usedSize after forced GC and one brain/topics/brain roundtrip; not a leak proof.",
+    "p95": "Sorted sample at ceil(0.95*n)-1; p50 is middle value or mean of two middle values.",
+    "comparison": "Same fixture/source-independent harness hash, hardware, image build/tool versions, resource limits and conditions. Regression limit = larger baseline run median * ratio + allowance; HTTP p95 compares larger run p95. Never pool different conditions."
+  },
+  "fixtureMetadata": [
+    {
+      "kind": "blog",
+      "count": 10,
+      "sha256": "8001052a4b88d28de13b4601d7d091a60b7d35eda5050b756da53601cfb3528b",
+      "versionsPerPost": 2,
+      "hiddenPosts": 2,
+      "thumbnails": 0,
+      "markdownBytes": 8082,
+      "htmlBytes": 8440
+    },
+    {
+      "kind": "blog",
+      "count": 100,
+      "sha256": "a4d029292188baf4c0fb11b316969d666693bd9cfbf1e87428ec2b4d23ccdd55",
+      "versionsPerPost": 2,
+      "hiddenPosts": 2,
+      "thumbnails": 0,
+      "markdownBytes": 8082,
+      "htmlBytes": 8440
+    },
+    {
+      "kind": "blog",
+      "count": 500,
+      "sha256": "48c21b367cba2cdadda7ba5b510f66e733d0a8cececbcaa1fc7023557b1e355d",
+      "versionsPerPost": 2,
+      "hiddenPosts": 2,
+      "thumbnails": 0,
+      "markdownBytes": 8082,
+      "htmlBytes": 8440
+    },
+    {
+      "kind": "blog",
+      "count": 1000,
+      "sha256": "f4f82e4988a8f94c9baf9308204bda939de14fc0d19a469071162dcafa84377b",
+      "versionsPerPost": 2,
+      "hiddenPosts": 2,
+      "thumbnails": 0,
+      "markdownBytes": 8082,
+      "htmlBytes": 8440
+    },
+    {
+      "kind": "brain",
+      "count": 28,
+      "sha256": "016164883f492f78a31c4c41b97b5e39d82420ad948c2c48094ca380907eee31",
+      "edges": 42,
+      "extraBodyBytes": null,
+      "degrees": {
+        "2": 11,
+        "3": 11,
+        "4": 3,
+        "5": 1,
+        "6": 2
+      }
+    },
+    {
+      "kind": "brain",
+      "count": 100,
+      "sha256": "ba092d18653f4d4eed608c3a6bf392975b341f661f99fa707fd3e87e0c5b88fa",
+      "edges": 150,
+      "extraBodyBytes": 229,
+      "degrees": {
+        "2": 43,
+        "3": 19,
+        "4": 35,
+        "5": 1,
+        "6": 2
+      }
+    },
+    {
+      "kind": "brain",
+      "count": 300,
+      "sha256": "c9fedcc4e7c60a581d47273ee1303d69887be107617c86e6df705ae9769eb9c4",
+      "edges": 450,
+      "extraBodyBytes": 229,
+      "degrees": {
+        "2": 143,
+        "3": 19,
+        "4": 135,
+        "5": 1,
+        "6": 2
+      }
+    },
+    {
+      "kind": "brain",
+      "count": 1000,
+      "sha256": "259c4a595ab2020527945024316e8561fa6d97dfb15e73502ce771f591e485d2",
+      "edges": 1500,
+      "extraBodyBytes": 229,
+      "degrees": {
+        "2": 493,
+        "3": 19,
+        "4": 485,
+        "5": 1,
+        "6": 2
+      }
+    }
+  ],
+  "publicResultHashes": [
+    {
+      "kind": "blog",
+      "count": 10,
+      "sha256": "fb813a64e565cc7e567eeb2dab41d3e6413e1e91fb888a7519a2679349836c07"
+    },
+    {
+      "kind": "blog",
+      "count": 100,
+      "sha256": "629dc978b5f4f234d85d63834264bcbd0406276db4b9423e69a131da789961b4"
+    },
+    {
+      "kind": "blog",
+      "count": 500,
+      "sha256": "e15f27a717d30021e3f4a53f4634c28c04fb96f6fc54bfd7faa5ac8956d55fd5"
+    },
+    {
+      "kind": "blog",
+      "count": 1000,
+      "sha256": "5b6f7a0e625ade86fb760e243a335a37cfb459329f0e86305fabebb9a06e94d4"
+    },
+    {
+      "kind": "brain",
+      "count": 28,
+      "sha256": "016164883f492f78a31c4c41b97b5e39d82420ad948c2c48094ca380907eee31"
+    },
+    {
+      "kind": "brain",
+      "count": 100,
+      "sha256": "ba092d18653f4d4eed608c3a6bf392975b341f661f99fa707fd3e87e0c5b88fa"
+    },
+    {
+      "kind": "brain",
+      "count": 300,
+      "sha256": "c9fedcc4e7c60a581d47273ee1303d69887be107617c86e6df705ae9769eb9c4"
+    },
+    {
+      "kind": "brain",
+      "count": 1000,
+      "sha256": "259c4a595ab2020527945024316e8561fa6d97dfb15e73502ce771f591e485d2"
+    }
+  ],
+  "qualification": {
+    "status": "baseline_recorded_with_interaction_variance",
+    "unstableConditions": [
+      {
+        "metric": "graph_interaction_ms",
+        "condition": "28/390/4/cold",
+        "values": [
+          33.7,
+          108.5
+        ]
+      },
+      {
+        "metric": "graph_interaction_ms",
+        "condition": "100/390/1/cold",
+        "values": [
+          82.2,
+          37.2
+        ]
+      },
+      {
+        "metric": "graph_interaction_ms",
+        "condition": "300/390/4/warm",
+        "values": [
+          929.6,
+          41
+        ]
+      }
+    ],
+    "policy": "Do not use the three unstable interaction conditions alone to accept/reject a performance change. Re-measure them with at least five fresh contexts per cache/CPU/viewport condition and inspect render completion before drawing a conclusion. Keep both original runs; do not select the faster result."
+  },
+  "sampleCounts": {
+    "cpuPerCondition": 5,
+    "httpPerCondition": 32,
+    "browserPerCondition": 3
+  },
+  "rebuild_duration_ms": null
+}

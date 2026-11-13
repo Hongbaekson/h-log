@@ -1,6 +1,6 @@
 # H-Log 성능 개선과 재생성 가능한 조회용 데이터 계획
 
-등록일 2026-11-06. 사용자가 코드 성능 분석 결과와 원본에서 보조 저장소를 복구하는 원칙을 phase/step으로 등록하도록 요청했다. **F1–F7은 7개 phase / 22개 step이며 전부 pending**이다. 전체 레지스트리는 60개 phase / 209개 step이다. [전체 상태](../../../phases/index.json)를 기준으로 실행하며 성능 트랙은 **F1 Step 0 `reproducible-performance-baseline`**부터 시작한다. 2026-11-13 [R5 로컬 통합 검수](KNOWLEDGE_RELEASE_REVIEW.md)를 완료해 기존 콘텐츠 R 트랙 14개 step은 모두 completed다. 새 재검토 목록의 서버 필터·20개 제한 조회는 R5 Step 1에서 구현했고 기존 전체 관리자 목록/원문 이력의 개선은 F6에 남긴다. 운영 보류 중 일반적인 다음 단계 요청은 독립 로컬 작업인 F1 Step 0부터 F 순서를 따른다. SEO S3 Step 1/2와 운영 적용의 승인 조건은 유지한다.
+등록일 2026-11-06. 사용자가 코드 성능 분석 결과와 원본에서 보조 저장소를 복구하는 원칙을 phase/step으로 등록하도록 요청했다. **F1–F7은 7개 phase / 22개 step이며 F1 완료·pending 21개**다. 전체 레지스트리는 60개 phase / 209개 step이다. [전체 상태](../../../phases/index.json)를 기준으로 실행하며 2026-11-13 [F1 측정·예산](PERFORMANCE_BASELINE_REVIEW.md)을 완료했고 다음은 **F2 Step 0 `lightweight-list-model`**이다. 2026-11-13 [R5 로컬 통합 검수](KNOWLEDGE_RELEASE_REVIEW.md)를 완료해 기존 콘텐츠 R 트랙 14개 step은 모두 completed다. 새 재검토 목록의 서버 필터·20개 제한 조회는 R5 Step 1에서 구현했고 기존 전체 관리자 목록/원문 이력의 개선은 F6에 남긴다. 운영 보류 중 일반적인 다음 단계 요청은 F2 Step 0부터 F 순서를 따른다. SEO S3 Step 1/2와 운영 적용의 승인 조건은 유지한다.
 
 ## 목표
 
@@ -80,7 +80,7 @@ Materialized view와 일반 projection table은 최신성·개별 갱신·애플
 
 | Phase | Step | 개선 사항 | 상태 |
 | --- | --- | --- | --- |
-| F1 성능 기준선과 회귀 예산 | [0 reproducible-performance-baseline](../../../phases/performance-baseline/step0.md) | 반복 가능한 측정과 성능 예산 | pending |
+| F1 성능 기준선과 회귀 예산 | [0 reproducible-performance-baseline](../../../phases/performance-baseline/step0.md) | 반복 가능한 측정과 성능 예산 | completed |
 | F2 블로그 조회와 반복 가공 절감 | [0 lightweight-list-model](../../../phases/blog-read-efficiency/step0.md) | 목록 전용 모델과 요청 내 계산 공유 | pending |
 | F2 블로그 조회와 반복 가공 절감 | [1 scoped-markdown-read](../../../phases/blog-read-efficiency/step1.md) | Markdown 한 편의 조회 범위 축소 | pending |
 | F3 원본에서 재생성하는 조회용 데이터 | [0 source-and-projection-contract](../../../phases/rebuildable-public-read-models/step0.md) | 원본·공개 선택·파생 데이터 계약 | pending |
@@ -121,3 +121,9 @@ Materialized view와 일반 projection table은 최신성·개별 갱신·애플
 문서 전용 step은 Markdown/JSON·링크/경로·의존성 파싱과 diff 검사를 실행한다. UI step은 개발/production 1440/390/320px·키보드·터치·JS ON/OFF·history·취소/오류/복구를 검수한다. F1/F7은 실제 실행 command, commit/image와 fixture hash·표본 수, CPU/DB/브라우저 측정의 구분을 남긴다. 현재 탐색 표본은 방향 선정의 근거이며 후속 성능 예산은 F1에서 구현 전에 동결한다.
 
 최종 검수는 전체 보조 저장소 유실 후 재구성, 동시 수정/철회, 오래된 worker, 응답 유실·중복·부분 생성 실패, 정책/renderer/schema 변경, 호환 rollback을 포함한다. 원본과 공개 결과의 동등성 및 자원 상한을 통과한 step만 completed로 전환한다. 운영 인계에는 원본 파일 보관·migration·재생성·중단/재개·rollback과 실제 트래픽 검수 과제를 기록한다.
+
+## F1 완료와 후속 비교 — 2026-11-13
+
+2026-11-13 F1 Step 0 `reproducible-performance-baseline` 완료. 저장소의 합성 fixture·격리 실행기로 전체 측정을 두 번 수행했다. CPU 160표본·warm HTTP 2,048요청·브라우저 192표본의 조건과 공개 결과가 일치했고 자원을 정리했다. [성능 기준선·예산](PERFORMANCE_BASELINE_REVIEW.md)과 비교용 JSON을 등록했다. 앱 동작·공개 UI·원본 저장 계약은 변경하지 않았다. **F completed 1·pending 21, 다음은 F2 Step 0 `lightweight-list-model`**이다. R 14 completed와 SEO/운영 보류를 유지한다.
+
+`node --no-warnings --experimental-strip-types scripts/performance-baseline.mjs --local`을 `apps/h-log`에서 실행한다. 도구 준비·표본/캐시 조건·통계 산식·필수 지표와 허용 예산은 [검수 기록](PERFORMANCE_BASELINE_REVIEW.md)과 [기준 JSON](performance-baseline-2026-11-13.json)을 따른다. 동일 fixture·도구·하드웨어·자원/화면 조건에서 비교하며, 기존 public/DB/HTTP 정확성 회귀가 성능 판정보다 우선이다. 그래프 상호작용 32조건 중 3조건은 편차가 커 참고값으로 표시했고 후속 판정 전에 재측정한다. 영속 rebuild는 미구현이므로 현재 값은 null이다. 과거 탐색 표본과 이번 결과를 성능 개선율로 비교하지 않는다.

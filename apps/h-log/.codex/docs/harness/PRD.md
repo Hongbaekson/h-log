@@ -304,3 +304,7 @@ Next.js/nextjs와 PostgreSQL/postgres는 같은 블로그 태그로 표시·조�
 ## 기록·탐색 개선 로컬 통합 검수 — R5 Step 2
 
 2026-11-13 [로컬 통합 검수](KNOWLEDGE_RELEASE_REVIEW.md)로 R1–R5 14개 step을 완료했다. 현재 production/dev의 저장·공개·철회·출처 연결·태그·공유·재검토와 비공개 경계를 확인했다. 제품 동작·공개 콘텐츠는 바꾸지 않았으며 원고/노드 후보와 실제 발행을 구분한다. 다음 독립 로컬 작업은 F1 Step 0이다. 운영 migration·배포와 SEO S3 Step 1/2의 기존 조건·보류는 유지한다.
+
+## 성능 기준선 완료 — F1 Step 0
+
+2026-11-13 [격리 성능 기준선](PERFORMANCE_BASELINE_REVIEW.md)을 두 번 측정하고 비교 예산을 정했다. 앱 동작·UI·공개 정책은 바꾸지 않았다. 글/노드 증가·동시 요청·감속/캐시 조건별 수치이며 운영 효과나 field INP가 아니다. F 1 completed/21 pending, 다음은 F2 Step 0이다. 원본 보존과 SEO/운영 보류를 유지한다.

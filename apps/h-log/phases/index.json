@@ -270,8 +270,8 @@
     },
     {
       "dir": "performance-baseline",
-      "status": "pending",
-      "summary": "2026-11-06: F1 plan registered with 1 pending step for 성능 기준선과 회귀 예산. Execution starts from its documented prerequisites in PERFORMANCE_REBUILD_PLAN.md. Original data, selected public versions, privacy and measured recovery are acceptance criteria."
+      "status": "completed",
+      "summary": "2026-11-13: Added a portable local-only synthetic benchmark, deterministic fixtures and regression budgets. Two full runs preserved fixture/source/harness hashes and public results: 160 CPU samples, 2048 warm HTTP requests and 192 browser samples; 12 discovery samples, 5 layouts and radar/reader/history verified. Five tool tests, syntax/lint, production builds and failure/success cleanup passed. Three graph interaction conditions have high variance and need remeasurement before performance judgments. Rebuild is unimplemented/null; no app/schema/dependency/UI or production change. F1 complete/21 pending; next F2 Step 0; R14 and operations hold preserved."
     },
     {
       "dir": "blog-read-efficiency",

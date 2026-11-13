@@ -2,9 +2,9 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-06 등록한 F1의 반복 가능한 측정과 성능 예산 단계다. 구현 완료 판정은 이 파일의 인수 기준과 검증 결과로 한다.
+completed — 2026-11-13 반복 가능한 격리 측정기와 두 번의 전체 기준선·비교 예산을 검증했다. [결과](../../.codex/docs/harness/PERFORMANCE_BASELINE_REVIEW.md)를 따른다.
 
-R1 완료. 성능 트랙의 시작점.
+R1–R5 완료 후 성능 트랙 F1을 완료했다. F 1 completed/21 pending이다.
 
 ## 읽을 파일
 
@@ -74,3 +74,12 @@ node --no-warnings --experimental-strip-types scripts/performance-baseline.mjs -
 ## 다음 단계
 
 F2 Step 0 `lightweight-list-model`. 독립 실행 조건은 전체 계획을 따른다.
+
+## 완료 기록 — 2026-11-13
+
+- 현재 코드 `bcabf2c37aed2303a7e5a95639251b330739047f`에 측정기 4개 파일을 추가했다. 앱 동작·schema·의존성·UI는 변경하지 않았다.
+- 같은 fixture/source/측정기와 환경으로 전체 두 실행 완료: CPU 160표본, warm HTTP 2,048요청, 브라우저 192표본과 기본 발견 12표본. 공개 결과/원본 보존·자원 정리를 확인했다.
+- 통계/fixture의 초기 예상 실패 3개 후 현재 도구 테스트 5/5, scripts 문법/ESLint, 두 Docker production build, 작은 표본과 실패 정리 검수를 통과했다. 기존 전체 private-helper lint는 재실행하지 않았다.
+- [수치와 조건·한계](../../.codex/docs/harness/PERFORMANCE_BASELINE_REVIEW.md), [비교용 JSON](../../.codex/docs/harness/performance-baseline-2026-11-13.json)에 도구/이미지/해시·표본 수·예산을 남겼다. 영속 rebuild는 미측정(null)이며 운영 p95/INP가 아니다.
+- 그래프 상호작용 32조건 중 3조건은 실행 간 편차가 예산보다 커 참고값으로 표시했다. 후속 성능 판정 전에 해당 조건을 재측정한다.
+- 문서/JSON·링크·60 phase/209 step·R14/F1 상태·private 제외·diff 형식을 검사했다. 후속은 F2 Step 0이고 OCI/운영 보류를 유지한다.

@@ -1,5 +1,7 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
+2026-11-13 F1 Step 0 `reproducible-performance-baseline` 완료. 저장소의 합성 fixture·격리 실행기로 전체 측정을 두 번 수행했다. CPU 160표본·warm HTTP 2,048요청·브라우저 192표본의 조건과 공개 결과가 일치했고 자원을 정리했다. [성능 기준선·예산](../apps/h-log/.codex/docs/harness/PERFORMANCE_BASELINE_REVIEW.md)과 비교용 JSON을 등록했다. 앱 동작·공개 UI·원본 저장 계약은 변경하지 않았다. **F completed 1·pending 21, 다음은 F2 Step 0 `lightweight-list-model`**이다. R 14 completed와 SEO/운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-13 R5 Step 2 `local-knowledge-release-rehearsal` 완료. 현재 production/dev에서 격리 DB 8/8, SEO HTTP 42/42·Brain HTTP 2/2, 브라우저 126표본과 검토 이력 20건·원문 24버전 복원을 검증했다. 제품 코드 변경 없이 [통합 검수 결과](../apps/h-log/.codex/docs/harness/KNOWLEDGE_RELEASE_REVIEW.md)와 현재성·후보·잔여 작업을 인계했다. **R completed 14·pending 0**이다. SEO S3 Step 1/2와 운영 보류는 유지하며, 다음 독립 로컬 작업은 **F1 Step 0 `reproducible-performance-baseline`**다. F 22개는 아직 pending이다. 아래 날짜별 기록은 당시 상태다.
 
 2026-11-12 R5 Step 1 `owner-review-queue` 완료. 기존 관리자 Brain에 이유·상태별 20개 조회와 버전별 확인·재확인 지정, 비공개 메모·최근 확인 이력을 추가했다. 확인 명령은 원문과 공개 사본을 바꾸지 않으며 새 버전은 다시 확인한다. [검수 결과](../apps/h-log/.codex/docs/harness/BRAIN_MANUAL_REVIEW_REVIEW.md)에 단위 300 pass/29 DB skip, 격리 DB 8/8, production/dev HTTP 2/2·브라우저 12표본, 합성 이력 20건·원문 24버전 dump/restore를 기록했다. source lint/typecheck/build는 통과했고 기본 lint의 기존 private 오류 10개·경고 6개와 build 경고 2개는 남아 있다. R2-C01–C05의 유지·추가 확인 사항도 갱신했다. **R completed 13·pending 1, 다음은 R5 Step 2 `local-knowledge-release-rehearsal`**다. F 22개 pending과 운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.
