@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-06 등록한 F3의 원본·공개 선택·파생 데이터 계약 단계다. 구현 완료 판정은 이 파일의 인수 기준과 검증 결과로 한다.
+completed — 2026-11-16 [원본·조회용 데이터 계약](../../.codex/docs/harness/PUBLIC_READ_MODEL_CONTRACT.md)을 확정하고 문서·schema 참조·레지스트리를 검증했다. runtime 구현은 후속 단계다.
 
 F1 Step 0 완료. 기본 실행 순서는 F2 이후.
 
@@ -68,3 +68,10 @@ Markdown/JSON 파싱, 상대 링크·읽을 파일·phase 의존성 검사와 `g
 ## 다음 단계
 
 F3 Step 1 `projection-storage-and-rebuild`.
+
+## 완료 기록 — 2026-11-16
+
+- 실제 migration/model과 관리자·자동 생성·worker·retry·Brain·PDF 경로를 확인해 원본 필드/승인과 파생 결과를 구분했다. 별도 revision·입력/정책 fingerprint, 같은 snapshot의 공개 집계, 새 표의 역할과 재생성/활성화·중단/재개·복구/이전 앱 전환을 계약에 명시했다.
+- 누락·손상·schema 미적용·정책 변경·원본 장애·늦은 worker의 실패 표와 fallback 상한, 표면별 HTTP 캐시/현재성, 후속 검증 matrix를 작성했다. 공개 사본/원본 HTML/PDF 승인·감사를 보존한다.
+- `node private/f3-contract-2026-11-16/verify-docs.mjs`로 Markdown 15개/JSON 2개, 추가 상대 링크 61개·읽을 파일 경로 138개·기존 schema 필드 80개/참조 심볼 12개, 60개 phase/209개 step 상태와 F3 선행 조건을 확인했다. 다른 phase 상태는 변경하지 않았다. `git diff --check`도 통과했다. 검증 자료는 git/Docker에서 제외된 private 경로에 보관하며 문서 전용 변경으로 runtime 테스트·빌드·DB migration은 실행하지 않았다.
+- F 4 completed/18 pending, 다음은 F3 Step 1이다. 기존 성능 종료 139의 원인 미확정 기록과 운영 보류는 유지한다.

@@ -21,6 +21,7 @@ F3 Step 1 완료.
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/PERFORMANCE_REBUILD_PLAN.md`
+- `apps/h-log/.codex/docs/harness/PUBLIC_READ_MODEL_CONTRACT.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/lib/blog-postgres-repository.ts`
@@ -42,6 +43,8 @@ F3 Step 1 완료.
 1. 관리자/자동 생성 저장, 검증 뒤 공개 전이, 수정/철회, 자동 실패 숨김/rollback, Brain 공개 선택의 실제 쓰기 경로를 전수 연결한다. 원본 변경과 파생 변경 또는 durable 갱신 표식을 같은 PG transaction에 둔다.
 2. 비싼 계산을 transaction 밖에서 할 때 source revision/hash를 완료 시 재검증한다. 오래된 작업과 command 재전송은 현재 선택을 덮어쓰지 못하게 한다.
 3. 재생성과 작성·철회를 교차 실행하고 정책 변경, 프로세스 중단, 명령 응답 유실을 검사한다. 복구는 파생 데이터 생성 권한으로 제한하고 외부 발행/알림 동작과 분리한다.
+
+[확정 계약](../../.codex/docs/harness/PUBLIC_READ_MODEL_CONTRACT.md)의 이 단계에 해당하는 범위·상한·실패 표·후속 검증을 인수 기준에 함께 적용한다. 아직 구현하지 않은 설정/표/CLI를 이미 존재하는 것으로 가정하지 않는다.
 
 ## 인수 기준
 

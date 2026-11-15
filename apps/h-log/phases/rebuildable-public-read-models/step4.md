@@ -21,6 +21,7 @@ F3 Step 3 완료.
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/PERFORMANCE_REBUILD_PLAN.md`
+- `apps/h-log/.codex/docs/harness/PUBLIC_READ_MODEL_CONTRACT.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/.codex/rules/frontend.md`
@@ -43,6 +44,8 @@ F3 Step 3 완료.
 1. 상세 본문과 metadata를 대상 공개 버전·renderer 버전의 본문 모델로 공유한다. 본문 hash가 같은 경우에도 제목·검수 메타데이터 변경을 올바르게 반영한다.
 2. 이전/다음, 관련 태그, 시리즈, 프로젝트 연결은 필요한 공개 요약만 조회한다. 대상과 탐색 링크의 현재 공개 판단을 같은 읽기 계약에 묶는다.
 3. 캐시 miss·이전 renderer 결과·정책 변경·이웃 철회에서 현재 결과를 재구성한다. 읽기 fallback의 비용 상한과 오류를 검증한다.
+
+[확정 계약](../../.codex/docs/harness/PUBLIC_READ_MODEL_CONTRACT.md)의 이 단계에 해당하는 범위·상한·실패 표·후속 검증을 인수 기준에 함께 적용한다. 아직 구현하지 않은 설정/표/CLI를 이미 존재하는 것으로 가정하지 않는다.
 
 ## 인수 기준
 

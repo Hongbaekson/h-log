@@ -281,7 +281,7 @@
     {
       "dir": "rebuildable-public-read-models",
       "status": "pending",
-      "summary": "2026-11-06: F3 plan registered with 6 pending steps for 원본에서 재생성하는 조회용 데이터. Execution starts from its documented prerequisites in PERFORMANCE_REBUILD_PLAN.md. Original data, selected public versions, privacy and measured recovery are acceptance criteria."
+      "summary": "2026-11-16: Step 0 contract completed from live Blog/Brain/PDF schemas and read/write paths. Defined preserved source/approval ownership, separate metadata revision/input/policy fingerprints, four planned PG projection tables, one read snapshot, transactional change markers, bounded fallback, generation validation/CAS activation, resume/fencing and source-mode rollback/recovery. Linked Steps 1-5; documentation/schema-reference/phase checks only, no runtime/schema/operations mutation. F 4 completed/18 pending; next Step 1 projection-storage-and-rebuild."
     },
     {
       "dir": "indexed-blog-search",

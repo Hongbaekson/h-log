@@ -21,6 +21,7 @@ F3 Step 4와 F2 Step 1 완료.
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/PERFORMANCE_REBUILD_PLAN.md`
+- `apps/h-log/.codex/docs/harness/PUBLIC_READ_MODEL_CONTRACT.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/lib/blog-crawler-output.ts`
@@ -42,6 +43,8 @@ F3 Step 4와 F2 Step 1 완료.
 1. 요청한 feed/llms/sitemap 출력만 생성한다. 전체본문을 요구하는 llms-full과 주소/요약 출력의 작업량을 구분한다.
 2. 공개 generation·canonical origin·출력 schema에 묶인 산출물을 준비한다. 메모리 상한과 큰 출력의 생성/전송 방법을 정하고 현재 공개 generation을 확인한다.
 3. 발행/철회·원본 변경·재생성 이후 HTML 읽기와 crawler 상태가 일치하는지 검수한다. 브라우저/CDN HTTP 캐시의 stale 응답도 검수한다.
+
+[확정 계약](../../.codex/docs/harness/PUBLIC_READ_MODEL_CONTRACT.md)의 이 단계에 해당하는 범위·상한·실패 표·후속 검증을 인수 기준에 함께 적용한다. 아직 구현하지 않은 설정/표/CLI를 이미 존재하는 것으로 가정하지 않는다.
 
 ## 인수 기준
 

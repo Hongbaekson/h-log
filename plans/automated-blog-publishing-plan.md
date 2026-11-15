@@ -1,5 +1,7 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
+2026-11-16 F3 Step 0 `source-and-projection-contract` 완료. [원본·조회용 데이터 계약](../apps/h-log/.codex/docs/harness/PUBLIC_READ_MODEL_CONTRACT.md)에 필드별 소유권, 입력/정책 fingerprint, 현재 공개 snapshot, 변경 표식·generation 검증/활성화, 제한된 fallback, 복구/이전 앱 전환과 후속 검수를 확정했다. 문서 단계이며 runtime/schema/운영 동작은 변경하지 않았다. **F completed 4·pending 18, 다음은 F3 Step 1 `projection-storage-and-rebuild`**다. R 14 completed와 운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-16 F2 Step 1 `scoped-markdown-read` 완료. Markdown은 기존 slug loader로 대상 현재 버전만 읽으며 성공·404 응답은 `private, no-store`로 제공한다. 실제 DB의 본문 10/1,000행→1행 RED/GREEN, production/dev의 rewrite·버전 변경·철회·privacy·오류 복구와 F1 HTTP 예산 비교를 검증했다. [검수 기록](../apps/h-log/.codex/docs/harness/BLOG_MARKDOWN_READ_REVIEW.md)에 수치·기존 lint 실패·이전 종료 139의 원인 미확정 한계를 남겼다. **F2 전체 완료, F completed 3·pending 19, 다음은 F3 Step 0 `source-and-projection-contract`**다. R 14 completed와 운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.
 
 2026-11-13 F2 Step 0 `lightweight-list-model` 완료. 목록 전용 DTO로 본문/목차 생성을 없애고 metadata/page가 React 요청 cache로 같은 목록 결과를 공유한다. Home 최근 3개와 ID별 관계 인덱스를 연결했다. [검수·성능 비교](../apps/h-log/.codex/docs/harness/BLOG_LIST_EFFICIENCY_REVIEW.md)에 공개 결과 동등성, 로컬 DB·HTTP·브라우저 검수와 F1 비교를 기록했다. **F completed 2·pending 20, 다음은 F2 Step 1 `scoped-markdown-read`**다. R 14 completed와 운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.

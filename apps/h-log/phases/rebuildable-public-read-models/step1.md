@@ -21,6 +21,7 @@ F3 Step 0 완료.
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/PERFORMANCE_REBUILD_PLAN.md`
+- `apps/h-log/.codex/docs/harness/PUBLIC_READ_MODEL_CONTRACT.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/lib/blog-postgres-repository.ts`
@@ -42,6 +43,8 @@ F3 Step 0 완료.
 1. 계약의 최소 조회용 schema와 index, 원본을 받는 결정적 projector를 구현한다. 목록/검색 텍스트/본문 블록의 버전과 입력 fingerprint를 검증한다.
 2. 명시 대상·batch 크기·cursor·동시성 상한을 받는 로컬 rebuild 명령을 만든다. 새 generation에서 생성·검증한 뒤 활성화하며 동일 입력은 같은 결과로 수렴시킨다.
 3. 소유가 확인된 격리 DB에서 보조 행/테이블 유실, 중간 중단/재개, 중복 실행, 손상 row와 schema/정책 버전 변경을 재현한다. 생성 전후 원본 hash·공개 선택·감사를 비교한다.
+
+[확정 계약](../../.codex/docs/harness/PUBLIC_READ_MODEL_CONTRACT.md)의 이 단계에 해당하는 범위·상한·실패 표·후속 검증을 인수 기준에 함께 적용한다. 아직 구현하지 않은 설정/표/CLI를 이미 존재하는 것으로 가정하지 않는다.
 
 ## 인수 기준
 

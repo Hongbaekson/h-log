@@ -580,3 +580,7 @@ F2는 기존 read path의 불필요 계산을 먼저 줄이고 F3는 재생성 �
 ## Markdown slug 조회 — F2 Step 1
 
 2026-11-16 `app/blog-markdown/[slug]/route.ts`는 기존 `loadPublicBlogContentStoreBySlug(slug)` → `findPublicBlogContentBySlug` → privacy/썸네일 파일 검증 → `getPublicBlogPostMarkdown`을 사용한다. 전체 store를 읽지 않으며 새 repository/schema/캐시는 추가하지 않는다. `/blog/:slug.md` rewrite와 직접 route는 같은 성공·404 `private, no-store` 응답을 제공한다. DB/hash 실패는 기존 Next 500을 유지한다. [실제 DB 행 수·HTTP·부하 검수](BLOG_MARKDOWN_READ_REVIEW.md).
+
+## 예정 조회용 저장소 계약 — F3 Step 0
+
+2026-11-16 [계약](PUBLIC_READ_MODEL_CONTRACT.md)에 동일 PG의 public_read_state/sources/generations/entries를 정의했다. 별도 revision과 durable 변경 표식, manifest/입력/정책 hash, 후보 생성·검증·활성화, 동일 snapshot의 현재 공개 join을 사용한다. 원본과 공개 승인은 기존 표/코드가 소유한다. Step 1은 저장/rebuild, Step 2는 writer 원자성, Steps 3–5는 reader 전환을 담당한다. 현재 runtime/schema에는 아직 이 구조가 없으며 source/shadow/projected 설정과 CLI도 후속 구현이다.

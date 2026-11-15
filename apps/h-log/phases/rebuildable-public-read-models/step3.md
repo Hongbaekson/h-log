@@ -21,6 +21,7 @@ F3 Step 2와 F2 Step 0 완료.
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/PERFORMANCE_REBUILD_PLAN.md`
+- `apps/h-log/.codex/docs/harness/PUBLIC_READ_MODEL_CONTRACT.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/.codex/rules/frontend.md`
@@ -41,6 +42,8 @@ DB에서 공개 목록과 개수 조회을 한 작업 단위로 수행한다. �
 1. 현재 공개 상태/버전과 검증된 projection을 같은 snapshot에서 조회한다. 목록·태그 개수·필터·정렬·페이지 상한 계산을 이 결과 집합에서 수행한다.
 2. 필요 열과 표시할 행을 중심으로 SQL을 만들고 EXPLAIN ANALYZE로 index 후보를 검증한다. 본문/출처 전체를 Node로 옮기는 양을 측정한다.
 3. projection 누락·stale·손상은 F3 계약의 제한된 원본 fallback 또는 오류 경로로 처리한다. 동시 cold miss의 같은 계산을 합친다.
+
+[확정 계약](../../.codex/docs/harness/PUBLIC_READ_MODEL_CONTRACT.md)의 이 단계에 해당하는 범위·상한·실패 표·후속 검증을 인수 기준에 함께 적용한다. 아직 구현하지 않은 설정/표/CLI를 이미 존재하는 것으로 가정하지 않는다.
 
 ## 인수 기준
 

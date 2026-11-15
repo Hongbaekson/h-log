@@ -316,3 +316,7 @@ Next.js/nextjs와 PostgreSQL/postgres는 같은 블로그 태그로 표시·조�
 ## Markdown 개별 조회 — F2 Step 1
 
 2026-11-16 Markdown 원문 URL은 대상 글의 현재 공개 버전만 조회한다. 성공·404는 `private, no-store`이며 다음 요청에서 수정·철회를 반영한다. 원문 bytes/hash·privacy·DB 실패 500과 공개 UI는 유지했다. [검수](BLOG_MARKDOWN_READ_REVIEW.md). F2 전체 완료, F completed 3/pending 19, 다음은 F3 Step 0이다.
+
+## 원본과 조회용 데이터 계약 — F3 Step 0
+
+2026-11-16 [계약](PUBLIC_READ_MODEL_CONTRACT.md)을 확정했다. 재생성은 원본·과거 버전·공개 선택·검수/감사를 보존하며 현재 공개 여부를 매 읽기 snapshot에서 확인한다. 준비 중이거나 오래된 파생 결과를 공개하거나 누락 항목을 몰래 제외하지 않는다. Brain 검수 사본과 PDF 승인은 재생성 대상이 아니다. 이번 단계는 문서만 변경했으며 F 4 completed/18 pending, 다음은 F3 Step 1이다.
