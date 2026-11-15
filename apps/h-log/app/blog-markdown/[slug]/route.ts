@@ -1,5 +1,5 @@
 import { getPublicBlogPostMarkdown } from "@/lib/blog-public";
-import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
+import { loadPublicBlogContentStoreBySlug } from "@/lib/blog-public-source";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +11,7 @@ type BlogMarkdownRouteContext = {
 
 export async function GET(_request: Request, { params }: BlogMarkdownRouteContext) {
   const { slug } = await params;
-  const store = await loadPublicBlogContentStore();
+  const store = await loadPublicBlogContentStoreBySlug(slug);
   const markdown = getPublicBlogPostMarkdown(slug, store);
 
   if (!markdown) {
@@ -20,7 +20,7 @@ export async function GET(_request: Request, { params }: BlogMarkdownRouteContex
 
   return new Response(markdown, {
     headers: {
-      "cache-control": "public, max-age=300",
+      "cache-control": "private, no-store",
       "content-type": "text/markdown; charset=utf-8",
     },
   });
@@ -29,6 +29,7 @@ export async function GET(_request: Request, { params }: BlogMarkdownRouteContex
 function notFoundResponse(): Response {
   return new Response("Not found\n", {
     headers: {
+      "cache-control": "private, no-store",
       "content-type": "text/plain; charset=utf-8",
     },
     status: 404,

@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "scoped-markdown-read",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-16: Completed scoped Markdown reads using the existing slug loader. Real route/PG RED fetched 10/1000 bodies; GREEN returns one current body, six rows/five queries with original bytes/history preserved. Corrected success/404 cache headers to private, no-store after HTTP RED; prod/dev rewrite, selection/retraction, privacy and 500/recovery passed. Unit 301 pass/29 skip, DB 7/7, source lint/typecheck/build and 1280 warm HTTP requests verified. Prior exit 139 did not recur; cause remains unknown. Existing private lint errors recorded. F2 complete, F3 Step 0 next, F 3 completed/19 pending; operations hold unchanged."
     }
   ]
 }

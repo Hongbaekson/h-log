@@ -459,6 +459,10 @@ H-Log는 화려한 마케팅 사이트보다 신뢰 가능한 백엔드 개발�
 
 요청 내 memoization과 요청 간 캐시의 생명주기를 구분한다. F3 Step 0에서 schema·최신성·fallback·HTTP 캐시 경계를 확정하고 구현 step에서 검증한다. Redis는 공유 재사용과 잔여 병목의 측정 결과를 근거로 후속 선정한다. 운영 migration·배포·timer는 기존 승인 절차를 따른다.
 
+### ADR-042 F2 Step 1 확인 — 2026-11-16
+
+Markdown의 기존 `public, max-age=300` 응답은 `force-dynamic`만으로 제거되지 않았다. F2 Step 1의 private/no-store 기준에 맞춰 성공·404에 명시적으로 적용했다. 배포 전 이미 캐시된 사본의 회수나 진행 중인 요청의 snapshot 일관성을 보장하지 않는다. F3 Step 0은 다른 표면의 HTTP 캐시, 원자적 공개 판정과 변경 중인 읽기 계약을 함께 정한다. [검수 기록](BLOG_MARKDOWN_READ_REVIEW.md).
+
 ## 공식/내부 기준
 
 - Next.js docs

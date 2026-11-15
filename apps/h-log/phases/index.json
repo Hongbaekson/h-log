@@ -275,8 +275,8 @@
     },
     {
       "dir": "blog-read-efficiency",
-      "status": "pending",
-      "summary": "2026-11-13: Step 0 completed. Added list-only cards without Markdown block/TOC work, per-snapshot relation indexes and React render-scoped list sharing for metadata/page and Home. RED/GREEN, 301 unit passes, real RSC cache check, isolated public DB/HTTP/UI and F1 list CPU/HTTP comparison passed; initial detail/search tail spikes were not reproduced in two HTTP rechecks; a later Markdown p95 exceedance and one unexplained exit 139 remain documented for follow-up; old private lint errors remain documented. Source/public versions and UI preserved; no cross-request cache/schema/operations change. Step 1 scoped-markdown-read remains pending; F 2 completed/20 pending."
+      "status": "completed",
+      "summary": "2026-11-16: Completed scoped Markdown reads using the existing slug loader. Real route/PG RED fetched 10/1000 bodies; GREEN returns one current body, six rows/five queries with original bytes/history preserved. Corrected success/404 cache headers to private, no-store after HTTP RED; prod/dev rewrite, selection/retraction, privacy and 500/recovery passed. Unit 301 pass/29 skip, DB 7/7, source lint/typecheck/build and 1280 warm HTTP requests verified. Prior exit 139 did not recur; cause remains unknown. Existing private lint errors recorded. F2 complete, F3 Step 0 next, F 3 completed/19 pending; operations hold unchanged."
     },
     {
       "dir": "rebuildable-public-read-models",

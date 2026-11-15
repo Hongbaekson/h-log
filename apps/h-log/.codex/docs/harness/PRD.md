@@ -312,3 +312,7 @@ Next.js/nextjs와 PostgreSQL/postgres는 같은 블로그 태그로 표시·조�
 ## 목록 조회 경량화 — F2 Step 0
 
 2026-11-13 공개 목록·Home 최근 글의 화면 필드와 공개 조건을 유지하면서 본문/목차 가공을 상세 경로에 한정했다. metadata/page는 요청 내부의 같은 목록 결과를 사용하며 다음 요청에서는 공개/철회 상태를 다시 읽는다. [검수 기록](BLOG_LIST_EFFICIENCY_REVIEW.md)의 로컬 성능은 합성 조건에 한정한다. F completed 2/pending 20, 다음은 F2 Step 1이다.
+
+## Markdown 개별 조회 — F2 Step 1
+
+2026-11-16 Markdown 원문 URL은 대상 글의 현재 공개 버전만 조회한다. 성공·404는 `private, no-store`이며 다음 요청에서 수정·철회를 반영한다. 원문 bytes/hash·privacy·DB 실패 500과 공개 UI는 유지했다. [검수](BLOG_MARKDOWN_READ_REVIEW.md). F2 전체 완료, F completed 3/pending 19, 다음은 F3 Step 0이다.

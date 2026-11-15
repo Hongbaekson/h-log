@@ -1,6 +1,6 @@
 # H-Log 성능 개선과 재생성 가능한 조회용 데이터 계획
 
-등록일 2026-11-06. 사용자가 코드 성능 분석 결과와 원본에서 보조 저장소를 복구하는 원칙을 phase/step으로 등록하도록 요청했다. **F1–F7은 7개 phase / 22개 step이며 completed 2·pending 20개**다. 전체 레지스트리는 60개 phase / 209개 step이다. [전체 상태](../../../phases/index.json)를 기준으로 실행하며 2026-11-13 [F1 측정·예산](PERFORMANCE_BASELINE_REVIEW.md)과 [F2 Step 0 목록 경량화](BLOG_LIST_EFFICIENCY_REVIEW.md)를 완료했고 다음은 **F2 Step 1 `scoped-markdown-read`**이다. 2026-11-13 [R5 로컬 통합 검수](KNOWLEDGE_RELEASE_REVIEW.md)를 완료해 기존 콘텐츠 R 트랙 14개 step은 모두 completed다. 새 재검토 목록의 서버 필터·20개 제한 조회는 R5 Step 1에서 구현했고 기존 전체 관리자 목록/원문 이력의 개선은 F6에 남긴다. 운영 보류 중 일반적인 다음 단계 요청은 F2 Step 1부터 F 순서를 따른다. SEO S3 Step 1/2와 운영 적용의 승인 조건은 유지한다.
+등록일 2026-11-06. 사용자가 코드 성능 분석 결과와 원본에서 보조 저장소를 복구하는 원칙을 phase/step으로 등록하도록 요청했다. **F1–F7은 7개 phase / 22개 step이며 completed 3·pending 19개**다. 전체 레지스트리는 60개 phase / 209개 step이다. [전체 상태](../../../phases/index.json)를 기준으로 실행하며 2026-11-13 [F1 측정·예산](PERFORMANCE_BASELINE_REVIEW.md)과 [F2 Step 0 목록 경량화](BLOG_LIST_EFFICIENCY_REVIEW.md), 2026-11-16 [F2 Step 1 Markdown 조회](BLOG_MARKDOWN_READ_REVIEW.md)를 완료했고 다음은 **F3 Step 0 `source-and-projection-contract`**이다. 2026-11-13 [R5 로컬 통합 검수](KNOWLEDGE_RELEASE_REVIEW.md)를 완료해 기존 콘텐츠 R 트랙 14개 step은 모두 completed다. 새 재검토 목록의 서버 필터·20개 제한 조회는 R5 Step 1에서 구현했고 기존 전체 관리자 목록/원문 이력의 개선은 F6에 남긴다. 운영 보류 중 일반적인 다음 단계 요청은 F3 Step 0부터 F 순서를 따른다. SEO S3 Step 1/2와 운영 적용의 승인 조건은 유지한다.
 
 ## 목표
 
@@ -82,7 +82,7 @@ Materialized view와 일반 projection table은 최신성·개별 갱신·애플
 | --- | --- | --- | --- |
 | F1 성능 기준선과 회귀 예산 | [0 reproducible-performance-baseline](../../../phases/performance-baseline/step0.md) | 반복 가능한 측정과 성능 예산 | completed |
 | F2 블로그 조회와 반복 가공 절감 | [0 lightweight-list-model](../../../phases/blog-read-efficiency/step0.md) | 목록 전용 모델과 요청 내 계산 공유 | completed |
-| F2 블로그 조회와 반복 가공 절감 | [1 scoped-markdown-read](../../../phases/blog-read-efficiency/step1.md) | Markdown 한 편의 조회 범위 축소 | pending |
+| F2 블로그 조회와 반복 가공 절감 | [1 scoped-markdown-read](../../../phases/blog-read-efficiency/step1.md) | Markdown 한 편의 조회 범위 축소 | completed |
 | F3 원본에서 재생성하는 조회용 데이터 | [0 source-and-projection-contract](../../../phases/rebuildable-public-read-models/step0.md) | 원본·공개 선택·파생 데이터 계약 | pending |
 | F3 원본에서 재생성하는 조회용 데이터 | [1 projection-storage-and-rebuild](../../../phases/rebuildable-public-read-models/step1.md) | 조회용 저장소와 재생성 도구 | pending |
 | F3 원본에서 재생성하는 조회용 데이터 | [2 transactional-projection-freshness](../../../phases/rebuildable-public-read-models/step2.md) | 수정·공개·철회와 파생 데이터 일치 | pending |
@@ -131,3 +131,7 @@ Materialized view와 일반 projection table은 최신성·개별 갱신·애플
 ## F2 Step 0 완료 — 2026-11-13
 
 목록의 본문 블록/목차 생성과 metadata/page의 중복 모델 가공을 제거했다. 동일 fixture·측정기·환경에서 목록의 F1 CPU/HTTP 예산을 통과했다. 상세/검색의 최초 초과는 추가 두 실행에서 재현되지 않았고, 추가 Markdown p95 초과 1회와 원인 미확정 종료 139는 다음 Markdown 조회 단계의 재검수 항목으로 남긴다. [검수 기록](BLOG_LIST_EFFICIENCY_REVIEW.md)과 [수치 JSON](blog-list-performance-2026-11-13.json)을 후속 비교에 사용한다. 전체 DB 읽기·privacy/hash/썸네일 파일 검증을 유지하고 요청 간 캐시는 추가하지 않았다. Markdown 한 편의 조회 범위 축소는 F2 Step 1에서 수행한다. F completed 2/pending 20이며 기존 F1의 변동 큰 그래프 조건과 영속 rebuild 미측정 조건도 유지한다.
+
+## F2 Step 1 완료 — 2026-11-16
+
+기존 `loadPublicBlogContentStoreBySlug`를 Markdown route에 연결했다. 10/1,000글에서 대상 현재 본문 1개를 포함한 총 6행만 반환하고 원문 bytes/hash와 공개 경계를 유지한다. 성공·404의 `private, no-store`로 새 요청이 현재 버전·철회를 다시 확인한다. [검수](BLOG_MARKDOWN_READ_REVIEW.md)와 [HTTP 비교](blog-markdown-performance-2026-11-16.json)를 남겼다. 이전 Markdown p95 초과와 종료 139는 두 부하 실행에서 재현되지 않았으며 종료의 원인을 해결했다고 단정하지 않는다. F2 전체 완료, F 3 completed/19 pending이며 다음은 F3 Step 0이다.

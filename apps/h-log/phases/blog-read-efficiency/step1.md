@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-06 등록한 F2의 Markdown 한 편의 조회 범위 축소 단계다. 구현 완료 판정은 이 파일의 인수 기준과 검증 결과로 한다.
+completed — 2026-11-16 대상 글 조회·원문 보존·캐시/공개 경계와 부하를 검증했다. [검수 기록](../../.codex/docs/harness/BLOG_MARKDOWN_READ_REVIEW.md)을 따른다.
 
 F2 Step 0 완료.
 
@@ -85,3 +85,10 @@ Step 0에서 남은 1,000글 Markdown/동시 8요청 p95 초과(2,597.60ms, 예�
 ## 다음 단계
 
 F3 Step 0 `source-and-projection-contract`. 독립 실행 조건은 전체 계획을 따른다.
+
+## 완료 기록 — 2026-11-16
+
+- 실제 route/repository/PG의 RED는 본문 10/1,000행 조회였고 GREEN은 1행이다. 합성 자료의 총 반환 행은 크기와 무관하게 6개/5 query이며 원문과 이력을 보존했다.
+- 성공·404 `private, no-store`의 HTTP RED/GREEN을 확인했다. production/dev 각각 5/5, 기존 repository/public-read 통합 7/7, 단위 301 pass/29 DB skip, source lint/typecheck/build 통과. 전체 lint는 기존 private CommonJS 오류 10개로 실패한다.
+- F1과 같은 fixture·자원 상한의 1,024+256 warm HTTP 요청을 완료했다. [비교 JSON](../../.codex/docs/harness/blog-markdown-performance-2026-11-16.json), 명령·한계는 [검수 기록](../../.codex/docs/harness/BLOG_MARKDOWN_READ_REVIEW.md)에 둔다. 이전 종료 139는 재현되지 않았으나 원인은 미확정이다.
+- F2 전체 완료, F 3 completed/19 pending. 다음은 F3 Step 0이며 운영 적용·공개 발행은 수행하지 않았다.

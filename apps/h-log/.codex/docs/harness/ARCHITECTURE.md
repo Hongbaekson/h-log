@@ -576,3 +576,7 @@ F2는 기존 read path의 불필요 계산을 먼저 줄이고 F3는 재생성 �
 ## 목록 모델과 요청 내 공유 — F2 Step 0
 
 2026-11-13 `blog-public.ts`의 `PublicBlogListItem`은 목록 필드만 가진다. `getPublicBlogIndex`는 기존 published/current/privacy/hash 판정을 유지하고 ID별 tags/sources/assets 인덱스로 관계를 읽으며 본문/목차를 생성하지 않는다. 상세 모델도 같은 관계 인덱스를 재사용한다. `blog-public-source.ts`의 `loadPublicBlogIndex(page, tag, pageSize)`는 primitive 인자를 받는 React `cache`로 metadata/page를 공유하고 Home은 pageSize 3을 사용한다. 저장소 읽기 cache와 마찬가지로 render 범위이며 영속/요청 간 cache나 schema 변경은 없다. [검수](BLOG_LIST_EFFICIENCY_REVIEW.md).
+
+## Markdown slug 조회 — F2 Step 1
+
+2026-11-16 `app/blog-markdown/[slug]/route.ts`는 기존 `loadPublicBlogContentStoreBySlug(slug)` → `findPublicBlogContentBySlug` → privacy/썸네일 파일 검증 → `getPublicBlogPostMarkdown`을 사용한다. 전체 store를 읽지 않으며 새 repository/schema/캐시는 추가하지 않는다. `/blog/:slug.md` rewrite와 직접 route는 같은 성공·404 `private, no-store` 응답을 제공한다. DB/hash 실패는 기존 Next 500을 유지한다. [실제 DB 행 수·HTTP·부하 검수](BLOG_MARKDOWN_READ_REVIEW.md).

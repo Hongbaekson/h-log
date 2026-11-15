@@ -21,6 +21,7 @@ F1 Step 0 완료. 기본 실행 순서는 F2 이후.
 - `apps/h-log/.codex/docs/harness/AGENT_LOOP.md`
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/PERFORMANCE_REBUILD_PLAN.md`
+- `apps/h-log/.codex/docs/harness/BLOG_MARKDOWN_READ_REVIEW.md`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `apps/h-log/lib/blog-content-model.ts`
 - `apps/h-log/lib/blog-editorial-actions.ts`
@@ -43,6 +44,8 @@ F1 Step 0 완료. 기본 실행 순서는 F2 이후.
 2. 본문 hash와 전체 입력 fingerprint를 구분한다. source version, metadata revision, renderer/projection/search schema version, privacy policy fingerprint를 포함하는 키·무효화·크기 상한 계약을 정한다.
 3. 동일 PostgreSQL의 조회용 테이블을 기본안으로 한다. 현재 공개 상태와 버전의 join, 한 읽기 snapshot, 원자적 갱신, 요청 합치기와 제한된 재생성, 원본 fallback/오류 정책을 정한다.
 4. 원본 HTML 보존 또는 고정 renderer 복구, Brain의 공개 사본 재현성, PDF의 검토/epoch와 실제 자산 바이트를 다룬다. 원본→생성→검증→활성 generation 교체와 중단/재개 인터페이스를 정의한다.
+
+F2 Step 1에서 Markdown 성공·404는 `private, no-store`로 정정했다. 현재 slug loader의 여러 query는 단일 transaction snapshot이 아니므로 진행 중인 변경·철회와 다른 표면의 HTTP 캐시를 포함한 최신성 계약을 정한다. 이전 부하 검수의 종료 139는 후속 두 실행에서 재현되지 않았으나 원인은 미확정으로 보존한다.
 
 ## 인수 기준
 

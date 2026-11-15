@@ -1,0 +1,1241 @@
+{
+  "date": "2026-11-16",
+  "baseline": "performance-baseline-2026-11-13.json",
+  "previous": "blog-list-performance-2026-11-13.json",
+  "scope": "F2 Step 1 HTTP only: original route order, fixture sizes, warmups, 32 requests/concurrency 1 and 8, resource limits. First run all four sizes; confirmation 1000 posts. No UI/browser performance claim.",
+  "method": "32 warm requests per route/concurrency 1 or 8; 1 warmup. First route request recorded separately; DB/OS caches not flushed.",
+  "fixtureHashes": [
+    {
+      "count": 10,
+      "sha256": "8001052a4b88d28de13b4601d7d091a60b7d35eda5050b756da53601cfb3528b"
+    },
+    {
+      "count": 100,
+      "sha256": "a4d029292188baf4c0fb11b316969d666693bd9cfbf1e87428ec2b4d23ccdd55"
+    },
+    {
+      "count": 500,
+      "sha256": "48c21b367cba2cdadda7ba5b510f66e733d0a8cececbcaa1fc7023557b1e355d"
+    },
+    {
+      "count": 1000,
+      "sha256": "f4f82e4988a8f94c9baf9308204bda939de14fc0d19a469071162dcafa84377b"
+    }
+  ],
+  "originalHashPreserved": true,
+  "returnedRows": {
+    "sizes": [
+      10,
+      1000
+    ],
+    "bodyVersions": 1,
+    "totalRows": 6,
+    "queries": 5
+  },
+  "previousMarkdownTail": [
+    {
+      "run": "hlog-perf-5e3f71b5",
+      "metric": "request_p95_ms",
+      "condition": "1000//blog/perf-0000.md/8",
+      "value": 2597.6034000000072,
+      "limit": 2399.9375,
+      "passed": false
+    }
+  ],
+  "previousExit139": "2026-11-13 cause remains unknown; no claim that non-reproduction establishes resolution.",
+  "runs": [
+    {
+      "run": "hlog-perf-4aa4acf7",
+      "startedAt": "2026-11-15T23:12:44.733Z",
+      "completedAt": "2026-11-15T23:15:08.123Z",
+      "environment": {
+        "commit": "b96a472228af2b536689536255f0d939bb21d145",
+        "sourceHash": "44d4d9ec1db723e8c1926f44ab9ab071a2bdf5b355b8de613bde7ec093922132",
+        "harnessHash": "2bca2941605b9e43b46054a88da6c24b1dfb02fff12e8983ee6f1bcf9abd04d4",
+        "node": "v22.14.0",
+        "next": "16.4.3",
+        "playwright": "1.62.1",
+        "platform": "win32",
+        "cpu": "13th Gen Intel(R) Core(TM) i7-13700K",
+        "logicalCpus": 24,
+        "memoryBytes": 34088296448,
+        "docker": "29.6.1",
+        "dbImage": "pgvector/pgvector:pg16@sha256:a36250871de0833b8757561c72f2477ef1ddd1101afa4e617fb552e0de514c6b",
+        "appLimits": {
+          "cpus": 2,
+          "memory": "2g"
+        },
+        "dbLimits": {
+          "cpus": 1,
+          "memory": "1g"
+        },
+        "imageId": "sha256:e031ec8fe3daa5d725e81d70569ac6815bd95afccdae0ba473cb889a5dfb5300",
+        "appNode": "v24.19.0"
+      },
+      "probeHash": "efe2036532b0979b9502c932edf40b09a43a82c11fa87610a7e89c40a7fcec68",
+      "cleanup": true,
+      "failure": null,
+      "warmRequests": 1024,
+      "rows": [
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 10,
+          "path": "/blog",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            17.33,
+            16.94
+          ],
+          "value": 14.202950000000783,
+          "limit": 40.79599999999999,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 10,
+          "path": "/blog",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            34.73,
+            22.73
+          ],
+          "value": 33.08339999999953,
+          "limit": 93.4125,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 10,
+          "path": "/blog",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            98.28,
+            102.94
+          ],
+          "value": 70.04809999999998,
+          "limit": 143.528,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 10,
+          "path": "/blog",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            163.51,
+            179.64
+          ],
+          "value": 126.45999999999913,
+          "limit": 274.54999999999995,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 10,
+          "path": "/blog/perf-0000",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            15.87,
+            13.65
+          ],
+          "value": 15.347100000000864,
+          "limit": 39.044,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 10,
+          "path": "/blog/perf-0000",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            21.64,
+            15.63
+          ],
+          "value": 20.60359999999855,
+          "limit": 77.05,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 10,
+          "path": "/blog/perf-0000",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            101.45,
+            90.82
+          ],
+          "value": 101.56845000000067,
+          "limit": 141.74,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 10,
+          "path": "/blog/perf-0000",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            145.83,
+            136.9
+          ],
+          "value": 143.4418000000005,
+          "limit": 232.28750000000002,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 10,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            4.93,
+            4.51
+          ],
+          "value": 3.6858499999998457,
+          "limit": 25.916,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 10,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            6.75,
+            5.8
+          ],
+          "value": 4.9069000000017695,
+          "limit": 58.4375,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 10,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            28.7,
+            26.6
+          ],
+          "value": 15.722050000000309,
+          "limit": 54.44,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 10,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            33.74,
+            32.88
+          ],
+          "value": 20.48530000000028,
+          "limit": 92.17500000000001,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 10,
+          "path": "/api/search?q=Redis",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            5.42,
+            5
+          ],
+          "value": 5.710400000001755,
+          "limit": 26.503999999999998,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 10,
+          "path": "/api/search?q=Redis",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            6.54,
+            6.36
+          ],
+          "value": 7.169399999998859,
+          "limit": 58.175,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 10,
+          "path": "/api/search?q=Redis",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            30.25,
+            29.02
+          ],
+          "value": 32.717499999998836,
+          "limit": 56.3,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 10,
+          "path": "/api/search?q=Redis",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            37.27,
+            35
+          ],
+          "value": 39.785400000000664,
+          "limit": 96.5875,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 100,
+          "path": "/blog",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            76.99,
+            74.93
+          ],
+          "value": 32.186499999999796,
+          "limit": 112.38799999999999,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 100,
+          "path": "/blog",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            86.78,
+            87.56
+          ],
+          "value": 40.30959999999686,
+          "limit": 159.45,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 100,
+          "path": "/blog",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            587.11,
+            577.25
+          ],
+          "value": 233.88004999999976,
+          "limit": 724.532,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 100,
+          "path": "/blog",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            909.09,
+            974.71
+          ],
+          "value": 374.6304000000018,
+          "limit": 1268.3875,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 100,
+          "path": "/blog/perf-0000",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            40.32,
+            39.35
+          ],
+          "value": 41.33374999999978,
+          "limit": 68.384,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 100,
+          "path": "/blog/perf-0000",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            46.42,
+            43.26
+          ],
+          "value": 46.0538000000015,
+          "limit": 108.025,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 100,
+          "path": "/blog/perf-0000",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            298.42,
+            289.86
+          ],
+          "value": 349.7419000000009,
+          "limit": 378.104,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 100,
+          "path": "/blog/perf-0000",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            423.67,
+            419.02
+          ],
+          "value": 477.6975999999995,
+          "limit": 579.5875,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 100,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            21.08,
+            20.86
+          ],
+          "value": 3.2732000000014523,
+          "limit": 45.29599999999999,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 100,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            23.9,
+            23.08
+          ],
+          "value": 4.54149999999936,
+          "limit": 79.875,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 100,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            147.04,
+            143.05
+          ],
+          "value": 15.156699999999546,
+          "limit": 196.44799999999998,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 100,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            161.37,
+            164.17
+          ],
+          "value": 19.184799999999086,
+          "limit": 255.21249999999998,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 100,
+          "path": "/api/search?q=Redis",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            25.57,
+            26.37
+          ],
+          "value": 26.493250000001353,
+          "limit": 51.644,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 100,
+          "path": "/api/search?q=Redis",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            31.07,
+            28.61
+          ],
+          "value": 29.84230000000025,
+          "limit": 88.8375,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 100,
+          "path": "/api/search?q=Redis",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            196.65,
+            196.94
+          ],
+          "value": 203.01729999999952,
+          "limit": 256.328,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 100,
+          "path": "/api/search?q=Redis",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            218.17,
+            218.06
+          ],
+          "value": 218.52709999999934,
+          "limit": 322.7125,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 500,
+          "path": "/blog",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            362.6,
+            353.64
+          ],
+          "value": 132.92625000000407,
+          "limit": 455.12,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 500,
+          "path": "/blog",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            384.04,
+            366.21
+          ],
+          "value": 143.3150999999998,
+          "limit": 530.05,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 500,
+          "path": "/blog",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            2785.73,
+            2674.33
+          ],
+          "value": 1011.4445500000002,
+          "limit": 3362.8759999999997,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 500,
+          "path": "/blog",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            3588.11,
+            3491.51
+          ],
+          "value": 1351.0118999999977,
+          "limit": 4535.1375,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 500,
+          "path": "/blog/perf-0000",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            170.48,
+            162.4
+          ],
+          "value": 168.52670000000217,
+          "limit": 224.576,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 500,
+          "path": "/blog/perf-0000",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            187.26,
+            168.9
+          ],
+          "value": 175.73679999999877,
+          "limit": 284.075,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 500,
+          "path": "/blog/perf-0000",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            1292.84,
+            1257.02
+          ],
+          "value": 1321.8990000000013,
+          "limit": 1571.408,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 500,
+          "path": "/blog/perf-0000",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            1800.45,
+            1718.75
+          ],
+          "value": 1815.1410000000033,
+          "limit": 2300.5625,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 500,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            96.87,
+            94.21
+          ],
+          "value": 4.03610000000117,
+          "limit": 136.244,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 500,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            106.03,
+            99.73
+          ],
+          "value": 5.271899999999732,
+          "limit": 182.5375,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 500,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            756.6,
+            724.45
+          ],
+          "value": 16.570199999998295,
+          "limit": 927.92,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 500,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            903.96,
+            841.73
+          ],
+          "value": 22.884799999999814,
+          "limit": 1179.95,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 500,
+          "path": "/api/search?q=Redis",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            135.86,
+            130.34
+          ],
+          "value": 138.86785000000236,
+          "limit": 183.032,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 500,
+          "path": "/api/search?q=Redis",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            153.75,
+            136.06
+          ],
+          "value": 149.86439999999857,
+          "limit": 242.1875,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 500,
+          "path": "/api/search?q=Redis",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            1058.41,
+            1017.78
+          ],
+          "value": 1091.3022999999994,
+          "limit": 1290.092,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 500,
+          "path": "/api/search?q=Redis",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            1220.44,
+            1171.09
+          ],
+          "value": 1262.7551999999996,
+          "limit": 1575.5500000000002,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 1000,
+          "path": "/blog",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            747.79,
+            724.84
+          ],
+          "value": 273.155700000003,
+          "limit": 917.348,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 1000,
+          "path": "/blog",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            773.38,
+            752.01
+          ],
+          "value": 311.6774000000005,
+          "limit": 1016.725,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 1000,
+          "path": "/blog",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            5706.73,
+            5645.73
+          ],
+          "value": 2208.5764500000005,
+          "limit": 6868.075999999999,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 1000,
+          "path": "/blog",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            7362.7,
+            7122.58
+          ],
+          "value": 2872.9144000000088,
+          "limit": 9253.375,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 1000,
+          "path": "/blog/perf-0000",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            332.16,
+            339.81
+          ],
+          "value": 342.18339999999444,
+          "limit": 427.772,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 1000,
+          "path": "/blog/perf-0000",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            361.29,
+            356.55
+          ],
+          "value": 363.66590000000724,
+          "limit": 501.6125,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 1000,
+          "path": "/blog/perf-0000",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            2626.66,
+            2588.82
+          ],
+          "value": 2714.229250000004,
+          "limit": 3171.9919999999997,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 1000,
+          "path": "/blog/perf-0000",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            3653.48,
+            3301.57
+          ],
+          "value": 3420.5179999999964,
+          "limit": 4616.85,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 1000,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            193.61,
+            192.86
+          ],
+          "value": 3.2942000000039116,
+          "limit": 252.332,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 1000,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            206.19,
+            207.81
+          ],
+          "value": 4.56940000000759,
+          "limit": 309.7625,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 1000,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            1384.9,
+            1361.9
+          ],
+          "value": 14.0766500000027,
+          "limit": 1681.88,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 1000,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            1879.95,
+            1877.42
+          ],
+          "value": 23.353000000002794,
+          "limit": 2399.9375,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 1000,
+          "path": "/api/search?q=Redis",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            294.06,
+            288.75
+          ],
+          "value": 304.68629999999393,
+          "limit": 372.872,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 1000,
+          "path": "/api/search?q=Redis",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            332.68,
+            301.81
+          ],
+          "value": 325.39949999999953,
+          "limit": 465.85,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 1000,
+          "path": "/api/search?q=Redis",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            2309.45,
+            2299.27
+          ],
+          "value": 2381.3285000000033,
+          "limit": 2791.3399999999997,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-4aa4acf7",
+          "count": 1000,
+          "path": "/api/search?q=Redis",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            2820.66,
+            2906.15
+          ],
+          "value": 2909.5783999999985,
+          "limit": 3682.6875,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "run": "hlog-perf-b6452c67",
+      "startedAt": "2026-11-15T23:15:30.658Z",
+      "completedAt": "2026-11-15T23:16:56.304Z",
+      "environment": {
+        "commit": "b96a472228af2b536689536255f0d939bb21d145",
+        "sourceHash": "44d4d9ec1db723e8c1926f44ab9ab071a2bdf5b355b8de613bde7ec093922132",
+        "harnessHash": "2bca2941605b9e43b46054a88da6c24b1dfb02fff12e8983ee6f1bcf9abd04d4",
+        "node": "v22.14.0",
+        "next": "16.4.3",
+        "playwright": "1.62.1",
+        "platform": "win32",
+        "cpu": "13th Gen Intel(R) Core(TM) i7-13700K",
+        "logicalCpus": 24,
+        "memoryBytes": 34088296448,
+        "docker": "29.6.1",
+        "dbImage": "pgvector/pgvector:pg16@sha256:a36250871de0833b8757561c72f2477ef1ddd1101afa4e617fb552e0de514c6b",
+        "appLimits": {
+          "cpus": 2,
+          "memory": "2g"
+        },
+        "dbLimits": {
+          "cpus": 1,
+          "memory": "1g"
+        },
+        "imageId": "sha256:f11a151416afcedcd3db942e78e5b1576127bf0da455869e1342c321e1fc46ff",
+        "appNode": "v24.19.0"
+      },
+      "probeHash": "efe2036532b0979b9502c932edf40b09a43a82c11fa87610a7e89c40a7fcec68",
+      "cleanup": true,
+      "failure": null,
+      "warmRequests": 256,
+      "rows": [
+        {
+          "run": "hlog-perf-b6452c67",
+          "count": 1000,
+          "path": "/blog",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            747.79,
+            724.84
+          ],
+          "value": 264.06364999999823,
+          "limit": 917.348,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-b6452c67",
+          "count": 1000,
+          "path": "/blog",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            773.38,
+            752.01
+          ],
+          "value": 280.6818999999996,
+          "limit": 1016.725,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-b6452c67",
+          "count": 1000,
+          "path": "/blog",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            5706.73,
+            5645.73
+          ],
+          "value": 1986.9707999999991,
+          "limit": 6868.075999999999,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-b6452c67",
+          "count": 1000,
+          "path": "/blog",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            7362.7,
+            7122.58
+          ],
+          "value": 2581.3588999999993,
+          "limit": 9253.375,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-b6452c67",
+          "count": 1000,
+          "path": "/blog/perf-0000",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            332.16,
+            339.81
+          ],
+          "value": 332.4130000000041,
+          "limit": 427.772,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-b6452c67",
+          "count": 1000,
+          "path": "/blog/perf-0000",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            361.29,
+            356.55
+          ],
+          "value": 347.0161999999982,
+          "limit": 501.6125,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-b6452c67",
+          "count": 1000,
+          "path": "/blog/perf-0000",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            2626.66,
+            2588.82
+          ],
+          "value": 2342.1573499999977,
+          "limit": 3171.9919999999997,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-b6452c67",
+          "count": 1000,
+          "path": "/blog/perf-0000",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            3653.48,
+            3301.57
+          ],
+          "value": 3923.903499999993,
+          "limit": 4616.85,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-b6452c67",
+          "count": 1000,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            193.61,
+            192.86
+          ],
+          "value": 3.3286499999994703,
+          "limit": 252.332,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-b6452c67",
+          "count": 1000,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            206.19,
+            207.81
+          ],
+          "value": 4.063900000001013,
+          "limit": 309.7625,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-b6452c67",
+          "count": 1000,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            1384.9,
+            1361.9
+          ],
+          "value": 13.806700000001001,
+          "limit": 1681.88,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-b6452c67",
+          "count": 1000,
+          "path": "/blog/perf-0000.md",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            1879.95,
+            1877.42
+          ],
+          "value": 17.837200000001758,
+          "limit": 2399.9375,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-b6452c67",
+          "count": 1000,
+          "path": "/api/search?q=Redis",
+          "concurrency": 1,
+          "metric": "request_p50_ms",
+          "baseline": [
+            294.06,
+            288.75
+          ],
+          "value": 302.81900000000314,
+          "limit": 372.872,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-b6452c67",
+          "count": 1000,
+          "path": "/api/search?q=Redis",
+          "concurrency": 1,
+          "metric": "request_p95_ms",
+          "baseline": [
+            332.68,
+            301.81
+          ],
+          "value": 333.69989999999234,
+          "limit": 465.85,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-b6452c67",
+          "count": 1000,
+          "path": "/api/search?q=Redis",
+          "concurrency": 8,
+          "metric": "request_p50_ms",
+          "baseline": [
+            2309.45,
+            2299.27
+          ],
+          "value": 2065.4447500000024,
+          "limit": 2791.3399999999997,
+          "passed": true
+        },
+        {
+          "run": "hlog-perf-b6452c67",
+          "count": 1000,
+          "path": "/api/search?q=Redis",
+          "concurrency": 8,
+          "metric": "request_p95_ms",
+          "baseline": [
+            2820.66,
+            2906.15
+          ],
+          "value": 2691.641399999993,
+          "limit": 3682.6875,
+          "passed": true
+        }
+      ]
+    }
+  ],
+  "failures": [],
+  "markdownPassed": true,
+  "nativeFailureReproduced": false
+}
