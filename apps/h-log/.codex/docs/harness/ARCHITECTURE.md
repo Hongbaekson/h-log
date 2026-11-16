@@ -584,3 +584,7 @@ F2는 기존 read path의 불필요 계산을 먼저 줄이고 F3는 재생성 �
 ## 예정 조회용 저장소 계약 — F3 Step 0
 
 2026-11-16 [계약](PUBLIC_READ_MODEL_CONTRACT.md)에 동일 PG의 public_read_state/sources/generations/entries를 정의했다. 별도 revision과 durable 변경 표식, manifest/입력/정책 hash, 후보 생성·검증·활성화, 동일 snapshot의 현재 공개 join을 사용한다. 원본과 공개 승인은 기존 표/코드가 소유한다. Step 1은 저장/rebuild, Step 2는 writer 원자성, Steps 3–5는 reader 전환을 담당한다. 현재 runtime/schema에는 아직 이 구조가 없으며 source/shadow/projected 설정과 CLI도 후속 구현이다.
+
+## 조회용 저장소·로컬 CLI — F3 Step 1
+
+2026-11-16 migration 014의 네 표, `public-read-model.ts`의 결정적 변환, `public-read-source.ts`의 크기 제한 조회, `public-read-rebuild.ts`와 `scripts/public-read-rebuild.mjs`를 구현했다. 기존 Blog row mapper/DTO/privacy/파일 검사와 Brain 공개 사본 변환을 재사용한다. batch와 cursor는 함께 commit하고 run_token·전체 검증으로 늦거나 불완전한 결과의 활성화를 차단한다. writer_protocol=0의 소유 확인 로컬 DB에서만 실행하며 최종 검증은 원본 SHARE lock으로 묶는다. 변경 표식·짧은 CAS·요청 snapshot은 Step 2, public reader 전환은 Steps 3–5다. [구현·검수·명령](PUBLIC_READ_STORAGE_REVIEW.md).

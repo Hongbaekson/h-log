@@ -62,6 +62,11 @@ jobs:
           node-version: 24
       - run: npm ci
       - run: npm run test
+      - run: npm run test:projection
+      - run: npm run test:projection:db
+        env:
+          HLOG_PROJECTION_TEST: "1"
+          DATABASE_URL: postgresql://hlog_app:hlog_ci_password@127.0.0.1:5432/hlog_projection_ci
       - run: npm run test:integration
         env:
           DATABASE_URL: postgresql://hlog_app:hlog_ci_password@127.0.0.1:5432/hlog_ci

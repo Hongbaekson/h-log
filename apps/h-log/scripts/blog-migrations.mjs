@@ -28,6 +28,10 @@ export const BLOG_MIGRATION_TABLES = [
   "resume_pdf_state",
   "blog_draft_requests",
   "blog_automation_policy",
+  "public_read_state",
+  "public_read_sources",
+  "public_read_generations",
+  "public_read_entries",
 ];
 
 export async function runBlogMigrations(connectionString = process.env.DATABASE_URL) {

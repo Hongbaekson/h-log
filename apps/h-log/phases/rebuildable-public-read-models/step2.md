@@ -22,6 +22,12 @@ F3 Step 1 완료.
 - `apps/h-log/.codex/docs/harness/IMPLEMENTATION_PLAN.md`
 - `apps/h-log/.codex/docs/harness/PERFORMANCE_REBUILD_PLAN.md`
 - `apps/h-log/.codex/docs/harness/PUBLIC_READ_MODEL_CONTRACT.md`
+- `apps/h-log/.codex/docs/harness/PUBLIC_READ_STORAGE_REVIEW.md`
+- `apps/h-log/migrations/014_public_read_models.sql`
+- `apps/h-log/lib/public-read-rebuild.ts`
+- `apps/h-log/lib/public-read-source.ts`
+- `apps/h-log/lib/public-read-model.ts`
+- `apps/h-log/scripts/public-read-rebuild.integration.test.mjs`
 - `apps/h-log/.codex/rules/content-seo-privacy.md`
 - `.codex/skills/tdd/SKILL.md`
 - `apps/h-log/lib/blog-postgres-repository.ts`
@@ -37,6 +43,10 @@ F3 Step 1 완료.
 ## 범위와 산출물
 
 수정·공개·철회와 파생 데이터 일치을 한 작업 단위로 수행한다. 전체 설계·측정 조건·인계는 [성능 및 재생성 계획](../../.codex/docs/harness/PERFORMANCE_REBUILD_PLAN.md)을 따른다.
+
+## Step 1 인계
+
+현재 writer_protocol=0과 metadata_revision=0은 격리 검수용이다. 모든 실제 writer의 표식 연결을 완료하기 전 이 값을 운영 protocol로 올리거나 reader를 연결하지 않는다. Step 1 최종 검증의 원본 SHARE lock·전체 재검수는 이 단계의 변경 revision catch-up·짧은 state CAS로 전환할 대상이다. 실제 파일/테스트와 원본 보존·복구/실패 표를 이어 사용한다.
 
 ## 작업
 

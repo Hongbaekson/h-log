@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "projection-storage-and-rebuild",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-16: Step 1 completed: migration 014, deterministic Blog/Brain projections and an owned-loopback rebuild CLI with bounded batches, durable cursor, token fencing, full validation/activation, repair/reset and preserved originals. Protocol 0 remains isolated; existing public readers/writers unchanged. Projector/CLI 6 and DB 8 pass, migrations 2/repository 5/Brain 3 pass, unit 305 pass/29 skip; source lint/typecheck/build pass. Full lint retains 10 existing private-helper errors. F 5 completed/17 pending; next Step 2 transactional-projection-freshness."
     },
     {
       "step": 2,

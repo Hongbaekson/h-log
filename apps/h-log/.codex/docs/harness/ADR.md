@@ -469,6 +469,10 @@ Markdown의 기존 `public, max-age=300` 응답은 `force-dynamic`만으로 제�
 
 개인 사이트의 낮은 쓰기 빈도에서는 단일 state 행의 짧은 잠금으로 변경 순서를 직렬화한다. 락 순서와 worker/retry 회귀는 Step 2의 전환 조건이며 비싼 계산을 잠금 안에 넣지 않는다. 이전 writer와 projected reader의 혼합 운용은 지원하지 않고 source 복귀·epoch 교체·재검증을 요구한다. Fallback 상한 초과는 과거 공개 결과나 부분 집계 대신 기존 오류 계약으로 끝낸다. F3 Step 5는 crawler의 300초 HTTP 캐시를 private/no-store로 전환할 예정이며 현재 구현 완료를 뜻하지 않는다.
 
+### ADR-042 F3 Step 1 격리 구현 — 2026-11-16
+
+[저장소 검수](PUBLIC_READ_STORAGE_REVIEW.md). 원자적 writer가 아직 없는 Step 1은 writer_protocol=0, 초기 metadata_revision=0으로 저장 형식을 먼저 검증한다. 운영 현재성을 주장하지 않고 DB 이름/소유 marker·loopback CLI로 대상을 제한한다. 최종 전체 재검증 동안 원본 SHARE lock을 유지하므로 쓰기 대기가 생길 수 있다. 이 방식은 격리 재생성의 정확성을 확보하는 임시 경계이며 Step 2에서 모든 writer 표식과 짧은 state CAS로 전환해야 한다. 새 서비스나 parser를 만들지 않고 기존 변환·검증을 재사용하며 실제 reader/writer는 변경하지 않았다.
+
 ## 공식/내부 기준
 
 - Next.js docs

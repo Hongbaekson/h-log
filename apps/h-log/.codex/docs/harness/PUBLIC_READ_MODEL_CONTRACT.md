@@ -1,6 +1,12 @@
 # 원본·공개 선택·조회용 데이터 계약
 
-2026-11-16 F3 Step 0 결정. 조사 기준은 `bf37dffaf3b1f61d7b96ea7e446f082e35e206be`다. 이 문서는 후속 구현의 계약이며, 아래 신규 표·설정·명령은 아직 구현하지 않았다. [성능 계획](PERFORMANCE_REBUILD_PLAN.md), [Markdown 검수](BLOG_MARKDOWN_READ_REVIEW.md), ADR-042를 잇는다.
+2026-11-16 F3 Step 0 결정. 조사 기준은 `bf37dffaf3b1f61d7b96ea7e446f082e35e206be`다. 이 문서는 후속 구현의 계약이며, 작성 당시 신규 표·설정·명령은 미구현이었다. 2026-11-16 Step 1에서 표와 격리 CLI를 구현했으며 현재 범위는 아래 보완과 [저장소 검수](PUBLIC_READ_STORAGE_REVIEW.md)를 따른다. [성능 계획](PERFORMANCE_REBUILD_PLAN.md), [Markdown 검수](BLOG_MARKDOWN_READ_REVIEW.md), ADR-042를 잇는다.
+
+## Step 1 구현 경계 — 2026-11-16
+
+Migration 014와 결정적 projector·로컬 rebuild/resume/verify/activate/repair/reset-derived를 구현했다. `writer_protocol=0`은 초기 metadata_revision 0을 저장하며 기존 writer의 변경 순서/catch-up을 제공하지 않는다. 소유 marker가 있는 `hlog_projection_*` loopback DB에서만 실행한다. 이 단계의 최종 검증/활성화는 원본 SHARE lock을 유지한 한 transaction에서 원본 전체와 후보를 비교하며, 불일치 시 후보 전체 재검수를 요구한다. 이는 아래 운영용 짧은 CAS/변경 표식 계약을 대신하지 않는다. Step 2는 writer 원자성과 snapshot/catch-up, Steps 3–5는 reader/HTTP 캐시 전환을 구현해야 한다. `HLOG_PUBLIC_READ_MODEL` 설정·요청 fallback과 운영 전환은 미구현이다.
+
+`--concurrency`는 최대 2의 상한이며 현재 serial runner는 한 번에 한 항목을 처리한다. 실제 SQL/check/index와 실행·복구 상한은 [014](../../../migrations/014_public_read_models.sql)와 [검수](PUBLIC_READ_STORAGE_REVIEW.md)에 기록했다. 아래 Step 0의 예정 설명은 후속 구현 계약으로 보존한다.
 
 ## 1. 원본과 복구 권한
 

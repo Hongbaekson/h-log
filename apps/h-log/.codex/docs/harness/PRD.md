@@ -320,3 +320,7 @@ Next.js/nextjs와 PostgreSQL/postgres는 같은 블로그 태그로 표시·조�
 ## 원본과 조회용 데이터 계약 — F3 Step 0
 
 2026-11-16 [계약](PUBLIC_READ_MODEL_CONTRACT.md)을 확정했다. 재생성은 원본·과거 버전·공개 선택·검수/감사를 보존하며 현재 공개 여부를 매 읽기 snapshot에서 확인한다. 준비 중이거나 오래된 파생 결과를 공개하거나 누락 항목을 몰래 제외하지 않는다. Brain 검수 사본과 PDF 승인은 재생성 대상이 아니다. 이번 단계는 문서만 변경했으며 F 4 completed/18 pending, 다음은 F3 Step 1이다.
+
+## 조회용 저장소의 격리 구현 — F3 Step 1
+
+2026-11-16 원본과 공개 승인을 보존하는 조회용 저장소·재생성 도구를 구현했다. 격리 DB에서 검증된 generation만 활성화하고 실제 공개 reader는 기존 원본 경로를 유지한다. 운영 migration·배포·실제 콘텐츠 발행은 수행하지 않았다. [검수](PUBLIC_READ_STORAGE_REVIEW.md). F 5 completed/17 pending, 다음은 F3 Step 2다.

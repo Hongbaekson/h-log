@@ -494,6 +494,12 @@ function assertAggregateReferences(aggregate: BlogPostAggregate): void {
   }
 }
 
+// Shared mapping for the isolated projection reader; privacy selection stays with its caller.
+export function mapBlogContentRows(rows: { post: QueryResultRow; version: QueryResultRow | null; tags: QueryResultRow[]; sources: QueryResultRow[]; assets: QueryResultRow[] }, policy?: BlogPrivacyScanPolicy): BlogContentStore {
+  return { posts: [mapPost(rows.post)], versions: rows.version ? [mapPostVersion(rows.version, policy)] : [],
+    tags: rows.tags.map(mapPostTag), sources: rows.sources.map(mapPostSource), assets: rows.assets.map(mapPostAsset) };
+}
+
 function mapPost(row: QueryResultRow): PostRecord {
   return {
     articleMode: row.article_mode as BlogArticleMode,

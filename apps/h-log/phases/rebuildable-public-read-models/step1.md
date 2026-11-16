@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-06 등록한 F3의 조회용 저장소와 재생성 도구 단계다. 구현 완료 판정은 이 파일의 인수 기준과 검증 결과로 한다.
+completed — 2026-11-16 [저장소·재생성 검수](../../.codex/docs/harness/PUBLIC_READ_STORAGE_REVIEW.md). 원본 보존·격리 rebuild를 구현했고 public reader/writer 연결은 후속 단계다.
 
 F3 Step 0 완료.
 
@@ -58,6 +58,8 @@ Production 동작을 수정할 때는 focused RED의 예상 실패를 확인한 
 가까운 검증 명령은 다음과 같다.
 
 ```bash
+npm run test:projection
+HLOG_PROJECTION_TEST=1 npm run test:projection:db
 npm run test:migrations
 npm run test:repository
 npm run test:brain
@@ -86,3 +88,9 @@ git diff --check
 ## 다음 단계
 
 F3 Step 2 `transactional-projection-freshness`.
+
+## 완료 기록 — 2026-11-16
+
+- migration 014 네 표와 기존 변환을 재사용한 projector, 입력/정책/manifest/payload hash, batch/checkpoint·실행 잠금/token·검증/활성화·repair/reset을 구현했다. 소유 확인 로컬 DB와 writer_protocol=0으로 제한하며 실제 공개 reader/writer는 그대로다.
+- TDD RED→GREEN, projector/CLI 6개와 DB 8개, migration 2개·Blog repository 5개·Brain 3개가 통과했다. 전체 테스트 305 pass/29 skip, 소스 lint/typecheck/build 통과. 전체 lint의 기존 private helper 오류 10건은 남겨 기록했다. 세부 측정/제약은 검수 문서를 따른다.
+- 원본/공개 선택·검수·PDF 승인/epoch·감사 보존과 실제 CLI 강제 종료 후 재개를 검증했다. 운영 migration·배포·공개 발행은 수행하지 않았다. F 5 completed/17 pending, 다음은 F3 Step 2다.

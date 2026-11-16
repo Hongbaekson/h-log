@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-16",
+  "base": "271ffb0f7fa6bc0050ac70992acd8daca3e447a3",
+  "environment": {
+    "node": "v22.14.0",
+    "platform": "win32",
+    "database": "isolated PostgreSQL 16 / pgvector Docker",
+    "limits": "Docker defaults; loopback; serial projection runner"
+  },
+  "fixture": {
+    "publicPosts": 1000,
+    "privatePosts": 2,
+    "versionsPerPost": 2,
+    "publishedBrainSnapshots": 1,
+    "privateBrainReview": true,
+    "privateAudit": true,
+    "syntheticPdfWithApproval": true
+  },
+  "result": {
+    "status": "active",
+    "entries": 1003,
+    "counts": {
+      "ready": 1001,
+      "excluded": 2
+    },
+    "elapsedMs": 8787,
+    "peakTestProcessRssBytes": 183328768,
+    "maxBatchInputBytes": 463775,
+    "retainedEntriesTableBytes": 2621440,
+    "manifestHash": "8ec8989eae07e61fcc0cbcd58a581e59f05d52db1386b7bd3b6d680a6f89f888"
+  },
+  "budget": {
+    "rebuildMs": 60000,
+    "passed": true
+  },
+  "limitations": [
+    "Synthetic local single-run measurement, not production p95",
+    "RSS includes fixture generation and original-data comparisons",
+    "No existing reader/writer connected; protocol 0 only"
+  ]
+}
