@@ -4,7 +4,6 @@ import { verifyBlogThumbnailFiles } from "./blog-thumbnails.ts";
 import { projectBlog, projectBrain, PUBLIC_READ_LIMITS, type ProjectionContext, type Projection } from "./public-read-model.ts";
 
 export type SourceKey = { kind: "blog" | "brain"; source_id: string };
-export const SOURCE_TABLES = "posts, post_versions, post_tags, post_sources, post_assets, brain_notes";
 export async function sourcePage(client: PoolClient, cursor: string[], limit: number): Promise<SourceKey[]> {
   return (await client.query<SourceKey>(`select * from (
     select 'blog'::text kind, id source_id from posts union all select 'brain', id from brain_notes

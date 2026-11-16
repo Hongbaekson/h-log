@@ -1,5 +1,7 @@
 # 원본·공개 선택·조회용 데이터 계약
 
+2026-11-17 현재 구현은 [F3 Step 2 현재성 검수](PUBLIC_READ_FRESHNESS_REVIEW.md)를 따른다. Migration 015/protocol 1, writer 표식과 Blog snapshot, catch-up·짧은 CAS/repair 비교가 구현됐다. 아래 protocol 0·원본 SHARE lock 설명은 Step 1 당시 이력이며 현재 실행 방식이 아니다. 공개 projection/설정 전환은 후속 단계다.
+
 2026-11-16 F3 Step 0 결정. 조사 기준은 `bf37dffaf3b1f61d7b96ea7e446f082e35e206be`다. 이 문서는 후속 구현의 계약이며, 작성 당시 신규 표·설정·명령은 미구현이었다. 2026-11-16 Step 1에서 표와 격리 CLI를 구현했으며 현재 범위는 아래 보완과 [저장소 검수](PUBLIC_READ_STORAGE_REVIEW.md)를 따른다. [성능 계획](PERFORMANCE_REBUILD_PLAN.md), [Markdown 검수](BLOG_MARKDOWN_READ_REVIEW.md), ADR-042를 잇는다.
 
 ## Step 1 구현 경계 — 2026-11-16

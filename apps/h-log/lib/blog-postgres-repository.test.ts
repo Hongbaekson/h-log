@@ -8,9 +8,11 @@ import { createPostgresBlogRepository } from "./blog-postgres-repository.ts";
 test("limits public read candidates to published current versions in SQL", async () => {
   const queries: string[] = [];
   const pool = {
-    async query(query: string) {
-      queries.push(query);
-      return { rows: [] };
+    async connect() {
+      return { async query(query: string) {
+        queries.push(query);
+        return { rows: [] };
+      }, release() {} };
     },
   } as unknown as Pool;
   const repository = createPostgresBlogRepository(pool);
@@ -18,7 +20,9 @@ test("limits public read candidates to published current versions in SQL", async
   await repository.findPublicBlogContent();
   await repository.findPublicBlogContentBySlug("private-draft");
 
-  const [publicPostsQuery, publicVersionsQuery, slugQuery] = queries;
+  assert.equal(queries.filter(query => query === "begin isolation level repeatable read read only").length, 2);
+  assert.equal(queries.filter(query => query === "commit").length, 2);
+  const [publicPostsQuery, publicVersionsQuery, slugQuery] = queries.filter(query => query.startsWith("select"));
 
   assert.match(
     publicPostsQuery,

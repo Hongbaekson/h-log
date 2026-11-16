@@ -1,5 +1,7 @@
 # 조회용 저장소와 로컬 재생성 검수
 
+2026-11-17 현재 구현은 [F3 Step 2 현재성 검수](PUBLIC_READ_FRESHNESS_REVIEW.md)를 따른다. Migration 015/protocol 1, writer 표식과 Blog snapshot, catch-up·짧은 CAS/repair 비교가 구현됐다. 아래 protocol 0·원본 SHARE lock 설명은 Step 1 당시 이력이며 현재 실행 방식이 아니다. 공개 projection/설정 전환은 후속 단계다.
+
 2026-11-16 F3 Step 1 `projection-storage-and-rebuild`. 기준 commit은 `271ffb0f7fa6bc0050ac70992acd8daca3e447a3`다. [원본·조회용 데이터 계약](PUBLIC_READ_MODEL_CONTRACT.md)의 저장소와 격리 재생성 부분을 구현했다. 공개 reader와 기존 writer는 연결하지 않았고 운영 DB migration·배포·콘텐츠 발행은 수행하지 않았다.
 
 ## 구현과 범위

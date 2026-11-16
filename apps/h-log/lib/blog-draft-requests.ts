@@ -99,6 +99,7 @@ export async function runDraftRequestOnce({ pool, generateArticle, enabled = fal
     const finish = async (aggregate: PersistPublishingArticleInput) => {
       await client.query("begin");
       try {
+        await client.query("select public_read_lock()");
         if (aggregate.post.status !== "drafted" || aggregate.publishJobs.length) throw Error("invalid_draft_result");
         await saveBlogAggregate(client, { ...aggregate, assets: [] });
         await client.query("update blog_draft_requests set status='completed',reason_code=null,post_id=$2,finished_at=now() where id=$1 and status='result_ready'", [requestId, aggregate.post.id]);

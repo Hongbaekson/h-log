@@ -26,13 +26,16 @@ test("editorial versions preserve public content, validate evidence and commit c
     await pool.query("update posts set current_version_id='old' where id='post'");
     await pool.query("insert into post_sources values ('source','post',null,'https://www.postgresql.org/docs/current/transaction-iso.html','격리 수준','PostgreSQL','official',now(),'문서','hash')");
     const repository = createBlogEditorialRepository(pool, { publishEnabled: true });
+    const revision = async () => (await pool.query("select metadata_revision from public_read_sources where kind='blog' and source_id='post'")).rows[0].metadata_revision;
     const draft = { title: "격리 수준을 읽고 확인한 것", description: "공식 문서를 바탕으로 확인한 내용", contentMarkdown: "## 격리 수준\n\n트랜잭션은 격리 수준을 선택할 수 있습니다.\n", claims: [{ text: "트랜잭션은 격리 수준을 선택할 수 있습니다.", type: "api", sourceId: "source", evidencePath: "", evidenceQuote: "" }], evidencePaths: [] };
     const save = { action: "save", commandId: randomUUID(), postId: "post", expectedRevision: 0, expectedStatus: "published", expectedCurrentVersionId: "old", versionId: "old", reason: "본문의 설명을 보완함", draft };
     const result = await repository.execute(save);
     assert.equal(result.commandRevision, 1); assert.equal(result.versionNo, 2);
     const publicRepo = createPostgresBlogRepository(pool);
     assert.equal((await publicRepo.findPublicBlogContent()).versions[0].contentMarkdown, old.contentMarkdown);
+    const savedRevision = await revision();
     assert.deepEqual(await repository.execute(save), result);
+    assert.equal(await revision(), savedRevision);
     await assert.rejects(repository.execute({ ...save, reason: "다른 내용" }), /command_conflict/);
     await assert.rejects(repository.execute({ ...save, commandId: randomUUID() }), /revision_conflict/);
     const selected = (await pool.query("select * from post_versions where id=$1", [result.versionId])).rows[0];
@@ -47,6 +50,7 @@ test("editorial versions preserve public content, validate evidence and commit c
     await pool.query("create trigger reject_editorial_audit before update on admin_actions for each row execute function reject_editorial_audit()");
     await assert.rejects(repository.execute({ ...save, commandId: randomUUID(), expectedRevision: 1, versionId: result.versionId }), /synthetic audit failure/);
     assert.equal((await pool.query("select count(*)::int as n from post_versions")).rows[0].n, 2);
+    assert.equal(await revision(), savedRevision);
     await pool.query("drop trigger reject_editorial_audit on admin_actions");
     await pool.query("update post_sources set source_role='discovery' where id='source'");
     await assert.rejects(repository.execute(publish), /quality_blocked/);
@@ -56,6 +60,8 @@ test("editorial versions preserve public content, validate evidence and commit c
     await pool.query("update post_versions set editorial_review=$2 where id=$1", [result.versionId,selected.editorial_review]);
     const accepted = await repository.execute(publish);
     assert.equal(accepted.status, "publishing");
+    const publishingRevision = await revision();
+    assert(BigInt(publishingRevision) > BigInt(savedRevision));
     assert.equal((await publicRepo.findPublicBlogContent()).posts.length, 0);
     assert.equal((await pool.query("select count(*)::int as n from publish_jobs")).rows[0].n, requiredPublishJobTypes.length);
     await pool.query("insert into publish_jobs (id,post_id,post_version_id,type,importance,idempotency_key,status,retry_count) values ('000-old-job','post','old','render','required','old-job','queued',0)");
@@ -65,6 +71,7 @@ test("editorial versions preserve public content, validate evidence and commit c
     } });
     for (let i=0;i<6;i++) assert.equal((await runPersistentWorkerOnce({ pool, adapter, runAt: new Date().toISOString(), workerId: "editorial-test" })).status, "succeeded");
     assert.equal((await publicRepo.findPublicBlogContent()).versions[0].id, result.versionId);
+    assert(BigInt(await revision()) > BigInt(publishingRevision));
     const edit = { ...save, commandId: randomUUID(), expectedRevision: 2, expectedCurrentVersionId: result.versionId, versionId: result.versionId };
     const concurrent = await Promise.allSettled([repository.execute(edit), repository.execute({ ...edit, commandId: randomUUID() })]);
     assert.equal(concurrent.filter(r=>r.status==="fulfilled").length, 1);
@@ -72,14 +79,16 @@ test("editorial versions preserve public content, validate evidence and commit c
     const retract = { action: "retract", commandId: randomUUID(), postId: "post", expectedRevision: 3, expectedStatus: "published", expectedCurrentVersionId: result.versionId, versionId: result.versionId, reason: "추가 확인이 필요해 철회함" };
     // A post-publication verifier finishing after retraction must not resurrect it.
     await pool.query("update publish_jobs set status='queued' where type='public_url' and post_id='post'");
+    let withdrawnRevision = "";
     const late = await runPersistentWorkerOnce({ pool, workerId: "late-check", runAt: new Date().toISOString(), adapter: { async run() {
-      await repository.execute(retract); return { status: "failed", error: "synthetic late failure" };
+      await repository.execute(retract); withdrawnRevision = await revision(); return { status: "failed", error: "synthetic late failure" };
     } } });
     assert.equal(late.status, "failed");
     assert.equal((await pool.query("select status from posts where id='post'")).rows[0].status, "retracted");
     assert.equal((await publicRepo.findPublicBlogContent()).posts.length, 0);
     assert.deepEqual(await repository.execute(publish), accepted); // receipt does not republish
+    assert.equal(await revision(), withdrawnRevision); // neither the old worker nor replay invalidates the current selection
     await assert.rejects(repository.execute({ ...edit, commandId: randomUUID(), expectedRevision: 4, expectedStatus: "retracted" }), /state_conflict/);
     assert.equal((await pool.query("select content_markdown from post_versions where id='old'")).rows[0].content_markdown, old.contentMarkdown);
-  } finally { await pool.end(); await admin.query(`drop database ${name} with (force)`); await admin.end(); }
+  } finally { await pool.end(); await admin.query(`drop database ${name}`); await admin.end(); }
 });

@@ -177,6 +177,7 @@ export async function runPersistentWorkerOnce({
 
     try {
       await client.query("begin");
+      await client.query("select public_read_lock()");
       const updated = await client.query(
         `update publish_jobs
          set status = $2,
@@ -262,6 +263,7 @@ export async function runPersistentWorkerOnce({
 
   try {
     await client.query("begin");
+    await client.query("select public_read_lock()");
     if ((postStatus === "publishing" || postStatus === "verifying") && !canPublish(await readAutomationPolicy(client, environment, true), postResult.rows[0].publication_mode, environment)) {
       // Keep the last check runnable on resume. No public transition is made after pause.
       await client.query("update publish_jobs set status='queued',lease_owner=null,lease_expires_at=null where id=$1 and status='running' and lease_owner=$2", [job.id, workerId]);

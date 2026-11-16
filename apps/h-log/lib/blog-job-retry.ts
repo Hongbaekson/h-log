@@ -26,6 +26,7 @@ export async function retryAdminJob(pool: Pool, input: unknown, environment: Aut
   const client = await pool.connect();
   try {
     await client.query("begin"); await client.query("set local statement_timeout='5s'");
+    await client.query("select public_read_lock()");
     const reserved = await client.query(`insert into admin_actions(id,action_type,actor_type,actor_id,target_type,target_id,reason,created_at,command_id,request_fingerprint,command_receipt)
       values($1,'retry','admin','owner','publish_job',$2,$3,now(),$4,$5,'{}')
       on conflict(actor_type,actor_id,command_id) where command_id is not null do nothing returning id`,[randomUUID(),c.jobId,c.reason,c.commandId,fingerprint]);

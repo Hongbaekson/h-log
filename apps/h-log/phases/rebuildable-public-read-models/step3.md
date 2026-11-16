@@ -33,9 +33,18 @@ F3 Step 2와 F2 Step 0 완료.
 - `apps/h-log/components/blog/HomeRecentPosts.tsx`
 - `apps/h-log/lib/blog-public-read-path.integration.test.ts`
 
+- `apps/h-log/migrations/015_public_read_freshness.sql`
+- `apps/h-log/lib/public-read-transaction.ts`
+- `apps/h-log/scripts/public-read-freshness.integration.test.mjs`
+- `apps/h-log/.codex/docs/harness/PUBLIC_READ_FRESHNESS_REVIEW.md`
+
 ## 범위와 산출물
 
 DB에서 공개 목록과 개수 조회을 한 작업 단위로 수행한다. 전체 설계·측정 조건·인계는 [성능 및 재생성 계획](../../.codex/docs/harness/PERFORMANCE_REBUILD_PLAN.md)을 따른다.
+
+## Step 2 인계
+
+Migration 015/protocol 1의 원자적 표식, `withPublicReadSnapshot`/`findCurrentProjection`, catch-up·짧은 활성화 CAS·단건 repair revision 비교가 구현됐다. 공개 route는 원본 조회를 유지한다. 새 목록 경로는 같은 client로 원본 공개 집합·표식·projection을 읽고 DTO 형식/현재 파일 검증, fallback 상한과 목록/개수/태그 동등성을 연결한다. Blog/Brain 복합 snapshot, 설정 전환과 HTTP 캐시 변경을 이미 구현된 것으로 가정하지 않는다.
 
 ## 작업
 

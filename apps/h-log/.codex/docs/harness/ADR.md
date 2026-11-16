@@ -473,6 +473,12 @@ Markdown의 기존 `public, max-age=300` 응답은 `force-dynamic`만으로 제�
 
 [저장소 검수](PUBLIC_READ_STORAGE_REVIEW.md). 원자적 writer가 아직 없는 Step 1은 writer_protocol=0, 초기 metadata_revision=0으로 저장 형식을 먼저 검증한다. 운영 현재성을 주장하지 않고 DB 이름/소유 marker·loopback CLI로 대상을 제한한다. 최종 전체 재검증 동안 원본 SHARE lock을 유지하므로 쓰기 대기가 생길 수 있다. 이 방식은 격리 재생성의 정확성을 확보하는 임시 경계이며 Step 2에서 모든 writer 표식과 짧은 state CAS로 전환해야 한다. 새 서비스나 parser를 만들지 않고 기존 변환·검증을 재사용하며 실제 reader/writer는 변경하지 않았다.
 
+### ADR-042 F3 Step 2 원자적 현재성 — 2026-11-17
+
+관계만 바뀌는 직접 DML까지 빠짐없이 기록하기 위해 PostgreSQL trigger를 사용하고, 앱은 transaction 입구에서 공통 state 잠금을 먼저 얻는다. revision은 rollback 가능한 행 counter이며 표식·원본·감사가 함께 commit된다. 정책/감사/job 잠금을 이미 가진 구 writer와의 혼합 운용은 지원하지 않는다. DDL/TRUNCATE 등 관리 작업은 state-first 또는 writer 정지를 요구한다.
+
+전체 검증 중 writer를 막는 Step 1 SHARE lock 대신 read-only snapshot 비교 후 짧은 state CAS를 사용한다. 변경 시 catch-up을 반복하고 deadline에서 checkpoint를 남긴다. 같은 snapshot의 원본 공개 선택과 metadata revision이 맞을 때만 projection hit 후보가 되며 늦은 repair는 거절한다. 기존 Blog 조회를 같은 snapshot으로 묶었고 공개 projection/복합 집계 전환은 후속 단계다. [현재성 검수](PUBLIC_READ_FRESHNESS_REVIEW.md).
+
 ## 공식/내부 기준
 
 - Next.js docs

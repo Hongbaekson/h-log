@@ -2,11 +2,11 @@ import { createHash, randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import type { Pool, PoolClient, QueryResultRow } from "pg";
 import { canonicalJson, fingerprint, projectionContext, PUBLIC_READ_LIMITS, type Projection, type ProjectionContext } from "./public-read-model.ts";
-import { readProjectionSource, sourcePage, sourceSize, SOURCE_TABLES, type SourceKey } from "./public-read-source.ts";
+import { readProjectionSource, sourcePage, sourceSize, type SourceKey } from "./public-read-source.ts";
 
 const LOCK = 710493708;
-const migration = "014_public_read_models";
-type Generation = QueryResultRow & { id: string; source_epoch: string; status: string; run_token: string; scan_cursor: string[]; scan_complete: boolean; kind_scope: string };
+const migration = "015_public_read_freshness";
+type Generation = QueryResultRow & { id: string; source_epoch: string; status: string; run_token: string; scan_cursor: string[]; scan_complete: boolean; kind_scope: string; catchup_revision: string };
 export type RebuildOptions = {
   command: "rebuild" | "resume" | "verify" | "activate" | "repair" | "reset-derived";
   confirmOwnedLocal?: boolean; kind?: "blog" | "brain" | "all"; generation?: string; id?: string;
@@ -27,8 +27,8 @@ export function validateRebuildOptions(options: RebuildOptions) {
     || (["resume", "verify", "activate"].includes(options.command) && !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/.test(options.generation ?? ""))
     || (options.command === "repair" && (!["blog", "brain"].includes(options.kind ?? "") || !options.id || options.id.length > 1024))) throw new Error("invalid_options");
 }
-async function begin(client: PoolClient) {
-  await client.query("begin isolation level repeatable read");
+async function begin(client: PoolClient, readOnly = false) {
+  await client.query(`begin isolation level repeatable read${readOnly ? " read only" : ""}`);
   await client.query("set local statement_timeout='5s'");
   await client.query("set local lock_timeout='250ms'");
 }
@@ -42,7 +42,7 @@ async function schemaPresent(client: PoolClient) {
 async function state(client: PoolClient) {
   const row = (await client.query("select * from public_read_state where id=1")).rows[0];
   if (!row) throw new Error("derived_state_missing");
-  if (row.writer_protocol !== 0) throw new Error("unsupported_writer_protocol");
+  if (row.writer_protocol !== 1) throw new Error("unsupported_writer_protocol");
   return row;
 }
 async function generation(client: PoolClient, id: string, context: ProjectionContext): Promise<Generation> {
@@ -56,7 +56,6 @@ async function assertToken(client: PoolClient, gen: Generation) {
 }
 async function saveEntry(client: PoolClient, gen: Generation, key: SourceKey, projection: Projection) {
   await assertToken(client, gen);
-  await client.query("insert into public_read_sources(kind,source_id,metadata_revision) values($1,$2,0) on conflict do nothing", [key.kind, key.source_id]);
   await client.query(`insert into public_read_entries(generation_id,kind,source_id,source_version,metadata_revision,input_fingerprint,content_hash,result,payload,payload_hash)
     values($1,$2,$3,$4,(select metadata_revision from public_read_sources where kind=$2 and source_id=$3),$5,$6,$7,$8,$9)
     on conflict(generation_id,kind,source_id) do update set source_version=excluded.source_version,metadata_revision=excluded.metadata_revision,
@@ -69,8 +68,7 @@ async function countEntries(client: PoolClient, id: string) {
   return { ready: row.ready as number, excluded: row.excluded as number };
 }
 
-// This step has no live writers/readers. Protocol 0 requires a labelled local DB and
-// final source-table locks; Step 2 replaces this local-only fence with transactional markers.
+// Local-only lifecycle commands; live writers maintain the same transactional protocol.
 export async function runLocalProjection(pool: Pool, options: RebuildOptions, context = projectionContext()): Promise<RebuildReceipt> {
   validateRebuildOptions(options);
   const start = performance.now(), deadline = start + (options.maxSeconds ?? 60) * 1000;
@@ -84,45 +82,93 @@ export async function runLocalProjection(pool: Pool, options: RebuildOptions, co
     return { generation: gen?.id ?? null, status, processed: counts.ready + counts.excluded, counts,
       cursorHash: fingerprint(gen?.scan_cursor ?? []), manifestHash: context.manifestHash, elapsedMs: Math.round(performance.now() - start), peakRssBytes, maxBatchBytes };
   }
-  async function validateAndActivate(activate: boolean) {
-    if (!gen!.scan_complete) throw new Error("incomplete");
-    await begin(client);
-    // ponytail: protocol 0 serializes final local validation against old writers. No public reader uses it.
-    await client.query(`lock table ${SOURCE_TABLES} in share mode`);
-    await client.query("select id from public_read_state where id=1 for update");
-    await assertToken(client, gen!);
-    const current = await state(client);
-    let cursor = ["", ""], seen = 0;
-    const digest = createHash("sha256");
-    while (true) {
-      const keys = await sourcePage(client, cursor, options.batchSize ?? 25);
-      if (!keys.length) break;
+  async function catchUp() {
+    while (!expired()) {
+      await begin(client);
+      const current = await state(client);
+      if (current.source_epoch !== gen!.source_epoch) throw new Error("context_mismatch");
+      const keys = (await client.query<SourceKey & { metadata_revision: string; deleted: boolean }>(`select * from public_read_sources
+        where metadata_revision>$1 and metadata_revision<=$2 order by metadata_revision,kind,source_id limit $3`,
+      [gen!.catchup_revision, current.source_revision, options.batchSize ?? 25])).rows;
+      let bytes = 0;
+      await assertToken(client, gen!);
       for (const key of keys) {
         if (expired()) throw new Error("deadline");
-        const size = await sourceSize(client, key);
-        const expected = await readProjectionSource(client, key, context, size);
-        const entry = (await client.query(`select e.*,s.metadata_revision current_revision from public_read_entries e
-          left join public_read_sources s using(kind,source_id) where e.generation_id=$1 and e.kind=$2 and e.source_id=$3`, [gen!.id, key.kind, key.source_id])).rows[0];
-        if (!entry || entry.metadata_revision !== entry.current_revision || entry.input_fingerprint !== expected.inputFingerprint
-          || entry.source_version !== expected.sourceVersion || entry.content_hash !== expected.contentHash || entry.result !== expected.result
-          || entry.payload_hash !== expected.payloadHash || fingerprint(entry.payload) !== expected.payloadHash) throw new Error("verification_failed");
-        digest.update(fingerprint([key, expected.inputFingerprint, expected.payloadHash, expected.result]));
-        cursor = [key.kind, key.source_id]; seen++; sample();
+        if (key.deleted) await client.query("delete from public_read_entries where generation_id=$1 and kind=$2 and source_id=$3", [gen!.id, key.kind, key.source_id]);
+        else {
+          const size = await sourceSize(client, key);
+          if (size > PUBLIC_READ_LIMITS.input) throw new Error("input_limit");
+          if (bytes + size > PUBLIC_READ_LIMITS.batchBytes) break;
+          bytes += size;
+          await saveEntry(client, gen!, key, await readProjectionSource(client, key, context, size));
+        }
+        gen!.catchup_revision = key.metadata_revision;
+        sample();
       }
+      if (!keys.length) gen!.catchup_revision = current.source_revision;
+      await client.query("update public_read_generations set catchup_revision=$2,updated_at=now() where id=$1 and run_token=$3", [gen!.id, gen!.catchup_revision, gen!.run_token]);
+      await client.query("commit");
+      maxBatchBytes = Math.max(maxBatchBytes, bytes);
+      await options.onProgress?.(await receipt("catching_up"));
+      if (gen!.catchup_revision === current.source_revision) return;
     }
-    const counts = await countEntries(client, gen!.id);
-    if (counts.ready + counts.excluded !== seen) throw new Error("verification_failed");
-    if (activate && !["building", "paused", "validating"].includes(gen!.status)) throw new Error("invalid_generation_state");
-    const status = activate ? "active" : gen!.status === "active" ? "active" : "validating";
-    if (activate) {
-      await client.query("update public_read_generations set status='retired',updated_at=now() where id=$1", [current.active_generation]);
-      await client.query("update public_read_state set active_generation=$1 where id=1 and source_epoch=$2 and source_revision=$3", [gen!.id, gen!.source_epoch, current.source_revision]);
+    throw new Error("deadline");
+  }
+  async function validateAndActivate(activate: boolean): Promise<RebuildReceipt> {
+    if (!gen!.scan_complete) throw new Error("incomplete");
+    while (!expired()) {
+      if (activate) await catchUp();
+      await begin(client, true);
+      const current = await state(client);
+      if (current.source_epoch !== gen!.source_epoch) throw new Error("context_mismatch");
+      // A writer committed between catch-up and this validation snapshot. Catch up again.
+      if (activate && current.source_revision !== gen!.catchup_revision) { await client.query("rollback"); continue; }
+      let cursor = ["", ""], seen = 0;
+      const digest = createHash("sha256");
+      while (true) {
+        const keys = await sourcePage(client, cursor, options.batchSize ?? 25);
+        if (!keys.length) break;
+        for (const key of keys) {
+          if (expired()) throw new Error("deadline");
+          const size = await sourceSize(client, key);
+          const expected = await readProjectionSource(client, key, context, size);
+          const entry = (await client.query(`select e.*,s.metadata_revision current_revision from public_read_entries e
+            left join public_read_sources s using(kind,source_id) where e.generation_id=$1 and e.kind=$2 and e.source_id=$3`, [gen!.id, key.kind, key.source_id])).rows[0];
+          if (!entry || entry.metadata_revision !== entry.current_revision || entry.input_fingerprint !== expected.inputFingerprint
+            || entry.source_version !== expected.sourceVersion || entry.content_hash !== expected.contentHash || entry.result !== expected.result
+            || entry.payload_hash !== expected.payloadHash || fingerprint(entry.payload) !== expected.payloadHash) throw new Error("verification_failed");
+          digest.update(fingerprint([key, expected.inputFingerprint, expected.payloadHash, expected.result]));
+          cursor = [key.kind, key.source_id]; seen++; sample();
+        }
+      }
+      const counts = await countEntries(client, gen!.id);
+      if (counts.ready + counts.excluded !== seen) throw new Error("verification_failed");
+      await client.query("commit");
+      await options.onProgress?.(await receipt("validating"));
+      // Expensive parsing/comparison has finished. Only the final revision CAS holds state.
+      await client.query("begin");
+      await client.query("select public_read_lock()");
+      const latest = await state(client);
+      if (latest.source_epoch !== current.source_epoch) throw new Error("context_mismatch");
+      if (latest.source_revision !== current.source_revision) {
+        await client.query("rollback");
+        if (activate) continue;
+        throw new Error("stale_source");
+      }
+      await assertToken(client, gen!);
+      if (activate && !["building", "paused", "validating"].includes(gen!.status)) throw new Error("invalid_generation_state");
+      const status = activate ? "active" : gen!.status === "active" ? "active" : "validating";
+      if (activate) {
+        await client.query("update public_read_generations set status='retired',updated_at=now() where id=$1", [current.active_generation]);
+        await client.query("update public_read_state set active_generation=$1 where id=1 and source_epoch=$2 and source_revision=$3", [gen!.id, gen!.source_epoch, current.source_revision]);
+      }
+      await client.query("update public_read_generations set status=$2,checked_revision=$3,catchup_revision=$3,counts=$4,manifest_hash=$5,last_error=null,updated_at=now() where id=$1 and run_token=$6",
+        [gen!.id, status, current.source_revision, counts, digest.digest("hex"), gen!.run_token]);
+      await client.query("commit");
+      gen!.status = status;
+      return receipt(status);
     }
-    await client.query("update public_read_generations set status=$2,checked_revision=$3,catchup_revision=$3,counts=$4,manifest_hash=$5,last_error=null,updated_at=now() where id=$1 and run_token=$6",
-      [gen!.id, status, current.source_revision, counts, digest.digest("hex"), gen!.run_token]);
-    await client.query("commit");
-    gen!.status = status;
-    return receipt(status);
+    throw new Error("deadline");
   }
   try {
     await client.query("set statement_timeout='5s'");
@@ -136,11 +182,12 @@ export async function runLocalProjection(pool: Pool, options: RebuildOptions, co
       if (!registry || !(await client.query("select 1 from schema_migrations where version=$1", [migration])).rowCount) throw new Error("schema_not_applied");
       if ((await client.query("select to_regclass('public.public_read_state') s")).rows[0].s) {
         const row = (await client.query("select writer_protocol from public_read_state where id=1")).rows[0];
-        if (row && row.writer_protocol !== 0) throw new Error("unsupported_writer_protocol");
+        if (row && row.writer_protocol !== 1) throw new Error("unsupported_writer_protocol");
       }
       await begin(client);
       await client.query("drop table if exists public_read_entries,public_read_state,public_read_sources,public_read_generations");
       await client.query(await readFile(new URL("../migrations/014_public_read_models.sql", import.meta.url), "utf8"));
+      await client.query(await readFile(new URL("../migrations/015_public_read_freshness.sql", import.meta.url), "utf8"));
       await client.query("commit");
       return receipt("reset");
     }
@@ -156,8 +203,9 @@ export async function runLocalProjection(pool: Pool, options: RebuildOptions, co
       await begin(client);
       await client.query(`insert into public_read_generations(id,source_epoch,status,version_manifest,policy_fingerprint,base_revision,catchup_revision,run_token,kind_scope)
         values($1,$2,'building',$3,$4,$5,$5,$6,$7)`, [id, initial.source_epoch, context.manifest, context.policyFingerprint, initial.source_revision, token, options.kind]);
-      if (base) await client.query(`insert into public_read_entries select $1,kind,source_id,source_version,metadata_revision,input_fingerprint,content_hash,result,payload,payload_hash
-        from public_read_entries where generation_id=$2 and kind<>$3`, [id, base.id, options.kind]);
+      if (base) await client.query(`insert into public_read_entries select $1,kind,source_id,source_version,e.metadata_revision,input_fingerprint,content_hash,result,payload,payload_hash
+        from public_read_entries e join public_read_sources s using(kind,source_id)
+        where generation_id=$2 and kind<>$3 and e.metadata_revision=s.metadata_revision and not s.deleted`, [id, base.id, options.kind]);
       await client.query("commit");
       gen = await generation(client, id, context);
     } else {
@@ -166,10 +214,19 @@ export async function runLocalProjection(pool: Pool, options: RebuildOptions, co
       gen = await generation(client, id, context);
       if (options.command === "verify" || options.command === "activate") return await validateAndActivate(options.command === "activate");
       if (options.command === "repair") {
-        await begin(client);
-        await client.query(`lock table ${SOURCE_TABLES} in share mode`);
+        await begin(client, true);
         const key = { kind: options.kind as SourceKey["kind"], source_id: options.id! };
-        await saveEntry(client, gen, key, await readProjectionSource(client, key, context, await sourceSize(client, key)));
+        const marker = (await client.query("select metadata_revision,deleted from public_read_sources where kind=$1 and source_id=$2", [key.kind, key.source_id])).rows[0];
+        if (!marker) throw new Error("source_missing");
+        const projection = marker.deleted ? null : await readProjectionSource(client, key, context, await sourceSize(client, key));
+        await client.query("commit");
+        await options.onProgress?.(await receipt("repairing"));
+        await client.query("begin");
+        await client.query("select public_read_lock()");
+        if ((await state(client)).source_epoch !== gen.source_epoch || !(await client.query("select 1 from public_read_sources where kind=$1 and source_id=$2 and metadata_revision=$3 and deleted=$4", [key.kind, key.source_id, marker.metadata_revision, marker.deleted])).rowCount) throw new Error("stale_source");
+        await assertToken(client, gen);
+        if (projection) await saveEntry(client, gen, key, projection);
+        else await client.query("delete from public_read_entries where generation_id=$1 and kind=$2 and source_id=$3", [gen.id, key.kind, key.source_id]);
         await client.query("commit");
         return await validateAndActivate(false);
       }
@@ -187,7 +244,8 @@ export async function runLocalProjection(pool: Pool, options: RebuildOptions, co
         if (size > PUBLIC_READ_LIMITS.input) throw new Error("input_limit");
         if (bytes + size > PUBLIC_READ_LIMITS.batchBytes) break;
         bytes += size;
-        const copied = gen.kind_scope !== "all" && gen.kind_scope !== key.kind && (await client.query("select 1 from public_read_entries where generation_id=$1 and kind=$2 and source_id=$3", [gen.id, key.kind, key.source_id])).rowCount;
+        const copied = gen.kind_scope !== "all" && gen.kind_scope !== key.kind && (await client.query(`select 1 from public_read_entries e join public_read_sources s using(kind,source_id)
+          where generation_id=$1 and kind=$2 and source_id=$3 and e.metadata_revision=s.metadata_revision and not s.deleted`, [gen.id, key.kind, key.source_id])).rowCount;
         if (!copied) await saveEntry(client, gen, key, await readProjectionSource(client, key, context, size));
         gen.scan_cursor = [key.kind, key.source_id]; processed++; sample();
       }

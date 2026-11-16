@@ -24,7 +24,7 @@
     "draft:once": "node --no-warnings --experimental-strip-types scripts/blog-auto-publish.mjs --draft-once",
     "test:migrations": "node --test scripts/blog-migrations.integration.test.mjs",
     "test:projection": "node --no-warnings --experimental-strip-types --test lib/public-read-model.test.ts scripts/public-read-rebuild.test.mjs",
-    "test:projection:db": "node --no-warnings --experimental-strip-types --test scripts/public-read-rebuild.integration.test.mjs",
+    "test:projection:db": "node --no-warnings --experimental-strip-types --test scripts/public-read-rebuild.integration.test.mjs scripts/public-read-freshness.integration.test.mjs",
     "projection:local": "node --no-warnings --experimental-strip-types scripts/public-read-rebuild.mjs",
     "test:repository": "node --no-warnings --test --experimental-strip-types lib/blog-postgres-repository.integration.test.ts",
     "test:public-read-path": "node --no-warnings --test --experimental-strip-types lib/blog-public-read-path.integration.test.ts",

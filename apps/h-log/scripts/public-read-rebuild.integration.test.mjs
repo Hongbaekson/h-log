@@ -27,7 +27,7 @@ test('isolated rebuild preserves originals, resumes, verifies and recovers deriv
     const run = (options, context = projectionContext()) => runLocalProjection(pool, { confirmOwnedLocal: true, ...options }, context);
     await assert.rejects(run({ command: 'rebuild', kind: 'all' }), /schema_not_applied/);
     await runBlogMigrations(url.href);
-    assert.equal((await pool.query('select writer_protocol from public_read_state')).rows[0].writer_protocol, 0);
+    assert.equal((await pool.query('select writer_protocol from public_read_state')).rows[0].writer_protocol, 1);
     await assert.rejects(runLocalProjection(pool, { command: 'rebuild', kind: 'all' }), /owned_local_required/);
     await assert.rejects(run({ command: 'rebuild', kind: 'all', batchSize: 101 }), /invalid_options/);
     const repository = createPostgresBlogRepository(pool);
@@ -102,7 +102,6 @@ test('isolated rebuild preserves originals, resumes, verifies and recovers deriv
       const oldHash = (await pool.query("select input_fingerprint from public_read_entries where generation_id=$1 and source_id='perf-0000'", [paused.generation])).rows[0].input_fingerprint;
       await pool.query("update post_tags set tag='changed' where id='perf-0000-tag-0'");
       await assert.rejects(run({ command: 'resume', generation: paused.generation }, projectionContext({}, { renderer: 2 })), /context_mismatch/);
-      await assert.rejects(run({ command: 'resume', generation: paused.generation }), /verification_failed/);
       const rebuilt = await run({ command: 'resume', generation: paused.generation });
       assert.notEqual((await pool.query("select input_fingerprint from public_read_entries where generation_id=$1 and source_id='perf-0000'", [rebuilt.generation])).rows[0].input_fingerprint, oldHash);
       await run({ command: 'reset-derived' });

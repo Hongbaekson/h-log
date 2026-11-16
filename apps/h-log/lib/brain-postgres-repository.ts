@@ -27,6 +27,7 @@ export function createBrainRepository(pool: Pool, policy: BlogPrivacyScanPolicy 
     const client = await pool.connect();
     try {
       await client.query("begin");
+      await client.query("select public_read_lock()");
       // The unique key waits for a concurrent retry. The reservation and mutation commit together.
       const reserved = await client.query(`insert into admin_actions
         (id, action_type, actor_type, actor_id, target_type, target_id, reason, created_at, command_id, request_fingerprint, command_receipt)

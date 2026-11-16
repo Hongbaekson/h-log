@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "transactional-projection-freshness",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-17: Step 2 completed: migration 015/protocol 1 transactional source markers, state-first application locks, Blog read snapshots, revision catch-up and short activation CAS, stale repair rejection. Relations/deletes/TRUNCATE, concurrent edits/withdrawal, retries and original preservation verified. Projector/CLI 6, projection DB 15, full integration 33 and Markdown DB 3 pass; unit 305 pass/29 skip; source lint/typecheck/build pass. Existing private lint errors and Next security warning recorded. F 6 completed/16 pending; next Step 3 projected-blog-list. No operational migration/deployment."
     },
     {
       "step": 3,

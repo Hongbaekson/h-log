@@ -1,5 +1,7 @@
 # 챗봇 없는 완전 자동 블로그 발행 계획
 
+2026-11-17 F3 Step 2 `transactional-projection-freshness` 완료. [현재성 검수](../apps/h-log/.codex/docs/harness/PUBLIC_READ_FRESHNESS_REVIEW.md)에 migration 015/protocol 1, 모든 원본 writer의 원자적 표식, Blog 공개 snapshot, revision catch-up과 짧은 활성화 CAS·늦은 repair 차단을 기록했다. 공개 projection 전환은 후속 단계다. **F completed 6·pending 16, 다음은 F3 Step 3 `projected-blog-list`**다. R 14 completed와 운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-16 F3 Step 1 `projection-storage-and-rebuild` 완료. [저장소·재생성 검수](../apps/h-log/.codex/docs/harness/PUBLIC_READ_STORAGE_REVIEW.md)에 migration 014, 결정적 projector, 소유 확인 로컬 CLI의 batch/checkpoint·검증/활성화·repair/reset과 원본 보존 검증을 기록했다. 현재 writer_protocol=0이며 기존 공개 reader/writer는 연결하지 않았다. **F completed 5·pending 17, 다음은 F3 Step 2 `transactional-projection-freshness`**다. R 14 completed와 운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.
 
 2026-11-16 F3 Step 0 `source-and-projection-contract` 완료. [원본·조회용 데이터 계약](../apps/h-log/.codex/docs/harness/PUBLIC_READ_MODEL_CONTRACT.md)에 필드별 소유권, 입력/정책 fingerprint, 현재 공개 snapshot, 변경 표식·generation 검증/활성화, 제한된 fallback, 복구/이전 앱 전환과 후속 검수를 확정했다. 문서 단계이며 runtime/schema/운영 동작은 변경하지 않았다. **F completed 4·pending 18, 다음은 F3 Step 1 `projection-storage-and-rebuild`**다. R 14 completed와 운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.

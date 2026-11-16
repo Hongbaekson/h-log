@@ -588,3 +588,9 @@ F2는 기존 read path의 불필요 계산을 먼저 줄이고 F3는 재생성 �
 ## 조회용 저장소·로컬 CLI — F3 Step 1
 
 2026-11-16 migration 014의 네 표, `public-read-model.ts`의 결정적 변환, `public-read-source.ts`의 크기 제한 조회, `public-read-rebuild.ts`와 `scripts/public-read-rebuild.mjs`를 구현했다. 기존 Blog row mapper/DTO/privacy/파일 검사와 Brain 공개 사본 변환을 재사용한다. batch와 cursor는 함께 commit하고 run_token·전체 검증으로 늦거나 불완전한 결과의 활성화를 차단한다. writer_protocol=0의 소유 확인 로컬 DB에서만 실행하며 최종 검증은 원본 SHARE lock으로 묶는다. 변경 표식·짧은 CAS·요청 snapshot은 Step 2, public reader 전환은 Steps 3–5다. [구현·검수·명령](PUBLIC_READ_STORAGE_REVIEW.md).
+
+## 원자적 표식과 snapshot/CAS — F3 Step 2
+
+2026-11-17 migration 015의 DB trigger가 여섯 원본 표의 변경·삭제를 public_read_sources에 원자적으로 남긴다. 앱 writer는 `public_read_lock()`을 audit/policy/post/job보다 먼저 호출한다. 단일 state counter로 commit 순서를 직렬화하고 private Brain draft/review는 공개 선택을 바꾸지 않는다. `public-read-transaction.ts`의 repeatable-read/read-only helper를 기존 Blog 목록/slug 조회에 연결했다. 현재 projection hit 검증 helper는 후속 reader용이며 아직 route에서 사용하지 않는다.
+
+`public-read-rebuild.ts`는 고정 watermark의 변경 표식 catch-up, read-only 전체 검증, 별도 짧은 state revision CAS로 활성화한다. repair는 계산 뒤 epoch/source revision을 비교한다. protocol 0의 최종 원본 SHARE lock은 제거했고 로컬 소유 확인·advisory lock·run_token·입력/시간 상한·원본 보존은 유지한다. migration/reset은 writer 정지 후 014/015와 새 epoch로 검수한다. [실제 쓰기 경로·검증·인계](PUBLIC_READ_FRESHNESS_REVIEW.md).

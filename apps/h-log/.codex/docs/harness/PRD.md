@@ -324,3 +324,7 @@ Next.js/nextjs와 PostgreSQL/postgres는 같은 블로그 태그로 표시·조�
 ## 조회용 저장소의 격리 구현 — F3 Step 1
 
 2026-11-16 원본과 공개 승인을 보존하는 조회용 저장소·재생성 도구를 구현했다. 격리 DB에서 검증된 generation만 활성화하고 실제 공개 reader는 기존 원본 경로를 유지한다. 운영 migration·배포·실제 콘텐츠 발행은 수행하지 않았다. [검수](PUBLIC_READ_STORAGE_REVIEW.md). F 5 completed/17 pending, 다음은 F3 Step 2다.
+
+## 원본 변경과 공개 조회 일치 — F3 Step 2
+
+2026-11-17 저장·편집·발행/실패·철회·재시도와 Brain 공개 선택을 protocol 1의 durable 표식에 연결했다. 원본과 표식·감사는 같은 transaction에서 반영되고, 이미 철회된 선택을 늦은 worker/repair가 되살리지 못한다. 기존 Blog 복합 원본 조회는 같은 read-only snapshot을 사용한다. [현재성 검수](PUBLIC_READ_FRESHNESS_REVIEW.md). 공개 projection·목록/개수/복합 Blog/Brain 집합 전환은 Steps 3–5에 남아 있으며 운영 적용은 실행하지 않았다.

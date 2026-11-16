@@ -18,10 +18,13 @@ test('Markdown reads only the selected post at 10 and 1000 posts, preserving res
   const previousPool = globalThis.hlogBlogPublicPool;
   const queries = [];
   // Observe the real repository's returned rows; do not replace its SQL or results.
-  globalThis.hlogBlogPublicPool = { query: async (...args) => {
-    const result = await pool.query(...args);
-    queries.push(result.rows);
-    return result;
+  globalThis.hlogBlogPublicPool = { connect: async () => {
+    const client = await pool.connect();
+    return { release: () => client.release(), query: async (...args) => {
+      const result = await client.query(...args);
+      if (result.command === 'SELECT') queries.push(result.rows);
+      return result;
+    } };
   } };
   const repository = createPostgresBlogRepository(pool);
   try {

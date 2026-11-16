@@ -28,6 +28,7 @@ export async function withAutomationPolicy<T>(pool: Pool, operation: (client: Po
   const client = await pool.connect();
   try {
     await client.query("begin");
+    await client.query("select public_read_lock()");
     await client.query("set local statement_timeout='5s'");
     const policy = await readAutomationPolicy(client, environment, true);
     const result = await operation(client, policy);

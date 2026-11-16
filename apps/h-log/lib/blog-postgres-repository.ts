@@ -20,6 +20,7 @@ import {
 } from "./blog-admin.ts";
 import type { BlogContentStore } from "./blog-public.ts";
 import { parseBlogEditorialNote } from "./blog-editorial.ts";
+import { withPublicReadSnapshot } from "./public-read-transaction.ts";
 import {
   scanBlogPrivacyText,
   type BlogPrivacyScanPolicy,
@@ -53,58 +54,62 @@ export function createPostgresBlogRepository(
 ): PostgresBlogRepository {
   return {
     async findPublicBlogContent() {
-      const [postResult, versionResult] = await Promise.all([
-        pool.query(
-          `select * from posts
-           where status = 'published'
-             and current_version_id is not null
-           order by id`,
-        ),
-        pool.query(
-          `select post_versions.* from post_versions
-           join posts
-             on posts.id = post_versions.post_id
-            and posts.status = 'published'
-            and posts.current_version_id = post_versions.id
-           order by post_versions.id`,
-        ),
-      ]);
-      const posts = postResult.rows.map(mapPost);
-      const versions = versionResult.rows.map((row) => mapPostVersion(row, options.privacyScanPolicy));
-      return findPrivacySafePublicBlogContent(
-        pool,
-        posts,
-        versions,
-        options.privacyScanPolicy,
-      );
+      return withPublicReadSnapshot(pool, async client => {
+        const [postResult, versionResult] = await Promise.all([
+          client.query(
+            `select * from posts
+             where status = 'published'
+               and current_version_id is not null
+             order by id`,
+          ),
+          client.query(
+            `select post_versions.* from post_versions
+             join posts
+               on posts.id = post_versions.post_id
+              and posts.status = 'published'
+              and posts.current_version_id = post_versions.id
+             order by post_versions.id`,
+          ),
+        ]);
+        const posts = postResult.rows.map(mapPost);
+        const versions = versionResult.rows.map((row) => mapPostVersion(row, options.privacyScanPolicy));
+        return findPrivacySafePublicBlogContent(
+          client,
+          posts,
+          versions,
+          options.privacyScanPolicy,
+        );
+      });
     },
 
     async findPublicBlogContentBySlug(slug) {
-      const postResult = await pool.query(
-        `select * from posts
-         where slug = $1
-           and status = 'published'
-           and current_version_id is not null`,
-        [slug],
-      );
-      const posts = postResult.rows.map(mapPost);
-      const post = posts[0];
+      return withPublicReadSnapshot(pool, async client => {
+        const postResult = await client.query(
+          `select * from posts
+           where slug = $1
+             and status = 'published'
+             and current_version_id is not null`,
+          [slug],
+        );
+        const posts = postResult.rows.map(mapPost);
+        const post = posts[0];
 
-      if (!post || post.status !== "published" || !post.currentVersionId) {
-        return emptyBlogContentStore();
-      }
+        if (!post || post.status !== "published" || !post.currentVersionId) {
+          return emptyBlogContentStore();
+        }
 
-      const versionResult = await pool.query(
-        "select * from post_versions where id = $1 and post_id = $2",
-        [post.currentVersionId, post.id],
-      );
+        const versionResult = await client.query(
+          "select * from post_versions where id = $1 and post_id = $2",
+          [post.currentVersionId, post.id],
+        );
 
-      return findPrivacySafePublicBlogContent(
-        pool,
-        posts,
-        versionResult.rows.map((row) => mapPostVersion(row, options.privacyScanPolicy)),
-        options.privacyScanPolicy,
-      );
+        return findPrivacySafePublicBlogContent(
+          client,
+          posts,
+          versionResult.rows.map((row) => mapPostVersion(row, options.privacyScanPolicy)),
+          options.privacyScanPolicy,
+        );
+      });
     },
 
     async retractPost(input) {
@@ -112,6 +117,7 @@ export function createPostgresBlogRepository(
 
       try {
         await client.query("begin");
+        await client.query("select public_read_lock()");
         const existing = await client.query(
           "select * from posts where id = $1 for update",
           [input.postId],
@@ -156,6 +162,7 @@ export function createPostgresBlogRepository(
 
       try {
         await client.query("begin");
+        await client.query("select public_read_lock()");
         await saveBlogAggregate(client, aggregate, options);
         await client.query("commit");
       } catch (error) {
@@ -182,7 +189,7 @@ export async function saveBlogAggregate(client: PoolClient, aggregate: BlogPostA
 }
 
 async function findPrivacySafePublicBlogContent(
-  pool: Pool,
+  pool: Pick<PoolClient, "query">,
   posts: readonly PostRecord[],
   versions: readonly PostVersionRecord[],
   privacyScanPolicy: BlogPrivacyScanPolicy | undefined,
