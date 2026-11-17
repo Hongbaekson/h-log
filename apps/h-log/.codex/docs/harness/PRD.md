@@ -328,3 +328,7 @@ Next.js/nextjs와 PostgreSQL/postgres는 같은 블로그 태그로 표시·조�
 ## 원본 변경과 공개 조회 일치 — F3 Step 2
 
 2026-11-17 저장·편집·발행/실패·철회·재시도와 Brain 공개 선택을 protocol 1의 durable 표식에 연결했다. 원본과 표식·감사는 같은 transaction에서 반영되고, 이미 철회된 선택을 늦은 worker/repair가 되살리지 못한다. 기존 Blog 복합 원본 조회는 같은 read-only snapshot을 사용한다. [현재성 검수](PUBLIC_READ_FRESHNESS_REVIEW.md). 공개 projection·목록/개수/복합 Blog/Brain 집합 전환은 Steps 3–5에 남아 있으며 운영 적용은 실행하지 않았다.
+
+## 공개 목록의 파생 데이터 조회 — F3 Step 3
+
+2026-11-17 목록·태그 개수·필터·페이지 상한과 시리즈를 같은 현재 공개 snapshot에서 조회한다. Home은 같은 경로로 최근 3개를 받는다. 표시할 목록 필드만 전달하며 원문/상세는 필요할 때 조회한다. 누락/손상은 최대 10개 제한 계산 또는 오류로 처리하며 오래된 공개 결과를 대신 노출하지 않는다. `source` 기본값과 공개 화면을 유지하고 opt-in `shadow/projected`를 제공했다. [검수·성능](PUBLIC_BLOG_LIST_REVIEW.md). F 7 completed/15 pending, 다음은 F3 Step 4다.

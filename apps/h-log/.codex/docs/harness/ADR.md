@@ -479,6 +479,12 @@ Markdown의 기존 `public, max-age=300` 응답은 `force-dynamic`만으로 제�
 
 전체 검증 중 writer를 막는 Step 1 SHARE lock 대신 read-only snapshot 비교 후 짧은 state CAS를 사용한다. 변경 시 catch-up을 반복하고 deadline에서 checkpoint를 남긴다. 같은 snapshot의 원본 공개 선택과 metadata revision이 맞을 때만 projection hit 후보가 되며 늦은 repair는 거절한다. 기존 Blog 조회를 같은 snapshot으로 묶었고 공개 projection/복합 집계 전환은 후속 단계다. [현재성 검수](PUBLIC_READ_FRESHNESS_REVIEW.md).
 
+### ADR-042 F3 Step 3 독립 목록 산출물 — 2026-11-17
+
+전체 detail/search JSON의 hash 검증을 목록마다 수행하면 TOAST 본문 전송 비용이 남는다. Migration 016에서 작은 list/result를 별도 저장하고 PostgreSQL JSONB 인코딩의 SHA-256으로 검사한다. 기존 canonical 전체 payload hash와 구분하며 schema manifest를 2로 올려 이전 generation을 hit로 받지 않는다. 파일은 DB snapshot 밖에서 바뀔 수 있으므로 목록에는 승인된 thumbnail 후보를 보존하고 표시 시 파일 hash를 검증한다.
+
+현재 공개 집합 전체의 유효성을 확인한 뒤 같은 snapshot에서 목록·개수·시리즈를 계산한다. 실패 항목을 조용히 제외하지 않고 제한 계산 또는 오류로 처리한다. 요청이 쓰기 경로를 갖지 않도록 복구 저장은 명시 repair/rebuild에 남긴다. PG advisory transaction lock과 프로세스 내 입력별 결과 공유로 중복 계산을 제한한다. 기존 PK가 선택됐고 새 partial index 후보는 사용되지 않아 추가하지 않았다. 목록/Home만 설정 전환하고 기본 source를 유지한다. [검수](PUBLIC_BLOG_LIST_REVIEW.md).
+
 ## 공식/내부 기준
 
 - Next.js docs

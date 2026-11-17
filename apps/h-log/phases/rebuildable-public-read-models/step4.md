@@ -35,9 +35,18 @@ F3 Step 3 완료.
 - `apps/h-log/lib/blog-search.ts`
 - `apps/h-log/lib/blog-detail-ui.test.ts`
 
+- `apps/h-log/migrations/016_public_blog_lists.sql`
+- `apps/h-log/lib/public-blog-list.ts`
+- `apps/h-log/scripts/public-blog-list.integration.test.mjs`
+- `apps/h-log/.codex/docs/harness/PUBLIC_BLOG_LIST_REVIEW.md`
+
 ## 범위와 산출물
 
 상세 한 편과 가벼운 탐색 조회을 한 작업 단위로 수행한다. 전체 설계·측정 조건·인계는 [성능 및 재생성 계획](../../.codex/docs/harness/PERFORMANCE_REBUILD_PLAN.md)을 따른다.
+
+## Step 3 인계
+
+목록/Home만 `source/shadow/projected`를 지원하며 기본은 source다. Migration 016의 작은 list hash와 schema manifest 2를 사용하고, 목록·집계·시리즈는 같은 snapshot에서 읽는다. 요청 fallback은 bounded read-only 계산이며 영속 repair는 명시 CLI다. 이 제한을 상세/탐색에도 적용하되 현재의 전체 원본 loader나 아직 구현하지 않은 cross-surface snapshot/HTTP cache를 완료로 가정하지 않는다.
 
 ## 작업
 

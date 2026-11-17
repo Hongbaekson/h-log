@@ -1,5 +1,5 @@
 import { selectPublicBlogRouteEntries } from "./blog-content-model.ts";
-import type { BlogContentStore } from "./blog-public.ts";
+import type { BlogContentStore, PublicBlogListItem } from "./blog-public.ts";
 
 const seriesDefinitions = [{
   id: "h-log-public-reading",
@@ -14,13 +14,18 @@ export type PublicBlogSeries = {
   description: string;
   posts: { slug: string; href: string; title: string; order: number }[];
 };
+export const publicBlogSeriesSlugs = seriesDefinitions.flatMap(series => series.postSlugs);
 
 export function getPublicBlogSeries(store: BlogContentStore): PublicBlogSeries[] {
   const entries = selectPublicBlogRouteEntries(store.posts, store.versions);
+  return getPublicBlogSeriesFromList(entries.map(({post,version}) => ({slug:post.slug,href:`/blog/${post.slug}`,title:version.title})));
+}
+
+export function getPublicBlogSeriesFromList(items: readonly Pick<PublicBlogListItem,"slug"|"href"|"title">[]): PublicBlogSeries[] {
   return seriesDefinitions.flatMap(({ id, title, description, postSlugs }) => {
     const posts = postSlugs.flatMap((slug, i) => {
-      const entry = entries.find(({ post }) => post.slug === slug);
-      return entry ? [{ slug, href: `/blog/${slug}`, title: entry.version.title, order: i + 1 }] : [];
+      const entry = items.find(post => post.slug === slug);
+      return entry ? [{ slug, href: entry.href, title: entry.title, order: i + 1 }] : [];
     });
     return posts.length ? [{ id, title, description, posts }] : [];
   });

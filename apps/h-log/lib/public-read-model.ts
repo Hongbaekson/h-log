@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { assertPostVersionContentHashMatches, selectPublicBlogRouteEntries } from "./blog-content-model.ts";
-import { getPublicBlogIndex, getPublicBlogPostBySlug, type BlogContentStore, type PublicBlogPost } from "./blog-public.ts";
+import { getPublicBlogIndex, getPublicBlogPostBySlug, type BlogContentStore, type PublicBlogPost, type PublicBlogListItem } from "./blog-public.ts";
 import { normalizeBlogTags } from "./blog-tags.ts";
 import { scanBlogPrivacyText, type BlogPrivacyScanPolicy } from "./blog-privacy-scanner.ts";
 import { mergePublishedBrain } from "./brain-curation.ts";
@@ -30,7 +30,7 @@ export function fingerprint(value: unknown): string {
   return createHash("sha256").update("h-log/public-read-input/v1\0").update(canonicalJson(value)).digest("hex");
 }
 export function projectionContext(policy: BlogPrivacyScanPolicy = {}, versions: Record<string, number> = {}) {
-  const manifest = { schema: 1, renderer: 1, headings: 1, tags: 1, search: 1, sourceUrls: 1, privacy: 1, brainParser: 1, series: 1,
+  const manifest = { schema: 2, renderer: 1, headings: 1, tags: 1, search: 1, sourceUrls: 1, privacy: 1, brainParser: 1, series: 1,
     ...versions, staticHash: fingerprint({ brainCatalog, projectPostConnections }) };
   const terms = [...(policy.restrictedTerms ?? [])];
   if (terms.some(term => !["organization_name", "private_repository"].includes(term.category) || typeof term.value !== "string" || !term.value.trim())) throw new Error("invalid_policy");
@@ -43,7 +43,11 @@ type BrainPayload = { node: ReturnType<typeof mergePublishedBrain>["nodes"][numb
 export type Projection<T = BlogPayload | BrainPayload> = {
   sourceVersion: string | null; inputFingerprint: string; contentHash: string | null;
   result: "ready" | "excluded"; payload: T | null; payloadHash: string;
+  list?: PublicBlogListItem;
 };
+export function blogListArtifact(projection: Projection): PublicBlogListItem | null {
+  return projection.list ?? (projection.payload && "list" in projection.payload ? projection.payload.list : null);
+}
 function checkedInput(input: unknown, context: ProjectionContext) {
   if (Buffer.byteLength(canonicalJson(input)) > PUBLIC_READ_LIMITS.input) throw new Error("input_limit");
   return fingerprint({ input, manifest: context.manifest, policyFingerprint: context.policyFingerprint });

@@ -6,14 +6,13 @@ import { BlogPagination } from "@/components/blog/BlogPagination";
 import { BlogPostRow } from "@/components/blog/BlogPostRow";
 import { BlogTopicFilters } from "@/components/blog/BlogTopicFilters";
 import { BlogSeries } from "@/components/blog/BlogSeries";
-import { getPublicBlogSeries } from "@/lib/blog-series";
 import { buildBlogBrowseHref, parseBlogBrowseParams, type BlogBrowseParams } from "@/lib/blog-search-ui";
 import { Container } from "@/components/ui";
 import {
   formatPublicBlogArticleMode,
   formatPublicBlogDate,
 } from "@/lib/blog-public-presentation";
-import { loadPublicBlogContentStore, loadPublicBlogIndex } from "@/lib/blog-public-source";
+import { loadPublicBlogIndex } from "@/lib/blog-public-source";
 import { withPageSocialMetadata } from "@/lib/page-social-metadata";
 
 export const dynamic = "force-dynamic";
@@ -44,7 +43,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const state = parseBlogBrowseParams(params);
   const index = await loadPublicBlogIndex(state.page, state.tag ?? undefined);
   const series = !state.query && !state.tag && index.pagination.currentPage === 1
-    ? getPublicBlogSeries(await loadPublicBlogContentStore()) : [];
+    ? index.series : [];
 
   return (
     <>

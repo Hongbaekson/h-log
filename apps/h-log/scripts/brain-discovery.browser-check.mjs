@@ -10,7 +10,8 @@ export async function verifyBrainDiscovery(browser, origin, graph, output) {
     const context = await browser.newContext({ javaScriptEnabled, viewport: { width, height: 900 }, serviceWorkers: "block" });
     await context.route("**/*", route => {
       const url = new URL(route.request().url());
-      if (url.origin === origin && (url.pathname === "/" || /^\/(?:brain|blog|portfolio|resume)(?:\/|$)/.test(url.pathname) || url.pathname.startsWith("/_next/") || ["/icon.svg", "/profile-photo.jpg"].includes(url.pathname))) return route.continue();
+      // Next dev serves its local overlay font outside /_next/.
+      if (url.origin === origin && (url.pathname === "/" || /^\/(?:brain|blog|portfolio|resume)(?:\/|$)/.test(url.pathname) || url.pathname.startsWith("/_next/") || url.pathname.startsWith("/__nextjs_font/") || ["/icon.svg", "/profile-photo.jpg"].includes(url.pathname))) return route.continue();
       blocked.push(url.pathname);
       return route.abort();
     });

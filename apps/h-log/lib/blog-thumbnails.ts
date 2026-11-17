@@ -7,6 +7,14 @@ import type { BlogContentStore } from "./blog-public.ts";
 
 export type PublicBlogThumbnail = { src: string; alt: string };
 
+export async function verifyPublicBlogThumbnail(thumbnail: PublicBlogThumbnail | undefined, publicDirectory = join(process.cwd(), "public")) {
+  if (!thumbnail || !/^\/blog-assets\/thumbnails\/[a-f0-9]{64}\.(png|webp)$/.test(thumbnail.src)) return undefined;
+  try {
+    const bytes = await readFile(join(publicDirectory, thumbnail.src));
+    return createHash("sha256").update(bytes).digest("hex") === thumbnail.src.split("/").at(-1)?.split(".")[0] ? thumbnail : undefined;
+  } catch { return undefined; }
+}
+
 export function selectPublicBlogThumbnail(
   entry: PublicBlogRouteEntry,
   assets: readonly PostAssetRecord[],
@@ -32,13 +40,7 @@ export async function verifyBlogThumbnailFiles(
     return thumbnail ? [thumbnail.src] : [];
   }));
   const verifiedPaths = new Set(await Promise.all([...paths].map(async (path) => {
-    try {
-      const bytes = await readFile(join(publicDirectory, path));
-      return createHash("sha256").update(bytes).digest("hex") === path.split("/").at(-1)?.split(".")[0]
-        ? path : undefined;
-    } catch {
-      return undefined;
-    }
+    return (await verifyPublicBlogThumbnail({src:path,alt:""}, publicDirectory))?.src;
   })));
 
   return { ...store, assets: (store.assets ?? []).filter((asset) => asset.type !== "image" || verifiedPaths.has(asset.path)) };

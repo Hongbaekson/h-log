@@ -1,0 +1,445 @@
+{
+  "http": [
+    {
+      "mode": "source",
+      "path": "/blog",
+      "count": 1000,
+      "concurrency": 1,
+      "first": {
+        "ms": 380.3703999999998,
+        "ttfb": 378.09089999999924,
+        "bytes": 58282
+      },
+      "latencyMs": {
+        "count": 32,
+        "min": 264.21519999999873,
+        "median": 277.60175000000163,
+        "p95": 295.23759999999675,
+        "max": 298.2589000000007
+      },
+      "ttfbMs": {
+        "count": 32,
+        "min": 263.3927999999978,
+        "median": 276.89910000000054,
+        "p95": 294.3099000000002,
+        "max": 297.4447
+      },
+      "responseBytes": 58282,
+      "cpuMsPerRequest": 308.326125,
+      "rssBytes": 242491392
+    },
+    {
+      "mode": "source",
+      "path": "/blog",
+      "count": 1000,
+      "concurrency": 8,
+      "first": {
+        "ms": 380.3703999999998,
+        "ttfb": 378.09089999999924,
+        "bytes": 58282
+      },
+      "latencyMs": {
+        "count": 32,
+        "min": 1947.9665999999997,
+        "median": 2105.764699999998,
+        "p95": 2244.5392999999967,
+        "max": 2244.7772999999943
+      },
+      "ttfbMs": {
+        "count": 32,
+        "min": 748.4796999999999,
+        "median": 2102.205900000001,
+        "p95": 2236.3032999999996,
+        "max": 2236.972099999999
+      },
+      "responseBytes": 58282,
+      "cpuMsPerRequest": 294.42,
+      "rssBytes": 439611392
+    },
+    {
+      "mode": "source",
+      "path": "/",
+      "count": 1000,
+      "concurrency": 1,
+      "first": {
+        "ms": 289.8471999999965,
+        "ttfb": 19.459299999994982,
+        "bytes": 63787
+      },
+      "latencyMs": {
+        "count": 32,
+        "min": 253.46779999999853,
+        "median": 266.34729999999763,
+        "p95": 278.1958999999988,
+        "max": 281.58720000000176
+      },
+      "ttfbMs": {
+        "count": 32,
+        "min": 6.248800000001211,
+        "median": 7.80855000000156,
+        "p95": 11.621500000001106,
+        "max": 11.756700000005367
+      },
+      "responseBytes": 63787,
+      "cpuMsPerRequest": 295.15925,
+      "rssBytes": 440020992
+    },
+    {
+      "mode": "source",
+      "path": "/",
+      "count": 1000,
+      "concurrency": 8,
+      "first": {
+        "ms": 289.8471999999965,
+        "ttfb": 19.459299999994982,
+        "bytes": 63787
+      },
+      "latencyMs": {
+        "count": 32,
+        "min": 1003.184199999996,
+        "median": 2074.734849999997,
+        "p95": 2117.878499999999,
+        "max": 2118.890599999999
+      },
+      "ttfbMs": {
+        "count": 32,
+        "min": 19.132799999999406,
+        "median": 41.7400499999967,
+        "p95": 79.01580000000104,
+        "max": 87.13459999999759
+      },
+      "responseBytes": 63787,
+      "cpuMsPerRequest": 282.78075,
+      "rssBytes": 465862656
+    },
+    {
+      "mode": "projected",
+      "path": "/blog",
+      "count": 1000,
+      "concurrency": 1,
+      "first": {
+        "ms": 90.55040000000008,
+        "ttfb": 89.24839999999676,
+        "bytes": 58282
+      },
+      "latencyMs": {
+        "count": 32,
+        "min": 36.514100000000326,
+        "median": 39.61885000000257,
+        "p95": 43.06409999999596,
+        "max": 43.48619999999937
+      },
+      "ttfbMs": {
+        "count": 32,
+        "min": 35.829499999999825,
+        "median": 38.858650000001944,
+        "p95": 42.086899999994785,
+        "max": 42.141899999995076
+      },
+      "responseBytes": 58282,
+      "cpuMsPerRequest": 18.480625,
+      "rssBytes": 152997888,
+      "f1Limits": {
+        "p50": 917.348,
+        "p95": 1016.725
+      }
+    },
+    {
+      "mode": "projected",
+      "path": "/blog",
+      "count": 1000,
+      "concurrency": 8,
+      "first": {
+        "ms": 90.55040000000008,
+        "ttfb": 89.24839999999676,
+        "bytes": 58282
+      },
+      "latencyMs": {
+        "count": 32,
+        "min": 72.64649999999529,
+        "median": 217.57295000000158,
+        "p95": 301.4582999999984,
+        "max": 303.48619999999937
+      },
+      "ttfbMs": {
+        "count": 32,
+        "min": 71.79369999999471,
+        "median": 213.43245000000024,
+        "p95": 298.13730000000214,
+        "max": 301.145199999999
+      },
+      "responseBytes": 58282,
+      "cpuMsPerRequest": 11.9016875,
+      "rssBytes": 186130432,
+      "f1Limits": {
+        "p50": 6868.075999999999,
+        "p95": 9253.375
+      }
+    },
+    {
+      "mode": "projected",
+      "path": "/",
+      "count": 1000,
+      "concurrency": 1,
+      "first": {
+        "ms": 45.361900000003516,
+        "ttfb": 13.767100000004575,
+        "bytes": 63787
+      },
+      "latencyMs": {
+        "count": 32,
+        "min": 36.15899999999965,
+        "median": 37.66005000000223,
+        "p95": 42.84490000000369,
+        "max": 48.0483000000022
+      },
+      "ttfbMs": {
+        "count": 32,
+        "min": 6.1498999999967054,
+        "median": 6.8787499999998545,
+        "p95": 9.04030000000057,
+        "max": 11.010500000003958
+      },
+      "responseBytes": 63787,
+      "cpuMsPerRequest": 13.7458125,
+      "rssBytes": 189837312
+    },
+    {
+      "mode": "projected",
+      "path": "/",
+      "count": 1000,
+      "concurrency": 8,
+      "first": {
+        "ms": 45.361900000003516,
+        "ttfb": 13.767100000004575,
+        "bytes": 63787
+      },
+      "latencyMs": {
+        "count": 32,
+        "min": 144.94380000000092,
+        "median": 204.03499999999985,
+        "p95": 299.6947,
+        "max": 301.08669999999984
+      },
+      "ttfbMs": {
+        "count": 32,
+        "min": 35.767699999996694,
+        "median": 40.42030000000159,
+        "p95": 48.44169999999576,
+        "max": 48.56049999999959
+      },
+      "responseBytes": 63787,
+      "cpuMsPerRequest": 12.7666875,
+      "rssBytes": 202706944
+    }
+  ],
+  "cleanup": true,
+  "fixtureHash": "f4f82e4988a8f94c9baf9308204bda939de14fc0d19a469071162dcafa84377b",
+  "rebuild": {
+    "generation": "0fd2ca0d-81bb-495a-9eca-f41d14dc565c",
+    "status": "active",
+    "processed": 1002,
+    "counts": {
+      "ready": 1000,
+      "excluded": 2
+    },
+    "cursorHash": "a842fddc5a7fd5db48d82d2045bc95c1b63c66fcb38fdfc66a3c95a224498701",
+    "manifestHash": "6bae90382ecc2c245eef80c3360aedb2d73f8cb102c9fb7e18a99e83512c5ceb",
+    "elapsedMs": 8847,
+    "peakRssBytes": 112185344,
+    "maxBatchBytes": 463775
+  },
+  "environment": {
+    "node": "v22.14.0",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-13700K",
+    "logicalCpus": 24,
+    "memoryBytes": 34088296448,
+    "docker": "29.6.1",
+    "image": "sha256:502d4dc03cd3a1c2767fa771aa286a35df02ac050813c045e6098c57739b01a5",
+    "appLimits": {
+      "cpus": 2,
+      "memory": "2g"
+    },
+    "dbLimits": {
+      "cpus": 1,
+      "memory": "1g"
+    },
+    "appNode": "v24.19.0",
+    "next": "16.4.3",
+    "dbImage": "pgvector/pgvector:pg16@sha256:a36250871de0833b8757561c72f2477ef1ddd1101afa4e617fb552e0de514c6b"
+  },
+  "date": "2026-11-17",
+  "base": "980f5b3d49f9887a95c6108439935c7c04c04d77",
+  "writerProtocol": 1,
+  "schemaManifest": 2,
+  "method": {
+    "http": "32 warm requests per mode/route/concurrency, separate first request and one warmup, body decoding included. No DB/OS cache flush. Same F1 1000-post fixture, app CPU2/2GiB, PG CPU1/1GiB. Local synthetic, not production SLO.",
+    "cpu": "App cgroup CPU delta divided by 32 requests; not the F1 pure-function CPU metric.",
+    "memory": "App process RSS after each sample group; not GC heap or peak RSS.",
+    "comparison": "F1 blog p50 <= max(baseline)*1.20+20ms, p95 <= max(baseline)*1.25+50ms. Home has no F1 baseline; compared to current source mode only.",
+    "rebuild": "Original read through verified generation activation; excludes fixture seeding."
+  },
+  "harnessHash": "609ba6a40ea88cdc711ea6d9d8974fde51e433b3a9d63bf618056955bc19fc73",
+  "sourceFilesHash": "7c1495268d020b1c0bef66f85a6917aefd4b1a11581a6554576e8087f2352954",
+  "sqlMeasurement": {
+    "posts": 1000,
+    "requests": 32,
+    "concurrency": 8,
+    "latencyMs": {
+      "count": 32,
+      "min": 990.2871999999988,
+      "median": 1099.4607500000002,
+      "p95": 1495.3568000000014,
+      "max": 1497.2765
+    },
+    "sqlPerRequest": 3,
+    "returnedBytesPerRequest": 2499,
+    "cpuMs": 94,
+    "rssBytes": 151244800,
+    "method": "Actual pg result rows JSON bytes; data SELECT only. Integration test process CPU/RSS; concurrent projection suites and dev verification share PG CPU. Latency is diagnostic, not the isolated F1 HTTP comparison."
+  },
+  "sqlExplain": {
+    "existing": {
+      "executionMs": {
+        "count": 5,
+        "min": 15.377,
+        "median": 16.243,
+        "max": 20.155
+      },
+      "sharedHitBlocks": 6869,
+      "tempWrittenBlocks": 0,
+      "indexes": [
+        "public_read_sources_pkey",
+        "public_read_entries_pkey"
+      ]
+    },
+    "candidate": {
+      "executionMs": {
+        "count": 5,
+        "min": 14.803,
+        "median": 15.278,
+        "max": 19.045
+      },
+      "sharedHitBlocks": 6869,
+      "tempWrittenBlocks": 0,
+      "indexes": [
+        "public_read_sources_pkey",
+        "public_read_entries_pkey"
+      ]
+    }
+  },
+  "browser": {
+    "production": {
+      "mode": "production",
+      "http": true,
+      "blog": true,
+      "home": {
+        "screens": [
+          {
+            "width": 1440,
+            "javaScriptEnabled": true,
+            "recentLinks": 3
+          },
+          {
+            "width": 1440,
+            "javaScriptEnabled": false,
+            "recentLinks": 0
+          },
+          {
+            "width": 390,
+            "javaScriptEnabled": true,
+            "recentLinks": 3
+          },
+          {
+            "width": 390,
+            "javaScriptEnabled": false,
+            "recentLinks": 0
+          },
+          {
+            "width": 320,
+            "javaScriptEnabled": true,
+            "recentLinks": 3
+          },
+          {
+            "width": 320,
+            "javaScriptEnabled": false,
+            "recentLinks": 0
+          }
+        ],
+        "streaming": true,
+        "errorRecovery": true
+      },
+      "protectedUi": {
+        "discoverySamples": 6,
+        "layouts": 5,
+        "widths": [
+          1440,
+          390,
+          320
+        ],
+        "radar": true,
+        "readerAndHistory": true
+      }
+    },
+    "development": {
+      "mode": "development",
+      "http": true,
+      "blog": true,
+      "home": {
+        "screens": [
+          {
+            "width": 1440,
+            "javaScriptEnabled": true,
+            "recentLinks": 3
+          },
+          {
+            "width": 1440,
+            "javaScriptEnabled": false,
+            "recentLinks": 0
+          },
+          {
+            "width": 390,
+            "javaScriptEnabled": true,
+            "recentLinks": 3
+          },
+          {
+            "width": 390,
+            "javaScriptEnabled": false,
+            "recentLinks": 0
+          },
+          {
+            "width": 320,
+            "javaScriptEnabled": true,
+            "recentLinks": 3
+          },
+          {
+            "width": 320,
+            "javaScriptEnabled": false,
+            "recentLinks": 0
+          }
+        ],
+        "streaming": true,
+        "errorRecovery": true
+      },
+      "protectedUi": {
+        "discoverySamples": 6,
+        "layouts": 5,
+        "widths": [
+          1440,
+          390,
+          320
+        ],
+        "radar": true,
+        "readerAndHistory": true
+      }
+    },
+    "engine": "Edge 157.0.4341.60 / Playwright 1.62.1",
+    "blogRowsPerMode": 42,
+    "blogInteractionsPerMode": 9,
+    "jsModes": [
+      true,
+      false
+    ],
+    "comparison": "Visual/interaction regression only; Edge differs from F1 157.0.4341.46, so no F1 browser timing claim."
+  }
+}

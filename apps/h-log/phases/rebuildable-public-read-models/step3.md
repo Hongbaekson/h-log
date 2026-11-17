@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-06 등록한 F3의 DB에서 공개 목록과 개수 조회 단계다. 구현 완료 판정은 이 파일의 인수 기준과 검증 결과로 한다.
+completed — 2026-11-17. [검수·성능 기록](../../.codex/docs/harness/PUBLIC_BLOG_LIST_REVIEW.md)에 구현, RED/GREEN, DB/HTTP/브라우저 검증과 남은 범위를 기록했다.
 
 F3 Step 2와 F2 Step 0 완료.
 
@@ -38,9 +38,14 @@ F3 Step 2와 F2 Step 0 완료.
 - `apps/h-log/scripts/public-read-freshness.integration.test.mjs`
 - `apps/h-log/.codex/docs/harness/PUBLIC_READ_FRESHNESS_REVIEW.md`
 
+- `apps/h-log/migrations/016_public_blog_lists.sql`
+- `apps/h-log/lib/public-blog-list.ts`
+- `apps/h-log/scripts/public-blog-list.integration.test.mjs`
+- `apps/h-log/.codex/docs/harness/PUBLIC_BLOG_LIST_REVIEW.md`
+
 ## 범위와 산출물
 
-DB에서 공개 목록과 개수 조회을 한 작업 단위로 수행한다. 전체 설계·측정 조건·인계는 [성능 및 재생성 계획](../../.codex/docs/harness/PERFORMANCE_REBUILD_PLAN.md)을 따른다.
+DB에서 공개 목록과 개수 조회를 한 작업 단위로 수행한다. 전체 설계·측정 조건·인계는 [성능 및 재생성 계획](../../.codex/docs/harness/PERFORMANCE_REBUILD_PLAN.md)을 따른다.
 
 ## Step 2 인계
 

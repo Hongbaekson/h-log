@@ -371,3 +371,9 @@ A3 Step 3/4는 [A4 실측](../../phases/admin-resume-pdf/step3.md)의 단일 검
 ## 모니터링 Step 2 로컬 검증 — 2026-10-28
 
 선택형 `compose.observability-probes.yaml`과 [수집/계정/장애 검증 절차](../../deploy/observability/README.md)를 추가했다. Host root mount는 사용하지 않으며 통계 파일 3개와 빈 Docker volume의 backing filesystem만 측정한다. 최소 DB 계정 bootstrap은 앱 migration과 분리했고 격리 DB에서만 실행했다. 운영 적용 전 PUBLIC temp/DDL 권한 회수 영향, DB secret/고정 DB alias, 실제 disk/volume driver, 대상 probe_net·HTTPS/CA를 검토한다. 전체 앱 DB integration과 private stack/probe smoke·production build를 통과했으며 OCI·기존 운영 container·timer를 변경하지 않았다. 다음은 발행/비용 지속 신호 Step 3다.
+
+## F3 목록 읽기 설정 — 로컬 검증만 완료
+
+`HLOG_PUBLIC_READ_MODEL`은 미설정/`source`가 기본이며 `shadow`/`projected`를 지원한다. 현재 적용 범위는 `/blog` 일반·태그 목록과 Home 최근 글이다. 상세·검색·크롤러의 전환은 후속 단계다. 잘못된 설정은 오류로 처리한다.
+
+전환 후보는 migration 016과 protocol 1, schema manifest 2·동일 privacy 정책의 검증된 active generation을 준비해야 한다. 이전 generation의 list column을 자동 backfill하지 않는다. 10개를 넘는 miss에서는 오류가 나므로 source 모드에서 rebuild/verify 후 shadow 비교, projected 순으로 검수한다. 되돌릴 때는 source로 설정하고 원본은 보존한다. 운영 migration/rebuild/배포는 이번 단계에 실행하지 않았다. 현 CLI는 소유 marker가 있는 loopback `hlog_projection_*` DB만 허용하며 운영용 실행기로 간주하지 않는다. [세부 검수](harness/PUBLIC_BLOG_LIST_REVIEW.md).

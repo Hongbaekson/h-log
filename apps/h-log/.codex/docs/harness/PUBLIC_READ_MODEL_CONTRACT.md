@@ -1,8 +1,16 @@
 # 원본·공개 선택·조회용 데이터 계약
 
-2026-11-17 현재 구현은 [F3 Step 2 현재성 검수](PUBLIC_READ_FRESHNESS_REVIEW.md)를 따른다. Migration 015/protocol 1, writer 표식과 Blog snapshot, catch-up·짧은 CAS/repair 비교가 구현됐다. 아래 protocol 0·원본 SHARE lock 설명은 Step 1 당시 이력이며 현재 실행 방식이 아니다. 공개 projection/설정 전환은 후속 단계다.
+2026-11-17 현재 구현은 [F3 Step 3 목록 검수](PUBLIC_BLOG_LIST_REVIEW.md)를 따른다. Migration 016/schema manifest 2와 목록/Home의 `source`(기본)·`shadow`·`projected` 전환, 같은 snapshot 집계·제한된 miss 계산을 구현했다. Migration 015/protocol 1 현재성은 유지한다. 아래 Step 0/1/2 설명은 각 시점 이력이며 상세/복합 탐색·크롤러/HTTP 캐시·운영 전환은 아직 후속 범위다.
 
 2026-11-16 F3 Step 0 결정. 조사 기준은 `bf37dffaf3b1f61d7b96ea7e446f082e35e206be`다. 이 문서는 후속 구현의 계약이며, 작성 당시 신규 표·설정·명령은 미구현이었다. 2026-11-16 Step 1에서 표와 격리 CLI를 구현했으며 현재 범위는 아래 보완과 [저장소 검수](PUBLIC_READ_STORAGE_REVIEW.md)를 따른다. [성능 계획](PERFORMANCE_REBUILD_PLAN.md), [Markdown 검수](BLOG_MARKDOWN_READ_REVIEW.md), ADR-042를 잇는다.
+
+## Step 3 구현 경계 — 2026-11-17
+
+`list_payload/list_hash`는 작은 목록 산출물이며 `public_read_list_hash`가 `h-log/public-read-list/v1:` 뒤 PostgreSQL `jsonb_build_object(result,list)::text`의 SHA-256을 계산한다. JS canonical 전체 payload/input fingerprint와 다른 계약이다. 형태·선택 버전·metadata revision·정책/manifest·epoch가 모두 맞아야 hit다. 목록은 원문 body나 전체 payload를 전송하지 않는다.
+
+미스는 현재 snapshot에서 최대 10개, 입력당 1MiB/합계 8MiB를 계산한다. 계산 deadline 2초, SQL 2초/lock 250ms, 프로세스 동시 계산 2개·공유 결과 64개를 유지한다. 동일 입력의 겹치는 요청은 결과를 공유하고 마지막 reader 종료 시 해제한다. 다른 인스턴스가 advisory lock을 보유하면 즉시 bounded error다. 요청은 read-only이며 repair 저장은 별도 명시 CLI만 수행한다. 10개를 초과하는 cold catalog는 `source` 모드에서 rebuild 후 전환해야 한다.
+
+`shadow`는 같은 snapshot의 원본 결과를 반환하며 불일치 로그에는 본문·식별자를 남기지 않는다. 정상 파일의 생성/삭제/손상은 표시할 항목의 현재 파일 hash로 확인한다. Source 선택은 명시 설정이며 projected DB 오류를 숨기기 위한 자동 전체 fallback은 없다. 상세·검색·크롤러는 기존 경로를 유지한다.
 
 ## Step 1 구현 경계 — 2026-11-16
 

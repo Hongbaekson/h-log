@@ -1,6 +1,6 @@
 import type { PoolClient, QueryResultRow } from "pg";
 import { mapBlogContentRows } from "./blog-postgres-repository.ts";
-import { verifyBlogThumbnailFiles } from "./blog-thumbnails.ts";
+import { selectPublicBlogThumbnail, verifyBlogThumbnailFiles } from "./blog-thumbnails.ts";
 import { projectBlog, projectBrain, PUBLIC_READ_LIMITS, type ProjectionContext, type Projection } from "./public-read-model.ts";
 
 export type SourceKey = { kind: "blog" | "brain"; source_id: string };
@@ -45,6 +45,10 @@ export async function readProjectionSource(client: PoolClient, key: SourceKey, c
   for (const record of [row.post, row.version, ...row.tags, ...row.sources, ...row.assets]) {
     if (record) for (const key of Object.keys(record)) if (key.endsWith("_at") && record[key] !== null) record[key] = new Date(record[key]);
   }
-  const store = await verifyBlogThumbnailFiles(mapBlogContentRows(row, context.policy));
-  return projectBlog(store, context, row);
+  const mapped = mapBlogContentRows(row, context.policy);
+  const projection = projectBlog(await verifyBlogThumbnailFiles(mapped), context, row);
+  // List artifacts retain the verified metadata candidate; every response checks current file bytes.
+  if (projection.payload) projection.list = {...projection.payload.list,
+    thumbnail: selectPublicBlogThumbnail({post:mapped.posts[0],version:mapped.versions[0]},mapped.assets ?? [])};
+  return projection;
 }

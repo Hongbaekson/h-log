@@ -20,7 +20,13 @@ describe("DB-backed public blog read path", () => {
       const source = await readFile(new URL(path, import.meta.url), "utf8");
 
       assert.doesNotMatch(source, /blog-public-data/);
-      assert.match(source, /loadPublicBlogContentStore/);
+      if (path === productionBlogSurfaces[0]) {
+        assert.match(source, /loadPublicBlogIndex/);
+        assert.match(source, /index\.series/);
+        assert.doesNotMatch(source, /loadPublicBlogContentStore/);
+      } else {
+        assert.match(source, /loadPublicBlogContentStore/);
+      }
     }
   });
 

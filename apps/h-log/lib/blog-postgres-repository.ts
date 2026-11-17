@@ -54,32 +54,7 @@ export function createPostgresBlogRepository(
 ): PostgresBlogRepository {
   return {
     async findPublicBlogContent() {
-      return withPublicReadSnapshot(pool, async client => {
-        const [postResult, versionResult] = await Promise.all([
-          client.query(
-            `select * from posts
-             where status = 'published'
-               and current_version_id is not null
-             order by id`,
-          ),
-          client.query(
-            `select post_versions.* from post_versions
-             join posts
-               on posts.id = post_versions.post_id
-              and posts.status = 'published'
-              and posts.current_version_id = post_versions.id
-             order by post_versions.id`,
-          ),
-        ]);
-        const posts = postResult.rows.map(mapPost);
-        const versions = versionResult.rows.map((row) => mapPostVersion(row, options.privacyScanPolicy));
-        return findPrivacySafePublicBlogContent(
-          client,
-          posts,
-          versions,
-          options.privacyScanPolicy,
-        );
-      });
+      return withPublicReadSnapshot(pool, client => readPublicBlogContent(client, options));
     },
 
     async findPublicBlogContentBySlug(slug) {
@@ -186,6 +161,33 @@ export async function saveBlogAggregate(client: PoolClient, aggregate: BlogPostA
   for (const source of aggregate.sources) await upsertPostSource(client, source);
   for (const asset of aggregate.assets) await upsertPostAsset(client, asset);
   for (const job of aggregate.publishJobs) await insertPublishJob(client, job);
+}
+
+export async function readPublicBlogContent(client: PoolClient, options: PostgresBlogRepositoryOptions = {}): Promise<BlogContentStore> {
+  const [postResult, versionResult] = await Promise.all([
+    client.query(
+      `select * from posts
+       where status = 'published'
+         and current_version_id is not null
+       order by id`,
+    ),
+    client.query(
+      `select post_versions.* from post_versions
+       join posts
+         on posts.id = post_versions.post_id
+        and posts.status = 'published'
+        and posts.current_version_id = post_versions.id
+       order by post_versions.id`,
+    ),
+  ]);
+  const posts = postResult.rows.map(mapPost);
+  const versions = versionResult.rows.map((row) => mapPostVersion(row, options.privacyScanPolicy));
+  return findPrivacySafePublicBlogContent(
+    client,
+    posts,
+    versions,
+    options.privacyScanPolicy,
+  );
 }
 
 async function findPrivacySafePublicBlogContent(

@@ -1,11 +1,11 @@
 import { createHash, randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import type { Pool, PoolClient, QueryResultRow } from "pg";
-import { canonicalJson, fingerprint, projectionContext, PUBLIC_READ_LIMITS, type Projection, type ProjectionContext } from "./public-read-model.ts";
+import { blogListArtifact, canonicalJson, fingerprint, projectionContext, PUBLIC_READ_LIMITS, type Projection, type ProjectionContext } from "./public-read-model.ts";
 import { readProjectionSource, sourcePage, sourceSize, type SourceKey } from "./public-read-source.ts";
 
 const LOCK = 710493708;
-const migration = "015_public_read_freshness";
+const migration = "016_public_blog_lists";
 type Generation = QueryResultRow & { id: string; source_epoch: string; status: string; run_token: string; scan_cursor: string[]; scan_complete: boolean; kind_scope: string; catchup_revision: string };
 export type RebuildOptions = {
   command: "rebuild" | "resume" | "verify" | "activate" | "repair" | "reset-derived";
@@ -56,12 +56,15 @@ async function assertToken(client: PoolClient, gen: Generation) {
 }
 async function saveEntry(client: PoolClient, gen: Generation, key: SourceKey, projection: Projection) {
   await assertToken(client, gen);
-  await client.query(`insert into public_read_entries(generation_id,kind,source_id,source_version,metadata_revision,input_fingerprint,content_hash,result,payload,payload_hash)
-    values($1,$2,$3,$4,(select metadata_revision from public_read_sources where kind=$2 and source_id=$3),$5,$6,$7,$8,$9)
+  await client.query(`insert into public_read_entries(generation_id,kind,source_id,source_version,metadata_revision,input_fingerprint,content_hash,result,payload,payload_hash,list_payload,list_hash)
+    values($1,$2,$3,$4,(select metadata_revision from public_read_sources where kind=$2 and source_id=$3),$5,$6,$7,$8,$9,$10,
+      case when $2='blog' then public_read_list_hash($7,$10::jsonb) end)
     on conflict(generation_id,kind,source_id) do update set source_version=excluded.source_version,metadata_revision=excluded.metadata_revision,
-    input_fingerprint=excluded.input_fingerprint,content_hash=excluded.content_hash,result=excluded.result,payload=excluded.payload,payload_hash=excluded.payload_hash`,
+    input_fingerprint=excluded.input_fingerprint,content_hash=excluded.content_hash,result=excluded.result,payload=excluded.payload,payload_hash=excluded.payload_hash,
+    list_payload=excluded.list_payload,list_hash=excluded.list_hash`,
   [gen.id, key.kind, key.source_id, projection.sourceVersion, projection.inputFingerprint, projection.contentHash, projection.result,
-    projection.payload === null ? null : canonicalJson(projection.payload), projection.payloadHash]);
+    projection.payload === null ? null : canonicalJson(projection.payload), projection.payloadHash,
+    blogListArtifact(projection) ? canonicalJson(blogListArtifact(projection)) : null]);
 }
 async function countEntries(client: PoolClient, id: string) {
   const row = (await client.query("select count(*) filter(where result='ready')::int ready,count(*) filter(where result='excluded')::int excluded from public_read_entries where generation_id=$1", [id])).rows[0];
@@ -132,11 +135,13 @@ export async function runLocalProjection(pool: Pool, options: RebuildOptions, co
           if (expired()) throw new Error("deadline");
           const size = await sourceSize(client, key);
           const expected = await readProjectionSource(client, key, context, size);
-          const entry = (await client.query(`select e.*,s.metadata_revision current_revision from public_read_entries e
+          const entry = (await client.query(`select e.*,s.metadata_revision current_revision,
+            e.list_hash=public_read_list_hash(e.result,e.list_payload) list_hash_valid from public_read_entries e
             left join public_read_sources s using(kind,source_id) where e.generation_id=$1 and e.kind=$2 and e.source_id=$3`, [gen!.id, key.kind, key.source_id])).rows[0];
           if (!entry || entry.metadata_revision !== entry.current_revision || entry.input_fingerprint !== expected.inputFingerprint
             || entry.source_version !== expected.sourceVersion || entry.content_hash !== expected.contentHash || entry.result !== expected.result
-            || entry.payload_hash !== expected.payloadHash || fingerprint(entry.payload) !== expected.payloadHash) throw new Error("verification_failed");
+            || entry.payload_hash !== expected.payloadHash || fingerprint(entry.payload) !== expected.payloadHash
+            || (key.kind === "blog" && (!entry.list_hash_valid || canonicalJson(entry.list_payload) !== canonicalJson(blogListArtifact(expected))))) throw new Error("verification_failed");
           digest.update(fingerprint([key, expected.inputFingerprint, expected.payloadHash, expected.result]));
           cursor = [key.kind, key.source_id]; seen++; sample();
         }
@@ -188,6 +193,8 @@ export async function runLocalProjection(pool: Pool, options: RebuildOptions, co
       await client.query("drop table if exists public_read_entries,public_read_state,public_read_sources,public_read_generations");
       await client.query(await readFile(new URL("../migrations/014_public_read_models.sql", import.meta.url), "utf8"));
       await client.query(await readFile(new URL("../migrations/015_public_read_freshness.sql", import.meta.url), "utf8"));
+      await client.query("drop function if exists public_read_list_hash(text,jsonb),public_read_valid_blog_list(jsonb)");
+      await client.query(await readFile(new URL("../migrations/016_public_blog_lists.sql", import.meta.url), "utf8"));
       await client.query("commit");
       return receipt("reset");
     }
@@ -203,7 +210,7 @@ export async function runLocalProjection(pool: Pool, options: RebuildOptions, co
       await begin(client);
       await client.query(`insert into public_read_generations(id,source_epoch,status,version_manifest,policy_fingerprint,base_revision,catchup_revision,run_token,kind_scope)
         values($1,$2,'building',$3,$4,$5,$5,$6,$7)`, [id, initial.source_epoch, context.manifest, context.policyFingerprint, initial.source_revision, token, options.kind]);
-      if (base) await client.query(`insert into public_read_entries select $1,kind,source_id,source_version,e.metadata_revision,input_fingerprint,content_hash,result,payload,payload_hash
+      if (base) await client.query(`insert into public_read_entries select $1,kind,source_id,source_version,e.metadata_revision,input_fingerprint,content_hash,result,payload,payload_hash,list_payload,list_hash
         from public_read_entries e join public_read_sources s using(kind,source_id)
         where generation_id=$2 and kind<>$3 and e.metadata_revision=s.metadata_revision and not s.deleted`, [id, base.id, options.kind]);
       await client.query("commit");

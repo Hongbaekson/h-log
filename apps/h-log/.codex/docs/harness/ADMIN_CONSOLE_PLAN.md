@@ -1,5 +1,7 @@
 # H-Log 통합 관리자 계획
 
+2026-11-17 F3 Step 3 `projected-blog-list` 완료. [목록 조회 검수](PUBLIC_BLOG_LIST_REVIEW.md)에 migration 016/schema manifest 2, 같은 snapshot의 목록·태그 개수·시리즈, 원문 없는 warm 조회와 제한된 fallback을 기록했다. `source` 기본값을 유지하고 목록/Home에만 `shadow`·`projected`를 연결했다. **F completed 7·pending 15, 다음은 F3 Step 4 `projected-detail-navigation`**다. R 14 completed와 운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.
+
 2026-11-17 F3 Step 2 `transactional-projection-freshness` 완료. [현재성 검수](PUBLIC_READ_FRESHNESS_REVIEW.md)에 migration 015/protocol 1, 모든 원본 writer의 원자적 표식, Blog 공개 snapshot, revision catch-up과 짧은 활성화 CAS·늦은 repair 차단을 기록했다. 공개 projection 전환은 후속 단계다. **F completed 6·pending 16, 다음은 F3 Step 3 `projected-blog-list`**다. R 14 completed와 운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.
 
 2026-11-16 F3 Step 1 `projection-storage-and-rebuild` 완료. [저장소·재생성 검수](PUBLIC_READ_STORAGE_REVIEW.md)에 migration 014, 결정적 projector, 소유 확인 로컬 CLI의 batch/checkpoint·검증/활성화·repair/reset과 원본 보존 검증을 기록했다. 현재 writer_protocol=0이며 기존 공개 reader/writer는 연결하지 않았다. **F completed 5·pending 17, 다음은 F3 Step 2 `transactional-projection-freshness`**다. R 14 completed와 운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.

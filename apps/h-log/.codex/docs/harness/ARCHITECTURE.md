@@ -594,3 +594,9 @@ F2는 기존 read path의 불필요 계산을 먼저 줄이고 F3는 재생성 �
 2026-11-17 migration 015의 DB trigger가 여섯 원본 표의 변경·삭제를 public_read_sources에 원자적으로 남긴다. 앱 writer는 `public_read_lock()`을 audit/policy/post/job보다 먼저 호출한다. 단일 state counter로 commit 순서를 직렬화하고 private Brain draft/review는 공개 선택을 바꾸지 않는다. `public-read-transaction.ts`의 repeatable-read/read-only helper를 기존 Blog 목록/slug 조회에 연결했다. 현재 projection hit 검증 helper는 후속 reader용이며 아직 route에서 사용하지 않는다.
 
 `public-read-rebuild.ts`는 고정 watermark의 변경 표식 catch-up, read-only 전체 검증, 별도 짧은 state revision CAS로 활성화한다. repair는 계산 뒤 epoch/source revision을 비교한다. protocol 0의 최종 원본 SHARE lock은 제거했고 로컬 소유 확인·advisory lock·run_token·입력/시간 상한·원본 보존은 유지한다. migration/reset은 writer 정지 후 014/015와 새 epoch로 검수한다. [실제 쓰기 경로·검증·인계](PUBLIC_READ_FRESHNESS_REVIEW.md).
+
+## F3 Step 3 공개 목록 경로 — 2026-11-17
+
+`public-blog-list.ts`는 `withPublicReadSnapshot` 안에서 현재 published/current-version과 revision/epoch/manifest/policy를 확인한다. Migration 016의 `list_payload/list_hash`는 전체 detail/search payload와 분리한다. SQL은 필터·태그 집계·페이지 상한·정렬·시리즈를 계산하며 Node에는 페이지 DTO와 작은 집계만 반환한다. `blog-public-source.ts`가 요청 cache를 유지하고 Blog 첫 페이지의 시리즈도 같은 결과를 쓴다.
+
+`source`는 원본 reader를 같은 client로 호출하고, `shadow`는 같은 snapshot의 원본과 비교 후 원본을 반환한다. `projected`의 miss는 10개/1MiB/합계 8MiB, 동시 계산 2개/대기 결과 64개로 제한한다. 입력별 promise는 겹치는 reader가 모두 끝날 때 해제하며 PG transaction advisory lock으로 다른 프로세스의 중복 계산을 거절한다. 요청은 read-only이고 영속 repair는 명시 CLI로 수행한다. 현재 thumbnail bytes를 응답마다 확인한다. Step 4 상세/복합 탐색과 Step 5 크롤러·HTTP 캐시는 후속 범위다. [검수](PUBLIC_BLOG_LIST_REVIEW.md).

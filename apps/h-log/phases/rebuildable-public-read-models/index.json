@@ -23,7 +23,8 @@
     {
       "step": 3,
       "name": "projected-blog-list",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-17: Step 3 completed: migration 016/schema manifest 2, compact Blog list artifacts, same-snapshot SQL filters/counts/series and opt-in source/shadow/projected list/Home readers (default source). Read-only fallback bounded to 10 items/1MiB each/8MiB total, two computations/64 shared results and PG advisory coordination; current thumbnail bytes verified. Warm list: 3 data SELECTs, zero original bodies, 2,499 JSON result bytes. 1000-post/concurrency-8 blog HTTP p95 301ms, F1 budgets passed. Unit 305 pass/29 skip, projection 6+24, integration 33, SEO 42 and production/dev browser checks passed; source lint/typecheck/build passed. Existing private lint 10 errors and Next security advisory recorded. F 7 completed/15 pending; next Step 4 projected-detail-navigation. No operational changes."
     },
     {
       "step": 4,
