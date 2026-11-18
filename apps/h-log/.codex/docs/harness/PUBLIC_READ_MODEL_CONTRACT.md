@@ -1,6 +1,8 @@
 # 원본·공개 선택·조회용 데이터 계약
 
-2026-11-17 현재 구현은 [F3 Step 3 목록 검수](PUBLIC_BLOG_LIST_REVIEW.md)를 따른다. Migration 016/schema manifest 2와 목록/Home의 `source`(기본)·`shadow`·`projected` 전환, 같은 snapshot 집계·제한된 miss 계산을 구현했다. Migration 015/protocol 1 현재성은 유지한다. 아래 Step 0/1/2 설명은 각 시점 이력이며 상세/복합 탐색·크롤러/HTTP 캐시·운영 전환은 아직 후속 범위다.
+2026-11-19 F3 Step 4에서 상세와 탐색 링크에 같은 snapshot·fallback 예산을 적용했다. 블로그와 Brain의 양방향 참조는 각각의 요청에서 현재 공개 선택을 확인한다. [상세 조회 검수](PUBLIC_BLOG_DETAIL_REVIEW.md).
+
+2026-11-17 당시 구현은 [F3 Step 3 목록 검수](PUBLIC_BLOG_LIST_REVIEW.md)를 따른다. Migration 016/schema manifest 2와 목록/Home의 `source`(기본)·`shadow`·`projected` 전환, 같은 snapshot 집계·제한된 miss 계산을 구현했다. Migration 015/protocol 1 현재성은 유지한다. 아래 Step 0/1/2 설명은 각 시점 이력이며 상세/복합 탐색·크롤러/HTTP 캐시·운영 전환은 아직 후속 범위다.
 
 2026-11-16 F3 Step 0 결정. 조사 기준은 `bf37dffaf3b1f61d7b96ea7e446f082e35e206be`다. 이 문서는 후속 구현의 계약이며, 작성 당시 신규 표·설정·명령은 미구현이었다. 2026-11-16 Step 1에서 표와 격리 CLI를 구현했으며 현재 범위는 아래 보완과 [저장소 검수](PUBLIC_READ_STORAGE_REVIEW.md)를 따른다. [성능 계획](PERFORMANCE_REBUILD_PLAN.md), [Markdown 검수](BLOG_MARKDOWN_READ_REVIEW.md), ADR-042를 잇는다.
 

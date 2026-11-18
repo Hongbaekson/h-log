@@ -1,14 +1,13 @@
-import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
-import { getPublicProjectPostConnections, projectPostConnections } from "@/lib/portfolio-posts";
+import { loadProjectRelatedPosts } from "@/lib/blog-public-source";
+import { projectPostConnections } from "@/lib/portfolio-posts";
 import { ProjectPostLinks } from "./ProjectPostLinks";
 
 export async function ProjectRelatedPosts({ projectSlug }: { projectSlug: string }) {
   if (!projectPostConnections.some((connection) => connection.projectSlug === projectSlug)) return null;
 
-  let connections: ReturnType<typeof getPublicProjectPostConnections> | null = null;
+  let connections: Awaited<ReturnType<typeof loadProjectRelatedPosts>> | null = null;
   try {
-    const store = await loadPublicBlogContentStore();
-    connections = getPublicProjectPostConnections(store).filter((connection) => connection.projectSlug === projectSlug);
+    connections = await loadProjectRelatedPosts(projectSlug);
   } catch {
     console.error("portfolio_related_posts_unavailable");
   }

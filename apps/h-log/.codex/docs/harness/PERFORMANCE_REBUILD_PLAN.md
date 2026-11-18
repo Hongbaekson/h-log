@@ -1,6 +1,6 @@
 # H-Log 성능 개선과 재생성 가능한 조회용 데이터 계획
 
-등록일 2026-11-06. 사용자가 코드 성능 분석 결과와 원본에서 보조 저장소를 복구하는 원칙을 phase/step으로 등록하도록 요청했다. **F1–F7은 7개 phase / 22개 step이며 completed 7·pending 15개**다. 전체 레지스트리는 60개 phase / 209개 step이다. [전체 상태](../../../phases/index.json)를 기준으로 실행하며 2026-11-13 [F1 측정·예산](PERFORMANCE_BASELINE_REVIEW.md)과 [F2 Step 0 목록 경량화](BLOG_LIST_EFFICIENCY_REVIEW.md), 2026-11-16 [F2 Step 1 Markdown 조회](BLOG_MARKDOWN_READ_REVIEW.md)와 [F3 Step 0 계약](PUBLIC_READ_MODEL_CONTRACT.md), [F3 Step 1 저장/rebuild](PUBLIC_READ_STORAGE_REVIEW.md), 2026-11-17 [F3 Step 2 현재성](PUBLIC_READ_FRESHNESS_REVIEW.md)과 [Step 3 목록 조회](PUBLIC_BLOG_LIST_REVIEW.md)를 완료했고 다음은 **F3 Step 4 `projected-detail-navigation`**이다. 2026-11-13 [R5 로컬 통합 검수](KNOWLEDGE_RELEASE_REVIEW.md)를 완료해 기존 콘텐츠 R 트랙 14개 step은 모두 completed다. 새 재검토 목록의 서버 필터·20개 제한 조회는 R5 Step 1에서 구현했고 기존 전체 관리자 목록/원문 이력의 개선은 F6에 남긴다. 운영 보류 중 일반적인 다음 단계 요청은 F3 Step 4부터 F 순서를 따른다. SEO S3 Step 1/2와 운영 적용의 승인 조건은 유지한다.
+등록일 2026-11-06. 사용자가 코드 성능 분석 결과와 원본에서 보조 저장소를 복구하는 원칙을 phase/step으로 등록하도록 요청했다. **F1–F7은 7개 phase / 22개 step이며 completed 8·pending 14개**다. 전체 레지스트리는 60개 phase / 209개 step이다. [전체 상태](../../../phases/index.json)를 기준으로 실행하며 2026-11-13 [F1 측정·예산](PERFORMANCE_BASELINE_REVIEW.md)과 [F2 Step 0 목록 경량화](BLOG_LIST_EFFICIENCY_REVIEW.md), 2026-11-16 [F2 Step 1 Markdown 조회](BLOG_MARKDOWN_READ_REVIEW.md)와 [F3 Step 0 계약](PUBLIC_READ_MODEL_CONTRACT.md), [F3 Step 1 저장/rebuild](PUBLIC_READ_STORAGE_REVIEW.md), 2026-11-17 [F3 Step 2 현재성](PUBLIC_READ_FRESHNESS_REVIEW.md)과 [Step 3 목록 조회](PUBLIC_BLOG_LIST_REVIEW.md), 2026-11-19 [상세 조회 검수](PUBLIC_BLOG_DETAIL_REVIEW.md)까지 완료했다. 다음은 **F3 Step 5 `versioned-crawler-outputs`**다. 2026-11-13 [R5 로컬 통합 검수](KNOWLEDGE_RELEASE_REVIEW.md)를 완료해 기존 콘텐츠 R 트랙 14개 step은 모두 completed다. 새 재검토 목록의 서버 필터·20개 제한 조회는 R5 Step 1에서 구현했고 기존 전체 관리자 목록/원문 이력의 개선은 F6에 남긴다. 운영 보류 중 일반적인 다음 단계 요청은 F3 Step 5부터 F 순서를 따른다. SEO S3 Step 1/2와 운영 적용의 승인 조건은 유지한다.
 
 ## 목표
 
@@ -60,7 +60,7 @@ React `cache()`는 요청 내부에서 같은 계산을 공유하는 범위를 �
 
 현재 `content_hash`는 Markdown과 HTML을 함께 계산한다. 기존 HTML은 현재 계약의 복구 기준에 포함하고, renderer 변경은 새 결과의 버전으로 관리한다. 제목/요약/태그/출처/검수 메타데이터와 privacy 정책 변경은 본문 hash 외의 입력 fingerprint로 식별한다. Brain의 검수된 public snapshot은 현재 원본 계약에 포함한다. 이 필드를 지우는 복구 실험은 F3의 별도 재현성 계약이 성립한 대상에만 허용한다.
 
-파생 결과는 `source version + input fingerprint + projection/renderer/search version + privacy policy fingerprint`로 추적한다. canonical origin이 들어가는 출력은 origin도 키에 포함한다. 검색 전체 결과·집계는 공개 generation과 연결하며, 좌표는 노드/edge 입력·layout·spread·알고리즘 버전을 포함한다. 2026-11-16 [F3 Step 0 계약](PUBLIC_READ_MODEL_CONTRACT.md)에서 표/필드의 역할, 무효화·실패 동작을 확정했다. 2026-11-16 Step 1에서 migration 014와 격리 rebuild, Step 2에서 migration 015와 원자적 writer/snapshot, Step 3에서 migration 016과 목록/Home의 opt-in reader를 구현했다. 상세/탐색·크롤러는 Steps 4–5다.
+파생 결과는 `source version + input fingerprint + projection/renderer/search version + privacy policy fingerprint`로 추적한다. canonical origin이 들어가는 출력은 origin도 키에 포함한다. 검색 전체 결과·집계는 공개 generation과 연결하며, 좌표는 노드/edge 입력·layout·spread·알고리즘 버전을 포함한다. 2026-11-16 [F3 Step 0 계약](PUBLIC_READ_MODEL_CONTRACT.md)에서 표/필드의 역할, 무효화·실패 동작을 확정했다. 2026-11-16 Step 1에서 migration 014와 격리 rebuild, Step 2에서 migration 015와 원자적 writer/snapshot, Step 3에서 migration 016과 목록/Home의 opt-in reader를 구현했다. Step 4에서 상세와 탐색도 전환했다. 크롤러 출력은 Step 5에서 다룬다.
 
 ## 재생성·현재성 계약의 기본안
 
@@ -87,7 +87,7 @@ Materialized view와 일반 projection table은 최신성·개별 갱신·애플
 | F3 원본에서 재생성하는 조회용 데이터 | [1 projection-storage-and-rebuild](../../../phases/rebuildable-public-read-models/step1.md) | 조회용 저장소와 재생성 도구 | completed |
 | F3 원본에서 재생성하는 조회용 데이터 | [2 transactional-projection-freshness](../../../phases/rebuildable-public-read-models/step2.md) | 수정·공개·철회와 파생 데이터 일치 | pending |
 | F3 원본에서 재생성하는 조회용 데이터 | [3 projected-blog-list](../../../phases/rebuildable-public-read-models/step3.md) | DB에서 공개 목록과 개수 조회 | completed |
-| F3 원본에서 재생성하는 조회용 데이터 | [4 projected-detail-navigation](../../../phases/rebuildable-public-read-models/step4.md) | 상세 한 편과 가벼운 탐색 조회 | pending |
+| F3 원본에서 재생성하는 조회용 데이터 | [4 projected-detail-navigation](../../../phases/rebuildable-public-read-models/step4.md) | 상세 한 편과 가벼운 탐색 조회 | completed |
 | F3 원본에서 재생성하는 조회용 데이터 | [5 versioned-crawler-outputs](../../../phases/rebuildable-public-read-models/step5.md) | 크롤러 출력의 선택 생성과 재사용 | pending |
 | F4 미리 생성한 검색 데이터와 단일 조회 | [0 search-document-and-index](../../../phases/indexed-blog-search/step0.md) | 검색 문서와 인덱스 | pending |
 | F4 미리 생성한 검색 데이터와 단일 조회 | [1 single-read-search-flow](../../../phases/indexed-blog-search/step1.md) | 중복 전체 조회를 줄인 검색 흐름 | pending |
@@ -151,3 +151,5 @@ Materialized view와 일반 projection table은 최신성·개별 갱신·애플
 ## F3 Step 3 완료 — 2026-11-17
 
 2026-11-17 F3 Step 3 `projected-blog-list` 완료. [목록 조회 검수](PUBLIC_BLOG_LIST_REVIEW.md)에 migration 016/schema manifest 2, 같은 snapshot의 목록·태그 개수·시리즈, 원문 없는 warm 조회와 제한된 fallback을 기록했다. `source` 기본값을 유지하고 목록/Home에만 `shadow`·`projected`를 연결했다. **F completed 7·pending 15, 다음은 F3 Step 4 `projected-detail-navigation`**다. R 14 completed와 운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.
+
+2026-11-19 F3 Step 4 완료. 블로그 상세와 metadata가 본문 모델을 공유하고 이전·다음, 관련 글, 시리즈, Portfolio와 Brain 링크를 현재 공개 선택으로 결정한다. [상세 조회 검수](PUBLIC_BLOG_DETAIL_REVIEW.md)에 검증 결과를 기록했다. **F completed 8·pending 14, 다음은 F3 Step 5 `versioned-crawler-outputs`**다.

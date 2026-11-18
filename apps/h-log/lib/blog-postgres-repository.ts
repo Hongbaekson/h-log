@@ -163,13 +163,14 @@ export async function saveBlogAggregate(client: PoolClient, aggregate: BlogPostA
   for (const job of aggregate.publishJobs) await insertPublishJob(client, job);
 }
 
-export async function readPublicBlogContent(client: PoolClient, options: PostgresBlogRepositoryOptions = {}): Promise<BlogContentStore> {
+export async function readPublicBlogContent(client: PoolClient, options: PostgresBlogRepositoryOptions = {}, slugs?: readonly string[]): Promise<BlogContentStore> {
   const [postResult, versionResult] = await Promise.all([
     client.query(
       `select * from posts
        where status = 'published'
          and current_version_id is not null
-       order by id`,
+         ${slugs ? "and slug=any($1::text[])" : ""}
+       order by id`, slugs ? [slugs] : [],
     ),
     client.query(
       `select post_versions.* from post_versions
@@ -177,7 +178,8 @@ export async function readPublicBlogContent(client: PoolClient, options: Postgre
          on posts.id = post_versions.post_id
         and posts.status = 'published'
         and posts.current_version_id = post_versions.id
-       order by post_versions.id`,
+         ${slugs ? "and posts.slug=any($1::text[])" : ""}
+       order by post_versions.id`, slugs ? [slugs] : [],
     ),
   ]);
   const posts = postResult.rows.map(mapPost);

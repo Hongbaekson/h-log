@@ -1,5 +1,7 @@
 # H-Log 통합 관리자 계획
 
+2026-11-19 F3 Step 4 완료. 블로그 상세와 metadata가 본문 모델을 공유하고 이전·다음, 관련 글, 시리즈, Portfolio와 Brain 링크를 현재 공개 선택으로 결정한다. [상세 조회 검수](PUBLIC_BLOG_DETAIL_REVIEW.md)에 검증 결과를 기록했다. **F completed 8·pending 14, 다음은 F3 Step 5 `versioned-crawler-outputs`**다.
+
 2026-11-17 F3 Step 3 `projected-blog-list` 완료. [목록 조회 검수](PUBLIC_BLOG_LIST_REVIEW.md)에 migration 016/schema manifest 2, 같은 snapshot의 목록·태그 개수·시리즈, 원문 없는 warm 조회와 제한된 fallback을 기록했다. `source` 기본값을 유지하고 목록/Home에만 `shadow`·`projected`를 연결했다. **F completed 7·pending 15, 다음은 F3 Step 4 `projected-detail-navigation`**다. R 14 completed와 운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.
 
 2026-11-17 F3 Step 2 `transactional-projection-freshness` 완료. [현재성 검수](PUBLIC_READ_FRESHNESS_REVIEW.md)에 migration 015/protocol 1, 모든 원본 writer의 원자적 표식, Blog 공개 snapshot, revision catch-up과 짧은 활성화 CAS·늦은 repair 차단을 기록했다. 공개 projection 전환은 후속 단계다. **F completed 6·pending 16, 다음은 F3 Step 3 `projected-blog-list`**다. R 14 completed와 운영 보류를 유지한다. 아래 날짜별 기록은 당시 상태다.

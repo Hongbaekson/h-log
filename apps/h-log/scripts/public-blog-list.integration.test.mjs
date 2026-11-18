@@ -7,11 +7,13 @@ import pg from 'pg';
 import { runBlogMigrations } from './blog-migrations.mjs';
 import { makeBlogFixture,statistics } from './performance-fixtures.mjs';
 import { createPostgresBlogRepository } from '../lib/blog-postgres-repository.ts';
-import { getPublicBlogIndex } from '../lib/blog-public.ts';
+import { getPublicBlogIndex, getPublicBlogPostBySlug, getPublicBlogPostNavigation } from '../lib/blog-public.ts';
 import { getPublicBlogSeries } from '../lib/blog-series.ts';
 import { runLocalProjection } from '../lib/public-read-rebuild.ts';
-import { loadPublicBlogIndex } from '../lib/blog-public-source.ts';
+import { loadPublicBlogDetail, loadProjectRelatedPosts, loadPublicBlogIndex } from '../lib/blog-public-source.ts';
 import { readPublicBlogList,publicReadMode } from '../lib/public-blog-list.ts';
+import { readPublicBlogDetail } from '../lib/public-blog-detail.ts';
+import { createBrainRepository } from '../lib/brain-postgres-repository.ts';
 import { fingerprint,projectionContext } from '../lib/public-read-model.ts';
 
 test('projected lists preserve the current public set without transferring original bodies', { skip: process.env.HLOG_PROJECTION_TEST !== '1' }, async t => {
@@ -43,6 +45,85 @@ test('projected lists preserve the current public set without transferring origi
     const sourceIndex=async(page=1,tag,pageSize=6)=>getPublicBlogIndex(await repo.findPublicBlogContent(),{page,tag,pageSize});
     const withoutSeries=value=>{const index={...value};delete index.series;return index;};
     const bodyReads=()=>queries.filter(q=>q.sql.includes('select to_jsonb(p) post')).length;
+    async function assertWarmDetail() {
+      queries.length = 0;
+      const slug = 'perf-0000';
+      const store = await repo.findPublicBlogContent();
+      const actual = await loadPublicBlogDetail(slug);
+      const { markdown, contentHtml, ...post } = getPublicBlogPostBySlug(slug, store);
+      assert(markdown && contentHtml);
+      assert.deepEqual(actual.post, post);
+      assert.deepEqual(actual.navigation, getPublicBlogPostNavigation(slug, store));
+      assert.equal(actual.publicationDate, store.posts.find(p => p.slug === slug).publishedAt);
+      assert.equal(bodyReads(), 0);
+      assert.equal(queries.flatMap(q => q.rows).filter(row => row.content_markdown || row.content_html).length, 0);
+      const bytes = Buffer.byteLength(JSON.stringify(queries.map(q => q.rows)));
+      assert(bytes < 90000, 'detail response should carry one target and a bounded set of navigation links');
+      console.log('warm detail', store.posts.length, queries.length, bytes);
+    }
+    await t.test('detail shares the current target and bounded navigation', assertWarmDetail);
+    await t.test('detail sees title-only edits, damaged payload, renderer change and withdrawal', async () => {
+      const slug = 'perf-0000';
+      await pool.query("update post_versions set title='새 공개 제목' where id='perf-0000-v1'");
+      const updated = await loadPublicBlogDetail(slug);
+      assert.equal(updated.post.title, '새 공개 제목');
+      for (const mode of ['source', 'shadow']) {
+        assert.deepEqual(await readPublicBlogDetail(pool, slug, projectionContext(), mode), updated);
+      }
+      const policy = projectionContext({restrictedTerms: [{category: 'organization_name', value: '새 공개 제목'}]});
+      assert.equal(await readPublicBlogDetail(pool, slug, policy, 'projected'), undefined);
+      await rebuild();
+      await pool.query("update public_read_entries set payload=jsonb_set(payload,'{detail,title}',to_jsonb('damaged'::text)) where source_id=$1", [slug]);
+      assert.equal((await loadPublicBlogDetail(slug)).post.title, '새 공개 제목');
+      await pool.query("update public_read_generations set version_manifest=jsonb_set(version_manifest,'{renderer}','0') where status='active'");
+      assert.equal((await loadPublicBlogDetail(slug)).post.title, '새 공개 제목');
+      await rebuild();
+      afterQuery = async sql => {
+        if (sql.includes('where not usable')) {
+          afterQuery = undefined;
+          await pool.query("update posts set status='retracted' where slug='perf-0001'");
+        }
+      };
+      assert.equal((await loadPublicBlogDetail(slug)).navigation.next.href, '/blog/perf-0001');
+      assert.equal((await loadPublicBlogDetail(slug)).navigation.next.href, '/blog/perf-0002');
+      assert.equal(await loadPublicBlogDetail('perf-0001'), undefined);
+      await pool.query("update post_versions set title='합성 검수 0' where id='perf-0000-v1'");
+      await pool.query("update posts set status='published' where slug='perf-0001'");
+      await rebuild();
+    });
+    await t.test('series, Portfolio and Brain links reflect only selected public copies', async () => {
+      const slug = 'home-recent-posts', brain = createBrainRepository(pool);
+      const brainEnabled = process.env.HLOG_BRAIN_DATABASE_ENABLED;
+      process.env.HLOG_BRAIN_DATABASE_ENABLED = '1';
+      try {
+        await pool.query("update posts set slug=$1 where id='perf-0000'", [slug]);
+        const draft = { title: 'original', originalText: 'unselected', publicTitle: '공개 생각', publicSummary: '공개 요약',
+          publicBody: '공개 본문', kind: 'question', basis: 'question', topic: 'tools', tags: [],
+          sources: [{ label: '연결 글', href: '/blog/'+slug }] };
+        const command = commandRevision => ({commandRevision, commandId: randomUUID()});
+        const note = await brain.saveDraft(draft, undefined, 0, command(0));
+        await brain.publish(note.id, 1, true, command(1));
+        await rebuild();
+        const detail = await loadPublicBlogDetail(slug);
+        assert.deepEqual(detail.projectConnections, await loadProjectRelatedPosts('h-log-public-reading'));
+        assert.equal(detail.projectConnections[0].postSlug, slug);
+        assert.equal(detail.series.posts[0].slug, slug);
+        assert(detail.brainLinks.some(link => link.href === '/brain/'+note.id));
+        await brain.unpublish(note.id, 1, command(2));
+        assert(!(await loadPublicBlogDetail(slug)).brainLinks.some(link => link.href === '/brain/'+note.id));
+        await pool.query("alter table brain_notes rename to unavailable_brain_notes");
+        try { assert.equal((await loadPublicBlogDetail(slug)).brainLinks, null); }
+        finally { await pool.query("alter table unavailable_brain_notes rename to brain_notes"); }
+        await pool.query("update posts set status='retracted' where slug=$1", [slug]);
+        assert.equal(await loadPublicBlogDetail(slug), undefined);
+        assert.deepEqual(await loadProjectRelatedPosts('h-log-public-reading'), []);
+      } finally {
+        if (brainEnabled === undefined) delete process.env.HLOG_BRAIN_DATABASE_ENABLED;
+        else process.env.HLOG_BRAIN_DATABASE_ENABLED = brainEnabled;
+        await pool.query("update posts set status='published',slug='perf-0000' where id='perf-0000'");
+        await rebuild();
+      }
+    });
     await t.test('warm list loads page rows and aggregate metadata only',async()=>{
       queries.length=0; const actual=await loadPublicBlogIndex(1);
       assert.equal(queries.flatMap(q=>q.rows).filter(row=>'content_markdown' in row||'content_html' in row).length,0);
@@ -163,8 +244,11 @@ test('projected lists preserve the current public set without transferring origi
         const candidate=await explain();
         console.log('projected list explain '+JSON.stringify({existing,candidate}));
       } finally {await client.query('rollback');client.release();}
+      await assertWarmDetail();
       await pool.query("delete from public_read_entries where generation_id=(select active_generation from public_read_state) and source_id in (select id from posts where status='published' order by id limit 11)");
       queries.length=0;await assert.rejects(loadPublicBlogIndex(1),/projection_fallback_limit/);assert.equal(bodyReads(),0);
+      await assert.rejects(loadPublicBlogDetail('perf-0999'), /projection_fallback_limit/);
+      assert.equal(await loadPublicBlogDetail('perf-draft'), undefined);
       await pool.query('update public_read_state set active_generation=null');
       await assert.rejects(loadPublicBlogIndex(1),/projection_fallback_limit/);
       assert.equal((await readPublicBlogList(pool,{},projectionContext(),'source')).pagination.totalItems,1000);

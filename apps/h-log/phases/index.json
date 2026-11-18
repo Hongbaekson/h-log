@@ -281,7 +281,7 @@
     {
       "dir": "rebuildable-public-read-models",
       "status": "pending",
-      "summary": "2026-11-17: Step 2 completed: migration 015/protocol 1 transactional source markers, state-first application locks, Blog read snapshots, revision catch-up and short activation CAS, stale repair rejection. Relations/deletes/TRUNCATE, concurrent edits/withdrawal, retries and original preservation verified. Projector/CLI 6, projection DB 15, full integration 33 and Markdown DB 3 pass; unit 305 pass/29 skip; source lint/typecheck/build pass. Existing private lint errors and Next security warning recorded. F 6 completed/16 pending; next Step 3 projected-blog-list. No operational migration/deployment."
+      "summary": "2026-11-19: Step 4 completed. Detail, metadata, navigation, Portfolio and Brain references use current public selections in one request snapshot. Warm detail with 10/1000 posts transferred zero original bodies. Projection DB 27/27, integration 33/33, build and browser checks passed. Source remains the default. F 8 completed/14 pending; next Step 5 versioned-crawler-outputs."
     },
     {
       "dir": "indexed-blog-search",

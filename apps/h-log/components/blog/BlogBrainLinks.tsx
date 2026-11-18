@@ -1,15 +1,6 @@
 import Link from "next/link";
-import { loadPublicBrain } from "@/lib/brain-server";
-import { getPublicPostBrainLinks } from "@/lib/brain-blog-sources";
-import type { BlogContentStore } from "@/lib/blog-public";
 
-export async function BlogBrainLinks({ slug, store }: { slug: string; store: BlogContentStore }) {
-  let links: ReturnType<typeof getPublicPostBrainLinks> | null = null;
-  try {
-    links = getPublicPostBrainLinks(slug, store, await loadPublicBrain());
-  } catch {
-    console.error("blog_brain_connections_unavailable");
-  }
+export function BlogBrainLinks({ slug, links }: { slug: string; links: { href: string; title: string }[] | null }) {
   if (links?.length === 0) return null;
   return <section aria-label="연결된 생각" id="brain-connections" className="mt-10">
     <h2 className="text-lg font-semibold text-white">연결된 생각</h2>

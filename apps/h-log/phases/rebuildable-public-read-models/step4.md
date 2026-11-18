@@ -2,7 +2,7 @@
 
 ## 상태와 선행 조건
 
-pending — 2026-11-06 등록한 F3의 상세 한 편과 가벼운 탐색 조회 단계다. 구현 완료 판정은 이 파일의 인수 기준과 검증 결과로 한다.
+completed — 2026-11-19. [상세 조회 검수](../../.codex/docs/harness/PUBLIC_BLOG_DETAIL_REVIEW.md)에 DB·브라우저 결과와 같은 장비에서 비교한 HTTP 측정값을 기록했다.
 
 F3 Step 3 완료.
 

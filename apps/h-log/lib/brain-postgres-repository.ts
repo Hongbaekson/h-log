@@ -16,6 +16,11 @@ export function assertBrainNoteId(id: unknown): asserts id is string {
   if (typeof id !== "string" || !/^note-[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/.test(id)) throw new Error("invalid_note_id");
 }
 
+export async function readPublishedBrainGraph(reader: Pick<Pool, "query">, policy: BlogPrivacyScanPolicy, catalog: BrainGraph) {
+  const result = await reader.query<{ public_node: BrainSnapshot }>("select public_node from brain_notes where published_revision is not null order by created_at, id");
+  return mergePublishedBrain(catalog, result.rows.map(row => row.public_node), policy);
+}
+
 export function createBrainRepository(pool: Pool, policy: BlogPrivacyScanPolicy = {}, catalog: BrainGraph = { nodes: [], edges: [] }) {
   async function withNote(action: BrainAction["action"], id: string | undefined, revision: number, input: BrainCommand, payload: BrainDraft | BrainReviewInput | null, change: (client: PoolClient, note: LockedNote) => Promise<void>): Promise<BrainCommandReceipt> {
     if (id !== undefined) assertBrainNoteId(id);
@@ -159,9 +164,8 @@ export function createBrainRepository(pool: Pool, policy: BlogPrivacyScanPolicy 
         order by n.updated_at desc, n.id`);
       return result.rows.map(row => ({ ...row, createdAt: row.createdAt.toISOString() }));
     },
-    async findPublicGraph(): Promise<BrainGraph> {
-      const result = await pool.query<{ public_node: BrainSnapshot }>("select public_node from brain_notes where published_revision is not null order by created_at, id");
-      return mergePublishedBrain(catalog, result.rows.map(row => row.public_node), policy);
+    findPublicGraph() {
+      return readPublishedBrainGraph(pool, policy, catalog);
     },
   };
 }

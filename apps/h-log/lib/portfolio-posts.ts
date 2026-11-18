@@ -15,20 +15,15 @@ export const projectPostConnections = [
   },
 ];
 
-export function getPublicProjectPostConnections(store: BlogContentStore): {
-  projectSlug: string;
-  projectHref: string;
-  projectTitle: string;
-  postSlug: string;
-  postHref: string;
-  postTitle: string;
-  reason: string;
-}[] {
-  const entries = selectPublicBlogRouteEntries(store.posts, store.versions);
+export function getPublicProjectPostConnections(store: BlogContentStore) {
+  return projectConnectionsFromPosts(selectPublicBlogRouteEntries(store.posts, store.versions)
+    .map(({ post, version }) => ({ slug: post.slug, title: version.title })));
+}
 
+export function projectConnectionsFromPosts(posts: readonly { slug: string; title: string }[]) {
   return projectPostConnections.flatMap((relation) => {
     const project = getProjectBySlug(relation.projectSlug);
-    const entry = entries.find(({ post }) => post.slug === relation.postSlug);
+    const entry = posts.find(post => post.slug === relation.postSlug);
     if (!project || !entry) return [];
 
     return [
@@ -36,8 +31,8 @@ export function getPublicProjectPostConnections(store: BlogContentStore): {
         ...relation,
         projectHref: `/portfolio/${project.slug}`,
         projectTitle: project.context,
-        postHref: `/blog/${entry.post.slug}`,
-        postTitle: entry.version.title,
+        postHref: `/blog/${entry.slug}`,
+        postTitle: entry.title,
       },
     ];
   });

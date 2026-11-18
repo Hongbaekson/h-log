@@ -24,6 +24,9 @@ describe("DB-backed public blog read path", () => {
         assert.match(source, /loadPublicBlogIndex/);
         assert.match(source, /index\.series/);
         assert.doesNotMatch(source, /loadPublicBlogContentStore/);
+      } else if (path === productionBlogSurfaces[1]) {
+        assert.match(source, /loadPublicBlogDetail\(slug\)/);
+        assert.doesNotMatch(source, /loadPublicBlogContentStore/);
       } else {
         assert.match(source, /loadPublicBlogContentStore/);
       }

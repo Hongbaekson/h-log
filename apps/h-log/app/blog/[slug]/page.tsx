@@ -8,15 +8,11 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { BlogContent } from "@/components/blog/BlogContent";
 import { BlogSeries } from "@/components/blog/BlogSeries";
 import { BlogBrainLinks } from "@/components/blog/BlogBrainLinks";
-import { getPublicBlogPostSeries } from "@/lib/blog-series";
 import { ProjectPostLinks } from "@/components/portfolio/ProjectPostLinks";
-import { getPublicProjectPostConnections } from "@/lib/portfolio-posts";
 import { Container } from "@/components/ui";
 import { BlogTagLink } from "@/components/blog/BlogTagLink";
 import { BlogLinkCopy } from "@/components/blog/BlogLinkCopy";
 import {
-  getPublicBlogPostBySlug,
-  getPublicBlogPostNavigation,
   type PublicBlogPost,
   type PublicBlogSourceLink,
 } from "@/lib/blog-public";
@@ -24,7 +20,7 @@ import {
   formatPublicBlogArticleMode,
   formatPublicBlogDate,
 } from "@/lib/blog-public-presentation";
-import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
+import { loadPublicBlogDetail } from "@/lib/blog-public-source";
 import { resolvePublicSiteOrigin } from "@/lib/public-site-origin";
 import { siteConfig } from "@/lib/site";
 import { withPageSocialMetadata } from "@/lib/page-social-metadata";
@@ -41,8 +37,7 @@ export async function generateMetadata({
   params,
 }: BlogDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const store = await loadPublicBlogContentStore();
-  const post = getPublicBlogPostBySlug(slug, store);
+  const post = (await loadPublicBlogDetail(slug))?.post;
 
   if (!post) {
     return {
@@ -61,18 +56,10 @@ export async function generateMetadata({
 
 export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const { slug } = await params;
-  const store = await loadPublicBlogContentStore();
-  const post = getPublicBlogPostBySlug(slug, store);
-
-  if (!post) {
-    notFound();
-  }
-
-  const navigation = getPublicBlogPostNavigation(slug, store)!;
-  const series = getPublicBlogPostSeries(slug, store);
+  const detail = await loadPublicBlogDetail(slug);
+  if (!detail) notFound();
+  const { post, navigation, series, publicationDate, projectConnections, brainLinks } = detail;
   const adjacent = series ?? navigation;
-  const publicationDate = store.posts.find((record) => record.slug === slug)!.publishedAt;
-  const projectConnections = getPublicProjectPostConnections(store).filter((connection) => connection.postSlug === post.slug);
   const origin = resolvePublicSiteOrigin("http://localhost:3000");
   const postUrl = new URL(post.href, `${origin}/`).toString();
   const blogPostingJsonLd = {
@@ -223,7 +210,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                   </ul>
                 </section>
               )}
-              <BlogBrainLinks slug={slug} store={store} />
+              <BlogBrainLinks slug={slug} links={brainLinks} />
               {(adjacent.previous || adjacent.next) && (
                 <nav aria-label={series ? "시리즈 이전·다음 글" : "이전·다음 글"} className="mt-10 grid gap-4 sm:grid-cols-2">
                   {([

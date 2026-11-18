@@ -3,14 +3,20 @@ import type { BlogContentStore } from "./blog-public.ts";
 import { selectPublicBlogRouteEntries } from "./blog-content-model.ts";
 
 export async function resolveBrainBlogSources(graph: BrainGraph, loadStore: () => Promise<BlogContentStore>, origin?: string): Promise<BrainGraph> {
+  return resolveBrainBlogTitles(graph, async () => {
+    const store = await loadStore();
+    return selectPublicBlogRouteEntries(store.posts, store.versions).map(({ post, version }) => ({ slug: post.slug, title: version.title }));
+  }, origin);
+}
+
+export async function resolveBrainBlogTitles(graph: BrainGraph, load: (slugs: string[]) => Promise<{ slug: string; title: string }[]>, origin?: string): Promise<BrainGraph> {
   const paths = graph.nodes.map(node => node.sources.map(source => blogSourcePath(source.href, origin)));
   if (!paths.some(node => node.some(path => path !== undefined))) return graph;
 
   let titles: Map<string, string> | undefined;
   try {
-    const store = await loadStore();
-    titles = new Map(selectPublicBlogRouteEntries(store.posts, store.versions)
-      .map(({ post, version }) => [`/blog/${post.slug}`, version.title]));
+    const slugs = [...new Set(paths.flat().filter((path): path is string => Boolean(path)).map(path => path.slice("/blog/".length)))];
+    titles = new Map((await load(slugs)).map(post => [`/blog/${post.slug}`, post.title]));
   } catch {
     // Never reuse a previous public result when the current lookup fails.
     titles = undefined;
@@ -35,7 +41,7 @@ export function getPublicPostBrainLinks(slug: string, store: BlogContentStore, g
 }
 
 // undefined: unrelated source; empty string: internal Blog URL without a valid detail path.
-function blogSourcePath(href: string | undefined, origin?: string): string | undefined {
+export function blogSourcePath(href: string | undefined, origin?: string): string | undefined {
   if (!href) return undefined;
   const url = new URL(href, origin ?? "https://unconfigured.invalid");
   if (!href.startsWith("/") && url.origin !== origin) return undefined;

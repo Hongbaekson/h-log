@@ -600,3 +600,7 @@ F2는 기존 read path의 불필요 계산을 먼저 줄이고 F3는 재생성 �
 `public-blog-list.ts`는 `withPublicReadSnapshot` 안에서 현재 published/current-version과 revision/epoch/manifest/policy를 확인한다. Migration 016의 `list_payload/list_hash`는 전체 detail/search payload와 분리한다. SQL은 필터·태그 집계·페이지 상한·정렬·시리즈를 계산하며 Node에는 페이지 DTO와 작은 집계만 반환한다. `blog-public-source.ts`가 요청 cache를 유지하고 Blog 첫 페이지의 시리즈도 같은 결과를 쓴다.
 
 `source`는 원본 reader를 같은 client로 호출하고, `shadow`는 같은 snapshot의 원본과 비교 후 원본을 반환한다. `projected`의 miss는 10개/1MiB/합계 8MiB, 동시 계산 2개/대기 결과 64개로 제한한다. 입력별 promise는 겹치는 reader가 모두 끝날 때 해제하며 PG transaction advisory lock으로 다른 프로세스의 중복 계산을 거절한다. 요청은 read-only이고 영속 repair는 명시 CLI로 수행한다. 현재 thumbnail bytes를 응답마다 확인한다. Step 4 상세/복합 탐색과 Step 5 크롤러·HTTP 캐시는 후속 범위다. [검수](PUBLIC_BLOG_LIST_REVIEW.md).
+
+## F3 Step 4 상세와 탐색
+
+`loadPublicBlogDetail(slug)`를 요청 안에서 공유한다. Projected 모드는 같은 PG snapshot에서 대상 한 편의 본문 모델을 검증하고 목록 산출물로 인접 글과 관련 태그 상위 3개를 계산한다. Portfolio와 Brain의 출처는 연결 대상 slug의 현재 제목만 요청한다. 선택된 Brain 사본을 조회할 수 없으면 글 안의 연결 영역에 재시도 안내를 표시한다. [상세 조회 검수](PUBLIC_BLOG_DETAIL_REVIEW.md).

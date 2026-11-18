@@ -32,7 +32,11 @@ export function getPublicBlogSeriesFromList(items: readonly Pick<PublicBlogListI
 }
 
 export function getPublicBlogPostSeries(slug: string, store: BlogContentStore) {
-  const series = getPublicBlogSeries(store).find(({ posts }) => posts.some((post) => post.slug === slug));
+  return selectPostSeries(slug, getPublicBlogSeries(store));
+}
+
+export function selectPostSeries(slug: string, all: PublicBlogSeries[]) {
+  const series = all.find(({ posts }) => posts.some((post) => post.slug === slug));
   if (!series) return undefined;
   const index = series.posts.findIndex((post) => post.slug === slug);
   return { ...series, previous: series.posts[index - 1] ?? null, next: series.posts[index + 1] ?? null };
