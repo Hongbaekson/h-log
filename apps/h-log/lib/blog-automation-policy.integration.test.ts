@@ -98,5 +98,5 @@ async function withDatabase(run: (pool: pg.Pool, url: string) => Promise<void>) 
   await admin.connect(); await admin.query(`create database ${name}`);
   const pool = new pg.Pool({ connectionString: url });
   try { await runBlogMigrations(url); await run(pool, url); }
-  finally { await pool.end(); await admin.query(`drop database ${name} with (force)`); await admin.end(); }
+  finally { await pool.end(); await admin.query(`drop database ${name}`); await admin.end(); }
 }

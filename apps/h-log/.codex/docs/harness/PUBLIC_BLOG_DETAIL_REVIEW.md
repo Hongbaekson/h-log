@@ -16,6 +16,8 @@
 - Node 24에서 단위 테스트 305개 통과·DB opt-in 29개 skip, projector/CLI 6개, projection DB 27개, 일반 통합 33개 통과. 전체 lint, typecheck, production build를 통과했다. 기존 Next.js 16.4.3 보안 권고가 첫 build/dev 실행을 중단해 같은 명령을 재실행했다.
 - 로컬 개발·프로덕션 서버에서 제목 수정, 직접 HTML/RSC, JSON-LD·canonical, 철회 후 링크 제거와 HTML·Markdown 404, 지원하지 않는 writer protocol의 500과 복구를 확인했다. 1440·390·320px와 JS ON/OFF에서 목차 링크, 키보드 이동과 history를 검증했다. 두 서버에서 기존 Brain 발견·다섯 배치·reader/history와 Home 레이더도 통과했다.
 
+원격 CI에서 기존 자동화 정책 테스트가 종료 중인 PG 연결을 강제로 끊어 두 차례 실패했다. 임시 DB 정리를 일반 `DROP DATABASE`로 바꾼 뒤 같은 테스트가 로컬 12회 연속 통과했고 전체 통합 테스트 33개도 다시 통과했다.
+
 ## 로컬 HTTP 측정
 
 같은 production build의 `/blog/perf-0000`에 직접 요청해 응답 본문 수신 완료까지 측정했다. 장비는 Apple M4 Pro, Node 24.22.3, Next.js 16.4.3, loopback Docker pgvector/PG16이다. DB Brain 옵션을 켜고 [F1 합성 fixture](../../../scripts/performance-fixtures.mjs)의 공개 글 10개 또는 1,000개, 비공개·철회 글 각 1개, 글당 버전 2개를 사용했다. 각 fixture에서 현재 버전을 선택하고 rebuild를 완료한 뒤, 모드별 서버에서 첫 요청과 준비 요청을 제외했다. 아래 각 조건은 warm 32회다.
