@@ -74,6 +74,7 @@ test("public Blog URL, indexing and failure contracts", { skip: process.env.HLOG
       for (const path of ["/sitemap.xml", "/feed.xml", "/llms.txt", "/llms-full.txt"]) {
         const result = await get(path);
         assert.equal(result.status, 200);
+        assert.equal(result.headers.get("cache-control"), "private, no-store", path);
         assert.doesNotMatch(result.body, /seo-draft|seo-withdrawn|seo-missing|\/blog\?/);
       }
       const sitemap = await get("/sitemap.xml");

@@ -15,6 +15,10 @@ import { readPublicBlogList } from "./public-blog-list.ts";
 import { projectionContext } from "./public-read-model.ts";
 import { readPublicBlogDetail, readProjectRelatedPosts } from "./public-blog-detail.ts";
 
+import { readCrawlerResponse } from "./public-crawler.ts";
+import { resolvePublicSiteOrigin } from "./public-site-origin.ts";
+import type { PostPublishCrawlerOutputName } from "./blog-post-publish-verification.ts";
+
 const { Pool } = pg;
 
 type BlogPoolGlobal = typeof globalThis & {
@@ -66,4 +70,14 @@ function createPublicBlogRepository(): PostgresBlogRepository {
   return createPostgresBlogRepository(getBlogPublicPool(), {
     privacyScanPolicy: createBlogPrivacyScanPolicyFromEnvironment(process.env),
   });
+}
+
+export async function publicCrawlerResponse(name: PostPublishCrawlerOutputName, request: Request) {
+  try {
+    return await readCrawlerResponse(getBlogPublicPool(), name, resolvePublicSiteOrigin(request.url), publicBlogProjectionContext(),
+      { signal: request.signal });
+  } catch {
+    console.error("public_crawler_unavailable", name);
+    return new Response("Internal Server Error\n", { status: 500, headers: { "cache-control": "private, no-store" } });
+  }
 }

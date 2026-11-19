@@ -334,3 +334,5 @@ Next.js/nextjs와 PostgreSQL/postgres는 같은 블로그 태그로 표시·조�
 2026-11-17 목록·태그 개수·필터·페이지 상한과 시리즈를 같은 현재 공개 snapshot에서 조회한다. Home은 같은 경로로 최근 3개를 받는다. 표시할 목록 필드만 전달하며 원문/상세는 필요할 때 조회한다. 누락/손상은 최대 10개 제한 계산 또는 오류로 처리하며 오래된 공개 결과를 대신 노출하지 않는다. `source` 기본값과 공개 화면을 유지하고 opt-in `shadow/projected`를 제공했다. [검수·성능](PUBLIC_BLOG_LIST_REVIEW.md). F 7 completed/15 pending, 다음은 F3 Step 4다.
 
 2026-11-19 상세 제목·목차·본문·연결 링크를 한 요청의 공개 상태로 결정한다. 철회 후 새 요청에서 해당 글과 탐색 링크가 사라지며, 연결된 생각을 읽을 수 없는 경우 글 본문은 계속 제공한다. [상세 조회 검수](PUBLIC_BLOG_DETAIL_REVIEW.md).
+
+2026-11-19 RSS·사이트맵·LLM 문서는 현재 공개된 글과 선택 버전을 따른다. 철회나 버전 교체 후 같은 URL을 새로 열면 HTML·Markdown과 일치하는 결과를 받는다. [크롤러 출력 검수](PUBLIC_CRAWLER_OUTPUT_REVIEW.md).

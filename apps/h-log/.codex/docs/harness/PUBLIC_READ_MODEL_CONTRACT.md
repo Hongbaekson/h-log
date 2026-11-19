@@ -1,5 +1,7 @@
 # 원본·공개 선택·조회용 데이터 계약
 
+2026-11-19 F3 Step 5에서 네 크롤러 응답에 `private, no-store`를 적용했다. 작은 출력은 현재 공개 선택과 활성 generation을 확인한 뒤 재사용한다. [크롤러 출력 검수](PUBLIC_CRAWLER_OUTPUT_REVIEW.md).
+
 2026-11-19 F3 Step 4에서 상세와 탐색 링크에 같은 snapshot·fallback 예산을 적용했다. 블로그와 Brain의 양방향 참조는 각각의 요청에서 현재 공개 선택을 확인한다. [상세 조회 검수](PUBLIC_BLOG_DETAIL_REVIEW.md).
 
 2026-11-17 당시 구현은 [F3 Step 3 목록 검수](PUBLIC_BLOG_LIST_REVIEW.md)를 따른다. Migration 016/schema manifest 2와 목록/Home의 `source`(기본)·`shadow`·`projected` 전환, 같은 snapshot 집계·제한된 miss 계산을 구현했다. Migration 015/protocol 1 현재성은 유지한다. 아래 Step 0/1/2 설명은 각 시점 이력이며 상세/복합 탐색·크롤러/HTTP 캐시·운영 전환은 아직 후속 범위다.
@@ -106,7 +108,7 @@ entry 재사용 조건은 epoch, generation의 지원 버전/정책, 원본의 �
 | 상세 permalink·이전/다음·관련/시리즈 | 대상과 이웃 모두 현재 공개 집합. 대상 404는 기존 의미 유지. 이웃/집계가 실패하면 과거 링크를 대신 노출하지 않음 |
 | Markdown rewrite/직접 URL | F2의 slug 전용 원본 bytes/hash와 성공·404 private/no-store 유지. projection 누락 때문에 원문을 다시 렌더하지 않음 |
 | 검색 API·태그 개수 | 유효한 결과 집합 전체의 같은 revision에서 점수·정렬·필터·페이지·total을 계산. guard의 400/429 유지, 새 조회 실패는 기존 500. raw query/사용자 ID를 공개 측정 로그에 저장하지 않음 |
-| feed/llms/llms-full/sitemap | 현재 feed/llms는 public max-age=300, sitemap은 Brain DB 활성 시에만 no-store. F3 Step 5에서 공개 revision·origin·출력 종류 key와 **private/no-store**로 전환해 새 요청이 오래된 shared HTTP cache를 우회하게 함. 지금 수정된 것으로 표시하지 않음 |
+| feed/llms/llms-full/sitemap | 모든 모드에서 성공 및 오류 응답에 `private, no-store`. projected는 공개 epoch·활성 generation·revision·canonical origin·종류·schema·정책을 확인해 내부 산출물을 재사용한다. |
 | Brain 목록/reader·Blog 출처 | public_node 선택과 카탈로그 + 현재 Blog 공개 집합. [기존 연결 실패 처리](../../../lib/brain-blog-sources.ts)의 일반 label/`sourcesUnavailable`은 유지하고 과거 제목/URL로 대체하지 않음 |
 | PDF/이미지 | PDF의 기존 epoch/review/hash/no-store·비공개 미리보기 인증 유지. 이미지 immutable URL/검증/variant 정책은 F6. 원본 파일 경로나 bytes를 이 generic HTTP 캐시로 대신 승인하지 않음 |
 

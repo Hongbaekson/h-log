@@ -35,19 +35,12 @@ export type PostPublishCrawlerOutputManifest = {
 export function buildPostPublishCrawlerOutputManifest(
   store: BlogContentStore,
 ): PostPublishCrawlerOutputManifest {
-  const publicEntries = selectPublicBlogRouteEntries(store.posts, store.versions);
-  const entries = publicEntries
-    .map((entry) => {
-      assertPostVersionContentHashMatches(entry.version);
-      return toCrawlerOutputEntry(entry.post, entry.version);
-    })
-    .sort(compareCrawlerOutputEntries);
-  const fullEntries = publicEntries
-    .map((entry) => ({
-      ...toCrawlerOutputEntry(entry.post, entry.version),
-      contentMarkdown: entry.version.contentMarkdown,
-    }))
-    .sort(compareCrawlerOutputEntries);
+  const fullEntries = buildCrawlerEntries(store, true);
+  const entries = fullEntries.map(entry => {
+    const summary = { ...entry };
+    delete summary.contentMarkdown;
+    return summary;
+  });
 
   return {
     "feed.xml": entries,
@@ -55,6 +48,15 @@ export function buildPostPublishCrawlerOutputManifest(
     "llms.txt": entries,
     "sitemap.xml": entries,
   };
+}
+
+export function buildCrawlerEntries(store: BlogContentStore, fullText: boolean): PostPublishCrawlerOutputEntry[] {
+  return selectPublicBlogRouteEntries(store.posts, store.versions).map(({ post, version }) => {
+    assertPostVersionContentHashMatches(version);
+    const row = toCrawlerOutputEntry(post, version);
+    if (fullText) row.contentMarkdown = version.contentMarkdown;
+    return row;
+  }).sort(compareCrawlerOutputEntries);
 }
 
 function toCrawlerOutputEntry(

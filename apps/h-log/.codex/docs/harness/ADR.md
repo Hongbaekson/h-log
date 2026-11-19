@@ -467,7 +467,7 @@ Markdown의 기존 `public, max-age=300` 응답은 `force-dynamic`만으로 제�
 
 [원본·조회용 데이터 계약](PUBLIC_READ_MODEL_CONTRACT.md)을 후속 구현 기준으로 확정했다. 본문 hash와 metadata revision·정책/입력 fingerprint를 분리하고 동일 PG의 네 파생 표, 짧은 변경 transaction, snapshot 읽기, CAS generation 활성화와 상한 있는 fallback을 사용한다. 공유 Redis/새 scheduler는 도입하지 않는다. 원본 HTML, Brain public_node, PDF bytes·승인/epoch와 감사는 보존한다.
 
-개인 사이트의 낮은 쓰기 빈도에서는 단일 state 행의 짧은 잠금으로 변경 순서를 직렬화한다. 락 순서와 worker/retry 회귀는 Step 2의 전환 조건이며 비싼 계산을 잠금 안에 넣지 않는다. 이전 writer와 projected reader의 혼합 운용은 지원하지 않고 source 복귀·epoch 교체·재검증을 요구한다. Fallback 상한 초과는 과거 공개 결과나 부분 집계 대신 기존 오류 계약으로 끝낸다. F3 Step 5는 crawler의 300초 HTTP 캐시를 private/no-store로 전환할 예정이며 현재 구현 완료를 뜻하지 않는다.
+개인 사이트의 낮은 쓰기 빈도에서는 단일 state 행의 짧은 잠금으로 변경 순서를 직렬화한다. 락 순서와 worker/retry 회귀는 Step 2의 전환 조건이며 비싼 계산을 잠금 안에 넣지 않는다. 이전 writer와 projected reader의 혼합 운용은 지원하지 않고 source 복귀·epoch 교체·재검증을 요구한다. Fallback 상한 초과는 과거 공개 결과나 부분 집계 대신 기존 오류 계약으로 끝낸다. 2026-11-19 F3 Step 5에서 크롤러 HTTP 캐시를 `private, no-store`로 전환했다. 내부 재사용 조건과 대용량 전송 검수는 [크롤러 출력 검수](PUBLIC_CRAWLER_OUTPUT_REVIEW.md)를 따른다.
 
 ### ADR-042 F3 Step 1 격리 구현 — 2026-11-16
 

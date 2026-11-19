@@ -1,19 +1,7 @@
-import { buildBlogCrawlerOutputs } from "@/lib/blog-crawler-output";
-import { loadPublicBlogContentStore } from "@/lib/blog-public-source";
-import { resolvePublicSiteOrigin } from "@/lib/public-site-origin";
+import { publicCrawlerResponse } from "@/lib/blog-public-source";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: Request) {
-  const store = await loadPublicBlogContentStore();
-  const outputs = buildBlogCrawlerOutputs(store, {
-    origin: resolvePublicSiteOrigin(request.url),
-  });
-
-  return new Response(outputs.llmsFullTxt, {
-    headers: {
-      "cache-control": "public, max-age=300",
-      "content-type": "text/plain; charset=utf-8",
-    },
-  });
+export function GET(request: Request) {
+  return publicCrawlerResponse("llms-full.txt", request);
 }

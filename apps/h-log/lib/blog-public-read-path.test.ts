@@ -27,6 +27,10 @@ describe("DB-backed public blog read path", () => {
       } else if (path === productionBlogSurfaces[1]) {
         assert.match(source, /loadPublicBlogDetail\(slug\)/);
         assert.doesNotMatch(source, /loadPublicBlogContentStore/);
+      } else if (crawlerSurfaces.includes(path)) {
+        const name = path.split("/")[2];
+        assert.ok(source.includes(`publicCrawlerResponse("${name}", request)`), path);
+        assert.doesNotMatch(source, /buildBlogCrawlerOutputs|loadPublicBlogContentStore/);
       } else {
         assert.match(source, /loadPublicBlogContentStore/);
       }
@@ -34,10 +38,12 @@ describe("DB-backed public blog read path", () => {
   });
 
   it("builds crawler URLs from the configured public origin", async () => {
+    const handler = await readFile(new URL("./blog-public-source.ts", import.meta.url), "utf8");
+    assert.match(handler, /resolvePublicSiteOrigin\(request.url\)/);
     for (const path of crawlerSurfaces) {
       const source = await readFile(new URL(path, import.meta.url), "utf8");
 
-      assert.match(source, /resolvePublicSiteOrigin/);
+      assert.match(source, /publicCrawlerResponse/);
     }
   });
 

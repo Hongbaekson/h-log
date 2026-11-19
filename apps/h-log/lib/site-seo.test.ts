@@ -78,8 +78,9 @@ describe("site SEO metadata", () => {
         permanent: true,
       },
     ]);
-    assert.match(sitemapSource, /buildPublicSitemapXml/);
-    assert.match(sitemapSource, /projects\.map/);
-    assert.doesNotMatch(sitemapSource, /["'`]\/projects(?:\/|["'`])/);
+    assert.match(sitemapSource, /publicCrawlerResponse\("sitemap\.xml"/);
+    const reader = readFileSync(new URL("./public-crawler.ts", import.meta.url), "utf8");
+    assert.match(reader, /projects\.map/);
+    assert.doesNotMatch(reader, /["'`]\/projects(?:\/|["'`])/);
   });
 });

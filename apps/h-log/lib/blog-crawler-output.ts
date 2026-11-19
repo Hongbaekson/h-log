@@ -1,158 +1,89 @@
-import {
-  buildPostPublishCrawlerOutputManifest,
-  type PostPublishCrawlerOutputEntry,
-} from "./blog-post-publish-verification.ts";
+import { buildCrawlerEntries, buildPostPublishCrawlerOutputManifest, type PostPublishCrawlerOutputName, type PostPublishCrawlerOutputEntry } from "./blog-post-publish-verification.ts";
 import type { BlogContentStore } from "./blog-public.ts";
 import { siteConfig } from "./site.ts";
 
-export type BlogCrawlerOutputs = {
-  feedXml: string;
-  llmsFullTxt: string;
-  llmsTxt: string;
-  sitemapXml: string;
-};
+export type BuildBlogCrawlerOutputsOptions = { origin: string };
+export type BuildPublicSitemapOptions = BuildBlogCrawlerOutputsOptions & { paths: readonly string[] };
+export type BlogCrawlerOutputs = { feedXml: string; llmsFullTxt: string; llmsTxt: string; sitemapXml: string };
 
-export type BuildBlogCrawlerOutputsOptions = {
-  origin: string;
-};
-
-export type BuildPublicSitemapOptions = BuildBlogCrawlerOutputsOptions & {
-  paths: readonly string[];
-};
-
-type SitemapEntry = {
-  href: string;
-  updatedAt?: string;
-};
-
-export function buildBlogCrawlerOutputs(
-  store: BlogContentStore,
-  options: BuildBlogCrawlerOutputsOptions,
-): BlogCrawlerOutputs {
-  const manifest = buildPostPublishCrawlerOutputManifest(store);
-
-  return {
-    feedXml: renderFeedXml(manifest["feed.xml"], options.origin),
-    llmsFullTxt: renderLlmsFullTxt(manifest["llms-full.txt"], options.origin),
-    llmsTxt: renderLlmsTxt(manifest["llms.txt"], options.origin),
-    sitemapXml: renderSitemapXml(manifest["sitemap.xml"], options.origin),
-  };
+export function sitemapUrl(href: string, origin: string, updatedAt?: string) {
+  return `  <url>
+    <loc>${escapeXml(toAbsoluteUrl(origin, href))}</loc>
+${updatedAt ? `    <lastmod>${escapeXml(updatedAt)}</lastmod>\n` : ""}  </url>`;
 }
 
-export function buildPublicSitemapXml(
-  store: BlogContentStore,
-  options: BuildPublicSitemapOptions,
-): string {
-  const blogEntries = buildPostPublishCrawlerOutputManifest(store)["sitemap.xml"];
-  const entries = [
-    ...options.paths.map((href) => ({ href })),
-    ...blogEntries,
-  ];
+type CrawlerFormat = {
+  prefix: string;
+  separator: string;
+  suffix: string;
+  entry: (entry: PostPublishCrawlerOutputEntry) => string;
+};
 
-  return renderSitemapXml(entries, options.origin);
-}
-
-function renderSitemapXml(
-  entries: readonly SitemapEntry[],
-  origin: string,
-): string {
-  const urls = entries
-    .map(
-      (entry) => `  <url>
-    <loc>${escapeXml(toAbsoluteUrl(origin, entry.href))}</loc>
-${entry.updatedAt ? `    <lastmod>${escapeXml(entry.updatedAt)}</lastmod>\n` : ""}  </url>`,
-    )
-    .join("\n");
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls}
-</urlset>
-`;
-}
-
-function renderFeedXml(
-  entries: readonly PostPublishCrawlerOutputEntry[],
-  origin: string,
-): string {
-  const items = entries
-    .map((entry) => {
-      const href = toAbsoluteUrl(origin, entry.href);
-
-      return `    <item>
-      <title>${escapeXml(entry.title)}</title>
-      <link>${escapeXml(href)}</link>
-      <guid isPermaLink="false">${escapeXml(`${entry.slug}:${entry.contentHash}`)}</guid>
-      <description>${escapeXml(entry.description)}</description>
-      <pubDate>${escapeXml(new Date(entry.publishedAt).toUTCString())}</pubDate>
-    </item>`;
-    })
-    .join("\n");
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
+export function crawlerFormat(name: PostPublishCrawlerOutputName, origin: string): CrawlerFormat {
+  switch (name) {
+    case "sitemap.xml":
+      return {
+        prefix: '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n',
+        separator: "\n", suffix: "\n</urlset>\n",
+        entry: row => sitemapUrl(row.href, origin, row.updatedAt),
+      };
+    case "feed.xml":
+      return {
+        prefix: `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
     <title>${escapeXml(siteConfig.title)}</title>
     <link>${escapeXml(origin)}</link>
     <description>${escapeXml(siteConfig.description)}</description>
-${items}
-  </channel>
-</rss>
-`;
+`,
+        separator: "\n", suffix: "\n  </channel>\n</rss>\n",
+        entry: row => `    <item>
+      <title>${escapeXml(row.title)}</title>
+      <link>${escapeXml(toAbsoluteUrl(origin, row.href))}</link>
+      <guid isPermaLink="false">${escapeXml(`${row.slug}:${row.contentHash}`)}</guid>
+      <description>${escapeXml(row.description)}</description>
+      <pubDate>${escapeXml(new Date(row.publishedAt).toUTCString())}</pubDate>
+    </item>`,
+      };
+    case "llms.txt":
+      return {
+        prefix: `# ${siteConfig.name}\n\n> ${siteConfig.description}\n\n## Posts\n\n`,
+        separator: "\n", suffix: "\n",
+        entry: row => `- [${escapeMarkdownText(row.title)}](${toAbsoluteUrl(origin, row.href)}): ${row.description}
+  - markdown: ${toAbsoluteUrl(origin, row.markdownHref)}
+  - published_at: ${row.publishedAt}
+  - content_hash: ${row.contentHash}`,
+      };
+    case "llms-full.txt":
+      return {
+        prefix: `# ${siteConfig.name} Full Text\n\n${siteConfig.description}\n\n`,
+        separator: "\n\n---\n\n", suffix: "\n",
+        entry: row => `## ${row.title}
+
+- url: ${toAbsoluteUrl(origin, row.href)}
+- markdown: ${toAbsoluteUrl(origin, row.markdownHref)}
+- published_at: ${row.publishedAt}
+- content_hash: ${row.contentHash}
+
+${row.contentMarkdown ?? ""}`,
+      };
+  }
 }
 
-function renderLlmsTxt(
-  entries: readonly PostPublishCrawlerOutputEntry[],
-  origin: string,
-): string {
-  const posts = entries
-    .map((entry) => {
-      const href = toAbsoluteUrl(origin, entry.href);
-      const markdownHref = toAbsoluteUrl(origin, entry.markdownHref);
-
-      return `- [${escapeMarkdownText(entry.title)}](${href}): ${entry.description}
-  - markdown: ${markdownHref}
-  - published_at: ${entry.publishedAt}
-  - content_hash: ${entry.contentHash}`;
-    })
-    .join("\n");
-
-  return `# ${siteConfig.name}
-
-> ${siteConfig.description}
-
-## Posts
-
-${posts}
-`;
+// In-memory helpers for callers that explicitly need all four outputs.
+export function buildBlogCrawlerOutputs(store: BlogContentStore, { origin }: BuildBlogCrawlerOutputsOptions): BlogCrawlerOutputs {
+  const manifest = buildPostPublishCrawlerOutputManifest(store);
+  function render(name: PostPublishCrawlerOutputName) {
+    const format = crawlerFormat(name, origin);
+    return format.prefix + manifest[name].map(format.entry).join(format.separator) + format.suffix;
+  }
+  return { feedXml: render("feed.xml"), llmsFullTxt: render("llms-full.txt"), llmsTxt: render("llms.txt"), sitemapXml: render("sitemap.xml") };
 }
 
-function renderLlmsFullTxt(
-  entries: readonly PostPublishCrawlerOutputEntry[],
-  origin: string,
-): string {
-  const posts = entries
-    .map((entry) => {
-      const href = toAbsoluteUrl(origin, entry.href);
-      const markdownHref = toAbsoluteUrl(origin, entry.markdownHref);
-
-      return `## ${entry.title}
-
-- url: ${href}
-- markdown: ${markdownHref}
-- published_at: ${entry.publishedAt}
-- content_hash: ${entry.contentHash}
-
-${entry.contentMarkdown ?? ""}`;
-    })
-    .join("\n\n---\n\n");
-
-  return `# ${siteConfig.name} Full Text
-
-${siteConfig.description}
-
-${posts}
-`;
+export function buildPublicSitemapXml(store: BlogContentStore, { origin, paths }: BuildPublicSitemapOptions) {
+  const format = crawlerFormat("sitemap.xml", origin);
+  const urls = [...paths.map(path => sitemapUrl(path, origin)), ...buildCrawlerEntries(store, false).map(format.entry)];
+  return format.prefix + urls.join(format.separator) + format.suffix;
 }
 
 function toAbsoluteUrl(origin: string, href: string): string {

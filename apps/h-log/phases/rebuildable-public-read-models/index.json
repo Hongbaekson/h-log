@@ -35,7 +35,8 @@
     {
       "step": 5,
       "name": "versioned-crawler-outputs",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-19: F3 completed. Each request renders only its selected crawler output. Small projected outputs are keyed by the current publication revision and generation. Full text spills to a private file. Four HTTP response hashes matched the previous build for 1000 posts. Source remains the default. F 9 completed/13 pending; next F4 Step 0 search-document-and-index."
     }
   ]
 }

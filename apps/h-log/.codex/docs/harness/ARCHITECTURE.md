@@ -604,3 +604,7 @@ F2는 기존 read path의 불필요 계산을 먼저 줄이고 F3는 재생성 �
 ## F3 Step 4 상세와 탐색
 
 `loadPublicBlogDetail(slug)`를 요청 안에서 공유한다. Projected 모드는 같은 PG snapshot에서 대상 한 편의 본문 모델을 검증하고 목록 산출물로 인접 글과 관련 태그 상위 3개를 계산한다. Portfolio와 Brain의 출처는 연결 대상 slug의 현재 제목만 요청한다. 선택된 Brain 사본을 조회할 수 없으면 글 안의 연결 영역에 재시도 안내를 표시한다. [상세 조회 검수](PUBLIC_BLOG_DETAIL_REVIEW.md).
+
+## F3 Step 5 크롤러 출력
+
+네 route는 `lib/public-crawler.ts`에서 같은 읽기 전용 snapshot으로 공개 글과 필요한 사이트맵 경로를 읽는다. `projected`는 현재 공개 목록을 확인하고 `llms-full.txt`에만 선택된 Markdown을 읽는다. `lib/blog-crawler-artifact.ts`는 요청한 문서가 1 MiB를 넘으면 임시 파일에 이어 쓰고 DB 연결을 반환한 뒤 응답을 전송한다. [캐시 조건과 검수](PUBLIC_CRAWLER_OUTPUT_REVIEW.md).

@@ -79,7 +79,8 @@ export async function prepareBlogProjection(client: PoolClient, context: Project
     for (const row of misses) await recover(row);
     if (performance.now() >= deadline) throw new Error("projection_deadline");
     const replacements = [...recovered.values()].map(({ id, result, item }) => ({ id, result, item }));
-    return { sql: visibleSql, args: [...args, JSON.stringify(replacements)] };
+    return { revision: compatible && !misses.length ? [state.source_epoch, state.active_generation, state.source_revision] : null,
+      sql: visibleSql, args: [...args, JSON.stringify(replacements)] };
   }
   async function detail(slug: string) {
     const { rows: [row] } = await client.query<CurrentBlogRow & {
@@ -103,7 +104,7 @@ export async function prepareBlogProjection(client: PoolClient, context: Project
 const visibleSql = candidates + `, replacements as (
     select * from jsonb_to_recordset($4::jsonb) as r(id text,result text,item jsonb)
   ), visible as materialized (
-    select c.id,c.slug,c.listed_at,case when r.id is not null then r.item else c.list_payload end item
+    select c.id,c.slug,c.current_version_id,c.listed_at,case when r.id is not null then r.item else c.list_payload end item
     from candidates c left join replacements r using(id)
     where case when r.id is not null then r.result else c.result end='ready'
   )`;
