@@ -87,7 +87,7 @@ try {
   await writeFile(join(scratch, 'nginx.conf'), publicConfig + '\n' + adminConfig);
   await docker(['run', '-d', '--name', ingress, '--network', network, '-p', '127.0.0.1:3044:80', '-p', '127.0.0.1:3045:443',
     '--mount', `type=bind,source=${join(scratch, 'nginx.conf')},target=/etc/nginx/conf.d/default.conf,readonly`, '--mount', `type=bind,source=${certDir},target=/etc/nginx/admin-tls,readonly`,
-    'nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10']); created.push(ingress);
+    'nginx:1.30.7-alpine@sha256:bef154735288bc38d99fac41ae63730684bcc661503673a04a0f9bc526ba8598']); created.push(ingress);
   await docker(['exec', ingress, 'nginx', '-t']);
   await eventually(async () => assert.equal((await get('/admin')).status, 200));
   for (const [name, file] of [['auth', 'admin-owner.http.test.mjs'], ['ingress', 'admin-release.http.test.mjs'], ['monitoring', 'admin-monitoring.http.test.mjs'], ['brain', 'brain-capture.http.test.mjs'], ['pdf', 'resume-pdf.http.test.mjs'], ['draft', 'blog-draft.http.test.mjs']]) {

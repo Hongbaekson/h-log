@@ -103,7 +103,7 @@ Local development
 
 ## Reproducible Release Inputs
 
-외부 production base image는 tag와 immutable multi-architecture manifest digest를 함께 고정한다. 2026-08-07에 아래 명령으로 read-only Docker Hub manifest를 확인했다.
+외부 production base image는 tag와 immutable multi-architecture manifest digest를 함께 고정한다. 아래 명령으로 Docker Hub manifest를 확인했다. Nginx 확인일은 2026-11-19이며 나머지 이미지는 2026-08-07 기준이다.
 
 ```bash
 docker buildx imagetools inspect <image:tag>
@@ -112,7 +112,7 @@ docker buildx imagetools inspect <image:tag>
 | 용도 | 고정 reference | 확인된 platform |
 | --- | --- | --- |
 | Next.js build/job/runtime | `node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43` | `linux/amd64`, `linux/arm64` |
-| Nginx ingress | `nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10` | `linux/amd64`, `linux/arm64` |
+| Nginx ingress | `nginx:1.30.7-alpine@sha256:bef154735288bc38d99fac41ae63730684bcc661503673a04a0f9bc526ba8598` | `linux/amd64`, `linux/arm64` |
 | PostgreSQL + pgvector | `pgvector/pgvector:pg16@sha256:a36250871de0833b8757561c72f2477ef1ddd1101afa4e617fb552e0de514c6b` | `linux/amd64`, `linux/arm64` |
 | Hermes auto-publish | `nousresearch/hermes-agent:v2026.7.7.2@sha256:9c841866021c54c4596849f6135717e8a4d52ba510b7f52c50aef1de1a283973` | `linux/amd64`, `linux/arm64` |
 

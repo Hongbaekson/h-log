@@ -89,7 +89,7 @@ try {
   await startWeb(source, epoch);
   docker(['run','-d','--name',proxy,'--network',network,'-p','127.0.0.1:3044:80','-p','127.0.0.1:3045:81',
     '-v',resolve('deploy/resume-rehearsal.nginx.conf') + ':/etc/nginx/conf.d/default.conf:ro','-v',certificates + ':/cert:ro',
-    'nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10']); proxyRunning = true;
+    'nginx:1.30.7-alpine@sha256:bef154735288bc38d99fac41ae63730684bcc661503673a04a0f9bc526ba8598']); proxyRunning = true;
   for (let i = 0; i < 40; i++) {
     if ((await fetch(origin + '/admin/resume/records', { headers }).catch(() => null))?.ok) break;
     await new Promise(resolve => setTimeout(resolve, 250));

@@ -80,7 +80,7 @@ services:
   # Docker 29 does not publish ports on internal-only containers. Keep Grafana
   # without egress and put only this fixed upstream gateway on a normal bridge.
   monitoring-gateway:
-    image: nginx:1.30.6-alpine@sha256:47928bf67eb62a1863cb08d9ecb52d3e704304ba614eaee17884204677702951
+    image: nginx:1.30.7-alpine@sha256:bef154735288bc38d99fac41ae63730684bcc661503673a04a0f9bc526ba8598
     profiles: [observability]
     user: "101:101"
     entrypoint: [nginx, -g, "daemon off;"]

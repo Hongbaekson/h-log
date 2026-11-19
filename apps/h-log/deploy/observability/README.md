@@ -4,13 +4,13 @@
 
 ## 고정 이미지
 
-2026-10-28 공식 배포 정보와 `docker buildx imagetools inspect`로 확인했다. Compose에는 tag와 아래 multi-architecture manifest digest를 함께 기록했다. 로컬 실행은 Linux amd64이며 arm64는 manifest 존재만 확인했다.
+Compose에는 tag와 `docker buildx imagetools inspect`로 확인한 multi-architecture manifest digest를 함께 기록한다. 2026-10-28 최초 검증 때는 Linux amd64에서 실행하고 arm64 manifest를 확인했다.
 
 | 서비스 | 버전 | manifest SHA-256 | 지원·선택 근거 |
 | --- | --- | --- | --- |
 | Prometheus | 3.13.5 | `aafa9d694e6a883c02db516d9f6e5b84e14195f49a2a6456a4cca815edda72b9` | [공식 다운로드](https://prometheus.io/download/), [3.13 LTS 지원](https://prometheus.io/docs/introduction/release-cycle/): 2027-07-31까지 |
 | Grafana OSS | 12.4.13 | `41bbc1b5e04416f81891806076db2a2ff60a5d4da5f78d36a88b033a8c199185` | [12.4.13 release](https://github.com/grafana/grafana/releases/tag/v12.4.13), [12.4 지원](https://grafana.com/docs/grafana/latest/upgrade-guide/when-to-upgrade/): 2027-05-24까지. 마지막 minor의 patch 지원을 선택 |
-| 로컬 진입점 | Nginx 1.30.6-alpine | `47928bf67eb62a1863cb08d9ecb52d3e704304ba614eaee17884204677702951` | [공식 stable](https://nginx.org/en/download.html)·[보안 공지](https://nginx.org/en/security_advisories.html) 확인. 기존 공개 ingress의 이미지 교체는 별도 배포 검수 범위 |
+| 로컬 진입점 | Nginx 1.30.7-alpine | `bef154735288bc38d99fac41ae63730684bcc661503673a04a0f9bc526ba8598` | 2026-11-19 공식 manifest 확인. HTTP/2 취약점 CVE-2026-123007·CVE-2026-123633을 수정한 stable 버전. [Nginx 보안 공지](https://nginx.org/en/security_advisories.html) |
 | Node Exporter | 1.12.1 | `1b4e4438faca4dd7e001dd445d161a4a2091b0fededa84093b3a8dfeae1f1be0` | [공식 release](https://github.com/prometheus/node_exporter/releases/tag/v1.12.1) |
 | PostgreSQL Exporter | 0.20.1 | `ac5ec343104fae0e2d84a27bb8d69b38430a11910c5382cad85d478d2bab713e` | [공식 release](https://github.com/prometheus-community/postgres_exporter/releases/tag/v0.20.1); built-in stat_database만 사용 |
 | Blackbox Exporter | 0.29.1 | `ea1c7aa3ef3f307cd03e85f34abb604478ccb90b567fc690da0cd9776da76b13` | [공식 release](https://github.com/prometheus/blackbox_exporter/releases/tag/v0.29.1) |
@@ -52,7 +52,7 @@ docker compose -p hlog-observe-preview -f compose.observability.yaml --profile o
 docker compose -p hlog-observe-preview -f compose.observability.yaml --profile observability down
 ```
 
-현재 모니터링 volume은 별도 백업을 구현하지 않았다. 운영 전 retention·volume 백업/복구·기존 공개 Nginx 이미지 갱신과 장기 부하를 후속 단계에서 확인한다. 메모리 한도를 넘으면 자원을 늘리기 전에 측정과 예산 재검토가 필요하다.
+현재 모니터링 volume은 별도 백업을 구현하지 않았다. 운영 전 retention·volume 백업/복구와 장기 부하를 확인한다. 배포 후에는 실행 중인 공개 Nginx의 버전과 digest를 확인한다. 메모리 한도를 넘으면 자원을 늘리기 전에 측정과 예산 재검토가 필요하다.
 
 ## 재현 가능한 검증
 

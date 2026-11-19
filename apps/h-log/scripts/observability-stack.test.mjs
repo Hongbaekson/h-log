@@ -117,10 +117,13 @@ test("isolated monitoring is private, bounded and durable across container recre
     assert.equal(datasource.url, "http://prometheus:9090");
     assert.equal(datasource.readOnly, true);
     assert.equal((await json("/api/datasources/uid/hlog-prometheus/health")).status, "OK");
-    await eventually(async () => assert.equal((await query("up")).data.result[0]?.value[1], "1"));
-    const beforeTime = Math.floor(Date.now() / 1000);
-    const before = (await query("up", beforeTime)).data.result;
+    const before = await eventually(async () => {
+      const samples = (await query("up")).data.result;
+      assert.equal(samples[0]?.value[1], "1");
+      return samples;
+    });
     assert.equal(before.length, 1);
+    const beforeTime = before[0].value[0];
     assert.deepEqual(before[0].metric, { __name__: "up", instance: "prometheus", job: "prometheus" });
     const series = (await query('{job="prometheus"}')).data.result;
     assert.ok(series.length > 5 && series.length <= 20);
