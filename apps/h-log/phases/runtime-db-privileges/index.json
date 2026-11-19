@@ -1,0 +1,16 @@
+{
+  "project": "h-log",
+  "phase": "runtime-db-privileges",
+  "steps": [
+    {
+      "step": 0,
+      "name": "define-runtime-database-grants",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "wire-runtime-and-migration-credentials",
+      "status": "pending"
+    }
+  ]
+}

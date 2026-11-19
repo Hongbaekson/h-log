@@ -1,0 +1,21 @@
+{
+  "project": "h-log",
+  "phase": "release-artifact-security",
+  "steps": [
+    {
+      "step": 0,
+      "name": "exclude-local-deployment-inputs",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "patch-next-runtime",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "bound-standalone-file-tracing",
+      "status": "pending"
+    }
+  ]
+}

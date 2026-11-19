@@ -302,6 +302,21 @@
       "dir": "performance-observation-rehearsal",
       "status": "pending",
       "summary": "2026-11-06: F7 plan registered with 3 pending steps for DB 대기 제한과 성능·복구 통합 검수. Execution starts from its documented prerequisites in PERFORMANCE_REBUILD_PLAN.md. Original data, selected public versions, privacy and measured recovery are acceptance criteria."
+    },
+    {
+      "dir": "release-artifact-security",
+      "status": "pending",
+      "summary": "2026-11-19 배포 입력과 빌드 산출물 개선 계획. 3개 로컬 검증 단계가 대기 중이다."
+    },
+    {
+      "dir": "runtime-db-privileges",
+      "status": "pending",
+      "summary": "2026-11-19 애플리케이션 DB 권한 개선 계획. 2개 로컬 검증 단계가 대기 중이다."
+    },
+    {
+      "dir": "ingress-request-efficiency",
+      "status": "pending",
+      "summary": "2026-11-19 프록시 응답과 상시 요청 비용 개선 계획. 3개 로컬 검증 단계가 대기 중이다."
     }
   ]
 }

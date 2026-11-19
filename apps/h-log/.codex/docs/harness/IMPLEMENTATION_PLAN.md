@@ -1,5 +1,7 @@
 # Implementation Plan: H-Log Harness Baseline
 
+2026-11-19 [보안·성능 검토와 실행 순서](SECURITY_PERFORMANCE_REVIEW_2026-11-19.md)에 3개 phase, 8개 pending step을 등록했다. 다음 빌드 전에 A0에서 운영 설정의 Docker 입력 제외를 먼저 검증한다. 성능 트랙의 다음 단계는 기존 F4 Step 0이며, 이번 계획의 구현과 OCI 배포는 대기 중이다.
+
 2026-11-19 F3 Step 5 완료. RSS·사이트맵·LLM 문서는 요청한 형식만 생성하며 철회나 공개 버전 변경을 다음 요청에 반영한다. F 트랙은 9개 완료·13개 대기이며 다음은 F4 Step 0 `search-document-and-index`다. [크롤러 출력 검수](PUBLIC_CRAWLER_OUTPUT_REVIEW.md).
 
 2026-11-19 F3 Step 4 완료. 블로그 상세와 metadata가 본문 모델을 공유하고 이전·다음, 관련 글, 시리즈, Portfolio와 Brain 링크를 현재 공개 선택으로 결정한다. [상세 조회 검수](PUBLIC_BLOG_DETAIL_REVIEW.md)에 검증 결과를 기록했다. **F completed 8·pending 14, 다음은 F3 Step 5 `versioned-crawler-outputs`**다.

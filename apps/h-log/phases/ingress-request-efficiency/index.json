@@ -1,0 +1,21 @@
+{
+  "project": "h-log",
+  "phase": "ingress-request-efficiency",
+  "steps": [
+    {
+      "step": 0,
+      "name": "fix-static-cache-and-headers",
+      "status": "pending"
+    },
+    {
+      "step": 1,
+      "name": "minimize-ingress-access-logs",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "remove-home-render-from-healthcheck",
+      "status": "pending"
+    }
+  ]
+}

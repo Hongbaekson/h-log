@@ -1,6 +1,6 @@
 # H-Log 성능 개선과 재생성 가능한 조회용 데이터 계획
 
-등록일 2026-11-06. 사용자가 코드 성능 분석 결과와 원본에서 보조 저장소를 복구하는 원칙을 phase/step으로 등록하도록 요청했다. **F1–F7은 7개 phase / 22개 step이며 completed 9·pending 13개**다. 전체 레지스트리는 60개 phase / 209개 step이다. [전체 상태](../../../phases/index.json)를 기준으로 실행하며 2026-11-13 [F1 측정·예산](PERFORMANCE_BASELINE_REVIEW.md)과 [F2 Step 0 목록 경량화](BLOG_LIST_EFFICIENCY_REVIEW.md), 2026-11-16 [F2 Step 1 Markdown 조회](BLOG_MARKDOWN_READ_REVIEW.md)와 [F3 Step 0 계약](PUBLIC_READ_MODEL_CONTRACT.md), [F3 Step 1 저장/rebuild](PUBLIC_READ_STORAGE_REVIEW.md), 2026-11-17 [F3 Step 2 현재성](PUBLIC_READ_FRESHNESS_REVIEW.md)과 [Step 3 목록 조회](PUBLIC_BLOG_LIST_REVIEW.md), 2026-11-19 [상세 조회 검수](PUBLIC_BLOG_DETAIL_REVIEW.md)와 [크롤러 출력 검수](PUBLIC_CRAWLER_OUTPUT_REVIEW.md)까지 완료했다. 다음은 **F4 Step 0 `search-document-and-index`**다. 2026-11-13 [R5 로컬 통합 검수](KNOWLEDGE_RELEASE_REVIEW.md)를 완료해 기존 콘텐츠 R 트랙 14개 step은 모두 completed다. 새 재검토 목록의 서버 필터·20개 제한 조회는 R5 Step 1에서 구현했고 기존 전체 관리자 목록/원문 이력의 개선은 F6에 남긴다. 운영 보류 중 일반적인 다음 단계 요청은 F4 Step 0부터 F 순서를 따른다. SEO S3 Step 1/2와 운영 적용의 승인 조건은 유지한다.
+등록일 2026-11-06. 사용자가 코드 성능 분석 결과와 원본에서 보조 저장소를 복구하는 원칙을 phase/step으로 등록하도록 요청했다. **F1–F7은 7개 phase / 22개 step이며 completed 9·pending 13개**다. [전체 상태](../../../phases/index.json)를 기준으로 실행하며 2026-11-13 [F1 측정·예산](PERFORMANCE_BASELINE_REVIEW.md)과 [F2 Step 0 목록 경량화](BLOG_LIST_EFFICIENCY_REVIEW.md), 2026-11-16 [F2 Step 1 Markdown 조회](BLOG_MARKDOWN_READ_REVIEW.md)와 [F3 Step 0 계약](PUBLIC_READ_MODEL_CONTRACT.md), [F3 Step 1 저장/rebuild](PUBLIC_READ_STORAGE_REVIEW.md), 2026-11-17 [F3 Step 2 현재성](PUBLIC_READ_FRESHNESS_REVIEW.md)과 [Step 3 목록 조회](PUBLIC_BLOG_LIST_REVIEW.md), 2026-11-19 [상세 조회 검수](PUBLIC_BLOG_DETAIL_REVIEW.md)와 [크롤러 출력 검수](PUBLIC_CRAWLER_OUTPUT_REVIEW.md)까지 완료했다. 다음은 **F4 Step 0 `search-document-and-index`**다. 2026-11-13 [R5 로컬 통합 검수](KNOWLEDGE_RELEASE_REVIEW.md)를 완료해 기존 콘텐츠 R 트랙 14개 step은 모두 completed다. 새 재검토 목록의 서버 필터·20개 제한 조회는 R5 Step 1에서 구현했고 기존 전체 관리자 목록/원문 이력의 개선은 F6에 남긴다. 운영 보류 중 일반적인 다음 단계 요청은 F4 Step 0부터 F 순서를 따른다. SEO S3 Step 1/2와 운영 적용의 승인 조건은 유지한다.
 
 ## 목표
 
@@ -85,7 +85,7 @@ Materialized view와 일반 projection table은 최신성·개별 갱신·애플
 | F2 블로그 조회와 반복 가공 절감 | [1 scoped-markdown-read](../../../phases/blog-read-efficiency/step1.md) | Markdown 한 편의 조회 범위 축소 | completed |
 | F3 원본에서 재생성하는 조회용 데이터 | [0 source-and-projection-contract](../../../phases/rebuildable-public-read-models/step0.md) | 원본·공개 선택·파생 데이터 계약 | completed |
 | F3 원본에서 재생성하는 조회용 데이터 | [1 projection-storage-and-rebuild](../../../phases/rebuildable-public-read-models/step1.md) | 조회용 저장소와 재생성 도구 | completed |
-| F3 원본에서 재생성하는 조회용 데이터 | [2 transactional-projection-freshness](../../../phases/rebuildable-public-read-models/step2.md) | 수정·공개·철회와 파생 데이터 일치 | pending |
+| F3 원본에서 재생성하는 조회용 데이터 | [2 transactional-projection-freshness](../../../phases/rebuildable-public-read-models/step2.md) | 수정·공개·철회와 파생 데이터 일치 | completed |
 | F3 원본에서 재생성하는 조회용 데이터 | [3 projected-blog-list](../../../phases/rebuildable-public-read-models/step3.md) | DB에서 공개 목록과 개수 조회 | completed |
 | F3 원본에서 재생성하는 조회용 데이터 | [4 projected-detail-navigation](../../../phases/rebuildable-public-read-models/step4.md) | 상세 한 편과 가벼운 탐색 조회 | completed |
 | F3 원본에서 재생성하는 조회용 데이터 | [5 versioned-crawler-outputs](../../../phases/rebuildable-public-read-models/step5.md) | 크롤러 출력의 선택 생성과 재사용 | completed |
