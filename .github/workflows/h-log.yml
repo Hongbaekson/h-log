@@ -72,4 +72,9 @@ jobs:
           DATABASE_URL: postgresql://hlog_app:hlog_ci_password@127.0.0.1:5432/hlog_ci
       - run: npm run typecheck
       - run: npm run lint
+      - name: Add synthetic files for the standalone trace check
+        run: |
+          mkdir -p private
+          touch private/standalone-trace-probe.json deploy/env.production deploy/postgres.env.production compose.override.yaml
       - run: npm run build
+      - run: node --test scripts/standalone-trace.test.mjs

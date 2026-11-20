@@ -17,7 +17,8 @@
     {
       "step": 2,
       "name": "bound-standalone-file-tracing",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-20 공개 썸네일 경로를 좁히고 모니터링 상태값을 파일 수집기에서 분리했다. 합성 입력으로 만든 직접 standalone과 Docker runner 모두 private·배포 설정·phase 문서 0개, 제외 경로를 참조한 라우트 0/37개다. 두 서버에서 정상·손상·누락 썸네일과 정적 자산·이미지 처리를 검증했다. 기존 운영 이미지는 미검수다."
     }
   ]
 }

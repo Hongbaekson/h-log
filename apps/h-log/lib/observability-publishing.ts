@@ -4,6 +4,9 @@ import { dirname, join } from "node:path";
 import type { Pool } from "pg";
 import { createPostVersionContentHash, publishJobStatuses, requiredPublishJobTypes, retryablePublishJobTypes } from "./blog-content-model.ts";
 import { resolveUsageBudgetPolicy } from "./blog-usage-ledger.ts";
+import { batchResults } from "./observability-batch-results.ts";
+
+export { batchResults } from "./observability-batch-results.ts";
 
 type PublishingSnapshot = {
   jobs: { state: string; job_type: string; importance: string; count: number | string }[];
@@ -74,7 +77,6 @@ export function batchDeadline(task: "backup" | "restore", expectation: Expectati
   return deadline;
 }
 
-export const batchResults = ["never", "running", "succeeded", "failed", "skipped", "budget_blocked", "interrupted", "unverified"] as const;
 export const batchStages = ["preflight", "generation", "worker", "verification", "complete", "interrupted", "unknown"] as const;
 
 async function readStateFile(path: string) {

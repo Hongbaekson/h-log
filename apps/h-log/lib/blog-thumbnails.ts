@@ -7,11 +7,13 @@ import type { BlogContentStore } from "./blog-public.ts";
 
 export type PublicBlogThumbnail = { src: string; alt: string };
 
-export async function verifyPublicBlogThumbnail(thumbnail: PublicBlogThumbnail | undefined, publicDirectory = join(process.cwd(), "public")) {
-  if (!thumbnail || !/^\/blog-assets\/thumbnails\/[a-f0-9]{64}\.(png|webp)$/.test(thumbnail.src)) return undefined;
+export async function verifyPublicBlogThumbnail(thumbnail: PublicBlogThumbnail | undefined, publicDirectory = "public") {
+  const file = thumbnail && /^\/blog-assets\/thumbnails\/(([a-f0-9]{64})\.(?:png|webp))$/.exec(thumbnail.src);
+  if (!file) return undefined;
   try {
-    const bytes = await readFile(join(publicDirectory, thumbnail.src));
-    return createHash("sha256").update(bytes).digest("hex") === thumbnail.src.split("/").at(-1)?.split(".")[0] ? thumbnail : undefined;
+    const [, filename, expectedHash] = file;
+    const bytes = await readFile(join(publicDirectory, "blog-assets/thumbnails", filename));
+    return createHash("sha256").update(bytes).digest("hex") === expectedHash ? thumbnail : undefined;
   } catch { return undefined; }
 }
 
@@ -33,7 +35,7 @@ export function selectPublicBlogThumbnail(
 
 export async function verifyBlogThumbnailFiles(
   store: BlogContentStore,
-  publicDirectory = join(process.cwd(), "public"),
+  publicDirectory = "public",
 ): Promise<BlogContentStore> {
   const paths = new Set(selectPublicBlogRouteEntries(store.posts, store.versions).flatMap((entry) => {
     const thumbnail = selectPublicBlogThumbnail(entry, store.assets ?? []);

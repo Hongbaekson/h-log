@@ -305,8 +305,8 @@
     },
     {
       "dir": "release-artifact-security",
-      "status": "pending",
-      "summary": "2026-11-20 A0·A1 완료. Docker 빌드에서 운영 설정과 백업을 제외했고, Next.js 16.4.6의 운영 감사와 production HTTP 검증을 통과했다. 다음은 A2 standalone 파일 추적 범위 제한이다."
+      "status": "completed",
+      "summary": "2026-11-20 A0~A2 완료. Docker 빌드 입력 제한과 Next.js 16.4.6 패치에 이어 직접 standalone과 Docker runner에서 비공개 표식·운영 설정·phase 문서가 모두 제외됨을 검증했다. 공개 썸네일과 정적 자산의 HTTP 검증 및 CI 추적 회귀 검사를 추가했다."
     },
     {
       "dir": "runtime-db-privileges",

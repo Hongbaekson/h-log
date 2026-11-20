@@ -1,4 +1,4 @@
-import { batchResults } from "./observability-publishing.ts";
+import { batchResults } from "./observability-batch-results.ts";
 
 export const monitoringStateLabels = { ready: "수집됨", down: "수집 중단", missing: "미수집", stale: "오래된 수집값", error: "수집 오류", invalid: "확인할 수 없는 값" };
 export type MonitoringState = keyof typeof monitoringStateLabels;
