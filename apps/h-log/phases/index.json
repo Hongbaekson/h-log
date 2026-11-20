@@ -306,7 +306,7 @@
     {
       "dir": "release-artifact-security",
       "status": "pending",
-      "summary": "2026-11-20 A0 완료. 합성 Docker 컨텍스트에서 운영 설정·백업 제외를 확인했다. 다음은 A1 Next.js 런타임 패치이며 A2 standalone 추적 검증이 뒤따른다."
+      "summary": "2026-11-20 A0·A1 완료. Docker 빌드에서 운영 설정과 백업을 제외했고, Next.js 16.4.6의 운영 감사와 production HTTP 검증을 통과했다. 다음은 A2 standalone 파일 추적 범위 제한이다."
     },
     {
       "dir": "runtime-db-privileges",

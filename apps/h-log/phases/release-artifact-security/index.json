@@ -11,7 +11,8 @@
     {
       "step": 1,
       "name": "patch-next-runtime",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-20: Next.js와 eslint-config-next를 16.4.3에서 16.4.6으로 패치했다. 운영 의존성 감사에서 Next 공지 7건이 해소됐다. Node 24.19.0에서 npm ci, 첫 production 빌드, 단위·DB 테스트, typecheck, lint가 통과했다. 두 버전의 공개·Markdown HTTP 26개와 관리자 인증·캐시 헤더·이미지 디코딩을 비교했다. 개발 의존성 감사 11개와 파일 추적 경고 2개가 남아 있으며 A2에서 standalone 추적 범위를 검증한다."
     },
     {
       "step": 2,

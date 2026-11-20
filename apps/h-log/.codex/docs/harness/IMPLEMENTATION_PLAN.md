@@ -1,5 +1,7 @@
 # Implementation Plan: H-Log Harness Baseline
 
+2026-11-20 배포 보안 A1 완료. Next.js 16.4.6의 운영 의존성 감사 결과는 0건이며 Node 24 production 빌드에서 공개·관리자·이미지 응답을 검증했다. 다음 보안 단계는 A2 `bound-standalone-file-tracing`이다. [A1 검증 결과](../../../phases/release-artifact-security/step1.md)
+
 2026-11-20 배포 보안 A0 완료. 운영 env·Compose override·DB 백업을 앱의 Docker 빌드 입력에서 제외하고 두 Dockerfile과 Compose 설정을 검증했다. 배포 보안 트랙의 다음 단계는 A1 `patch-next-runtime`이다. [A0 검증](../../../phases/release-artifact-security/step0.md)
 
 2026-11-19 [RAG 보완 계획](SECURITY_PERFORMANCE_REVIEW_2026-11-19.md#rag-보완-계획)을 등록했다. [근거 기반 글 작성](../../../phases/grounded-article-retrieval/index.json) 4개 step은 모두 pending이다. 작성 개선은 Step 0의 인용 대조부터, 공개 검색은 F4 Step 0의 한국어 질문 평가부터 시작한다. B1·C0의 인수 기준도 보강했다.
