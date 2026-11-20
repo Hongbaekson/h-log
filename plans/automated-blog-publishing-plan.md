@@ -632,6 +632,8 @@ Business Domain Patterns
 
 2026-06-25 현재 라이브 HTML 기준 포트폴리오 페이지는 Next.js 16 App Router, PostgreSQL/pgvector, Redis, Tiptap, Cloudinary, Discord Bot, Cloudflare Access, Docker, OCI 자체 호스팅, IndexNow, 관리자 대시보드, draft/published 관리, 임베딩 상태 모니터링을 명시한다.
 
+2026-11-19 후속 확인. Zerry 작성자는 8월에 벡터 검색을 걷어냈고, 10월에는 한국어 토큰으로 찾은 후보의 재정렬을 비교했다. h-log의 [RAG 보완 계획](../apps/h-log/.codex/docs/harness/SECURITY_PERFORMANCE_REVIEW_2026-11-19.md#rag-보완-계획)은 주제별 발췌 검색과 초안의 인용 검증을 먼저 구현하고, 하이브리드 검색 채택은 h-log 질문셋의 결과로 결정한다. [검색 구성 변경](https://zerry.co.kr/blog/rag-chatbot-search-quality-improvement) · [재정렬 실험](https://zerry.co.kr/blog/rerank-stale-answer-key)
+
 ### 플랫폼 구조
 
 zerry의 공개 설명과 글 내용을 종합하면 단순 MDX 블로그가 아니라 DB 중심 블로그 플랫폼이다.
@@ -679,7 +681,7 @@ Browser/Admin SPA
 
 2. 하이브리드 검색과 관련 글
    - 챗봇/RAG 대화 UI는 제외한다.
-   - 키워드 검색 + 벡터 유사도 기반 검색과 관련 글 추천은 남긴다.
+   - 공개 글 검색과 관련 글 추천을 유지한다. 벡터 유사도를 더할지는 고정한 h-log 질문셋으로 검증한다.
    - 검색 결과는 글 탐색 기능이지 방문자와 대화하는 기능이 아니다.
 
 3. 최소 관리자 운영 화면
@@ -715,8 +717,8 @@ Browser/Admin SPA
 경계:
 
 ```text
-임베딩과 pgvector는 검색/관련 글/콘텐츠 운영 품질을 위해 쓴다.
-챗봇을 만들지 않더라도 청킹, 임베딩, 검색 인덱스, 관련 글 추천은 유지한다.
+구절 단위 검색과 인용 검증을 글 작성에 사용한다. 공개 글 검색과 관련 글 추천은 기존 탐색 경로를 사용한다.
+임베딩·pgvector를 적용할 경로는 RAG Step 3의 검색 품질, 지연, 비용 측정으로 결정한다.
 ```
 
 ### 글 구조 분석 1: DB 복구 테스트 글

@@ -317,6 +317,11 @@
       "dir": "ingress-request-efficiency",
       "status": "pending",
       "summary": "2026-11-19 프록시 응답과 상시 요청 비용 개선 계획. 3개 로컬 검증 단계가 대기 중이다."
+    },
+    {
+      "dir": "grounded-article-retrieval",
+      "status": "pending",
+      "summary": "2026-11-19 RAG 개선 계획. 인용 대조, 주제별 근거 검색과 초안 생성, 공개 Blog·Brain 자료 연결, 하이브리드 검색 비교의 4개 step이 대기 중이다."
     }
   ]
 }

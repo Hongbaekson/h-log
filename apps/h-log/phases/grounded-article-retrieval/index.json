@@ -1,0 +1,10 @@
+{
+  "project": "h-log",
+  "phase": "grounded-article-retrieval",
+  "steps": [
+    { "step": 0, "name": "verify-source-passages", "status": "pending" },
+    { "step": 1, "name": "retrieve-draft-evidence", "status": "pending" },
+    { "step": 2, "name": "retrieve-published-knowledge", "status": "pending" },
+    { "step": 3, "name": "evaluate-hybrid-retrieval", "status": "pending" }
+  ]
+}

@@ -13,6 +13,8 @@ Compose와 릴리스 절차에 분리한 계정을 연결한다. B0의 역할별
 - `deploy/env.dev`
 - `deploy/postgres.env.dev`
 - `deploy/systemd/hlog-auto-publish.service`
+- `lib/blog-hermes-article-provider.ts`, `lib/blog-hermes-article-provider.test.ts`, `scripts/blog-hermes-auth-preflight.mjs`
+- `Dockerfile.auto-publish`, `../../.codex/skills/tdd/SKILL.md`
 - `scripts/blog-migrations.mjs`
 - `deploy/observability/database-roles.sql`
 - `.codex/docs/deployment-ci-cd.md`
@@ -23,9 +25,13 @@ Compose와 릴리스 절차에 분리한 계정을 연결한다. B0의 역할별
 
 web·worker·scheduler와 migrate/복구에서 각각 어느 접속 정보를 받는지 명시한다. 기본 개발 Compose에서도 실행자에게 bootstrap 암호가 전달되지 않게 한다. 과거 기본 계정이 이미 데이터 소유자인 경우 기존 volume을 복제한 합성 DB에서 권한 부여 → 앱 전환 → 확인 → 이전 과권한 연결 회수 순서와 실패 시 복귀 지점을 검증한다.
 
+발행 부모 프로세스는 DB 접속을 소유한다. Hermes 자식 환경은 고정 이미지에서 실행·OAuth 인증에 필요한 변수로 구성하고, 글 작성과 `auth status` 양쪽 호출에 같은 규칙을 적용한다. 작성기는 현재 부모 환경을 복사하고 preflight는 기본 상속을 사용한다.
+
 ## 인수 기준
 
 렌더링한 기본·worker·scheduler·tools profile의 계정 매핑을 비밀번호 출력 없이 확인한다. 빈 DB와 기존 데이터 fixture 모두에서 B0의 권한 표, 발행·철회·복구·원본 hash가 통과한다. 이전 앱 호환 및 rollback 절차에는 평상시 앱 계정과 관리 자격 증명의 사용 지점을 구분한다.
+
+가짜 Hermes 실행 파일에서 DB·관리자 전용 표식이 보이는지 값 출력 없이 검사한다. 작성·인증 확인 양쪽 모두 전달 0건이어야 하며, 정상 인증·인증 실패 처리와 부모의 합성 초안 저장이 동작해야 한다.
 
 ## 검증
 
@@ -33,6 +39,7 @@ web·worker·scheduler와 migrate/복구에서 각각 어느 접속 정보를 �
 
 ```sh
 docker compose --profile tools --profile worker --profile scheduler config --quiet
+node --no-warnings --experimental-strip-types --test lib/blog-hermes-article-provider.test.ts lib/blog-hermes-auth-preflight.test.ts
 npm run test:integration
 npm run test:projection:db
 ```

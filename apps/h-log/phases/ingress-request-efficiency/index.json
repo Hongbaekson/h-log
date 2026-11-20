@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "fix-static-cache-and-headers",
-      "status": "pending"
+      "status": "pending",
+      "summary": "상태별 캐시·보안 헤더와 두 빌드 사이의 브라우저 링크 이동·새로고침을 검증할 계획이다."
     },
     {
       "step": 1,

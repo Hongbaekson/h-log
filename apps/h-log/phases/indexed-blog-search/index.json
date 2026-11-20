@@ -5,12 +5,14 @@
     {
       "step": 0,
       "name": "search-document-and-index",
-      "status": "pending"
+      "status": "pending",
+      "summary": "한국어 질문과 복수 정답을 고정해 검색 동등성과 상위 3개 적중률을 함께 평가할 계획이다."
     },
     {
       "step": 1,
       "name": "single-read-search-flow",
-      "status": "pending"
+      "status": "pending",
+      "summary": "캐시 적중·미적중의 DB 비용과 HTTP 응답, 공개 버전 교체·철회를 같은 질문셋으로 검증할 계획이다."
     }
   ]
 }

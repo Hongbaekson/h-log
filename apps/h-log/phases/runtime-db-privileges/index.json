@@ -10,7 +10,8 @@
     {
       "step": 1,
       "name": "wire-runtime-and-migration-credentials",
-      "status": "pending"
+      "status": "pending",
+      "summary": "서비스별 계정 전환과 Hermes 작성·인증 자식 프로세스의 환경 변수 범위를 검증할 계획이다."
     }
   ]
 }

@@ -1,5 +1,7 @@
 # Implementation Plan: H-Log Harness Baseline
 
+2026-11-19 [RAG 보완 계획](SECURITY_PERFORMANCE_REVIEW_2026-11-19.md#rag-보완-계획)을 등록했다. [근거 기반 글 작성](../../../phases/grounded-article-retrieval/index.json) 4개 step은 모두 pending이다. 작성 개선은 Step 0의 인용 대조부터, 공개 검색은 F4 Step 0의 한국어 질문 평가부터 시작한다. B1·C0의 인수 기준도 보강했다.
+
 2026-11-19 [보안·성능 검토와 실행 순서](SECURITY_PERFORMANCE_REVIEW_2026-11-19.md)에 3개 phase, 8개 pending step을 등록했다. 다음 빌드 전에 A0에서 운영 설정의 Docker 입력 제외를 먼저 검증한다. 성능 트랙의 다음 단계는 기존 F4 Step 0이며, 이번 계획의 구현과 OCI 배포는 대기 중이다.
 
 2026-11-19 F3 Step 5 완료. RSS·사이트맵·LLM 문서는 요청한 형식만 생성하며 철회나 공개 버전 변경을 다음 요청에 반영한다. F 트랙은 9개 완료·13개 대기이며 다음은 F4 Step 0 `search-document-and-index`다. [크롤러 출력 검수](PUBLIC_CRAWLER_OUTPUT_REVIEW.md).

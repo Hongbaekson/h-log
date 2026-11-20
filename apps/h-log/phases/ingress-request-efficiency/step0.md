@@ -23,6 +23,8 @@
 
 nginx -t 성공. 실제 production 번들의 정적 파일은 유효한 장기 캐시, 누락 파일·upstream 오류는 장기 캐시 없음. 200/304/404/5xx에 의도한 nosniff·frame·referrer·permissions 정책이 유지된다. 같은 URL의 합성 404→200 회복, 공개 /admin·/api/internal 404, 관리자 no-store도 확인한다.
 
+로컬에서 자산 해시가 다른 두 빌드를 같은 프록시에 순서대로 올린다. 첫 빌드로 연 브라우저 탭에서 두 번째 빌드로 전환 후 링크 이동과 새로고침을 각각 수행한다. 두 경로에서 참조한 CSS·JS는 200 또는 유효한 304여야 하며, 본문과 스타일이 표시되고 실패 응답에 장기 캐시가 남지 않아야 한다. [비교한 배포 사례](https://zerry.co.kr/blog/missing-revalidate-edge-pinned-html)
+
 ## 검증
 
 앱 디렉터리에서 실행한다. Compose 명령은 격리된 로컬 테스트 프로젝트를 지정한 세션에서 수행한다.

@@ -29,8 +29,25 @@ C0·C1·C2는 독립 실행할 수 있다. OCI 재배포, 관리자 ingress 공�
 - **Brain은 데이터 크기에 따라 우선순위를 정한다.** 기존 합성 Node 측정에서 28개 노드 기본 배치는 11.96–13.74ms, 1,000개는 1,334.35–1,341.04ms였다. 실제 사용자 지연으로 일반화하지 않고 F5의 좌표 재사용부터 검증한다. [성능 기준선](PERFORMANCE_BASELINE_REVIEW.md) · [F5 첫 단계](../../../phases/brain-performance/step0.md)
 - **기존 F6·F7**에 관리자 이력, 썸네일의 요청별 파일 읽기·해시, 공개 pool 대기 제한, 관측과 재생성 리허설이 있다. A2의 목표는 빌드에 포함되는 파일 경계다. 썸네일을 제공할 때 수행하는 무결성 검사는 F6에서 다룬다. 목록과 크롤러의 F3 구현은 완료 상태이고, source가 기본이다. [F6 자산 검증](../../../phases/owner-asset-performance/step2.md) · [F7 DB 대기](../../../phases/performance-observation-rehearsal/step0.md) · [전체 성능 계획](PERFORMANCE_REBUILD_PLAN.md)
 
+## RAG 보완 계획
+
+2026-11-19 커밋 `9a9b61b` 기준이다. 목표는 소유자가 고른 주제로 초안을 쓸 때 관련 근거를 찾아 **어느 버전의 어떤 구절로 썼는지** 확인할 수 있게 하는 것이다. 독자는 기존 글 검색을 사용하고, 작성기는 선별한 근거로 초안을 생성한다. 구현은 [RAG phase](../../../phases/grounded-article-retrieval/index.json)의 4개 step으로 등록했다. 모두 `pending`이다.
+
+| 순서 | 확인한 차이 | 구현과 완료 기준 |
+| --- | --- | --- |
+| [0. 인용과 출처 대조](../../../phases/grounded-article-retrieval/step0.md) | 조사 묶음은 발췌·해시·확인 시각을 만든다. 일일 작성기는 출처 요약을 전달하고, 주장 검증기는 ID와 출처 역할을 받는다. 합성 공식 문서에서 인용 한 단어를 바꿔도 `verified`가 참이었다. | 같은 실행의 발췌와 인용을 대조한다. 출처가 바뀌거나 근거가 부족한 사실 주장은 공개 작업에 넘기지 않는다. 인용의 일치와 주장 내용의 타당성을 따로 검수한다. |
+| [1. 주제로 근거 검색 후 작성](../../../phases/grounded-article-retrieval/step1.md) | 현재는 입력 파일의 `researchPackSources` 전체로 조사 묶음을 만든다. 작성할 질문과 맞는 구절을 선별해 전달하는 경로가 없다. | 주제와 작성 관점으로 후보 발췌를 검색하고 상위 근거만 한 번의 Hermes 호출에 보낸다. 같은 자료에서 질문만 바꾸면 근거가 달라져야 한다. 답할 근거가 없으면 모델 호출 전에 멈춘다. |
+| [2. 공개 Blog·Brain 자료 연결](../../../phases/grounded-article-retrieval/step2.md) | h-log에는 공개 버전과 검수한 Brain 공개 사본을 읽는 경로가 있다. 이 자료를 초안 작성 중에 검색해 현재 공개 버전으로 연결하는 단계가 없다. | 과거의 관련 글과 노트를 내부 사례로 찾아 구절·링크·버전을 붙인다. 비공개 수정본과 철회한 자료가 후속 요청이나 늦게 도착한 생성 결과에서 다시 쓰이는 사례가 0건이어야 한다. |
+| [3. 하이브리드 검색 비교와 채택](../../../phases/grounded-article-retrieval/step3.md) | 공개 검색에는 선택형 벡터 점수 계약이 있다. 운영 요청을 받는 route는 키워드로 검색하고, migration에는 vector 확장 선언만 있고 벡터 저장 열은 없다. | 같은 문서·질문·후보 수로 어휘 검색과 의미 검색을 비교한다. 따로 남긴 평가 질문의 개선, 인용 정확도, 지연·비용을 확인한 경로만 채택한다. |
+
+**실행 순서.** 작성 경로는 Step 0부터 시작할 수 있다. [F4 Step 0](../../../phases/indexed-blog-search/step0.md)에서 공개 글의 한국어 검색 질문·복수 정답·자료 버전을 고정하고, [F4 Step 1](../../../phases/indexed-blog-search/step1.md)에서 캐시 적중·미적중의 조회 비용과 철회를 확인한다. Step 2는 F4의 조회를 재사용한다. [B1](../../../phases/runtime-db-privileges/step1.md)에는 Hermes 작성과 인증 확인에 전달되는 환경 변수의 범위를, [C0](../../../phases/ingress-request-efficiency/step0.md)에는 두 빌드 사이에서 브라우저가 받는 HTML·CSS·JS의 일치 검사를 추가했다. A0는 다음 이미지 빌드 전의 첫 보안 작업이다.
+
+**비교 근거.** Zerry 작성자는 8월에 한국어 형태소와 IDF를 이용한 후보 검색으로 전환했다고 기록했다. 10월의 44문항 재정렬 실험에서는 새로 발행된 관련 글이 예전 정답표에서 빠져 있었다. h-log의 평가표에도 자료 버전·검토일·복수 정답을 둔다. 11월 19일 REA MCP로 본 공개 글 검색에서는 `pgvector`와 `복구` 모두 오류 안내가 표시되어 이 두 요청의 검색 순위는 미측정이다. [Zerry 검색 변경 기록](https://zerry.co.kr/blog/rag-chatbot-search-quality-improvement) · [정답표 재검토](https://zerry.co.kr/blog/rerank-stale-answer-key)
+
+**공통 읽을 파일과 검증.** 각 RAG step에서는 앱 기준 `AGENTS.md`, `../../AGENTS.md`, `../../.codex/skills/harness/SKILL.md`, `../../.codex/skills/sync-repos/SKILL.md`와 [PRD](PRD.md), [ADR](ADR.md), [아키텍처](ARCHITECTURE.md), [워크플로](WORKFLOW.md), [실행 루프](AGENT_LOOP.md), [구현 계획](IMPLEMENTATION_PLAN.md), [개인정보 기준](../../rules/content-seo-privacy.md), [자동 발행 계획](../../../../../plans/automated-blog-publishing-plan.md)을 읽는다. 코드 변경은 `../../.codex/skills/tdd/SKILL.md`에 따라 가까운 회귀 테스트에서 RED·GREEN을 확인하고 앱의 `npm run test`, `npm run lint`, `npm run typecheck`, `npm run build`, `git diff --check`로 마친다. DB 검증에는 기존 opt-in과 격리된 합성 DB를 사용한다. 실제 외부 provider 호출·운영 발행·timer는 기존 승인 범위를 따른다.
+
 ## 확인 범위와 보류 근거
 
 관리자 인증의 정확한 Host/origin, 키 비교와 비공개 헤더, 공개 ingress의 관리자 경로 차단, 검색의 공개 재검사, PDF의 공개 세대·파일 무결성·동시 다운로드 상한을 소스와 기존 테스트에서 확인했다. 관리자 인증·정적 렌더링 보호·PDF 다운로드·검색 테스트 29개를 이번에 실행해 모두 통과했다. PDF HEAD에서도 본문 조회 비용이 있지만 공개 기능이 기본 OFF이고 기존 계약에는 손상된 바이트와 ETag의 검증이 있다. 공개 전환과 실제 요청 비중을 확인할 때 재평가한다.
 
-이번 수집에는 OCI 실측, 운영 DB 권한·트래픽·로그, CDN 캐시 적중률, 실사용자 지연, 컨테이너 OS 전체 CVE 스캔이 포함되지 않는다. 모니터링·NGINX 패치에 이미 반영된 작업을 새 phase로 세지 않았다. 신규 3개 phase의 8개 step은 계획 등록 시점에 모두 `pending`이다.
+이번 수집에는 OCI 실측, 운영 DB 권한·트래픽·로그, CDN 캐시 적중률, 실사용자 지연, 컨테이너 OS 전체 CVE 스캔이 포함되지 않는다. 모니터링·NGINX 패치에 이미 반영된 작업을 새 phase로 세지 않았다. 등록 시점에 보안·성능 A–C는 3개 phase·8개 step, 추가한 RAG는 1개 phase·4개 step이며 모두 `pending`이다. F4는 기존 성능 계획에서 집계한다.
