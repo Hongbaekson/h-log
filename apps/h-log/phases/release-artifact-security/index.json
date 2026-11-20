@@ -5,7 +5,8 @@
     {
       "step": 0,
       "name": "exclude-local-deployment-inputs",
-      "status": "pending"
+      "status": "completed",
+      "summary": "2026-11-20: 합성 scratch COPY에서 변경 전 두 운영 env·Compose override·백업 표식 5개가 출력됐다. 변경 후 두 Dockerfile 이름으로 실행한 검사에서 제외 대상 9개가 모두 빠지고 개발 예제와 앱 입력 8개가 남았다. Compose tools config 검증 통과. 적용 범위는 이후 앱 디렉터리를 컨텍스트로 사용하는 빌드다. 기존 이미지·빌더 캐시의 내용은 미검수다."
     },
     {
       "step": 1,

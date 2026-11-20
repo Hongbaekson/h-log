@@ -306,7 +306,7 @@
     {
       "dir": "release-artifact-security",
       "status": "pending",
-      "summary": "2026-11-19 배포 입력과 빌드 산출물 개선 계획. 3개 로컬 검증 단계가 대기 중이다."
+      "summary": "2026-11-20 A0 완료. 합성 Docker 컨텍스트에서 운영 설정·백업 제외를 확인했다. 다음은 A1 Next.js 런타임 패치이며 A2 standalone 추적 검증이 뒤따른다."
     },
     {
       "dir": "runtime-db-privileges",

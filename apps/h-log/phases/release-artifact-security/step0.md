@@ -36,6 +36,8 @@ docker buildx build --network none --output type=local,dest=../result .
 
 검증 결과와 남은 제한을 이 phase의 `index.json`에 기록한다.
 
+2026-11-20 완료. 앱 디렉터리에서 `node --test scripts/docker-build-context.test.mjs`로 두 Dockerfile 이름과 해당 제외 규칙을 검증할 수 있다. 임시 디렉터리에는 합성 파일과 저장소의 제외 규칙만 복사한다.
+
 ## 하지 말 것
 
 실제 서버 디렉터리를 테스트 입력으로 사용하지 않는다. 제외 규칙 검증 자체가 비밀을 빌더 캐시에 남길 수 있다.

@@ -7,6 +7,14 @@ build
 
 .env
 .env.*
+deploy/env.production
+deploy/postgres.env.production
+compose.override.yaml
+
+**/backups/
+**/*.dump
+**/*.dump.gz
+**/*.backup
 
 npm-debug.log*
 yarn-debug.log*

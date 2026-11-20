@@ -1,5 +1,7 @@
 # Implementation Plan: H-Log Harness Baseline
 
+2026-11-20 배포 보안 A0 완료. 운영 env·Compose override·DB 백업을 앱의 Docker 빌드 입력에서 제외하고 두 Dockerfile과 Compose 설정을 검증했다. 배포 보안 트랙의 다음 단계는 A1 `patch-next-runtime`이다. [A0 검증](../../../phases/release-artifact-security/step0.md)
+
 2026-11-19 [RAG 보완 계획](SECURITY_PERFORMANCE_REVIEW_2026-11-19.md#rag-보완-계획)을 등록했다. [근거 기반 글 작성](../../../phases/grounded-article-retrieval/index.json) 4개 step은 모두 pending이다. 작성 개선은 Step 0의 인용 대조부터, 공개 검색은 F4 Step 0의 한국어 질문 평가부터 시작한다. B1·C0의 인수 기준도 보강했다.
 
 2026-11-19 [보안·성능 검토와 실행 순서](SECURITY_PERFORMANCE_REVIEW_2026-11-19.md)에 3개 phase, 8개 pending step을 등록했다. 다음 빌드 전에 A0에서 운영 설정의 Docker 입력 제외를 먼저 검증한다. 성능 트랙의 다음 단계는 기존 F4 Step 0이며, 이번 계획의 구현과 OCI 배포는 대기 중이다.
